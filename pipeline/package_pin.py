@@ -67,8 +67,12 @@ def recency_problems(segments):
 
 SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): the render clock checks L-v 3 on these
                 "speaker",                                 # the 00:05 ET Nov 13 order, item 3
-                "trimmed_leading", "untrimmed_start")      # ruling 33 part 2 (render merged 11e361cc): only when a word
-                                                           # is trimmed, so every other pin seals as before
+                "trimmed_leading", "untrimmed_start",      # ruling 33 part 2 (render merged 11e361cc): only when a word
+                "scorer_pending")                          # is trimmed, so every other pin seals as before (ruling 49 a)
+TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
+                                                           # separate constant (a test holds them equal): the
+                                                           # integrator's check_pin_only imports this module, which
+                                                           # must never pull package.py into that process
 TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE leading word a cut may trim
 
 
@@ -99,13 +103,24 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
 def trim_problems(segments):
     """[why] for segments whose trim does not match the render's contract (ruling 33 part 2; pinned.validate_schema
     refuses anything else): "trimmed_leading" and "untrimmed_start" both present or both absent; the trimmed word's
-    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start."""
+    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start. RULING 49: (a) every trimmed clip says
+    scorer_pending: true (the clip scorer's verdict is pending at the render) and no other clip carries the key;
+    (b) at most TRIMMED_PER_PIN_MAX trimmed clips."""
     import canon
     out = []
+    n = sum("trimmed_leading" in s or "untrimmed_start" in s for s in segments)
+    if n > TRIMMED_PER_PIN_MAX:
+        out.append(f"{n} trimmed clips: at most {TRIMMED_PER_PIN_MAX} until the first is affirmed at validate "
+                   f"(ruling 49 b)")
     for i, s in enumerate(segments):
         has_w, has_s = "trimmed_leading" in s, "untrimmed_start" in s
         if not has_w and not has_s:
+            if "scorer_pending" in s:
+                out.append(f"segment {i}: scorer_pending belongs to a trimmed clip only (ruling 49 a)")
             continue
+        if s.get("scorer_pending") is not True:
+            out.append(f"segment {i}: a trimmed clip must say scorer_pending: true (ruling 49 a: the clip scorer's "
+                       f"verdict on the trimmed text is pending at the render)")
         if has_w != has_s:
             out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
             continue
@@ -226,7 +241,7 @@ def to_pin(pk, run_name):
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start") if k in s},   # ruling 33 part 2
+                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_pending") if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}

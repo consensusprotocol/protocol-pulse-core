@@ -1,0 +1,57 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+This branch builds sealed pins of short video medleys (a hook + 2-4 clips); the integrator renders them. Your role: a
+strict reviewer of how TRIMMED clips are sealed.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- Ruling 33 part 2 lets a clip that opens on ONE of but/and/so/well/now/yeah be cut one word in, when (a) the cut opens
+  in quiet (measured at the pin stage as the render measures it), (b) the render's STAND_ALONE clip scorer affirms the
+  trimmed clip, and (c) step A is re-judged on the trimmed span.
+- The render's clip scorer is gemma3:27b through Ollama on Ultron's GPU0 (run_fresh.stage_validate ->
+  story_semantics.LocalLLM). The pin-stage builder may not use any GPU. Until now the builder kept (b) STRICT
+  (TRIM_SCORER_PENDING = False): a trimmed segment failed the pin stage's STAND_ALONE, so it was never in a line-up.
+- A pin's per-segment keys are sealed in package_sha256 (package_pin.seal). SEALED_LATER keys enter the seal only
+  when the segment carries them, so older pins recompute their seal unchanged. The integrator's check_pin_only
+  imports this branch's package_pin.py. The render's pinned.validate_schema checks named keys and ignores unknown ones.
+
+The order this diff implements (ORCHESTRATOR RULING 49, 07:02 ET Nov 13, verbatim): "ITEM 42, YES: a trimmed clip may be
+sealed with the clip scorer's verdict pending at the render, because stage_validate runs before any render and a
+refusal there costs no GPU. Two conditions: (a) the pin says so in plain words (scorer_pending: true per trimmed clip);
+(b) a line-up carries at most ONE trimmed clip until the first trimmed clip has been affirmed at validate once, so one
+refusal cannot sink a line-up twice. If you can call the same scorer with the same prompt and model at the pin stage
+inside budget, do that instead and seal its verdict: say which you did."
+- Which we did: pending at the render. The same scorer (gemma3:27b, Ollama, GPU0) cannot run at the pin stage, and no
+  other box this builder may use serves that model.
+
+The change:
+1. pipeline/package.py:
+   - TRIM_SCORER_PENDING = True. stand_alone_check then judges a trimmed segment on its trimmed text with no lock
+     marker, and records the trimmed labels in scorer_pending; the sealed STAND_ALONE row says "PENDING AT THE RENDER"
+     (both unchanged code).
+   - TRIMMED_PER_LINEUP_MAX = 1, enforced in lineup_for (its inline rules), lineup_ok (used by ruling 41's swap and
+     item 44's swap), and the no-voice path's added clip.
+   - The package's trimmed segment rows carry "scorer_pending": True next to trimmed_leading / untrimmed_start.
+2. pipeline/package_pin.py:
+   - SEALED_LATER gains "scorer_pending" (sealed only when present).
+   - TRIMMED_PER_PIN_MAX = 1.
+   - to_pin copies scorer_pending.
+   - trim_problems refuses: a trimmed segment without scorer_pending: true; scorer_pending on an untrimmed segment;
+     more than TRIMMED_PER_PIN_MAX trimmed segments.
+3. tests/package/test_medley.py:
+   - The default is now pending, and the strict switch still fails closed.
+   - One trimmed clip per line-up: lineup_ok refuses two; lineup_for never picks two; the pin refuses two; the two
+     constants are equal.
+   - The pin seals scorer_pending: true on the trimmed clip only, and it is inside the seal. Refused: scorer_pending
+     false, and scorer_pending on an untrimmed clip.
+- test_medley 81 OK; every other suite OK.
+
+Check in particular:
+- that a trimmed clip can never be sealed WITHOUT "scorer_pending": true in plain words, and that no clip says pending
+  when it is not trimmed;
+- that no line-up or pin can carry two trimmed clips, through every path that builds or changes a line-up (lineup_for,
+  ruling 41's swap, item 44's swap, the no-voice added clip);
+- that pins without a trimmed clip seal exactly as before (the SEALED_LATER contract);
+- that nothing claims the scorer affirmed anything.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

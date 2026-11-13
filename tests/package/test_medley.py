@@ -810,24 +810,38 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         m, srcs = self.moment("But Bitcoin wins now.")                    # 3 kept words: no statement (glm P0-2)
         self.assertIsNone(PK.trim_variant(m, srcs))
 
-    def test_strict_by_default_and_pending_at_the_render_only_on_the_switch(self):
+    def test_pending_at_the_render_by_ruling_49_and_strict_on_the_switch(self):
         m, srcs = self.moment("But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
         v = PK.trim_variant(m, srcs)
         line = [{"text": "Bitcoin is the hardest money ever made."}, v, {"text": "Bitcoin wins."}]
-        self.assertFalse(PK.TRIM_SCORER_PENDING)                      # the default: the render's check, no scorer
+        self.assertTrue(PK.TRIM_SCORER_PENDING)                       # ruling 49 (07:02): YES
         r = PK.stand_alone_check(line)
-        self.assertFalse(r["ok"])                                     # a trimmed segment fails closed, never sealed
-        self.assertIn("no clip-scorer verdict on the trimmed text", r["rows"][1]["opener"]["why"])
-        self.assertEqual(r["scorer_pending"], [])
-        saved = PK.TRIM_SCORER_PENDING
-        try:                                                          # the orchestrator's explicit yes only
-            PK.TRIM_SCORER_PENDING = True
-            r = PK.stand_alone_check(line)
-        finally:
-            PK.TRIM_SCORER_PENDING = saved
         self.assertTrue(r["ok"], r["rows"])
         self.assertEqual(r["scorer_pending"], ["clip_01"])
         self.assertIn("PENDING AT THE RENDER", r["rows"][1]["opener"]["why"])      # stated in the sealed row
+        saved = PK.TRIM_SCORER_PENDING
+        try:                                                          # the strict switch: the render's check with
+            PK.TRIM_SCORER_PENDING = False                            # no scorer fails closed, never sealed
+            r = PK.stand_alone_check(line)
+        finally:
+            PK.TRIM_SCORER_PENDING = saved
+        self.assertFalse(r["ok"])
+        self.assertIn("no clip-scorer verdict on the trimmed text", r["rows"][1]["opener"]["why"])
+        self.assertEqual(r["scorer_pending"], [])
+
+    def test_ruling_49_one_trimmed_clip_per_line_up_and_per_pin(self):
+        self.assertEqual(PK.TRIMMED_PER_LINEUP_MAX, package_pin.TRIMMED_PER_PIN_MAX)
+        ms = [dict(pm("h", "A", 12.0)), dict(pm("x", "B", 14.0), trimmed_leading="But", untrimmed_start=0.0),
+              dict(pm("y", "C", 13.0), trimmed_leading="So", untrimmed_start=0.0), dict(pm("z", "D", 13.0))]
+        for m in ms:
+            m["hook_onset"] = {"pass": True}
+        by = {m["moment_id"]: m for m in ms}
+        self.assertEqual(PK.lineup_ok([by["h"], by["x"], by["y"]])[1], "more than 1 trimmed clip (ruling 49 b)")
+        segs = PK.lineup_for(angle(["h", "x", "y", "z"], "h"), by, need_onset=True)
+        self.assertEqual(sum(bool(m.get("trimmed_leading")) for m in segs), 1, [m["moment_id"] for m in segs])
+        two = [{"trimmed_leading": "But", "untrimmed_start": 0.0, "start": 1.0, "scorer_pending": True},
+               {"trimmed_leading": "So", "untrimmed_start": 0.0, "start": 1.0, "scorer_pending": True}]
+        self.assertIn("2 trimmed clips", package_pin.trim_problems(two)[0])
 
     def test_the_pin_seals_the_trim_and_refuses_a_malformed_one(self):
         segs = [dict(pm("h", "A", 12.0), text="Bitcoin is the hardest money ever made."),
@@ -843,19 +857,27 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         pk["gates"] = TestMedleyPackageAndPin().gates(pk)
         pin = package_pin.to_pin(spk(pk), "test")
         s1 = pin["segments"][1]
-        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"]), ("But", 0.0))
+        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"], s1["scorer_pending"]), ("But", 0.0, True))
         self.assertNotIn("trimmed_leading", pin["segments"][0])                   # untrimmed segments: unchanged
+        self.assertNotIn("scorer_pending", pin["segments"][0])                    # ruling 49 (a): per trimmed clip
         mp = pin["moments_package"]
         args = (mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"], mp["btc_screen"])
         self.assertEqual(package_pin.seal(pin["segments"], *args), mp["package_sha256"])
         other = [dict(x) for x in pin["segments"]]
         other[1]["trimmed_leading"] = "And"                                       # the trim is inside the seal
         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
-        for bad in ({"trimmed_leading": "Because"}, {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0}):
+        other[1]["trimmed_leading"], other[1]["scorer_pending"] = "But", False      # and so is scorer_pending
+        self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+        for bad in ({"trimmed_leading": "Because"}, {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
+                    {"scorer_pending": False}):                                       # ruling 49 (a) in plain words
             p = spk(pk)
             p["segments"][1] = dict(p["segments"][1], **bad)
             with self.assertRaises(package_pin.PinRefused):
                 package_pin.to_pin(p, "test")
+        p = spk(pk)
+        p["segments"][0] = dict(p["segments"][0], scorer_pending=True)                # only on a trimmed clip
+        with self.assertRaises(package_pin.PinRefused):
+            package_pin.to_pin(p, "test")
         self.assertTrue(package_pin.trim_problems([{"trimmed_leading": "But", "untrimmed_start": 0.0, "start": None}]))
         p = spk(pk)                                                       # ^ refused, never raised (glm P0-8)
         p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "untrimmed_start"}

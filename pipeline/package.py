@@ -80,11 +80,14 @@ SEARCH_USD_ESTIMATE = 10.00        # ruling 5's $1.50 / 15 min is per PACKAGE de
                                    # ceiling keeps ruling 5's ratio ($5.00 : $1.50) for calls whose vendor reports no cost
 SEARCH_WALL_S = 2400.0             # the build ends cleanly before its driver's timeout (a killed build writes no record)
 TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: the ONE leading word a cut may trim
-TRIM_SCORER_PENDING = False        # ruling 33 (b): the render's clip scorer must affirm every trimmed segment; it runs on
-                                   # GPU0, which the pin stage may not use. False (the default): the pin stage judges a
-                                   # trimmed segment as the render does with no scorer, so it fails closed and is never
-                                   # sealed. True ONLY on the orchestrator's explicit yes: it is sealed with the verdict
-                                   # pending at the render, stated in the sealed row (audit 0530: the reviewers split on L-m)
+TRIM_SCORER_PENDING = True         # ruling 33 (b): the render's clip scorer (gemma3:27b on Ultron's GPU0, which the
+                                   # pin stage may not use) must affirm every trimmed segment. RULING 49 (07:02 Nov 13):
+                                   # YES, a trimmed clip is sealed with that verdict PENDING AT THE RENDER (stage_validate
+                                   # runs before any render; a refusal there costs no GPU), stated in the sealed row and
+                                   # per clip in the pin (scorer_pending: true). False: the render's check with no scorer
+TRIMMED_PER_LINEUP_MAX = 1         # ruling 49 (b): at most ONE trimmed clip per line-up until the first trimmed clip has
+                                   # been affirmed at validate once (the integrator says when): one refusal cannot sink a
+                                   # line-up twice. package_pin.TRIMMED_PER_PIN_MAX holds the pin to the same number
 SWAP_TOP = 10                      # candidates read per swapped place, best by score first, after the place's own
                                    # rules (a short clip only at the last place): audit 0510 C1, glm P1-3
 NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
@@ -306,8 +309,10 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "time_sensitive": bool(time_sensitive(m)),          # ruling 1 (22:40): L-v 3 on the render
                         "source_published_at": utc_z(m.get("published_at")),  # clock, both sealed in the pin
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
-                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
-                           if m.get("trimmed_leading") else {})}                      # ruling 33 part 2, sealed
+                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"],
+                            "scorer_pending": bool(TRIM_SCORER_PENDING)}   # ruling 49 (a): the clip scorer's verdict
+                           if m.get("trimmed_leading") else {})}   # on the trimmed text is pending at the render
+                                                                   # (strict: False, which the pin refuses)
                        for lb, m in zip(labels(len(segs)), segs)],
           "vo": dict(vo, signoff=signoff(segs, ctx)),
           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
@@ -736,6 +741,8 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
         return False, "one segment per channel"
     if sum("price_prediction" in m.get("risk", []) for m in segs) > PRICE_PREDICTIONS_MAX:
         return False, "price predictions"
+    if sum(bool(m.get("trimmed_leading")) for m in segs) > TRIMMED_PER_LINEUP_MAX:
+        return False, f"more than {TRIMMED_PER_LINEUP_MAX} trimmed clip (ruling 49 b)"
     if any(m["duration_s"] < SHORT_CLIP_S for m in clips[:-1]):
         return False, "a short clip that is not last"
     dur = sum(m["duration_s"] for m in segs)
@@ -821,6 +828,8 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
                                                      len({m["video_id"] for m in (h, *combo)}) == n + 1):
                     continue
                 if sum("price_prediction" in m.get("risk", []) for m in (h, *combo)) > PRICE_PREDICTIONS_MAX:
+                    continue
+                if sum(bool(m.get("trimmed_leading")) for m in (h, *combo)) > TRIMMED_PER_LINEUP_MAX:   # ruling 49 b
                     continue
                 order = sorted(combo, key=lambda m: pos[m["moment_id"]])
                 if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
@@ -1405,6 +1414,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 cand = [segs[0]] + sorted(segs[1:] + [m], key=lambda x: pos.get(x["moment_id"], 99))
                 if len(cand) - 1 > LY_CLIPS[1] or [x for x in cand[1:-1] if x["duration_s"] < SHORT_CLIP_S] or \
                         sum("price_prediction" in x.get("risk", []) for x in cand) > PRICE_PREDICTIONS_MAX or \
+                        sum(bool(x.get("trimmed_leading")) for x in cand) > TRIMMED_PER_LINEUP_MAX or \
                         not nv_lo <= sum(x["duration_s"] for x in cand) <= nv_hi:
                     continue
                 order, added = cand, mid
