@@ -69,7 +69,7 @@ def fit_label_sizes(names, handles, xs, frame_w, name_size, handle_size, font_bo
             fits(handles, ImageFont.truetype(font_reg, handle_size), LABEL_MIN_GAP * scale):
         return name_size, handle_size
     for ns in range(name_size - 1, int(math.ceil(name_size * LABEL_MIN_SCALE)) - 1, -1):
-        hs = max(1, int(round(handle_size * ns / name_size)))
+        hs = max(int(math.ceil(handle_size * LABEL_MIN_SCALE)), int(round(handle_size * ns / name_size)))  # batch 42 F1
         if fits(names, ImageFont.truetype(font_bold, ns), LABEL_FIT_GAP * scale) and \
                 fits(handles, ImageFont.truetype(font_reg, hs), LABEL_FIT_GAP * scale):
             return ns, hs

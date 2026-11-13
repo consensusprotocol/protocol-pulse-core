@@ -106,6 +106,15 @@ class TestCreditsLabels(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "do not fit without touching"):
             S.fit_label_sizes(names, [""] * 4, row_xs(4), 1920, 46, 32, BOLD, REG)
 
+    def test_no_size_goes_under_the_60_percent_floor(self):
+        """Audit batch 42 (deepseek F1): at the smallest name size the handle's rounding stays >= 60 % too."""
+        names = ["W" * 9, "W" * 9, "W" * 9]                            # needs about 61 % at the 16:9 spacing
+        ns, hs = S.fit_label_sizes(names, ["@" + "h" * 10] * 3, row_xs(3), 1920, 46, 32, BOLD, REG)
+        self.assertGreaterEqual(ns, 46 * S.LABEL_MIN_SCALE)
+        self.assertGreaterEqual(hs, 32 * S.LABEL_MIN_SCALE)
+        for k in range(28, 46):                                       # every name size the loop can try
+            self.assertGreaterEqual(max(int(S.math.ceil(32 * S.LABEL_MIN_SCALE)), int(round(32 * k / 46))), 19.2)
+
     def test_handles_are_checked_too(self):
         names = ["A", "B", "C"]
         handles = ["@" + "h" * 30, "@" + "h" * 30, "@c"]
