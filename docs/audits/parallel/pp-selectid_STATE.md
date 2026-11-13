@@ -1,4 +1,37 @@
-SPEND (ruling 48): $5.95 of $12.00 vendor-reported after the 07:36 build (+ the estimate where a vendor reports none; no build starts at $10). 07:48 ET: no pin yet; the chain keeps building on each word-pass cycle. Binding now: the clips-alone verdict rates the HOOK 3 (item 3, asked 05:35), and angles that form no line-up (Proposal 1). Three rulings asked below.
+SPEND (ruling 48): $5.97 of $12.00 vendor-reported (08:28 ET; no build starts at $10). No pin yet. 52 and 53 are committed and rebuilt; 54 is in audit. QUESTION: THE COHERENCE VERDICT AFTER THE TAKEAWAY STILL RATES THE HOOK ON 'HOW MUCH IT ADVANCES THE THROUGH-LINE' (BAR 4, MIN OVER ALL CLIPS): SHOULD RULING 52'S HOOK RATING APPLY THERE TOO, OR STAY CLIPS-ALONE ONLY?
+
+## 08:28 ET: rulings 52-55, in your order
+
+- **52 (88aa6d9c, audit 0815, 2 cycles):** the clips-alone verdict rates the hook on its own job, in three parts the
+  judge answers separately, each 1-5: scroll (its first 2-3 s stop a scroll), alone (it stands alone), setup (a
+  viewer wants the next clip). The rating is DERIVED as the lowest part, so every part must reach the bar of 4. The
+  clips and joins are judged as before.
+  - **Its build (08:18, ledger_20261113_131801):** no package. Both hooks failed on their own job:
+    | angle | hook | scroll | alone | setup | derived |
+    |---|---|---|---|---|---|
+    | 2 | Bitcoin Mechanic: "Bitcoin on the Blake 2B chain is incredible..." | 4 | 5 | 2 | 2 |
+    | 3 | The Bitcoin Layer: "Bitcoin started turning though before liquidity turned red..." | 2 | 2 | 1 | 1 |
+  - In the same verdicts, What Bitcoin Did's clip rated 3; angle 3 had no through-line ("none").
+  - **The question on line 1:** the coherence verdict that runs after the takeaway (COHERENCE_PROMPT) still rates
+    EVERY clip, the hook included, on the through-line, and its pass rule is the min over all of them. Ruling 52 names
+    the clips-alone verdict only, so I left that one unchanged. A hook rated 3 there would still end a line-up after
+    its writes.
+- **53 (b8cc4c4d, audit 0816, 2 cycles):** a speech re-posted by a second channel is ONE moment before step A. The
+  match is equal text after normalisation, or 80 % of the words TIME-aligned: the same words in order at one clock
+  offset. Text-only alignment was my first reading, and the audit showed it merges two speakers saying near-identical
+  words. The earliest publisher's is kept and credited; each copy is recorded. On the 07:14 inputs: the 2 Strategy
+  re-posts of CNBC Television. Its build started 08:27.
+- **54 (in audit 0830):** the pool completes an angle that cannot form its first line-up, and the angle writer is
+  told each clip's limits ("may only play LAST (under 8 s)", "cannot open (never the hook)").
+- **55:** docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.md (+ .jsonl) holds every missed 300 s deadline (7 with
+  prompt sizes, plus 1 from Nov 12) and every Heimdall call of 240 s or more (17).
+  - The pattern: deepseek writes 9.4-15k reasoning tokens on a 1k-token prompt for a reply capped at 3k, at about
+    42 tokens/s.
+  - The router logging future misses to the .jsonl comes next (its own audit).
+  - The integrator's GPU0 judge as my pre-filter: waiting for its contract.
+- **The build chain:** I stopped it at 08:17 and run each rebuild myself right after each commit, so every ruling gets
+  its own build. It restarts after 54.
+
 
 ## 07:48 ET: the 07:36 build (code 60f2eaed: rulings 48 + 49 + the one-token fix): no package
 
