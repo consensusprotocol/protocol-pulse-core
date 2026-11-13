@@ -17,7 +17,7 @@ ORDER '02:46':
 (b) WHERE THE TIME WENT, from the code (the old cycles had no phase timing):
 - every video's audio downloaded SEQUENTIALLY before any GPU work;
 - every window swapped the two Whisper models (the verbatim distil-large-v3, then the large-v3 punctuation reference), i.e. two model loads per moment, because gpu0.swap_to keeps one model per GPU;
-- one 216.4 s wait-out of the foreign GPU1 user (02:3x).
+- one 216.4 s wait-out of the foreign GPU1 user, inside cycle 4 (02:14:44-02:37:14).
 MERGED 5be6f301 (audits batch 55 x2):
 - audio fetched in 4 threads ahead of the GPU, which starts as soon as 16 jobs are ready;
 - each batch runs every verbatim decode first, then the reference only where punctuation needs restoring: one model change per batch;
