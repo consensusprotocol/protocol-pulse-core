@@ -87,8 +87,8 @@ class TestCreditsLabels(unittest.TestCase):
                 d.text((cx - (bb[2] - bb[0]) // 2, 20), text, fill=255, font=font)
                 cols = [x for x in range(1920) if any(im.getpixel((x, y)) for y in range(120))]
                 left, right = S._ink(font, text, cx)
-                self.assertTrue(left <= cols[0] <= left + 4 and right - 5 <= cols[-1] <= right - 1,
-                                (text, cols[0], cols[-1], left, right))
+                self.assertTrue(left <= cols[0] <= left + 4 and right - 1 - 4 <= cols[-1] <= right - 1,   # batch 42
+                                (text, cols[0], cols[-1], left, right))                          # c2: 4 px both sides
 
     def test_a_9x16_stack_with_a_long_label_shrinks_every_label_inside_the_frame(self):
         """Audit batch 42 (glm F3): several labels on the 9:16 stack (one per line, so only the frame edge applies)."""
@@ -108,12 +108,21 @@ class TestCreditsLabels(unittest.TestCase):
 
     def test_no_size_goes_under_the_60_percent_floor(self):
         """Audit batch 42 (deepseek F1): at the smallest name size the handle's rounding stays >= 60 % too."""
-        names = ["W" * 9, "W" * 9, "W" * 9]                            # needs about 61 % at the 16:9 spacing
-        ns, hs = S.fit_label_sizes(names, ["@" + "h" * 10] * 3, row_xs(3), 1920, 46, 32, BOLD, REG)
-        self.assertGreaterEqual(ns, 46 * S.LABEL_MIN_SCALE)
-        self.assertGreaterEqual(hs, 32 * S.LABEL_MIN_SCALE)
-        for k in range(28, 46):                                       # every name size the loop can try
-            self.assertGreaterEqual(max(int(S.math.ceil(32 * S.LABEL_MIN_SCALE)), int(round(32 * k / 46))), 19.2)
+        hit = None                                                     # batch 42 c2: drive the code to its floor
+        for n in range(6, 14):                                        # names that fit only at the smallest size
+            for tail in range(0, 8):
+                names = ["W" * n + "i" * tail] * 3
+                try:
+                    ns, hs = S.fit_label_sizes(names, ["@h"] * 3, row_xs(3), 1920, 46, 32, BOLD, REG)
+                except RuntimeError:
+                    continue
+                if ns == 28:                                          # 28 / 46 = 60.9 %: round(32 * 28 / 46) = 19
+                    hit = (names[0], ns, hs)
+                    break
+            if hit:
+                break
+        self.assertIsNotNone(hit, "no input reached the 28 px floor")
+        self.assertEqual(hit[2], 20, hit)                              # the handle stays at ceil(32 * 0.6) = 20
 
     def test_handles_are_checked_too(self):
         names = ["A", "B", "C"]
