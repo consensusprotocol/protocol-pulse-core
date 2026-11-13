@@ -110,3 +110,75 @@ class TestAutoSelectionScreen(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+MINER_SCREEN = (r"\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|"
+                r"cold storage|microstrategy|mstr|ibit|saylor)\b")       # pp-ingest pipeline/ingest/mine.py BTC_SCREEN
+
+
+class TestRuling34(unittest.TestCase):
+    """Ruling 34 (orchestrator 2026-11-13 '03:42'): for a moments package the TOPIC test per segment is the miner's
+    about-Bitcoin screen carried on the pin; the MEDLEY names Bitcoin once at least; the story path is unchanged."""
+    import re as _re
+    SCREEN = _re.compile(MINER_SCREEN, _re.I)
+
+    def edl(self, hook, *clips):
+        return {"hook": {"text": hook, "channel": "A"},
+                "clips": [{"index": i + 1, "text": t, "channel": f"C{i}"} for i, t in enumerate(clips)]}
+
+    def test_a_clip_on_the_screen_passes_without_saying_bitcoin_when_the_medley_names_it(self):
+        e = self.edl(DATADASH, "The halving cut the miners' reward in half, and the hash rate kept climbing.")
+        r = S.check_edl(e, screen=self.SCREEN)
+        self.assertTrue(r["ok"], r)
+        self.assertIn("about Bitcoin by the miner's screen ('halving')", r["rows"][1]["topic"]["why"])
+        self.assertEqual(r["medley_names_bitcoin"]["segments"], ["hook"])
+
+    def test_a_clip_off_the_screen_still_fails(self):
+        e = self.edl(DATADASH, "The stock market had its worst week since the spring.")
+        r = S.check_edl(e, screen=self.SCREEN)
+        self.assertFalse(r["ok"])
+        self.assertFalse(r["rows"][1]["topic"]["pass"])
+
+    def test_a_medley_that_never_says_bitcoin_fails(self):
+        e = self.edl("The halving is the one schedule nobody can change.",
+                     "Michael Saylor keeps buying, quarter after quarter.")
+        r = S.check_edl(e, screen=self.SCREEN)
+        self.assertTrue(all(row["pass"] for row in r["rows"]))              # every segment passes the screen
+        self.assertFalse(r["ok"])                                            # but the medley never names Bitcoin
+        self.assertEqual(r["medley_names_bitcoin"]["why"],
+                         "no segment names Bitcoin in the speaker's own words (ruling 34)")
+
+    def test_without_a_screen_every_segment_names_bitcoin_as_before(self):
+        e = self.edl(DATADASH, "The halving cut the miners' reward in half, and the hash rate kept climbing.")
+        r = S.check_edl(e)
+        self.assertFalse(r["ok"])
+        self.assertNotIn("medley_names_bitcoin", r)
+
+    def test_the_opener_rule_is_unchanged_by_the_screen(self):
+        e = self.edl(DATADASH, "But the halving cut the miners' reward in half.")
+        r = S.check_edl(e, screen=self.SCREEN)                              # no scorer: a 'but' opener fails closed
+        self.assertFalse(r["rows"][1]["opener"]["pass"])
+
+
+class TestMomentsScreen(unittest.TestCase):
+    """run_fresh.moments_screen: the carried screen only for a moments package bound to 'bitcoin'; anything else is
+    None, so every segment must name Bitcoin (never looser)."""
+
+    def bound(self, **extra):
+        return {"moments_package_sha256": "a" * 64, "mode": "pinned", "topic": "bitcoin",
+                "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True}, **extra}
+
+    def test_the_screen_is_read_only_for_a_bound_moments_package(self):
+        import run_fresh as rf
+        sc, why = rf.moments_screen(self.bound(moments_btc_screen={"pattern": MINER_SCREEN, "source": "mine.py@x"}))
+        self.assertTrue(sc.search("stack sats") and not sc.search("the nasdaq fell"))
+        self.assertEqual(why, "the pin's btc_screen (mine.py@x)")
+        for e in ({"topic": "bitcoin", "moments_btc_screen": {"pattern": MINER_SCREEN}},          # not a moments EDL
+                  self.bound(topic="bitcoin cash", moments_btc_screen={"pattern": MINER_SCREEN}),  # not bound
+                  self.bound(),                                                                    # no screen
+                  self.bound(moments_btc_screen={"pattern": ""}),
+                  self.bound(moments_btc_screen={"pattern": "x" * 501}),
+                  self.bound(moments_btc_screen={"pattern": "(unclosed"}),
+                  self.bound(moments_btc_screen="bitcoin")):
+            with self.subTest(e=str(e)[:60]):
+                self.assertIsNone(rf.moments_screen(e)[0])

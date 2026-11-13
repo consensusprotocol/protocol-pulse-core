@@ -96,9 +96,28 @@ def topical(kind, text, prev_text=None, subject=("bitcoin", "btc")):
                    f"previous segment's claim (it opens on {first!r}): context, not a clip")
 
 
-def check_edl(edl, rate=None, subject=("bitcoin", "btc")):
+def topical_screen(kind, text, prev_text, screen):
+    """Ruling 34 (orchestrator 2026-11-13 '03:42'), moments packages only: a segment is about Bitcoin when the miner's
+    about-Bitcoin screen (BTC_SCREEN, carried on the pin) matches its own words, or (a clip only) it completes the
+    previous segment's claim exactly as topical() allows. The medley-level rule (one segment names Bitcoin) is
+    check_edl's."""
+    m = screen.search(text or "")
+    if m:
+        return True, f"about Bitcoin by the miner's screen ({m.group(0)!r})"
+    if kind == "hook":
+        return False, "the hook does not pass the miner's about-Bitcoin screen"
+    ok, why = topical(kind, text, prev_text, ("bitcoin", "btc"))
+    if ok:
+        return ok, why
+    return False, f"does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
+
+
+def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
-    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed."""
+    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed.
+    screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
+    and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
+    speaker's own words. screen None: every segment names the subject, as before (the story path)."""
     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
     need = [(label, s) for label, kind, s in segs if kind == "clip" and _words(s.get("text"))[:1]
             and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS)]
@@ -114,10 +133,19 @@ def check_edl(edl, rate=None, subject=("bitcoin", "btc")):
         sc = scores.get(label)
         score, fault = (sc[0], sc[2]) if sc else (None, None)
         o_ok, o_why = opener(kind, s.get("text"), score, fault)
-        t_ok, t_why = topical(kind, s.get("text"), prev, subject)
+        t_ok, t_why = topical_screen(kind, s.get("text"), prev, screen) if screen is not None else \
+            topical(kind, s.get("text"), prev, subject)
         rows.append({"segment": label, "channel": s.get("channel"), "first_words": " ".join((s.get("text") or "").split()[:6]),
                      "opener": {"pass": o_ok, "why": o_why}, "topic": {"pass": t_ok, "why": t_why},
                      **({"scorer": {"score": sc[0], "reason": sc[1], "fault": sc[2]}} if sc else {}),
                      "pass": o_ok and t_ok})
         prev = s.get("text")
-    return {"ok": all(r["pass"] for r in rows), "rows": rows, "rate_error": rate_error, "subject": sorted(subject)}
+    out = {"ok": all(r["pass"] for r in rows), "rows": rows, "rate_error": rate_error, "subject": sorted(subject)}
+    if screen is not None:                                   # ruling 34: the MEDLEY names Bitcoin, once at least
+        named = [r["segment"] for (label, kind, s), r in zip(segs, rows) if BITCOIN.search(s.get("text") or "")]
+        out["medley_names_bitcoin"] = {"pass": bool(named), "segments": named,
+                                       "why": f"named by {', '.join(named)}" if named else
+                                       "no segment names Bitcoin in the speaker's own words (ruling 34)"}
+        out["screen"] = screen.pattern
+        out["ok"] = out["ok"] and bool(named)
+    return out
