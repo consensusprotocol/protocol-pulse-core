@@ -1,0 +1,99 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "DcUbBkyeh9M",
+    "channel": "Simply Bitcoin",
+    "fade_out_ms": 10,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "A",
+    "last_word_expected": "debate.",
+    "selection_lock_sha256": "3873cae48e0ce6a46620a42b4dee2b7e9601c0e694e3690f5b53d95549c18df0",
+    "pause_in": {
+      "start": 14.52,
+      "end": 14.61,
+      "ms": 90
+    },
+    "pause_out": {
+      "start": 31.38,
+      "end": 31.49,
+      "ms": 110
+    },
+    "cut_in": 14.52,
+    "cut_out": 31.46,
+    "cut_duration": 16.94,
+    "valley_in": false,
+    "valley_out": true,
+    "lead_in_pad_s": 0.0,
+    "hook_lead": {
+      "need_ms": 80,
+      "planned_cut_in": 14.52,
+      "planned_lead_ms": 90,
+      "cut_in": 14.52,
+      "fade_in_ms": 83,
+      "pad_s": 0.0,
+      "lead_ms": 90,
+      "how": "the planned cut keeps the hook's lead"
+    }
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "GXWj2JO9bz8",
+    "channel": "CNBC Television",
+    "fade_out_ms": 10,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "I",
+    "last_word_expected": "world.",
+    "selection_lock_sha256": "95ea7578823e392690b7ddaf1d85a298324fb95e95c3c04015e08061b0ea8992",
+    "pause_in": {
+      "start": 14.16,
+      "end": 15.35,
+      "ms": 1190
+    },
+    "pause_out": {
+      "start": 29.19,
+      "end": 29.67,
+      "ms": 480
+    },
+    "cut_in": 15.1,
+    "cut_out": 29.51,
+    "cut_duration": 14.41,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0,
+    "contract_retries": [
+      {
+        "cut_out": 29.51,
+        "result": "PASS"
+      }
+    ]
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "mKNAcOFMYD4",
+    "channel": "Scott Melker",
+    "fade_out_ms": 10,
+    "fade_in_ms": 20,
+    "verified": true,
+    "first_word_expected": "my",
+    "last_word_expected": "bitcoin.",
+    "selection_lock_sha256": "a2b78477ea4ae0e6d1afa87087817e73c66e26ee9a28c2a26d45a9dc6bd2cf56",
+    "pause_in": {
+      "start": 15.29,
+      "end": 15.53,
+      "ms": 240
+    },
+    "pause_out": {
+      "start": 24.29,
+      "end": 24.85,
+      "ms": 560
+    },
+    "cut_in": 15.29,
+    "cut_out": 24.59,
+    "cut_duration": 9.3,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0
+  }
+]

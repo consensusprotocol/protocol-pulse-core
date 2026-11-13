@@ -1,0 +1,55 @@
+{
+  "format": "16x9",
+  "segments": [
+    {
+      "label": "hook",
+      "start": 0.0,
+      "end": 16.958,
+      "type": "talking_head",
+      "first_word": "A",
+      "last_word": "debate.",
+      "layout": "screenshare",
+      "source_faces": 1
+    },
+    {
+      "label": "clip_01",
+      "start": 16.958,
+      "end": 31.375,
+      "type": "talking_head",
+      "first_word": "I",
+      "last_word": "world.",
+      "layout": "single",
+      "source_faces": 1
+    },
+    {
+      "label": "clip_02",
+      "start": 31.375,
+      "end": 40.708,
+      "type": "talking_head",
+      "first_word": "my",
+      "last_word": "bitcoin.",
+      "layout": "2face",
+      "source_faces": 2
+    },
+    {
+      "label": "vo_bridge_01",
+      "start": 40.708,
+      "end": 49.375,
+      "type": "vo",
+      "text": "No single owner means value tracks what people build together. That is liberty, and it keeps working quietly."
+    },
+    {
+      "label": "shoutout",
+      "start": 49.375,
+      "end": 58.5,
+      "type": "shoutout"
+    },
+    {
+      "label": "outro",
+      "start": 58.5,
+      "end": 62.958,
+      "type": "outro"
+    }
+  ],
+  "shoutout_start": 49.375
+}

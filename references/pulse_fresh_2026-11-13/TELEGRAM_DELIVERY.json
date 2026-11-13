@@ -1,0 +1,41 @@
+{
+  "option": null,
+  "authorised": true,
+  "attestation_sha256": "0755e6d3bbc0026981dc89cd777b3418baaa282b234330feb7ba2e92bcb3431b",
+  "status": "complete",
+  "messages": [
+    {
+      "key": "video:16x9",
+      "message_id": 67844,
+      "format": "16x9",
+      "caption": "HOLD FOR APPROVAL - all release gates passed, no waivers\npinned_20261113_211048 | 16x9 1920x1080 | 63.0 s\nStory: bitcoin\nClips: Simply Bitcoin, CNBC Television, Scott Melker",
+      "sha256": "b348444cbfe411b874aef0e2da49778f15c0b6ef206257d1434343dd70a27d56"
+    },
+    {
+      "key": "video:9x16",
+      "message_id": 67845,
+      "format": "9x16",
+      "caption": "HOLD FOR APPROVAL - all release gates passed, no waivers\npinned_20261113_211048 | 9x16 1080x1920 | 63.0 s\nStory: bitcoin\nClips: Simply Bitcoin, CNBC Television, Scott Melker\n9:16 SAFE FRAME hook (Simply Bitcoin): layout=screen 10.21-14.00 s",
+      "sha256": "f56391b65a7d84e713e86b8405f648e71744bf0cce4bceab1553520fee8508ca"
+    },
+    {
+      "key": "sheet:16x9",
+      "message_id": 67846,
+      "sheet": "contact_sheet_16x9.jpg",
+      "as": "photo"
+    },
+    {
+      "key": "sheet:9x16",
+      "message_id": 67847,
+      "sheet": "contact_sheet_9x16.jpg",
+      "as": "photo"
+    },
+    {
+      "key": "kit",
+      "message_id": 67848,
+      "publish_kit": "SUGGESTED TITLE: bitcoin | Pulse Check\n\nDESCRIPTION:\nbitcoin. Every clip in this Pulse Check is a creator's own words; go follow them:\n- Simply Bitcoin @SimplyBitcoin: https://www.youtube.com/@SimplyBitcoin (clip from https://www.youtube.com/watch?v=DcUbBkyeh9M)\n- CNBC Television @CNBCtelevision: https://www.youtube.com/@CNBCtelevision (clip from https://www.youtube.com/watch?v=GXWj2JO9bz8)\n- Scott Melker @ScottMelker: https://www.youtube.com/@ScottMelker (clip from https://www.youtube.com/watch?v=mKNAcOFMYD4)\n\nSPEAKERS (for tags; the builder's sealed record, never a guess):\n- hook (Simply Bitcoin): speaker unknown (both the host and the guests speak in this episode, and nothing in or around the clip shows which one this is)\n  named by the source: Michael Saylor (guest): \"Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosi...\"\n  named by the source: Arthur Hayes (guest): \"Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosi...\"\n- clip 1 (CNBC Television): speaker unknown (source lines name only Phong Le but a title or description naming a guest does NOT show who speaks a given clip; tran...)\n  named by the source: Phong Le (guest): \"Phong Le, Strategy CEO, joins 'Power Lunch' to discuss Jensen Huang's resignation, the midterm elections, crypto, and more.\"\n- clip 2 (Scott Melker): speaker unknown (both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is)\n  named by the source: Scott Melker (host): \"channel: Scott Melker\"\n  named by the source: Mark Yusko (guest): \"title: Wall Street's Bitcoin Bet Has A Hidden Problem l Mark Yusko\"\n\nFIRST COMMENT:\ncredits: @SimplyBitcoin @CNBCtelevision @ScottMelker\n\ud83e\udde1"
+    }
+  ],
+  "unknown": [],
+  "in_flight": null
+}

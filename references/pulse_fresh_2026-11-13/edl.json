@@ -1,0 +1,371 @@
+{
+  "topic": "bitcoin",
+  "angle": "Pinned: No single owner controls the bitcoin network",
+  "hook": {
+    "video_id": "DcUbBkyeh9M",
+    "channel": "Simply Bitcoin",
+    "handle": "@SimplyBitcoin",
+    "video_title": "",
+    "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+    "first_word": "A",
+    "last_word": "debate.",
+    "word_start": 14.5,
+    "word_end": 31.18,
+    "duration": 16.68,
+    "time_coords": "source_file",
+    "source_window_offset_s": 222.0,
+    "pinned": {
+      "start": 14.688,
+      "end": 31.308,
+      "input_start": 236.688,
+      "input_end": 253.308,
+      "input_time_coords": "youtube"
+    },
+    "cut_out": 31.308,
+    "fade_out_ms": 30,
+    "selection_lock": {
+      "schema": "pulse.selection_lock.v1",
+      "video_id": "DcUbBkyeh9M",
+      "transcript_sha256": "6e5191946fa99f770c850c39ee184cb42d7e03ffb32094e557bf9397eee74a7d",
+      "i0": 49,
+      "i1": 98,
+      "first_word": "A",
+      "last_word": "debate.",
+      "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+      "n_words": 50,
+      "selected_text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+      "selected_window": [
+        236.688,
+        253.308
+      ],
+      "align_ratio": 0.99,
+      "created_by": "pinned approved_text",
+      "sha256": "3873cae48e0ce6a46620a42b4dee2b7e9601c0e694e3690f5b53d95549c18df0"
+    },
+    "vertical_layout": {
+      "shots": [
+        {
+          "start": 0.0,
+          "end": 2.9583,
+          "class": "stack2",
+          "flagged": false
+        },
+        {
+          "start": 2.9583,
+          "end": 10.2083,
+          "class": "single",
+          "flagged": false
+        },
+        {
+          "start": 10.2083,
+          "end": 14.0,
+          "class": "screen",
+          "flagged": true
+        },
+        {
+          "start": 14.0,
+          "end": 16.96,
+          "class": "single",
+          "flagged": false
+        }
+      ],
+      "flagged": true
+    }
+  },
+  "clips": [
+    {
+      "video_id": "GXWj2JO9bz8",
+      "channel": "CNBC Television",
+      "handle": "@CNBCtelevision",
+      "video_title": "",
+      "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+      "first_word": "I",
+      "last_word": "world.",
+      "word_start": 15.22,
+      "word_end": 28.98,
+      "duration": 13.76,
+      "time_coords": "source_file",
+      "source_window_offset_s": 109.0,
+      "pinned": {
+        "start": 15.157,
+        "end": 29.097,
+        "input_start": 124.157,
+        "input_end": 138.097,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 29.097,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "GXWj2JO9bz8",
+        "transcript_sha256": "ba50f68b91f4a7526eca5ca75d707ffd8d7312345c50f91892f76e331eab87e2",
+        "i0": 58,
+        "i1": 97,
+        "first_word": "I",
+        "last_word": "world.",
+        "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+        "n_words": 40,
+        "selected_text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+        "selected_window": [
+          124.157,
+          138.097
+        ],
+        "align_ratio": 1.0,
+        "created_by": "pinned approved_text",
+        "sha256": "95ea7578823e392690b7ddaf1d85a298324fb95e95c3c04015e08061b0ea8992"
+      },
+      "index": 1,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 14.422,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    },
+    {
+      "video_id": "mKNAcOFMYD4",
+      "channel": "Scott Melker",
+      "handle": "@ScottMelker",
+      "video_title": "",
+      "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+      "first_word": "my",
+      "last_word": "bitcoin.",
+      "word_start": 15.26,
+      "word_end": 24.06,
+      "duration": 8.8,
+      "time_coords": "source_file",
+      "source_window_offset_s": 740.0,
+      "pinned": {
+        "start": 15.454,
+        "end": 24.214,
+        "input_start": 755.454,
+        "input_end": 764.214,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 24.214,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "mKNAcOFMYD4",
+        "transcript_sha256": "0f8a56f9645264fa9d5e7ec5c48ee2b5790205e3506127ccba89d3a4a6d4897f",
+        "i0": 32,
+        "i1": 73,
+        "first_word": "my",
+        "last_word": "bitcoin.",
+        "text": "my biggest fear is that i go to the bank and i punch in my code and the money's not there because the bank owns the money and they could just take it from me. and that's why that's why we bitcoin.",
+        "n_words": 42,
+        "selected_text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+        "selected_window": [
+          755.454,
+          764.214
+        ],
+        "align_ratio": 0.988,
+        "created_by": "pinned approved_text",
+        "sha256": "a2b78477ea4ae0e6d1afa87087817e73c66e26ee9a28c2a26d45a9dc6bd2cf56"
+      },
+      "index": 2,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 9.334,
+            "class": "stack2",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    }
+  ],
+  "vo": {
+    "intro": null,
+    "bridges": [
+      {
+        "text": "No single owner means value tracks what people build together. That is liberty, and it keeps working quietly.",
+        "after_clip": 2
+      }
+    ]
+  },
+  "total_clip_duration": 39.24,
+  "mode": "pinned",
+  "pinned_story_id": "moments-ledger_20261113_183302-0c68b589",
+  "title": "No single owner controls the bitcoin network",
+  "caption": "bitcoin is not a partisan issue. no ceo or committee keeps its rules, thousands of computers do, and that is financial freedom.",
+  "package_type": "moments",
+  "moments_package_sha256": "0c68b589371297c066f4ad16576592e8ee0a125383b58b5713db6e654d05769d",
+  "moments_package_pin_sha256": "ec593efca9cfd1b0661774ea6d7a86fd572e956229ecdc73e285261640d36533",
+  "moments_checks": {
+    "vo_fidelity_ok": true,
+    "context_integrity_ok": true,
+    "derived_from": "gates (every required row exactly PASS, checked above)",
+    "models": {
+      "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+      "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+      "medley": "xai:grok-4.20-0309-reasoning",
+      "fidelity_verdict": "xai:grok-4.20-0309-reasoning; the caption alone: xai:grok-4.20-0309-reasoning (ruling 65)",
+      "context": {
+        "A": {
+          "hook": "xai:grok-4.20-0309-reasoning",
+          "clip_01": "xai:grok-4.20-0309-reasoning",
+          "clip_02": "xai:grok-4.20-0309-reasoning"
+        },
+        "B0": "xai:grok-4.20-0309-reasoning",
+        "B": "xai:grok-4.20-0309-reasoning",
+        "C": "xai:grok-4.20-0309-reasoning"
+      },
+      "coherence": "xai:grok-4.20-0309-reasoning"
+    }
+  },
+  "moments_sources_30s_before": [
+    "https://www.youtube.com/watch?v=DcUbBkyeh9M&t=206s",
+    "https://www.youtube.com/watch?v=GXWj2JO9bz8&t=94s",
+    "https://www.youtube.com/watch?v=mKNAcOFMYD4&t=725s"
+  ],
+  "moments_bridge": null,
+  "moments_btc_screen": {
+    "pattern": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b",
+    "source": "pp-ingest pipeline/ingest/mine.py@8e6afb61"
+  },
+  "moments_gates": {
+    "vo_fidelity_deterministic": {
+      "status": "PASS",
+      "by": "code (vo_fidelity.check_deterministic)",
+      "replayed": false,
+      "n": 1
+    },
+    "vo_fidelity_verdict": {
+      "status": "PASS",
+      "by": "xai:grok-4.20-0309-reasoning; the caption alone: xai:grok-4.20-0309-reasoning (ruling 65)",
+      "replayed": false,
+      "n": 1
+    },
+    "duplicate": {
+      "status": "PASS",
+      "by": "code (package.duplicates)",
+      "replayed": false,
+      "n": 1
+    },
+    "price_now": {
+      "status": "PASS",
+      "by": "code (vo_fidelity.price_now)",
+      "replayed": false,
+      "n": 1
+    },
+    "runtime": {
+      "status": "PASS",
+      "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+      "replayed": false,
+      "n": 1
+    },
+    "r4": {
+      "status": "PASS",
+      "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+      "replayed": false,
+      "n": 1
+    },
+    "context_a": {
+      "status": "PASS",
+      "by": [
+        "xai:grok-4.20-0309-reasoning"
+      ],
+      "replayed": false,
+      "n": 3
+    },
+    "context_b": {
+      "status": "PASS",
+      "by": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "n": 1
+    },
+    "context_c": {
+      "status": "PASS",
+      "by": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "n": 1
+    },
+    "exclusion": {
+      "status": "PASS",
+      "by": [
+        "xai:grok-4.20-0309-reasoning"
+      ],
+      "replayed": false,
+      "n": 3
+    },
+    "second_pass": {
+      "status": "PASS",
+      "by": [
+        "elevenlabs_stt:scribe_v1"
+      ],
+      "replayed": false,
+      "n": 3
+    },
+    "cuttable": {
+      "status": "PASS",
+      "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+      "replayed": false,
+      "n": 3
+    },
+    "coherence": {
+      "status": "PASS",
+      "by": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "n": 1
+    },
+    "medley": {
+      "status": "PASS",
+      "by": "xai:grok-4.20-0309-reasoning",
+      "replayed": false,
+      "n": 1,
+      "flagged": []
+    },
+    "ly_shape": {
+      "status": "PASS",
+      "by": "code (package.ly_shape, L-y)",
+      "replayed": false,
+      "n": 1,
+      "why": []
+    },
+    "house_style": {
+      "status": "PASS",
+      "by": "code (house_style.lint_lines, ruling 6)",
+      "replayed": false,
+      "n": 1,
+      "why": []
+    },
+    "hook_onset": {
+      "status": "PASS",
+      "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+      "replayed": false,
+      "n": 1,
+      "lead_ms": 90,
+      "cut_in": 236.488,
+      "why": "ok"
+    },
+    "stand_alone": {
+      "status": "PASS",
+      "by": "stand_alone.check_edl (the render's STAND_ALONE at the pin stage, moments=True: the render's clip scorer's verdicts as the integrator's service gave them, stand-alone only, the score alone (rulings 56, 60); without an affirming one a conjunction, reply-fragment or trimmed opener fails closed)",
+      "replayed": false,
+      "n": 1,
+      "rows": [
+        "hook: PASS opener: opens on 'a' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+        "clip_01: PASS opener: opens on 'i' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+        "clip_02: PASS opener: opens on 'my' | topic: about Bitcoin by the miner's screen ('Bitcoin')"
+      ],
+      "medley_names_bitcoin": {
+        "pass": true,
+        "segments": [
+          "hook",
+          "clip_01",
+          "clip_02"
+        ],
+        "why": "named by hook, clip_01, clip_02"
+      },
+      "screen": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b"
+    }
+  }
+}

@@ -150,4 +150,34 @@ else
 fi
 echo ""
 
+# ── Step 9: fifth protected reference, the first full pass, PBX-approved and published (orchestrator '18:20' 1) ──
+echo "--- STEP 9: PROTECTED REFERENCE pulse_fresh_2026-11-13 (files as SHA256SUMS; its decisions reproduce) ---"
+REF_F=references/pulse_fresh_2026-11-13
+if git ls-files --error-unmatch "$REF_F/SHA256SUMS" >/dev/null 2>&1; then   # same rules as steps 7 and 8
+    if ! python3 pipeline/check_reference_manifest.py "$REF_F"; then
+        echo "  FAIL: the protected first-pass reference changed (docs/references/REFERENCE_PULSE_FRESH_2026-11-13.md)"
+        exit 1
+    fi
+    if ! git rev-parse -q --verify refs/tags/ref-pulse-fresh-2026-11-13 >/dev/null; then
+        echo "  FAIL: tag ref-pulse-fresh-2026-11-13 missing from this repository"
+        exit 1
+    fi
+    if ! git diff --quiet ref-pulse-fresh-2026-11-13 -- "$REF_F"; then
+        echo "  FAIL: the reference's tracked files (SHA256SUMS included) differ from tag ref-pulse-fresh-2026-11-13"
+        exit 1
+    fi
+    if ! python3 pipeline/check_medley_reference.py "$REF_F"; then
+        echo "  FAIL: the first pass's shape / selection / cuts / flow / layout no longer reproduce with this code"
+        exit 1
+    fi
+    if ! python3 pipeline/check_reference_manifest.py "$REF_F" >/dev/null; then   # the reproduction wrote nothing
+        echo "  FAIL: the first-pass reference changed while its decisions were reproduced"
+        exit 1
+    fi
+    echo "  tracked files identical to tag ref-pulse-fresh-2026-11-13; its decisions reproduce"
+else
+    echo "  SKIP: this checkout predates the reference (references/pulse_fresh_2026-11-13 not tracked)"
+fi
+echo ""
+
 echo "=== REGRESSION COMPLETE ==="
