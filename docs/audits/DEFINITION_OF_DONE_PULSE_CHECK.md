@@ -6,6 +6,21 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 04:14 RULING 34 MERGED (7b23f7f9, audits batch 57 x2, pushed 55315124): a MOMENTS pin's per-segment topical test is the miner's about-Bitcoin screen carried on the pin; the MEDLEY must name Bitcoin.
+- Per segment (stand_alone.topical_screen): a segment passes when the pin's btc_screen matches its text. The hook must match it. Any other segment that misses may still pass by completing the previous claim: topical()'s existing rule, not widened.
+- The medley (check_edl -> medley_names_bitcoin): the hook or at least one clip says Bitcoin / BTC (`\b(bitcoin|btc)\b`, re.I) in the speaker's own words (the lock text). Otherwise validate HOLDS with "medley: no segment names Bitcoin in the speaker's own words (ruling 34)".
+- Scope (run_fresh.moments_screen): only a bound moments package (moments_package_sha256 in the EDL). The story path is unchanged.
+- THE CONTRACT (sent to the builder): the sealed package carries moments_package.btc_screen = {"pattern": "<regex, <= 500 chars, compiled re.I>", "source": "<file@commit>"}, and pinned.build_edl copies it to the EDL as moments_btc_screen. If it is absent, malformed or does not compile, the STRICT rule applies (every segment names Bitcoin), and the validate log says why.
+- The miner's screen (pp-ingest pipeline/ingest/mine.py:30 @ 8e6afb61): `\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\b`.
+  - The order's list names "Bitcoiners", but `bitcoins?\b` does NOT match "Bitcoiners". The render side uses exactly the pattern the pin carries.
+  - Whether the screen gains "bitcoiners?" is the miner's change (the builder's), not made here.
+- Verification:
+  - test_stand_alone 15 (TestRuling34 x5; TestMomentsScreen with 7 None subtests);
+  - test_stand_alone + test_fresh + test_pinned: 70 passed, 1 skipped;
+  - regression_test.sh 26 PASS / 0 FAIL;
+  - pipeline/regression.sh exit 0 (PULSE MEDLEY REFERENCE: REPRODUCED).
+- NEXT: ruling 33 part 2 (the trimmed leading word) in worktree r33, then 37.
+
 ## 03:35 ORDER '22:40' ITEM 3, THE NO-VOICE FALLBACK: VERIFIED STATICALLY; a full render waits for a no-voice pin (GPU0 stays free for the fresh batch).
 On the medley reference's EDL with vo = {intro: null, bridges: []}:
 - edl_rules R11 PASSES ('0 bridge ... 0 takeaway line(s)');
