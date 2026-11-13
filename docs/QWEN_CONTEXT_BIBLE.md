@@ -350,6 +350,11 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** add new test files with `git add -f`; run the commit as its own command and check it before starting an audit; never background a command that depends on variables set by a chain that can stop.
 **Detection:** 'The following paths are ignored by one of your .gitignore files' in a commit step; an audit log with an empty path.
 
+### E-FAIL-074: A commit message claimed changes that a failed step never wrote
+**Evidence:** 2026-11-12 21:28 ET, commit 2fc9e23d: a docs script updated three law files and stopped (AssertionError) on the DoD row it could not find (the row named the test 'TestLyShape'); the DoD step after it was chained with && and never ran, but `git add ... && git commit` sat on its own line, so it committed and pushed with a message saying the DoD was updated.
+**Fix:** a commit that follows a multi-file write is its own command, run only after every write has been checked (git diff --stat names each file the message claims); a failed step is followed by a correction commit that says so (done: the next commit, and the DoD entry, state it).
+**Detection:** a commit message naming a file that `git show --stat` does not list.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 
