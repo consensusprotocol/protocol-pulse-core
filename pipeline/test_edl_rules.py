@@ -1147,6 +1147,10 @@ class TestR11VoShape(unittest.TestCase):
     def test_two_lines_after_the_last_clip_fail(self):
         self.fails(self.edl(bridges=(self.TAKE, self.TAKE)), "law L-y 1: 2 VO lines after the last clip")
 
+    def test_a_takeaway_that_is_not_text_fails(self):
+        for text in (None, "", "   ", 123, ["w"]):                    # cycle 3 qwen F1 / F2
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},)), "the takeaway after the last clip is not text")
+
     def test_a_record_without_a_bridge_line_fails(self):
         self.fails(self.edl(bridges=(self.TAKE,), rec=self.rec()), "with no bridge line in the VO")
 

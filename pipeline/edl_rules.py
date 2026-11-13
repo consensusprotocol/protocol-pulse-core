@@ -690,6 +690,9 @@ def rule_r11(edl):
             failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
         elif a == max(idx):
             closing += 1
+            t = b.get("text")
+            if not isinstance(t, str) or not t.strip():             # cycle 3 qwen F1: the takeaway is a voiced line
+                failures.append(f"VO line {i}: the takeaway after the last clip is not text")
         else:
             before.append((f"the slot after clip {a}", b.get("text")))
     if closing > 1:
