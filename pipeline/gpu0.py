@@ -690,15 +690,30 @@ def ollama_call(gpu, model, path, body, owner, wait_s=600.0, timeout=300):
             with lease(owner, wait_s=wait_s, poll_s=1.0):
                 swap_to(key, wait_s=min(WAIT_S, float(wait_s)))          # the caller's bound covers the memory wait too
                 try:
-                    return _ollama(path, dict(body, model=model, keep_alive=0), timeout=timeout)
-                finally:
-                    ollama_settle(model)
-                    mine = [n for n in ollama_loaded() if n in _ours()]
-                    if mine:
-                        _ollama_unload(mine)                     # keep_alive 0 asked; this confirms it on /api/ps
+                    reply = _ollama(path, dict(body, model=model, keep_alive=0), timeout=timeout)
+                except BaseException:
+                    _leave_ollama(model, quiet=True)             # never masks the request's own error (audit 45 c2 A)
+                    raise
+                _leave_ollama(model, quiet=False)                # keep_alive 0 asked; this confirms it on /api/ps
+                return reply
         finally:
             _tls.foreign_wait_s = prev_bound
             _call_locks[gpu].release()
+
+
+def _leave_ollama(model, quiet):
+    """After an ollama_call request: settle the ownership and confirm this call's models left the GPU's Ollama. quiet:
+    a failure here is recorded in the events and does not replace the request's own exception."""
+    try:
+        ollama_settle(model)
+        mine = [n for n in ollama_loaded() if n in _ours()]
+        if mine:
+            _ollama_unload(mine)
+    except BaseException as e:
+        if not quiet:
+            raise
+        _events.append({"key": "unload_after_failed_call", "gpu": current_gpu(), "model": model,
+                        "error": f"{type(e).__name__}: {e}"[:300]})
 
 
 # ── out of memory ──

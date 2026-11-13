@@ -81,8 +81,11 @@ class TestSerialisedNeverOOM(Gpu1Box):
         def freed():
             self.procs[:] = [(999999, "ollama", 200)]
             self.used[0] = 300
-        threading.Timer(0.5, freed).start()                            # ... it frees: the load proceeds
+        timer, t0 = threading.Timer(0.5, freed), time.time()
+        timer.start()                                                  # ... it frees: the load proceeds
         gpu0.ollama_call(1, "qwen3-coder:30b", "/api/chat", {"messages": []}, "t", wait_s=5)
+        self.assertGreaterEqual(time.time() - t0, 0.45)                # it waited for the memory (audit 45 c2 B)
+        self.assertFalse(timer.is_alive())
         self.assertEqual(len(self.asked), 1)
 
     def test_two_threads_of_one_process_are_serialised_too(self):
@@ -101,8 +104,26 @@ class TestSerialisedNeverOOM(Gpu1Box):
                                kwargs={"wait_s": 10}) for i in range(3)]
         [t.start() for t in ts]
         [t.join(timeout=20) for t in ts]
+        self.assertFalse(any(t.is_alive() for t in ts))                # every thread finished (audit 45 c2 B)
         self.assertFalse(overlap[0])
         self.assertEqual(len(self.asked), 3)
+
+    def test_a_failed_request_is_not_masked_by_the_unload(self):
+        def boom(path, body=None, timeout=30):
+            if path == "/api/ps":
+                return {"models": [{"name": n, "size_vram": 0} for n in self.ollama]}
+            self.ollama.append(body["model"])                          # it loaded, then the request failed
+            raise OSError("connection reset by the Ollama server")
+        gpu0._ollama.side_effect = boom
+
+        def stuck(names, wait_s=60):                                   # the unload confirmation fails too
+            if names:
+                raise gpu0.Gpu0NotFree(f"Ollama still holds {names}")
+            return []
+        with mock.patch.object(gpu0, "_ollama_unload", side_effect=stuck), \
+                self.assertRaisesRegex(OSError, "connection reset"):
+            gpu0.ollama_call(1, "qwen3-coder:30b", "/api/chat", {}, "t", wait_s=5)
+        self.assertEqual(gpu0.events()[-1]["key"], "unload_after_failed_call")
 
 
 class TestGpu1NeedsItsLease(Gpu1Box):
@@ -224,6 +245,42 @@ class TestOllamaCallLeavesTheGpuAsFound(Gpu1Box):
         with gpu0._on(1):
             self.assertIsNone(gpu0.holder())
         self.assertEqual(gpu0.current_gpu(), 0)                        # the caller's own GPU is unchanged
+
+
+class TestTheClientPathUsedByTheServices(unittest.TestCase):
+    """Audit batch 45 cycle 2 B (consensus): the production path itself: services/gpu_lease_client.py loaded by its
+    file path (as the watchdog, the briefs and the website load it) loads pipeline/gpu0.py under a private name, puts
+    no pipeline directory on sys.path, calls ollama_call on GPU1, and turns gpu0's stops into Gpu1Unavailable."""
+
+    def setUp(self):
+        import importlib.util
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "services",
+                            "gpu_lease_client.py")
+        spec = importlib.util.spec_from_file_location("gpu_lease_client_under_test", path)
+        self.c = importlib.util.module_from_spec(spec)
+        before = list(sys.path)
+        spec.loader.exec_module(self.c)
+        self.g = self.c.gpu0()
+        self.assertEqual(sys.path, before)                             # nothing put on sys.path
+        self.assertIs(sys.modules["pp_gpu0"], self.g)
+        self.assertIsNot(self.g, gpu0)                                 # its own private module instance
+
+    def test_it_calls_ollama_call_on_gpu1_and_returns_the_content(self):
+        seen = []
+        with mock.patch.object(self.g, "ollama_call", side_effect=lambda *a, **k: seen.append((a, k)) or
+                               {"message": {"content": "fine"}}):
+            out = self.c.chat_gpu1("qwen3-coder:30b", [{"role": "user", "content": "x"}], "watchdog", wait_s=7, timeout=9)
+        self.assertEqual(out, "fine")
+        (gpu, model, path, body, owner), kw = seen[0]
+        self.assertEqual((gpu, model, path, owner, kw), (1, "qwen3-coder:30b", "/api/chat", "watchdog",
+                                                         {"wait_s": 7, "timeout": 9}))
+        self.assertFalse(body["stream"])
+
+    def test_a_gpu_stop_becomes_gpu1_unavailable_for_the_callers_fallback(self):
+        with mock.patch.object(self.g, "ollama_call", side_effect=self.g.LeaseBusy("the GPU1 lease is held by worker")):
+            with self.assertRaisesRegex(self.c.Gpu1Unavailable, "GPU1 LeaseBusy: the GPU1 lease is held by worker"):
+                self.c.chat_gpu1("qwen3-coder:30b", [], "watchdog")
+        self.assertTrue(issubclass(self.c.Gpu1Unavailable, Exception))  # a caller's except Exception catches it
 
 
 class TestPeaksPerGpu(Gpu1Box):
