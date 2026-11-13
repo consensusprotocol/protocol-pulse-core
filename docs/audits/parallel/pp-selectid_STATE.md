@@ -1,4 +1,135 @@
-RE-SEALED UNDER RULING 67 AND SENT READY TO THE INTEGRATOR (14:13 ET): moments-ledger_20261113_183302-0c68b589 (package_sha256 0c68b589371297c0), replacing 61fd55d0, which the render HELD at ruling 17 (13:48 ET) on clip 3's word-pass text. Clip 3 now reads the attested text: the run decode, attested by the render's second recogniser and my own live scribe_v1 reading. The differences: in/you (function word) and a repeated "that's why" (immediate repetition), so every verdict carries over; no line quotes them; the sealed record is 'attested'. check_pin_only READY 0c68b589371297c0; STAND_ALONE PASS; 18 gates PASS. Code 3b1691b2 (ruling 67, audit 1400). SPEND (ruling 48): $7.44 of $12.00 (the re-seal made no model call). My miss, fixed in 3b1691b2: I committed the 13:38 pin without re-running the suites, and test_speakers' recompute (no btc_screen argument) failed on it. Next: RULING 66's standing part as you ruled at 14:02 (a line failing again closes a candidate for 6 h, then one more try with fresh writes; open candidates newest first inside the 8 judged line-ups, before any angle). No question.
+ORDER 15:03 ANSWERED FROM RECORDS ALREADY HELD (no vendor call; A, B and C just below). A: the hook (Simply Bitcoin DcUbBkyeh9M 236.69-253.31) is the host's callback to the episode's Jensen Huang story. The episode reports, naming no outlet, that Huang admitted an affair ("in a post") with someone "US intelligence agencies say could be a Chinese spy", and that Nvidia's board is investigating, saying it has "no reason to believe" secrets were compromised. The host's own characterisations: "America's greatest asset and its trade secrets can now be compromised", "you can't account for the CEO's private life. A scandal...", and the hook's "A CEO makes a personal mistake". Both step-A judges read "A CEO" as generic; no check looked at the picture. B: clip 3 is MARK YUSKO. The episode's own captions mark a turn at 696.24 with no turn marker through the clip; after a one-word "Yeah" (908.24) the same speaker continues and says "...super intelligent, Scott?" (945.28). The sealed pin still says speaker "unknown". C: a proposal for a per-clip pin-stage VISUAL check (reusing pipeline/visual_check.py). SPEND (ruling 48): $7.44 of $12.00. QUESTIONS: (1) RULE ON C. (2) RE-SEAL THE PIN WITH CLIP 3'S SPEAKER = MARK YUSKO, OR KEEP THE SEALED 'UNKNOWN' AND TAG FROM THIS EVIDENCE? (3) THE PIN NOW IN RENDER (0c68b589): KEEP IT, OR HOLD IT FOR THE HOOK'S PICTURE (A)?
+
+## 15:07 ET: ORDER 15:03 (A, B, C), from records already held
+
+### A. The hook's episode and Jensen Huang
+
+**The transcript from 60 s before the hook to its end, verbatim.**
+- Source: the word-pass Whisper window 170.814-273.576 (data/editorial/transcripts/DcUbBkyeh9M/windows/; faster-whisper
+  distil-large-v3 + punctuation, read only).
+- The hook starts at 236.688 and ends at 253.308. The 60 s mark (176.69) falls inside a sentence, which starts at 170.8.
+
+> [170.81] and data centers, but you can't account for the CEO's private life, a scandal that could crash your entire life savings at a moment's notice.
+> [178.27] That's the key man risk, one person, one private decision that impacts all of us.
+> [183.35] That's not just with companies, that happens with countries and governments as well.
+> [187.23] The Bank of International Settlements, the Central Bank for Central Banks, they just put our report showing that they counted every currency they could find since 1850, 568 of them.
+> [196.09] Of those, 163 are still in use.
+> [199.09] And the median lifespan of those currencies is just 33 years.
+> [202.59] Nearly one in four lasted less than 10 years.
+> [205.41] The most common way that a currency ended was a name change or a unit change, like knocking zeros off or joining the euro because your currency couldn't hold up.
+> [214.25] But the researchers said it best.
+> [216.05] Currencies are often born for political reasons, but fail for economic reasons.
+> [220.47] Bitcoin launched in January of 2009.
+> [222.85] It's never been renamed.
+> [224.17] It's never gone into another currency.
+> [226.23] It's never been redenominated or reissued.
+> [228.85] Countries have key man risk, but also have key sector risk, which we'll talk about a little bit later in the video.
+> [233.87] The key man risk is in whoever controls the printer.
+> [236.63] **A CEO makes a personal mistake in shareholders pay.** (THE HOOK STARTS)
+> [239.61] A government mismanages its currencies and its savers pay.
+> [243.05] Bitcoin's rules aren't kept by a single executive or a single central bank.
+> [246.79] They're enforced by thousands of independent computers running the same code.
+> [250.45] No CEO, no compromise, no committee to debate. (THE HOOK ENDS, 253.31)
+
+**What the episode asserts about him.**
+- The title is "NVIDIA WARNING: Why Your Retirement Could Be At Risk!". The description says "Amid explosive
+  allegations surrounding Nvidia CEO Jensen Huang...".
+- 0-42.6 s is from the YouTube auto-captions (no Whisper window covers it), which spell him "Wong"; 42.6 s onwards is
+  from Whisper.
+- [3.35] "Nvidia CEO Jensen [Huang] just admitted to an affair with someone US officials believe could be a Chinese spy
+  and intelligence officer."
+- [9.52] "America's greatest asset and its trade secrets can now be compromised by our greatest adversary, China."
+- [13.44] "On the news, Nvidia lost about $395 billion in value, and senators on both sides are calling for
+  investigations."
+- [42.58] "Your retirement is [riding] on an AI trade and NVIDIA, a company whose own board is investigating its CEO."
+- [103.29] "In shocking news, Jensen Huang told employees and his own wife in a post that he was unfaithful and took
+  full responsibility of his actions."
+- [111.77] "But unfaithful to who? Someone that US intelligence agencies say could be a Chinese spy and intelligence
+  officer."
+- [117.71] "And its own board is now opening an investigation. And they're saying that they have no reason to believe
+  that NVIDIA trade secrets or national security was compromised. Hmm. China has dismissed the espionage claims."
+- [170.16, auto] "...you can't account for the CEO's private life. A scandal that could crash your entire life savings
+  at a moment's notice. That's the key man risk."
+
+**Reported fact, or the host's characterisation.**
+- **Reported, with an attribution but NO named outlet, reporter or document in the episode:**
+  - Huang's admission ("in a post": his own post, described, not quoted);
+  - "US officials believe" / "US intelligence agencies say could be a Chinese spy" (unnamed officials);
+  - "senators on both sides are calling for investigations" (unnamed);
+  - the board's investigation and its "no reason to believe" statement;
+  - "China has dismissed the espionage claims";
+  - "Nvidia lost about $395 billion in value" (no source).
+- **The host's characterisation:**
+  - "America's greatest asset and its trade secrets can now be compromised by our greatest adversary, China". The
+    host's own inference, which the board's statement he then reports contradicts.
+  - "you can't account for the CEO's private life", "A scandal that could crash your entire life savings".
+  - The hook's "A CEO makes a personal mistake in shareholders pay" ("and shareholders pay"). In its own words it
+    names nobody. In the episode it is the callback to the Huang story ("one person, one private decision", 178.27),
+    and with his picture on screen it reads as about him.
+- **What my pin stage saw.**
+  - Both step-A judges (xai grok and heimdall deepseek) gave the hook no outside referent. Their proposition: "A CEO's
+    personal mistake makes shareholders pay...". The exclusion screen passed it.
+  - No check of mine looks at the frames.
+  - The earlier REFERENT_OUTSIDE you cite is moment 88574641595f10d34454: ANOTHER Simply Bitcoin episode
+    (BS0XC_tixa8 827.69-837.07, the 07:37 pin's hook video): "Now if a board can take a founder's company from him
+    in four days...". Step A (xai grok) read "him" as "Nvidia's founder/CEO", outside the clip, changing the
+    assertion: refused.
+  - None of the hook video's own moments (10 in the pool) failed step A.
+
+### B. Clip 3's speaker: MARK YUSKO
+
+The evidence is the episode's own YouTube auto-captions with speaker-change markers (">>"): the pp-ingest store,
+data/editorial/transcripts/mKNAcOFMYD4/transcript.yt_auto.json, yt_auto:en-orig, read only.
+1. A turn opens at 696.24: ">> No. And And here's the thing is cheaters cheat. Liars lie. Stealers steal...". It
+   answers the interjection ">> Tell that to his wife." (694.40).
+2. No ">>" follows until 908.24. The clip (755.45-764.21, "My biggest fear is that I go to the bank...") sits inside
+   that turn. The same speaker introduces it ("I'll tell you, this is my biggest fear... no, second biggest", 750.64)
+   and continues ("My second biggest fear...", 764.80).
+3. At 908.24 the other person says only ">> Yeah.". At 909.36 the same speaker resumes the same argument (AI models
+   trained on Reddit, from 894.64), and at 944.00-945.28 says: "And why why are we supposed to call him super
+   intelligent, **Scott**?". The speaker addresses Scott, so is not Scott Melker. The episode has two speakers:
+   "I've got Mark Yusco" (36.56), "excited to have Mark joining me today" (67.76).
+
+My scribe second pass (L-v 2) heard one speaker across 751.45-765.71, with no turn change inside. The Whisper window
+(710.6-809.8) and the render's decodes carry no speaker labels. So the answer is Mark Yusko: the transcript's turn
+structure says so, and it agrees with the lower third you saw. My sealed record says "unknown": the attribution step
+read only the windows around the clip, without the caption turn markers or the address at 945.28. Changing the sealed
+speaker is a re-seal (question 2 on line 1).
+
+### C. PROPOSAL: a pin-stage VISUAL check, one vision call per clip (not built; for your ruling)
+
+- **What it asks, per clip**, from frames sampled across its span. Answers are JSON, and a missing answer fails closed
+  (L-m), as visual_check.py does.
+  1. **third_person**: is a person who is NOT the one speaking shown as a still, photo or graphic while the words
+     make a negative claim (a mistake, an accusation, a scandal, a crime)? The model reports any on-screen NAME TEXT.
+     It never names anyone from a face: the still plus the negative claim is the finding.
+  2. **on_screen_text**: every headline graphic, chyron or banner of the SOURCE, and whether it asserts something
+     the clip's words do not.
+  3. (Optional; B shows its value) **lower_third**: the on-screen name of the person speaking, to feed the sealed
+     speaker.
+- **Frames.**
+  - yt-dlp download-sections of the span at <= 480p (CPU; today's L-v 2 fetch is audio only, -f bestaudio).
+  - ffmpeg stills on CPU with visual_check._grab: the cut-in frame, then one every 2 s, then the last frame, at most 8,
+    in ONE contact sheet per clip.
+  - No GPU.
+- **Vendor.**
+  - xAI grok, image_url. pipeline/review.py already sends to grok-4.3 that way. xAI is our verdict vendor, off the
+    heimdall writer.
+  - Failover: the Heimdall image-input models visual_check.py lists (qwen/qwen3.8-27b, nvidia/nemotron-3.5-super-vl).
+  - Before the first paid call, I confirm the exact grok model accepts images (from its docs, no spend).
+- **Cost.** One sheet is about 1-2k image tokens, plus about 0.7k text in and about 0.4k out. At the price table's
+  grok rate ($5 / $25 per 1M; an upper bound, and reported spend has run about a tenth of it), that is about
+  $0.02 per clip, and about $0.06-0.08 per line-up of a hook and 2-3 clips. It is cached per moment (moment id + span
+  + frame sha), like step A, so a clip is paid once across builds. It would be measured and recorded on the first call.
+- **Where it sits.**
+  - HOOKS: right after the hook ratings (ruling 59), for the passing hooks only (1-3 calls), before the angle call,
+    so no angle is ever written for a hook whose picture fails.
+  - CLIPS: right after a line-up passes the clips-alone verdict, before any write, so a failing clip is swapped
+    before paying for writes.
+  - A new required gate row "visual" in the sealed inventory. Ruling 66's candidates inherit it.
+- **Alternative:** run it inside the integrator's ruling-68 pre-check, where the render already acquires the video
+  (no second download), and seal its verdict. That is your call between the two sides.
+
 
 ## 14:13 ET: THE PIN THE INTEGRATOR IS RENDERING (re-sealed under ruling 67): its texts
 
