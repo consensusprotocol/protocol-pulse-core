@@ -1,0 +1,14 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 43 s finish=stop usage in 10578 / out 611 usd~0.068 (upper-bound price)
+
+**P0: None**
+
+**P1: None**
+
+**P2:**
+- transcript_truth.py:74-76 (ci/co list comprehensions): canon match is OR-ed with the original 4-letter prefix rule and limited to time windows 0.6s (IN) / 0.8s (OUT). The provided TestEdgesRulings38And39.test_a_spoken_number_matches_the_clips_digits_at_both_edges verifies that a different number ("26 %") does not match spoken "Twenty-five percent" (e3 fails as expected). No test case is present for repeated identical edge tokens or a run that reaches a second identical canonical token inside the time window; uncertain whether first-listed i (ci[0]) could select the wrong instance.
+- transcript_truth.py:88-92 (gap calculation): pause = (opening_word_start - prev_end); accepts if >= PAUSE_MIN_S with no intervening recognised word (by construction). Test cases at 650 ms (fails, "runs on into the clip") and 750 ms (passes) confirm <700 ms following a recognised word cannot pass via (b). File-head case (wav_start <= 0 and prev is None) also covered. Implementation uses only recogniser word timing; no dBFS / acoustic check of the gap appears in the diff, so speech missed by the recogniser in a >=700 ms gap would still be treated as a valid pause (matches the ruling text "with no recognised word" but cannot verify against unshown acoustic intent).
+- transcript_truth.py:87 (t_open = ws[j+1]["start"] after self_repair): self_repair decrements j, then j+1 correctly selects the opening word (or the false-start itself when measuring before it). Test case passes with expected pause_ms=800 before the repair; no off-by-one or negative-index error triggered in the exercised paths (j >= -1 guarded by prev=None logic). Slicing in _canon_from (ws[i:i+6]) and _canon_to (ws[max(0,i-5):i+1]) is safe for edge indices.
+- transcript_truth.py:108-119 & edges(): PAD_BEFORE_S=4.0 is used consistently for window, offset, and WAV naming (new files for new windows). OUT rule, speaker/turn checks, and verify_segment compare logic are untouched except for the expanded word-matching and new IN conditions. TestEdgesRulings38And39 exercises audio_window clamping, verify_segment end-to-end, and all three IN acceptance paths (terminal, pause, head).
+- All new constants (PAD_BEFORE_S, PAUSE_MIN_S, CANON_RUN) are defined with ruling references; uses canon.canon_tokens (satisfies L-k). No other acceptance criteria widened; fail-closed behavior for missing words/timing preserved. New tests cover the measured 02:37 defects (IN pause inside 1.5 s window, OUT number canonical mismatch).
+
+**SHIP: yes**

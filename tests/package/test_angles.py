@@ -330,6 +330,115 @@ class TestInventory(unittest.TestCase):
         self.assertFalse(t["ok"])
 
 
+class TestEdgesRulings38And39(unittest.TestCase):
+    """Rulings 38 and 39 (03:12 ET Nov 13). The L-v 2 window reaches PAD_BEFORE_S = 4 s before the clip. The IN edge
+    opens on a recognised sentence end, OR a measured pause of >= 700 ms with no recognised word before the clip's
+    opening word, OR the file's first spoken word (the window reaches the file head and holds no word before it). The
+    edge matcher reads a short run of recogniser words with the L-v 2 canonicaliser, so a spoken number matches the
+    clip's digits."""
+
+    TEXT = "Bitcoin is money for everyone."
+
+    def ws(self, before, first_at, text=None, after="Next.", step=0.3):
+        out = [dict(w, speaker="s0") for w in before]
+        words = (text or self.TEXT).split()
+        out += [{"text": t, "start": first_at + step * k, "end": first_at + step * k + 0.22, "speaker": "s0"}
+                for k, t in enumerate(words)]
+        end = first_at + step * (len(words) - 1) + 0.22
+        return out + [{"text": after, "start": end + 0.5, "end": end + 0.8, "speaker": "s0"}], end
+
+    def edges(self, before, first_at, wav_start=2.0, text=None, after="Next."):
+        ws, end = self.ws(before, first_at, text, after)
+        return TT.edges({"words": ws}, wav_start, wav_start + first_at, wav_start + end, text or self.TEXT)
+
+    def test_a_measured_pause_of_700_ms_opens_the_clip_and_less_does_not(self):
+        e = self.edges([{"text": "and", "start": 0.40, "end": 0.80}], 1.55)          # 750 ms after a non-ending word
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertIn("measured pause of 750 ms", e["in"]["why"])
+        self.assertEqual(e["in"]["pause_ms"], 750)
+        e = self.edges([{"text": "and", "start": 0.40, "end": 0.80}], 1.45)          # 650 ms
+        self.assertFalse(e["in"]["ok"], e["in"])
+        self.assertIn("runs on into the clip ('and', 650 ms", e["in"]["why"])
+        e = self.edges([{"text": "path.", "start": 0.40, "end": 0.80}], 0.95)        # a sentence end needs no pause
+        self.assertTrue(e["in"]["ok"])
+        self.assertEqual(e["in"]["why"], "a sentence ends before the clip")
+
+    def test_the_files_first_spoken_word_opens_and_a_window_that_starts_at_the_clip_does_not(self):
+        e = self.edges([], 0.30, wav_start=0.0)                       # the window reaches the file head, no word
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertIn("file's first spoken word", e["in"]["why"])
+        e = self.edges([], 0.30, wav_start=2.0)                       # not the file head: 300 ms measured, no pause
+        self.assertFalse(e["in"]["ok"], e["in"])
+        self.assertEqual(e["in"]["why"], "the window starts at the clip: no word before it")
+        e = self.edges([], 1.00, wav_start=2.0)                       # 1000 ms with no recognised word: a pause
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertIn("measured pause of 1000 ms", e["in"]["why"])
+
+    def test_the_boundaries_and_the_precedence(self):                   # audit 0338 C2 (glm N3, grok)
+        e = self.edges([{"text": "and", "start": 0.40, "end": 0.80}], 1.50)          # exactly 700 ms: a pause
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertEqual(e["in"]["pause_ms"], 700)
+        e = self.edges([], 1.50, wav_start=0.0)                       # the file head AND a 1500 ms stretch: head
+        self.assertTrue(e["in"]["ok"])
+        self.assertIn("file's first spoken word", e["in"]["why"])
+        e = self.edges([{"text": "Bitcoin", "start": 1.00, "end": 1.20}], 1.45)      # the same word 450 ms earlier,
+        self.assertEqual(e["in"]["before"], "Bitcoin")                                # inside the 0.6 s window: the
+        self.assertFalse(e["in"]["ok"], e["in"])                                      # clip's OWN occurrence is read
+        self.assertIn("runs on into the clip ('Bitcoin', 250 ms", e["in"]["why"])     # (nearest), never the earlier
+        ws, end = self.ws([{"text": "path.", "start": 0.2, "end": 0.6}], 1.4)        # the OUT: the same word again,
+        ws = ws[:-1] + [{"text": "everyone.", "start": end + 0.35, "end": end + 0.65},   # ending 0.65 s after the
+                        {"text": "Next.", "start": end + 1.2, "end": end + 1.5}]          # clip's (a candidate too)
+        e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, self.TEXT)
+        self.assertEqual((e["out"]["word"], e["out"]["after"]), ("everyone.", "everyone."))   # the clip's own is read
+        self.assertTrue(e["out"]["ok"])                                                       # (nearest), not the later
+
+    def test_a_self_repair_opens_the_clip_and_the_pause_is_measured_before_it(self):
+        ws = [{"text": "and", "start": 0.10, "end": 0.40, "speaker": "s0"},
+              {"text": "Bit-", "start": 1.20, "end": 1.30, "speaker": "s0"}]       # 800 ms before the false start
+        e = self.edges(ws, 1.50)
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertEqual((e["in"]["self_repair"], e["in"]["pause_ms"]), ("Bit-", 800))
+
+    def test_the_window_reaches_4_s_before_the_clip_and_stops_at_the_file_head(self):
+        import tempfile
+        self.assertEqual((TT.PAD_BEFORE_S, TT.PAD_S, TT.PAUSE_MIN_S), (4.0, 1.5, 0.7))
+        with tempfile.TemporaryDirectory() as d:
+            for start, end, stem, a in ((10.0, 20.0, "v_6000_21500", 6.0), (2.35, 11.81, "v_0_13310", 0.0)):
+                open(os.path.join(d, stem + ".wav"), "w").close()          # cached: no fetch
+                self.assertEqual(TT.audio_window("v", start, end, d), (os.path.join(d, stem + ".wav"), a))
+
+    def test_a_spoken_number_matches_the_clips_digits_at_both_edges(self):
+        text = "Bitcoin is down around 67 to 68,000."
+        spoken = "Bitcoin is down around sixty-seven to sixty-eight thousand."
+        ws, end = self.ws([{"text": "real.", "start": 0.2, "end": 0.6}], 1.4, text=spoken, after="James")
+        e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, text)
+        self.assertTrue(e["out"]["ok"], e["out"])                   # the 02:37 build's lost OUT edge
+        self.assertEqual((e["out"]["word"], e["out"]["after"]), ("thousand.", "James"))
+        self.assertTrue(e["cuttable"])
+        text2 = "25 % of their portfolio is Bitcoin."
+        ws2, end2 = self.ws([{"text": "now.", "start": 0.2, "end": 0.6}], 1.4,
+                            text="Twenty-five percent of their portfolio is Bitcoin.")
+        e2 = TT.edges({"words": ws2}, 2.0, 3.4, 2.0 + end2, text2)
+        self.assertTrue(e2["in"]["ok"], e2["in"])
+        self.assertEqual(e2["in"]["word"], "Twenty-five")
+        e3 = TT.edges({"words": ws2}, 2.0, 3.4, 2.0 + end2, "26 % of their portfolio is Bitcoin.")
+        self.assertFalse(e3["in"]["ok"])                              # another number never matches
+
+    def test_verify_segment_reads_the_edges_against_the_new_window(self):
+        class R:
+            def __init__(self, ws):
+                self.ws = ws
+
+            def transcribe(self, role, wav):
+                return {"text": " ".join(w["text"] for w in self.ws), "segments": [], "words": self.ws}, \
+                    type("Rep", (), {"backend": "s", "replayed": False})()
+        ws, end = self.ws([{"text": "and", "start": 3.00, "end": 3.20}], 4.0)       # a 4 s pre-pad; 800 ms pause
+        t = TT.verify_segment(R(ws), "v", 10.0, 6.0 + end, self.TEXT, "/nonexistent", wav="w.wav", wav_start=6.0)
+        self.assertTrue(t["edges"]["cuttable"], t["edges"])
+        self.assertEqual(t["edges"]["in"]["pause_ms"], 800)
+        self.assertTrue(t["ok"], t)
+
+
 class TestMajorityOnce(unittest.TestCase):
     def test_once_then_the_majority_only_when_the_first_run_fails(self):
         """08:18 item 4 / 08:29: a model verdict that passes its first run runs once; one that does not gets the

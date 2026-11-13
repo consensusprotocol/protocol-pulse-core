@@ -22,14 +22,18 @@ NEGATIONS = frozenset({"not", "no", "never", "none", "nobody", "nothing", "neith
                        "won't", "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "shouldn't",
                        "wouldn't", "couldn't", "hasn't", "haven't", "hadn't"})
 _NUM = re.compile(r"^-?\d+(\.\d+)?$")
-PAD_S = 1.5
+PAD_S = 1.5                  # the audio fetched after the clip
+PAD_BEFORE_S = 4.0           # ruling 38 (03:12 ET Nov 13): the audio before the clip, so the recogniser hears the
+                             # sentence before it (1.5 s ended inside measured pauses: "the window starts at the clip")
+PAUSE_MIN_S = 0.700          # ruling 38: a measured pause this long with no recognised word also opens a clip
+CANON_RUN = 6                # recogniser words read together at an edge, so a spoken number is one canonical token
 
 
-def audio_window(video_id, start, end, out_dir, pad=PAD_S):
-    """WAV (16 kHz mono) of [start - pad, end + pad] (clamped at the video head), fetched with yt-dlp's download
-    sections -> (path, the window's real start in video seconds)."""
+def audio_window(video_id, start, end, out_dir, pad=PAD_S, pad_before=PAD_BEFORE_S):
+    """WAV (16 kHz mono) of [start - pad_before, end + pad] (clamped at the video head), fetched with yt-dlp's
+    download sections -> (path, the window's real start in video seconds)."""
     os.makedirs(out_dir, exist_ok=True)
-    a, b = max(0.0, start - pad), end + pad
+    a, b = max(0.0, start - pad_before), end + pad
     stem = f"{video_id}_{int(a * 1000)}_{int(b * 1000)}"
     base = os.path.join(out_dir, stem)
     wav = base + ".wav"
@@ -140,40 +144,75 @@ def self_repair(words, i, first):
             and fw.startswith(stem) and r.get("speaker") is not None and r.get("speaker") == f.get("speaker"))
 
 
+def _canon_from(ws, i):
+    """The first canonical token of the recogniser's words from i on (a spoken number read as one token, the L-v 2
+    canonicaliser: 'Twenty-five percent' -> '25')."""
+    c = canon.canon_tokens(" ".join(w.get("text") or "" for w in ws[i:i + CANON_RUN]))
+    return c[0] if c else None
+
+
+def _canon_to(ws, i):
+    """The last canonical token of the recogniser's words up to i ('to sixty-eight thousand.' -> '68000')."""
+    c = canon.canon_tokens(" ".join(w.get("text") or "" for w in ws[max(0, i - CANON_RUN + 1):i + 1]))
+    return c[-1] if c else None
+
+
 def edges(second, wav_start, start, end, text):
     """CUTTABLE (orchestrator 06:45 ruling C, ruling 7 (1)): the INDEPENDENT recogniser's own sentence boundaries at
-    the segment's edges, from its word timing on the SOURCE audio. IN: the recogniser's word at the clip's first word
-    (same word, within 0.6 s) follows a word ending in terminal punctuation. OUT: the recogniser's word at the clip's last
-    word (within 0.8 s) ends in terminal punctuation, and the recogniser heard a next word (it did not stop at the
-    window's edge). Store or caption punctuation is never evidence. -> {"cuttable", "in", "out"}."""
+    the segment's edges, from its word timing on the SOURCE audio. The clip's first / last word is found by its first
+    four letters OR by the L-v 2 canonicaliser on a short run of the recogniser's words (ruling 39: 'sixty-eight
+    thousand.' is the clip's '68,000.'). IN: the recogniser's word at the clip's first word (within 0.6 s) follows a
+    word ending in terminal punctuation; or (ruling 38) the recogniser heard no word for at least PAUSE_MIN_S before the
+    clip's opening word (a measured pause), or the window reaches the FILE HEAD and holds no word before the clip (the
+    clip opens on the file's first spoken word). OUT: the recogniser's word at the clip's last word (within 0.8 s) ends
+    in terminal punctuation, and the recogniser heard a next word (it did not stop at the window's edge). Store or
+    caption punctuation is never evidence. -> {"cuttable", "in", "out"}."""
+    # the recogniser's words in its own (time) order: all 99 recorded transcriptions are time-ordered (audit 0338 C1)
     ws = [w for w in second.get("words") or [] if w.get("start") is not None]
     toks = re.findall(r"[\w'’$%.,-]+", re.sub(r"\s+\.(?=\w)", ".", text or ""))     # 'U .S.' is one word 'U.S.' 
     first, last = _w(toks[0]) if toks else "", _w(toks[-1]) if toks else ""
+    # ruling 39: the run of up to CANON_RUN words may reach past the 0.6 / 0.8 s windows; only the CANDIDATE word must
+    # sit inside them, the run only reads a spoken number whole (audit 0338 C2, glm N1)
+    ct = canon.canon_tokens(text or "")
+    c_first, c_last = (ct[0], ct[-1]) if ct else (None, None)
     out = {"in": {"ok": False, "why": "no word timing from the recogniser"},
            "out": {"ok": False, "why": "no word timing from the recogniser"}}
     if not ws or not first:
         return dict(out, cuttable=False)
     t_in, t_out = start - wav_start, end - wav_start
-    ci = [i for i, w in enumerate(ws) if abs(float(w["start"]) - t_in) <= 0.6 and _w(w["text"]).startswith(first[:4])]
-    co = [i for i, w in enumerate(ws) if abs(float(w.get("end") or w["start"]) - t_out) <= 0.8
-          and _w(w["text"]).rstrip(".")[:4] == last.rstrip(".")[:4]]
-    if ci:
-        i = ci[0]
+    ci = [i for i, w in enumerate(ws) if abs(float(w["start"]) - t_in) <= 0.6 and
+          (_w(w["text"]).startswith(first[:4]) or (c_first is not None and _canon_from(ws, i) == c_first))]
+    co = [i for i, w in enumerate(ws) if abs(float(w.get("end") or w["start"]) - t_out) <= 0.8 and
+          (_w(w["text"]).rstrip(".")[:4] == last.rstrip(".")[:4] or (c_last is not None and _canon_to(ws, i) == c_last))]
+    if ci:                                      # the occurrence NEAREST the clip's start, never an earlier one of the
+        i = min(ci, key=lambda k: abs(float(ws[k]["start"]) - t_in))    # same word (audit 0338: grok C2, glm C1 P2-2)
         j, repair = i - 1, None
         if self_repair(ws, j, first):           # ruling 8: the speaker's false start opens the sentence
             repair, j = ws[j]["text"], j - 1
         prev = ws[j]["text"] if j >= 0 else None
-        out["in"] = {"ok": prev is not None and prev.rstrip().endswith(TERMINAL), "word": ws[i]["text"],
-                     "before": prev, "why": "a sentence ends before the clip" if prev and prev.rstrip().endswith(TERMINAL)
-                     else ("the window starts at the clip: no word before it" if prev is None else
-                           f"the recogniser runs on into the clip ('{prev}')")}
+        t_open = float(ws[j + 1]["start"])      # the clip's opening word (its self-repair, when there is one)
+        gap = t_open - (float(ws[j].get("end") or ws[j]["start"]) if j >= 0 else 0.0)   # no word before: from the
+        ends = prev is not None and prev.rstrip().endswith(TERMINAL)                     # window's start
+        # (b) is measured on the INDEPENDENT recogniser's word timing, as ruling 38 words it; the acoustic check of the
+        # cut itself is the render's (cut_accept.check_cut_acoustics and G16 hold a cut not inside a measured pause)
+        head = prev is None and wav_start <= 0.0
+        pause = gap >= PAUSE_MIN_S - 1e-9
+        out["in"] = {"ok": ends or pause or head, "word": ws[i]["text"], "before": prev,
+                     "pause_ms": int(round(gap * 1000)),
+                     "why": "a sentence ends before the clip" if ends else
+                     ("the clip opens on the file's first spoken word (the window reaches the file head and holds no "
+                      "word before it, ruling 38)" if head else
+                      (f"a measured pause of {gap * 1000:.0f} ms with no recognised word before the clip "
+                       f"(>= {PAUSE_MIN_S * 1000:.0f} ms, ruling 38)" if pause else
+                       ("the window starts at the clip: no word before it" if prev is None else
+                        f"the recogniser runs on into the clip ('{prev}', {gap * 1000:.0f} ms before it)")))}
         if repair:
             out["in"].update(self_repair=repair, why=out["in"]["why"] + f"; the speaker's false start '{repair}' "
                              "opens the sentence (ruling 8: a self-repair, part of the sentence)")
     else:
         out["in"] = {"ok": False, "why": f"the recogniser has no '{first}' within 0.6 s of the clip's start"}
-    if co:
-        i = co[-1]
+    if co:                                      # the occurrence nearest the clip's end (audit 0338, as at the IN)
+        i = min(co, key=lambda k: abs(float(ws[k].get("end") or ws[k]["start"]) - t_out))
         nxt = ws[i + 1]["text"] if i + 1 < len(ws) else None
         ok = ws[i]["text"].rstrip().endswith(TERMINAL) and nxt is not None
         out["out"] = {"ok": ok, "word": ws[i]["text"], "after": nxt,
@@ -191,7 +230,7 @@ def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_s
     if wav is None:
         wav, wav_start = audio_window(video_id, start, end, work_dir)
     sec, rep = second_pass(router, wav)
-    off = start - (wav_start if wav_start is not None else max(0.0, start - PAD_S))
+    off = start - (wav_start if wav_start is not None else max(0.0, start - PAD_BEFORE_S))
     span = span_text(sec, off, off + (end - start)) or sec["text"]
     sw = [w for w in sec.get("words") or [] if _inside(w, off, off + (end - start))]
     toks = re.findall(r"[\w'’$%.,-]+", text or "")
@@ -203,5 +242,6 @@ def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_s
     return {"video_id": video_id, "start": start, "end": end, "model": rep.backend, "replayed": rep.replayed,
             "second_pass_text": span, "self_repair": repair, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
             "critical": cmp_["critical"], "speakers": turns, "audio": os.path.basename(wav),
-            "edges": edges(sec, wav_start if wav_start is not None else max(0.0, start - PAD_S), start, end, text),
+            "edges": edges(sec, wav_start if wav_start is not None else max(0.0, start - PAD_BEFORE_S), start, end,
+                           text),
             "ok": cmp_["ok"] and turns["turn_change_inside"] is False}

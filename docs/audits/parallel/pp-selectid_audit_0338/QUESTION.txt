@@ -1,0 +1,63 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+pipeline/transcript_truth.py runs law L-v 2 on every selected clip: a SECOND, independent recogniser (scribe, with
+word timing and diarisation) transcribes the SOURCE audio around the clip. Its edges() is CUTTABLE (orchestrator
+rulings C / 7):
+- the clip's IN must follow the independent recogniser's own sentence end;
+- the clip's OUT must end on one, with a next word heard after it.
+Store or caption punctuation is never evidence.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why (orchestrator rulings 03:12 ET Nov 13, from the measured funnel of the 02:37 build):
+- 38. IN edge "no word before it": measure a longer window before the clip (pad 4 s). "The acceptance rule is
+  unchanged: the independent recogniser must show a sentence end before the clip, or a measured pause of at least
+  700 ms with no speech. A clip that starts at the first spoken word of the file counts as a sentence start when the
+  window reaches the file head and holds no speech."
+  - Measured: 3 of the build's 5 stage-3 losses were IN edges where the 1.5 s window ended inside a pause. The audio
+    there was -54 to -59 dBFS for ~1.0 s, and the recogniser heard no word. One clip was an episode's first words
+    (2.35 s into the file).
+- 39. OUT edge number match (K2, a defect): the edge matcher uses the same number canonicaliser as L-v 2.
+  - Measured: the primary's "…67 to 68,000." vs the recogniser's "…sixty-seven to sixty-eight thousand." ending at
+    9.48 s (the clip ends at 9.44 s), next word "James". The matcher compared the first 4 letters ("thou" vs "6800")
+    and lost a clean sentence end. L-v 2's own comparison canonicalises and had passed the clip.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass. The two acceptance additions here (the 700 ms
+  pause and the file head) are the orchestrator's own ruling 38, quoted above.
+
+The change (pipeline/transcript_truth.py):
+1. PAD_BEFORE_S = 4.0. audio_window() fetches [start - 4.0, end + 1.5] (PAD_S after, unchanged), clamped at the file
+   head. verify_segment's fallbacks use PAD_BEFORE_S. The WAV's name holds its bounds, so new windows are new files
+   and new recogniser calls.
+2. edges() IN: the clip's opening word (its ruling-8 self-repair when there is one) is accepted when:
+   (a) the recogniser's word before it ends in terminal punctuation (unchanged); or
+   (b) gap >= PAUSE_MIN_S = 0.700 s, where gap = the opening word's start minus the previous recognised word's end
+       (no recognised word in between, by construction); with no recognised word before it in the window, the gap is
+       measured from the window's start; or
+   (c) the window reaches the file head (wav_start <= 0) and holds no recognised word before the clip.
+   The record adds pause_ms and a reason for each case. Everything else in the IN and OUT logic is unchanged.
+3. edges() matching (ruling 39): the clip's first / last word is found by the old 4-letter rule OR by canon.canon_tokens
+   (the L-v 2 canonicaliser) on a run of up to CANON_RUN = 6 recogniser words starting at (IN) / ending at (OUT) the
+   candidate word, compared with the clip text's first / last canonical token. The time windows (0.6 s IN, 0.8 s OUT)
+   are unchanged.
+4. tests/package/test_angles.py, new class TestEdgesRulings38And39:
+   - the 750 / 650 ms boundary;
+   - a sentence end needs no pause;
+   - the file head vs a window that starts at the clip, and a 1000 ms no-word stretch;
+   - a self-repair (the pause is measured before it);
+   - audio_window's 4 s pre-pad and the clamp at the file head (cached files, no network);
+   - the spoken-number match at OUT ("thousand." + "James") and at IN ("Twenty-five percent" = "25 %"), and a
+     different number never matching;
+   - verify_segment end to end.
+
+Check in particular:
+- that (b) and (c) cannot pass a clip whose opening word FOLLOWS a recognised word by less than 700 ms;
+- whether measuring the pause on the recogniser's word timing alone is enough for "a measured pause ... with no
+  speech", or whether speech the recogniser missed could pass. Say what you can verify;
+- that the canonical match cannot match a DIFFERENT word or number at an edge (a run reaching another number, a
+  repeated word);
+- off-by-one and index errors in the run slicing (ws[i:i+6], ws[i-5:i+1]) and in j / j+1 with a self-repair;
+- that nothing else that the OUT rule or L-v 2's compare / speaker checks accept has changed.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

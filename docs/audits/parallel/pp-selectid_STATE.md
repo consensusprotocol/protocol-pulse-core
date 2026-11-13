@@ -11,8 +11,8 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 | 35: too_many_sentences retired | DONE (audit 0335, 2 cycles, all three reviewers SHIP yes): recorded only, never rejects. | none: no sentence cap in run_fresh, pinned, sentence_law, editorial_gate or edl_rules. |
 | 36: layout_ineligible stays | no change | none |
 | 37: a question ending allowed in the HOOK role only | NOT STARTED (a no-op until the render changes). | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
-| 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | next | none (mine) |
-| 39: OUT edge, the L-v 2 number canonicaliser | next | none (mine) |
+| 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | DONE (audit 0338, 2 cycles). The pause is measured on the independent recogniser's word timing, as the ruling words it; the acoustic check of the cut stays the render's (check_cut_acoustics / G16). Want an acoustic confirmation at the pin stage too? Say so. | none (mine) |
+| 39: OUT edge, the L-v 2 number canonicaliser | DONE (audit 0338). Both edges also read the occurrence nearest the clip's own time, not an earlier or later same word. That closes a fail-open the audit's test exposed. | none (mine) |
 | 32: snap outward to whole sentences, <= 20 s, one speaker | after 38 and 39 | none (mine) |
 | 40: the miner's "imperative" label | yours to pp-ingest | - |
 
