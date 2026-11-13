@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 17:24 HOLD AT STAGE PREPARE: pin 13949b7c, run runs/pinned_20261113_221758, run_fresh exit 3 at 17:23 ET. Not delivered; nothing published. The edge-word check (the prepared clip's own decode against the lock's first / last word) failed twice. The cause is being measured.
+- hook (Simply Bitcoin DcUbBkyeh9M 216.054-228.674): first 'currencies' OK; LAST heard 'or', expected 'reissued.'.
+- clip_01 (Yahoo Finance MqVqfEDXgLo 937.971-957.291, CZ): FIRST heard 'thank', expected 'I'; last 'percent' / '6%.' OK.
+- clip_02 (Altcoin Daily): both edges PASS.
+- Every stage before prepare passed: stage pinned (ruling 17), validate, cut, sentence_law.
+
+## 17:18 RULING 72 MEASURED on tonight's 9 spans: it CATCHES 1b4a63d0's G18 hook before the seal. It holds ONE span that passed every render gate, on a spelling variant ('because' / Scribe's "'cause"): that is for the orchestrator to rule. About $0.026 per line-up.
+- Method: main's code (ccee9fee) on a scratch root seeded with the cached acquisitions (no download, no decode, no GPU), with the pins' own approved texts. Raw data in scratchpad e081/r72_measure.json.
+- 1b4a63d0 hook: HOLD (ruling 72), on the speaker's repeats AND false starts: ['', 'when'], ['', 'and'], ['market is', "market's"], ['', "that's why the bull that's"], ['', 'the why'], ['', 'w and']. This is the G18 class the 9:16 held on at 01:39. Its two clips: same as spoken.
+- 61fd55d0 / 0c68b589:
+  - hook: ADOPT_SPOKEN, ['in', 'and']. The pin's 'a personal mistake IN shareholders pay' is spoken 'AND'.
+  - clip 2: ADOPT_SPOKEN, a dropped 'I' restored.
+  - Both adopted texts are confirmed by the render's own validate_range + segment_lock (ruling 17 adopts them).
+  - 61fd55d0's clip 3: ruling 17's hold, as at 13:48.
+- 0c68b589 clip 3 (the attested text): HOLD on [['because', 'cause']]. Scribe writes "'cause"; canon keeps 'cause' (it is not 'because'), and 'cause' is not in ruling 67's FUNCTION_WORDS. THIS EXACT CLIP PASSED EVERY RENDER GATE at 17:12, G18 included. So it is a false hold under ruling 72 as worded, 1 of 9 spans tonight.
+  - FOR THE ORCHESTRATOR TO RULE: whether spoken variants of the SAME word count as no difference ("'cause" / 'because', and contractions such as "market's" / 'market is'). That would be a closed equivalence list in the comparison only. The render's gates are unchanged either way.
+- Cost: one paid reading per acquisition window, about $0.0086 each: 61fd55d0 $0.0258, 1b4a63d0 $0.0258 (3 windows each). A line-up asked again is answered from cache.
+- The service runs ccee9fee (restarted 17:17:44). The builder has the contract: its request directory, decoder_sha 25cd6f15e6c9, RULES 'ruling 17 + ruling 72'.
+- Written to disk during the 13949b7c render; committed after it.
+
+## 17:17 PIN 13949b7c RENDERING (the builder's 16:57 build, code 2f145afa): run stamp 20261113_221720, tmux pipeline_pulse_check_20261113_221720, HEAD 77aee8be. The GPU0 lease has been held by PID 745160 since 17:17:20; the yield flag went up at 17:17:15 and came down at 17:17:21.
+- Frozen as data/moments_pins/MOMENTS_PIN_LEDGER_215708.json (sha256 594b1176...6bdf6). check_pin_only: READY 13949b7c2779021c (the builder's worktree at d24c2618).
+- Line-up: hook Simply Bitcoin DcUbBkyeh9M 216.05-228.67 (12.62 s); clip Yahoo Finance MqVqfEDXgLo 937.97-957.29 (19.32 s); clip Altcoin Daily HWuMai_mAug 1691.14-1698.07 (6.93 s). The takeaway follows clip 3.
+- Written to disk; committed after the run ends.
+
 ## 17:17 RULING 72 MERGED (ccee9fee; audits batch 67 x3, every consensus point implemented, the integrator's own fail-open fixed: bible E-FAIL-082). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (both references reproduced); test_lock_precheck 24 passed.
 - WHAT: the pre-check compares the second recogniser with the lock on EVERY span.
   - The speaker's own immediate repetitions or function words (ruling 67's class, the builder's attest.carry_class) give 'adopt_spoken'. The spoken text is confirmed by the render's OWN validate_range + segment_lock.
