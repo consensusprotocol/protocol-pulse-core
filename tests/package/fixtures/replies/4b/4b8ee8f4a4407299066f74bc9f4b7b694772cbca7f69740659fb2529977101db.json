@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: The Bitcoin Layer): \"Bitcoin started turning though before liquidity turned red. And that's an important caveat here.\"\nCLIP label=\"clip_01\" (on screen: Simply Bitcoin): \"It's like, you know, the idea of what doesn't kill you makes you stronger. You just die. And like I don't think Bitcoin's going to die. I think it's embedded deeply in why I'm here and why this business was started because after FTX Celsius and BlockFi collapsed, I just realized that trillions of dollars have to come into this asset if we want it to be successful and it's not coming in via plastic devices.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.\"\nCLIP label=\"clip_03\" (on screen: Coin Bureau): \"The funds are selling strategies stock. The Bitcoin never changes hands. Nothing in MSCI's decision forces strategy to sell its Bitcoin.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin is resilient and its price/ownership is not easily forced by external market, exchange, or institutional events.\", \"clips\": {\"hook\": 4, \"clip_01\": 5, \"clip_02\": 1, \"clip_03\": 4}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Bitcoin referent carries over; both discuss Bitcoin's strength.\"}, \"clip_01 -> clip_02\": {\"followable\": false, \"why\": \"Jumps from capital inflows to RSA cryptography; no clear link.\"}, \"clip_02 -> clip_03\": {\"followable\": false, \"why\": \"Jumps from RSA bet to MSCI/Strategy selling; unrelated subject.\"}}}",
+ "usage": {
+  "in": 534,
+  "out": 6246,
+  "usd_reported": 0.00119486
+ },
+ "usd": 0.095292,
+ "seconds": 167.35,
+ "recorded_at": "2026-11-13T09:36:45Z"
+}

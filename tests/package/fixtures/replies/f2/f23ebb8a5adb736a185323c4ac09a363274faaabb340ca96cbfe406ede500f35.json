@@ -1,0 +1,206 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a48bbf64b64a8541076c9b8c526e83025a53c5d1ad5adfc8f3e9d0ae8fd270f7",
+ "result": {
+  "text": "APR eligibility and terms apply and may vary by jurisdiction. In the world of Bitcoin, security isn't just a feature, it's the entire foundation. And that's where my new sponsor",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 9.16,
+    "text": "APR eligibility and terms apply and may vary by jurisdiction. In the world of Bitcoin, security isn't just a feature, it's the entire foundation. And that's where my new sponsor"
+   }
+  ],
+  "words": [
+   {
+    "text": "APR",
+    "start": 0.06,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eligibility",
+    "start": 0.54,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.2,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terms",
+    "start": 1.36,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "apply",
+    "start": 1.58,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.0,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 2.16,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vary",
+    "start": 2.38,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "jurisdiction.",
+    "start": 2.9,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 4.0,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.08,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 4.14,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.3,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.38,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "security",
+    "start": 4.88,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't",
+    "start": 5.42,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.64,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.82,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feature,",
+    "start": 5.9,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 6.52,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.66,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "entire",
+    "start": 6.74,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "foundation.",
+    "start": 7.2,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.18,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 8.3,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 8.46,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 8.56,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 8.7,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sponsor",
+    "start": 8.9,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.18
+ },
+ "usd": 0.001836,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-13T09:25:28Z"
+}

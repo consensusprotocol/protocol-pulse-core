@@ -1,0 +1,272 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b27d5f7d1a32399994ac505c4b2193750295cd1bfdeb1f27a4bd992567b24ac4",
+ "result": {
+  "text": "Michael Saylor just had a pretty rough day. Strategy has been officially booted from MSCI's indexes. That means index funds now have to dump billions worth of its shares by a set day, the close of the 30th of November. Meanwhile-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.2,
+    "end": 17.24,
+    "text": "Michael Saylor just had a pretty rough day. Strategy has been officially booted from MSCI's indexes. That means index funds now have to dump billions worth of its shares by a set day, the close of the 30th of November. Meanwhile-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Michael",
+    "start": 0.2,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Saylor",
+    "start": 0.6,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 1.2,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 1.44,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.6,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 1.86,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rough",
+    "start": 2.14,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.",
+    "start": 2.4,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 3.54,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.24,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 4.38,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "officially",
+    "start": 4.54,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "booted",
+    "start": 5.22,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 5.7,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSCI's",
+    "start": 6.0,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indexes.",
+    "start": 7.1,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 8.34,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "means",
+    "start": 8.6,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index",
+    "start": 9.02,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funds",
+    "start": 9.48,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 9.92,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 10.14,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dump",
+    "start": 10.44,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billions",
+    "start": 10.86,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 11.44,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.66,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 11.76,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shares",
+    "start": 11.94,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 12.4,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.56,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "set",
+    "start": 12.7,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day,",
+    "start": 13.06,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.9,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "close",
+    "start": 13.94,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.54,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.64,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30th",
+    "start": 15.02,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.36,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November.",
+    "start": 15.48,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Meanwhile-",
+    "start": 16.84,
+    "end": 17.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.46
+ },
+ "usd": 0.003492,
+ "seconds": 0.79,
+ "recorded_at": "2026-11-13T09:43:20Z"
+}

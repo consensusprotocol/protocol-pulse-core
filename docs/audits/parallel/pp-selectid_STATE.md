@@ -22,6 +22,26 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 04:52 ET: the 04:41 build, ruling 34 in: no package; the binding gate is now the clips-alone verdict
+
+Record: tests/package/proof/ledger_20261113_094156 (code 56582b6b), with FUNNEL.md. Funnel:
+- 313 moments -> **171 usable** (95 before ruling 34);
+- 113 left out by the render's STAND_ALONE: 64 openers, 49 with no place under the topic rule with the screen;
+- 2 ad-read early -> 16 cleared step A (24 screened) -> 11 L-v 2 + CUTTABLE -> 8 can open;
+- 3 angles from heimdall deepseek, in time.
+Both line-ups tried failed the CLIPS-ALONE verdict (MEDLEY_PROMPT):
+- angle 1: "no through-line a viewer can state" (the hook rated 3);
+- angle 3: the ratings failed (hook 3, a clip 2), re-lined, then no line-up.
+**This is item 3 of your 02:45 order: the verdict demands one through-line with every clip rated at least 4 on how
+much it advances it. That is the old shared-story strategy, and now the binding gate.** Your ruling decides it.
+The stage-1 losses now:
+- layout_ineligible: 52 (36 alone; DEC-12d, it stays);
+- not_statement: 35 (26 alone; ruling 37 brings back question-ending HOOKS);
+- opener: 22 (11 alone).
+
+Ruling 33 part 2 is merged at the render (11e361cc). My pin side is blocked: the render's scorer must affirm every
+trimmed segment, and the pin stage has no GPU (see above).
+
 ### 04:42 ET: the 04:22 build (code a3e8bd65): a line-up passed the clips-alone verdict, then the WALL BUDGET cut it
 
 Record: tests/package/proof/ledger_20261113_092234, with FUNNEL.md. Funnel:

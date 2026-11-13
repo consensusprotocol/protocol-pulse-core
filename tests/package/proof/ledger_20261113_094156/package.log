@@ -1,0 +1,12 @@
+=== 04:41:56 EST LEDGER medley build, code 56582b6b+188c19f04be6, now (render clock) 2026-11-13T09:41:56+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 510 rows ({"hard exclusion flag (L-u)": 123, "altcoin or not about Bitcoin": 30, "speaker change inside (caption marker)": 22})
+  word pass: {"rows": 728, "unreadable": 0, "ready": 619, "not_ready": 109, "failed": 0, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 510: 313 moments on 22 videos (313 word records); 0 rows wait for a word record, 78 wait for their own window, 83 do not re-anchor, 0 malformed, 36 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 432 window record(s) used (0 video(s) without a caption record for L-s)
+  171 usable, 113 of them left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen), 2 on an ad-read marker (the exclusion screen's deterministic part), 16 cleared step A (53 s)
+  11 of them pass the second recognition pass and CUTTABLE (66 s)
+  8 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (362 s)
+  angle 1 line-up 1 (4 clips, 43.2 s): clips alone FAIL {'hook': 3, 'clip_01': 5, 'clip_02': 4, 'clip_03': 4} flagged [] (390 s)
+  angle 3 line-up 1 (4 clips, 38.9 s): clips alone FAIL {'hook': 3, 'clip_01': 2, 'clip_02': 5, 'clip_03': 5} flagged ['hook -> clip_01', 'clip_01 -> clip_02'] (422 s)
+no package (no angle gave a package: angle 1: the clips alone have no through-line a viewer can state (or it was not measured); angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: the clips alone fail (ratings / joins): dropped ['95d20143d5e2af5612b1', 'c3be6f1c71c4397b081a'], re-lined; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules); usable 171, cleared 16

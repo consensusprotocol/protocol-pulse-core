@@ -1,0 +1,380 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "458e8ff849bd11912605840e60f3e3e81d907c1db83e89bd78257389e0aa48ac",
+ "result": {
+  "text": "And then like, it was like a voodoo, and then like the next day it was a wave. PHP server vulnerability, 70% of the internet. WordPress cooked 40% of the internet. Bang, BTC Pay Foundation. I was just like, \"This is like a nightmare or some shit.\" I'm just like, \"This is horrifying.\" But the problem with that was-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.66,
+    "text": "And then like, it was like a voodoo, and then like the next day it was a wave. PHP server vulnerability, 70% of the internet. WordPress cooked 40% of the internet. Bang, BTC Pay Foundation. I was just like, \"This is like a nightmare or some shit.\" I'm just like, \"This is horrifying.\" But the problem with that was-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 0.1,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 0.26,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.66,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 0.76,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.94,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.18,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "voodoo,",
+    "start": 1.44,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.92,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 2.02,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 2.16,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.4,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 2.52,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 2.78,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.3,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 3.36,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.5,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wave.",
+    "start": 3.62,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "PHP",
+    "start": 4.28,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "server",
+    "start": 5.1,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vulnerability,",
+    "start": 5.42,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "70%",
+    "start": 6.26,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.64,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.7,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet.",
+    "start": 6.8,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "WordPress",
+    "start": 7.2,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cooked",
+    "start": 7.78,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "40%",
+    "start": 8.22,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.6,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.66,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet.",
+    "start": 8.76,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bang,",
+    "start": 9.36,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BTC",
+    "start": 9.68,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Pay",
+    "start": 10.12,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Foundation.",
+    "start": 10.68,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.08,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 11.12,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 11.24,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 11.4,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"This",
+    "start": 11.78,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.0,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 12.18,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.34,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nightmare",
+    "start": 12.52,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 13.08,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 13.32,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shit.\"",
+    "start": 13.58,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 13.8,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 13.96,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 14.1,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"This",
+    "start": 14.24,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.42,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "horrifying.\"",
+    "start": 14.66,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 15.38,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.98,
+    "end": 16.079,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem",
+    "start": 16.1,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 16.4,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.54,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was-",
+    "start": 16.66,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.68
+ },
+ "usd": 0.003336,
+ "seconds": 1.72,
+ "recorded_at": "2026-11-13T09:25:11Z"
+}
