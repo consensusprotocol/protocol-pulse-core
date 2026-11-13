@@ -1,0 +1,26 @@
+# Heimdall audit
+
+**Question:** Batch 59 cycle 2 (verification). Cycle 1: one [low] consensus, no change required (CONSENSUS.md); the diff is unchanged.
+
+Batch 59 = RULING 37 (orchestrator 2026-11-13 '03:42'), verbatim: "edl_rules R1 NO_QUESTION_HOOK is relaxed for moments pins to: a hook may end on a question when the clips-alone verdict and the blind coherence check pass the join that follows it. A question ending stays refused for every non-hook clip."
+Background: edl_rules.rule_r1 refused any hook whose text ends with '?' (every EDL). A moments pin is a package sealed by the packager (pp-selectid); its sealed gate rows (moments_package.gates, inside package_sha256) include "medley" = the blind clips-alone verdict (status, by, replayed, n, "flagged": the joins, named "<label> -> <next label>", that a viewer could NOT follow) and "coherence" = the blind coherence check (status, by, replayed, n; no per-join verdict). The packager's own gate_problems treats a row as authorising only when status == "PASS" and replayed is False (law L-j: a replayed verdict is never deliverable). pinned.build_edl already copies sealed package fields into the EDL (moments_package_sha256, moments_checks, moments_bridge, moments_btc_screen). The packager confirmed this reading (04:53 ET): gates.medley PASS live with 'hook -> clip_01' not flagged = "the join after the question hook was judged and passed"; gates.coherence carries no per-join verdict and none will be sealed.
+The change:
+- pinned.build_edl copies moments_package.gates into the EDL as moments_gates.
+- edl_rules.question_hook_join(edl): (ok, why): ok only when moments_gates.medley is a dict with status "PASS", replayed exactly False and "flagged" a list WITHOUT "hook -> clip_01", and moments_gates.coherence is a dict with status "PASS" and replayed exactly False. Anything else (missing, not a dict, unstated replayed, no flagged list) fails closed.
+- rule_r1: for a bound moments package only (package_type == "moments" AND moments_package_sha256 present): (a) any clip whose text ends with '?' FAILS ("a question ending is refused for every non-hook clip"); (b) a hook ending with '?' passes only when question_hook_join is ok. Every other EDL (story path, protected references): exactly the old R1 (hook only).
+Tests: pipeline/test_question_hook.py: passing question hook; another join flagged still passes; the join flagged; each verdict not PASS / replayed / unstated / no flagged list; missing or malformed gates; a non-hook clip ending '?', with a statement hook and with a passing question hook; story-path EDLs unchanged; build_edl carries the gates. test_edl_rules (the old R1 tests) unchanged and passing.
+FIND: anything still open; a question hook passing without both sealed verdicts passing that join; a non-hook question ending passing in a moments pin; any change for a non-moments EDL; a fail-open path; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0018
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/test_question_hook.py:60** The 'unstated replayed' medley case and the 'no flagged list' case both expect the same why-fragment 'clips-alone verdict is not on the pin', which is also the message for not-PASS; the assertion therefore does not distinguish which condition fired. It still proves fail-closed (ok is False and the ruling-37 FAIL prefix is present), so the test does test what it claims overall, but the why-fragment check is weaker than it looks — a regression that fails for the wrong reason (e.g. status flipped instead of replayed) would still pass the assertion. Not a code defect; a test-precision note only.
+  - evidence: `({"medley": {"status": "PASS", "flagged": []}}, "clips-alone verdict is not on the pin"),   # unstated
+               ({"medley": dict(LIVE)}, "clips-alone verdict is not on the pin"),                `
+  - fix: Optionally assert the distinguishing part of the message (e.g. that 'replayed' or 'flagged' appears) or accept the shared fragment; no functional change needed.
+  - raised by glm:F2; agree: qwen27b, glm
+
+## Raised but not agreed
+- glm:F1 [low] A moments hook whose text ends with '?' but whose last *sentence* is a statement (e.g. 'Is it over? It is not.') takes the question-hook branch and requires the sealed gates, whereas the old rule (and the docstring's 'pure-question hooks only') would have passed it without gates; conversely a moments hook ending in '?' with no gates now fails where the old rule also failed, so behaviour is consistent there — the only divergence is the mixed-punctuation hook, which now depends on sealed verdicts. This matches the ruling's wording ('a hook may end on a question') so it is arguably intended, but it is a behavioural change for mixed hooks inside moments pins that no test covers. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none
