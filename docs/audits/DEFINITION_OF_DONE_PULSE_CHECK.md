@@ -6,6 +6,24 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:38 RULING 68 MEASURED (L-aa). The pre-check reproduces the render's decode BYTE FOR BYTE and catches 61fd55d0's clip 3 in 2.4 min for $0.0078. It does NOT catch 1b4a63d0's G18 hook: that is a different class. decoder_sha 25cd6f15e6c9; raw data in scratchpad e081/r68_measure.json.
+- METHOD: tonight's two line-ups were each sent ONCE with their pins' approved texts, as the builder would send them, then once as a decode request. Run from the main checkout at c1c9deee on GPU0, under the lease with the yield flag.
+- MINUTES AND SCRIBE COST PER LINE-UP:
+  - 61fd55d0: 144.5 s wall. Downloads 102.4 s (outside the lease), decodes 38.3 s (GPU0, one large-v3 load), locks 2.7 s. Scribe $0.0078 (one call, clip 3's window).
+  - 1b4a63d0: 119.7 s wall. Downloads 86.1 s, decodes 28.9 s, Scribe $0.0098 (one call, the hook's 'like').
+  - Asked again, a line-up is answered in 1.5-1.6 s with no spend (cached acquisition, reused answer).
+- REPRODUCIBILITY: on all 6 spans the pre-check's transcript sha256 equals the render's (61fd55d0: both renders, 184605 and 191409; 1b4a63d0: 054035). The lock text is equal wherever the same approved text was sent.
+- HOLDS OF THIS CLASS IT WOULD HAVE CAUGHT:
+  - 61fd55d0 clip 3: CAUGHT. 'hold' with the render's exact reason ([['in','you'], ["that's why",'']], the second recogniser reads the run decode), before any paid verdict. Ruling 67's fix (the run decode's words) would have been made before the seal.
+  - 1b4a63d0 hook (G18, 9:16): NOT CAUGHT, and correctly so for ruling 68 as ordered. The pre-check reproduces the render: 'adopted' (one difference, 'like', which the second recogniser reads).
+    - The speaker's repeats are absent from BOTH the decode and the approved text, so ruling 17 never compares them.
+    - The recorded second-recogniser reading against the lock shows them: ['', 'markets when'], ['', 'and'], ['market is', "market's"], ['', "that's why the bull that's"], ['', 'the why'], ['', 'w and'].
+    - What WOULD catch it is comparing the lock with the second recogniser on EVERY span, not only where the decode and the approved text differ. That is ruling 31's 'lock as spoken', at about $0.012 per minute of window per span (about $0.03 for this line-up). For the orchestrator to rule; not built.
+- CONTRACT CAVEAT, measured: a decode request (no approved text) gives the render's EXACT-RANGE lock, the words entirely inside the range.
+  - The builder's pins carry approved texts, which the render anchors by words (validate_range's anchor, +-3 s). That anchored lock started 1-2 words EARLIER on 5 of 6 spans: a word straddling the range start.
+  - So the builder sends its CANDIDATE approved text. no_difference / adopted / two_readings pass at the render. On 'hold' the reason carries the render's decode over the same anchored words ('run_decode: ...'); that is the text to adopt, and asking again confirms 'no_difference' for free.
+- NEXT: the service starts (tmux pipeline_pp_lockcheck, GPU0) and the builder gets the contract.
+
 ## 15:33 MERGED AND PUSHED (c1c9deee), no run in flight: RULING 68 (34b4256a, audits batch 64 x2) and THE 9:16 COLOUR-TAG FIX (c1c9deee, audits batch 65 x2).
 - regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
 - pipeline/regression.sh: exit 0, PULSE MEDLEY REFERENCE: REPRODUCED.
