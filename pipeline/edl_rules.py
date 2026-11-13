@@ -25,6 +25,10 @@ Rules:
     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
                               that ends a sentence (. ? !) plus 0.20-0.45s tail
                               pause, strictly before the next source word starts.
+    R11 VO_SHAPE:             (law L-y) a package of type 'moments': at most one
+                              takeaway after the last clip and at most ONE line
+                              before it (intro slot or between clips), only with
+                              the package's recorded, confirmed bridge. No minimum.
 """
 import math
 import argparse
@@ -648,6 +652,78 @@ def rule_r10(edl, transcripts=None):
 # VALIDATE ALL
 # ==============================================================
 
+# ==============================================================
+# R11: VO_SHAPE (law L-y, orchestrator 2026-11-12 '20:30')
+# ==============================================================
+
+def rule_r11(edl):
+    """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): at most ONE line after
+    the LAST clip (the takeaway; R4 keeps its 30-word cap) and at most ONE line before it: the L-y 2 exception, a bridge
+    at one join, either between the hook clip and clip 1 (the EDL's intro slot, the only line the renderer plays there)
+    or after clip k. That one line passes only with the package's recorded bridge (moments_package.bridge, copied into
+    the EDL as moments_bridge by pinned.build_edl): its text is exactly the line, its reason ('why') and the blind
+    clips-alone check's confirmation ('confirmed_by') are stated, and the line is at most BRIDGE_WORD_CAP words ('as short
+    as it can be'). Without that record a line before the takeaway fails (L-y 1: no VO intro after the hook; no bridges
+    between clips); two or more fail always (the line-up is wrong). No minimum: no VO line at all passes. Story-type and
+    untyped EDLs (the protected references) are not moments packages and are unchanged. Fail closed (audit batch 40): a
+    moments EDL without a vo object and clips, a clip without an integer index, bridges that are not a list, a line whose
+    after_clip is not a clip index, clip indexes other than exactly 1..n, a non-text line, and a recorded bridge
+    with no bridge line fail."""
+    if edl.get("package_type") != "moments":
+        return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+    vo, clips = edl.get("vo"), edl.get("clips")
+    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
+        return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
+    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+    if any(type(i) is not int for i in idx) or idx != list(range(1, len(clips) + 1)):   # batch 40 F1 / cycle 3 glm F1:
+        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not 1..{len(clips)}"  # the last clip is index n
+    bridges = vo.get("bridges")
+    if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
+        return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"
+    failures, before, closing = [], [], 0
+    intro = vo.get("intro")
+    if intro is not None and intro != "":                         # F3: '   ' is a line to vo.py and the renderer
+        before.append(("the intro slot (hook -> clip 1)", intro))
+    for i, b in enumerate(bridges, 1):
+        a = b.get("after_clip") if isinstance(b, dict) else None
+        if type(a) is not int or a not in idx:                    # F2: a line with no clip slot fails here too
+            failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
+        elif a == max(idx):
+            closing += 1
+            t = b.get("text")
+            if not isinstance(t, str) or not t.strip():             # cycle 3 qwen F1: the takeaway is a voiced line
+                failures.append(f"VO line {i}: the takeaway after the last clip is not text")
+        else:
+            before.append((f"the slot after clip {a}", b.get("text")))
+    if closing > 1:
+        failures.append(f"law L-y 1: {closing} VO lines after the last clip (one takeaway)")
+    rec = edl.get("moments_bridge")
+    if len(before) > 1:
+        failures.append(f"law L-y 2: {len(before)} lines before the takeaway ({'; '.join(s for s, _ in before)}): at "
+                        f"most ONE bridge; two or more = the line-up is wrong")
+    elif before:
+        slot, text = before[0]
+        if not isinstance(text, str) or not text.strip():
+            failures.append(f"law L-y: the line in {slot} is not text")
+        elif not (isinstance(rec, dict) and isinstance(rec.get("text"), str) and rec["text"].strip() == text.strip()):
+            failures.append(f"law L-y 1 / 2: a line in {slot} without the package's recorded bridge (moments_bridge "
+                            f"with exactly this text)")
+        else:
+            why, conf = rec.get("why"), rec.get("confirmed_by")
+            if not (isinstance(why, str) and why.strip()):
+                failures.append("law L-y 2: the recorded bridge has no reason ('why')")
+            if not ((isinstance(conf, str) and conf.strip()) or (isinstance(conf, (list, dict)) and conf)):
+                failures.append("law L-y 2: the recorded bridge is not confirmed by the blind check ('confirmed_by')")
+            if _word_count(text) > BRIDGE_WORD_CAP:
+                failures.append(f"law L-y 2: the bridge is {_word_count(text)} words (max {BRIDGE_WORD_CAP})")
+    elif rec is not None:
+        failures.append("law L-y 2: a recorded bridge (moments_bridge) with no bridge line in the VO")
+    if failures:
+        return False, "R11 FAIL (law L-y): " + "; ".join(failures)
+    return True, (f"R11 PASS (law L-y): {len(before)} bridge (recorded and confirmed) before the takeaway; "
+                  f"{closing} takeaway line(s)")
+
+
 def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
                   transcripts=None):
     """Run all rules. Returns (all_pass, results list).
@@ -666,6 +742,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
         (rule_r8, (edl, channels_registry)),
         (rule_r9, (edl, transcripts)),
         (rule_r10, (edl, transcripts)),
+        (rule_r11, (edl,)),
     ]:
         ok, reason = rule_fn(*args)
         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})

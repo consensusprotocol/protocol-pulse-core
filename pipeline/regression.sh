@@ -96,4 +96,28 @@ if [ "$PREVIEW_RC" -ne 0 ] && [ "$PREVIEW_RC" -ne 2 ]; then      # 2 = reference
 fi
 echo ""
 
+# ── Step 7: third protected reference (orchestrator order 2026-11-12 '20:30' (c)) ──
+echo "--- STEP 7: PROTECTED REFERENCE pulse_moments_2026-11-12 (every file exactly as its SHA256SUMS, none added) ---"
+REF_M=references/pulse_moments_2026-11-12
+if git ls-files --error-unmatch "$REF_M/SHA256SUMS" >/dev/null 2>&1; then   # the index lists it even when deleted
+    # tracked by this checkout: it must be whole (audit batch 41: a deleted directory is a FAIL, never a SKIP; any
+    # nonzero checker exit fails, a missing checker included) and its tracked files those of the tag
+    if ! python3 pipeline/check_reference_manifest.py "$REF_M"; then
+        echo "  FAIL: the protected moments reference changed (docs/references/REFERENCE_PULSE_MOMENTS_2026-11-12.md)"
+        exit 1
+    fi
+    if ! git rev-parse -q --verify refs/tags/ref-pulse-moments-2026-11-12 >/dev/null; then
+        echo "  FAIL: tag ref-pulse-moments-2026-11-12 missing from this repository"
+        exit 1
+    fi
+    if ! git diff --quiet ref-pulse-moments-2026-11-12 -- "$REF_M"; then
+        echo "  FAIL: the reference's tracked files (SHA256SUMS included) differ from tag ref-pulse-moments-2026-11-12"
+        exit 1
+    fi
+    echo "  tracked files identical to tag ref-pulse-moments-2026-11-12"
+else
+    echo "  SKIP: this checkout predates the reference (references/pulse_moments_2026-11-12 not tracked)"
+fi
+echo ""
+
 echo "=== REGRESSION COMPLETE ==="

@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       rule_r9, validate_edl)
+                       rule_r9, rule_r11, validate_edl)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1056,6 +1056,167 @@ class TestR4Moments(unittest.TestCase):
             self.assertIn("VO=40% of runtime (max 25%)", why, t)
             self.assertNotIn("moments", why, t)
 
+
+
+class TestR11VoShape(unittest.TestCase):
+    """Law L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30', PBX on the review video: 'too much voiceover ...
+    only one input at the end'): for a package of type 'moments', R11 allows one takeaway after the LAST clip and at
+    most ONE line before it, the L-y 2 exception, in the intro slot (hook -> clip 1) or after clip k, and only with the
+    package's recorded bridge (moments_bridge: the same text, 'why', 'confirmed_by'; <= 20 words). Must-fail: an intro
+    or a bridge without that record, two lines before the takeaway, two takeaways, an unconfirmed or reasonless or
+    mismatched or long bridge, a record without a line, malformed shapes. Must-pass: the default shape, no VO at all,
+    the exception in either slot. R4-moments has no minimum VO share. Story-type and untyped EDLs are unchanged."""
+    MARK = TestR4Moments.MARK
+    BRIDGE = "Same question, from a miner's side."
+
+    def edl(self, clips=(12, 12, 8), intro=None, bridges=(), t="moments", hook=10.0, rec=None):
+        e = {"hook": {"duration": hook, "channel": "H"},
+             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
+             "vo": {"intro": intro, "bridges": [dict(b) if isinstance(b, dict) else b for b in bridges]},
+             "total_clip_duration": round(hook + sum(clips), 2)}
+        if t is not None:
+            e["package_type"] = t
+        if t == "moments":
+            e.update(self.MARK)
+        if rec is not None:
+            e["moments_bridge"] = rec
+        return e
+
+    TAKE = {"text": " ".join(["w"] * 24), "after_clip": 3}            # the takeaway: the line after the LAST clip
+
+    def rec(self, **kw):
+        r = {"after": "clip_01", "after_clip": 1, "join": "clip_01 -> clip_02", "text": self.BRIDGE,
+             "why": "clip 2 opens on 'they', whose referent is not in clip 1", "confirmed_by": "blind clips-alone check"}
+        r.update(kw)
+        return r
+
+    def fails(self, e, part):
+        ok, why = rule_r11(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+        return why
+
+    def test_the_default_shape_passes_and_r4_has_no_minimum(self):
+        for bridges, hook in (((), 15.0), ((self.TAKE,), 10.0)):     # no VO line at all; one takeaway
+            e = self.edl(bridges=bridges, hook=hook)
+            ok, why = rule_r11(e)
+            self.assertTrue(ok, why)
+            ok, why = rule_r4(e)                                      # 47 + 0 + 14.3 = 61.3 s; 42 + 10.6 + 14.3 = 66.9 s
+            self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(intro="", bridges=(self.TAKE,)))  # an empty intro is no line
+        self.assertTrue(ok, why)
+
+    def test_an_intro_or_a_bridge_without_the_record_fails(self):
+        for intro in ("Bitcoin does not have any authority.", "w"):
+            self.fails(self.edl(intro=intro, bridges=(self.TAKE,)), "without the package's recorded bridge")
+        for intro in ("   ", 5, ["w"]):                                # audit F3: a whitespace / non-text line fails
+            self.fails(self.edl(intro=intro, bridges=(self.TAKE,)), "is not text")
+        self.fails(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE)),
+                   "a line in the slot after clip 1 without the package's recorded bridge")
+        for text in (123, None, "  ", ["w"]):                          # cycle 4 glm F1: a non-text bridge fails too
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 1}, self.TAKE), rec=self.rec()), "is not text")
+
+    def test_the_one_exception_passes_in_either_slot_with_its_record(self):
+        ok, why = rule_r11(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE), rec=self.rec()))
+        self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(intro=self.BRIDGE, bridges=(self.TAKE,),            # the hook -> clip 1 join
+                                    rec=self.rec(after="hook", after_clip=0, join="hook -> clip_01")))
+        self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 2},), rec=self.rec()))  # no takeaway
+        self.assertTrue(ok, why)
+
+    def test_the_record_must_match_give_a_reason_and_be_confirmed(self):
+        line = ({"text": self.BRIDGE, "after_clip": 1}, self.TAKE)
+        self.fails(self.edl(bridges=line, rec=self.rec(text="Another line.")), "without the package's recorded bridge")
+        self.fails(self.edl(bridges=line, rec="a reason"), "without the package's recorded bridge")
+        for why in (None, "", "   ", 5):
+            self.fails(self.edl(bridges=line, rec=self.rec(why=why)), "has no reason ('why')")
+        for conf in (None, "", "  ", [], {}, True, 1):
+            self.fails(self.edl(bridges=line, rec=self.rec(confirmed_by=conf)), "not confirmed by the blind check")
+        long = " ".join(["w"] * 21)
+        self.fails(self.edl(bridges=({"text": long, "after_clip": 1}, self.TAKE), rec=self.rec(text=long)),
+                   "the bridge is 21 words (max 20)")
+        ok, why = rule_r11(self.edl(bridges=({"text": " ".join(["w"] * 20), "after_clip": 1}, self.TAKE),
+                                    rec=self.rec(text=" ".join(["w"] * 20))))
+        self.assertTrue(ok, why)
+
+    def test_two_lines_before_the_takeaway_fail_even_with_a_record(self):
+        two = ({"text": "a b", "after_clip": 1}, {"text": self.BRIDGE, "after_clip": 2}, self.TAKE)
+        self.fails(self.edl(bridges=two, rec=self.rec()), "law L-y 2: 2 lines before the takeaway")
+        self.fails(self.edl(intro=self.BRIDGE, bridges=({"text": "a b", "after_clip": 1}, self.TAKE), rec=self.rec()),
+                   "law L-y 2: 2 lines before the takeaway")
+
+    def test_two_lines_after_the_last_clip_fail(self):
+        self.fails(self.edl(bridges=(self.TAKE, self.TAKE)), "law L-y 1: 2 VO lines after the last clip")
+
+    def test_a_takeaway_that_is_not_text_fails(self):
+        for text in (None, "", "   ", 123, ["w"]):                    # cycle 3 qwen F1 / F2
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},)), "the takeaway after the last clip is not text")
+
+    def test_a_record_without_a_bridge_line_fails(self):
+        self.fails(self.edl(bridges=(self.TAKE,), rec=self.rec()), "with no bridge line in the VO")
+
+    def test_a_line_without_a_clip_slot_fails(self):
+        for bad in ({"text": "a b", "after_clip": "3"}, {"text": "a b"}, "a b", {"text": "a b", "after_clip": 99},
+                    {"text": "a b", "after_clip": 0}, {"text": "a b", "after_clip": True}):
+            self.fails(self.edl(bridges=(bad,)), "is not a clip index")
+
+    def test_fail_closed_shapes(self):
+        e = self.edl()
+        e["vo"]["bridges"] = "a b"
+        self.assertFalse(rule_r11(e)[0])
+        for drop in ("vo", "clips"):
+            e = self.edl()
+            del e[drop]
+            self.assertFalse(rule_r11(e)[0], drop)
+        for bridges in (None, "missing"):                              # audit F2: the lines are always stated
+            e = self.edl()
+            if bridges is None:
+                e["vo"]["bridges"] = None
+            else:
+                del e["vo"]["bridges"]
+            self.fails(e, "vo bridges is not a list")
+        for index in ("1", None, 1.0, True, 2, 3, 0):                # audit F1 / cycle 3 glm F1: exactly 1..n
+            e = self.edl()
+            e["clips"][0]["index"] = index
+            self.fails(e, "are not 1..3")
+        e = self.edl()                                                  # cycle 4 glm: out of order, all integers
+        e["clips"][0]["index"], e["clips"][1]["index"] = 2, 1
+        self.fails(e, "are not 1..3")
+        e = self.edl(bridges=(self.TAKE, {"text": "y", "after_clip": 3}))
+        e["clips"][2]["index"] = 2                                      # a duplicated last index cannot hide a takeaway
+        self.fails(e, "are not 1..3")
+        e = self.edl()
+        e["clips"][1] = "clip"
+        self.assertFalse(rule_r11(e)[0])
+
+    def test_story_type_and_untyped_edls_are_unchanged(self):
+        busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})
+        for t in ("story", None, "Moments"):
+            ok, why = rule_r11(self.edl(intro="An intro line.", bridges=busy, t=t))
+            self.assertTrue(ok, (t, why))
+            self.assertIn("not a moments package", why)
+
+    def test_validate_edl_rejects_a_moments_edl_with_an_intro(self):
+        ok, results = validate_edl(self.edl(intro="An intro line.", bridges=(self.TAKE,)))
+        self.assertFalse(ok)
+        row = next(r for r in results if r["rule"] == "rule_r11")
+        self.assertFalse(row["pass"])
+        self.assertIn("without the package's recorded bridge", row["reason"])
+
+    RUN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "runs", "pinned_20261112_165629")
+
+    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "edl.json")), "the delivered review run not on this machine")
+    def test_the_delivered_review_video_fails_and_its_l_y_reshape_passes(self):
+        """The video PBX was 'very pleased' with, but with 'too much voiceover': its real EDL (an intro and a bridge
+        between its two clips, no recorded bridge) fails; the same package reshaped to L-y (no intro, its own takeaway
+        after the last clip) passes R11."""
+        with open(os.path.join(self.RUN, "edl.json")) as f:
+            e = json.load(f)
+        self.fails(e, "law L-y 2: 2 lines before the takeaway")
+        e["vo"] = {**e["vo"], "intro": None, "bridges": [b for b in e["vo"]["bridges"] if b["after_clip"] == 2]}
+        ok, why = rule_r11(e)
+        self.assertTrue(ok, why)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

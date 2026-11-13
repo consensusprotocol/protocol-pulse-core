@@ -286,6 +286,21 @@ class TestMomentsPackage(Fixture):
         self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
 
+    def test_the_packages_recorded_bridge_reaches_the_edl(self):
+        """Law L-y 2 (orchestrator 2026-11-12 '20:30'): the package's record of its one bridge (moments_package.bridge:
+        text, why, confirmed_by) is copied into the EDL as moments_bridge, where edl_rules R11 reads it; a package
+        without one leaves it null."""
+        rec = {"after": "clip_01", "after_clip": 1, "join": "clip_01 -> clip_02", "text": "x",
+               "why": "clip 2's 'it' is clip 1's subject", "confirmed_by": "blind clips-alone check"}
+        vo = {"intro": None, "bridges": [{"text": "x", "after_clip": 1}, {"text": "y", "after_clip": 2}]}
+        pinned.prepare(self.write(self.pin(moments_package=self.mp(type="moments", edl_vo=vo, bridge=rec))),
+                       self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["moments_bridge"], rec)
+        self.assertEqual(edl["vo"]["bridges"], vo["bridges"])
+        import edl_rules
+        self.assertTrue(edl_rules.rule_r11(edl)[0], edl_rules.rule_r11(edl))
+
     def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
         """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
         (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,
