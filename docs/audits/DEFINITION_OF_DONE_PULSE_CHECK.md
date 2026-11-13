@@ -6,7 +6,7 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## 15:38 RULING 68 MEASURED (L-aa). The pre-check reproduces the render's decode BYTE FOR BYTE and catches 61fd55d0's clip 3 in 2.4 min for $0.0078. It does NOT catch 1b4a63d0's G18 hook: that is a different class. decoder_sha 25cd6f15e6c9; raw data in scratchpad e081/r68_measure.json.
+## 15:39 RULING 68 MEASURED (L-aa). The pre-check reproduces the render's decode BYTE FOR BYTE and catches 61fd55d0's clip 3 in 2.4 min for $0.0078. It does NOT catch 1b4a63d0's G18 hook: that is a different class. decoder_sha 25cd6f15e6c9; raw data in scratchpad e081/r68_measure.json.
 - METHOD: tonight's two line-ups were each sent ONCE with their pins' approved texts, as the builder would send them, then once as a decode request. Run from the main checkout at c1c9deee on GPU0, under the lease with the yield flag.
 - MINUTES AND SCRIBE COST PER LINE-UP:
   - 61fd55d0: 144.5 s wall. Downloads 102.4 s (outside the lease), decodes 38.3 s (GPU0, one large-v3 load), locks 2.7 s. Scribe $0.0078 (one call, clip 3's window).
