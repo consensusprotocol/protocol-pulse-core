@@ -689,6 +689,10 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
         return out, None
     return out, err
 
+TAKEAWAY_SAID = ("The takeaway may characterise what the clips SAID, never what WILL happen. Two kinds were refused: a "
+                 "forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.'), and a superlative that "
+                 "upgrades a speaker's hedged view to a settled claim (\"Bitcoin's apolitical design is the real "
+                 "productivity story.\" after a speaker's 'I think Bitcoin will outperform').")   # orchestrator 17:20
 WRITE_LY = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
 THE ANGLE (the point this video makes): "{angle}"
 The clips play BACK TO BACK as a medley, with no narration between them (verbatim, in play order; the channels were not
@@ -701,6 +705,7 @@ After the last clip you speak ONE closing line, the TAKEAWAY; then a sign-off cr
 {bridge}Write:
 - "takeaway": {lo}-{hi} words in short declarative sentences: the point the medley adds up to, as YOUR OWN
   commentary (your opinion or conclusion), a point and not a summary, never a restatement of any clip.
+  {said}
 - "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters. Both carry the angle.
 Every line gives "cites": the ids of the clips it relies on (none for your own commentary).
 RULES (a line that breaks one is rejected):
@@ -1568,7 +1573,8 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, 
     angle_text = " ".join(quote_data(angle["angle"], 300).replace('"', "'").split())     # M9: escaped, one line
     prompt = WRITE_LY.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
                              lineup=_lineup_block(segs, ctx, a_by), bridge=ask, lo=budget[0], hi=budget[1],
-                             extra=(extra + "\n") if extra else "", bridge_shape=shape, style=HS.PROMPT_RULES)
+                             extra=(extra + "\n") if extra else "", bridge_shape=shape, style=HS.PROMPT_RULES,
+                             said=TAKEAWAY_SAID)
     r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor, deadline_s=WRITER_DEADLINE_S)
     try:
         obj = json.loads(r.text.strip())
@@ -1614,27 +1620,48 @@ ids) or your own commentary, which states no fact; never a claim the clips do no
 cites the clips it comes from.
 {style}
 Return ONLY this JSON object: {{"{slot}": {{"text": "...", "cites": []}}}}"""   # RULING 65: one line, alone
-LINE_WHY = {"VERDICT_NO": "the fact check found that the clips do not say it",
+LINE_WHY = {"AGAIN": "your first rewrite of it was refused too",   # 17:20: a title's second write is told
+            "VERDICT_NO": "the fact check found that the clips do not say it",
             "VERDICT_UNCERTAIN": "the fact check could not find it in the clips",
             "STYLE": "it breaks the house style"}
 LINE_LIMIT = {"caption": "at most 220 characters", "title": "at most 70 characters"}
+LINE_CHARS = {"caption": 220, "title": 70, "takeaway": 240}
+LINE_ONLY_WRITES = 2                  # RULING 66 amended (17:02 Nov 13): "up to TWO fresh writes of the failed line only"
+TAKEAWAY_LIMIT = ("{lo}-{hi} words, one or two sentences: host commentary attributed to nobody that states no fact, no "
+                  "speaker's view, no advice or prediction and no accusation, and that no viewer could take for a "
+                  "speaker's words")
+TAKEAWAY_WHY = dict(VO_FIX, **LINE_WHY, COMMENTARY="as host commentary it must state no fact, no speaker's view, no "
+                    "advice or prediction and no accusation, and must not sound like a speaker",
+                    COHERENCE="a blind viewer did not find its point supported by the clips",
+                    RUNTIME="with it the video does not land 60-70 s")
 
 
-def write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=7, avoid_vendor=None):
+def write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=7, avoid_vendor=None, avoid_model=None,
+               limit=None):
     """RULING 65: ONE more write for one line alone ("caption" or "title"): the angle, the line-up, the other lines kept
     as gated, and the refused sentence(s) with why. A new prompt (WRITE_LINE), so a recorded reply is never replayed
-    into it. -> (reply, {"text", "cites"}); a reply out of contract raises (and is rejected)."""
+    into it. -> (reply, {"text", "cites"}); a reply out of contract raises (and is rejected).
+    RULING 66 amended (17:02): the takeaway alone too. Each refused entry carries the refused sentence ("text") and why
+    (its rule in plain words, and the gate's detail); the bridge is among the kept lines; `limit` gives its words;
+    avoid_model puts the second attempt on the other writer model. Ruling 65's prompts are unchanged byte for byte."""
     from select_by_id import UNTRUSTED
     from story_semantics import quote_data
     q = lambda t, n: " ".join(quote_data(t, n).replace('"', "'").split())
     kept = "\n".join(f'{s.upper()}: "{q(fields[s]["text"], 300)}"' for s in ("takeaway", "title", "caption")
                      if s != slot and fields.get(s))
-    why = "; ".join(f'"{q(v.get("detail") or "", 200)}" ({LINE_WHY.get(v.get("rule"), v.get("rule"))})'
-                    for v in refused)
+    if slot == "takeaway":                               # ruling 66 amended: the sentences it may not repeat
+        if (fields.get("bridge") or {}).get("text"):
+            kept += f'\nBRIDGE (spoken between two clips): "{q(fields["bridge"]["text"], 300)}"'
+        why = "; ".join(f'"{q(v.get("text") or "", 300)}" ({TAKEAWAY_WHY.get(v.get("rule"), v.get("rule"))}: '
+                        f'{q(v.get("detail") or "", 240)})' for v in refused) + ". " + TAKEAWAY_SAID
+    else:
+        why = "; ".join(f'"{q(v.get("detail") or "", 200)}" ({LINE_WHY.get(v.get("rule"), v.get("rule"))})'
+                        for v in refused)
     prompt = WRITE_LINE.format(angle=q(angle["angle"], 300), note=UNTRUSTED.replace("<sentences>", "the quotes"),
                                lineup=_lineup_block(segs, ctx, a_by), kept=kept, slot=slot, refused=why,
-                               limit=LINE_LIMIT[slot], style=HS.PROMPT_RULES)
-    r = router.call("angle_write", prompt, 1500, seed, avoid_vendor=avoid_vendor, deadline_s=WRITER_DEADLINE_S)
+                               limit=limit or LINE_LIMIT[slot], style=HS.PROMPT_RULES)
+    r = router.call("angle_write", prompt, 1500, seed, avoid_vendor=avoid_vendor, deadline_s=WRITER_DEADLINE_S,
+                    **({"avoid_model": avoid_model} if avoid_model else {}))
     try:
         obj = json.loads(r.text.strip())
         ids = [m["moment_id"] for m in segs]
@@ -1642,11 +1669,12 @@ def write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=7, av
         if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
                 not ln["text"].strip() or not isinstance(ln["cites"], list) or \
                 any(not isinstance(c, str) or c not in ids for c in ln["cites"]) or \
-                len(ln["text"]) > (220 if slot == "caption" else 70):
+                len(ln["text"]) > LINE_CHARS[slot]:
             raise ValueError(f"exactly {{'{slot}': {{'text', 'cites'}}}}, cites from the line-up's ids, "
-                             f"{LINE_LIMIT[slot]}")
-    except (ValueError, TypeError, AttributeError):
+                             f"at most {LINE_CHARS[slot]} characters")
+    except (ValueError, TypeError, AttributeError) as e:
         router.reject(r)
+        e.backend = r.backend                            # audit 1735 C1: the next attempt avoids this model too
         raise
     return r, ln
 
@@ -1656,6 +1684,54 @@ def lone_slot(violations):
     else None."""
     slots = {v.get("slot") for v in violations}
     return next(iter(slots)) if len(slots) == 1 and slots <= {"caption", "title"} else None
+
+
+def _words_in(words, text):
+    """A verbatim run (>= 2 canonical tokens) of `words` in `text` (as context_integrity.raising_words_ok matches)."""
+    import canon
+    if not isinstance(words, str) or not isinstance(text, str):
+        return False
+    wt, tt = canon.canon_tokens(words), canon.canon_tokens(text)
+    return len(wt) >= 2 and any(tt[i:i + len(wt)] == wt for i in range(len(tt) - len(wt) + 1))
+
+
+def takeaway_refusal(fields, violations, cx=None):
+    """RULING 66 amended (17:02): one write's failures that are the TAKEAWAY's own -> (entries, alone). An entry
+    {"text": the refused takeaway, "rule", "detail"} is a violation on its slot; RUNTIME or R4 on the whole video ("-"),
+    which with the other lines kept only the takeaway's length moves; or a context failure the video's words caused
+    (STRONGER: step C's raising_words; NOT_ENTAILED: its added_by) when those words are a run of the takeaway and of no
+    other line. alone: every failure of the write is such an entry (none on another line, none a clip's own, none that
+    no line's words caused), so the takeaway alone may be written again."""
+    t = ((fields or {}).get("takeaway") or {}).get("text") or ""
+    others = [((fields or {}).get(s) or {}).get("text") or "" for s in ("title", "caption", "bridge")]
+    cseg = (cx or {}).get("segments") or {}
+    entries, alone = [], bool(violations) and bool(t.strip())
+    for v in violations or []:
+        rule, detail = v.get("rule"), str(v.get("detail") or "")
+        own = v.get("slot") == "takeaway" or (v.get("slot") == "-" and rule in ("RUNTIME", "R4"))
+        if not own and v.get("segment") in cseg and (
+                (rule == "STRONGER" and detail.startswith("stronger certainty: the video's words")) or
+                (rule == "NOT_ENTAILED" and detail.startswith("the video's words"))):
+            c = (cseg[v["segment"]] or {}).get("C") or {}
+            w = c.get("raising_words") if rule == "STRONGER" else c.get("added_by")
+            own = _words_in(w, t) and not any(_words_in(w, o) for o in others)
+        if own:
+            entries.append({"text": t, "rule": rule, "detail": detail[:300]})
+        else:
+            alone = False
+    return entries, alone
+
+
+def takeaway_alone_gates(router, pk, fid, sources, a_by, levels, now, writers_v, writers_f):
+    """RULING 66 amended (17:02): the paid gates of a package whose takeaway alone was written again, the other lines
+    kept as gated (their verdicts in `fid`, the write they came from): the blind fidelity verdict on the takeaway ALONE,
+    merged (merge_fid), and context integrity on the package as it will be sealed. -> (fid, cx)."""
+    man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
+    ln = [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"] if x["slot"] == "takeaway"]
+    one = VF.check(router, fidelity_segments(pk, a_by), ln, writers_v, 7, man, levels, writers_f)
+    a_use = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+    cx = CI.check_contexts(router, pk, CI.contexts_from_sources(pk, sources, now), writers_v, 7, a_use, writers_f, True)
+    return merge_fid(fid, "takeaway", one), cx
 
 
 def fixed_caption(fields, segs, ctx):
@@ -1705,33 +1781,43 @@ def rewrite_alone(router, slot, pk, fields, fid, refused, angle, segs, by_id, ct
         p = assemble_medley(order, by_id, dict(fields, **{slot: line}), ctx, f"{pk.get('vo_kind')}; {why}")
         p["medley"] = pk.get("medley")
         return p
-    try:
-        r, line = write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=seed,
-                             avoid_vendor=avoid_vendor)
-        rec.update(written=line["text"], writer=r.backend)
-        writers_v.add(r.vendor)                          # L-x: the line's verdict never comes from its writer
-        writers_f.add(r.family)
-        pk2 = build_pk(line, f"the {slot} rewritten alone (ruling 65 a)")
-        cheap2 = cheap_checks(pk2, a_by, levels, ctx.now)
-        if cheap2[0]:
-            raise ValueError("cheap gates: " + "; ".join(f"{v['rule']}: {v['detail']}" for v in cheap2[0])[:300])
-        ln = [{k: x[k] for k in ("slot", "text", "cites")} for x in pk2["lines"] if x["slot"] == slot]
-        one = VF.check(router, fidelity_segments(pk2, a_by), ln, writers_v, 7, man, levels, writers_f)
-        rec["verdict"] = {"ok": one["ok"], "violations": one["violations"], "backend": one.get("backend")}
-        if not one["ok"]:
-            raise ValueError("fidelity: " + "; ".join(f"{v['rule']}: {v['detail']}" for v in one["violations"])[:300])
-        fid2 = merge_fid(fid, slot, one)
-        cx2 = CI.check_contexts(router, pk2, CI.contexts_from_sources(pk2, sources, ctx.now), writers_v, 7, a_use(pk2),
-                                writers_f, True)
-        if not (fid2["ok"] and cx2["ok"]):
-            raise ValueError("context integrity on the package with it: " +
-                             "; ".join(f"{v['rule']}" for v in cx2["violations"])[:200])
-        rec["passed"] = True
-        return pk2, fid2, cx2, cheap2, rec
-    except Exception as e:
-        rec.update(passed=False, why=f"{type(e).__name__}: {str(e)[:300]}")
+    told, by = list(refused), None                      # 17:20: a title's second write, on the other writer model
+    for k in range(LINE_ONLY_WRITES if slot == "title" else 1):
+        r, line = None, None
+        try:
+            r, line = write_line(router, angle, segs, ctx, a_by, slot, fields, told, seed=seed,
+                                 avoid_vendor=avoid_vendor, avoid_model={by} if by else None)
+            rec.update(written=line["text"], writer=r.backend)
+            writers_v.add(r.vendor)                      # L-x: the line's verdict never comes from its writer
+            writers_f.add(r.family)
+            pk2 = build_pk(line, f"the {slot} rewritten alone (ruling 65 a)")
+            cheap2 = cheap_checks(pk2, a_by, levels, ctx.now)
+            if cheap2[0]:
+                raise ValueError("cheap gates: " + "; ".join(f"{v['rule']}: {v['detail']}" for v in cheap2[0])[:300])
+            ln = [{k_: x[k_] for k_ in ("slot", "text", "cites")} for x in pk2["lines"] if x["slot"] == slot]
+            one = VF.check(router, fidelity_segments(pk2, a_by), ln, writers_v, 7, man, levels, writers_f)
+            rec["verdict"] = {"ok": one["ok"], "violations": one["violations"], "backend": one.get("backend")}
+            if not one["ok"]:
+                raise ValueError("fidelity: " + "; ".join(f"{v['rule']}: {v['detail']}"
+                                                          for v in one["violations"])[:300])
+            fid2 = merge_fid(fid, slot, one)
+            cx2 = CI.check_contexts(router, pk2, CI.contexts_from_sources(pk2, sources, ctx.now), writers_v, 7,
+                                    a_use(pk2), writers_f, True)
+            if not (fid2["ok"] and cx2["ok"]):
+                raise ValueError("context integrity on the package with it: " +
+                                 "; ".join(f"{v['rule']}" for v in cx2["violations"])[:200])
+            rec["passed"] = True
+            return pk2, fid2, cx2, cheap2, rec
+        except Exception as e:
+            rec.update(passed=False, why=f"{type(e).__name__}: {str(e)[:300]}")
+            rec.setdefault("tries", []).append({"written": (line or {}).get("text"),
+                                                "writer": r.backend if r is not None else None, "why": rec["why"]})
+            by = r.backend if r is not None else (getattr(e, "backend", None) or by)   # audit 1735 C1
+            if line is not None:
+                told = told + [{"rule": "AGAIN", "detail": f"{line['text']}: {str(e)[:200]}"}]
     if slot != "caption":                                # (c): a title that fails again is held
-        rec["why"] = f"the title failed alone twice: held (ruling 65 c): {rec['why']}"
+        rec["why"] = (f"the title failed alone {1 + len(rec.get('tries') or [])} times (its second write on the other "
+                      f"writer model, 17:20): held (ruling 65 c): {rec['why']}")
         return pk, dict(fid, ok=False), {"ok": True, "violations": []}, cheap_checks(pk, a_by, levels, ctx.now), rec
     line = fixed_caption(fields, segs, ctx)               # (b): the fixed caption, code-written, no model
     pk3 = build_pk(line, "the fixed caption (ruling 65 b)")
@@ -2577,27 +2663,53 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
                     relined, w_used = True, writes      # no write is paid
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
-                while w_used < writes:
+                alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
+                while True:                                # RULING 66 amended (17:02): the writes; then, when the
+                    lone = w_used >= writes                # takeaway alone failed, the takeaway ALONE, up to twice
+                    if lone and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None and
+                                     not last_rw65):
+                        break
                     if over_budget(ai):
                         break
                     w_over = package_over(line)
                     if w_over:
                         rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
                         break
-                    w_used += 1
-                    try:
-                        wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
-                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed,
-                                                    avoid_vendor=writer_avoid or None, other=written)
-                    except NoBridgeFits as e:                  # the seconds rule it out: re-line, no write is paid
-                        if join is not None:
-                            dropped.add(segs[join[0] + 1]["moment_id"])
-                        rec["why"] = f"{e}: re-lined"
-                        relined = join is not None
-                        break
-                    except Exception as e:
-                        rec["attempts"].append({"writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
-                        continue
+                    if lone:                               # the other lines kept as gated; told each refusal and why
+                        alone_n += 1
+                        b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
+                        if b is None:
+                            rec["attempts"].append({"writer_error": "no takeaway length lands 60-70 s with the kept "
+                                                                    "lines", "takeaway_alone": alone_n})
+                            break
+                        try:
+                            wr, tl = write_line(router, angle, segs, ctx, a_by, "takeaway", last_fields, t_refused,
+                                                seed=7 + w_used + alone_n + 10 * ai + 100 * n_lineup + wseed,
+                                                avoid_vendor=writer_avoid or None,
+                                                avoid_model={alone_by} if alone_by else None,   # the other model
+                                                limit=TAKEAWAY_LIMIT.format(lo=b[0], hi=b[1]))
+                        except Exception as e:
+                            rec["attempts"].append({"writer_error": f"{type(e).__name__}: {str(e)[:200]}",
+                                                    "takeaway_alone": alone_n})
+                            alone_by = getattr(e, "backend", None) or alone_by   # its reply out of contract: avoided
+                            continue
+                        alone_by = wr.backend
+                        fields = dict(last_fields, takeaway=tl, takeaway_budget=list(b))
+                    else:
+                        w_used += 1
+                        try:
+                            wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
+                                                        seed=7 + w_used + 10 * ai + 100 * n_lineup + wseed,
+                                                        avoid_vendor=writer_avoid or None, other=written)
+                        except NoBridgeFits as e:              # the seconds rule it out: re-line, no write is paid
+                            if join is not None:
+                                dropped.add(segs[join[0] + 1]["moment_id"])
+                            rec["why"] = f"{e}: re-lined"
+                            relined = join is not None
+                            break
+                        except Exception as e:
+                            rec["attempts"].append({"writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
+                            continue
                     writers_v.add(wr.vendor)
                     writers_f.add(wr.family)
                     for m in segs:                             # item 45: the verdict off every writer, when one exists
@@ -2639,19 +2751,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                                          "backend": med.get("backend")}
                     fields["supply_exception"] = exception
                     pk = assemble_medley([m["moment_id"] for m in segs], cleared, fields, ctx,
-                                         f"medley (L-y), written, attempt {w_used}")
+                                         f"medley (L-y), written, attempt {w_used}" +
+                                         (f", the takeaway alone {alone_n} (ruling 66, 17:02)" if lone else ""))
                     pk["medley"] = med
                     written = [fields["bridge"]["text"]] if fields.get("bridge") else ()   # a redo budgets with it
                     cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
                     att = {"writer": wr.backend, "writer_tried": [list(x) for x in getattr(wr, "tried", [])],   # ruling 5
                            "runtime": pk["runtime_s_estimate"], "bridge": pk["bridge"],
                            "takeaway_budget": fields.get("takeaway_budget"),
-                           "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]]}
+                           "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]],
+                           **({"takeaway_alone": {"attempt": alone_n, "refused": [dict(x) for x in t_refused]}}
+                              if lone else {})}
                     rec["attempts"].append(att)
-                    take = _takeaway_record(ai, n_lineup, w_used, pk, cheap)
+                    take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap)
                     out["takeaways"].append(take)
                     last_fields = fields
-                    log(f"  angle {ai + 1} line-up {n_lineup} write {w_used} ({wr.backend}, takeaway {take['words']} "
+                    log(f"  angle {ai + 1} line-up {n_lineup} write {w_used + alone_n}" +
+                        (" (the takeaway alone, ruling 66 17:02)" if lone else "") +
+                        f" ({wr.backend}, takeaway {take['words']} "
                         f"words, {pk['runtime_s_estimate']} s): " +
                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
                         + f" ({time.time() - t0:.0f} s)")
@@ -2672,6 +2789,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     if cheap and lone_slot(cheap) is None:     # ruling 65: a lone caption / title goes on
                         att["violations"] = cheap
                         take_failed += take["passed"] is False
+                        own, t_alone = takeaway_refusal(fields, cheap)          # ruling 66 amended (17:02)
+                        t_refused += [e for e in own if e not in t_refused]
+                        last_fid, last_rw65 = (last_fid if lone else None), False   # a write's own lines: unjudged
                         b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
                         extra = _redo([dict(v, detail=v["detail"] + (f" (a takeaway of {b[0]}-{b[1]} words lands it)"
                                                                      if b else " (no takeaway length lands it with this "
@@ -2679,8 +2799,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                                                      else " (no takeaway length lands it)"))
                                        if v["rule"] == "RUNTIME" else v for v in cheap])
                         continue
-                    fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
-                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid, cx)
+                    if lone and last_fid is not None:      # ruling 66 amended: the kept lines keep their verdicts
+                        fid, cx = takeaway_alone_gates(router, pk, last_fid, sources, a_by, levels, ctx.now,
+                                                       writers_v, writers_f)
+                    else:
+                        fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
+                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap, fid, cx)
                     framing = [v for v in cx["violations"] if v["rule"] in VO_DEPENDENT]
                     att["violations"] = cheap + fid["violations"] + cx["violations"]
                     att["verdict_classes"] = (fid.get("verdict") or {}).get("classes")
@@ -2710,6 +2834,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             rec["why"] = "context integrity failed on something the VO cannot fix"
                             w_used = writes
                             break
+                        own, t_alone = takeaway_refusal(fields, cheap + fid["violations"] + cx["violations"], cx)
+                        t_refused += [e for e in own if e not in t_refused]   # ruling 66 amended: what it is told
+                        last_fid, last_rw65 = fid, bool(att.get("rewrite"))
                         extra = _redo(cheap + fid["violations"] + [{"slot": v["segment"], "rule": v["rule"],
                                                                     "detail": VO_FIX.get(v["rule"], v["detail"])}
                                                                    for v in framing])
@@ -2738,6 +2865,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             extra = _redo([{"slot": "takeaway", "rule": "COHERENCE", "detail":
                                             f"a blind viewer rated the takeaway's point {coh['vo_point']} of 5 for "
                                             f"being supported by the clips: land the point the clips make together"}])
+                            ref = {"text": ((fields.get("takeaway") or {}).get("text") or ""), "rule": "COHERENCE",
+                                   "detail": f"a blind viewer rated its point {coh['vo_point']} of 5"}   # ruling 66
+                            t_refused += [ref] if ref not in t_refused else []
+                            t_alone, last_fid, last_rw65 = True, fid, bool(att.get("rewrite"))
                             continue                          # the clips hold; only the takeaway's point is weak
                         weak = {sg["moment_id"] for sg in pk["segments"][1:]
                                 if (coh.get("clips") or {}).get(sg["label"], COHERENCE_MIN) < COHERENCE_MIN}
@@ -2771,7 +2902,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 if not out["packages"] and not rec.get("why") and not rec.get("result"):
                     last = (rec.get("attempts") or [{}])[-1]
                     rules = sorted({str(v.get("rule")) for v in last.get("violations") or []})
-                    rec["why"] = f"{w_used} write(s) failed their gates" + (f" ({', '.join(rules)})" if rules else "")
+                    rec["why"] = (f"{w_used} write(s)" + (f" and {alone_n} of the takeaway alone (ruling 66, 17:02)"
+                                                          if alone_n else "") + " failed their gates" +
+                                  (f" ({', '.join(rules)})" if rules else ""))
                 if out["packages"] or not relined:
                     break
             if out["packages"] or out.get("budget_stop") or over_budget(ai):

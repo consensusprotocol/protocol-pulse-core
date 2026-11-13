@@ -1,0 +1,7 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 46 s finish=stop usage in 18510 / out 274 usd~0.099 (upper-bound price)
+
+**P0: None** (loop terminates: w_used only increments on full writes up to WRITES, alone_n only increments on lone path up to LINE_ONLY_WRITES=2, over_budget/ai break, explicit break on failed lone condition at 236-239, success paths break after package append; no path exceeds WRITES+2 writes verifiable in diff).  
+**P1: None** (takeaway-alone never bypasses gates: lone path still does cheap_checks + VF.check on takeaway + CI.check_contexts on full pk + coherence + merge only when last_fid set from prior t_alone=True path; no judge code, prompts, or thresholds touched; ruling-65 caption path byte-identical, title exactly 2 writes then held per 190 and test at 521-525; writer-only change per 17:20 order).  
+**P2: None** (takeaway_refusal attribution verifiable as conservative: false-positive "not alone" only drops a retry (e.g. clip_02 POLARITY or <2 tokens at 554-562), never rewrites wrong line; merge_fid precondition holds when used because last_fid only set on t_alone=True paths from takeaway_refusal at 330/356; all new behaviours covered by added tests that mutate to fail if removed).  
+
+SHIP: yes

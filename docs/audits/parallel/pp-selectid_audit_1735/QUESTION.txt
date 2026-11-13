@@ -1,0 +1,77 @@
+You are auditing a change to the medley package builder on branch pp-selectid (Protocol Pulse: the builder of sealed
+medley pins). Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- package.build: for a line-up whose clips pass the clips-alone verdict, a writer model writes the lines in one full
+  write (write_takeaway: the TAKEAWAY, host commentary after the last clip; the TITLE; the CAPTION; a BRIDGE only at a
+  join the verdict flagged). Each write is gated:
+  - cheap_checks (deterministic: house style, runtime 60-70 s, R4, the deterministic fidelity layer);
+  - paid_gates: the blind fidelity verdict on every line, and context integrity per clip, whose step C can find that
+    the video's words make a speaker sound more certain (STRONGER);
+  - coherence (the takeaway's point).
+  Up to WRITES = 2 full writes.
+- Writers are two Heimdall models (deepseek, qwen; vendor heimdall); judges are never the writer's vendor (law L-x).
+- RULING 65 (12:52): when only the caption or the title fails, ONE write of that line alone (write_line, a new prompt
+  told the refused sentence and why; the other lines kept as gated, their verdicts merged by merge_fid). Then: a
+  caption gets a FIXED caption, a title is held.
+- RULING 3: when the takeaway fails both writes and the clips need no bridge, the no-voice fallback may ship the clips
+  with no VO line (adding one clip to land the seconds).
+
+The orders being implemented:
+- RULING 66 AMENDED (orchestrator 17:02): "a candidate whose clips pass and whose LINE failed gets, at once, up to TWO
+  fresh writes of the failed line only (the writer told the refused sentence and why; the second attempt on the other
+  writer model), the passing lines kept as gated ... If the takeaway still fails both, L-y's no-voice fallback applies
+  if the clips meet its seconds, else rest."
+- 17:20:
+  - "YES, the second attempt applies to a failed title as well (two fresh writes of the failed line alone, the second
+    on the other writer model), then hold as ruling 65 says."
+  - "NO CHANGE to either judge." The fix is on the writer's side: "tell the takeaway writer, in its prompt, the two
+    patterns that were refused today (a forecast or permanence claim stated as fact; a superlative that upgrades a
+    speaker's hedged view) and that the line may characterise what was SAID, not what WILL happen."
+
+The change (pipeline/package.py; tests in tests/package/test_medley.py):
+1. The write loop is `while True`. After the full writes are spent, if the LAST write failed on the takeaway ALONE, up
+   to LINE_ONLY_WRITES = 2 writes of the takeaway alone follow (write_line slot "takeaway"):
+   - each is told every refused takeaway of this line-up with why (deduplicated) plus TAKEAWAY_SAID;
+   - the second avoids the first's model (avoid_model = the first one's backend name);
+   - the other lines (title, caption, bridge) are kept from the last write;
+   - the kept lines' verdicts are kept via merge_fid when that write reached the paid gates (takeaway_alone_gates:
+     the verdict on the takeaway alone, plus context integrity on the whole package); otherwise every line is judged
+     (paid_gates);
+   - cheap checks, coherence, the inventory and package_pin.gate_problems all run as before;
+   - ruling 3's no-voice fallback runs after the loop, so after these writes.
+2. takeaway_refusal(fields, violations, cx) decides "the takeaway alone". Its own failures are:
+   - a violation on its slot;
+   - RUNTIME or R4 on "-" (with the other lines kept, only its length moves them);
+   - STRONGER / NOT_ENTAILED whose step-C cited words (raising_words / added_by) are a run of >= 2 canonical tokens
+     of the takeaway and of no other line, and only when the violation's detail shows the words path.
+   Anything else (another line, a clip's own failure, POLARITY, "stronger certainty: uncertain", LY_SHAPE, RECENCY)
+   makes it not alone. No takeaway-alone write follows a write whose caption / title went through ruling 65's rewrite
+   (last_rw65), and none when no takeaway length lands the seconds (takeaway_budget None).
+3. Ruling 65's rewrite_alone, for a TITLE only:
+   - up to LINE_ONLY_WRITES writes;
+   - the second avoids the first's model and is told the first rewrite's refusal (rule "AGAIN");
+   - then held as before, with the count in the why.
+   The caption keeps one write, then the fixed caption. Ruling 65's prompts are unchanged byte for byte (the takeaway
+   prompt pieces are added only for slot "takeaway").
+4. TAKEAWAY_SAID, the 17:20 sentence with today's two refused examples, is in the full write's prompt (WRITE_LY) and
+   in the takeaway-alone prompt.
+5. Records: each takeaway-alone attempt carries "takeaway_alone" {attempt, refused}; out["takeaways"] numbers it 3, 4;
+   the line-up's why counts the takeaway-alone writes; the title's rewrite record carries "tries".
+6. Tests: the takeaway alone passing on attempt 1; attempt 2 on the other model; both failing (then no-voice is tried,
+   else rest); another line failing (no takeaway-alone write); no-voice after the takeaway-alone writes; which failures
+   are the takeaway's own; the title's second write on the other model then held (and the caption unchanged); both
+   prompts carry TAKEAWAY_SAID. Mutation runs: each new behaviour removed fails its test. All 14 suites OK (medley 149).
+
+Check, against the diff:
+- that the loop always terminates (every iteration spends a write or a takeaway-alone attempt, or breaks) and never
+  writes more than WRITES full writes + 2 takeaway-alone writes;
+- that the takeaway-alone path can never seal a line that did not pass every gate (no gate accepts more than before:
+  law: never change what a check accepts to make something pass);
+- that the kept lines' verdicts are only merged when that write's lines were judged, and that merge_fid's precondition
+  (the kept write's violations only on the takeaway) holds whenever it is used;
+- the attribution in takeaway_refusal (false "alone" would rewrite the wrong line; false "not alone" only loses a try);
+- that ruling 65's caption path and prompts are unchanged, and that the title gets exactly two writes;
+- that the writer, not the judges, is what changed (no judge prompt or threshold touched).
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

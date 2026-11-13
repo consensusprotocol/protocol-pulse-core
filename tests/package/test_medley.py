@@ -11,6 +11,7 @@
 - The pin of a medley: intro null, the takeaway after the last clip, the two medley rows required.
 """
 import json
+import re
 import os
 import sys
 import unittest
@@ -1854,6 +1855,189 @@ class TestRuling66Candidate(unittest.TestCase):
         rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], None, "none")], [], candidate=PK.load_candidate(rec))
         rig.run()
         self.assertEqual(rig.medley_calls, [["h", "x", "y", "z"]])
+
+
+class TestRuling66Amended(unittest.TestCase):
+    """RULING 66 amended (17:02 Nov 13): a line-up whose clips pass and whose takeaway alone failed gets, at once, up to
+    TWO writes of the takeaway ALONE (told each refused sentence and why; the second on the other writer model), the
+    other lines kept as gated; then ruling 3's no-voice fallback when its seconds allow, else the line-up rests."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+    WHY = "host commentary 'Nobody gets to bend these rules' fails imperative_or_prediction"
+
+    def failing(self, slot="takeaway", detail=WHY, rule="COMMENTARY"):
+        return TestRuling65Caption.failing(TestRuling65Caption(), slot, detail, rule)
+
+    def run_rig(self, fids, lines, alone_ok=(True,), ms=None, takeaways=None, medleys=None):
+        import context_integrity as CI
+        import vo_fidelity as VF
+        seen, ok_q, avoid = [], list(alone_ok), {}
+
+        def one(router, segs, lns, *a, **k):
+            seen.append([ln["text"] for ln in lns])
+            ok = ok_q.pop(0) if ok_q else True
+            v = [] if ok else [{"slot": lns[0]["slot"], "rule": "COMMENTARY", "detail": f"'{lns[0]['text']}' fails x"}]
+            return {"ok": ok, "violations": v, "measured": True, "replayed": False, "backend": "xai:grok",
+                    "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
+                    "verdict": {"ok": ok, "violations": v, "classes": {lns[0]["slot"]: ["commentary"]}, "claims": []}}
+        saved = (VF.check, CI.check_contexts, CI.contexts_from_sources)
+        VF.check = one
+        CI.check_contexts = lambda *a, **k: {"ok": True, "violations": [], "measured": True, "replayed": False,
+                                             "backends": {"B": "xai", "C": "xai"}}
+        CI.contexts_from_sources = lambda *a, **k: {}
+        try:
+            rig = Rig(ms or self.MS, ["h", "x", "y", "z"] if ms else ["h", "x", "y"],
+                      medleys or [(True, [], None, Rig.LINE)], [None, None], fids=fids, lines=lines,
+                      takeaways=takeaways)
+            inner = rig.router.call
+
+            def spy(role, prompt, *a, **k):
+                m = re.search(r"Your (\w+) was refused", prompt) if role == "angle_write" else None
+                if m:                                          # each line written alone: the model it avoided
+                    avoid.setdefault(m.group(1), []).append(k.get("avoid_model"))
+                return inner(role, prompt, *a, **k)
+            rig.router.call = spy
+            return rig, rig.run(), seen, avoid
+        finally:
+            VF.check, CI.check_contexts, CI.contexts_from_sources = saved
+
+    def test_both_writes_refuse_the_takeaway_then_the_takeaway_alone_passes(self):
+        new = "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."   # 18 words: the budget of 39 s of clips
+        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()], [{"takeaway": {"text": new,
+                                                                                              "cites": []}}])
+        pk = out["package"]
+        self.assertIsNotNone(pk)
+        lines = {x["slot"]: x["text"] for x in pk["lines"]}
+        self.assertEqual(lines["takeaway"], new)
+        self.assertEqual((lines["title"], lines["caption"]), ("Nobody bends the rules", "nobody bends these rules"))
+        prompt = [p for r, p in rig.prompts if r == "angle_write"][-1]
+        self.assertIn("Your takeaway was refused", prompt)                    # told the refused sentence and why
+        self.assertIn(f'"{Rig.LINE}" (as host commentary it must state no fact', prompt)
+        self.assertIn("fails imperative_or_prediction", prompt)
+        self.assertIn('TITLE: "Nobody bends the rules"', prompt)              # the other lines, kept as gated
+        self.assertNotIn('TAKEAWAY: "', prompt)
+        self.assertEqual(seen, [[new]])                                        # the verdict on the takeaway alone
+        self.assertEqual(len(rig.write_calls), 2)                              # the two writes, then the line alone
+        att = out["tried"][0]["attempts"][2]
+        self.assertEqual((att["takeaway_alone"]["attempt"], len(att["takeaway_alone"]["refused"])), (1, 1))
+        self.assertEqual(prompt.count(f'"{Rig.LINE}"'), 1)                    # the same refusal told once
+        self.assertEqual(pk["gates"]["vo_fidelity_verdict"]["status"], "PASS")
+        self.assertEqual(avoid, {"takeaway": [None]})
+        self.assertEqual([t["write"] for t in out["takeaways"]], [1, 2, 3])
+        self.assertIn(PK.TAKEAWAY_SAID, prompt)                                # 17:20: the patterns refused today
+
+    def test_the_second_takeaway_alone_is_on_the_other_writer_model(self):
+        a1, a2 = "Rules nobody can bend are rules that work the same way for every single person who holds them.", "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."
+        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()],
+                                             [{"takeaway": {"text": a1, "cites": []}},
+                                              {"takeaway": {"text": a2, "cites": []}}], alone_ok=(False, True))
+        self.assertEqual(avoid, {"takeaway": [None, {"fake:angle_write"}]})   # the first one's model avoided
+        self.assertEqual(seen, [[a1], [a2]])
+        prompts = [p for r, p in rig.prompts if r == "angle_write" and "Your takeaway was refused" in p]
+        self.assertIn(f'"{a1}"', prompts[1])                                   # its own refusal told too
+        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), a2)
+
+    def test_both_takeaway_alone_writes_fail_and_the_line_up_rests(self):
+        rig, out, seen, _ = self.run_rig([self.failing(), self.failing()],
+                                         [{"takeaway": {"text": "Rules nobody can bend are rules that work the same way for every single person who holds them.", "cites": []}},
+                                          {"takeaway": {"text": "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere.", "cites": []}}],
+                                         alone_ok=(False, False))
+        self.assertIsNone(out["package"])
+        self.assertEqual(len(seen), 2)                                         # up to TWO, never more
+        self.assertIn("2 write(s) and 2 of the takeaway alone (ruling 66, 17:02) failed", out["tried"][0]["why"])
+        self.assertIn("no one clip of the angle lands", out["tried"][0]["no_voice"]["why_not"])   # then rest
+
+    def test_a_failure_on_another_line_gets_no_takeaway_alone_write(self):
+        both = dict(self.failing(), violations=[{"slot": "takeaway", "rule": "COMMENTARY", "detail": self.WHY},
+                                                {"slot": "caption", "rule": "VERDICT_NO", "detail": "x"}])
+        both["verdict"] = dict(both["verdict"], violations=both["violations"])
+        rig, out, seen, avoid = self.run_rig([both, both], [{"takeaway": {"text": "never asked", "cites": []}}])
+        self.assertIsNone(out["package"])
+        self.assertEqual((seen, avoid), ([], {}))
+
+    def test_the_no_voice_fallback_comes_after_the_takeaway_alone(self):
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        rig, out, seen, avoid = self.run_rig([], [{"takeaway": {"text": "Ultimately nobody bends the rules.",
+                                                                "cites": []}},
+                                                  {"takeaway": {"text": "In the end nobody bends them.", "cites": []}}],
+                                             ms=ms, takeaways=bad,
+                                             medleys=[(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)])
+        self.assertEqual(len(avoid["takeaway"]), 2)                            # the takeaway alone, twice (STYLE)
+        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")   # then ruling 3
+        self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])
+
+    def test_a_title_refused_alone_gets_its_second_write_on_the_other_model_then_is_held(self):
+        """17:20: YES, the second attempt applies to a failed title too (two writes of the title alone, the second on
+        the other writer model), then hold as ruling 65 says."""
+        t1, t2 = "Rules nobody can bend", "Nobody bends these rules"
+        refused = self.failing("title", "Bitcoin is owned by nobody at all", "VERDICT_NO")
+        replies = [{"title": {"text": t1, "cites": []}}, {"title": {"text": t2, "cites": []}}]
+        rig, out, seen, avoid = self.run_rig([refused], replies, alone_ok=(False, True))
+        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "title"), t2)
+        self.assertEqual(avoid, {"title": [None, {"fake:angle_write"}]})
+        second = [p for r, p in rig.prompts if r == "angle_write" and "Your title was refused" in p][1]
+        self.assertIn(f'"{t1}: ', second)                                       # told the first rewrite's refusal
+        self.assertIn("(your first rewrite of it was refused too)", second)
+        self.assertEqual(len(out["tried"][0]["attempts"][0]["rewrite"]["tries"]), 1)
+        rig, out, seen, avoid = self.run_rig([refused], replies, alone_ok=(False, False))
+        self.assertIsNone(out["package"])                                      # then held (ruling 65 c)
+        self.assertEqual(len(seen), 2)                                          # two writes of the title, no more
+        self.assertIn("the title failed alone 3 times", out["tried"][0]["why"])
+        self.assertIn("held (ruling 65 c)", out["tried"][0]["why"])
+        rig, out, seen, avoid = self.run_rig([self.failing("caption")], [{"caption": {"text": "anyone can join it.",
+                                                                                      "cites": []}}],
+                                             alone_ok=(False,))
+        self.assertEqual((len(seen), avoid), (1, {"caption": [None]}))          # the caption: one, then the fixed line
+        self.assertTrue(out["package"]["caption_fallback"])
+
+    def test_a_reply_out_of_contract_still_sends_the_second_write_to_the_other_model(self):
+        """Audit 1735 C1 (glm P1-1): the first write of the line alone answered out of contract (no line, so no gate):
+        its model is still known, and the second write avoids it."""
+        a2 = "Nobody bends these rules, and that is exactly why they keep working for everyone who holds them anywhere."
+        rig, out, seen, avoid = self.run_rig([self.failing(), self.failing()],
+                                             [{"takeaway": "not an object"}, {"takeaway": {"text": a2, "cites": []}}])
+        self.assertEqual(avoid, {"takeaway": [None, {"fake:angle_write"}]})
+        self.assertEqual(seen, [[a2]])                                          # only the second reached a gate
+        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), a2)
+        self.assertEqual(rig.router.rejected, ["fake:angle_write"])             # the bad reply was rejected
+        rig, out, seen, avoid = self.run_rig([self.failing("title", "Bitcoin is owned by nobody at all", "VERDICT_NO")],
+                                             [{"title": "not an object"},
+                                              {"title": {"text": "Nobody bends these rules", "cites": []}}])
+        self.assertEqual(avoid, {"title": [None, {"fake:angle_write"}]})
+        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "title"),
+                         "Nobody bends these rules")
+
+    def test_both_takeaway_prompts_name_the_two_refused_patterns(self):
+        """17:20: the takeaway writer is told the two patterns refused today, and that the line may characterise what
+        was SAID, not what WILL happen: in the full write's prompt and in the takeaway written alone."""
+        self.assertIn("SAID, never what WILL happen", PK.TAKEAWAY_SAID)
+        self.assertIn("a forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.')", PK.TAKEAWAY_SAID)
+        self.assertIn("a superlative that upgrades a speaker's hedged view to a settled claim", PK.TAKEAWAY_SAID)
+        r = Canned(angle_write=[{"takeaway": {"text": "No ruler, just rules.", "cites": []}, "bridge": None,
+                                 "title": {"text": "No ruler.", "cites": ["h"]},
+                                 "caption": {"text": "three clips", "cites": []}}])
+        prompts, inner = [], r.call
+        r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), inner(role, prompt, *a, **k))[1]
+        PK.write_takeaway(r, angle(["h", "x", "y"], "h"), TestWriteTakeaway.SEGS, E.Context(NOW, REG), {})
+        self.assertIn(PK.TAKEAWAY_SAID, prompts[0])
+
+    def test_which_failures_are_the_takeaways_own(self):
+        f = {"takeaway": {"text": "Bitcoin's apolitical design is the real productivity story."},
+             "title": {"text": "Apolitical money"}, "caption": {"text": "a steadier design"}, "bridge": None}
+        strong = {"segment": "clip_02", "rule": "STRONGER",
+                  "detail": "stronger certainty: the video's words 'x' make the clip sound likely"}
+        cx = lambda w: {"segments": {"clip_02": {"C": {"raising_words": w}}}}
+        own, alone = PK.takeaway_refusal(f, [strong], cx("the real productivity story"))
+        self.assertEqual((alone, own[0]["text"], own[0]["rule"]), (True, f["takeaway"]["text"], "STRONGER"))
+        self.assertEqual(PK.takeaway_refusal(f, [strong], cx("Apolitical money"))[1], False)       # the title's
+        self.assertEqual(PK.takeaway_refusal(f, [strong], cx("apolitical"))[1], False)             # < 2 tokens
+        unsure = dict(strong, detail="stronger certainty: uncertain")
+        self.assertEqual(PK.takeaway_refusal(f, [unsure], cx("the real productivity story"))[1], False)
+        self.assertEqual(PK.takeaway_refusal(f, [{"slot": "-", "rule": "RUNTIME", "detail": "72 s"}])[1], True)
+        self.assertEqual(PK.takeaway_refusal(f, [{"slot": "-", "rule": "LY_SHAPE", "detail": "x"}])[1], False)
+        self.assertEqual(PK.takeaway_refusal(f, [])[1], False)                                     # no failure
+        self.assertEqual(PK.takeaway_refusal(f, [{"segment": "clip_02", "rule": "POLARITY", "detail": "x"}],
+                                             cx("the real productivity story"))[1], False)        # a clip's own
 
 
 class TestRuling65Caption(unittest.TestCase):
