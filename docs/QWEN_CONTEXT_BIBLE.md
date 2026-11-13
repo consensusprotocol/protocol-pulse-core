@@ -345,6 +345,11 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** every status line and every DoD time is taken from a `date` call made immediately before it is written; a line without a fresh `date` reading carries no time.
 **Detection:** a status time later than the next `date` output in the same session.
 
+### E-FAIL-073: A commit chain stopped on a gitignored test file, and the audit launched after it ran with an empty path
+**Evidence:** 2026-11-12, twice (afternoon, then 20:45 ET): `git add pipeline/test_*.py ... && git commit ... && D=... && heimdall-audit ... &`. pipeline/test_*.py files are matched by .gitignore, so `git add` refused the new test file; the && chain stopped before `D` was set, and the backgrounded audit started with `cat /QUESTION.txt` and `> /run.log` (it exited at once; nothing was audited, nothing committed).
+**Fix:** add new test files with `git add -f`; run the commit as its own command and check it before starting an audit; never background a command that depends on variables set by a chain that can stop.
+**Detection:** 'The following paths are ignored by one of your .gitignore files' in a commit step; an audit log with an empty path.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 
