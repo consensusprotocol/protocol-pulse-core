@@ -1,4 +1,25 @@
-BLOCKED ON SPEND (06:36 ET): every build now fails step A with SpendLimit. The builder's own cap on this order's ledger ($40 by the price-table estimate, set at 20:30 Nov 12 when no budget was stated) is reached: $39.49 estimate, which is $3.46 vendor-reported (+ $0.29 STT estimate). YOUR RULING: a running total for these builds (see the first section below). Meanwhile 45 + 44 and the item-42 cut fix are built and go through their audits. Item 42 also needs your yes/no from 05:44 (seal a trimmed clip with the clip scorer's verdict pending at the render).
+BLOCKED ON SPEND (since 06:31 ET; 06:50 ET now): every build fails step A with SpendLimit on the builder's own cap ($40 by the price-table estimate = $3.46 vendor-reported). YOUR RULING: a running total (section below). Ready for the next build: 45 + 44 are COMMITTED (audit 0640, 2 cycles, all three reviewers yes); the item-42 cut fix is in audit 0710. Item 42 also needs your yes/no from 05:44 (seal a trimmed clip with the clip scorer's verdict pending at the render).
+
+## 06:50 ET: ORDER 06:22 items 45 and 44 are committed (audit 0640, 2 cycles)
+
+- **45:** after L-v 2 + CUTTABLE and before the angle step, every cuttable clip is screened by step A on the second
+  vendor too (the batches run in parallel: about 3 min on Heimdall). A clip that fails either vendor, gets no verdict,
+  or gets one from the first's vendor is out before any angle, with its reason (package.json:
+  prescreen.second_vendor). After the angle call, each clip's verdict is the one off the writer's vendor. In the
+  05:48 situation (Grok writes), the Heimdall verdicts already exist, so there is no re-screen after the write.
+- **44 (the safety net):** a re-screen after a write that fails a clip, or gives no verdict, removes only that clip,
+  for good, with its reason (prescreen.rescreen_failed). Ruling 41's swap puts the next-best cuttable clip in its
+  place, the clips-alone verdict re-judges, and the build goes on to the writer. With the two configured vendors this
+  path cannot trigger: every write stays on the angle's vendor.
+- **Fixed on the way (K2, flagged by me, confirmed by the audit):** the old re-screen kept a clip's STALE verdict
+  from the writer's vendor when the re-screen call returned nothing for it. No verdict is now never a pass.
+- **The trade-off, your order's own design:** when Heimdall's step A disagrees with xai's, or Heimdall is down at
+  that moment, a clip leaves BEFORE the angle step. The angle writer sees fewer clips, and a Heimdall step-A outage
+  ends the build early.
+- **Item 46, one option (yours to rule, nothing changed):** deepseek writes 9-13k reasoning tokens per angle call at
+  about 42 tokens/s, so it lands at 219-293 s or misses 300 s. A lower reasoning effort on the angle call would keep
+  the angles on Heimdall in time.
+
 
 ## 06:36 ET: BLOCKED ON SPEND: the 06:31 build failed step A on the builder's own cap; your ruling is needed
 

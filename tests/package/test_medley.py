@@ -425,22 +425,52 @@ class Rig:
             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
-                 spend=None, no_hook=()):
+                 spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
         self.medley_calls, self.write_calls, self.prompts = [], [], []
+        self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
+        self.screens, self.events, self.a_seen = [], [], []
+        self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
         self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}])
         call = self.router.call
-        self.router.call = lambda role, prompt, *a, **k: (self.prompts.append((role, prompt)),
-                                                          call(role, prompt, *a, **k))[1]
+
+        def rcall(role, prompt, *a, **k):
+            self.prompts.append((role, prompt))
+            self.events.append(role)
+            r = call(role, prompt, *a, **k)
+            if role == "angle_write" and angle_from:              # the angle from a named back-end (ORDER 06:22)
+                r = P.Reply(r.text, angle_from[0], angle_from[1], family=angle_from[2])
+            return r
+        self.router.call = rcall
         B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
         self.router.backends = {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall", "deepseek"),
-                                "heimdall:qwen": B("heimdall", "qwen")}
+                                "heimdall:qwen": B("heimdall", "qwen"), "openai:gpt": B("openai", "gpt")}
         self.router.chain = lambda role: ["heimdall:deepseek", "heimdall:qwen", "xai:grok"]
         self.write_avoid = []
+
+    def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
+                  batch=PK.PRESCREEN_BATCH, store=None, log=print):
+        """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
+        (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
+        av, af = self.P._as_set(writer_vendor), self.P._as_set(writer_family)
+        name = next((x for x in ("xai:grok", "heimdall:deepseek", "openai:gpt")
+                     if self.router.backends[x].vendor not in av and self.router.backends[x].family not in af), None)
+        self.screens.append((name, [m["moment_id"] for m in ms]))
+        self.events.append(f"step_a:{name}")
+        got, fails = {}, {}
+        for m in ms[:n]:
+            mid = m["moment_id"]
+            v = self.router.backends[name].vendor if name else None
+            if name is None or (v, mid) in self.unavailable:
+                fails[mid] = ["STEP_A_UNAVAILABLE: ProviderError"]
+                continue
+            got[mid] = dict(self.A_OK, backend=name)
+            fails[mid] = list(self.a_fail.get((v, mid), []))
+        return got, fails, set(), set()
 
     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
         self.medley_calls.append([m["moment_id"] for m in segs])
@@ -454,13 +484,14 @@ class Rig:
             raise PK.NoBridgeFits("no bridge of 3-12 words fits (the real write_takeaway's precondition)")
         self.write_calls.append(([m["moment_id"] for m in segs], join))
         self.write_avoid.append(avoid_vendor)
+        self.a_seen.append({m["moment_id"]: a_by[m["moment_id"]]["backend"] for m in segs})
         b = self.writes.pop(0)
         fields = {"takeaway": {"text": self.takeaways.pop(0) if self.takeaways else self.LINE, "cites": []}, "bridge": b,
                   "bridge_after": join[0] if join is not None and b is not None else None,
                   "title": {"text": "Nobody bends the rules", "cites": []},
                   "caption": {"text": "nobody bends these rules", "cites": []},
                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
-        return self.P.Reply("{}", "heimdall:deepseek", "heimdall", family="deepseek"), fields
+        return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
 
     def run(self):
         fid = {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
@@ -469,8 +500,7 @@ class Rig:
         cx = {"ok": True, "violations": [], "measured": True, "replayed": False, "backends": {"B": "xai", "C": "xai"}}
         stubs = {
             "_writers": lambda router: ({"heimdall"}, {"deepseek"}),
-            "prescreen": lambda router, ms, *a, **k: ({m["moment_id"]: dict(self.A_OK) for m in ms},
-                                                      {m["moment_id"]: [] for m in ms}, set(), set()),
+            "prescreen": self.prescreen,
             "current_levels": lambda *a, **k: [],
             "medley": self.medley, "write_takeaway": self.write,
             "paid_gates": lambda *a, **k: (fid, cx),
@@ -835,6 +865,124 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         self.assertEqual(out["trimmed"], {"b": "b~trim"})
         self.assertIn("b~trim", out["prescreen"]["trim_cut"])                     # ruling 33 (a): out, any place
         self.assertIsNotNone(out["package"])
+
+
+class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+    """ORDER 06:22: 45, step A from BOTH vendors on every cuttable clip before the angle step; 44, a failed re-screen
+    after a write swaps out that clip only, and the line-up carries on."""
+    MS = TestBuildLoop.MS
+
+    def test_every_cuttable_clip_is_screened_by_the_second_vendor_before_the_angle_step(self):
+        rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None],      # the writer never sees y
+                  a_fail={("heimdall", "y"): ["REFERENT_OUTSIDE"]})
+        out = rig.run()
+        self.assertEqual(rig.screens[0], ("xai:grok", ["h", "x", "y", "z"]))          # the first screen, off heimdall
+        self.assertEqual(rig.screens[1], ("heimdall:deepseek", ["h", "x", "y", "z"]))  # the second, off xai
+        self.assertLess(rig.events.index("step_a:heimdall:deepseek"), rig.events.index("angle_write"))
+        sv = out["prescreen"]["second_vendor"]
+        self.assertEqual(sv["h"], "PASS (heimdall:deepseek)")
+        self.assertTrue(sv["y"].startswith("FAIL: REFERENT_OUTSIDE"), sv["y"])
+        angle_prompt = next(p for r, p in rig.prompts if r == "angle_write")
+        self.assertNotIn("id=y ", angle_prompt)                    # never offered to the angles
+        self.assertIn("id=z ", angle_prompt)
+        self.assertEqual(rig.medley_calls, [["h", "x", "z"]])     # no line-up is built on it
+        self.assertIsNotNone(out["package"])
+
+    def test_a_clip_with_no_second_verdict_is_out(self):           # law L-m: nothing measured is never a pass
+        rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None],
+                  unavailable={("heimdall", "y")})
+        out = rig.run()
+        self.assertTrue(out["prescreen"]["second_vendor"]["y"].startswith("FAIL: STEP_A_UNAVAILABLE"))
+        self.assertEqual(rig.medley_calls, [["h", "x", "z"]])
+
+    def test_the_verdict_used_is_the_one_off_the_writers_vendor(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        rig.run()                                                  # the angle from vendor "fake": the first verdict
+        self.assertEqual(set(rig.a_seen[0].values()), {"xai:grok"})
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  angle_from=("xai:grok", "xai", "grok"), write_from=("xai:grok", "xai", "grok"))
+        out = rig.run()                                            # Grok wrote the angles: Heimdall's verdict counts
+        self.assertEqual(set(rig.a_seen[0].values()), {"heimdall:deepseek"})
+        self.assertEqual(rig.write_avoid, [{"heimdall"}])          # and every write avoids Heimdall, so with the two
+        # real vendors the writers never span both and a verdict off them always exists (audit 0640 C1, glm cond. 1)
+        self.assertEqual(len(rig.screens), 2)                      # and no re-screen was needed after the write
+        self.assertIsNotNone(out["package"])
+
+    def test_a_clip_that_fails_its_re_screen_is_swapped_out_alone_and_the_line_up_carries_on(self):
+        """The 05:48 build: a line-up passed the clips-alone verdict, a re-screen failed ONE clip, and the line-up was
+        lost. Now only that clip goes (for good, with its reason), the next-best clip takes its place, the clips-alone
+        verdict re-judges, and the build goes on to the writer. (Both vendors write here, so the rig's third vendor
+        re-screens.)"""
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None, None], angle_from=("xai:grok", "xai", "grok"), a_fail={("openai", "y"): ["REFERENT_OUTSIDE"]})
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "x", "z"]])
+        self.assertEqual(out["prescreen"]["rescreen_failed"], {"y": ["REFERENT_OUTSIDE"]})
+        self.assertIn("swapped {'y': 'z'}", out["tried"][0]["why"])
+        self.assertIn("(out for good)", out["tried"][0]["why"])
+        self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "z"])
+        self.assertEqual(rig.screens[2], ("openai:gpt", ["h", "x", "y"]))         # every verdict on a writer's vendor
+        self.assertEqual(rig.screens[3], ("openai:gpt", ["z"]))                   # only what changed is re-judged
+
+    def test_a_re_screen_that_gives_no_verdict_is_never_a_pass(self):
+        """The old branch read the stale verdict back when the re-screen returned nothing for a clip (a fail-open,
+        flagged with ORDER 06:22): no verdict off the writers keeps the clip out."""
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None, None], angle_from=("xai:grok", "xai", "grok"), unavailable={("openai", "y")})
+        out = rig.run()
+        self.assertEqual(list(out["prescreen"]["rescreen_failed"]), ["y"])
+        self.assertTrue(out["prescreen"]["rescreen_failed"]["y"][0].startswith("STEP_A_UNAVAILABLE"))
+        self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "z"])
+
+    def test_when_no_swap_fits_the_line_up_re_lines_and_the_clip_stays_out(self):     # audit 0640 C1, glm P2-9
+        rig = Rig(self.MS, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None], uncuttable={"z"},   # z never offered
+                  angle_from=("xai:grok", "xai", "grok"), a_fail={("openai", "y"): ["REFERENT_OUTSIDE"]})
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])     # nothing else fits: no second line-up is judged
+        self.assertIn("no swap fits the line-up rules: re-lined", out["tried"][0]["why"])
+        self.assertEqual(out["prescreen"]["rescreen_failed"], {"y": ["REFERENT_OUTSIDE"]})
+        self.assertIsNone(out["package"])
+
+    def test_a_chunk_whose_second_screen_raises_fails_closed(self):     # audit 0640 C1, qwen P1-1 / glm P1-3
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        router = type("R", (), {"backends": {"xai:grok": B("xai", "grok")}})()
+
+        def boom(*a, **k):
+            raise RuntimeError("the router is unreachable")
+        saved = PK.prescreen
+        PK.prescreen = boom
+        try:
+            two, fail = PK.second_screen(router, {m["moment_id"]: m for m in self.MS},
+                                         {m["moment_id"]: {"backend": "xai:grok"} for m in self.MS}, {}, ctx())
+        finally:
+            PK.prescreen = saved
+        self.assertEqual(two, {})
+        self.assertEqual(sorted(fail), ["h", "x", "y", "z"])
+        self.assertTrue(all(f[0].startswith("STEP_A_UNAVAILABLE: RuntimeError") for f in fail.values()))
+
+    def test_second_screen_fails_closed_on_an_unknown_back_end_or_the_same_vendor(self):
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        router = type("R", (), {"backends": {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall",
+                                                                                                  "deepseek")}})()
+        ms = {m["moment_id"]: m for m in self.MS}
+        a_by = {"h": {"backend": "xai:grok"}, "x": {"backend": "xai:grok"}, "y": {"backend": "nowhere:model"},
+                "z": {"backend": "heimdall:deepseek"}}
+        seen = []
+
+        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print):
+            seen.append((sorted(wv), [m["moment_id"] for m in chunk]))
+            name = "heimdall:deepseek"          # off xai for h and x; for z (first verdict heimdall) the SAME vendor
+            return {m["moment_id"]: {"backend": name} for m in chunk}, {m["moment_id"]: [] for m in chunk}, set(), set()
+        saved = PK.prescreen
+        PK.prescreen = fake
+        try:
+            two, fail = PK.second_screen(router, ms, a_by, {}, ctx())
+        finally:
+            PK.prescreen = saved
+        self.assertEqual(sorted(seen), [(["heimdall"], ["z"]), (["xai"], ["h", "x"])])   # grouped by first vendor
+        self.assertEqual(sorted(two), ["h", "x"])
+        self.assertTrue(fail["y"][0].startswith("STEP_A_UNKNOWN_BACKEND: the first verdict's back-end 'nowhere:model'"))
+        self.assertTrue(fail["z"][0].startswith("STEP_A_SAME_VENDOR"))
 
 
 class TestRuling41Search(unittest.TestCase):

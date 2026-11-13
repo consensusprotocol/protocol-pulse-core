@@ -444,6 +444,49 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     return a_by, fails, vendors, families
 
 
+def second_screen(router, cleared, a_by, sources, ctx, log=print):
+    """ORDER 06:22 item 45: step A from a SECOND vendor on every cuttable clip, BEFORE the angle step. The writer is
+    known only when the angle call answers (Heimdall first, Grok on its failure: angle_write), and a verdict never
+    comes from the writer's vendor (L-x). The only step-A vendors are the writers' own two (context_verdict: xai, then
+    heimdall), so each clip is screened again OFF its first verdict's vendor and family: whichever vendor then writes,
+    a verdict off it already exists, and no line-up is built on a clip that a re-screen would fail (the 05:48 build).
+    The clips are grouped by their first verdict's back-end, and the groups' step-A batches run in parallel (each
+    call takes about 3 min on Heimdall). -> ({moment id: [first verdict, second verdict]} for the clips that pass
+    both, {moment id: [why not]} for the rest). No second verdict, a failing one, or one from the first's vendor or
+    family is never a pass (law L-m)."""
+    groups = {}
+    for mid, m in cleared.items():
+        b = router.backends.get((a_by.get(mid) or {}).get("backend"))
+        groups.setdefault((b.vendor, b.family) if b is not None else None, []).append(m)
+    jobs = [(k, g[i:i + PRESCREEN_BATCH]) for k, g in groups.items() if k is not None
+            for i in range(0, len(g), PRESCREEN_BATCH)]
+    def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
+        try:
+            return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log)
+        except Exception as e:
+            return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
+                        for m in chunk}, set(), set()
+    with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
+        res = list(ex.map(lambda j: one(*j), jobs))          # Executor.map keeps the order of jobs: zipped below
+    two, fail = {}, {}
+    for (k, chunk), (got, fails, _, _) in zip(jobs, res):
+        for m in chunk:
+            mid, a2 = m["moment_id"], got.get(m["moment_id"])
+            b2 = router.backends.get((a2 or {}).get("backend"))
+            if fails.get(mid) or a2 is None:
+                fail[mid] = list(fails.get(mid) or ["STEP_A_UNAVAILABLE: no second verdict (law L-m)"])
+            elif b2 is None or b2.vendor == k[0] or (k[1] and b2.family == k[1]):
+                fail[mid] = [f"STEP_A_SAME_VENDOR: the second verdict came from {a2.get('backend')}, not off the "
+                             f"first's vendor {k[0]} and family {k[1]} (law L-m)"]
+            else:
+                two[mid] = [a_by[mid], a2]
+    for m in groups.get(None, []):
+        fail[m["moment_id"]] = [f"STEP_A_UNKNOWN_BACKEND: the first verdict's back-end "
+                                f"{(a_by.get(m['moment_id']) or {}).get('backend')!r} is not in the router, so no "
+                                f"second vendor can be chosen (law L-m)"]
+    return two, fail
+
+
 ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words. The clips
 play BACK TO BACK as a medley, with NO narration between them; the host speaks ONE closing line at the end. Below are
 clips (verbatim quotes, each with its channel and length) that passed our checks. The channels were not in one
@@ -1251,9 +1294,16 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["prescreen"]["trim_cut"] = trim_cut
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")
+    a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log)        # ORDER 06:22 item 45
+    out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
+                                         "FAIL: " + "; ".join(off_fail.get(mid) or ["no second verdict"])
+                                         for mid in cleared}
+    cleared = {mid: m for mid, m in cleared.items() if mid in a_two}
+    log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, "
+        f"a verdict off it exists) ({time.time() - t0:.0f} s)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
-        out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass and CUTTABLE, from fewer than 3 "
-                           f"channels")
+        out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass, CUTTABLE and step A from both "
+                           f"vendors, from fewer than 3 channels")
         return out
     clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
@@ -1277,6 +1327,19 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
+
+    def off_writers(mid):
+        """ORDER 06:22 item 45: the moment's passing step-A verdict from a back-end off every writer's vendor and
+        family so far, else None (the re-screen after a write decides, item 44). The FIRST qualifying one in a_two's
+        order (the first screen's, then the second's, then any re-screen's): any verdict off the writers satisfies
+        L-x, so a later one is never preferred."""
+        for a_ in a_two.get(mid, ()):
+            b = router.backends.get(a_.get("backend"))
+            if b is not None and b.vendor not in writers_v and b.family not in writers_f:
+                return a_
+        return None
+    for mid in cleared:
+        a_by[mid] = off_writers(mid) or a_by[mid]
     writer_avoid = {router.backends[n].vendor for n in router.chain("angle_write") if n in router.backends} - \
         {angle_reply.vendor}                   # every write stays on the angle's vendor, so a judge is always left
     log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)")
@@ -1483,15 +1546,31 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         continue
                     writers_v.add(wr.vendor)
                     writers_f.add(wr.family)
+                    for m in segs:                             # item 45: the verdict off every writer, when one exists
+                        a_by[m["moment_id"]] = off_writers(m["moment_id"]) or a_by[m["moment_id"]]
                     stale = [m for m in segs if (lambda b: b is None or b.vendor in writers_v or b.family in writers_f)(
                         router.backends.get((a_by.get(m["moment_id"]) or {}).get("backend")))]
                     if stale:                                  # audit C2 K5: never judged by the writer's vendor
-                        got_a, _, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f, store=None)
-                        for mid, a_ in got_a.items():
-                            a_by[mid] = a_
-                        if any(CI.a_failures(a_by.get(m["moment_id"], {})) for m in stale):
-                            rec["why"] = "step A, re-screened off the writer's vendor, fails a clip: re-lined"
-                            dropped |= {m["moment_id"] for m in stale if CI.a_failures(a_by.get(m["moment_id"], {}))}
+                        got_a, fails_a, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f,
+                                                         n=len(stale), store=None)
+                        bad = {}
+                        for m in stale:
+                            mid = m["moment_id"]
+                            if got_a.get(mid) is not None and not fails_a.get(mid):
+                                a_by[mid] = got_a[mid]
+                                a_two.setdefault(mid, []).append(got_a[mid])
+                            else:                              # no verdict off the writers is never a pass (L-m)
+                                bad[mid] = list(fails_a.get(mid) or ["STEP_A_UNAVAILABLE: no verdict off the writers "
+                                                                     "(law L-m)"])
+                        if bad:                                # ORDER 06:22 item 44: only these clips go, for good,
+                            dropped |= set(bad)                # with their reason; the next-best cuttable clip takes
+                            doomed |= set(bad)                 # each place (ruling 41's swap); the clips-alone verdict
+                            out["prescreen"].setdefault("rescreen_failed", {}).update(bad)     # re-judges the line-up
+                            swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed))
+                            rec["why"] = (f"step A, re-screened off the writer's vendor, fails {sorted(bad)} (out for "
+                                          f"good): " + (f"swapped {swaps}, re-judged (order 06:22 item 44)"
+                                                        if swapped is not None else
+                                                        "no swap fits the line-up rules: re-lined"))
                             relined = True
                             break
                     if join is not None and fields["bridge"] is None:

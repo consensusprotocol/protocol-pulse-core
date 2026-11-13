@@ -1,0 +1,71 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+This branch builds sealed pins of short video medleys (a hook + 2-4 clips from other channels); the integrator
+renders them. Your role: a strict reviewer of the build loop's step-A verdict handling.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- Step A (law L-s) is a per-clip context verdict: who speaks, whose view, outside referents, retractions. It runs ONCE
+  per moment per build, batched (PRESCREEN_BATCH = 8 excerpts per call), on the router's "context_verdict" chain.
+- Law L-x: a verdict never comes from the WRITER's vendor or model family. The writer is the "angle_write" chain:
+  Heimdall deepseek, then Heimdall qwen, then xai Grok, each with a 300 s deadline (ruling 5). The context_verdict
+  chain is xai Grok, then Heimdall deepseek. There are only these two vendors.
+- Before this change: step A ran off the EXPECTED writer's vendor (Heimdall), so on xai. When the angle call failed
+  over to Grok (xai), every verdict was on the writer's vendor, and the build re-screened a line-up's clips off xai
+  only AFTER the line-up passed the clips-alone verdict and its first write. In the 05:48 build that re-screen failed
+  ONE clip, the whole line-up was discarded ("re-lined"), and no other line-up fit: no package.
+- Laws: nothing measured is never a pass (L-m); fail closed (L-j); never change what a check accepts to make
+  something pass.
+
+The orders this diff implements (ORCHESTRATOR ORDER 06:22, verbatim):
+44. "A failed re-screen removes that clip only (it stays out for good, with its reason). The other three had passed:
+    swap in the next-best cuttable clip for the failed slot (ruling 41's swap), re-judge only what changed (the new
+    clip's step A on both vendors, the clips-alone verdict), and carry on to the writer. Never discard a passing
+    line-up for one replaceable clip."
+45. "Run the off-vendor step A re-screen on every CUTTABLE clip BEFORE the angle step, so no line-up is ever built on
+    a clip that will fail it. It is 10-13 clips, cheap, and it ends this failure class."
+
+The change (pipeline/package.py):
+1. second_screen(router, cleared, a_by, sources, ctx): groups the cuttable clips by their FIRST verdict's back-end
+   (vendor, family), and screens each group again with prescreen() avoiding that vendor and family. The batches run
+   in parallel (a Heimdall step-A call takes about 3 min). It returns {id: [first verdict, second verdict]} for clips
+   passing both, and {id: [why not]} for the rest. Fail closed: no second verdict (STEP_A_UNAVAILABLE), a failing one,
+   one from the first's vendor or family (STEP_A_SAME_VENDOR), or an unknown first back-end (STEP_A_UNKNOWN_BACKEND).
+2. build(): after L-v 2 + CUTTABLE and the hook-onset stage, BEFORE the 3-channel check and the angle call, only the
+   clips in second_screen's first result stay in `cleared`. out["prescreen"]["second_vendor"] records PASS (backend)
+   or FAIL with the reasons.
+3. After the angle call: off_writers(mid) returns the first of the clip's passing verdicts whose back-end is off every
+   writer's vendor and family so far, and a_by[mid] takes it.
+4. After each write (a write may add a vendor or family to the writers): a_by is re-picked with off_writers for the
+   line-up. Any clip still on a writer's vendor or family ("stale") is re-screened (prescreen avoiding all writers).
+   A clip whose re-screen fails OR gives no verdict is out for good (dropped and doomed, with its reasons in
+   out["prescreen"]["rescreen_failed"]). The line-up is then swapped with ruling 41's swap_lineup at those places,
+   and the loop judges the swapped line-up on the clips alone next, then writes. If no swap fits, it re-lines as
+   before.
+   - A K2 flag fixed here: the old branch assigned a_by only for the clips the re-screen returned, then tested
+     CI.a_failures(a_by[...]). A clip whose re-screen call failed (no verdict) kept its STALE verdict from the
+     writer's vendor and passed. Now no verdict is never a pass.
+
+The tests (tests/package/test_medley.py):
+- The build test rig's step A is now vendor-aware: like the real prescreen through the router, it answers on the
+  first back-end off the given vendors and families (xai, then heimdall; a third vendor "openai" exists only in the
+  rig, to exercise item 44 when both real vendors are writers). Its failures are set per (vendor, moment).
+- New tests: the second screen runs on Heimdall over every cuttable clip before the angle call; a clip failing it, or
+  with no second verdict, is never offered to the angles or a line-up; the verdict used is the one off the writer's
+  vendor (Grok writing -> Heimdall's verdict, with no re-screen); a re-screen failing one clip swaps it out alone and
+  the line-up carries on to a package, re-screening only the new clip; a re-screen with no verdict keeps the clip out;
+  second_screen fails closed on an unknown back-end or a same-vendor answer.
+- test_medley: 78 tests OK (72 before). The other suites (angles, gates, hook_onset, house_style, ledger_build,
+  speakers, providers, moments, eligibility, select_by_id) are unchanged and OK.
+
+Check in particular:
+- that NO clip reaches the angle prompt or any line-up without a passing step-A verdict from each of the two vendors
+  (items 45, L-m), and that the verdict actually used by the gates is off every writer's vendor and family (L-x),
+  also after a write adds a vendor or family;
+- that a failed or missing re-screen removes ONLY that clip, keeps it out of every later angle and line-up with its
+  reason, and that the swapped line-up is judged on the clips alone before any write (item 44);
+- the threading in second_screen: shared state, exceptions, ordering;
+- anything that could loop, double-count spend, or leave `cleared`, `a_by` or `a_two` inconsistent;
+- whether any existing behaviour changed for a build where the angle comes from Heimdall in time.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
