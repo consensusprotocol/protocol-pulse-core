@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 03:24 RULING 28 MERGED (cd7e3bbd, audits batch 56 x2); PIN #1's HOOK CANNOT OPEN A VIDEO AS IT STANDS; RULING 31's PLAN.
+RULING 28: for a hook not at a file head, sentence_law.hook_lead decides the lead AT THE CUT with G17a's own measure (head_tail on the audio as cut, the clip's own fade applied, prepare's order):
+(1) the planned cut stands if it keeps >= 80 ms;
+(2) else the first legal (cut_accept-clean), neighbour-clear candidate inside the pause that keeps >= 80 ms;
+(3) else the D1 room-tone pad, only where the padded head (the source's own room tone + the cut) measures >= 80 ms;
+(4) else the entry is refused with the measured reason, and stage_cut HOLDS before any render.
+Measured on pin #1's hook:
+- the hard edit's digital zeros run until about 40 ms before the word, so every legal cut keeps <= 60 ms;
+- the source is gated: its quietest room tone (-65..-69 dB) dips below G17a's -100 dBFS digital floor at every loop join, so the pad measures 20 ms;
+- result: REFUSED. Neither of the ruling's two remedies can give this hook 80 ms of genuine lead.
+The medley reference's hook keeps its cut (260 ms), check_medley_reference REPRODUCES, and the other references (120 / 310 ms) never enter this path. test_hook_lead 7 (2 on the real fixtures); regression_test.sh 0 FAIL; pipeline/regression.sh exit 0.
+CONSEQUENCE FOR PIN #1 (rulings 28-31, 're-render under a new seal'): it cannot re-render with Sjb6lUiL0m4 as the HOOK. A new seal needs a different hook. Its Livera moment can sit as a later clip, where the lead rule is 0 ms, or leave the line-up. That is the builder's re-seal; their G17a pin-stage check (>= 90 ms) refuses this hook too.
+RULING 31 (lock the words as spoken), the plan, not yet built. Pin #1's hook, the one that showed the repeats, cannot be re-rendered as a hook, so nothing waits on it tonight; it follows the fresh batch. In pinned.build_edl, beside ruling 17's adjudication:
+- the second recogniser (scribe_v1, already used there) reads the lock span;
+- where its reading differs from Whisper's lock ONLY by disfluencies (a repeated adjacent word: 'when, when', 'and, and'; a false start followed by a restart: "that's, that's why the bull-- that's why"), the lock carries text_as_spoken, those words with the second recogniser's times;
+- G18 compares the final's decode with the as-spoken lock. A decode that drops the repeats is then an omission of locked words, which rulings 21 / 22 already decide by the audio. A decode that keeps them matches exactly;
+- any other difference still FAILS;
+- must-fail tests: a non-disfluent insertion; a changed word; a missing locked word in the audio.
+
 ## 03:16 ORDER '02:46' (b) MEASURED: the faster worker's first cycle (02:58:35-03:13:56, word_pass_cycles.jsonl).
 
 | Cycle | Picked | Written | Ready | Failed | Minutes | Peak GPU1 | Batches |
