@@ -1,4 +1,52 @@
-FIRST 72 h BUILD (10:03 ET, ledger_20261113_145246, code a952cb32): 936 adapter rows -> 587 moments on 49 videos -> 265 usable (2 re-posted) -> 166 left out by STAND_ALONE (52 back as trimmed variants) -> 24 screened at step A (the PRESCREEN_N cap) -> 12 cleared -> 7 L-v 2 + CUTTABLE -> 4 can open -> 0 cleared the second vendor: Heimdall's step-A reply for the 6-clip batch was out of contract, so all 6 failed closed. No package. SPEND (ruling 48): $6.21 of $12.00. QUESTIONS: (1) PRESCREEN_N = 24 SCREENS 24 OF ~150 CANDIDATES AT 72 h: RAISE IT (EACH 8 MORE COST ~$0.02 REPORTED ON XAI)? (2) NONE ELSE: THE SECOND-SCREEN FAILURE IS MINE TO HARDEN (SMALLER BATCHES, ONE RE-ASK), IN AUDIT NEXT.
+RULING 57 COMMITTED (5a168850, audit 1006) AND BUILT (10:36 ET, ledger_20261113_152651): 997 adapter rows -> 587 moments -> 265 usable -> 166 left out by STAND_ALONE (52 back as trimmed variants) -> 24 screened at step A (the PRESCREEN_N cap) -> 12 cleared -> 7 L-v 2 + CUTTABLE -> 5 cleared the second vendor too (4 of them can open) -> 3 angles (Heimdall deepseek, 410 s) -> 3 line-ups, and every one fails the clips-alone verdict with its hook rated 1 or 2 on its own job. No package. SPEND (ruling 48): $6.25 of $12.00. RULING 56: the render's own scorer rated all 145 of my candidates and affirmed none (77 at 1.0, 75 of them off-topic; 68 at 3.0; the bar is 3.5); my admission side is in audit and admits nothing from that file. QUESTION (STILL OPEN): THE HOOK IS WHAT FAILS, AND MORE SCREENED MOMENTS ARE THE NEAREST SOURCE OF NEW HOOKS. PRESCREEN_N = 24 SCREENS 24 OF ~150 CANDIDATES AT 72 h: RAISE IT (EACH 8 MORE COST ~$0.02 REPORTED ON XAI)?
+
+## 10:38 ET: 57 built, audit 1005's record corrected, 56's first verdicts (none affirmed)
+
+- **57 (5a168850, audit 1006, 2 cycles).**
+  - With the 72 h window, a line-up holding a clip from the last 24 h is tried first, then the newest clips. Across
+    angles, the angles whose first line-up is fresh go first.
+  - A clip with no readable publish time is never fresh and counts as the oldest. No gate changed.
+  - Cycle 2: no P0 or P1 from any reviewer. The P2s are recorded with their evidence.
+  - The audited diff was built on 053cbbc9. It applied cleanly to HEAD, with identical +/- lines.
+- **Its build (10:26-10:36, ledger_20261113_152651).** The funnel is on line 1. The second vendor cleared 5 of 6 this
+  time; the out-of-contract batch reply did not recur.
+  | angle | clips-alone ratings (the hook's derived per ruling 52) | flagged joins |
+  |---|---|---|
+  | 1 | hook 1, 2, 5, 5, 5 | 2 |
+  | 2 | hook 2, 4, 4, 2, 4 | 3 |
+  | 3 | hook 2, 4, 4, 2, 4 | 4 |
+- **Audit 1005 corrected (f069425d).** The coherence change (ddfe1dc9) was committed before qwen's cycle-2 review
+  existed. Its record nonetheless said "no P0 or P1 from grok, qwen or glm".
+  - That review never came: Heimdall timed out at 1800 s. The miss is in the deadlines file.
+  - Re-run on the byte-identical prompt, qwen answered in 42 s: no P0 or P1. Its two P2s were checked against the code.
+- **56, the first verdicts (latest.json, rated 15:35:10Z).**
+  - My checks on the file all hold: 145 of 145 rated, no errors, every pid and text_sha256 matches my file, and the
+    scorer_sha equals the sha I recompute from the render's scorer code now.
+  - It affirmed none:
+    | fault | score | untrimmed | trimmed |
+    |---|---|---|---|
+    | off_topic | 1.0 | 53 | 22 |
+    | ends_mid_thought | 3.0 | 19 | 17 |
+    | starts_mid_thought | 3.0 (1.0 once each) | 17 | 11 |
+    | other | 3.0 | 4 | 2 |
+  - Of the 93 untrimmed, 33 also fail my topic screen, and 27 of those are among its off-topic verdicts. 26
+    off-topic verdicts fall on moments that pass my BTC screen.
+  - The integrator has been told the count. Their check of the fixed pre-filter event:
+    - They re-asked 16 of the 75 off-topic candidates (8 untrimmed, 8 trimmed) under a REAL validate event: an approved
+      medley's headline, "Pinned: Bitcoin's overlooked value comes from a market no government owns".
+    - All 16 came back 1.0 off_topic again. So the zero is the judge's verdict, not an artefact of the event.
+    - The judge's reasons are concrete, e.g. "does not mention Bitcoin", "starts mid-sentence, referencing a previous
+      point", "ends abruptly".
+  - **My admission side** is in a scratch copy, not yet applied:
+    - a verdict is attached only when the pid and the sha256 of the current text both match;
+    - the event, the threshold and the scorer code (recomputed) are checked;
+    - "affirmed" must agree with the render's own rule;
+    - an affirmed opener plays as a clip only, never the hook;
+    - a trimmed clip is sealed only with an affirmed verdict (56: "seal only what it affirms"; ruling 49 itself
+      said to use the same scorer instead of pending once that is possible);
+    - each build rewrites the candidates file only when its set changes.
+
+  The audit, then the commit, then a build.
 
 ## 09:02 ET: 54 and 55 committed; a defect in my 54 found by its own build and fixed; the supply is the binding limit
 
