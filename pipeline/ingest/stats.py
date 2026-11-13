@@ -99,6 +99,12 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
     out["metered_label"] = (cfg.get("spend_meter") or {}).get("label")
     out["metered_error_rate"] = None if not calls_h else round(1 - sum(b["ok"] for b in hb) / calls_h, 4)
     out["metered_backends"] = sorted(metered)
+    try:                                                # ruling 77: the rolling purge, as the watcher last ran it
+        last = json.loads(q.kv_get("purge_last") or "null")
+    except ValueError:
+        last = None
+    out["purge"] = {"expiry_h": config.EXPIRY_H, "last_pass": last,
+                    "freed_total_bytes": float(q.kv_get("purge_freed_total") or 0)}
     return out
 
 

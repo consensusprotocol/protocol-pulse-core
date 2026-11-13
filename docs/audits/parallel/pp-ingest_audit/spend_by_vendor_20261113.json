@@ -6,9 +6,9 @@
    "calls": 425
   },
   "heimdall": {
-   "usd": 0.8632,
+   "usd": 0.9669,
    "estimated_usd": 0.13,
-   "calls": 1905
+   "calls": 2069
   },
   "xai": {
    "usd": 0.6455,
@@ -26,7 +26,7 @@
    "calls": 3
   }
  },
- "total_usd": 13.09,
+ "total_usd": 13.2,
  "rows": [
   {
    "vendor": "anthropic",
@@ -42,11 +42,11 @@
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_qwen27b",
-   "calls": 529,
-   "usd": 0.2704,
+   "calls": 693,
+   "usd": 0.3741,
    "basis": "measured (per call)",
    "first": "2026-11-12T08:30:27.635650+00:00",
-   "last": "2026-11-13T08:02:26.632866+00:00"
+   "last": "2026-11-13T22:58:31.230705+00:00"
   },
   {
    "vendor": "anthropic",

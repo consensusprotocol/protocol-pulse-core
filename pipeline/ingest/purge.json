@@ -1,0 +1,40 @@
+{
+  "schema": "pp.purge/1",
+  "order": "Ruling 77 (orchestrator 18:09 ET Nov 13, with the builder's ruling 76; PBX 18:01: 'delete all the contents after like 6 to 12 hours so that we never reuse any of it'): media of a video published more than 12 h ago is deleted on a rolling basis by the watcher's own loop (no cron), EXCEPT the sources of DELIVERED videos; transcripts (text) and the provenance records (PROVENANCE.json, transcript hashes, the pins) are kept. Only the targets below are ever deleted from; everything under reported_not_purged is measured and reported, never deleted (the orchestrator's call).",
+  "expiry_h": 12,
+  "every_s": 600,
+  "active_grace_s": 7200,
+  "media_ext": [".mp4", ".m4a", ".webm", ".mkv", ".mov", ".wav", ".mp3", ".opus", ".aac", ".flac", ".ogg", ".ts", ".part"],
+  "targets": [
+    {"name": "run_sources", "what": "acquired mp4 sections: <run>/sources/<video id>.<ext>",
+     "units": "/home/ultron/protocol_pulse/runs/*", "files": "sources/*", "mode": "by_video", "enabled": true},
+    {"name": "lock_precheck_sources", "what": "the lock precheck's acquired sections: <work unit>/sources/<video id>.<ext>",
+     "units": "/home/ultron/protocol_pulse/data/lock_precheck/work/*", "files": "sources/*", "mode": "by_video", "enabled": true},
+    {"name": "word_pass_temp", "what": "the word-pass worker's downloaded audio and window WAVs, left behind only by a cycle that died (a finished cycle deletes its own)",
+     "units": "/tmp/word_pass_*", "files": "*", "mode": "abandoned", "enabled": true}
+  ],
+  "delivered": {
+    "runs": "/home/ultron/protocol_pulse/runs/*",
+    "markers": ["TELEGRAM_DELIVERY.json", "TELEGRAM_DELIVERY.lock", "REVIEW_DROP.json"],
+    "run_records": ["status.json", "PINNED_DECISION.json", "PROVENANCE.json", "CLIP_CONTRACT.json", "ATTESTATION.json"],
+    "scorer_results": "/home/ultron/protocol_pulse/data/stand_alone_scorer/results/delivered_*.json",
+    "references": "/home/ultron/protocol_pulse/references/*",
+    "reference_markers": ["PBX_VERDICT.md", "TELEGRAM_PREVIEW.json", "TELEGRAM_DELIVERY.json", "PIN.json", "run/edl.json"],
+    "video_records": ["edl.json", "cuts_final.json", "PIN.json", "run/edl.json", "run/cuts_final.json"],
+    "note": "a delivered video = one cut into a delivery: named by its edl.json / cuts_final.json / PIN.json, by PROVENANCE.json's sources, or by a file in its sources/ or transcripts/; a reference counts only with delivery evidence (reference_markers): references/editorial_failures and references/pinned (test pins) do not"
+  },
+  "publish_time": {
+    "main_store_meta": "/home/ultron/protocol_pulse/data/editorial/transcripts/{video_id}/meta.json"
+  },
+  "reported_not_purged": [
+    {"name": "run_render_media", "what": "renders' intermediates and QA cuts (qa/, VERIFY/): media cut from the sources",
+     "globs": ["/home/ultron/protocol_pulse/runs/*/qa/**", "/home/ultron/protocol_pulse/runs/*/VERIFY/**"]},
+    {"name": "run_outputs", "what": "the rendered videos (out/)", "globs": ["/home/ultron/protocol_pulse/runs/*/out/**"]},
+    {"name": "v3_clips_daily", "what": "video_pipeline_v3 clip_engine's daily raw downloads and branded clips (06:00 cron, --dry-run)",
+     "globs": ["/home/ultron/protocol_pulse/video_pipeline_v3/output/clips_daily/*"]},
+    {"name": "segment_pipelines", "what": "the earlier segment pipelines' work (v1-v3); segment_v2/sources holds the approved v2f reference's sources",
+     "globs": ["/home/ultron/protocol_pulse/segment_v*/**"]},
+    {"name": "old_v5_clips_and_audio", "what": "the March video_engine clips and audio",
+     "globs": ["/home/ultron/protocol_pulse/data/clips/*", "/home/ultron/protocol_pulse/data/audio/*"]}
+  ]
+}

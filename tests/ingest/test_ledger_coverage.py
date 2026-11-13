@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 import helpers as H
-from pipeline.ingest import contract, coverage, ledger, mine
+from pipeline.ingest import config, contract, coverage, ledger, mine
 from pipeline.ingest import queue as Q
 
 NOW = datetime(2026, 11, 12, 9, 0, tzinfo=timezone.utc)
@@ -33,6 +33,11 @@ def line(rec, a=0, b=1, **over):
         else:
             l[k] = v
     return l
+
+
+def _expired(l, now=NOW):
+    """The contract's expiry rule, written out (rulings 76 + 77): 12 h after the video's publish time."""
+    return datetime.fromisoformat(l["published_at"]) + timedelta(hours=12) <= now
 
 
 @pytest.fixture
@@ -132,12 +137,33 @@ class TestAdapter:
         out, rep = self.read(tmp_path, [line(rec)], optout={H.CHAN["channel_id"]})
         assert out == []
 
-    def test_since_and_the_72h_window(self, tmp_path, rec):
+    def test_since_and_the_window(self, tmp_path, rec):
         old_mined_recent_pub = line(rec, 0, 1, mined={"at": (NOW - timedelta(hours=30)).isoformat()})
         old_both = line(rec, 2, 3, mined={"at": (NOW - timedelta(hours=30)).isoformat()},
                         published_at=(NOW - timedelta(hours=80)).isoformat())
         out, _ = self.read(tmp_path, [old_mined_recent_pub, old_both])
         assert [l["sentences"] for l in out] == [[0, 1]]
+
+    def test_a_moment_expires_12_h_after_its_video_was_published_and_its_row_stays(self, tmp_path, rec):
+        """Rulings 76 + 77: a moment is usable only within 12 h of its video's publish time, then never again; the
+        expired row is not deleted from the ledger (the receipt that it was said and seen)."""
+        fresh = line(rec, 0, 1, published_at=(NOW - timedelta(hours=11, minutes=59)).isoformat())
+        gone = line(rec, 2, 3, published_at=(NOW - timedelta(hours=12)).isoformat())
+        out, rep = self.read(tmp_path, [fresh, gone])
+        assert [l["sentences"] for l in out] == [[0, 1]]
+        assert rep["excluded"] == {"expired (rulings 76 + 77: 12 h after its video's publish time)": 1}
+        assert rep["expiry_h"] == 12 and len(ledger.read(str(tmp_path / "m.jsonl"))[0]) == 2
+
+    def test_the_earlier_of_the_recorded_expiry_and_the_publish_time_plus_12_h_counts(self, tmp_path, rec):
+        """Fail closed: a recorded expires_at later than the rule's never extends a moment's life."""
+        pub = NOW - timedelta(hours=3)
+        late_field = line(rec, 0, 1, published_at=(NOW - timedelta(hours=13)).isoformat(),
+                          expires_at=(NOW + timedelta(hours=5)).isoformat())
+        early_field = line(rec, 2, 3, published_at=pub.isoformat(), expires_at=(NOW - timedelta(minutes=1)).isoformat())
+        ok = line(rec, 4, 5, published_at=pub.isoformat(), expires_at=(pub + timedelta(hours=12)).isoformat())
+        out, rep = self.read(tmp_path, [late_field, early_field, ok])
+        assert [l["sentences"] for l in out] == [[4, 5]]
+        assert rep["excluded"] == {"expired (rulings 76 + 77: 12 h after its video's publish time)": 2}
 
     def test_the_latest_line_wins_and_order_is_by_rank(self, tmp_path, rec):
         a1 = line(rec, 0, 1, scores={"quotable": 1})
@@ -165,7 +191,8 @@ class TestAdapter:
 
 def test_the_bounded_read_returns_exactly_what_a_full_read_returns(tmp_path, rec):
     """Grok c1 P0 (measured: 16-25 s per 100k lines): the adapter seeks past lines mined before
-    min(since, now - 72 h) - 1 day; its answer must equal the contract's rule applied to every line."""
+    min(since, now - horizon) - 1 day; its answer must equal the contract's rule applied to every line (rulings 76 +
+    77: the horizon is 12 h and a moment 12 h past its video's publish time is never returned)."""
     import random
     p = str(tmp_path / "m.jsonl")
     rng = random.Random(7)
@@ -184,9 +211,10 @@ def test_the_bounded_read_returns_exactly_what_a_full_read_returns(tmp_path, rec
     expect = {}
     for l in ledger.read(p)[0]:                           # the contract's rule over every line, latest line wins
         at, pub = datetime.fromisoformat(l["mined"]["at"]), datetime.fromisoformat(l["published_at"])
-        if at >= since or pub >= NOW - timedelta(hours=72):
+        if at >= since or pub >= NOW - timedelta(hours=config.EXPIRY_H):
             expect[l["moment_id"]] = l
-    assert {(l["moment_id"], l["scores"]["quotable"]) for l in fast} == \
+    expect = {k: l for k, l in expect.items() if not _expired(l)}
+    assert expect and {(l["moment_id"], l["scores"]["quotable"]) for l in fast} == \
         {(l["moment_id"], l["scores"]["quotable"]) for l in expect.values()}
     assert ledger.offset_before(p, NOW - timedelta(days=5)) > 0 and rep["lines"] < len(lines) / 3
 
@@ -210,16 +238,20 @@ def test_the_bounded_read_is_exact_while_lines_are_out_of_order_by_less_than_its
             lines.append(b)
     ledger.append(p, lines)
     full = ledger.read(p)[0]
+    nonempty = 0
     for since_h in (1, 6, 30, 80, 200):
         since = NOW - timedelta(hours=since_h)
         fast, rep = ledger.best_unused_moments(p, since, NOW, registry=[H.CHAN], optout=(), store_root=None)
         expect = {}
         for l in full:
             at, pub = datetime.fromisoformat(l["mined"]["at"]), datetime.fromisoformat(l["published_at"])
-            if at >= since or pub >= NOW - timedelta(hours=72):
+            if at >= since or pub >= NOW - timedelta(hours=config.EXPIRY_H):
                 expect[l["moment_id"]] = l
+        expect = {k: l for k, l in expect.items() if not _expired(l)}
+        nonempty += bool(expect)
         assert {(l["moment_id"], l["scores"]["quotable"]) for l in fast} == \
             {(l["moment_id"], l["scores"]["quotable"]) for l in expect.values()}, since_h
+    assert nonempty                                   # the comparison was made on returned moments, not only on none
 
 
 def test_the_service_stamp_puts_the_file_in_mined_at_order(tmp_path, rec):

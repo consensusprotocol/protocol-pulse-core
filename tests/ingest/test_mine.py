@@ -163,6 +163,7 @@ class TestMineVideo:
             assert l["mined"]["by"] == "model-primary@primary"
             assert l["speaker"]["turn_change_inside"] is None          # no marker: not measured
             assert l["eligibility"]["role"] == "clip" and l["eligibility"]["ok"] is False   # caption timing
+            assert l["expires_at"] == "2026-11-12T13:00:00+00:00"     # rulings 76 + 77: the publish time + 12 h
 
     def test_a_window_failing_everywhere_is_reported_not_dropped_silently(self):
         rec, meta = H.caption_record(H.vid(), n_rep=12)
@@ -268,3 +269,11 @@ def test_windows_of_huge_sentences_never_walk_one_sentence_at_a_time():
     normal = [{"k": i, "text": "Bitcoin is a short sentence here.", "complete": True} for i in range(200)]
     nw = mine.windows(normal)
     assert all(len(set(s["k"] for s in a) & set(s["k"] for s in b)) == mine.OVERLAP for a, b in zip(nw, nw[1:]))
+
+
+def test_the_expiry_is_the_publish_time_plus_12_hours_and_unknown_without_a_zone():
+    from pipeline.ingest import config
+    assert config.EXPIRY_H == 12
+    assert config.expires_at("2026-11-13T01:00:00+00:00") == "2026-11-13T13:00:00+00:00"
+    assert config.expires_at("2026-11-13T01:00:00Z") == "2026-11-13T13:00:00+00:00"
+    assert config.expires_at("2026-11-13T01:00:00") is None and config.expires_at(None) is None

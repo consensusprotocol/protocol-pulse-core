@@ -93,3 +93,15 @@ back-ends' `effort`) to the key fixes it, but every stored reply then stops matc
 replies an A/B re-reads (R6.4, R9), which can no longer be asked again under the freeze. Proposed: add it to the key
 when the freeze is lifted, or now with a one-time key migration of the stored replies (a back-end whose config did
 not change keeps its replies). Not changed here.
+
+## R11 Ruling 77 item 4: the word-pass worker's tiers become "last 6 h, then 6-12 h", nothing older (the integrator owns the worker)
+Orchestrator 18:09 ET Nov 13 (ruling 77, with the builder's ruling 76: a moment is usable only within 12 h of its
+video's publish time, then never again). In `pipeline/word_pass_worker.py` today: `FRESH_H, DAY_H = 10, 24` ("the last
+10 h first, then the last 24 h, then older") and `HORIZON_H = 72` (the `since` it asks the adapter for). Asked:
+`FRESH_H, DAY_H = 6, 12`, no tier after 12 h, and `HORIZON_H = 12`.
+What pp-ingest has done meanwhile: the adapter the worker reads (`ledger.best_unused_moments`, run from this worktree)
+now refuses every moment 12 h or more after its video's publish time (`expired (rulings 76 + 77 ...)`, the first
+exclusion, whatever `since` or horizon the caller passes). So the worker already receives nothing older than 12 h; its
+24 h and "older" tiers are simply empty until the constants change. Its temporary audio and window WAVs (deleted by
+the worker at the end of each cycle) are also covered by the watcher's purge when a cycle dies and leaves them
+(`/tmp/word_pass_*` untouched for 12 h; never a directory a process holds open).

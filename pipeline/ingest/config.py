@@ -6,7 +6,7 @@ through ts(), after the variable is set, and ts() checks the module really write
 """
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 PKG_DIR = os.path.dirname(os.path.abspath(__file__))
 PIPELINE_DIR = os.path.dirname(PKG_DIR)
@@ -33,6 +33,9 @@ CAPTION_RETRY_S = (600, 1200, 2400, 4800)    # then every 2 h
 LIVE_REPROBE_S = 1200
 UPCOMING_REPROBE_S = 1800
 DUP_DURATION_TOL_S = 2.0
+EXPIRY_H = 12                # rulings 76 + 77 (2026-11-13): a moment is usable only within 12 h of its video's
+                             # publish time, then never again; its row stays in the ledger (the receipt)
+PURGE_SPEC = os.path.join(PKG_DIR, "purge.json")    # ruling 77: what the watcher's purge may delete, and what never
 
 
 class StoreGuard(RuntimeError):
@@ -45,6 +48,21 @@ def now():
 
 def iso(dt=None):
     return (dt or now()).isoformat()
+
+
+def aware(s):
+    """An ISO time with its zone, or None (a time without a zone is not a measured time: fail closed)."""
+    try:
+        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    return d if d.tzinfo else None
+
+
+def expires_at(published_at, hours=EXPIRY_H):
+    """The moment of expiry of a video's moments (rulings 76 + 77): its publish time + 12 h; None when unknown."""
+    d = aware(published_at)
+    return None if d is None else (d + timedelta(hours=hours)).isoformat()
 
 
 def store_root():
@@ -78,6 +96,7 @@ def paths(root=None):
         "notify": os.path.join(ing, "NOTIFY.txt"),
         "overrides": os.path.join(ing, "overrides.json"),
         "work": os.path.join(ing, "work"),
+        "purge": os.path.join(ing, "purge"),
     }
 
 

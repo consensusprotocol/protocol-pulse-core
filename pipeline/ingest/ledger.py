@@ -7,7 +7,9 @@ append()  one locked O_APPEND write per video (every line of it), flushed and fs
 seal()    the same closing, on start; a torn line stays one unreadable line; readers skip and count unreadable lines
 best_unused_moments(path, since, now, delivered_ids, ...)
           the read the packager makes (pp-selectid contract v0): lines mined at or after `since` or published inside the
-          72 h window, de-duplicated by moment_id (the latest line wins), minus moments delivered in the previous 24 h,
+          horizon (12 h), de-duplicated by moment_id (the latest line wins), minus EXPIRED moments (rulings 76 + 77: a
+          moment is usable only within 12 h of its video's publish time, then never again; the row stays in this file
+          as the receipt that it was said and seen), minus moments delivered in the previous 24 h,
           with the contract's exclusions pre-applied (never relaxed): hard risk flags (law L-u), altcoin / not about
           Bitcoin, a measured speaker change inside, re-uploads (L-v 3), opted-out or unregistered channels, a line
           whose ids no longer give its text under the current contract definitions (fail closed). Left to the packager,
@@ -20,7 +22,7 @@ import os
 import re
 from datetime import datetime, timedelta, timezone
 
-from . import contract, mine
+from . import config, contract, mine
 
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")       # a YouTube id: record_by_sha joins it into a path
 REQUIRED = {"schema": str, "moment_id": str, "video_id": str, "channel_id": str, "channel_name": str,
@@ -208,8 +210,17 @@ def _aware(s):
         return None
 
 
+def expiry(l):
+    """When a line's moment stops being usable (rulings 76 + 77): the EARLIER of its recorded `expires_at` and its
+    publish time + 12 h (a line mined before the field existed has only the second; fail closed); None when neither
+    is measured (such a line is refused anyway: its publish time is not measured)."""
+    ts = [t for t in (config.aware(l.get("expires_at")), config.aware(config.expires_at(l.get("published_at"))))
+          if t is not None]
+    return min(ts) if ts else None
+
+
 def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, optout=None, store_root=None,
-                        horizon_h=72, limit=None):
+                        horizon_h=config.EXPIRY_H, limit=None):
     """(moments best first, report). since / now: aware datetimes. registry: the channel registry list; optout: the
     opted-out channel ids. Either one left None is READ from its file (pipeline/channels.json, pipeline/optout.json):
     the exclusions are never skipped by default, and an unreadable opt-out file refuses the read (law L-j).
@@ -230,7 +241,8 @@ def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, 
     # mined after its video was published. One day of margin for the interleaving of concurrent videos.
     cutoff = min(since, now - timedelta(hours=horizon_h)) - timedelta(days=1)
     lines, bad = read(path, from_time=cutoff)
-    report = {"lines": len(lines), "bad_lines": len(bad), "bad": bad[:20], "excluded": {}, "drift_checked": 0}
+    report = {"lines": len(lines), "bad_lines": len(bad), "bad": bad[:20], "excluded": {}, "drift_checked": 0,
+              "expiry_h": config.EXPIRY_H}
     latest = {}
     for l in lines:
         mined_at, pub = _aware(l["mined"].get("at")), _aware(l["published_at"])
@@ -253,7 +265,10 @@ def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, 
         flags = l.get("flags_ext") or {}
         src = l.get("source") or {}
         pub = _aware(l["published_at"])
-        if l["moment_id"] in delivered:
+        exp = expiry(l)
+        if exp is not None and now >= exp:
+            drop("expired (rulings 76 + 77: 12 h after its video's publish time)")
+        elif l["moment_id"] in delivered:
             drop("delivered in the previous 24 h")
         elif pub is None or pub > now:
             drop("publish time not measured or in the future")

@@ -10,6 +10,9 @@
   ab ...                  the blind A/B of back-ends on saved universes (pipeline/ingest/ab.py)
   flagcheck ...           a second model's check of the miner's hard flags (ruling 40; measurement only:
                           pipeline/ingest/flagcheck.py)
+  purge [--apply]         ruling 77: one pass of the rolling purge of expired media (default: a dry run that
+                          deletes nothing); --measure also sizes the media it never deletes. The watcher
+                          runs the same pass every 10 min in its own loop (pipeline/ingest/purge.py)
 
 Store: PP_INGEST_STORE (default <repo>/data/editorial; refused inside the main tree unless PP_INGEST_ALLOW_MAIN_STORE=1).
 One service per store: `run` and `once` refuse a store another service holds (<store>/ingest/service.lock).
@@ -144,6 +147,25 @@ def cmd_flagcheck(a):
     flagcheck.main(a)
 
 
+def cmd_purge(a):
+    from pipeline.ingest import purge
+    from pipeline.ingest import queue as Q
+    spec = purge.load_spec()
+    p = config.paths()
+    rep = purge.run_pass(spec, q=Q.Queue(p["queue"]), dry_run=not a.apply, log_dir=p["purge"])
+    print(purge.summary(rep))
+    for r in rep["delivered_runs"]:
+        print(f"  delivered (kept): {r['run']} ({', '.join(r['why'])})")
+    for f in rep.get("would_delete") or []:
+        print(f"  would delete: {f['path']} ({f['bytes'] / 1e6:.1f} MB; video {f['video_id']}, {f['age_h']} h old)")
+    if a.measure:
+        for r in purge.measure_reported(spec):
+            print(f"  never deleted, reported: {r['name']}: {r['files']} media files, {r['bytes'] / 1e9:.2f} GB "
+                  f"({r['what']})")
+    if a.json:
+        print(json.dumps(rep, indent=1, default=str))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -173,6 +195,11 @@ def main():
     from pipeline.ingest import ab as _ab
     _ab.add_args(b)
     b.set_defaults(fn=cmd_ab)
+    pg = sub.add_parser("purge")
+    pg.add_argument("--apply", action="store_true", help="delete (default: a dry run)")
+    pg.add_argument("--measure", action="store_true", help="also size the media outside the targets")
+    pg.add_argument("--json", action="store_true")
+    pg.set_defaults(fn=cmd_purge)
     fc = sub.add_parser("flagcheck")
     from pipeline.ingest import flagcheck as _fc
     _fc.add_args(fc)

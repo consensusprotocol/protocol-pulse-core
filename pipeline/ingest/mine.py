@@ -255,6 +255,7 @@ def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, n
         "video_id": rec["video_id"], "channel_id": meta.get("channel_id"),
         "channel_name": chan.get("display_name") or meta.get("channel_name"),
         "published_at": meta.get("published_at"), "title": meta.get("exact_title"),
+        "expires_at": config.expires_at(meta.get("published_at")),    # rulings 76 + 77: never usable after this
         "transcript_sha256": rec["transcript_sha256"], "transcript_method": rec["transcript_method"],
         "timing": timing, "words": [w0, w1], "sentences": [a, b], "text": E.spoken(toks[w0:w1 + 1]),
         "start": start, "end": end,

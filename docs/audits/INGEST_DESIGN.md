@@ -237,6 +237,34 @@ miss). A channel whose listing fails is "unmeasured", never counted as covered (
 3. Wiring into the main tree: set `PP_INGEST_ALLOW_MAIN_STORE=1`, run `tools/ingest_watch.py run` from the main tree in
    its own tmux, enable `local_gemma` in providers.json only under the GPU0 lease.
 
+## 12. Expiry and the rolling purge (rulings 76 + 77, orchestrator 18:09 ET Nov 13)
+
+PBX 18:01: "do we have a system in place to stop our clipping system from reusing old clips? We need to delete all the
+contents after like 6 to 12 hours so that we never reuse any of it." The builder's ruling 76: a moment is usable only
+within 12 h of its video's publish time, then never again.
+- EXPIRY IN THE LEDGER: every line carries `expires_at` = its video's publish time + 12 h (`config.EXPIRY_H`), written
+  when it is mined (lines are never rewritten). The adapter (`ledger.best_unused_moments`, the builder's and the
+  word-pass worker's only read) refuses a moment whose expiry has passed BEFORE any other rule: `expired (rulings 76 +
+  77 ...)`. The expiry used is the EARLIER of the recorded field and the publish time + 12 h, so a line mined before
+  the field existed, or a field that says later, never extends a moment's life (fail closed); a line without a
+  measured publish time is refused as before. Expired rows stay in the ledger file: the receipt that a moment was
+  said and seen (first-said, the dedupe against re-posts). The adapter's default horizon is 12 h.
+- THE PURGE (`pipeline/ingest/purge.py`, scope `pipeline/ingest/purge.json`): the watcher's own loop (no cron), every
+  10 min, deletes MEDIA files of videos published more than 12 h ago from three targets only: the acquired mp4
+  sections of the runs (`runs/*/sources/<video id>.<ext>`), the lock precheck's acquired sections
+  (`data/lock_precheck/work/*/sources/`), and a dead word-pass cycle's temporary audio and window WAVs
+  (`/tmp/word_pass_*` untouched for 12 h). Kept, always: a DELIVERED video's media wherever it lies (a video cut into
+  a run with a delivery record, TELEGRAM_DELIVERY or REVIEW_DROP, or into a pin the stand-alone scorer records as
+  delivered, or into a reference with delivery evidence), a file whose publish time is not measured, a run touched in
+  the last 2 h (a render in progress), a file a process holds open, a symlink; and every non-media file
+  (transcripts, PROVENANCE.json, transcript hashes, the pins). Renders and their intermediates (out/, qa/, VERIFY/),
+  our voice-over, references/ and test fixtures are never targets. Media outside the targets is measured and
+  reported (`purge --measure`), never deleted. A delivered set or /proc that cannot be read stops the pass (L-j).
+  Every deletion is a line in `<store>/ingest/purge/deleted.jsonl`, every pass one in `passes.jsonl`; the last pass
+  and the total freed are in live.json (`purge`).
+- MINING ORDER: newest uploads first, always (`Queue.due` orders by publish time, newest first, for both the caption
+  fetch and the mining; three videos mine at once).
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

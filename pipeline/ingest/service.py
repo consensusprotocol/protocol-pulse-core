@@ -6,6 +6,8 @@ Loops (threads, one process):
   mine    every 5 s: mine transcribed videos (3 videos at once; their windows share one executor whose real
           concurrency is bounded per back-end and globally by providers.Router), append moments, mark mined
   health  every 60 s: Heimdall spend meter (every 10 min), live numbers (ingest/live.json), the daily coverage check
+  purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
+          deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
 Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
   - a pass whose failed windows found every back-end down, refusing or skipped (frozen, disabled, budget, circuit
     open) is an OUTAGE: the video waits (mine_waiting) and is retried every MINE_RETRY_S without using a try, for as
@@ -27,7 +29,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
-from . import config, coverage, fetch, ledger, mine, providers, spend, stats, watch
+from . import config, coverage, fetch, ledger, mine, providers, purge, spend, stats, watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -49,7 +51,7 @@ class Service:
     def __init__(self, providers_path=None, log=None, clock=time.time, backends=None, gate=None,
                  keyring=None, sleep=time.sleep):
         self.p = config.paths()                         # the store transcript_store is bound to (config.ts)
-        for k in ("ingest", "moments", "replies", "replies_log", "coverage", "work", "transcripts"):
+        for k in ("ingest", "moments", "replies", "replies_log", "coverage", "work", "transcripts", "purge"):
             os.makedirs(self.p[k], exist_ok=True)
         self._hold_store()                              # one service per store, before anything is recovered
         config.ts()                                     # binds transcript_store to this store, or StoreGuard
@@ -84,6 +86,10 @@ class Service:
         if ledger.seal(self.p["ledger"]):
             self.q.event("ledger_sealed", None, None, path=self.p["ledger"])
         self.q.recover()
+        try:
+            self.purge_spec, self.purge_error = purge.load_spec(), None
+        except (OSError, ValueError) as e:              # a refused spec deletes nothing, and says so every pass
+            self.purge_spec, self.purge_error = None, f"{type(e).__name__}: {e}"
 
     def _hold_store(self):
         path = os.path.join(self.p["ingest"], "service.lock")
@@ -338,6 +344,24 @@ class Service:
                      f"{len(rep['unmeasured_channels'])} channels unmeasured -> {path}")
         return s
 
+    def purge_once(self, dry_run=False):
+        """Ruling 77: one pass of the rolling purge of expired media (purge.py), in this process's own loop."""
+        if self.purge_spec is None:
+            self.log(f"purge: not run, its spec is refused ({self.purge_error}); nothing deleted")
+            return None
+        rep = purge.run_pass(self.purge_spec, q=self.q, dry_run=dry_run, log_dir=self.p["purge"])
+        if not dry_run:
+            total = float(self.q.kv_get("purge_freed_total") or 0) + rep.get("freed_bytes", 0)
+            self.q.kv_set("purge_freed_total", str(total))
+            self.q.kv_set("purge_last", json.dumps({
+                "at": rep["at"], "freed_bytes": rep.get("freed_bytes", 0), "refused": rep.get("refused"),
+                "deleted": rep["deleted"], "kept": rep["kept"], "delivered_videos": rep["delivered_videos"],
+                "seconds": rep.get("seconds")}))
+            self.q.event("purge", None, None, freed=rep.get("freed_bytes", 0), refused=rep.get("refused"))
+        if rep.get("freed_bytes") or rep.get("refused") or dry_run:
+            self.log(purge.summary(rep))
+        return rep
+
     def _outage_notice(self, now):
         """Videos waiting on an outage of every mine back-end for over OUTAGE_NOTICE_S: one line at the top of STATE,
         removed when none waits (orchestrator 05:30: they are mined later; freeze audit c1, muse: visible without
@@ -397,7 +421,8 @@ class Service:
             ("watch", self.watch_once, config.POLL_S, config.POLL_JITTER_S),
             ("fetch", self.fetch_once, 10.0),
             ("mine", self.mine_once, 5.0),
-            ("health", self.health_once, 60.0))]
+            ("health", self.health_once, 60.0),
+            ("purge", self.purge_once, float((self.purge_spec or {}).get("every_s", 600))))]
         for t in threads:
             t.start()
 

@@ -1,21 +1,79 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 05:30 ET Nov 13) - paid frontier vendors FROZEN since 05:30 ET Nov 12
+## TOTAL SPEND BY VENDOR (this session, every use, to 18:20 ET Nov 13) - paid frontier vendors FROZEN since 05:30 ET Nov 12
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$0.86** | $0.73 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.27 (mining since 03:26 ET Nov 12: $0.10 before the freeze, $0.17 after), ruling 40 $0.23 (the flag check $0.05, option A's dry run $0.18), the audits $0.11, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $0.53: mining $0.17 (267 calls), ruling 40 $0.23, the freeze audit $0.08 + at most $0.05 unrecorded |
-| **TOTAL** | **~$13.09** | | Anthropic is 80 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+| Heimdall | **$0.97** | $0.84 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.37 (mining since 03:26 ET Nov 12: $0.10 before the freeze, $0.27 after), ruling 40 $0.23 (the flag check $0.05, option A's dry run $0.18), the audits $0.11, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $0.63: mining $0.27 (432 calls), ruling 40 $0.23, the freeze audit $0.08 + at most $0.05 unrecorded |
+| **TOTAL** | **~$13.20** | | Anthropic is 79 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
 - Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261113.json (tests/ingest/spend_by_vendor.py: every
   row with its basis). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 36.30 at 05:22 ET
-  Nov 13 (+$1.72, the fleet's other sessions included); the cap's sweep spend $36.09 of $460 (7.8 %), meter ok, no
-  tripwire.
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 37.05 at 18:12 ET
+  Nov 13 (+$2.47, the fleet's other sessions included); the cap's sweep spend $36.85 of $460 (8.0 %), meter ok, no
+  tripwire. Ruling 77 spent nothing on models (no model call).
+
+## RULING 40: LABEL PRECISION OF THE HARD FLAGS (measured 03:25-05:25 ET Nov 13; commit a462afda; report docs/audits/parallel/pp-ingest_FLAG_PRECISION.md)
+Second model z-ai/glm-5.3-flash (Heimdall, default reasoning; 24/24 on the calibration quotes), one narrow question per
+flag with the ruling's definition, the 200 newest of the 225 flagged rows published in the 72 h before 04:18 ET.
+
+| flag | miner flagged -> checker yes / no (unsure 0, unmeasured 0) | precision (95 % CI) | miner not flagged -> checker yes / no |
+|---|---|---|---|
+| imperative | 41 / 15 of 56 | **73 %** (60-83 %) | 1 / 143 |
+| accusation | 68 / 62 of 130 | **52 %** (44-61 %) | 2 / 68 |
+| single_source_breaking | 20 / 10 of 30 | **67 %** (49-81 %) | 64 / 106 |
+
+Five examples per cell: the report's last section. Proposal awaiting the ruling (nothing cleared): P1 "flag stands only
+when both models agree" for imperative and single_source_breaking (24 h hard-flag removals 123 -> 116); P2 accusation
+re-measured under a sharpened definition first (the checker's "no" released insinuations against identifiable
+parties); P3 the tighter miner prompt is not the fix (measured: no precision gain). Rulings 76 + 77 now expire every
+moment 12 h after publish, which removes most of what P1 would have released (the released rows were up to 72 h old).
 
 ## LIVE STATE (newest first; ET)
+
+- 18:45 Nov 13 RULING 77 (18:09; with the builder's ruling 76; PBX 18:01 "delete all the contents after like 6 to 12
+  hours so that we never reuse any of it"): BUILT, TESTED, LIVE IN THE WATCHER. (commit: see git log, pushed)
+  - 1 EXPIRY IN THE LEDGER: every new row carries `expires_at` = its video's publish time + 12 h (written at mining;
+    rows are never rewritten). The adapter (`best_unused_moments`: the builder's and the word-pass worker's only read)
+    refuses a moment whose expiry has passed BEFORE any other rule ("expired (rulings 76 + 77 ...)"), using the
+    EARLIER of the field and publish + 12 h, so the 2,000+ rows mined before the field expire the same way and a
+    later field never extends a life (fail closed). Expired rows stay in the ledger file (A18). The adapter's horizon
+    default is 12 h. On the live ledger now: see the first pass below.
+  - 2 DELETE THE CONTENT (pipeline/ingest/purge.py, scope pipeline/ingest/purge.json): media files of videos
+    published more than 12 h ago, from three targets only: the runs' acquired sections (`runs/*/sources/`), the lock
+    precheck's (`data/lock_precheck/work/*/sources/`), and a dead word-pass cycle's temporary audio / window WAVs
+    (`/tmp/word_pass_*` untouched 12 h). KEPT always: a delivered video's media wherever it lies (A19), a file whose
+    publish time is unmeasured, a run touched in the last 2 h (a render in progress), a file a process holds open, a
+    symlink, and every non-media file (transcripts, PROVENANCE.json, transcript hashes, the pins). A delivered set or
+    /proc that cannot be read deletes nothing that pass (L-j). DELIVERED = a video cut into a delivery: 10 runs (2
+    Telegram deliveries, 3 review drops, 5 runs of pins the stand-alone scorer records as delivered: 1b4a63d0,
+    41f29b1f, 37c5b5f5) and 4 references with delivery evidence (not references/editorial_failures nor the test pins):
+    15 videos.
+    DRY RUN on the real tree (18:40): would free 0.09 GB, 6 files: the sources of three never-delivered runs
+    (pinned_20261112_064032, pinned_20261113_075638, recut_sources_20261111b; videos 25-105 h old). KEPT: 154 files,
+    7.27 GB, every one a copy of one of the 15 delivered videos (118 of them, 6.84 GB, in runs that are not deliveries:
+    re-renders and replays; A19); 51 symlinks to segment_v2/sources (the v2f reference's sources); 1 unnamed file; 1
+    run in use; 1 file not yet expired.
+    NEVER DELETED, MEASURED for your ruling (not in ruling 77's list; deletion cannot be undone; A20): renders'
+    intermediates and QA cuts (runs/*/qa, VERIFY) 2,017 files 5.03 GB; rendered videos (runs/*/out) 64 files 1.01 GB;
+    video_pipeline_v3 clip_engine's daily raw + branded clips (06:00 cron) 48 files 0.71 GB; the earlier segment
+    pipelines (segment_v1-v3) 718 files 20.76 GB; the March video_engine clips and audio 48 files 0.39 GB. Each is one
+    line of purge.json away from a target, on your word.
+  - 3 RECURRING, NO CRON: the purge is a loop of the watcher process (`purge`, every 600 s, first pass at start): a
+    file is deleted at most ~10 min after its video turns 12 h old (later only while its run is in use or the file is
+    open). Every deletion is a line in data/editorial/ingest/purge/deleted.jsonl, every pass one in passes.jsonl; the
+    last pass and the total freed are in live.json (`purge`). `python3 tools/ingest_watch.py purge [--measure]` shows a
+    pass's plan without deleting (`--apply` deletes).
+  - 4 MINING ORDER: newest uploads first, always (already so: the queue serves the caption fetch and the mining by
+    publish time, newest first; 3 videos mine at once). Videos older than 12 h are still mined, last: their rows are
+    the receipts the ruling keeps, about $0.001 each (A21). The word-pass worker's tiers (last 6 h, then 6-12 h,
+    nothing older) are the integrator's: REQUESTS R11. The adapter it reads already returns nothing older than 12 h.
+  - TESTS: tests/ingest 204 passed (new: tests/ingest/test_purge.py 9; expiry 3 in test_ledger_coverage / test_mine;
+    the purge loop 1 in test_service). py_compile clean.
+  - LIVE (18:20 ET; 24 h): 129 videos mined, 0 partial, 0 waiting on an outage; 613 moments; publish -> mined p50 16.1
+    min, p90 47.5; Heimdall $0.13 in 24 h.
 
 - 05:35 Nov 13 RULING 40 (03:13): HARD-FLAG PRECISION MEASURED; FIX PROPOSED; WAITING FOR YOUR RULING. No flag
   cleared, no ledger line written, the adapter's exclusions untouched, the watcher still mines with mine/2.
@@ -237,6 +295,22 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   reasoning 24/24; at effort none 21/24, every miss a false "yes"). A question it timed out on (300 s) or answered
   empty goes to the role's second back-end (muse) without a same-back-end retry, since at temperature 0 a retry
   reasons the same way again; the report says which model answered each question.
+- A17 Ruling 77 assigns the purge to this watcher, so it deletes files OUTSIDE this worktree: the only writes pp-ingest
+  makes there, limited to the three targets of pipeline/ingest/purge.json (refused at load if a target names a
+  protected path: references, tests, the transcript store, the pins, renders' out/qa/VERIFY, voice-over, transcripts).
+  Nothing else in the main tree is written (the standing "never edit the main tree" holds for everything else).
+- A18 "Marked expired (a field, with the time)": the ledger is append-only (rows never rewritten), so the field is
+  `expires_at`, the time the moment expires, written on every row when it is mined; a row is expired from that time
+  on. Rows mined before the field: the same time from their publish time. Nothing is deleted from the ledger.
+- A19 "EXCEPT the sources of DELIVERED videos": read literally, so every cached copy of a delivered video's media is
+  kept, not only the delivery run's own copy (6.84 GB of copies in re-renders and replays). Keeping one copy per
+  delivery and deleting the rest is your call (one rule in purge.py).
+- A20 "Cached source media and audio ... (downloads, windows' WAVs, acquired mp4 sections)": deleted = the three kinds
+  listed (acquired sections, the word pass's window WAVs, the worker's audio downloads). Renders' intermediates, the
+  rendered videos, the V3 daily clips, the earlier segment pipelines and the March clips are measured and reported,
+  not deleted: not listed, and a deletion cannot be undone.
+- A21 "Newest uploads first, always" orders the mining; it does not stop it: videos older than 12 h are mined after
+  every newer one, for the receipts.
 
 ## HOW TO OPERATE (for the orchestrator)
 - status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status`

@@ -9,7 +9,7 @@ import shutil
 import pytest
 
 import helpers as H
-from pipeline.ingest import config, ledger, providers, service, watch
+from pipeline.ingest import config, ledger, providers, service, stats, watch
 from pipeline.ingest import queue as Q
 from pipeline.ingest.providers import BackendError
 
@@ -340,3 +340,39 @@ def test_a_partial_videos_count_is_its_distinct_moments_in_the_ledger(svc):
     lines = [l for l in ledger.read(s.p["ledger"])[0] if l["video_id"] == vid]
     s.q.x("UPDATE videos SET moments=1 WHERE video_id=?", (vid,))
     assert s._ledger_count(s.q.video(vid)) == len({l["moment_id"] for l in lines}) >= 1
+
+
+def test_the_watcher_runs_the_purge_in_its_own_loop_and_a_refused_spec_deletes_nothing(svc, monkeypatch):
+    """Ruling 77: no cron; the purge is one of the service's loops (every purge.json every_s), its last pass in
+    live.json; a spec that does not load deletes nothing and says so."""
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    assert s.purge_spec is not None and s.purge_spec["every_s"] == 600
+    seen = []
+    monkeypatch.setattr(service.purge, "run_pass", lambda spec, **kw: seen.append(kw) or {
+        "at": "t", "dry_run": False, "deleted": {"run_sources": {"files": 2, "bytes": 5}}, "kept": {}, "problems": [],
+        "delivered_runs": [], "delivered_videos": 0, "freed_bytes": 5, "seconds": 0.1})
+    s.purge_once()
+    assert seen and seen[0]["log_dir"] == s.p["purge"] and float(s.q.kv_get("purge_freed_total")) == 5
+    live = stats.live(s.q, meter=s.meter, router=s.router)
+    assert live["purge"]["freed_total_bytes"] == 5 and live["purge"]["last_pass"]["deleted"]["run_sources"]["files"] == 2
+    msgs = []
+    s.log = msgs.append
+    s.purge_spec, s.purge_error = None, "SpecError: bad"
+    seen.clear()
+    assert s.purge_once() is None and not seen and "nothing deleted" in msgs[-1]
+    loops = {}
+
+    class FakeThread:                                   # records the loops run() starts, runs none of them
+        def __init__(self, target=None, args=(), daemon=None, name=None):
+            loops[name] = args[2] if len(args) > 2 else None
+
+        def start(self):
+            pass
+
+        def join(self, timeout=None):
+            pass
+    monkeypatch.setattr(service.threading, "Thread", FakeThread)
+    s.purge_spec = service.purge.load_spec()
+    s.stop.set()
+    s.run()
+    assert loops["purge"] == 600.0 and {"watch", "fetch", "mine", "health"} <= set(loops)
