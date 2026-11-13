@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 17:31 PUBLISHING-KIT FIX MERGED (4c60b029; audits batch 68 x2, no consensus findings; must-fail: the old telegram.py gives 'SUGGESTED TITLE: bitcoin | Pulse Check'). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0; test_telegram_delivery + test_review_drop 41 passed.
+- A moments pin's kit now suggests '<sealed title> | Pulse Check' and leads its description with the sealed caption (law L-t). Story pins are unchanged.
+- The 17:12 kit (67848) went out before the fix. Whether a corrected kit is sent as a reply to it is the orchestrator's call; nothing has been sent.
+- STILL OPEN for the orchestrator:
+  - the speaker attestation in the kit (SPEAKERS_ATTESTED.json, not read);
+  - ruling 72's spelling variants ('because' / "'cause");
+  - the edge-placement proposals (a)-(c) from 13949b7c's hold.
+- FROM THE BUILDER (17:3x): the only other line-up in its pool whose clips pass (the Livera candidate) opens on the SAME hook span (DcUbBkyeh9M 216.054-228.674), so it would meet the same OUT-edge hold until (a) is ruled. The builder seals nothing until its ruling-72 wiring is committed.
+
 ## 17:27 FACTS, 13949b7c's prepare HOLD: both failures are the RENDER's edge placement (sentence law), caught by prepare's edge-word check working as designed. The pin's texts passed ruling 17. FOR THE ORCHESTRATOR TO RULE.
 - HOOK OUT EDGE (DcUbBkyeh9M, window clock, offset 201.0 s):
   - The run's decode puts the last locked word 'reissued.' at 26.66-27.54 and 'Countries' at 27.54.
