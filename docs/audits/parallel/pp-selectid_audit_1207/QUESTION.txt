@@ -1,0 +1,113 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips from YouTube
+channels, sealed in a pin that the integrator renders). Your role: a strict reviewer of a search and verdict change.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- A build screens moments (step A), rates every moment that can open on the hook's own job in one batched call
+  (ruling 59: HOOK_QUESTION's three parts scroll / alone / setup, each 1-5, cached across builds), and gives the angle
+  writer THE HOOKS (rated >= 4).
+- For each angle it forms line-ups (lineup_for: the hook + 2-4 clips, one per channel, the medley's seconds 36.7-51.5,
+  a clip under 8 s only last, the render's STAND_ALONE). Each line-up is judged on the clips ALONE by a blind verdict
+  (medley()): a through-line, a 1-5 rating per clip, and per join whether a viewer can follow it.
+  - A line-up passes when the through-line is stated, every rating is >= 4, and at most ONE join is flagged (the one
+    bridge L-y allows).
+  - A failure swaps the weak clips (ruling 41: swap_lineup) or re-lines.
+  - At most 8 line-ups per build (ruling 41).
+- After the takeaway is written, the coherence verdict (coherence()) rates the clips and the VO's point again.
+- Until now both verdicts asked HOOK_QUESTION again inside every line-up, and the hook's rating there was the lowest
+  of its three parts.
+
+The orders this diff implements (ORCHESTRATOR RULINGS 12:00 ET Nov 13, verbatim):
+"The 11:31 build is the first real one: 31 cuttable, 2 hooks, and three line-ups one step from passing (line-up 5:
+4/5/4/3, one flagged join; line-up 6: hook 3 then 5/4/5, one flagged join; angle 2 line-up 2: 4/4/5 with two flagged
+joins). What sank them is judge noise and search order, not the clips. Audit these together, build at once.
+61. THE HOOK IS RATED ONCE. The same hook rated 4 on its own job (ruling 59, cached) was re-rated 2, 3 and 4 inside
+different line-ups. That is noise deciding the outcome. From now: 'stops the scroll' and 'stands alone' are the hook's
+cached own-job rating and are NOT re-asked per line-up. 'Sets up what follows' is judged where it is measurable: the
+hook -> clip_01 join (followable, or the one bridge L-y allows). The line-up verdict rates the CLIPS and the joins; it
+shows the hook's text for context and does not rate it again. Same for the coherence verdict after the takeaway.
+62. THE LAST CLIP. A line-up whose only failure is its last clip (rated under 4) is retried WITHOUT that clip when the
+remaining hook + clips still meet the medley's seconds floor, before any swap is spent. If the floor is not met, swap
+as now.
+63. JOINS BEFORE SWAPS. When every rating passes and more than one join is flagged, try the other ORDERS of the same
+clips (the hook stays first; placement limits respected) before dropping anything: a flagged join is about adjacency,
+and reordering is free of new step A cost. One bridge at most, unchanged (L-y).
+64. Your own gap (one angle per passing hook, so the second hook is tried): yes, fix it as you say.
+The search budget of 8 line-ups counts JUDGED line-ups; cached verdicts for an identical line-up are free."
+
+The change (pipeline/package.py, tests/package/test_medley.py):
+
+61:
+- HOOK_OWN = (scroll, alone). hook_own(m) reads a moment's cached rating and returns {scroll, alone, rating = the
+  lower of the two}; it returns None unless both are ints.
+  - can_open() uses it (rating >= 4).
+  - hook_order() and the angle rank use it.
+  - hook_ratings() stores rating = min(scroll, alone), and recomputes it for cached records. The question and its
+    cache version are unchanged.
+- MEDLEY_PROMPT no longer contains HOOK_QUESTION: the hook is shown "for context only: it is NOT rated here". The
+  judge rates the clips after the hook and every join, "the hook's own join included (does the hook set up the clip
+  after it?)".
+  - medley() contract: exactly {through_line, clips (the clips after the hook), joins}.
+  - verdict["clips"]["hook"] = the hook's cached own-job rating. A hook without one fails closed, and is not put into
+    clips.
+  - ok = own rating present and the through-line stated and every rating >= 4 and flagged joins <= 1.
+- The same for COHERENCE_PROMPT / coherence(..., hook=the hook moment), whose call site passes segs[0].
+  _line_ok() is factored out (the through-line rule M7, unchanged).
+62: last_clip_only(segs, med): measured, the through-line stated, the hook's rating present, the last clip the only
+    rating under 4, and at most one flagged join once the join INTO the last clip is discounted. In the loop, the
+    line-up without its last clip is judged next (the last clip goes to `dropped`) when it keeps >= 2 clips and passes
+    lineup_ok (which includes the seconds floor and the render's STAND_ALONE), before any swap.
+63: when the verdict is measured, the through-line is stated, every rating (the hook's included) is >= 4, and more than
+    one join is flagged, reorder() picks the next order:
+    - every permutation of the clips after the hook (the hook first) not judged yet in this build;
+    - at most one adjacent pair known to be unfollowable (bad_pairs: every flagged (from, to) moment pair of this
+      build's verdicts);
+    - passing lineup_ok (placement limits, the render's STAND_ALONE in the new order);
+    - best by the fewest such pairs, then the fewest clips moved.
+    When no order qualifies, the old path runs (the clips after the flagged joins are weak; swap or re-line).
+64:
+- offered = the best max_angles (3) passing hooks; per = max(1, 3 // len(offered)).
+- The angle prompt says "for EACH hook above at least one and at most {per} (every hook gets its own), at most {k} in
+  all".
+- allot() keeps at most `per` angles per hook, in the writer's order; the dropped ones are recorded.
+- An offered hook left without an angle gets ONE follow-up angle call written for exactly those hooks, within the
+  remaining angle budget; it uses the same contract and allot. A failed follow-up is recorded and never fails the
+  build. No verdict sees the angle sentence (CI.package_view shows the title, caption, clips and VO), and the writes
+  stay on the first angle call's vendor as before.
+The budget:
+- An identical line-up (the same moment ids in the same order) reuses its verdict free: `judged`, keyed by the id tuple.
+- `total` counts only verdicts actually asked and not replayed.
+- A guard stops an angle's loop after 4 x the budget in iterations, so free repeats never turn forever.
+Tests:
+- the clips-alone and coherence verdict tests are rewritten for 61;
+- ruling 59's tests read the rating from its parts;
+- the test Rig rates only its canned angles' hooks as passing unless a test rates hooks, and can give a follow-up
+  reply;
+- new tests: 62 (the floor met, and not met), 63 (a reorder first; the unit cases), 64 (the follow-up call; allot),
+  and the budget (an identical line-up judged once).
+test_medley 119 OK; all 11 suites OK.
+
+Stated readings (say so if you read the rulings differently):
+- K1 (61): the gate for opening (ruling 59 b) becomes the own-job rating, min(scroll, alone). 'Setup', still asked in
+  the batched hook question (unchanged, so its cache stays valid), is recorded but gates nothing: it is judged at the
+  hook's join.
+- K2 (62): "only failure" means the last clip is the only rating under 4, the through-line is stated, and the flagged
+  joins, once the join into the last clip goes with it, are within the one bridge.
+- K3 (63): a reordered line-up is a new line-up and is judged (it counts when judged). Known-unfollowable pairs come
+  from every verdict of the build, because a pair's adjacency is the same in any line-up.
+- K4 (64): per-hook calls would cost a call per hook. One call plus a follow-up only for hooks left without an angle
+  keeps the cost at one or two calls.
+- K5 (budget): "cached verdicts for an identical line-up are free" covers an identical line-up within the build (the
+  memo) and a verdict the router replays from its recorded replies.
+
+Check in particular:
+- that no hook can open or pass without its cached own-job rating >= 4;
+- that the contracts reject a hook rating in the reply;
+- 62's floor and placement checks;
+- 63's search (termination, the hook fixed, placement limits, no repeat of a judged order);
+- 64's follow-up (it can never fail the build, and its vendor);
+- that the budget can never loop forever;
+- any old caller of medley / coherence / can_open that changes behaviour unintentionally.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

@@ -576,8 +576,9 @@ THE HOOKS: a video may OPEN only on one of these clips; each was judged first, a
 4-5 of 5), best first:
 {hooks}
 
-Find ANGLES, best hook first: up to {per} for EACH hook above, at most {k} in all, each written FOR its hook (it opens
-the video and sets up the point). An angle is ONE sentence a viewer could repeat: a point that several of these clips
+Find ANGLES, best hook first: for EACH hook above at least one and at most {per} (every hook gets its own), at most
+{k} in all, each written FOR its hook (it opens the video and sets up the point). An angle is ONE sentence a viewer
+could repeat: a point that several of these clips
 GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
 the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
 it is today's.
@@ -602,21 +603,22 @@ HOOK_QUESTION = """THE HOOK is judged on its own job, NOT on the through-line. R
 
 MEDLEY_PROMPT = """You watch a short video made ONLY of these clips, played back to back with NO narration between them.
 Each clip is a person's own words from a show; the shows were not in one conversation. The first clip (label "hook")
-opens the video.
+opens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).
 
 {clips}
 
 1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or
    "none" if there is none.
-2) """ + HOOK_QUESTION + """
-3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
-4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
-   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few
-   words.
-Return ONLY this JSON object: {{"through_line": "...", "hook": {{"scroll": 1, "alone": 1, "setup": 1}},
-"clips": {{{clip_keys}}}, "joins": {{{joins}}}}}"""
+2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
+3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after
+   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming
+   from the previous clip's ending? Answer true or false, and why in a few words.
+Return ONLY this JSON object: {{"through_line": "...", "clips": {{{clip_keys}}}, "joins": {{{joins}}}}}"""
 HOOK_PARTS = ("scroll", "alone", "setup")   # ruling 52 (08:06 Nov 13): the hook's own job, each part rated 1-5
 HOOK_RULE = "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+HOOK_OWN = ("scroll", "alone")     # RULING 61 (12:00): the hook's OWN-JOB rating, cached and never re-asked per line-up
+HOOK_OWN_RULE = ("the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> "
+                 "clip_01 join")
 HOOKS_PROMPT = """You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's
 own words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as
 the opener of a video; the candidates are not compared with each other and never play together.
@@ -644,8 +646,9 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
     for m in ms:
         rec = next((x for name, x in sorted((cdb.get(key(m)) or {}).items())
                     if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
-        if rec is not None:
-            out[m["moment_id"]] = dict(rec, cached=True)
+        if rec is not None and all(isinstance(rec.get(k), int) for k in HOOK_PARTS):
+            out[m["moment_id"]] = dict(rec, rating=min(rec[k] for k in HOOK_OWN), rule=HOOK_OWN_RULE,
+                                       cached=True)          # ruling 61: the own-job rating is scroll / alone
         else:
             todo.append(m)
     if not todo:
@@ -676,8 +679,8 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
         new = {}
         for m in todo:
             x = h[m["moment_id"]]
-            rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_PARTS), "why": x["why"][:300],
-                   "backend": r.backend, "rule": HOOK_RULE}
+            rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
+                   "backend": r.backend, "rule": HOOK_OWN_RULE}       # ruling 61: scroll / alone
             out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
             new[key(m)] = {r.backend: rec}
         _cache_put(cache, new)
@@ -723,17 +726,16 @@ picked).
 """
 
 COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
-different person's own words; the first clip, label "hook", opens the video).
+different person's own words; the first clip, label "hook", opens the video and is shown for context only: it is NOT
+rated here, its own job was judged on its own).
 
 {package}
 
 1) State the video's through-line in ONE sentence, or "none" if it has none.
-2) """ + HOOK_QUESTION + """
-3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
-4) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
+2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
+3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;
    1 = no point, or a point the clips do not support).
-Return ONLY this JSON object: {{"through_line": "...", "hook": {{"scroll": 1, "alone": 1, "setup": 1}},
-"clips": {{{clip_keys}}}, "vo_point": 1}}"""
+Return ONLY this JSON object: {{"through_line": "...", "clips": {{{clip_keys}}}, "vo_point": 1}}"""
 
 
 def current_levels(sources, ctx, hours=24.0):
@@ -1136,6 +1138,18 @@ def no_role_on_screen(m):
                                         "with no clip scorer at the pin stage") + f": {c_why}; {h_why}")
 
 
+def hook_own(m):
+    """RULING 61 (12:00): a hook's OWN-JOB rating, the cached one ruling 59 gave it ("hook_rating"): {"scroll",
+    "alone", "rating": the lower of the two, "source", "rule"}. 'Sets up what follows' is not part of it: it is judged
+    at the hook -> clip_01 join. None when the moment carries no complete rating (then it never opens, law L-m)."""
+    r = (m or {}).get("hook_rating") or {}
+    parts = {k: r.get(k) for k in HOOK_OWN}
+    if not all(isinstance(x, int) and not isinstance(x, bool) for x in parts.values()):
+        return None
+    return dict(parts, rating=min(parts.values()), source="the hook's cached own-job rating (ruling 61)",
+                rule=HOOK_OWN_RULE)
+
+
 def can_open(m):
     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
@@ -1145,16 +1159,18 @@ def can_open(m):
     if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True
             and SA.opener("hook", m.get("text") or "")[0]):
         return False
-    r = (m.get("hook_rating") or {}).get("rating") if "hook_rating" in m else HOOK_MIN
-    return isinstance(r, int) and not isinstance(r, bool) and r >= HOOK_MIN
+    if "hook_rating" not in m:
+        return True                                      # not rated yet: judged as before ruling 59
+    own = hook_own(m)                                    # ruling 61: scroll / alone, the cached own-job rating
+    return own is not None and own["rating"] >= HOOK_MIN
 
 
 def hook_order(ms):
     """RULING 59 (c): the passing hooks best first: the derived rating, then the sum of its parts, then the miner's
     score, then the id (a total order)."""
     hr = lambda m: m.get("hook_rating") or {}
-    return sorted(ms, key=lambda m: (-(hr(m).get("rating") or 0), -sum(hr(m).get(k) or 0 for k in HOOK_PARTS),
-                                     -m["rank_score"], m["moment_id"]))
+    return sorted(ms, key=lambda m: (-((hook_own(m) or {}).get("rating") or 0),   # ruling 61: the own-job rating
+                                     -sum(hr(m).get(k) or 0 for k in HOOK_PARTS), -m["rank_score"], m["moment_id"]))
 
 
 def hook_line(m, ctx):
@@ -1368,23 +1384,28 @@ def duplicates(pk):
 NO_LINE = re.compile(r"^\W*(none|no\b|n/?a\b|unclear|nothing|there is no)", re.I)
 
 
-def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
+def _line_ok(tl):
+    """A through-line is stated: a string of >= 4 words that does not read 'none' / 'no' / 'n/a' (M7)."""
+    tl = tl if isinstance(tl, str) else ""
+    return bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4
+
+
+def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     """The blind QUALITY verdict (never the vendor / family of the text it judges): through-line + ratings. ->
     (ok, verdict). A through-line that reads 'None.', 'no through-line', 'n/a' or is under 4 words is none (M7).
-    Ruling 52, as the orchestrator answered at 09:59 Nov 13: the HOOK is rated on its own job here too (HOOK_QUESTION,
-    the same three parts as the clips-alone verdict), and its rating is DERIVED as the lowest part (HOOK_RULE), written
-    to verdict["clips"]["hook"]; the clips after the hook and vo_point are rated as before."""
+    RULING 61 (12:00): the hook is NOT rated here either. Its cached own-job rating (hook_own of the hook moment
+    `hook`) is written to verdict["clips"]["hook"]; without one the verdict fails closed (law L-m). The clips after the
+    hook and vo_point are rated as before; the judge sees the hook's text for context."""
     import providers as P
     r = None
     labs = [sg["label"] for sg in pk["segments"]]
+    own = hook_own(hook)
     try:
         r = router.call("coherence_verdict", COHERENCE_PROMPT.format(
                             package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
                         1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         v = json.loads(r.text.strip())
-        if not isinstance(v, dict) or set(v) != {"through_line", "hook", "clips", "vo_point"} or \
-                not isinstance(v["hook"], dict) or set(v["hook"]) != set(HOOK_PARTS) or \
-                any(type(x) is not int or not 1 <= x <= 5 for x in v["hook"].values()) or \
+        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
             raise ValueError("coherence verdict out of contract")
@@ -1392,9 +1413,10 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
         if r is not None and isinstance(e, (ValueError, TypeError)):
             router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False}
-    v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=HOOK_RULE)
-    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
-    ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
+    v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
+             hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+                                                     "fail closed"})
+    ok = own is not None and _line_ok(v["through_line"]) and \
         min(list(v["clips"].values()) + [v["vo_point"]]) >= COHERENCE_MIN
     return ok, dict(v, backend=r.backend, measured=True, replayed=bool(getattr(r, "replayed", False)))
 
@@ -1418,16 +1440,18 @@ def joins(labs):
 def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
     """L-y 3: the blind coherence verdict on the clips ALONE (no VO, no title), asked FIRST: "played back to back with
     no narration, is there a through-line a viewer can state?", a 1-5 rating per clip after the hook on how much it
-    advances it, and per join whether a viewer can follow the jump. RULING 52: the HOOK is rated on its own job, in
-    three parts the judge answers separately (HOOK_PARTS: stops a scroll in its first 2-3 s, stands alone, sets up
-    what follows), and its rating is DERIVED, never free-form: the lowest part (HOOK_RULE), written to
-    verdict["clips"]["hook"]; the parts stay in verdict["hook"]. Never the vendor / family of the writer. -> (ok,
-    verdict): ok when the through-line is stated (>= 4 words, not 'none'), every rating (the hook's derived one
-    included) is >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not followable; verdict["flagged"] = the joins
-    a viewer could not follow (a bridge may go only there, L-y 2)."""
+    advances it, and per join whether a viewer can follow the jump. RULING 61 (12:00): THE HOOK IS RATED ONCE. Its
+    own-job rating ('stops the scroll', 'stands alone': hook_own) is the cached one ruling 59 gave it, never re-asked
+    here; the judge sees the hook's text for context only. 'Sets up what follows' is judged where it is measurable: the
+    hook -> clip_01 join (followable, or the one bridge L-y allows). The cached rating is written to
+    verdict["clips"]["hook"] (the record and the bar read one dict); a hook without one fails closed (law L-m). Never
+    the vendor / family of the writer. -> (ok, verdict): ok when the through-line is stated (>= 4 words, not 'none'),
+    every rating (the hook's cached one included) is >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not
+    followable; verdict["flagged"] = the joins a viewer could not follow (a bridge may go only there, L-y 2)."""
     import providers as P
     labs = labels(len(segs))
     js = joins(labs)
+    own = hook_own(segs[0]) if segs else None
     clips = "\n".join(f'CLIP label="{lb}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
                       for lb, m in zip(labs, segs))
     r = None
@@ -1437,9 +1461,7 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
                                              joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
                         1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         v = json.loads(r.text.strip())
-        if not isinstance(v, dict) or set(v) != {"through_line", "hook", "clips", "joins"} or \
-                not isinstance(v["hook"], dict) or set(v["hook"]) != set(HOOK_PARTS) or \
-                any(type(x) is not int or not 1 <= x <= 5 for x in v["hook"].values()) or \
+        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
                 not isinstance(v["joins"], dict) or set(v["joins"]) != set(js) or \
@@ -1450,13 +1472,58 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
         if r is not None and isinstance(e, (ValueError, TypeError)):
             router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
-    v = dict(v, clips={labs[0]: min(v["hook"][k] for k in HOOK_PARTS), **v["clips"]}, hook_rule=HOOK_RULE)
-    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
+    v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
+             hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+                                                     "fail closed"})
     flagged = [j for j in js if v["joins"][j]["followable"] is False]
-    ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
-        min(v["clips"].values()) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
+    ok = own is not None and _line_ok(v["through_line"]) and min(v["clips"].values()) >= COHERENCE_MIN and \
+        len(flagged) <= LY_MAX_BRIDGES
     return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
                     replayed=bool(getattr(r, "replayed", False)))
+
+
+def last_clip_only(segs, med):
+    """RULING 62 (12:00): whether a clips-alone failure is its LAST clip's alone: measured, the through-line stated,
+    every other rating (the hook's cached one included) >= COHERENCE_MIN, the last clip's under it, and no more than
+    LY_MAX_BRIDGES flagged joins once the join into the last clip goes with it."""
+    labs = labels(len(segs))
+    cl = med.get("clips") or {}
+    if not med.get("measured") or not _line_ok(med.get("through_line")) or labs[-1] not in cl or labs[0] not in cl:
+        return False
+    rest = [j for j in med.get("flagged") or [] if j != joins(labs)[-1]]
+    return [lb for lb, x in cl.items() if x < COHERENCE_MIN] == [labs[-1]] and len(rest) <= LY_MAX_BRIDGES
+
+
+def reorder(segs, bad_pairs, judged, repeat_ok=False):
+    """RULING 63 (12:00): JOINS BEFORE SWAPS. The next ORDER of the same clips, the hook first, for a line-up whose
+    ratings all pass but whose flagged joins exceed the one bridge L-y allows. A flagged join is about adjacency:
+    `bad_pairs` holds every (from, to) moment pair a verdict in this build found unfollowable. Candidates: every
+    permutation of the clips after the hook not judged yet (`judged`: moment-id tuples), with at most LY_MAX_BRIDGES
+    known-unfollowable adjacent pairs, under every line-up rule (lineup_ok: the placement limits, the seconds, the
+    render's STAND_ALONE in the new order). Best: the fewest such pairs, then the fewest clips moved. No step A is
+    asked again (the same clips). -> the new line-up, or None."""
+    h, clips = segs[0], list(segs[1:])
+    best = None
+    for perm in itertools.permutations(clips):
+        new = [h, *perm]
+        ids = tuple(m["moment_id"] for m in new)
+        n_bad = sum((a, b) in bad_pairs for a, b in zip(ids, ids[1:]))
+        if ids in judged or n_bad > LY_MAX_BRIDGES:
+            continue
+        key = (n_bad, sum(x is not y for x, y in zip(perm, clips)))
+        if (best is None or key < best[0]) and lineup_ok(new, repeat_ok=repeat_ok)[0]:
+            best = (key, new)
+    return best[1] if best else None
+
+
+def allot(angles, per):
+    """RULING 64 (12:00): at most `per` angles per hook, in the writer's order (the excess is dropped, recorded)."""
+    seen, out = {}, []
+    for a in angles:
+        seen[a["hook"]] = seen.get(a["hook"], 0) + 1
+        if seen[a["hook"]] <= per:
+            out.append(a)
+    return out
 
 
 class NoBridgeFits(ValueError):
@@ -1888,20 +1955,24 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s{placement(m)} | '
                       f'"{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
-    hooks_txt = "\n".join(f'id={m["moment_id"]} | rated {m["hook_rating"]["rating"]} on its own job: '
-                          f'"{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in passing)
-    per = max(1, max_angles // len(passing))
+    offered = passing[:max_angles]                      # RULING 64: an angle for each passing hook (k at most)
+    hooks_txt = lambda hs: "\n".join(f'id={m["moment_id"]} | rated {hook_own(m)["rating"]} on its own job: '
+                                     f'"{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in hs)
+    per = max(1, max_angles // len(offered))
     lo, hi = medley_content_range()
     angles, angle_reply, errs = None, None, []
     for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
         r = None
         try:
             r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
-                                                               clips=clips, hooks=hooks_txt, per=per, k=max_angles,
-                                                               lo=lo, hi=hi), 3000, seed,
+                                                               clips=clips, hooks=hooks_txt(offered), per=per,
+                                                               k=max_angles, lo=lo, hi=hi), 3000, seed,
                             deadline_s=WRITER_DEADLINE_S)
-            angles, angle_reply = check_angles(json.loads(r.text.strip()), cleared, max_angles,
-                                               hooks={m["moment_id"] for m in passing}), r   # ruling 59 (c)
+            got = check_angles(json.loads(r.text.strip()), cleared, max_angles,
+                               hooks={m["moment_id"] for m in offered})                  # ruling 59 (c)
+            angles, angle_reply = allot(got, per), r            # ruling 64: at most `per` per hook
+            if len(angles) < len(got):
+                out["angle_allotment"] = {"dropped": [a["angle"] for a in got if a not in angles], "per": per}
             break
         except Exception as e:
             if r is not None:
@@ -1911,10 +1982,28 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     if not angles:
         return out
     out.pop("why_none", None)
+    missing = [m for m in offered if m["moment_id"] not in {a["hook"] for a in angles}]
+    if missing and len(angles) < max_angles:            # RULING 64: a passing hook left without an angle is asked
+        k2, r = max_angles - len(angles), None          # for, once, written for exactly those hooks (12:00)
+        try:
+            r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
+                                                               clips=clips, hooks=hooks_txt(missing),
+                                                               per=max(1, k2 // len(missing)), k=k2, lo=lo, hi=hi),
+                            3000, 9, deadline_s=WRITER_DEADLINE_S)
+            more = allot(check_angles(json.loads(r.text.strip()), cleared, k2,
+                                      hooks={m["moment_id"] for m in missing}), max(1, k2 // len(missing)))
+            angles = angles + more
+            out["angle_follow_up"] = {"hooks": [m["moment_id"] for m in missing], "angles": len(more),
+                                      "backend": r.backend}
+        except Exception as e:                          # never the build: the hooks that have angles go on
+            if r is not None:
+                router.reject(r)
+            out["angle_follow_up"] = {"hooks": [m["moment_id"] for m in missing],
+                                      "error": f"{type(e).__name__}: {str(e)[:200]}"}
     def first_fresh(a):                                   # ruling 57: the angles whose first line-up holds a clip
         segs = lineup_for(a, cleared, need_onset=True, need_stand_alone=True, now=ctx.now, hook_only=True)  # <= FRESH_H
         return bool(segs) and fresh_key(segs, ctx.now)[0]                                              # old go first
-    hrank = {m["moment_id"]: (-m["hook_rating"]["rating"], -sum(m["hook_rating"][k] for k in HOOK_PARTS))
+    hrank = {m["moment_id"]: (-hook_own(m)["rating"], -sum(m["hook_rating"].get(k) or 0 for k in HOOK_PARTS))
              for m in passing}                            # ruling 59 (c): the best hook first, then ruling 57's
     angles = sorted(angles, key=lambda a: (hrank[a["hook"]], not first_fresh(a)))   # freshness; stable: the writer's
     # order within each
@@ -2057,6 +2146,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         return pk
 
     total = 0                                             # ruling 41: line-ups judged in this build, over every angle
+    judged, bad_pairs, spins = {}, set(), 0               # 12:00: verdicts by line-up; ruling 63's unfollowable pairs
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in enumerate(angles):
             dropped, n_lineup, swapped = set(), 0, None
@@ -2088,25 +2178,55 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
                     break
                 n_lineup += 1
-                total += 1
+                spins += 1
+                if spins > 4 * lineups:                   # a guard: free (cached) line-ups never turn forever
+                    rec["why"] = "the search kept meeting line-ups already judged: stopped"
+                    break
                 line = (time.time(), _spent(spend))         # this line-up's package budget counts from here (ruling 41)
-                ok_m, med = medley(router, segs, ctx, writers_v, seed=7 + n_lineup + 10 * ai, writer_family=writers_f)
+                key = tuple(m["moment_id"] for m in segs)
+                if key in judged:                           # 12:00: an identical line-up's verdict again, free
+                    ok_m, med = judged[key]
+                    rec["verdict_again"] = True
+                else:
+                    ok_m, med = medley(router, segs, ctx, writers_v, seed=7 + n_lineup + 10 * ai,
+                                       writer_family=writers_f)
+                    judged[key] = (ok_m, med)
+                    total += 0 if med.get("replayed") else 1    # 12:00: the budget counts JUDGED line-ups
                 rec["medley"], rec["medley_ok"] = med, ok_m
+                labs_ = labels(len(segs))
+                bad_pairs |= {(segs[labs_.index(a)]["moment_id"], segs[labs_.index(b)]["moment_id"])
+                              for a, b in (j.split(" -> ") for j in med.get("flagged") or [])}   # ruling 63
                 log(f"  angle {ai + 1} line-up {n_lineup} ({len(segs)} clips, "
                     f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone {'PASS' if ok_m else 'FAIL'} "
                     f"{med.get('clips')} flagged {med.get('flagged')} ({time.time() - t0:.0f} s)")
                 labs = labels(len(segs))
                 if not ok_m:                              # L-y 2 / 3: pick clips that sit together
                     by_lab = dict(zip(labs, segs))
-                    weak = {by_lab[lb]["moment_id"] for lb, x in (med.get("clips") or {}).items()
-                            if lb in by_lab and x < COHERENCE_MIN}      # ruling 41: the HOOK too (the next hook)
+                    cl = med.get("clips") or {}
+                    if last_clip_only(segs, med) and len(segs) - 1 > LY_CLIPS[0] and \
+                            lineup_ok(segs[:-1], repeat_ok=exception is not None)[0]:   # RULING 62: the last clip
+                        dropped.add(segs[-1]["moment_id"])
+                        swapped = segs[:-1]
+                        rec["why"] = (f"ruling 62: only the last clip fails ({cl.get(labs[-1])}): retried without it, "
+                                      f"the seconds floor still met, before any swap")
+                        continue
+                    if med.get("measured") and _line_ok(med.get("through_line")) and labs[0] in cl and \
+                            min(cl.values()) >= COHERENCE_MIN and len(med.get("flagged") or []) > LY_MAX_BRIDGES:
+                        order = reorder(segs, bad_pairs, judged, repeat_ok=exception is not None)
+                        if order is not None:                 # RULING 63: joins before swaps
+                            swapped = order
+                            rec["why"] = (f"ruling 63: every rating passes and {len(med['flagged'])} joins are "
+                                          f"flagged: the same clips reordered, before any swap")
+                            continue
+                    weak = {by_lab[lb]["moment_id"] for lb, x in cl.items()
+                            if lb in by_lab and x < COHERENCE_MIN}      # ruling 61: the hook's is its cached rating
                     if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
                         weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
                     hook_weak = segs[0]["moment_id"] in weak
                     weak.discard(segs[0]["moment_id"])    # ruling 59 (c): the line-up is built AROUND its hook
                     if not med.get("measured") or not weak:
-                        rec["why"] = ("the hook rates below the bar in this line-up and no clip after it does; the angle "
-                                      "is written for this hook (ruling 59 c)" if med.get("measured") and hook_weak else
+                        rec["why"] = ("the hook carries no own-job rating at the bar (ruling 61); the angle is written "
+                                      "for this hook (ruling 59 c)" if med.get("measured") and hook_weak else
                                       "the clips alone have no through-line a viewer can state (or it was not measured)")
                         break
                     dropped |= weak
@@ -2251,7 +2371,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         continue
                     att["exclusion"] = {mid: e for mid, (e, _) in got.items()}
                     att["second_pass"] = {mid: t for mid, (_, t) in got.items()}
-                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)    # then on the takeaway
+                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f,
+                                          hook=segs[0])     # then on the takeaway; ruling 61: the hook's cached
                     att["coherence"] = coh
                     log(f"    coherence with the takeaway {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo "
                         f"{coh.get('vo_point')} ({time.time() - t0:.0f} s)")

@@ -45,12 +45,10 @@ def verdict(labs, flagged=(), ratings=None, line="Nobody can change the rules of
                           if j in flagged else "same subject"} for j in js}}
 
 
-def reply(labs, flagged=(), ratings=None, line="Nobody can change the rules of Bitcoin.", hook=None):
-    """The clips-alone JUDGE's raw reply (ruling 52): the hook's three parts, the clips after the hook, the joins."""
+def reply(labs, flagged=(), ratings=None, line="Nobody can change the rules of Bitcoin."):
+    """The clips-alone JUDGE's raw reply (ruling 61): the clips after the hook and the joins; the hook is not rated."""
     js = PK.joins(labs)
-    h = (ratings or {}).get("hook", 5)
-    return {"through_line": line, "hook": dict({"scroll": h, "alone": h, "setup": h}, **(hook or {})),
-            "clips": {lb: (ratings or {}).get(lb, 5) for lb in labs[1:]},
+    return {"through_line": line, "clips": {lb: (ratings or {}).get(lb, 5) for lb in labs[1:]},
             "joins": {j: {"followable": j not in flagged, "why": "the next speaker's 'it' has no referent"
                           if j in flagged else "same subject"} for j in js}}
 
@@ -154,7 +152,8 @@ class TestMedleyLineup(unittest.TestCase):
 
 
 class TestClipsAloneVerdict(unittest.TestCase):
-    SEGS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+    SEGS = [dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 2}), pm("x", "B", 14.0),
+            pm("y", "C", 13.0)]
     LABS = ["hook", "clip_01", "clip_02"]
 
     def run_it(self, reply):
@@ -187,24 +186,29 @@ class TestClipsAloneVerdict(unittest.TestCase):
         self.assertFalse(self.run_it(reply(self.LABS, line="Bitcoin."))[0])
         self.assertFalse(self.run_it(reply(self.LABS, ratings={"clip_02": 3}))[0])
 
-    def test_ruling_52_the_hook_is_rated_on_its_own_job_in_three_parts(self):
+    def test_ruling_61_the_hook_is_rated_once_its_cached_own_job_rating_stands(self):
         prompts = []
-        r = Canned(coherence_verdict=[reply(self.LABS, hook={"setup": 3})])
+        r = Canned(coherence_verdict=[reply(self.LABS)])
         call = r.call
         r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
         ok, v = PK.medley(r, self.SEGS, E.Context(NOW, REG), {"heimdall"}, writer_family={"deepseek"})
-        self.assertFalse(ok)                              # one part under the bar: the hook's derived rating is 3
-        self.assertEqual((v["clips"]["hook"], v["hook"]), (3, {"scroll": 5, "alone": 5, "setup": 3}))
-        self.assertIn("lowest of scroll / alone / setup", v["hook_rule"])
-        for part in ('"scroll"', '"alone"', '"setup"', "first 2-3 seconds", "wants the next clip",
-                     "For each clip AFTER the hook", '"clip_01": 1, "clip_02": 1'):
-            self.assertIn(part, prompts[0])
-        self.assertNotIn('"hook": 1', prompts[0])         # the hook is not asked for a through-line rating
-        ok, v, _ = self.run_it(reply(self.LABS, hook={"scroll": 4, "alone": 4, "setup": 4}))
-        self.assertTrue(ok)                               # every part at the bar of 4
-        self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})
-        ok, v, _ = self.run_it(reply(self.LABS, ratings={"hook": 5, "clip_01": 3}))
-        self.assertFalse(ok)                              # the clips keep their own rating and bar
+        self.assertTrue(ok)
+        self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})   # min(scroll 5, alone 4), cached
+        self.assertEqual((v["hook_own"]["scroll"], v["hook_own"]["alone"], v["hook_own"]["rating"]), (5, 4, 4))
+        self.assertNotIn(PK.HOOK_QUESTION, prompts[0])                         # never re-asked per line-up
+        self.assertIn("NOT rated here", prompts[0])
+        self.assertIn('"hook -> clip_01"', prompts[0])                         # 'sets up': the hook's own join
+        self.assertNotIn('"hook": 1', prompts[0])
+        self.assertIn('"clip_01": 1, "clip_02": 1', prompts[0])
+        low = [dict(self.SEGS[0], hook_rating={"scroll": 3, "alone": 5, "setup": 5}), *self.SEGS[1:]]
+        ok, v = PK.medley(Canned(coherence_verdict=[reply(self.LABS)]), low, E.Context(NOW, REG), set())
+        self.assertFalse(ok)                                                   # its cached rating is under the bar
+        ok, v = PK.medley(Canned(coherence_verdict=[reply(self.LABS)]), [pm("h", "A", 12.0), *self.SEGS[1:]],
+                          E.Context(NOW, REG), set())
+        self.assertFalse(ok)                                                   # no cached rating: fail closed
+        self.assertNotIn("hook", v["clips"])
+        ok, v, _ = self.run_it(reply(self.LABS, ratings={"clip_01": 3}))
+        self.assertFalse(ok)                                                   # the clips keep their bar
 
     def test_out_of_contract_is_not_measured_and_rejected(self):
         good = reply(self.LABS)
@@ -213,10 +217,8 @@ class TestClipsAloneVerdict(unittest.TestCase):
                     dict(good, joins={j: {"followable": "yes", "why": ""} for j in good["joins"]}),
                     dict(good, vo_point=5),
                     dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5}),            # the hook among the clips
-                    dict(good, hook={"scroll": 5, "alone": 5}),                           # a part missing (ruling 52)
-                    dict(good, hook={"scroll": 5, "alone": 5, "setup": 6}),
-                    dict(good, hook={"scroll": "5", "alone": 5, "setup": 5}),
-                    {k: x for k, x in good.items() if k != "hook"}):
+                    dict(good, hook={"scroll": 5, "alone": 5, "setup": 5}),               # a hook rating (ruling 61)
+                    dict(good, clips={"clip_01": 6, "clip_02": 5})):
             ok, v, r = self.run_it(bad)
             self.assertFalse(ok)
             self.assertFalse(v["measured"])
@@ -224,46 +226,46 @@ class TestClipsAloneVerdict(unittest.TestCase):
             self.assertEqual(r.rejected, ["fake:coherence_verdict"])
 
 
-class TestCoherenceHookRating(unittest.TestCase):
-    """The orchestrator's answer (09:59): ruling 52's hook rating applies to the coherence verdict after the takeaway as
-    well. ONE definition of the hook's job (HOOK_QUESTION) in both verdicts; the hook's rating derived, never free-form."""
+class TestCoherenceHookRatedOnce(unittest.TestCase):
+    """RULING 61 (12:00): the coherence verdict after the takeaway does not rate the hook either: its cached own-job
+    rating stands (hook_own); the clips after the hook and vo_point are judged as before."""
     PK_ = {"title": "Nobody bends the rules", "caption": "three clips",
            "vo": {"intro": None, "bridges": ["No ruler, just rules."], "bridges_after_clip": [2], "signoff": "S"},
            "segments": [{"label": "hook", "channel": "A", "text": "Bitcoin a."},
                         {"label": "clip_01", "channel": "B", "text": "Bitcoin b."},
                         {"label": "clip_02", "channel": "C", "text": "Bitcoin c."}]}
+    HOOK = dict(pm("h", "A", 12.0), hook_rating={"scroll": 5, "alone": 4, "setup": 2})
 
-    def reply(self, hook=None, clips=None, vo=5, line="Nobody can change the rules of Bitcoin."):
-        return {"through_line": line, "hook": dict({"scroll": 5, "alone": 5, "setup": 5}, **(hook or {})),
-                "clips": dict({"clip_01": 5, "clip_02": 5}, **(clips or {})), "vo_point": vo}
+    def reply(self, clips=None, vo=5, line="Nobody can change the rules of Bitcoin."):
+        return {"through_line": line, "clips": dict({"clip_01": 5, "clip_02": 5}, **(clips or {})), "vo_point": vo}
 
-    def run_it(self, reply):
+    def run_it(self, reply, hook=HOOK):
         r = Canned(coherence_verdict=[reply])
         prompts = []
         call = r.call
         r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
-        ok, v = PK.coherence(r, self.PK_, {"heimdall"}, writer_family={"deepseek"})
+        ok, v = PK.coherence(r, self.PK_, {"heimdall"}, writer_family={"deepseek"}, hook=hook)
         return ok, v, r, prompts
 
-    def test_the_hook_is_rated_on_its_own_job_and_derived(self):
-        ok, v, _, prompts = self.run_it(self.reply(hook={"setup": 3}))
-        self.assertFalse(ok)
-        self.assertEqual((v["clips"]["hook"], v["hook"]), (3, {"scroll": 5, "alone": 5, "setup": 3}))
-        self.assertIn(PK.HOOK_QUESTION, prompts[0])                 # the one definition, as in the clips-alone verdict
-        self.assertIn(PK.HOOK_QUESTION, PK.MEDLEY_PROMPT)
-        self.assertIn("For each clip AFTER the hook", prompts[0])
-        self.assertIn('"clips": {"clip_01": 1, "clip_02": 1}', prompts[0])
-        ok, v, _, _ = self.run_it(self.reply(hook={"scroll": 4, "alone": 4, "setup": 4}))
+    def test_the_hook_is_not_re_rated(self):
+        ok, v, _, prompts = self.run_it(self.reply())
         self.assertTrue(ok)
         self.assertEqual(v["clips"], {"hook": 4, "clip_01": 5, "clip_02": 5})
+        self.assertNotIn(PK.HOOK_QUESTION, prompts[0])
+        self.assertNotIn(PK.HOOK_QUESTION, PK.MEDLEY_PROMPT)
+        self.assertIn("NOT", prompts[0])
+        self.assertIn("For each clip AFTER the hook", prompts[0])
+        self.assertIn('"clips": {"clip_01": 1, "clip_02": 1}', prompts[0])
         self.assertFalse(self.run_it(self.reply(clips={"clip_02": 3}))[0])      # clips and vo_point as before
         self.assertFalse(self.run_it(self.reply(vo=3))[0])
+        self.assertFalse(self.run_it(self.reply(), hook=pm("h", "A", 12.0))[0])   # no cached rating: fail closed
+        self.assertFalse(self.run_it(self.reply(), hook=dict(self.HOOK, hook_rating={"scroll": 3, "alone": 5}))[0])
 
     def test_out_of_contract_is_not_measured(self):
         good = self.reply()
-        for bad in ({k: x for k, x in good.items() if k != "hook"}, dict(good, hook={"scroll": 5, "alone": 5}),
-                    dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5}), dict(good, hook={"scroll": 5, "alone": 5,
-                                                                                               "setup": 0})):
+        for bad in (dict(good, hook={"scroll": 5, "alone": 5, "setup": 5}),
+                    dict(good, clips={"hook": 5, "clip_01": 5, "clip_02": 5}),
+                    {k: x for k, x in good.items() if k != "vo_point"}, dict(good, vo_point=0)):
             ok, v, r, _ = self.run_it(bad)
             self.assertEqual((ok, v["measured"]), (False, False))
             self.assertEqual(r.rejected, ["fake:coherence_verdict"])
@@ -520,7 +522,7 @@ class Rig:
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
-                 trim_fail=(), hooks=None, hook_err=None, verdicts=None):
+                 trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -533,7 +535,8 @@ class Rig:
         self.screens, self.events, self.a_seen = [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
-        self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}])
+        self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}] + ([follow_up] if follow_up else []))
+        self.angle_hooks = {a[0] for a in many}           # ruling 59: by default only the canned angles' hooks pass
         call = self.router.call
 
         def rcall(role, prompt, *a, **k):
@@ -579,8 +582,8 @@ class Rig:
             return {}, self.hook_err
         out = {}
         for m in ms:
-            sc, al, se = self.hooks.get(m["moment_id"], (5, 5, 5))
-            out[m["moment_id"]] = {"scroll": sc, "alone": al, "setup": se, "rating": min(sc, al, se),
+            sc, al, se = self.hooks.get(m["moment_id"], (5, 5, 5) if m["moment_id"] in self.angle_hooks else (3, 3, 3))
+            out[m["moment_id"]] = {"scroll": sc, "alone": al, "setup": se, "rating": min(sc, al),   # ruling 61
                                    "why": f"why {m['moment_id']}", "backend": "xai:grok", "cached": False}
         return out, None
 
@@ -1215,23 +1218,24 @@ class TestRuling59HookFirst(unittest.TestCase):
     def test_only_a_hook_rated_4_or_more_opens(self):
         m = dict(pm("a", "A", 12.0), hook_onset={"pass": True})
         self.assertTrue(PK.can_open(m))                                   # not rated yet: as before ruling 59
-        for rating, ok in ((4, True), (5, True), (3, False), (None, False)):
-            r = dict(m, hook_rating={"rating": rating})
-            self.assertEqual(PK.can_open(r), ok, rating)
+        for (sc, al, se), ok in (((4, 4, 1), True), ((5, 4, 5), True), ((3, 5, 5), False), ((5, 3, 5), False)):
+            r = dict(m, hook_rating={"scroll": sc, "alone": al, "setup": se})
+            self.assertEqual(PK.can_open(r), ok, (sc, al, se))           # ruling 61: scroll / alone, never setup
             self.assertEqual(PK.placement(r), "" if ok else " | cannot open (never the hook)")
-        self.assertFalse(PK.can_open(dict(m, hook_rating=None)))
-        self.assertFalse(PK.can_open(dict(m, hook_rating={"rating": True})))
+        for bad in (None, {"rating": 5}, {"scroll": True, "alone": 5}, {"scroll": 5.0, "alone": 5}):
+            self.assertFalse(PK.can_open(dict(m, hook_rating=bad)), bad)
         self.assertFalse(PK.can_open(dict(m, text="And Bitcoin is money.")))   # the render's hook rule
-        self.assertFalse(PK.lineup_ok([dict(m, hook_rating={"rating": 3}), pm("x", "B", 14.0), pm("y", "C", 13.0)])[0])
+        low = dict(m, hook_rating={"scroll": 3, "alone": 4, "setup": 4})
+        self.assertFalse(PK.lineup_ok([low, pm("x", "B", 14.0), pm("y", "C", 13.0)])[0])
 
     def test_a_line_up_opens_on_its_angles_own_hook_and_never_swaps_it(self):
-        ms = [dict(pm(k, k.upper(), d), hook_onset={"pass": True}, hook_rating={"rating": 5})
+        ms = [dict(pm(k, k.upper(), d), hook_onset={"pass": True}, hook_rating={"scroll": 5, "alone": 5, "setup": 5})
               for k, d in (("a", 12.0), ("b", 14.0), ("c", 13.0), ("d", 13.0))]
         by = {m["moment_id"]: m for m in ms}
         by["b"]["scores"] = dict(by["b"]["scores"], hook_first_2s=99)     # a stronger opener elsewhere
         segs = PK.lineup_for(angle(["b", "a", "c", "d"], "a"), by, need_onset=True, hook_only=True)
         self.assertEqual(segs[0]["moment_id"], "a")
-        low = dict(by, a=dict(by["a"], hook_rating={"rating": 3}))
+        low = dict(by, a=dict(by["a"], hook_rating={"scroll": 3, "alone": 5, "setup": 5}))
         self.assertIsNone(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True, hook_only=True))
         self.assertEqual(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True)[0]["moment_id"], "b")
         self.assertEqual(PK.swap_lineup(segs, {"a"}, by, keep_hook=True), (None, None))
@@ -1269,14 +1273,16 @@ class TestRuling59HookFirst(unittest.TestCase):
         self.assertLess(p.index("id=x | rated 5"), p.index("id=h | rated 4"))    # best first
         self.assertNotIn("id=y | rated", p)
         self.assertIn("id=y | C | 13.0 s | cannot open (never the hook) | ", p)
-        self.assertIn("up to 1 for EACH hook above, at most 3 in all", p)
+        self.assertIn("for EACH hook above at least one and at most 1 (every hook gets its own)", p)
+        self.assertNotIn("angle_follow_up", out)                          # ruling 64: both hooks have an angle
         self.assertEqual(rig.medley_calls[0][0], "x")                   # the x angle, though the writer gave it second
         self.assertEqual(out["hook_pool"]["passing"], ["x", "h"])
         self.assertIsNotNone(out["package"])
 
     def test_an_angle_not_written_for_a_passing_hook_is_out_of_contract(self):
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
-        rig = Rig(ms, ["y", "h", "x", "z"], [(True, [], None, Rig.LINE)], [None], hooks={"y": (3, 3, 3)})
+        rig = Rig(ms, ["y", "h", "x", "z"], [(True, [], None, Rig.LINE)], [None],
+                  hooks={"y": (3, 3, 3), "h": (5, 5, 5), "x": (5, 5, 5), "z": (5, 5, 5)})
         out = rig.run()
         self.assertIsNone(out["package"])
         self.assertIn("is not one of THE HOOKS", out["why_none"])           # the first reply, rejected
@@ -1505,6 +1511,76 @@ class TestRuling56Scorer(unittest.TestCase):
         self.assertEqual(PK.text_sha(t), hashlib.sha256(t.encode("utf-8")).hexdigest())   # one sha, build and pin
 
 
+class TestRulings6264Search(unittest.TestCase):
+    """RULINGS 62-64 (12:00): the last clip retried away before any swap; joins before swaps (the same clips
+    reordered); an angle for every passing hook; the budget counts JUDGED line-ups (an identical one is free)."""
+
+    def fresh(self, mid, ch, dur, hours_ago=6.0):
+        return dict(pm(mid, ch, dur), published_at=(NOW - timedelta(hours=hours_ago)).isoformat())
+
+    def test_ruling_62_only_the_last_clip_fails_and_the_floor_holds(self):
+        ms = [self.fresh("h", "A", 12.0), self.fresh("x", "B", 14.0), self.fresh("y", "C", 13.0),
+              self.fresh("z", "D", 9.0, hours_ago=1.0)]                      # z is fresh: the 4-clip line-up first
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"clip_03": 2}, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None])
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y", "z"], ["h", "x", "y"]])   # 39 s >= the 36.7 s floor
+        self.assertIn("ruling 62", out["tried"][0]["why"])
+        self.assertIsNotNone(out["package"])
+
+    def test_ruling_62_under_the_floor_swaps_as_now(self):
+        ms = [self.fresh("h", "A", 12.0), self.fresh("x", "B", 10.0), self.fresh("y", "C", 10.0),
+              self.fresh("z", "D", 9.0)]                                    # without z: 32 s, under 36.7
+        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"clip_03": 2}, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(len(rig.medley_calls), 1)
+        self.assertNotIn("ruling 62", out["tried"][0]["why"])
+        self.assertIn("the clips alone fail", out["tried"][0]["why"])
+
+    def test_ruling_63_two_flagged_joins_reorder_the_same_clips_first(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        rig = Rig(ms, ["h", "x", "y"], [(False, ["hook -> clip_01", "clip_01 -> clip_02"], None, Rig.LINE),
+                                        (True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "y", "x"]])   # the hook first, no clip dropped
+        self.assertIn("ruling 63", out["tried"][0]["why"])
+        self.assertIsNotNone(out["package"])
+
+    def test_reorder_avoids_the_known_unfollowable_pairs_and_moves_least(self):
+        h = dict(pm("h", "A", 12.0), hook_onset={"pass": True})          # it can open (G17a)
+        segs = [h, pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 9.0)]
+        got = PK.reorder(segs, {("h", "x"), ("y", "z")}, {("h", "x", "y", "z")})
+        self.assertEqual([m["moment_id"] for m in got], ["h", "y", "x", "z"])
+        two = [h, pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        self.assertIsNone(PK.reorder(two, {("h", "y"), ("y", "x"), ("h", "x"), ("x", "y")}, set()))   # no order helps
+        short = [dict(h, duration_s=14.0, end=14.0), pm("x", "B", 14.0), pm("s", "C", 7.0), pm("y", "D", 9.0)]
+        got = PK.reorder(short, {("x", "s")}, {("h", "x", "s", "y")})
+        self.assertEqual(got[-1]["moment_id"], "s")                         # a short clip plays only LAST
+
+    def test_ruling_64_a_passing_hook_left_without_an_angle_is_asked_for(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("g", "D", 12.0), pm("z", "E", 13.0)]
+        rig = Rig(ms, [["h", "x", "y"]], [(False, [], None, "none"), (True, [], None, Rig.LINE)], [None],
+                  hooks={"h": (5, 5, 5), "g": (5, 5, 5)},
+                  follow_up={"angles": [angle(["g", "x", "z"], "g")]})
+        out = rig.run()
+        self.assertEqual(out["angle_follow_up"]["hooks"], ["g"])
+        follow = [p for r, p in rig.prompts if r == "angle_write"][1]
+        self.assertIn("id=g | rated 5", follow)
+        self.assertNotIn("id=h | rated", follow)                           # written for exactly the hook left out
+        self.assertEqual([c[0] for c in rig.medley_calls], ["h", "g"])     # the second hook is tried
+        self.assertIsNotNone(out["package"])
+        self.assertEqual([a["hook"] for a in PK.allot([angle(["a", "b", "c"], "a")] * 3 +
+                                                       [angle(["b", "a", "c"], "b")], 1)], ["a", "b"])
+
+    def test_the_budget_counts_judged_line_ups_and_an_identical_one_is_free(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        rig = Rig(ms, [["h", "x", "y"], ["h", "x", "y"]], [(False, [], None, "none")], [None])
+        out = rig.run()
+        self.assertEqual(len(rig.medley_calls), 1)                          # judged once
+        self.assertEqual(out["search"]["lineups"], 1)
+        self.assertTrue(out["tried"][1].get("verdict_again"))               # the second angle's: free
+
+
 class TestOrder0622StepAFromBothVendors(unittest.TestCase):
     """ORDER 06:22: 45, step A from BOTH vendors on every cuttable clip before the angle step; 44, a failed re-screen
     after a write swaps out that clip only, and the line-up carries on."""
@@ -1729,7 +1805,8 @@ class TestProposal1PoolFill(unittest.TestCase):
     def test_ruling_54_the_proposer_is_told_each_clips_placement_limits(self):
         ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5),
               pm("o", "F", 7.3)]
-        rig = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"})
+        rig = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"},
+                  hooks={"o": (5, 5, 5), "z": (5, 5, 5)})             # o and z can open: rated as passing hooks
         rig.run()
         p = next(p for r, p in rig.prompts if r == "angle_write")
         self.assertIn('id=o | F | 7.3 s | under 8 s: only the hook or the LAST clip | "', p)   # audit 0855 C1, qwen
@@ -1841,13 +1918,13 @@ class TestRuling41Search(unittest.TestCase):
             if segs is not None:
                 self.assertEqual(PK.lineup_ok(segs), (True, "ok"), order)
 
-    def test_a_low_rated_hook_is_never_swapped_and_the_search_stops_at_8_line_ups(self):
+    def test_a_failed_angle_never_swaps_its_hook_and_the_search_stops_at_8_line_ups(self):
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("g", "E", 12.0)]
         rig = Rig(ms, [["h", "x", "y", "z"], ["g", "x", "y", "z"]],
-                  [(False, [], {"hook": 3}, Rig.LINE), (True, [], None, Rig.LINE)], [None])
+                  [(False, [], None, "none"), (True, [], None, Rig.LINE)], [None])
         out = rig.run()
         self.assertEqual([c[0] for c in rig.medley_calls], ["h", "g"])     # ruling 59 (c): h's angle ends, g's next
-        self.assertIn("written for this hook (ruling 59 c)", out["tried"][0]["why"])
+        self.assertIn("no through-line", out["tried"][0]["why"])
         self.assertIsNotNone(out["package"])
         many = [pm(c, c.upper(), 13.0) for c in "abcdefghijklmnop"]
         fails = [(False, [], {"clip_01": 2}, Rig.LINE)] * 12
