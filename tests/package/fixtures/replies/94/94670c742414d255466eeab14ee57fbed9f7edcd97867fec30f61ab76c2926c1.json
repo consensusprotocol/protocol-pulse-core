@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1d1856d5aa1d618c8aa92b506576004a36de8176d60e99f8e5f5f813afe94d5c",
+ "result": {
+  "text": "There's also a lot of data that is indicating a short squeeze. I know the fabled short squeeze could be brewing as close to about $9 billion of shorts are becoming more aggressive the lower Bitcoin goes. And we don't really need that much price action to liquidate the entire short setup here. It-- I think it goes to about eight",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.68,
+    "end": 22.96,
+    "text": "There's also a lot of data that is indicating a short squeeze. I know the fabled short squeeze could be brewing as close to about $9 billion of shorts are becoming more aggressive the lower Bitcoin goes. And we don't really need that much price action to liquidate the entire short setup here. It-- I think it goes to about eight"
+   }
+  ],
+  "words": [
+   {
+    "text": "There's",
+    "start": 0.68,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 0.9,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.16,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 1.22,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.38,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data",
+    "start": 1.5,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.94,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.22,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indicating",
+    "start": 2.5,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.1,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short",
+    "start": 3.24,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "squeeze.",
+    "start": 3.56,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.98,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 4.04,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.14,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fabled",
+    "start": 4.28,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short",
+    "start": 4.68,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "squeeze",
+    "start": 5.06,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 5.84,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 6.1,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "brewing",
+    "start": 6.32,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.9,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "close",
+    "start": 7.18,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.54,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 8.02,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$9",
+    "start": 8.34,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 8.84,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.56,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shorts",
+    "start": 9.72,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 10.56,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "becoming",
+    "start": 10.68,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 11.14,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "aggressive",
+    "start": 11.38,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.0,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lower",
+    "start": 12.12,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.44,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes.",
+    "start": 13.08,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 13.8,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.92,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 14.08,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 14.3,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 14.56,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.78,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 14.94,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 15.18,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "action",
+    "start": 15.62,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.04,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidate",
+    "start": 16.5,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.08,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "entire",
+    "start": 17.2,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short",
+    "start": 19.8,
+    "end": 20.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "setup",
+    "start": 20.78,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 21.22,
+    "end": 21.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It--",
+    "start": 21.78,
+    "end": 21.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 21.96,
+    "end": 21.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 22.02,
+    "end": 22.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 22.16,
+    "end": 22.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 22.26,
+    "end": 22.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 22.46,
+    "end": 22.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 22.58,
+    "end": 22.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eight",
+    "start": 22.86,
+    "end": 22.96,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.03
+ },
+ "usd": 0.004606,
+ "seconds": 1.33,
+ "recorded_at": "2026-11-13T17:24:49Z"
+}

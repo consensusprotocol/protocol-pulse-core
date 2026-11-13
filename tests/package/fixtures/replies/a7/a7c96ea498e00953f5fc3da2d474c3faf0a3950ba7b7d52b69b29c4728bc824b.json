@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "97e06a3cc495db6187087fffec4698c4376b457ba3156b7cab7e244c038aa458",
+ "result": {
+  "text": "For me, it's Bitcoin. So look at your portfolio. Who's your key man? Who's your CEO? Who's your sector? Who are you overly leaned on? Bitcoin can be owned by everyone and controlled by no one. Tell me in the comments what your big-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.66,
+    "end": 13.28,
+    "text": "For me, it's Bitcoin. So look at your portfolio. Who's your key man? Who's your CEO? Who's your sector? Who are you overly leaned on? Bitcoin can be owned by everyone and controlled by no one. Tell me in the comments what your big-"
+   }
+  ],
+  "words": [
+   {
+    "text": "For",
+    "start": 0.66,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 0.84,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 1.8,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 1.96,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 2.62,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 2.76,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 2.9,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 3.04,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio.",
+    "start": 3.22,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Who's",
+    "start": 3.92,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 4.14,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 4.32,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man?",
+    "start": 4.52,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Who's",
+    "start": 4.94,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 5.16,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO?",
+    "start": 5.34,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Who's",
+    "start": 5.88,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 6.08,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sector?",
+    "start": 6.3,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Who",
+    "start": 6.8,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 6.92,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.04,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overly",
+    "start": 7.32,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leaned",
+    "start": 7.7,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on?",
+    "start": 8.06,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.42,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 9.12,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 9.26,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owned",
+    "start": 9.52,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 9.74,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 9.98,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.7,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "controlled",
+    "start": 10.82,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 11.3,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 11.52,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one.",
+    "start": 11.7,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Tell",
+    "start": 11.94,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 12.1,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.22,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.3,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comments",
+    "start": 12.42,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 12.84,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 13.04,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big-",
+    "start": 13.2,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.31
+ },
+ "usd": 0.002662,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-13T17:24:21Z"
+}

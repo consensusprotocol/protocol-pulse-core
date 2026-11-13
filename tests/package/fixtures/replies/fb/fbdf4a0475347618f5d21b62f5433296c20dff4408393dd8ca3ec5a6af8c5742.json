@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7dc508b4c77fbe4543ff5f67226d5a0302228d13823ded9078cc57068b8438a5",
+ "result": {
+  "text": "And, um, the reason for that was that I operate in real estate. We are a real estate development company. I grew up as a real estate operator, real estate developer. Mm-hmm. And, um, while being active in real estate, I came to the conclusion that the investment thesis behind Bitcoin real estate is very similar. Mm-hmm.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 10.04,
+    "text": "And, um, the reason for that was that I operate in real estate. We are a real estate development company. I grew up as a real estate operator, real estate developer."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 10.66,
+    "end": 10.68,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 10.76,
+    "end": 20.5,
+    "text": "And, um, while being active in real estate, I came to the conclusion that the investment thesis behind Bitcoin real estate is very similar."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 20.7,
+    "end": 20.92,
+    "text": "Mm-hmm."
+   }
+  ],
+  "words": [
+   {
+    "text": "And,",
+    "start": 0.0,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 0.3,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.84,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 0.98,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.34,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.52,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 1.72,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.98,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.36,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "operate",
+    "start": 2.58,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 3.18,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate.",
+    "start": 3.34,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 4.0,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.16,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.34,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 4.4,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 4.56,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "development",
+    "start": 4.86,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company.",
+    "start": 5.36,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "grew",
+    "start": 6.7,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.92,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.08,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.2,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 7.26,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 7.42,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "operator,",
+    "start": 8.36,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 8.92,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 9.06,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "developer.",
+    "start": 9.36,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 10.66,
+    "end": 10.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And,",
+    "start": 10.76,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 11.42,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while",
+    "start": 12.88,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 14.48,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "active",
+    "start": 14.82,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.16,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 15.28,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate,",
+    "start": 15.44,
+    "end": 15.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 16.0,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 16.12,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.3,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.4,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conclusion",
+    "start": 16.52,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.94,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.1,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investment",
+    "start": 17.2,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis",
+    "start": 17.74,
+    "end": 18.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "behind",
+    "start": 18.18,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 18.92,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 19.34,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 19.5,
+    "end": 19.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 19.76,
+    "end": 19.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 19.86,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "similar.",
+    "start": 20.12,
+    "end": 20.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 20.7,
+    "end": 20.92,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.97
+ },
+ "usd": 0.004394,
+ "seconds": 1.19,
+ "recorded_at": "2026-11-13T17:25:03Z"
+}

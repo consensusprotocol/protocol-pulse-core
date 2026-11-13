@@ -1,0 +1,452 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1453f5e0ecf7e95327020cd1af869d881a1605152b84ae9c8628f7620fcb157e",
+ "result": {
+  "text": "It set the standard to where we look like we have failed to everyone else, that Bitcoin has failed its money use case, that Bitcoin has failed as Bitcoin, that we're not fulfilling the white paper's destiny, or all these sort of fail states versus Bitcoin being wildly successful at being a digital gold, a store of value asset. It's been phenomenally successful at that. Um, so, you know, that's one",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.34,
+    "end": 21.5,
+    "text": "It set the standard to where we look like we have failed to everyone else, that Bitcoin has failed its money use case, that Bitcoin has failed as Bitcoin, that we're not fulfilling the white paper's destiny, or all these sort of fail states versus Bitcoin being wildly successful at being a digital gold, a store of value asset. It's been phenomenally successful at that. Um, so, you know, that's one"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.34,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "set",
+    "start": 0.4,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.56,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standard",
+    "start": 0.7,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.04,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 1.14,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.34,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 1.48,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.66,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.84,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 1.98,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "failed",
+    "start": 2.24,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.22,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 3.32,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else,",
+    "start": 3.64,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.88,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.019,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.28,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "failed",
+    "start": 4.58,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 4.92,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 5.1,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 5.36,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case,",
+    "start": 5.54,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.7,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.8,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 6.1,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "failed",
+    "start": 6.4,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.8,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.92,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.9,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 8.02,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 8.14,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fulfilling",
+    "start": 8.32,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.84,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "white",
+    "start": 8.92,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "paper's",
+    "start": 9.16,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "destiny,",
+    "start": 9.54,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.94,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 10.3,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sort",
+    "start": 10.54,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.76,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fail",
+    "start": 11.52,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "states",
+    "start": 11.86,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "versus",
+    "start": 12.74,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.42,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 13.8,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wildly",
+    "start": 14.4,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "successful",
+    "start": 14.96,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 15.92,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 16.1,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.32,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 16.48,
+    "end": 16.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 16.94,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.24,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "store",
+    "start": 17.44,
+    "end": 17.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.68,
+    "end": 17.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 17.76,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 18.12,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 18.34,
+    "end": 18.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 18.46,
+    "end": 18.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "phenomenally",
+    "start": 18.64,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "successful",
+    "start": 19.24,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 19.68,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 19.8,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 20.72,
+    "end": 20.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so,",
+    "start": 20.96,
+    "end": 21.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 21.14,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 21.2,
+    "end": 21.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 21.28,
+    "end": 21.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 21.46,
+    "end": 21.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.52
+ },
+ "usd": 0.004304,
+ "seconds": 0.86,
+ "recorded_at": "2026-11-13T17:24:28Z"
+}

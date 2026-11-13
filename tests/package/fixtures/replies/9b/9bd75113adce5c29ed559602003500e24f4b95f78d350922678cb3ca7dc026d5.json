@@ -1,0 +1,476 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "58b5975439239080e97ed944052079ab118df892015a293f60b40ec0f893ec7d",
+ "result": {
+  "text": "And when it crashes, it crashes everything else with it, AKA the Jenga trade. And Wall Street's answer is diversification, but the ultimate diversification is decentralization. Bitcoin is an asset that can be owned by everyone, but totally controlled by no one. No key man, no key company, no key country. That's why I think it's the best antidote to key man, key sector, or key country risk. So then the question is, if Bi-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 22.36,
+    "text": "And when it crashes, it crashes everything else with it, AKA the Jenga trade. And Wall Street's answer is diversification, but the ultimate diversification is decentralization. Bitcoin is an asset that can be owned by everyone, but totally controlled by no one. No key man, no key company, no key country. That's why I think it's the best antidote to key man, key sector, or key country risk. So then the question is, if Bi-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.04,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 0.16,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.26,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crashes,",
+    "start": 0.38,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.9,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crashes",
+    "start": 1.02,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything",
+    "start": 1.42,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 1.8,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 2.02,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 2.16,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AKA",
+    "start": 2.32,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jenga",
+    "start": 3.2,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade.",
+    "start": 3.52,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.9,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 4.08,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street's",
+    "start": 4.3,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "answer",
+    "start": 4.66,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.04,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diversification,",
+    "start": 5.2,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 6.26,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.4,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ultimate",
+    "start": 6.64,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diversification",
+    "start": 7.04,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.1,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralization.",
+    "start": 8.26,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.48,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.88,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 10.0,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 10.16,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.44,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.58,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 10.76,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owned",
+    "start": 11.1,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 11.34,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone,",
+    "start": 11.58,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 12.2,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "totally",
+    "start": 12.42,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "controlled",
+    "start": 12.82,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 13.4,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 13.62,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one.",
+    "start": 13.84,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No",
+    "start": 14.14,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 14.34,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man,",
+    "start": 14.52,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 14.84,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 15.02,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company,",
+    "start": 15.2,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 15.62,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 15.78,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "country.",
+    "start": 15.98,
+    "end": 16.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 16.56,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 16.82,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 16.96,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 17.04,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 17.2,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.36,
+    "end": 17.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best",
+    "start": 17.46,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "antidote",
+    "start": 17.78,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.3,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 18.52,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man,",
+    "start": 18.72,
+    "end": 18.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 19.02,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sector,",
+    "start": 19.24,
+    "end": 19.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 19.86,
+    "end": 19.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 20.0,
+    "end": 20.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "country",
+    "start": 20.18,
+    "end": 20.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk.",
+    "start": 20.6,
+    "end": 20.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 21.04,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 21.14,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.28,
+    "end": 21.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question",
+    "start": 21.4,
+    "end": 21.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 21.8,
+    "end": 21.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 22.14,
+    "end": 22.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bi-",
+    "start": 22.32,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.38
+ },
+ "usd": 0.004476,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-13T17:24:15Z"
+}

@@ -86,5 +86,38 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
   }
+ },
+ "f5f005b9a91b80840778:a31a71bdf676302cb2229c16d60db08cb94e186ca0a6c23704cc868c99442f2e:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "mid-conversation opener",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "98f58a521b32f8f667c6:8a59cf70f4cfbf3ec7194a33db68ba68a9e64ca27670fe1ef6f2a595e9205a4b:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 2,
+   "rating": 2,
+   "why": "garbled confusing phrasing",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "afe8101ad97672f4a9ad:e7534349f2608485d5d75c721054813b70dcee93c4083c77b857513441ac9537:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "dry technical start",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

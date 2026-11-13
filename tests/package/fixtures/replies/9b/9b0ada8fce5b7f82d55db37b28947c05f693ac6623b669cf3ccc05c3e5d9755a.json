@@ -1,0 +1,452 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b0e1917a75df8776b1b14369fee3fc82441fe6a7e54aeb09b010aea1c856b7f8",
+ "result": {
+  "text": "Bitcoin institutional investor side, what are they saying? It, it felt like, you know, in the conversations that I was having, that there was definitely a, a, a better appreciation for Bitcoin in the last couple of months because of the underperformance that was happening in tech. I think, you know, what we're seeing is, uh, a de-grossing episode, which is by historical standards, one of the largest. So the",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 3.4,
+    "text": "Bitcoin institutional investor side, what are they saying?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.96,
+    "end": 24.92,
+    "text": "It, it felt like, you know, in the conversations that I was having, that there was definitely a, a, a better appreciation for Bitcoin in the last couple of months because of the underperformance that was happening in tech. I think, you know, what we're seeing is, uh, a de-grossing episode, which is by historical standards, one of the largest. So the"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.0,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutional",
+    "start": 0.58,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investor",
+    "start": 1.36,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "side,",
+    "start": 2.04,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.62,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.74,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 2.84,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying?",
+    "start": 3.1,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It,",
+    "start": 3.96,
+    "end": 4.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 4.24,
+    "end": 4.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "felt",
+    "start": 4.36,
+    "end": 4.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like,",
+    "start": 4.6,
+    "end": 4.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 5.04,
+    "end": 5.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 5.14,
+    "end": 5.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 5.3,
+    "end": 5.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 5.38,
+    "end": 5.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "conversations",
+    "start": 5.46,
+    "end": 5.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 6.0,
+    "end": 6.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 6.16,
+    "end": 6.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "was",
+    "start": 6.24,
+    "end": 6.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "having,",
+    "start": 6.4,
+    "end": 6.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 6.78,
+    "end": 6.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "there",
+    "start": 6.96,
+    "end": 7.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "was",
+    "start": 7.1,
+    "end": 7.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "definitely",
+    "start": 7.3,
+    "end": 7.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a,",
+    "start": 7.9,
+    "end": 8.119,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a,",
+    "start": 8.2,
+    "end": 8.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 8.4,
+    "end": 8.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "better",
+    "start": 8.5,
+    "end": 8.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "appreciation",
+    "start": 8.72,
+    "end": 9.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 9.6,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.1,
+    "end": 10.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 10.84,
+    "end": 10.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 10.96,
+    "end": 11.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "last",
+    "start": 11.08,
+    "end": 11.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "couple",
+    "start": 11.38,
+    "end": 11.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 11.62,
+    "end": 11.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "months",
+    "start": 11.72,
+    "end": 12.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 12.04,
+    "end": 12.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 12.48,
+    "end": 12.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 12.68,
+    "end": 12.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "underperformance",
+    "start": 13.04,
+    "end": 13.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 13.68,
+    "end": 13.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "was",
+    "start": 13.82,
+    "end": 13.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "happening",
+    "start": 13.96,
+    "end": 14.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 14.28,
+    "end": 14.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "tech.",
+    "start": 14.46,
+    "end": 14.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 15.54,
+    "end": 15.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think,",
+    "start": 15.62,
+    "end": 15.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 16.219,
+    "end": 16.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 16.28,
+    "end": 16.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what",
+    "start": 16.66,
+    "end": 16.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we're",
+    "start": 16.82,
+    "end": 16.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "seeing",
+    "start": 17.02,
+    "end": 17.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is,",
+    "start": 17.38,
+    "end": 17.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 17.86,
+    "end": 17.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 18.16,
+    "end": 18.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "de-grossing",
+    "start": 18.3,
+    "end": 19.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "episode,",
+    "start": 19.34,
+    "end": 19.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "which",
+    "start": 19.92,
+    "end": 20.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 20.12,
+    "end": 20.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "by",
+    "start": 21.1,
+    "end": 21.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "historical",
+    "start": 21.64,
+    "end": 22.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "standards,",
+    "start": 22.14,
+    "end": 22.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "one",
+    "start": 22.7,
+    "end": 22.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 22.82,
+    "end": 22.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 22.94,
+    "end": 23.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "largest.",
+    "start": 23.14,
+    "end": 23.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 24.66,
+    "end": 24.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 24.82,
+    "end": 24.92,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.16
+ },
+ "usd": 0.005032,
+ "seconds": 1.45,
+ "recorded_at": "2026-11-13T17:24:43Z"
+}

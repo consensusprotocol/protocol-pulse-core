@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1050,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"f5f005b9a91b80840778\" (on screen: CoinTelegraph): \"Now, all that said, Bitcoin has gone through a lot of ups and downs, but I think the story here for crypto is not really about Bitcoin. So if you remember, Bitcoin was deemed a commodity a long time ago.\"\nCANDIDATE id=\"98f58a521b32f8f667c6\" (on screen: Scott Melker): \"Bitcoin follows the 12 -week -low as Jensen's Huang put it in everyone. Jensen Huang's exit from NVIDIA rattles markets.\"\nCANDIDATE id=\"afe8101ad97672f4a9ad\" (on screen: BTC Sessions): \"The customer scans a QR with any lightning wallet and the payment settles in seconds. The seller gets dollars by default or... can choose to keep the Bitcoin and there's no chargebacks. Sellers can also auto convert up to 50 % of their daily card sales into Bitcoin.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"f5f005b9a91b80840778\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"98f58a521b32f8f667c6\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"afe8101ad97672f4a9ad\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"f5f005b9a91b80840778\": {\"scroll\": 2, \"alone\": 2, \"setup\": 3, \"why\": \"mid-conversation opener\"}, \"98f58a521b32f8f667c6\": {\"scroll\": 2, \"alone\": 2, \"setup\": 2, \"why\": \"garbled confusing phrasing\"}, \"afe8101ad97672f4a9ad\": {\"scroll\": 3, \"alone\": 5, \"setup\": 4, \"why\": \"dry technical start\"}}}",
+ "usage": {
+  "in": 756,
+  "out": 3151,
+  "usd_reported": 0.0086881
+ },
+ "usd": 0.082555,
+ "seconds": 26.61,
+ "recorded_at": "2026-11-13T17:25:45Z"
+}

@@ -1,0 +1,176 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b90e61f014023a18f6432e5f109a94662a20cbe60f6a71a1fb82605899c00fa2",
+ "result": {
+  "text": "That decision that they're making is not necessarily on-chain I think people miss how unbelievably conservative Bitcoin miners have to actually be. Uh, w-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 3.44,
+    "text": "That decision that they're making is not necessarily on-chain"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.44,
+    "end": 11.3,
+    "text": "I think people miss how unbelievably conservative Bitcoin miners have to actually be. Uh, w-"
+   }
+  ],
+  "words": [
+   {
+    "text": "That",
+    "start": 0.0,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decision",
+    "start": 0.7,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.16,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 1.28,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "making",
+    "start": 1.42,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.9,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 2.02,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessarily",
+    "start": 2.18,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on-chain",
+    "start": 2.92,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.44,
+    "end": 4.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 4.52,
+    "end": 4.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "people",
+    "start": 4.7,
+    "end": 4.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "miss",
+    "start": 5.04,
+    "end": 5.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "how",
+    "start": 5.54,
+    "end": 5.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "unbelievably",
+    "start": 6.5,
+    "end": 7.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "conservative",
+    "start": 7.5,
+    "end": 8.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.38,
+    "end": 8.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "miners",
+    "start": 8.74,
+    "end": 9.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "have",
+    "start": 9.1,
+    "end": 9.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 9.28,
+    "end": 9.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "actually",
+    "start": 9.44,
+    "end": 9.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "be.",
+    "start": 9.8,
+    "end": 10.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Uh,",
+    "start": 10.88,
+    "end": 11.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "w-",
+    "start": 11.24,
+    "end": 11.3,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.5
+ },
+ "usd": 0.0023,
+ "seconds": 0.67,
+ "recorded_at": "2026-11-13T17:24:41Z"
+}

@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c99f0b912ef6b510481a17c8c30beb5637789b33014136784b16b6f7daf19c59",
+ "result": {
+  "text": "Of course. And then, o- and then of, of course they have to keep the lights on. They mine Bitcoin, they're not gonna hold onto it. They gotta sell it. There's nothing wrong with that. I don't care who tells you that you should never sell your Bitcoin. Uh, sometimes-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.64,
+    "end": 12.54,
+    "text": "Of course. And then, o- and then of, of course they have to keep the lights on. They mine Bitcoin, they're not gonna hold onto it. They gotta sell it. There's nothing wrong with that. I don't care who tells you that you should never sell your Bitcoin. Uh, sometimes-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Of",
+    "start": 0.64,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course.",
+    "start": 0.78,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.56,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then,",
+    "start": 1.62,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "o-",
+    "start": 1.74,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.92,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 2.04,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 2.16,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.54,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course",
+    "start": 2.68,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 2.92,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 3.0,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.08,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "keep",
+    "start": 3.16,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.28,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lights",
+    "start": 3.4,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on.",
+    "start": 3.74,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 4.0,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mine",
+    "start": 4.22,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.52,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 4.96,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.06,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 5.2,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 5.42,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "onto",
+    "start": 5.68,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 6.02,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 6.5,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gotta",
+    "start": 6.62,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 6.9,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 7.1,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 7.76,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nothing",
+    "start": 7.9,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wrong",
+    "start": 8.119,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.4,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 8.56,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.92,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 8.98,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "care",
+    "start": 9.12,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 9.3,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tells",
+    "start": 9.48,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.72,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.8,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.9,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 9.98,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 10.1,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 10.36,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 10.52,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.66,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 11.82,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sometimes-",
+    "start": 12.26,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.56
+ },
+ "usd": 0.002512,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-13T17:24:30Z"
+}

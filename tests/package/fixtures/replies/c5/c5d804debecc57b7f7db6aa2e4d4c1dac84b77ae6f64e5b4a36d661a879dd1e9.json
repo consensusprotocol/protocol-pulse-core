@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ee18a3cc7fde36c577f94c22554ca16ce6befb2a77c099f573b9be1d01b74199",
+ "result": {
+  "text": "more gains left. And I'm always like, I don't think people talk to normal people. Not that many people use Bitcoin. I, I can't like- Yeah ... diminishing returns doesn't make sense to me when so few people use Bitcoin. Yeah. Look, I don't-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.12,
+    "text": "more gains left. And I'm always like, I don't think people talk to normal people. Not that many people use Bitcoin. I, I can't like-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 7.14,
+    "end": 7.22,
+    "text": "Yeah"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 7.22,
+    "end": 11.04,
+    "text": "... diminishing returns doesn't make sense to me when so few people use Bitcoin."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 11.7,
+    "end": 12.3,
+    "text": "Yeah. Look, I don't-"
+   }
+  ],
+  "words": [
+   {
+    "text": "more",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gains",
+    "start": 0.16,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "left.",
+    "start": 0.52,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 0.88,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 1.02,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 1.16,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 1.42,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.48,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 2.52,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.64,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 2.8,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talk",
+    "start": 3.04,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.26,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "normal",
+    "start": 3.36,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people.",
+    "start": 3.74,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Not",
+    "start": 4.54,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.74,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 4.86,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 5.04,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 5.38,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 5.58,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 6.06,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.22,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 6.34,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like-",
+    "start": 7.02,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah",
+    "start": 7.14,
+    "end": 7.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 7.22,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "diminishing",
+    "start": 7.54,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "returns",
+    "start": 7.94,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 8.32,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 8.6,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense",
+    "start": 8.8,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.04,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 9.14,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.3,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 9.54,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 9.76,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 9.98,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 10.42,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.62,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 11.7,
+    "end": 11.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Look,",
+    "start": 11.92,
+    "end": 12.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 12.14,
+    "end": 12.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't-",
+    "start": 12.2,
+    "end": 12.3,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.34
+ },
+ "usd": 0.002468,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-13T17:24:29Z"
+}

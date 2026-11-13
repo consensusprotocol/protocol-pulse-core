@@ -1,0 +1,374 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "bf81fba6344578d756f67cf7c08a08255fb25fa8c3d5ab92d75da4fd508a9fc9",
+ "result": {
+  "text": "Versus 10,022 for an Nvidia. It's a small but subtle difference. Investing in either 10 years ago would have changed your life. But there's one thing that separates Bitcoin from every company and every government on the planet. Wall Street insures against it, and almost nobody sees it coming. It's called key man risk. And this week, Nvidia-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.66,
+    "text": "Versus 10,022 for an Nvidia. It's a small but subtle difference. Investing in either 10 years ago would have changed your life. But there's one thing that separates Bitcoin from every company and every government on the planet. Wall Street insures against it, and almost nobody sees it coming. It's called key man risk. And this week, Nvidia-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Versus",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,022",
+    "start": 0.22,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.4,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 1.48,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia.",
+    "start": 1.64,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 2.18,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.32,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "small",
+    "start": 2.46,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 2.86,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "subtle",
+    "start": 3.06,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "difference.",
+    "start": 3.36,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Investing",
+    "start": 3.98,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.46,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "either",
+    "start": 4.64,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10",
+    "start": 4.9,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 5.1,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago",
+    "start": 5.32,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 5.54,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 5.64,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changed",
+    "start": 5.78,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 6.06,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life.",
+    "start": 6.2,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 6.64,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 6.76,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 7.02,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 7.14,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.3,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "separates",
+    "start": 7.46,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.92,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 8.28,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 8.54,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 8.78,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.22,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 9.44,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "government",
+    "start": 9.7,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 10.02,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.12,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "planet.",
+    "start": 10.26,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wall",
+    "start": 10.72,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Street",
+    "start": 10.96,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "insures",
+    "start": 11.2,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 11.58,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 11.94,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.14,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 12.28,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nobody",
+    "start": 12.66,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sees",
+    "start": 13.06,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.24,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coming.",
+    "start": 13.38,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 13.8,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "called",
+    "start": 14.0,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 14.46,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man",
+    "start": 14.7,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk.",
+    "start": 14.98,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.52,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 15.68,
+    "end": 15.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 15.9,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia-",
+    "start": 16.32,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.79
+ },
+ "usd": 0.003358,
+ "seconds": 0.94,
+ "recorded_at": "2026-11-13T17:24:30Z"
+}

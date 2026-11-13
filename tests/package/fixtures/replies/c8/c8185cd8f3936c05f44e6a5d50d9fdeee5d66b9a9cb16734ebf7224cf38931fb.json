@@ -1,0 +1,428 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e4444fef6ad461690448e02c1ae4b38129c78a69cad2d4929daf9eadb25971a5",
+ "result": {
+  "text": "Yep. That's, that's how it goes. That's how it goes in Bitcoin. And it's a, uh, it's, it's a healthier, uh, cancel- Oh, yeah ... culture than what- Great thing ... we have in the mainstream because it's so mu- it's like inflation. We cancel so much and so often that cancellation is not that valuable anymore. We can really hang out",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 2.06,
+    "end": 5.14,
+    "text": "Yep. That's, that's how it goes. That's how it goes in Bitcoin."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 5.36,
+    "end": 8.22,
+    "text": "And it's a, uh, it's, it's a healthier, uh, cancel-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 8.24,
+    "end": 8.34,
+    "text": "Oh, yeah"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 8.34,
+    "end": 9.58,
+    "text": "... culture than what-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 9.6,
+    "end": 9.72,
+    "text": "Great thing"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 9.72,
+    "end": 20.16,
+    "text": "... we have in the mainstream because it's so mu- it's like inflation. We cancel so much and so often that cancellation is not that valuable anymore. We can really hang out"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yep.",
+    "start": 2.06,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's,",
+    "start": 2.54,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 3.0,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 3.14,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.28,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes.",
+    "start": 3.38,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 4.12,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 4.26,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 4.36,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 4.44,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.64,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 4.78,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 5.36,
+    "end": 5.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 5.5,
+    "end": 5.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a,",
+    "start": 5.7,
+    "end": 5.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 6.06,
+    "end": 6.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's,",
+    "start": 6.1,
+    "end": 6.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 6.36,
+    "end": 6.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 6.54,
+    "end": 6.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "healthier,",
+    "start": 6.68,
+    "end": 7.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 7.58,
+    "end": 7.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "cancel-",
+    "start": 7.88,
+    "end": 8.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Oh,",
+    "start": 8.24,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah",
+    "start": 8.34,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "...",
+    "start": 8.34,
+    "end": 8.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "culture",
+    "start": 8.38,
+    "end": 8.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "than",
+    "start": 9.2,
+    "end": 9.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what-",
+    "start": 9.48,
+    "end": 9.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Great",
+    "start": 9.6,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 9.72,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "...",
+    "start": 9.72,
+    "end": 9.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we",
+    "start": 9.76,
+    "end": 9.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "have",
+    "start": 9.92,
+    "end": 10.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 10.1,
+    "end": 10.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 10.22,
+    "end": 10.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mainstream",
+    "start": 10.34,
+    "end": 10.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 11.08,
+    "end": 11.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 11.56,
+    "end": 11.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 11.82,
+    "end": 11.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mu-",
+    "start": 12.0,
+    "end": 12.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 12.2,
+    "end": 12.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like",
+    "start": 12.36,
+    "end": 12.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "inflation.",
+    "start": 12.58,
+    "end": 13.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "We",
+    "start": 13.5,
+    "end": 13.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "cancel",
+    "start": 13.7,
+    "end": 14.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 14.22,
+    "end": 14.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "much",
+    "start": 14.42,
+    "end": 14.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 14.7,
+    "end": 14.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 14.9,
+    "end": 15.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "often",
+    "start": 15.08,
+    "end": 15.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 15.86,
+    "end": 16.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "cancellation",
+    "start": 16.16,
+    "end": 16.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 17.18,
+    "end": 17.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 17.42,
+    "end": 17.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 17.84,
+    "end": 17.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "valuable",
+    "start": 17.98,
+    "end": 18.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "anymore.",
+    "start": 18.44,
+    "end": 18.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "We",
+    "start": 18.84,
+    "end": 18.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "can",
+    "start": 19.0,
+    "end": 19.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "really",
+    "start": 19.22,
+    "end": 19.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "hang",
+    "start": 19.82,
+    "end": 20.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "out",
+    "start": 20.08,
+    "end": 20.16,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.18
+ },
+ "usd": 0.004036,
+ "seconds": 1.29,
+ "recorded_at": "2026-11-13T17:24:28Z"
+}

@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f0653e3e245630ef3ddd551918a3a7e2137792a320085e16b2a0c1de866a89eb",
+ "result": {
+  "text": "Most cryptos, like the, the market vector is 100 index is in a downtrend. Look, if it's 50-week moving average. Bitcoin's in a downtrend. Look, it's 50-week moving average. And those are leaders on the way up.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 9.78,
+    "text": "Most cryptos, like the, the market vector is 100 index is in a downtrend. Look, if it's 50-week moving average. Bitcoin's in a downtrend. Look, it's 50-week moving average. And those are leaders on the way up."
+   }
+  ],
+  "words": [
+   {
+    "text": "Most",
+    "start": 0.12,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cryptos,",
+    "start": 0.4,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.8,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 0.94,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.3,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 1.5,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vector",
+    "start": 1.86,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.18,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100",
+    "start": 2.44,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index",
+    "start": 2.76,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.1,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.22,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.32,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "downtrend.",
+    "start": 3.44,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Look,",
+    "start": 3.94,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.1,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 4.18,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50-week",
+    "start": 4.52,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 5.02,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average.",
+    "start": 5.34,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 6.04,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.48,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.6,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "downtrend.",
+    "start": 6.72,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Look,",
+    "start": 7.24,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 7.4,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50-week",
+    "start": 7.74,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 8.14,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average.",
+    "start": 8.38,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.56,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 8.66,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leaders",
+    "start": 8.96,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.26,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.36,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 9.46,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 9.66,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.03
+ },
+ "usd": 0.002006,
+ "seconds": 1.14,
+ "recorded_at": "2026-11-13T17:25:00Z"
+}

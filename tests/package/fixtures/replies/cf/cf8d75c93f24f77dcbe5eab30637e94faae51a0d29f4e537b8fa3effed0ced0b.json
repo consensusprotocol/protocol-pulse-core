@@ -1,0 +1,362 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "bc433bc0fed7cfe2082682c171663b905d49dbc5389d492b91b7825b3371d97c",
+ "result": {
+  "text": "They can survive. Yeah. I mean, it's like we talked about, right? Like Bitcoin is a better form of money. It's in its monetization process, so like it's not, it's not a get rich quick scheme, you know? It's, it's ideally going to go up over a longer period of time, and like that, that-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 1.18,
+    "text": "They can survive."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.94,
+    "end": 17.6,
+    "text": "Yeah. I mean, it's like we talked about, right? Like Bitcoin is a better form of money. It's in its monetization process, so like it's not, it's not a get rich quick scheme, you know? It's, it's ideally going to go up over a longer period of time, and like that, that-"
+   }
+  ],
+  "words": [
+   {
+    "text": "They",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 0.3,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "survive.",
+    "start": 0.78,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 1.94,
+    "end": 2.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 2.62,
+    "end": 2.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "mean,",
+    "start": 2.66,
+    "end": 2.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 2.76,
+    "end": 2.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like",
+    "start": 2.92,
+    "end": 3.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we",
+    "start": 3.1,
+    "end": 3.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "talked",
+    "start": 3.2,
+    "end": 3.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "about,",
+    "start": 3.4,
+    "end": 3.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "right?",
+    "start": 3.6,
+    "end": 3.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Like",
+    "start": 3.76,
+    "end": 3.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.34,
+    "end": 4.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 4.98,
+    "end": 5.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 5.2,
+    "end": 5.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "better",
+    "start": 5.28,
+    "end": 5.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "form",
+    "start": 5.5,
+    "end": 5.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 5.62,
+    "end": 5.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "money.",
+    "start": 5.74,
+    "end": 6.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "It's",
+    "start": 6.66,
+    "end": 6.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 6.8,
+    "end": 6.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "its",
+    "start": 6.9,
+    "end": 7.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "monetization",
+    "start": 7.12,
+    "end": 7.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "process,",
+    "start": 7.78,
+    "end": 8.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 8.68,
+    "end": 8.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like",
+    "start": 8.88,
+    "end": 9.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 9.4,
+    "end": 9.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not,",
+    "start": 9.6,
+    "end": 9.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 10.02,
+    "end": 10.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 10.12,
+    "end": 10.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 10.26,
+    "end": 10.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "get",
+    "start": 10.36,
+    "end": 10.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "rich",
+    "start": 10.54,
+    "end": 10.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "quick",
+    "start": 10.82,
+    "end": 11.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "scheme,",
+    "start": 11.06,
+    "end": 11.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 11.64,
+    "end": 11.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know?",
+    "start": 11.72,
+    "end": 11.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "It's,",
+    "start": 12.0,
+    "end": 12.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 12.3,
+    "end": 12.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ideally",
+    "start": 13.38,
+    "end": 13.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "going",
+    "start": 13.9,
+    "end": 14.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 14.1,
+    "end": 14.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "go",
+    "start": 14.2,
+    "end": 14.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "up",
+    "start": 14.38,
+    "end": 14.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "over",
+    "start": 14.56,
+    "end": 14.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 14.86,
+    "end": 14.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "longer",
+    "start": 14.96,
+    "end": 15.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "period",
+    "start": 15.42,
+    "end": 15.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 15.7,
+    "end": 15.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "time,",
+    "start": 15.84,
+    "end": 16.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 16.92,
+    "end": 17.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like",
+    "start": 17.14,
+    "end": 17.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that,",
+    "start": 17.34,
+    "end": 17.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that-",
+    "start": 17.54,
+    "end": 17.6,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.64
+ },
+ "usd": 0.003528,
+ "seconds": 1.0,
+ "recorded_at": "2026-11-13T17:24:23Z"
+}

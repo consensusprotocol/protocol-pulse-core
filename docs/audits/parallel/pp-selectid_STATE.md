@@ -1,4 +1,35 @@
-RULINGS 58 + 59 COMMITTED (5cb00867, audit 1112, 2 cycles) AND BUILT (11:31-11:50 ET, ledger_20261113_163106): 1087 rows -> 689 moments -> 325 usable -> 177 screened at step A (every candidate) -> 51 cleared -> 31 L-v 2 + CUTTABLE -> 14 pass G17a -> 8 can open -> 8 rated on the hook's own job, 2 rated >= 4 (both Simply Bitcoin; the best three: Simply Bitcoin 4 "strong fact but limited tease for next", Simply Bitcoin 4 "slightly dense for instant first seconds", Scott Melker 3 "mild opener lacks scroll-stopping punch") -> 14 cleared the second vendor -> 3 angles, all written for the SAME hook -> 8 line-ups, every one fails the clips-alone verdict: in context the hook rates 2-4, and the last clip 2-3 with the join before it. No package. SPEND (ruling 48): $6.81 of $12.00. A GAP OF MINE: the writer was told "up to 1 angle for EACH hook" and my angle check does not enforce it, so the second passing hook was never tried; the fix is next, in audit. RULING 60: under stand-alone only, the integrator re-rated the 145: 9 affirmed. My admission side is adapted to it and audited 2 cycles (1138); its cycle-2 consensus fix is in review; no build has read verdicts yet. No question open.
+RULINGS 56/60 (2e33ee4f) AND 61-64 (680dfb7a) COMMITTED, EACH AUDITED 2 CYCLES, AND BUILT (12:22-12:46 ET, ledger_20261113_172217): 689 moments -> 325 usable -> 112 screened at step A (the scorer's verdicts admitted 3 openers as clips and kept 1 affirmed trimmed variant; 65 unaffirmed trims left out before any vendor call) -> 61 cleared -> 38 cuttable -> 11 can open, 2 hooks rated >= 4 -> 27 cleared the second vendor -> 2 angles, one per passing hook. ANGLE 1'S FIRST LINE-UP PASSED THE CLIPS-ALONE VERDICT (Simply Bitcoin -> CNBC Television -> Scott Melker, 39.3 s: hook 4, clips 4 and 4, no flagged join) AND DIED ON ITS CAPTION ALONE. In both writes the takeaway and the title passed; the fidelity verdict refused one factual sentence of the caption ("it belongs to everyone who uses it": VERDICT_NO; "the network does, and anyone can join": VERDICT_UNCERTAIN). Angle 2: 7 line-ups, its last clip rated 1-3 (ruling 62 could not apply: 35.3 s without it, under the 36.7 s floor). No package. SPEND (ruling 48): $7.22 of $12.00. A rebuild replays the same writes (identical prompts), so this line-up cannot pass without a ruling. QUESTION: WHEN ONLY THE CAPTION FAILS FIDELITY, MAY THE WRITER GET ONE MORE WRITE FOR THE CAPTION ALONE (THE TAKEAWAY AND TITLE KEPT AS GATED), OR MAY THE CAPTION BE A FIXED LINE THAT STATES NO FACT (THE CHANNELS AND THE ANGLE'S TOPIC)?
+
+## 12:47 ET: 56/60 and 61-64 built; the first line-up to pass the clips alone died on its caption
+
+- **Ruling 56 under ruling 60 (2e33ee4f).**
+  - Audited 2 cycles (1138), plus its cycle-2 consensus increment, also 2 cycles (1138b).
+  - The build read the integrator's verdicts: 145 read, 9 affirmed, under the render's code sha now.
+  - It admitted 3 openers as clips (never hooks) and kept 1 affirmed trimmed variant.
+  - 65 trimmed variants without an affirmation were left out before any vendor call; the pending form is retired.
+  - The next candidates file was written: 148 entries, kind "moments". The integrator rates only the new ones.
+- **Rulings 61-64 (680dfb7a, audit 1207).**
+  - Cycle 1: grok's "P0" (the itertools import) and qwen's "P0" (unrated hooks in `passing`) are refuted with the
+    lines.
+  - The one consensus item (other callers of coherence) is answered by grep: one 05:35 one-off tool, which now fails
+    closed.
+  - Cycle 2: no P0 or P1 holds.
+- **The build (12:22-12:46).**
+  - The hook question was asked once per hook (cached), and the line-up verdicts no longer rate the hook: every
+    line-up's hook stood at its cached 4.
+  - Each passing hook got its own angle (64).
+  - Angle 1, line-up 1: the clips-alone verdict PASSED, the first line-up to do so today. Its writes:
+
+    | write | takeaway | title | caption | fidelity |
+    |---|---|---|---|---|
+    | 1 | "No single owner means value tracks what people build together. ..." (PASS) | "No single owner controls the bitcoin network" (PASS) | "... it belongs to everyone who uses it." | VERDICT_NO on the caption's sentence |
+    | 2 | "Power that no single hand controls is rare. ..." (PASS) | "The money system no one owns" (PASS) | "... the network does, and anyone can join." | VERDICT_UNCERTAIN on the caption's sentence |
+
+  - Angle 2: the hook held at 4 in every line-up. Its last clip rated 1-3, with flagged joins in three. Ruling 62
+    could not apply, because the line-up without the last clip is 35.3 s, under the floor. Ruling 63 needs every
+    rating at the bar.
+- **The question is on line 1.** The caption is the only gate this line-up failed, and a rebuild replays the same
+  writes.
 
 ## 11:55 ET: rulings 58 + 59 built; ruling 60 adapted
 

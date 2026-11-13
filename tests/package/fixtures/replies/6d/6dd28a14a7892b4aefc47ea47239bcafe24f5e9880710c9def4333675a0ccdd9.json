@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "689623221aa4cd9edd06bd5e0585290a9a90706d1bab6a2e227f68fa2c4f0a24",
+ "result": {
+  "text": "A bear market, a 20% correction in the stock market. What I'm actually arguing here is that basically Bitcoin lately has shown, uh, uh, quite, uh, relatively low volatility compared to the past, uh, when we had in the past, um, ma- uh, some corrections in the stock market, we saw major crashes in Bitcoin, while, uh, in the last",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.46,
+    "end": 24.24,
+    "text": "A bear market, a 20% correction in the stock market. What I'm actually arguing here is that basically Bitcoin lately has shown, uh, uh, quite, uh, relatively low volatility compared to the past, uh, when we had in the past, um, ma- uh, some corrections in the stock market, we saw major crashes in Bitcoin, while, uh, in the last"
+   }
+  ],
+  "words": [
+   {
+    "text": "A",
+    "start": 0.46,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 0.56,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 0.78,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.16,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "20%",
+    "start": 1.42,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "correction",
+    "start": 2.14,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.54,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.62,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 2.74,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 3.0,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 3.96,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 4.2,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 5.06,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "arguing",
+    "start": 5.8,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 6.2,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.54,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.72,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 7.86,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.2,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lately",
+    "start": 9.16,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 10.32,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shown,",
+    "start": 10.6,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 11.12,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 12.14,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quite,",
+    "start": 12.8,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 13.16,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "relatively",
+    "start": 13.78,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "low",
+    "start": 14.24,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatility",
+    "start": 14.42,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "compared",
+    "start": 15.46,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.82,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.94,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past,",
+    "start": 16.1,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 16.54,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 16.92,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 17.06,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 17.16,
+    "end": 17.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 17.78,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.88,
+    "end": 17.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past,",
+    "start": 18.0,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 18.34,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ma-",
+    "start": 18.78,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 19.12,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 19.36,
+    "end": 19.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "corrections",
+    "start": 19.78,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.2,
+    "end": 20.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.28,
+    "end": 20.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 20.38,
+    "end": 20.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 20.64,
+    "end": 20.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 21.0,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 21.12,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "major",
+    "start": 21.32,
+    "end": 21.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crashes",
+    "start": 21.8,
+    "end": 22.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 22.24,
+    "end": 22.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 22.34,
+    "end": 22.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while,",
+    "start": 23.32,
+    "end": 23.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 23.64,
+    "end": 23.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 23.74,
+    "end": 23.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 23.84,
+    "end": 23.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 23.94,
+    "end": 24.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.3
+ },
+ "usd": 0.00486,
+ "seconds": 1.06,
+ "recorded_at": "2026-11-13T17:24:42Z"
+}

@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "634213725da6c49309600e7a6caaab88f794f28b7fd06092a2b9a9fad036d6d2",
+ "result": {
+  "text": "the common stock rather than Bitcoin per se. Of course, like the common stock is, owns a ton of Bitcoin, so I don't necessarily think it's cannibalizing demand for Bitcoin. Like it ends up buying Bitcoin, right? I was kind of in-- So like when I first",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.2,
+    "end": 15.0,
+    "text": "the common stock rather than Bitcoin per se. Of course, like the common stock is, owns a ton of Bitcoin, so I don't necessarily think it's cannibalizing demand for Bitcoin. Like it ends up buying Bitcoin, right? I was kind of in-- So like when I first"
+   }
+  ],
+  "words": [
+   {
+    "text": "the",
+    "start": 0.2,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "common",
+    "start": 0.32,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 0.62,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rather",
+    "start": 1.34,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 1.78,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.54,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "per",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "se.",
+    "start": 3.24,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Of",
+    "start": 4.0,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course,",
+    "start": 4.12,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.44,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.2,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "common",
+    "start": 5.3,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 5.56,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 5.86,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owns",
+    "start": 6.58,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.8,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ton",
+    "start": 6.88,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.02,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 7.12,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.58,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 7.74,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 7.76,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessarily",
+    "start": 8.02,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 8.44,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.6,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cannibalizing",
+    "start": 8.78,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "demand",
+    "start": 9.66,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 9.96,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.12,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 10.6,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.8,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ends",
+    "start": 11.9,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 12.1,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 12.5,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 12.82,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 13.32,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.62,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 13.66,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 13.8,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.9,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in--",
+    "start": 13.98,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 14.1,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 14.24,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 14.4,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.56,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 14.78,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.04
+ },
+ "usd": 0.003008,
+ "seconds": 0.84,
+ "recorded_at": "2026-11-13T17:24:41Z"
+}

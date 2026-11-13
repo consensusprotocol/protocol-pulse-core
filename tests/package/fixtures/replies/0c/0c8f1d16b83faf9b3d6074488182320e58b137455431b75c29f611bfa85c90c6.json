@@ -1,0 +1,272 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "82e75de4749198479d0fdd42b48a20d6cba0cd937c2c93c3eed581aace6e60f5",
+ "result": {
+  "text": "each other clearly supporting and working together, which is good news for the crypto industry. Bitcoin follows the 12-week low as Jensen's Huang, put it in everyone, Jensen Huang's exit from Nvidia rattles markets. Not sure this guy should've resigned. That-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.38,
+    "text": "each other clearly supporting and working together, which is good news for the crypto industry. Bitcoin follows the 12-week low as Jensen's Huang, put it in everyone, Jensen Huang's exit from Nvidia rattles markets. Not sure this guy should've resigned. That-"
+   }
+  ],
+  "words": [
+   {
+    "text": "each",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 0.14,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clearly",
+    "start": 0.36,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supporting",
+    "start": 0.68,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.12,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "working",
+    "start": 1.24,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "together,",
+    "start": 1.52,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 1.86,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.0,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good",
+    "start": 2.14,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news",
+    "start": 2.28,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 2.46,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.54,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 2.62,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry.",
+    "start": 2.98,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.98,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "follows",
+    "start": 4.34,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.58,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "12-week",
+    "start": 4.7,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "low",
+    "start": 5.16,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 5.42,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jensen's",
+    "start": 5.7,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Huang,",
+    "start": 6.68,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 8.36,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.52,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.66,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone,",
+    "start": 9.08,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jensen",
+    "start": 10.52,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Huang's",
+    "start": 10.88,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exit",
+    "start": 11.22,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 11.5,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia",
+    "start": 11.82,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rattles",
+    "start": 12.28,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "markets.",
+    "start": 12.64,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Not",
+    "start": 13.04,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sure",
+    "start": 13.22,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 13.36,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guy",
+    "start": 13.52,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should've",
+    "start": 13.72,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "resigned.",
+    "start": 13.94,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That-",
+    "start": 14.32,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.4
+ },
+ "usd": 0.00288,
+ "seconds": 1.0,
+ "recorded_at": "2026-11-13T17:24:36Z"
+}

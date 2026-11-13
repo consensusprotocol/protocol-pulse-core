@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f4e9fc3b551a2344346e5ee382c4a4c86b1f7ff2207f4b5bf2e86fd79d78fc6c",
+ "result": {
+  "text": "Well, so let's re-remo-re-let's reiterate some of my calls. 2018, I called for Bitcoin to drop a zero from 10,000, drop to 3000. Okay, so I was 70% right. 2020, I-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.7,
+    "text": "Well, so let's re-remo-re-let's reiterate some of my calls. 2018, I called for Bitcoin to drop a zero from 10,000, drop to 3000. Okay, so I was 70% right. 2020, I-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Well,",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 0.22,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 0.3,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "re-remo-re-let's",
+    "start": 0.5,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reiterate",
+    "start": 1.84,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 2.52,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.66,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 2.78,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "calls.",
+    "start": 2.98,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2018,",
+    "start": 3.78,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.66,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "called",
+    "start": 4.78,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 4.98,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.14,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.48,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drop",
+    "start": 5.6,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.04,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "zero",
+    "start": 6.18,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 6.48,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,000,",
+    "start": 6.64,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drop",
+    "start": 7.28,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.48,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "3000.",
+    "start": 7.72,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Okay,",
+    "start": 8.22,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 8.5,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.62,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 8.7,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "70%",
+    "start": 9.6,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right.",
+    "start": 10.06,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2020,",
+    "start": 10.8,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I-",
+    "start": 11.7,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.72
+ },
+ "usd": 0.002344,
+ "seconds": 1.29,
+ "recorded_at": "2026-11-13T17:24:51Z"
+}
