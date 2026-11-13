@@ -1,0 +1,232 @@
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index d3473513..2ce82c63 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -417,14 +417,12 @@ def _shot_vf(shot, src_w, src_h):
+     return LETTERBOX_VF                                   # screen / uncertain: safe frame (flagged)
+ 
+ 
+-def reframe_auto(seg_path, output_path, seg_label, plan):
+-    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
+-    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
+-    import gpu0
+-    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
++def auto_graph(plan, colour=""):
++    """reframe_auto's 9:16 picture as one filtergraph ending in [vout] (no encode): each shot of the plan trimmed from
++    the prepared clip, its own filter, the input's colour re-declared, concatenated. The one code path of the render
++    and of prepare's 9:16 shot check (ruling 71, shot_snap.scene_changes_9x16)."""
+     fps = plan["fps"]
+     graph, labels = [], []
+-    colour = _input_colour(seg_path)
+     for k, shot in enumerate(plan["shots"]):
+         a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
+         vf = _shot_vf(shot, plan["width"], plan["height"])
+@@ -434,8 +432,16 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
+                      f"{vf},setsar=1:1[v{k}]")
+         labels.append(f"[v{k}]")
+     graph.append("".join(labels) + f"concat=n={len(labels)}:v=1:a=0[vout]")
++    return ";".join(graph)
++
++
++def reframe_auto(seg_path, output_path, seg_label, plan):
++    """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
++    re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     r = subprocess.run([
+-        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", ";".join(graph),
++        "ffmpeg", "-y", "-i", seg_path, "-filter_complex", auto_graph(plan, _input_colour(seg_path)),
+         "-map", "[vout]", "-map", "0:a", "-r", str(FPS),
+         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 5afea756..49959e14 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -810,6 +810,8 @@ def stage_prepare(run, cuts):
+         if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
+             import shot_snap
+             snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
++            if snap.get("refused"):             # ruling 71: a snap that cannot keep the required quiet
++                raise Hold(f"{c['clip_id']}: shot snap refused (ruling 71): {snap['refused']}")
+             if snap["snapped"]:
+                 print(f"  {c['clip_id']}: shot snap: {snap['why']}")
+         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
+diff --git a/pipeline/shot_snap.py b/pipeline/shot_snap.py
+index 6a41ecd5..8f653eea 100644
+--- a/pipeline/shot_snap.py
++++ b/pipeline/shot_snap.py
+@@ -10,7 +10,14 @@ Rule: a hard shot change (scene score >= SCENE_CUT) AFTER the last word ends (pa
+ last frame before it to the end of the clip; one BEFORE the first word starts (pause_in.end) holds the
+ first frame after it from the start of the clip. Changes inside the speech are content and untouched.
+ The audio stream is copied unchanged and the frame count is unchanged, so every cut time, G16/G17/G18
+-measurement and the A/V lock stay as they were."""
++measurement and the A/V lock stay as they were.
++RULING 71 (orchestrator 2026-11-13 '15:45'), both formats in parity: a change is snapped when its scene score is
++>= SCENE_CUT on the 16:9 prepared clip OR on its 9:16 crop (the picture render_vertical.auto_graph makes from
++vertical_layout.classify's plan). Pin 0c68b589's hook frame 406: the source's punch-in after the last word scored
++0.2718 in 16:9 and 0.3172 in the 9:16 crop, so prepare kept it and G19 held the vertical. The snap must keep the
++required quiet of the speaker's own shot after the last word (sentence_law.TAIL_MIN_S) and before the first
++(HEAD_LEAD_MIN_S for the hook, which starts playback; LEAD_MIN_S otherwise). If it cannot, the clip is refused
++with that reason (a HOLD in prepare)."""
+ import os
+ import re
+ import subprocess
+@@ -27,6 +34,19 @@ def scene_changes(path):
+     return [(int(f), float(s)) for f, s in out if float(s) >= SCENE_CUT]
+ 
+ 
++def scene_changes_9x16(clip):
++    """Ruling 71: [(frame_index, scene_score)] >= SCENE_CUT of the clip's 9:16 picture, render_vertical.auto_graph
++    on vertical_layout.classify's plan (the renderer's own crop), scored before any encode."""
++    import render_vertical
++    import vertical_layout
++    g = render_vertical.auto_graph(vertical_layout.classify(clip)) + \
++        ";[vout]select='gte(scene,0)',metadata=print:key=lavfi.scene_score:file=-[s]"
++    r = subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-filter_complex", g, "-map", "[s]", "-f", "null", "-"],
++                       capture_output=True, text=True, check=True, timeout=600)
++    out = re.findall(r"frame:(\d+)\s+pts:\S+\s+pts_time:\S+\s+lavfi\.scene_score=([0-9.]+)", r.stdout)
++    return [(int(f), float(s)) for f, s in out if float(s) >= SCENE_CUT]
++
++
+ def frame_count(path):
+     r = subprocess.run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
+                         "stream=nb_read_frames", "-of", "csv=p=0", path], capture_output=True, text=True,
+@@ -52,13 +72,26 @@ def apply(clip, cut, fps, qp):
+     pin, pout = cut.get("pause_in") or {}, cut.get("pause_out") or {}
+     on = (pin["end"] - cut["cut_in"] + pad) if "end" in pin else None
+     off = (pout["start"] - cut["cut_in"] + pad) if "start" in pout else None
+-    changes = scene_changes(clip)
++    changes, changes9 = scene_changes(clip), scene_changes_9x16(clip)        # ruling 71: either format
++    both = {}
++    for f, s in changes + changes9:
++        both[f] = max(s, both.get(f, 0.0))
+     n = frame_count(clip)
+-    head, tail = plan(changes, n, fps, on, off)
++    head, tail = plan(sorted(both.items()), n, fps, on, off)
+     rec = {"speech_on_s": None if on is None else round(on, 3), "speech_off_s": None if off is None else round(off, 3),
+-           "hard_cuts": [(f, round(s, 3)) for f, s in changes], "frames": n, "snapped": False}
++           "hard_cuts": [(f, round(s, 3)) for f, s in changes], "hard_cuts_9x16": [(f, round(s, 3)) for f, s in changes9],
++           "frames": n, "snapped": False}
+     if head == 0 and tail == n:
+         return rec
++    import sentence_law as SL
++    lead_min = SL.HEAD_LEAD_MIN_S if cut.get("clip_id") == "hook" else SL.LEAD_MIN_S
++    short = ([f"the speaker's own shot starts {on - head / fps:.3f} s before the first word (< {lead_min:.3f} s)"]
++             if head and on - head / fps < lead_min else []) + \
++            ([f"the speaker's own shot ends {tail / fps - off:.3f} s after the last word (< {SL.TAIL_MIN_S:.3f} s)"]
++             if tail < n and tail / fps - off < SL.TAIL_MIN_S else [])
++    if short:                                  # ruling 71: the snap cannot keep the required quiet: refused, a HOLD
++        rec["refused"] = "; ".join(short)
++        return rec
+     import gpu0
+     gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident (an encode follows)
+     vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \
+diff --git a/pipeline/test_shot_snap.py b/pipeline/test_shot_snap.py
+index 72c1ed2d..f152ca61 100644
+--- a/pipeline/test_shot_snap.py
++++ b/pipeline/test_shot_snap.py
+@@ -9,6 +9,7 @@ import subprocess
+ import sys
+ import tempfile
+ import unittest
++from unittest import mock
+ 
+ import numpy as np
+ 
+@@ -93,5 +94,95 @@ class TestApply(unittest.TestCase):
+         self.assertEqual(hashlib.sha256(open(clip, "rb").read()).hexdigest(), before)
+ 
+ 
++class TestRuling71Parity(unittest.TestCase):
++    """Ruling 71 (orchestrator '15:45'): both formats in parity, on CPU (the snap's encode replaced)."""
++
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="snap71_")
++        self.addCleanup(shutil.rmtree, self.tmp, True)
++        self.clip = os.path.join(self.tmp, "final_hook.mp4")
++        open(self.clip, "wb").write(b"x")
++        self.hook = {"clip_id": "hook", "cut_in": 14.6, "lead_in_pad_s": 0.0, "pause_in": {"end": 14.69},
++                     "pause_out": {"start": 31.46}}               # speech 0.09-16.86 s of the clip, as 0c68b589's hook
++
++    def _apply(self, c16, c9, n=407):
++        def fake_encode(cmd, **k):
++            open(cmd[-1], "wb").write(b"y")
++            return mock.Mock(returncode=0)
++        with mock.patch.object(SS, "scene_changes", lambda p: c16), \
++                mock.patch.object(SS, "scene_changes_9x16", lambda p: c9), \
++                mock.patch.object(SS, "frame_count", lambda p: n), \
++                mock.patch.object(SS.subprocess, "run", fake_encode), mock.patch("gpu0.swap_to", lambda *a: None):
++            return SS.apply(self.clip, self.hook, 24, 18)
++
++    def test_a_change_only_the_9x16_crop_sees_is_snapped(self):
++        rec = self._apply([(336, 0.997)], [(336, 1.0), (406, 0.3172)])   # 16:9 scored frame 406 at 0.2718
++        self.assertTrue(rec["snapped"], rec)
++        self.assertEqual((rec["held_head_frames"], rec["held_tail_frames"]), (0, 1))
++        self.assertEqual(rec["hard_cuts_9x16"], [(336, 1.0), (406, 0.317)])
++        self.assertIn("tail: frames 406-406 were the next shot, held on frame 405", rec["why"])
++
++    def test_nothing_to_snap_in_either_format_leaves_the_clip(self):
++        rec = self._apply([(336, 0.997)], [(336, 1.0)])
++        self.assertFalse(rec["snapped"])
++        self.assertNotIn("refused", rec)
++
++    def test_a_snap_that_cannot_keep_the_hooks_lead_is_refused(self):
++        self.hook["pause_in"] = {"end": 14.6 + 2 / 24 + 0.05}    # the first word 50 ms after a change at frame 2
++        rec = self._apply([], [(2, 0.5)])
++        self.assertEqual(rec.get("refused"),
++                         "the speaker's own shot starts 0.050 s before the first word (< 0.080 s)")
++        self.assertFalse(rec["snapped"])
++        self.assertEqual(open(self.clip, "rb").read(), b"x")     # refused: nothing re-encoded
++        self.hook["clip_id"] = "clip_01"                         # not the hook: LEAD_MIN_S, snapped
++        self.assertTrue(self._apply([], [(2, 0.5)])["snapped"])
++
++
++HOOK_0C68 = "/home/ultron/protocol_pulse/runs/pinned_20261113_191409"
++
++
++def _scores_9x16(clip):
++    """The clip's 9:16 picture scored frame by frame with the renderer's own per-shot filters (render_vertical._shot_vf
++    on vertical_layout.classify's plan): built here so this test runs on the code before ruling 71 too."""
++    import re
++    import render_vertical
++    import vertical_layout
++    plan = vertical_layout.classify(clip)
++    g, lab = [], []
++    for k, sh in enumerate(plan["shots"]):
++        a, b = int(round(sh["start"] * plan["fps"])), int(round(sh["end"] * plan["fps"]))
++        g.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
++                 f"{render_vertical._shot_vf(sh, plan['width'], plan['height'])},setsar=1:1[v{k}]")
++        lab.append(f"[v{k}]")
++    g.append("".join(lab) + f"concat=n={len(lab)}:v=1:a=0,select='gte(scene,0)',"
++                            "metadata=print:key=lavfi.scene_score:file=-[s]")
++    r = subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-filter_complex", ";".join(g), "-map", "[s]", "-f", "null",
++                        "-"], capture_output=True, text=True, check=True, timeout=600)
++    return {int(f): float(x) for f, x in
++            re.findall(r"frame:(\d+)\s+pts:\S+\s+pts_time:\S+\s+lavfi\.scene_score=([0-9.]+)", r.stdout)}
++
++
++@unittest.skipUnless(os.environ.get("CUDA_VISIBLE_DEVICES") == "0" and
++                     os.path.exists(os.path.join(HOOK_0C68, "qa", "final_hook.mp4")), "NVENC + the 0c68b589 run")
++class TestRuling71OnTheHeldHook(unittest.TestCase):
++    """MUST-FAIL: 0c68b589's prepared hook (run pinned_20261113_191409): the source's punch-in at frame 406, after the
++    last word, scored 0.3172 in the 9:16 crop and 0.2718 in 16:9. Before ruling 71 prepare kept it (G19 held the 9:16)."""
++
++    def test_the_punch_in_after_the_last_word_is_snapped_in_both_formats(self):
++        import json
++        tmp = tempfile.mkdtemp(prefix="snap71h_")
++        self.addCleanup(shutil.rmtree, tmp, True)
++        clip = os.path.join(tmp, "final_hook.mp4")
++        shutil.copy(os.path.join(HOOK_0C68, "qa", "final_hook.mp4"), clip)
++        cut = next(c for c in json.load(open(os.path.join(HOOK_0C68, "cuts_final.json"))) if c["clip_id"] == "hook")
++        self.assertGreaterEqual(_scores_9x16(clip)[406], SS.SCENE_CUT)            # the fixture really has it
++        rec = SS.apply(clip, cut, 24, 18)
++        off = int(rec["speech_off_s"] * 24)
++        late9 = {f: s for f, s in _scores_9x16(clip).items() if f > off and s >= SS.SCENE_CUT}
++        late16 = [f for f, s in SS.scene_changes(clip) if f > off]
++        self.assertEqual((late9, late16), ({}, []), rec)                           # no shot change after the last word
++        self.assertEqual(SS.frame_count(clip), 407)
++
++
+ if __name__ == "__main__":
+     unittest.main()
