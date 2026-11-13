@@ -1,0 +1,488 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d51715b27561556562b551305d547d63afabb6500f67b457c2354e846a74fc2b",
+ "result": {
+  "text": "bills would have outperformed this. Bitcoin flat. Of course, that's, uh, captures a moment in, in time, of course, if you bought Bitcoin- Right ... near kind of a top five years ago. But flat on a five-year time period, I mean, Bitcoin's whole thing has been hold, right? HODL. Yeah. And over any, you know, medium to long-term time range, it's always overperformed. Yes. In this case, it has not",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.74,
+    "text": "bills would have outperformed this. Bitcoin flat. Of course, that's, uh, captures a moment in, in time, of course, if you bought Bitcoin-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 8.18,
+    "end": 8.18,
+    "text": "Right"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 8.18,
+    "end": 17.16,
+    "text": "... near kind of a top five years ago. But flat on a five-year time period, I mean, Bitcoin's whole thing has been hold, right? HODL."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 17.74,
+    "end": 17.76,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 17.8,
+    "end": 23.64,
+    "text": "And over any, you know, medium to long-term time range, it's always overperformed."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 23.66,
+    "end": 23.68,
+    "text": "Yes."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 23.68,
+    "end": 24.96,
+    "text": "In this case, it has not"
+   }
+  ],
+  "words": [
+   {
+    "text": "bills",
+    "start": 0.0,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 0.68,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.8,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperformed",
+    "start": 1.12,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this.",
+    "start": 2.28,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.96,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flat.",
+    "start": 3.36,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Of",
+    "start": 4.019,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course,",
+    "start": 4.14,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's,",
+    "start": 4.4,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.68,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "captures",
+    "start": 4.96,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.36,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moment",
+    "start": 5.44,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 5.66,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.02,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 6.18,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.54,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course,",
+    "start": 6.66,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 6.92,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.98,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 7.08,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin-",
+    "start": 7.3,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Right",
+    "start": 8.18,
+    "end": 8.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 8.18,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "near",
+    "start": 8.2,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 8.46,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.6,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.7,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 8.8,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 9.1,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 9.32,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago.",
+    "start": 9.56,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 10.3,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flat",
+    "start": 10.64,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 11.64,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.76,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five-year",
+    "start": 11.92,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 12.62,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period,",
+    "start": 12.92,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.86,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 13.94,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 14.2,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 14.8,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 15.06,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 15.28,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 15.48,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold,",
+    "start": 16.079,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 16.46,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "HODL.",
+    "start": 16.88,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 17.74,
+    "end": 17.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And",
+    "start": 17.8,
+    "end": 18.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 18.18,
+    "end": 18.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any,",
+    "start": 18.64,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 19.82,
+    "end": 19.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 19.9,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "medium",
+    "start": 20.14,
+    "end": 20.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 20.5,
+    "end": 20.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-term",
+    "start": 20.7,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 21.2,
+    "end": 21.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "range,",
+    "start": 21.44,
+    "end": 21.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 21.7,
+    "end": 21.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 22.0,
+    "end": 22.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overperformed.",
+    "start": 22.88,
+    "end": 23.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yes.",
+    "start": 23.66,
+    "end": 23.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "In",
+    "start": 23.68,
+    "end": 23.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 23.8,
+    "end": 23.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case,",
+    "start": 23.98,
+    "end": 24.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 24.5,
+    "end": 24.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 24.54,
+    "end": 24.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 24.76,
+    "end": 24.96,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.04
+ },
+ "usd": 0.005008,
+ "seconds": 1.53,
+ "recorded_at": "2026-11-13T14:59:05Z"
+}

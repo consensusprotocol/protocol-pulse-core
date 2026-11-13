@@ -1,0 +1,344 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5d1ac6d3038d22de126d4e4d840b1495eb9e767ec1dcd4dfd2474370f05c5515",
+ "result": {
+  "text": "help us to determine whether the market is beginning to validate it. So here's my biggest takeaway. The Bitcoin capital markets are still in their early stages, but the opportunity to put Bitcoin to work through staking, collateral, and decentralized financial applications is still worth paying attention to. Stacks is attempting to build-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.36,
+    "text": "help us to determine whether the market is beginning to validate it. So here's my biggest takeaway. The Bitcoin capital markets are still in their early stages, but the opportunity to put Bitcoin to work through staking, collateral, and decentralized financial applications is still worth paying attention to. Stacks is attempting to build-"
+   }
+  ],
+  "words": [
+   {
+    "text": "help",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 0.1,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.26,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "determine",
+    "start": 0.38,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whether",
+    "start": 0.88,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.12,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 1.24,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.62,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "beginning",
+    "start": 1.74,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.14,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "validate",
+    "start": 2.28,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 2.74,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 2.86,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here's",
+    "start": 2.96,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 3.14,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 3.28,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "takeaway.",
+    "start": 3.56,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 3.94,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.059,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital",
+    "start": 4.5,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "markets",
+    "start": 4.88,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.26,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 5.44,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.64,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 5.74,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 5.92,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stages,",
+    "start": 6.26,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 6.96,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.06,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opportunity",
+    "start": 7.24,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.82,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 7.92,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.18,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.54,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "work",
+    "start": 8.7,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 9.0,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "staking,",
+    "start": 9.3,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "collateral,",
+    "start": 9.9,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.46,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decentralized",
+    "start": 10.6,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 11.24,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "applications",
+    "start": 11.76,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.56,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 12.74,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 12.94,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "paying",
+    "start": 13.16,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attention",
+    "start": 13.32,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to.",
+    "start": 13.78,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Stacks",
+    "start": 14.14,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.48,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attempting",
+    "start": 14.62,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.06,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "build-",
+    "start": 15.22,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.4
+ },
+ "usd": 0.00308,
+ "seconds": 1.42,
+ "recorded_at": "2026-11-13T14:58:51Z"
+}

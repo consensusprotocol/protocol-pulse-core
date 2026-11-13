@@ -1,0 +1,12 @@
+=== 09:52:46 EST LEDGER medley build, code a952cb32+6cb301cbf6ca, now (render clock) 2026-11-13T14:52:46+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 72.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 936 rows ({"hard exclusion flag (L-u)": 286, "altcoin or not about Bitcoin": 125, "speaker change inside (caption marker)": 34})
+  word pass: {"rows": 1479, "unreadable": 0, "ready": 998, "not_ready": 151, "failed": 0, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 936: 587 moments on 49 videos (520 word records); 1 rows wait for a word record, 116 wait for their own window, 176 do not re-anchor, 0 malformed, 56 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 728 window record(s) used (0 video(s) without a caption record for L-s)
+  spend (ruling 48): $6.10 of $12.00 vendor-reported before this build (no build starts at $10.00)
+  265 usable, 2 of them the same speech re-posted by a second channel (ruling 53: the original publisher's kept), 166 left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen; 52 of them back as variants with ONE leading word trimmed, ruling 33 part 2), 2 on an ad-read marker (the exclusion screen's deterministic part), 12 cleared step A (330 s)
+  7 of them pass the second recognition pass and CUTTABLE (357 s)
+  4 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  0 of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, a verdict off it exists) (557 s)
+no package (0 cleared moments pass the second pass, CUTTABLE and step A from both vendors, from fewer than 3 channels); usable 265, cleared 12
+  spend (ruling 48): $6.21 of $12.00 vendor-reported after this build (before it: $6.10)

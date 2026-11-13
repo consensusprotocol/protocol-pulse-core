@@ -1,0 +1,356 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "3a09038cc38bdefaef26bd327aa709d1709c110d66c277227fc9e3f4968796cd",
+ "result": {
+  "text": "Not gonna see the early cycle gains where we go up 100 X or something like that. I do think there's a tremendous... Like I said, Bitcoin's at a $1.5 trillion market cap. I believe it's worth 30 to 40 trillion at a minimum. There's a lot of price performance there. Now, I do think-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.08,
+    "text": "Not gonna see the early cycle gains where we go up 100 X or something like that. I do think there's a tremendous... Like I said, Bitcoin's at a $1.5 trillion market cap. I believe it's worth 30 to 40 trillion at a minimum. There's a lot of price performance there. Now, I do think-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Not",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 0.08,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 0.28,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.44,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 0.62,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle",
+    "start": 1.08,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gains",
+    "start": 1.46,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 1.74,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.84,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 1.92,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 2.0,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100",
+    "start": 2.18,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "X",
+    "start": 2.6,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 2.68,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 2.78,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 3.08,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 3.26,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.019,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 4.14,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.3,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 4.44,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.62,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tremendous...",
+    "start": 4.74,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 5.22,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.38,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said,",
+    "start": 5.46,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 5.64,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.96,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.04,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$1.5",
+    "start": 6.08,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion",
+    "start": 6.62,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 7.08,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cap.",
+    "start": 7.34,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.06,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 8.14,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.3,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 8.44,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30",
+    "start": 8.72,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "40",
+    "start": 9.06,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion",
+    "start": 9.2,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 9.98,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.08,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "minimum.",
+    "start": 10.16,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 11.18,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.36,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 11.44,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.6,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 11.7,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "performance",
+    "start": 11.94,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 12.42,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 12.8,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.78,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 13.9,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think-",
+    "start": 14.02,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.1
+ },
+ "usd": 0.00282,
+ "seconds": 1.33,
+ "recorded_at": "2026-11-13T14:58:54Z"
+}
