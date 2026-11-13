@@ -1,4 +1,34 @@
-SPEND (ruling 48): $5.26 of $12.00 vendor-reported before the 07:14 build (+ the estimate where a vendor reports none; no build starts at $10). 07:19 ET: BUILDING. The 07:14 build runs 45 + 44 + item 42's cut fix + ruling 48 (13 cleared step A again). Ruling 49 is committed (6a36025a), so the next build seals trimmed clips with the scorer's verdict pending. No pin yet.
+SPEND (ruling 48): $5.85 of $12.00 vendor-reported after the 07:14 build (+ the estimate where a vendor reports none; no build starts at $10). 07:37 ET: no pin yet. The 07:14 build gave NO LINE-UP (cause below). The next build carries ruling 49 (6a36025a) and the one-token fix (60f2eaed). Two proposals for you below.
+
+## 07:37 ET: the 07:14 build (code e8c622b8): no line-up; the measured cause, and two proposals
+
+Record: tests/package/proof/ledger_20261113_121442. It ran 45 + 44 + item 42's cut fix + ruling 48 (not yet 49).
+- **The funnel:**
+  - 173 usable; 113 left out by STAND_ALONE (34 back as trimmed variants);
+  - 13 cleared step A (90 s): ruling 48's guard works, with no SpendLimit;
+  - 9 pass L-v 2 + CUTTABLE; 6 can open;
+  - **7 clear step A from BOTH vendors (45)**: Heimdall refused 1 (NOT_OWN_SINCERE), and 1 trim failed its cut
+    ("So if": co-articulated).
+- **The angle step took until 1277 s:** deepseek and qwen both missed 300 s, then Grok answered (item 46 again).
+  The second-vendor screen took about 8 min for one 8-excerpt Heimdall call.
+- **NO LINE-UP in any of the 3 angles, so nothing was judged ($0.58 reported for the whole build).** Measured:
+  - Grok built all 3 angles from the SAME 4 of the 7 clips. The Bitcoin Layer (4.8 s), What Bitcoin Did ("I will bet
+    you one Bitcoin that RSA...", 9.46 s) and Bitcoin Mechanic (7.26 s) were offered and never used.
+  - Two of those 4 are the SAME SPEECH on two channels: CNBC Television (13.94 s) and Strategy (MicroStrategy), which
+    re-posted the CNBC interview (13.82 s): "I don't really think Bitcoin and crypto are partisan issues...".
+  - The 4 cannot form a line-up:
+    - hook 8.76 s + the two copies = 36.52 s, short of the 36.7 s floor (and the same speech twice);
+    - the 6.93 s clip may only play LAST, but the proposer placed it mid-order.
+  - Ruling 41's search swaps only after a JUDGED line-up fails, so a "no line-up" angle never reaches it.
+- **The trim "So MSCI didn't force..." failed step A this time (REFERENT_OUTSIDE)** after clearing it at 05:48. Its
+  batch differed, and the fresh verdict differed.
+- **Proposal 1 (yours to rule):** when an angle's own moments cannot form any line-up, complete it from the WHOLE
+  cleared pool by score. That is ruling 41's swap applied to the missing places, with the angle's hook and play order
+  kept and every line-up rule unchanged. Here, adding any of the three unused clips would have reached the seconds.
+- **Proposal 2 (yours to rule):** the same speech re-posted by a second channel (equal text, different channel)
+  counts as ONE moment before the angle step, keeping the original publisher's. Without it, the angle writer keeps
+  building on the pair.
+
 
 ## 07:19 ET: rulings 48 and 49 are committed (audits 0707 and 0712, 2 cycles each); the chain builds
 

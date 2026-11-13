@@ -1,0 +1,14 @@
+=== 07:14:42 EST LEDGER medley build, code e8c622b8+155278e09fcb, now (render clock) 2026-11-13T12:14:42+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 521 rows ({"altcoin or not about Bitcoin": 36, "hard exclusion flag (L-u)": 118, "speaker change inside (caption marker)": 28})
+  word pass: {"rows": 1358, "unreadable": 0, "ready": 883, "not_ready": 145, "failed": 102, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 521: 308 moments on 21 videos (308 word records); 19 rows wait for a word record, 78 wait for their own window, 80 do not re-anchor, 0 malformed, 36 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 424 window record(s) used (0 video(s) without a caption record for L-s)
+  spend (ruling 48): $5.26 of $12.00 vendor-reported before this build (no build starts at $10.00)
+  173 usable, 113 of them left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen; 34 of them back as variants with ONE leading word trimmed, ruling 33 part 2), 1 on an ad-read marker (the exclusion screen's deterministic part), 13 cleared step A (90 s)
+  9 of them pass the second recognition pass and CUTTABLE (95 s)
+  6 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  7 of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, a verdict off it exists) (572 s)
+  3 angles from xai:grok-4.20-0309-reasoning (1277 s)
+  search: 0 line-up(s) of 8, $0.58 reported / $1.38 estimate (ruling 41: $3.00 reported per build)
+no package (no angle gave a package: angle 1: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules); usable 173, cleared 13
+  spend (ruling 48): $5.85 of $12.00 vendor-reported after this build (before it: $5.26)
