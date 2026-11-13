@@ -548,17 +548,19 @@ def _refuse_foreign(what):
     f = foreign()
     if not f:
         return
+    b = getattr(_tls, "foreign_wait_s", None)                          # ollama_call: the caller's bound
+    bound = FOREIGN_WAIT_S if b is None else min(FOREIGN_WAIT_S, b)
     t0, first = time.time(), describe(f)
     g = current_gpu()
-    print(f"  GPU{g}: {what}: a foreign GPU{g} user, waiting it out (L-r 4, up to {FOREIGN_WAIT_S}s): {first}", flush=True)
-    while f and time.time() - t0 < FOREIGN_WAIT_S:
+    print(f"  GPU{g}: {what}: a foreign GPU{g} user, waiting it out (L-r 4, up to {bound}s): {first}", flush=True)
+    while f and time.time() - t0 < bound:
         time.sleep(FOREIGN_POLL_S)
         f = foreign()
     waited = round(time.time() - t0, 1)
     _events.append({"key": "foreign_wait", "gpu": g, "what": what, "foreign": first, "waited_s": waited, "left": not f})
     if f:
         raise Gpu0Foreign(f"{what}: GPU{g} is used by something that is not this run's, still there after a "
-                          f"{FOREIGN_WAIT_S}s wait: {describe(f)}")
+                          f"{bound}s wait: {describe(f)}")
     print(f"  GPU{g}: {what}: the foreign user left after {waited}s; proceeding", flush=True)
 
 
@@ -682,6 +684,8 @@ def ollama_call(gpu, model, path, body, owner, wait_s=600.0, timeout=300):
     with _on(gpu):
         if not _call_locks[gpu].acquire(timeout=max(0.0, float(wait_s))):
             raise LeaseBusy(f"{owner}: another call of this process has held GPU{gpu} for longer than {wait_s}s")
+        prev_bound = getattr(_tls, "foreign_wait_s", None)
+        _tls.foreign_wait_s = float(wait_s)                              # and the foreign wait-out
         try:
             with lease(owner, wait_s=wait_s, poll_s=1.0):
                 swap_to(key, wait_s=min(WAIT_S, float(wait_s)))          # the caller's bound covers the memory wait too
@@ -693,6 +697,7 @@ def ollama_call(gpu, model, path, body, owner, wait_s=600.0, timeout=300):
                     if mine:
                         _ollama_unload(mine)                     # keep_alive 0 asked; this confirms it on /api/ps
         finally:
+            _tls.foreign_wait_s = prev_bound
             _call_locks[gpu].release()
 
 

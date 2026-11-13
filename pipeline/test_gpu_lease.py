@@ -161,6 +161,15 @@ class TestForeignWaitedOutThenNamed(Gpu1Box):
         ev = [e for e in gpu0.events() if e.get("key") == "foreign_wait"][-1]
         self.assertEqual((ev["gpu"], ev["left"]), (1, False))
 
+    def test_an_ollama_callers_bound_also_bounds_the_foreign_wait(self):
+        self.procs[:] = [(424242, "python3", 9000)]                    # a stray user: the module would wait 600 s ...
+        t0 = time.time()
+        with mock.patch.object(gpu0, "FOREIGN_WAIT_S", 600), mock.patch.object(gpu0, "FOREIGN_POLL_S", 0.05), \
+                self.assertRaisesRegex(gpu0.Gpu0Foreign, "still there after a 0.5s wait"):
+            gpu0.ollama_call(1, "qwen3-coder:30b", "/api/chat", {}, "t", wait_s=0.5)   # ... the caller allows 0.5 s
+        self.assertLess(time.time() - t0, 5)
+        self.assertIsNone(getattr(gpu0._tls, "foreign_wait_s", None))  # restored: the module's own wait elsewhere
+
     def test_a_foreign_process_that_leaves_during_the_wait_is_not_held(self):
         self.procs[:] = [(424242, "python3", 9000)]
         threading.Timer(0.2, lambda: self.procs.clear()).start()
