@@ -1,4 +1,38 @@
-FRESH PIN READY: tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json (moments-ledger_20261113_073738-d2657bbe). The integrator's check_pin_only says READY. Sent to the integrator at 02:54 ET. Clip 2 (WTCwyxW-lHk) is time-sensitive and must render before 12:42 ET today (L-v 3: 24 h on the render clock).
+NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), before any render: STAND_ALONE failed clip_01 and clip_02, which both open on "But". The pin stage now runs that exact check (change A, audited, committed with this line; see below). Builds re-run on committed code only.
+
+
+## 03:16 ET: the 03:12 rulings, status (one audited change each; the integrator's render must change for 33, 34 and 37)
+
+| ruling | my side (the pin stage) | render side (the integrator, main tree) |
+|---|---|---|
+| 33, part 1: run stage_validate's STAND_ALONE at the pin stage | DONE: change A (audit 0310, 2 cycles). The check is stand_alone.check_edl, byte-identical to main's, with no scorer. | none |
+| 33, part 2: trim ONE leading but/and/so/well/now/yeah | NOT STARTED: it cannot render yet. | BLOCKED. G16 / write_lock_cut_table lock WHOLE sentences, so a trimmed clip is held. Their STAND_ALONE scorer must also be asked about trimmed clips. The integrator agrees with the shape (pin carries trimmed_leading and the untrimmed sentence start; the IN cut sits in the measured pause), but builds it only on YOUR order. |
+| 34: no_bitcoin regex retired for clips; the medley names Bitcoin once | NOT STARTED (a no-op until the render changes). | BLOCKED: their stand_alone.topical requires EVERY segment to name Bitcoin. The integrator needs your order. |
+| 35: too_many_sentences retired | in audit (0335, cycle 1 done). | none: no sentence cap in run_fresh, pinned, sentence_law, editorial_gate or edl_rules. |
+| 36: layout_ineligible stays | no change | none |
+| 37: a question ending allowed in the HOOK role only | NOT STARTED (a no-op until the render changes). | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
+| 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | next | none (mine) |
+| 39: OUT edge, the L-v 2 number canonicaliser | next | none (mine) |
+| 32: snap outward to whole sentences, <= 20 s, one speaker | after 38 and 39 | none (mine) |
+| 40: the miner's "imperative" label | yours to pp-ingest | - |
+
+- **Order.** You ordered 33, 34, 35, then a rebuild. 33's trim and 34 cannot produce a renderable pin until the
+  integrator has your order. So I rebuild after change A + 35, then do 38, 39 and 32 (all mine, all effective at once),
+  and do 33's trim, 34 and 37 when the render side is ordered. Say so if you want otherwise.
+- **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
+  (merged at 785c374a, per the integrator).
+
+### Change A (ruling 33 part 1, audit 0310)
+
+- package.stand_alone_check runs check_edl(rate=None) with subject bitcoin/btc on every candidate line-up
+  (lineup_for(need_stand_alone=True)).
+- A sealed "stand_alone" gate row is required for a medley (package_pin.MEDLEY_GATES).
+- A moment that opens on a conjunction or reply fragment can be neither a clip (no scorer here: fail closed) nor a
+  hook. It is left out before any vendor call (out["no_role"]).
+- On the held pin's texts it gives the render's own verdicts: hook PASS, clip_01 FAIL, clip_02 FAIL.
+- d2657bbe cannot be re-sealed: without its two "But" clips, 16.4 s from 2 channels remain.
+
+(The status line before this was "FRESH PIN READY: d2657bbe", 02:54-03:00 ET.)
 
 
 ## 02:56 ET: FUNNEL TABLE (orchestrator 02:45 item 1)

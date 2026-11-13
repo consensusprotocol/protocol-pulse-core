@@ -1,0 +1,277 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 74ea177c..34d800de 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -553,7 +553,34 @@ def check_angles(obj, by_id, k=MAX_ANGLES):
+     return out
+ 
+ 
+-def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False):
++def stand_alone_check(segs):
++    """The render's STAND_ALONE (main run_fresh.stage_validate -> stand_alone.check_edl) on one line-up, at the pin stage
++    (the integrator held pin d2657bbe on it, 03:00 ET Nov 13): the hook, then the clips in play order (clip_01, ...), the
++    subject Bitcoin (run_fresh.stand_alone_subject for a pinned moments package labelled 'bitcoin'), and NO clip scorer.
++    The render's scorer is a local model on GPU0, which this stage may not use, so a clip that opens on a conjunction or
++    a reply fragment fails closed here, as check_edl does without one: never sealed for the scorer to rescue.
++    check_edl's verdict reads only each segment's text, the subject and rate (channel and duration feed only the
++    scorer's passages, unused with rate=None; the labels come from the order). The subject is fixed because
++    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1)."""
++    import stand_alone as SA
++    edl = {"hook": {"text": segs[0]["text"], "channel": segs[0].get("channel_name")},
++           "clips": [{"index": i, "text": m["text"], "channel": m.get("channel_name"), "duration": m.get("duration_s")}
++                     for i, m in enumerate(segs[1:], 1)]}
++    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"))
++
++
++def no_role_on_screen(m):
++    """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
++    opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
++    it), else None. build() leaves such moments out before any vendor call."""
++    import stand_alone as SA
++    c_ok, c_why = SA.opener("clip", m.get("text"))
++    h_ok, h_why = SA.opener("hook", m.get("text"))
++    return None if (c_ok or h_ok) else f"the render's STAND_ALONE with no clip scorer at the pin stage: {c_why}; {h_why}"
++
++
++def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False,
++               need_stand_alone=False):
+     """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
+     medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
+     angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
+@@ -563,7 +590,8 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
+     seconds nearest the middle of crange. repeat_ok (L-y 4, only when one clip per channel cannot fill the runtime):
+     ONE channel may give two clips, from two different videos. need_onset (build() sets it): a moment opens the
+     medley only if its hook onset was measured and passed (hook_onset_for, G17a at the pin stage); the proposer's hook
+-    gives way to the angle's next one that did. None if impossible."""
++    gives way to the angle's next one that did. need_stand_alone (build() sets it): every line-up must pass the render's
++    STAND_ALONE (stand_alone_check). None if impossible."""
+     lo, hi = crange or medley_content_range()
+     pos = {m: i for i, m in enumerate(angle["moments"])}
+     ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
+@@ -588,6 +616,8 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
+                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
+                 if not lo <= dur <= hi:
+                     continue
++                if need_stand_alone and not stand_alone_check([h] + order)["ok"]:
++                    continue
+                 key = (-sum(pos[m["moment_id"]] for m in order), -abs(dur - (lo + hi) / 2))
+                 if best is None or key > best[0]:
+                     best = (key, [h] + order)
+@@ -991,15 +1021,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     t0 = time.time()
+     usd0 = _spent(spend)
+     ms, why = usable(moments, ctx, delivered, optout)
++    n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
++    no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m)] if r}
++    ms = [m for m in ms if m["moment_id"] not in no_role]
+     wv, wf = _writers(router)
+     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     levels = current_levels(sources.values(), ctx)
+-    out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
++    out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
++           "no_role": no_role,
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+-    log(f"  {len(ms)} usable, {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
++    log(f"  {n_usable} usable, {len(no_role)} of them left out (they open on a conjunction or reply fragment, which "
++        f"the render's STAND_ALONE fails with no clip scorer), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+         return out
+@@ -1144,7 +1179,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab, {k: v for k, (v, _) in got.items()},
+                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
+                                 shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+-                                hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"))
++                                hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
++                                stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]))
+         import package_pin
+         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+         if problems:
+@@ -1167,9 +1203,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             while n_lineup < lineups and not out["packages"] and not out.get("budget_stop"):
+                 if over_budget(ai):
+                     break
+-                segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True), None
++                segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
++                                             need_stand_alone=True), None
+                 if segs is None:                          # L-y 4: one clip per channel unless the supply forces otherwise
+-                    segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True)
++                    segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True,
++                                     need_stand_alone=True)
+                     if segs is not None:
+                         rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs)
+                                if sum(m["channel_id"] == c for m in segs) > 1]
+@@ -1319,7 +1357,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
+                                             ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
+                                             style=HS.lint_lines(pk["lines"]),
+-                                            hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"))
++                                            hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
++                                            stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]))
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
+@@ -1378,12 +1417,14 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+-              hook=None):
++              hook=None, stand=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
+     (shape=(ok, [why]) from ly_shape()). hook: the hook moment's hook_onset record -> the "hook_onset" row (G17a at
+-    the pin stage, required for a medley: package_pin.MEDLEY_GATES); None leaves it out, which refuses the pin."""
++    the pin stage, required for a medley: package_pin.MEDLEY_GATES); None leaves it out, which refuses the pin.
++    stand: stand_alone_check() of the package's segments in play order -> the "stand_alone" row (the render's
++    STAND_ALONE at the pin stage, required for a medley); None leaves it out, which refuses the pin."""
+     row = lambda ok, by, replayed=False, n=1, measured=True: {
+         "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
+         "replayed": replayed if isinstance(replayed, bool) else None, "n": n}     # None (unstated) refuses the pin
+@@ -1443,4 +1484,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                    "on the source audio: G17a at the pin stage)", measured=hook.get("measured") is True),
+                                lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"))}
+            if hook is not None else {}),
++        **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
++                                    "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
++                                rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
++                                      f"topic: {r['topic']['why']}" for r in stand.get("rows") or []])}
++           if stand is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index d975d12f..6c15c3b0 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -26,9 +26,10 @@ from datetime import datetime, timezone
+ SCHEMA = "protocol_pulse.pinned_story.v1"
+ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
+                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
+-MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset")   # hook_onset: G17a at the pin stage, after
+-                                                                      # batch pin #1's render hold (01:39 ET Nov 13)   # L-y (20:30): the clips-alone verdict, the medley's shape;
+-                                                         # ruling 6 (22:40): PBX's copy rules on every line
++# L-y (20:30): the clips-alone verdict and the medley's shape; ruling 6 (22:40): PBX's copy rules on every line;
++# hook_onset: G17a at the pin stage, after batch pin #1's render hold (01:39 ET Nov 13); stand_alone: the render's
++# STAND_ALONE at the pin stage, after pin d2657bbe's hold at the integrator's validate (03:00 ET Nov 13)
++MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone")
+ 
+ 
+ def required_gates(pk):
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 6501f65f..0193b7a9 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -368,14 +368,15 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+ 
+     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
+         pk = self.build()
+-        self.assertEqual(package_pin.required_gates(pk)[-4:], ("medley", "ly_shape", "house_style", "hook_onset"))
++        self.assertEqual(package_pin.required_gates(pk)[-5:], ("medley", "ly_shape", "house_style", "hook_onset",
++                                                               "stand_alone"))
+         pk["gates"] = self.gates(pk)
+         pin = package_pin.to_pin(spk(pk), "test")
+         mp = pin["moments_package"]
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
+         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
+         self.assertEqual(mp["shape"], "medley")
+-        for missing in ("medley", "ly_shape", "house_style", "hook_onset"):
++        for missing in ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"):
+             g = self.gates(pk)
+             g.pop(missing)
+             with self.assertRaises(package_pin.PinRefused):
+@@ -643,6 +644,83 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertEqual(pk["gates"]["ly_shape"]["status"], "PASS")
+ 
+ 
++class TestStandAloneAtThePinStage(unittest.TestCase):
++    """The render's STAND_ALONE (main run_fresh.stage_validate -> stand_alone.check_edl) at the pin stage, after the
++    integrator held pin d2657bbe on it (03:00 ET Nov 13): no clip scorer here (it is a local model on GPU0), so a clip
++    opening on a conjunction or reply fragment fails closed, and no line-up the render would hold is sealed."""
++
++    HOOK = ("Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin "
++            "wins, open source wins.")
++    BUT1 = "But we have very rarely in Bitcoin's history seen six negative weeks back to back. I think that was six."
++    BUT2 = ("But then if someone doesn't understand Bitcoin and you drop 25 % of their portfolio in Bitcoin and Bitcoin "
++            "goes down 50%. You get fired and they sell their Bitcoin.")
++
++    def test_it_gives_the_renders_verdicts_on_the_held_pin_d2657bbe(self):
++        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": self.BUT1}, {"text": self.BUT2}])
++        self.assertFalse(r["ok"])
++        self.assertEqual([(x["segment"], x["pass"]) for x in r["rows"]],     # the render's run_log.txt lines 47-49
++                         [("hook", True), ("clip_01", False), ("clip_02", False)])
++        self.assertIn("clip opens on 'but'", r["rows"][1]["opener"]["why"])
++        self.assertEqual(r["subject"], ["bitcoin", "btc"])
++
++    def test_a_moment_opening_on_a_conjunction_or_reply_fragment_has_no_role(self):
++        for t in (self.BUT1, "And Bitcoin is money.", "Yeah, Bitcoin is money.", "Well, Bitcoin is money."):
++            self.assertIn("STAND_ALONE", PK.no_role_on_screen({"text": t}) or "", t)
++        for t in ("I think Bitcoin is money.", "Bitcoin is money.", "It is Bitcoin."):   # a pronoun opens a clip
++            self.assertIsNone(PK.no_role_on_screen({"text": t}), t)
++
++    def test_no_line_up_holds_a_clip_the_render_would_hold(self):
++        by = {m["moment_id"]: m for m in (dict(pm("h", "A", 12.0), text=self.HOOK), dict(pm("b", "B", 14.0), text=self.BUT1),
++                                          dict(pm("x", "C", 13.0), text="Bitcoin x."),
++                                          dict(pm("y", "D", 13.0), text="Bitcoin y."))}
++        a = angle(["h", "b", "x", "y"], "h")
++        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by)], ["h", "b", "x"])     # the old pick
++        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by, need_stand_alone=True)], ["h", "x", "y"])
++        no_subject = dict(by, y=dict(by["y"], text="Gold is money."), x=dict(by["x"], text="Gold x."))
++        self.assertIsNone(PK.lineup_for(a, no_subject, need_stand_alone=True))   # topical: no clip names Bitcoin
++
++    def test_a_pronoun_hook_gives_way_to_the_next_hook(self):
++        by = {m["moment_id"]: m for m in (dict(pm("p", "A", 12.0), text="It is the hardest money. Bitcoin is."),
++                                          dict(pm("h", "B", 12.0), text=self.HOOK), dict(pm("x", "C", 14.0), text="Bitcoin x."),
++                                          dict(pm("y", "D", 13.0), text="Bitcoin y."))}
++        a = angle(["p", "h", "x", "y"], "p")
++        self.assertEqual(PK.lineup_for(a, by)[0]["moment_id"], "p")
++        self.assertEqual(PK.lineup_for(a, by, need_stand_alone=True)[0]["moment_id"], "h")
++
++    def test_build_leaves_no_role_moments_out_before_the_angle_and_seals_the_row(self):
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
++              dict(pm("b", "E", 13.0), text=self.BUT1)]
++        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(list(out["no_role"]), ["b"])
++        self.assertIn("clip opens on 'but'", out["no_role"]["b"])
++        self.assertFalse(any("id=b " in p for role, p in rig.prompts if role == "angle_write"))
++        g = out["package"]["gates"]["stand_alone"]
++        self.assertEqual(g["status"], "PASS")
++        self.assertEqual(len(g["rows"]), 3)
++
++    def test_inventory_writes_a_FAIL_row_with_its_evidence(self):     # audit 0310 C1, glm P1-3
++        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": "Bitcoin x."}, {"text": self.BUT2}])
++        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True}, "verdict": {"ok": True},
++               "backend": "x", "replayed": False, "measured": True}
++        g = PK.inventory(fid, [], True, (True,), {"ok": True, "measured": True, "replayed": False}, {}, {}, {}, True,
++                         {"measured": True, "replayed": False}, stand=r)["stand_alone"]
++        self.assertEqual(g["status"], "FAIL")
++        self.assertEqual([x.split(":")[0] for x in g["rows"]], ["hook", "clip_01", "clip_02"])
++        self.assertIn("clip_02: FAIL opener: clip opens on 'but'", g["rows"][2])
++        self.assertNotIn("stand_alone", PK.inventory(fid, [], True, (True,), {"ok": True, "measured": True,
++                                                                                 "replayed": False}, {}, {}, {}, True,
++                                                         {"measured": True, "replayed": False}))
++
++    def test_the_row_fails_and_the_pin_is_refused_when_a_clip_opens_on_a_conjunction(self):
++        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": "Bitcoin x."}, {"text": self.BUT2}])
++        self.assertFalse(r["ok"])
++        pk = {"shape": "medley"}
++        gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
++        gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
++        self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
++
++
+ class TestNoVoiceRealGates(unittest.TestCase):
+     """Audit 2240 C2 (glm N8): a no-voice package through the REAL VO-fidelity and context-integrity decisions (canned
+     model replies, no stubbed gate): every required row, the medley rows included, exactly PASS, and the pin is
+@@ -692,7 +770,8 @@ class TestNoVoiceRealGates(unittest.TestCase):
+         coh = dict(med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
+         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
+                                    shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+-                                   hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"})
++                                   hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"},
++                                   stand=PK.stand_alone_check(pk["segments"]))
+         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
+         mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
+         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))

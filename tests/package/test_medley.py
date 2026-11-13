@@ -368,14 +368,17 @@ class TestMedleyPackageAndPin(unittest.TestCase):
 
     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
         pk = self.build()
-        self.assertEqual(package_pin.required_gates(pk)[-4:], ("medley", "ly_shape", "house_style", "hook_onset"))
+        self.assertEqual(package_pin.required_gates(pk)[-5:], ("medley", "ly_shape", "house_style", "hook_onset",
+                                                               "stand_alone"))
         pk["gates"] = self.gates(pk)
         pin = package_pin.to_pin(spk(pk), "test")
+        self.assertEqual(pin["label"], "bitcoin")     # the render's STAND_ALONE subject rests on it (audit 0310 C2)
+        self.assertNotIn("stand_alone", package_pin.required_gates({"shape": "story"}))   # medleys only (glm P2-1)
         mp = pin["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
         self.assertEqual(mp["shape"], "medley")
-        for missing in ("medley", "ly_shape", "house_style", "hook_onset"):
+        for missing in ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"):
             g = self.gates(pk)
             g.pop(missing)
             with self.assertRaises(package_pin.PinRefused):
@@ -643,6 +646,83 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(pk["gates"]["ly_shape"]["status"], "PASS")
 
 
+class TestStandAloneAtThePinStage(unittest.TestCase):
+    """The render's STAND_ALONE (main run_fresh.stage_validate -> stand_alone.check_edl) at the pin stage, after the
+    integrator held pin d2657bbe on it (03:00 ET Nov 13): no clip scorer here (it is a local model on GPU0), so a clip
+    opening on a conjunction or reply fragment fails closed, and no line-up the render would hold is sealed."""
+
+    HOOK = ("Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin "
+            "wins, open source wins.")
+    BUT1 = "But we have very rarely in Bitcoin's history seen six negative weeks back to back. I think that was six."
+    BUT2 = ("But then if someone doesn't understand Bitcoin and you drop 25 % of their portfolio in Bitcoin and Bitcoin "
+            "goes down 50%. You get fired and they sell their Bitcoin.")
+
+    def test_it_gives_the_renders_verdicts_on_the_held_pin_d2657bbe(self):
+        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": self.BUT1}, {"text": self.BUT2}])
+        self.assertFalse(r["ok"])
+        self.assertEqual([(x["segment"], x["pass"]) for x in r["rows"]],     # the render's run_log.txt lines 47-49
+                         [("hook", True), ("clip_01", False), ("clip_02", False)])
+        self.assertIn("clip opens on 'but'", r["rows"][1]["opener"]["why"])
+        self.assertEqual(r["subject"], ["bitcoin", "btc"])
+
+    def test_a_moment_opening_on_a_conjunction_or_reply_fragment_has_no_role(self):
+        for t in (self.BUT1, "And Bitcoin is money.", "Yeah, Bitcoin is money.", "Well, Bitcoin is money."):
+            self.assertIn("STAND_ALONE", PK.no_role_on_screen({"text": t}) or "", t)
+        for t in ("I think Bitcoin is money.", "Bitcoin is money.", "It is Bitcoin."):   # a pronoun opens a clip
+            self.assertIsNone(PK.no_role_on_screen({"text": t}), t)
+
+    def test_no_line_up_holds_a_clip_the_render_would_hold(self):
+        by = {m["moment_id"]: m for m in (dict(pm("h", "A", 12.0), text=self.HOOK), dict(pm("b", "B", 14.0), text=self.BUT1),
+                                          dict(pm("x", "C", 13.0), text="Bitcoin x."),
+                                          dict(pm("y", "D", 13.0), text="Bitcoin y."))}
+        a = angle(["h", "b", "x", "y"], "h")
+        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by)], ["h", "b", "x"])     # the old pick
+        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by, need_stand_alone=True)], ["h", "x", "y"])
+        no_subject = dict(by, y=dict(by["y"], text="Gold is money."), x=dict(by["x"], text="Gold x."))
+        self.assertIsNone(PK.lineup_for(a, no_subject, need_stand_alone=True))   # topical: no clip names Bitcoin
+
+    def test_a_pronoun_hook_gives_way_to_the_next_hook(self):
+        by = {m["moment_id"]: m for m in (dict(pm("p", "A", 12.0), text="It is the hardest money. Bitcoin is."),
+                                          dict(pm("h", "B", 12.0), text=self.HOOK), dict(pm("x", "C", 14.0), text="Bitcoin x."),
+                                          dict(pm("y", "D", 13.0), text="Bitcoin y."))}
+        a = angle(["p", "h", "x", "y"], "p")
+        self.assertEqual(PK.lineup_for(a, by)[0]["moment_id"], "p")
+        self.assertEqual(PK.lineup_for(a, by, need_stand_alone=True)[0]["moment_id"], "h")
+
+    def test_build_leaves_no_role_moments_out_before_the_angle_and_seals_the_row(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              dict(pm("b", "E", 13.0), text=self.BUT1)]
+        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(list(out["no_role"]), ["b"])
+        self.assertIn("clip opens on 'but'", out["no_role"]["b"])
+        self.assertFalse(any("id=b " in p for role, p in rig.prompts if role == "angle_write"))
+        g = out["package"]["gates"]["stand_alone"]
+        self.assertEqual(g["status"], "PASS")
+        self.assertEqual(len(g["rows"]), 3)
+
+    def test_inventory_writes_a_FAIL_row_with_its_evidence(self):     # audit 0310 C1, glm P1-3
+        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": "Bitcoin x."}, {"text": self.BUT2}])
+        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True}, "verdict": {"ok": True},
+               "backend": "x", "replayed": False, "measured": True}
+        g = PK.inventory(fid, [], True, (True,), {"ok": True, "measured": True, "replayed": False}, {}, {}, {}, True,
+                         {"measured": True, "replayed": False}, stand=r)["stand_alone"]
+        self.assertEqual(g["status"], "FAIL")
+        self.assertEqual([x.split(":")[0] for x in g["rows"]], ["hook", "clip_01", "clip_02"])
+        self.assertIn("clip_02: FAIL opener: clip opens on 'but'", g["rows"][2])
+        self.assertNotIn("stand_alone", PK.inventory(fid, [], True, (True,), {"ok": True, "measured": True,
+                                                                                 "replayed": False}, {}, {}, {}, True,
+                                                         {"measured": True, "replayed": False}))
+
+    def test_the_row_fails_and_the_pin_is_refused_when_a_clip_opens_on_a_conjunction(self):
+        r = PK.stand_alone_check([{"text": self.HOOK}, {"text": "Bitcoin x."}, {"text": self.BUT2}])
+        self.assertFalse(r["ok"])
+        pk = {"shape": "medley"}
+        gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
+        gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
+        self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+
+
 class TestNoVoiceRealGates(unittest.TestCase):
     """Audit 2240 C2 (glm N8): a no-voice package through the REAL VO-fidelity and context-integrity decisions (canned
     model replies, no stubbed gate): every required row, the medley rows included, exactly PASS, and the pin is
@@ -692,7 +772,8 @@ class TestNoVoiceRealGates(unittest.TestCase):
         coh = dict(med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
                                    shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]),
-                                   hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"})
+                                   hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"},
+                                   stand=PK.stand_alone_check(pk["segments"]))
         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
         mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))

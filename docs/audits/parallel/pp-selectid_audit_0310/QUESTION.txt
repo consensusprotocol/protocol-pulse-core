@@ -1,0 +1,55 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips:
+a hook and 2-4 clips from other channels, played back to back, then one spoken takeaway). This branch BUILDS sealed
+"pins"; another session (the integrator) renders them with the main pipeline, whose validate stage runs extra checks.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why this change: the integrator HELD pin d2657bbe at its validate stage (03:00 ET Nov 13), before any render, on the
+main pipeline's STAND_ALONE check (main pipeline/run_fresh.py stage_validate -> stand_alone.check_edl):
+  STAND_ALONE hook:    [PASS] opener: opens on 'bitcoin' | topic: names the subject (bitcoin)
+  STAND_ALONE clip_01: [FAIL] opener: clip opens on 'but'; the clip scorer does not affirm it stands alone (3.0, fault other)
+  STAND_ALONE clip_02: [FAIL] opener: clip opens on 'but'; the clip scorer does not affirm it stands alone (3.0, fault other)
+This branch's pin-stage gates did not run that check. pipeline/stand_alone.py on this branch is byte-identical to the
+main pipeline's at the render's commit. In the render, check_edl gets rate = a CLIP SCORER that is a local model on
+the GPU (Ollama, GPU0); this branch's session may not use any GPU. check_edl with rate=None fails closed: a clip that
+opens on a conjunction or a reply fragment FAILS when no scorer verdict is available. The render's subject for a
+pinned moments package labelled 'bitcoin' is stand_alone.subject_terms("", "bitcoin") = {bitcoin, btc}.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass (adding a stricter pre-check is allowed);
+- the pin stage must never seal a line-up that the render's own checks would hold.
+
+The change:
+1. pipeline/package.py:
+   - stand_alone_check(segs): stand_alone.check_edl on the line-up (hook, then clip_01.. in play order), rate=None,
+     subject {bitcoin, btc}. With no scorer, a conjunction or reply-fragment clip opener fails closed: stricter than
+     the render, which may let its scorer affirm such a clip.
+   - no_role_on_screen(m): a moment whose opener fails BOTH as a clip (no scorer) and as a hook (stand_alone.opener)
+     can take no place in any line-up. build() leaves such moments out right after usable(), before step A or any
+     other vendor call, and records them in out["no_role"] with the reason.
+   - lineup_for(..., need_stand_alone=False): when True, a candidate line-up that fails stand_alone_check is skipped
+     (the proposer's hook gives way to the next hook, as with need_onset). build() passes need_stand_alone=True at
+     both call sites.
+   - inventory(..., stand=None): a sealed "stand_alone" gate row (PASS only when check_edl's ok is True), with the
+     per-segment rows as evidence. Both inventory call sites pass stand_alone_check of the package's segments.
+2. pipeline/package_pin.py: MEDLEY_GATES gains "stand_alone", so write_pin refuses a medley without a PASS row. The
+   integrator's recompute (check_pin_only) checks REQUIRED_GATES only, so older pins still recompute.
+3. tests/package/test_medley.py:
+   - the held pin's three texts give the render's PASS / FAIL / FAIL;
+   - the no-role rule: conjunction and reply-fragment openers have no role; pronoun openers can still be clips;
+   - lineup_for never picks a "But" clip with need_stand_alone; a line-up with no clip naming Bitcoin is refused;
+   - a pronoun hook gives way;
+   - build() leaves a "But" moment out before the angle step and seals a PASS row;
+   - a FAIL row refuses the pin;
+   - the two existing tests are updated for the new required row.
+
+Check in particular:
+- that stand_alone_check reproduces the render's check_edl call exactly (segment order, labels clip_01..,
+  rate=None, subject), and that nothing here can PASS a line-up the render would hold;
+- that no_role_on_screen drops ONLY moments that can be neither a clip nor a hook under check_edl with no scorer
+  (a pronoun opener must stay: it fails as a hook but passes as a clip);
+- the gate row: unmeasured or failing never PASS; a missing row refuses the pin;
+- anything that changes what an EXISTING check accepts.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".
