@@ -1,0 +1,63 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips:
+a hook and 2-4 clips from other channels, played back to back, then one spoken takeaway). This branch BUILDS sealed
+"pins"; another session (the integrator) renders them with the main pipeline. The pin stage must never seal a line-up
+the render's own checks would refuse.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: ORCHESTRATOR RULING 34 (03:12 ET Nov 13): "no_bitcoin: the literal regex is retired for clips. The miner's
+about-Bitcoin screen is the per-clip test. The MEDLEY must name Bitcoin: at least one clip or the hook says it in the
+speaker's own words." The integrator merged the render side (main 55315124) with this contract:
+- The pin seals moments_package.btc_screen = {"pattern": <regex str of at most 500 characters, compiled with re.I by
+  the render>, "source": <file@commit>} inside the sealed package (so it is in moments_package_sha256).
+- The render's stand_alone.check_edl(edl, screen=<compiled pattern>) checks each segment's TOPIC with the screen: the
+  screen matches the segment's words, or (a clip only) the segment completes the previous claim (topical()'s old
+  rule). The HOOK must match the screen itself.
+- The MEDLEY must name Bitcoin: the hook or one clip says bitcoin / btc in its own words (out["medley_names_bitcoin"],
+  part of out["ok"]).
+- If btc_screen is absent or malformed, the render applies the old strict rule (every segment names Bitcoin).
+- The integrator's recompute (check_pin_only) now calls seal(..., mp.get("btc_screen")) as a 7th argument.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass. The relaxation here is the orchestrator's own
+  ruling and the render's merged code; check that the pin stage does exactly that and no more.
+
+The change:
+1. pipeline/stand_alone.py: synced BYTE-IDENTICAL to main's at 55315124 (the render's own topical_screen() and
+   check_edl(screen=...)). Passing no screen keeps the old behaviour.
+2. pipeline/eligibility.py:
+   - BTC_SCREEN: the miner's screen verbatim (pp-ingest pipeline/ingest/mine.py@8e6afb61, 131 characters), compiled
+     with re.I, plus BTC_SCREEN_SOURCE;
+   - T11: the HOOK role needs BTC_SCREEN, not the literal regex; the CLIP role has no per-moment topic flag (a clip
+     may complete the previous claim, decided per line-up).
+3. pipeline/package.py:
+   - stand_alone_check passes screen=E.BTC_SCREEN, so the line-up filter and the sealed "stand_alone" row require the
+     screen topic AND medley_names_bitcoin (out["ok"]);
+   - no_topic(m): a moment that fails topical_screen as a clip right after a segment naming Bitcoin (its most
+     favourable place) can take no place, and build() leaves it out with the opener rule before any vendor call;
+   - assemble_medley sets pk["btc_screen"] = {pattern, source};
+   - the inventory row records medley_names_bitcoin and the screen.
+4. pipeline/package_pin.py:
+   - seal(..., btc_screen=None): the screen enters the sealed body only when given, so every earlier pin recomputes;
+   - to_pin seals pk["btc_screen"] and writes moments_package.btc_screen;
+   - screen_problems refuses a MEDLEY without a valid {pattern, source}: a non-empty str of at most 500 characters
+     that compiles with re.I, and a source. That is the render's own acceptance.
+5. Tests:
+   - the screen as topic, and the medley rule;
+   - the hook must pass the screen; a clip may complete the previous claim;
+   - no_topic;
+   - every medley seals the screen, and the 7-argument recompute equals while the 6-argument one does not;
+   - a missing or malformed screen refuses the pin;
+   - the eligibility hook rule;
+   - a mirror test of the pattern against the miner's file at the sealed commit.
+
+Check in particular:
+- that the pin stage's check is the render's, with the same compiled screen, the same medley rule and the same
+  hook-must-match rule, and cannot PASS a line-up the render would refuse;
+- that the sealed screen is exactly the one the line-up was judged with;
+- that old pins still recompute;
+- that no_topic drops ONLY moments that can take no place under the render's rule;
+- that the story path (no screen) is unchanged.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

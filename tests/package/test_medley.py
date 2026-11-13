@@ -332,6 +332,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
 
     def gates(self, pk, **over):
         g = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
+        g["stand_alone"] = dict(g["stand_alone"], screen=E.BTC_SCREEN.pattern)      # the screen it judged with
         g.update(over)
         return g
 
@@ -723,6 +724,66 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
         gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
         gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+
+
+class TestRuling34Screen(unittest.TestCase):
+    """Ruling 34 (render side merged at 55315124): the topic test is the miner's about-Bitcoin screen the pin seals;
+    the hook must pass it itself, a clip may complete the previous claim, and the MEDLEY must name Bitcoin once."""
+
+    def check(self, *texts):
+        return PK.stand_alone_check([{"text": t} for t in texts])
+
+    def test_the_screen_is_the_topic_and_the_medley_must_name_bitcoin(self):
+        r = self.check("The halving cut the new supply in half.", "Saylor keeps buying.", "Sats are the unit.")
+        self.assertEqual([x["topic"]["pass"] for x in r["rows"]], [True, True, True])      # the screen, each one
+        self.assertFalse(r["medley_names_bitcoin"]["pass"])                                  # but no "Bitcoin"
+        self.assertFalse(r["ok"])
+        r = self.check("The halving cut the new supply in half.", "Saylor keeps buying Bitcoin.",
+                       "That was 25 % of the float.")                                       # completes the claim
+        self.assertTrue(r["ok"], r["rows"])
+        self.assertEqual(r["medley_names_bitcoin"]["segments"], ["clip_01"])
+        self.assertEqual(r["screen"], E.BTC_SCREEN.pattern)
+        r = self.check("Bitcoin is the hardest money.", "Saylor keeps buying.", "Sats are the unit.")
+        self.assertTrue(r["ok"], r["rows"])                                                  # the hook alone names it
+        self.assertEqual(r["medley_names_bitcoin"]["segments"], ["hook"])
+        r = self.check("Gold is the oldest money.", "Bitcoin is the newest.", "Bitcoin wins.")
+        self.assertFalse(r["ok"])                                                            # the hook must pass
+        self.assertIn("the hook does not pass the miner's about-Bitcoin screen", r["rows"][0]["topic"]["why"])
+
+    def test_a_moment_with_no_place_under_the_topic_rule_is_left_out(self):
+        self.assertIn("ruling 34", PK.no_topic({"text": "Gold is the oldest money."}))
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              dict(pm("g", "E", 13.0), text="But gold is the oldest money.")]          # fails BOTH rules
+        out = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None]).run()
+        self.assertIn("clip opens on 'but'", out["no_role"]["g"])
+        self.assertIn("ruling 34", out["no_role"]["g"])                                 # both reasons named
+        for t in ("Saylor keeps buying.", "That was 25 % of the float.", "Bitcoin is money."):
+            self.assertIsNone(PK.no_topic({"text": t}), t)
+
+    def test_every_medley_seals_the_screen_and_the_recompute_needs_it(self):
+        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0))}
+        fields = {"takeaway": {"text": "No ruler, just rules nobody gets to bend.", "cites": []}, "bridge": None,
+                  "bridge_after": None, "title": {"text": "No ruler.", "cites": []},
+                  "caption": {"text": "three clips", "cites": []}}
+        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
+        self.assertEqual(pk["btc_screen"], {"pattern": E.BTC_SCREEN.pattern, "source": E.BTC_SCREEN_SOURCE})
+        pk["gates"] = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1}
+                       for k in package_pin.required_gates(pk)}
+        with self.assertRaises(package_pin.PinRefused):                 # no judged screen on the stand_alone row
+            package_pin.to_pin(spk(pk), "test")
+        pk["gates"]["stand_alone"]["screen"] = PK.stand_alone_check(pk["segments"])["screen"]   # what it judged
+        pin = package_pin.to_pin(spk(pk), "test")
+        mp = pin["moments_package"]
+        self.assertEqual(mp["btc_screen"], pk["btc_screen"])
+        args = (pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"])
+        self.assertEqual(package_pin.seal(*args, mp.get("btc_screen")), mp["package_sha256"])   # check_pin_only's
+        self.assertNotEqual(package_pin.seal(*args), mp["package_sha256"])                      # 7-argument call
+        for bad in (None, {"pattern": "", "source": "s"}, {"pattern": "(", "source": "s"},
+                    {"pattern": "x" * 501, "source": "s"}, {"pattern": "bitcoin"},
+                    {"pattern": "bitcoin", "source": "s"}):         # compiles, but not the pattern it was judged with
+            p = dict(spk(pk), btc_screen=bad)
+            with self.assertRaises(package_pin.PinRefused):
+                package_pin.to_pin(p, "test")
 
 
 class TestAdReadBeforeTheAngle(unittest.TestCase):

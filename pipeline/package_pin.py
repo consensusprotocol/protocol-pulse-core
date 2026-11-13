@@ -69,14 +69,16 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                 "speaker")                                 # the 00:05 ET Nov 13 order, item 3
 
 
-def seal(segments, edl_vo, signoff, title, caption, gates):
+def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
     bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
     A SEALED_LATER field enters the body only when the segment carries its key. Every pin sealed before that field
     existed then recomputes to its own package_sha256: the integrator's check recomputes seals with this module, and
     all 6 earlier pins in tests/package/proof failed under an always-present field. A new pin always carries them,
-    because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest."""
+    because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest.
+    btc_screen (ruling 34: the miner's about-Bitcoin screen the render applies, {"pattern", "source"}) enters the body
+    only when given, so every pin sealed before it recomputes; a moments medley always carries it (screen_problems)."""
     def body_of(s):
         b = {"video_id": s["video_id"], "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
              "text": s["approved_text"], "transcript_sha256": s.get("transcript_sha256")}
@@ -86,7 +88,33 @@ def seal(segments, edl_vo, signoff, title, caption, gates):
             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
                                                              for b in edl_vo.get("bridges") or []]},
             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
+    if btc_screen is not None:
+        body["btc_screen"] = btc_screen
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def screen_problems(pk):
+    """[why] for a moments medley that does not carry the screen its line-up was judged with (ruling 34). The render
+    reads moments_package.btc_screen and, without it, applies the stricter every-segment rule, so a pin judged with
+    the screen but sealed without it could be refused at render. A carried screen is {"pattern": a non-empty str of at
+    most 500 characters that compiles with re.I, "source": a non-empty str}: the render's own acceptance
+    (run_fresh.moments_screen)."""
+    if pk.get("shape") != "medley":
+        return []
+    sc = pk.get("btc_screen")
+    if not isinstance(sc, dict) or set(sc) != {"pattern", "source"}:
+        return ["btc_screen: a medley must carry {pattern, source} (ruling 34)"]
+    pat, src = sc.get("pattern"), sc.get("source")
+    if not isinstance(pat, str) or not pat.strip() or len(pat) > 500 or not isinstance(src, str) or not src.strip():
+        return ["btc_screen: the pattern must be a non-empty str of at most 500 characters, with a source"]
+    try:
+        re.compile(pat, re.I)
+    except re.error as e:
+        return [f"btc_screen: the pattern does not compile ({e})"]
+    judged = ((pk.get("gates") or {}).get("stand_alone") or {}).get("screen")
+    if judged != pat:                  # the sealed screen IS the one the line-up passed with (audit 0426 C1, glm P1-1)
+        return [f"btc_screen: the sealed pattern is not the one the stand_alone row judged with ({judged!r})"]
+    return []
 
 
 def speaker_problems(segments):
@@ -161,7 +189,8 @@ def line_problems(pk):
 def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
                                                                      for x in line_problems(pk)] + \
-        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or [])
+        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
+        screen_problems(pk)
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -174,7 +203,7 @@ def to_pin(pk, run_name):
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
-    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"])
+    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"))
     return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
             "label": "bitcoin", "headline": pk["title"],
             "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
@@ -195,6 +224,7 @@ def to_pin(pk, run_name):
                                 "supply_exception": pk.get("supply_exception"),
                                 "no_voice": pk.get("no_voice"),          # ruling 3 (22:40): why no VO line ships
                                 "gates": pk["gates"],
+                                **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
                                            "derived_from": "gates (every required row exactly PASS, checked above)",
                                            "models": pk.get("models")},

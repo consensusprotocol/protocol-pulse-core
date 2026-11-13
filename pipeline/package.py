@@ -338,6 +338,7 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
           "bridges_after_clip": ([k] if mid else []) + ([n_clips] if t is not None else [])}
     pk = _package(segs, ctx, fields, vo_kind, vo, lines)
     pk["shape"] = "medley"
+    pk["btc_screen"] = {"pattern": E.BTC_SCREEN.pattern, "source": E.BTC_SCREEN_SOURCE}   # ruling 34: sealed (to_pin)
     pk["bridge"] = None if b is None else {"after": pk["segments"][k]["label"], "after_clip": k,
                                            "join": f"{pk['segments'][k]['label']} -> {pk['segments'][k + 1]['label']}",
                                            "text": b["text"], "why": b.get("why"),
@@ -561,12 +562,15 @@ def stand_alone_check(segs):
     a reply fragment fails closed here, as check_edl does without one: never sealed for the scorer to rescue.
     check_edl's verdict reads only each segment's text, the subject and rate (channel and duration feed only the
     scorer's passages, unused with rate=None; the labels come from the order). The subject is fixed because
-    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1)."""
+    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1).
+    RULING 34 (the render's side merged at 55315124): the topic test is the miner's about-Bitcoin screen that every
+    moments pin seals (eligibility.BTC_SCREEN, moments_package.btc_screen), and the MEDLEY must name Bitcoin in at
+    least one segment (out["medley_names_bitcoin"], part of out["ok"]): check_edl(..., screen=...), as the render."""
     import stand_alone as SA
     edl = {"hook": {"text": segs[0]["text"], "channel": segs[0].get("channel_name")},
            "clips": [{"index": i, "text": m["text"], "channel": m.get("channel_name"), "duration": m.get("duration_s")}
                      for i, m in enumerate(segs[1:], 1)]}
-    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"))
+    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
 
 
 def ad_read_out(ms, sources):
@@ -586,6 +590,16 @@ def ad_read_out(ms, sources):
         if why:
             out[m["moment_id"]] = why
     return out
+
+
+def no_topic(m):
+    """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
+    fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
+    names Bitcoin (stand_alone.topical_screen as a clip: its most favourable place). build() leaves it out before any
+    vendor call."""
+    import stand_alone as SA
+    ok, why = SA.topical_screen("clip", m["text"], "Bitcoin", E.BTC_SCREEN)
+    return None if ok else f"the render's STAND_ALONE topic rule with the pin's screen (ruling 34): {why}"
 
 
 def no_role_on_screen(m):
@@ -1041,7 +1055,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     usd0 = _spent(spend)
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
-    no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m)] if r}
+    no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
+               for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
     ms = [m for m in ms if m["moment_id"] not in no_role]
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
@@ -1054,9 +1069,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
-    log(f"  {n_usable} usable, {len(no_role)} of them left out (they open on a conjunction or reply fragment, which "
-        f"the render's STAND_ALONE fails with no clip scorer), {len(ad_read)} on an ad-read marker (the exclusion "
-        f"screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+    log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
+        f"would have to affirm, or no place under the topic rule with the pin's screen), {len(ad_read)} on an ad-read "
+        f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
         return out
@@ -1513,6 +1528,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
                                     "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
-                                      f"topic: {r['topic']['why']}" for r in stand.get("rows") or []])}
+                                      f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
+                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
            if stand is not None else {}),
     }

@@ -1,0 +1,363 @@
+diff --git a/pipeline/eligibility.py b/pipeline/eligibility.py
+index 24a1e721..f2e898ba 100644
+--- a/pipeline/eligibility.py
++++ b/pipeline/eligibility.py
+@@ -56,6 +56,12 @@ MIN_STATEMENT_TOKENS = 5                    # T14 story_semantics.py:372 (quote_
+ HOOK_LEAD_S = sentence_law.HEAD_LEAD_MIN_S  # T12 sentence_law.py:57 (D1; G17a's hook lead; GPT-cut F12)
+ CLIP_SCORER_MIN = stand_alone.CLIP_MIN_SCORE  # T8 stand_alone.py:30
+ BITCOIN_TERMS = re.compile(r"\b(bitcoins?|btcs?)\b", re.I)          # T11 / G2 editorial_select.py:59
++# RULING 34 (orchestrator 03:12 ET Nov 13; the render's side merged at 55315124): the miner's about-Bitcoin screen,
++# verbatim, is the per-segment topic test of a moments package. It is sealed into every moments pin (package_pin:
++# moments_package.btc_screen), and the render's stand_alone.check_edl applies exactly the sealed pattern.
++BTC_SCREEN_SOURCE = "pp-ingest pipeline/ingest/mine.py@8e6afb61"
++BTC_SCREEN = re.compile(r"\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|"
++                        r"cold storage|microstrategy|mstr|ibit|saylor)\b", re.I)
+ V2F_VIDEO_IDS = frozenset({"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"})   # S3 editorial_select.py:60
+ CONTINUATION_OPENERS = frozenset(stand_alone.CONJUNCTIONS)          # T8 = editorial_select.py:127
+ INTERJECTIONS = frozenset({"oh", "ah", "wow", "yeah", "yes", "right", "okay", "mhm", "hmm", "huh", "wait", "sure",
+@@ -451,9 +457,11 @@ def _span(span, ctx, role):
+     else:
+         facts["duration_s"] = None
+         R("duration", "no word timestamps: the duration is not measured")
+-    # T11 subject
+-    if not names_bitcoin(text):
+-        R("no_bitcoin", "does not name Bitcoin (Bitcoin-only editorial line; stand_alone.topical at selection)")
++    # T11 subject. Ruling 34: the literal regex is retired. The HOOK must pass the miner's about-Bitcoin screen itself;
++    # a clip is judged per line-up (stand_alone.check_edl with the screen: the screen, or it completes the previous
++    # claim), and the medley must name Bitcoin once (check_edl's medley_names_bitcoin).
++    if role == "hook" and not BTC_SCREEN.search(text):
++        R("no_bitcoin", "the hook does not pass the miner's about-Bitcoin screen (ruling 34)")
+     # T12 the hook's lead-in
+     if role == "hook":
+         if w0 == 0:
+diff --git a/pipeline/package.py b/pipeline/package.py
+index cbf43239..089cc44b 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -338,6 +338,7 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
+           "bridges_after_clip": ([k] if mid else []) + ([n_clips] if t is not None else [])}
+     pk = _package(segs, ctx, fields, vo_kind, vo, lines)
+     pk["shape"] = "medley"
++    pk["btc_screen"] = {"pattern": E.BTC_SCREEN.pattern, "source": E.BTC_SCREEN_SOURCE}   # ruling 34: sealed (to_pin)
+     pk["bridge"] = None if b is None else {"after": pk["segments"][k]["label"], "after_clip": k,
+                                            "join": f"{pk['segments'][k]['label']} -> {pk['segments'][k + 1]['label']}",
+                                            "text": b["text"], "why": b.get("why"),
+@@ -561,12 +562,15 @@ def stand_alone_check(segs):
+     a reply fragment fails closed here, as check_edl does without one: never sealed for the scorer to rescue.
+     check_edl's verdict reads only each segment's text, the subject and rate (channel and duration feed only the
+     scorer's passages, unused with rate=None; the labels come from the order). The subject is fixed because
+-    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1)."""
++    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1).
++    RULING 34 (the render's side merged at 55315124): the topic test is the miner's about-Bitcoin screen that every
++    moments pin seals (eligibility.BTC_SCREEN, moments_package.btc_screen), and the MEDLEY must name Bitcoin in at
++    least one segment (out["medley_names_bitcoin"], part of out["ok"]): check_edl(..., screen=...), as the render."""
+     import stand_alone as SA
+     edl = {"hook": {"text": segs[0]["text"], "channel": segs[0].get("channel_name")},
+            "clips": [{"index": i, "text": m["text"], "channel": m.get("channel_name"), "duration": m.get("duration_s")}
+                      for i, m in enumerate(segs[1:], 1)]}
+-    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"))
++    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
+ 
+ 
+ def ad_read_out(ms, sources):
+@@ -588,6 +592,16 @@ def ad_read_out(ms, sources):
+     return out
+ 
+ 
++def no_topic(m):
++    """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
++    fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
++    names Bitcoin (stand_alone.topical_screen as a clip: its most favourable place). build() leaves it out before any
++    vendor call."""
++    import stand_alone as SA
++    ok, why = SA.topical_screen("clip", m["text"], "Bitcoin", E.BTC_SCREEN)
++    return None if ok else f"the render's STAND_ALONE topic rule with the pin's screen (ruling 34): {why}"
++
++
+ def no_role_on_screen(m):
+     """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
+     opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
+@@ -1041,7 +1055,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     usd0 = _spent(spend)
+     ms, why = usable(moments, ctx, delivered, optout)
+     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
+-    no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m)] if r}
++    no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m) or no_topic(m)] if r}
+     ms = [m for m in ms if m["moment_id"] not in no_role]
+     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+@@ -1054,9 +1068,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+-    log(f"  {n_usable} usable, {len(no_role)} of them left out (they open on a conjunction or reply fragment, which "
+-        f"the render's STAND_ALONE fails with no clip scorer), {len(ad_read)} on an ad-read marker (the exclusion "
+-        f"screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
++    log(f"  {n_usable} usable, {len(no_role)} of them left out by the render's STAND_ALONE (an opener the clip scorer "
++        f"would have to affirm, or no place under the topic rule with the pin's screen), {len(ad_read)} on an ad-read "
++        f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+         return out
+@@ -1513,6 +1527,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
+                                     "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
+                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
+-                                      f"topic: {r['topic']['why']}" for r in stand.get("rows") or []])}
++                                      f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
++                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
+            if stand is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 6c15c3b0..101b0e28 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -69,14 +69,16 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
+                 "speaker")                                 # the 00:05 ET Nov 13 order, item 3
+ 
+ 
+-def seal(segments, edl_vo, signoff, title, caption, gates):
++def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
+     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
+     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
+     bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
+     A SEALED_LATER field enters the body only when the segment carries its key. Every pin sealed before that field
+     existed then recomputes to its own package_sha256: the integrator's check recomputes seals with this module, and
+     all 6 earlier pins in tests/package/proof failed under an always-present field. A new pin always carries them,
+-    because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest."""
++    because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest.
++    btc_screen (ruling 34: the miner's about-Bitcoin screen the render applies, {"pattern", "source"}) enters the body
++    only when given, so every pin sealed before it recomputes; a moments medley always carries it (screen_problems)."""
+     def body_of(s):
+         b = {"video_id": s["video_id"], "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
+              "text": s["approved_text"], "transcript_sha256": s.get("transcript_sha256")}
+@@ -86,9 +88,35 @@ def seal(segments, edl_vo, signoff, title, caption, gates):
+             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
+                                                              for b in edl_vo.get("bridges") or []]},
+             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
++    if btc_screen is not None:
++        body["btc_screen"] = btc_screen
+     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+ 
+ 
++def screen_problems(pk):
++    """[why] for a moments medley that does not carry the screen its line-up was judged with (ruling 34). The render
++    reads moments_package.btc_screen and, without it, applies the stricter every-segment rule, so a pin judged with
++    the screen but sealed without it could be refused at render. A carried screen is {"pattern": a non-empty str of at
++    most 500 characters that compiles with re.I, "source": a non-empty str}: the render's own acceptance
++    (run_fresh.moments_screen)."""
++    if pk.get("shape") != "medley":
++        return []
++    sc = pk.get("btc_screen")
++    if not isinstance(sc, dict) or set(sc) != {"pattern", "source"}:
++        return ["btc_screen: a medley must carry {pattern, source} (ruling 34)"]
++    pat, src = sc.get("pattern"), sc.get("source")
++    if not isinstance(pat, str) or not pat.strip() or len(pat) > 500 or not isinstance(src, str) or not src.strip():
++        return ["btc_screen: the pattern must be a non-empty str of at most 500 characters, with a source"]
++    try:
++        re.compile(pat, re.I)
++    except re.error as e:
++        return [f"btc_screen: the pattern does not compile ({e})"]
++    judged = ((pk.get("gates") or {}).get("stand_alone") or {}).get("screen")
++    if judged != pat:                  # the sealed screen IS the one the line-up passed with (audit 0426 C1, glm P1-1)
++        return [f"btc_screen: the sealed pattern is not the one the stand_alone row judged with ({judged!r})"]
++    return []
++
++
+ def speaker_problems(segments):
+     """[why] for segments whose speaker record (speakers.attribute) is missing or malformed: the orchestrator's 00:05 ET
+     Nov 13 order (item 3) has every pin carry, per segment, the speaker's name (or "unknown", never a guess) with its
+@@ -161,7 +189,8 @@ def line_problems(pk):
+ def to_pin(pk, run_name):
+     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
+                                                                      for x in line_problems(pk)] + \
+-        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or [])
++        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
++        screen_problems(pk)
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -174,7 +203,7 @@ def to_pin(pk, run_name):
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
+-    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"])
++    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"))
+     return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
+             "label": "bitcoin", "headline": pk["title"],
+             "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+@@ -195,6 +224,7 @@ def to_pin(pk, run_name):
+                                 "supply_exception": pk.get("supply_exception"),
+                                 "no_voice": pk.get("no_voice"),          # ruling 3 (22:40): why no VO line ships
+                                 "gates": pk["gates"],
++                                **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
+                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
+                                            "derived_from": "gates (every required row exactly PASS, checked above)",
+                                            "models": pk.get("models")},
+diff --git a/pipeline/stand_alone.py b/pipeline/stand_alone.py
+index 168a1cc3..fadf036c 100644
+--- a/pipeline/stand_alone.py
++++ b/pipeline/stand_alone.py
+@@ -96,9 +96,28 @@ def topical(kind, text, prev_text=None, subject=("bitcoin", "btc")):
+                    f"previous segment's claim (it opens on {first!r}): context, not a clip")
+ 
+ 
+-def check_edl(edl, rate=None, subject=("bitcoin", "btc")):
++def topical_screen(kind, text, prev_text, screen):
++    """Ruling 34 (orchestrator 2026-11-13 '03:42'), moments packages only: a segment is about Bitcoin when the miner's
++    about-Bitcoin screen (BTC_SCREEN, carried on the pin) matches its own words, or (a clip only) it completes the
++    previous segment's claim exactly as topical() allows. The medley-level rule (one segment names Bitcoin) is
++    check_edl's."""
++    m = screen.search(text or "")
++    if m:
++        return True, f"about Bitcoin by the miner's screen ({m.group(0)!r})"
++    if kind == "hook":
++        return False, "the hook does not pass the miner's about-Bitcoin screen"
++    ok, why = topical(kind, text, prev_text, ("bitcoin", "btc"))
++    if ok:
++        return ok, why
++    return False, f"does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
++
++
++def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
+     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
+-    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed."""
++    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed.
++    screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
++    and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
++    speaker's own words. screen None: every segment names the subject, as before (the story path)."""
+     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
+     need = [(label, s) for label, kind, s in segs if kind == "clip" and _words(s.get("text"))[:1]
+             and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS)]
+@@ -114,10 +133,19 @@ def check_edl(edl, rate=None, subject=("bitcoin", "btc")):
+         sc = scores.get(label)
+         score, fault = (sc[0], sc[2]) if sc else (None, None)
+         o_ok, o_why = opener(kind, s.get("text"), score, fault)
+-        t_ok, t_why = topical(kind, s.get("text"), prev, subject)
++        t_ok, t_why = topical_screen(kind, s.get("text"), prev, screen) if screen is not None else \
++            topical(kind, s.get("text"), prev, subject)
+         rows.append({"segment": label, "channel": s.get("channel"), "first_words": " ".join((s.get("text") or "").split()[:6]),
+                      "opener": {"pass": o_ok, "why": o_why}, "topic": {"pass": t_ok, "why": t_why},
+                      **({"scorer": {"score": sc[0], "reason": sc[1], "fault": sc[2]}} if sc else {}),
+                      "pass": o_ok and t_ok})
+         prev = s.get("text")
+-    return {"ok": all(r["pass"] for r in rows), "rows": rows, "rate_error": rate_error, "subject": sorted(subject)}
++    out = {"ok": all(r["pass"] for r in rows), "rows": rows, "rate_error": rate_error, "subject": sorted(subject)}
++    if screen is not None:                                   # ruling 34: the MEDLEY names Bitcoin, once at least
++        named = [r["segment"] for (label, kind, s), r in zip(segs, rows) if BITCOIN.search(s.get("text") or "")]
++        out["medley_names_bitcoin"] = {"pass": bool(named), "segments": named,
++                                       "why": f"named by {', '.join(named)}" if named else
++                                       "no segment names Bitcoin in the speaker's own words (ruling 34)"}
++        out["screen"] = screen.pattern
++        out["ok"] = out["ok"] and bool(named)
++    return out
+diff --git a/tests/eligibility/test_eligibility.py b/tests/eligibility/test_eligibility.py
+index 46c20050..afffc2c0 100644
+--- a/tests/eligibility/test_eligibility.py
++++ b/tests/eligibility/test_eligibility.py
+@@ -252,6 +252,20 @@ class TestSpan(unittest.TestCase):
+         self.assertNotIn("opener", r.names(), r.why())
+         self.assertTrue(any("'and so'" in t for t in r.facts["targets_missed"]), r.facts)
+ 
++    def test_the_screen_is_the_miners_verbatim(self):                  # ruling 34: sealed as its source names it
++        import subprocess
++        path, commit = E.BTC_SCREEN_SOURCE.split()[-1].split("@")     # 'pipeline/ingest/mine.py', '8e6afb61'
++        r = subprocess.run(["git", "--no-optional-locks", "-C", "/home/ultron/worktrees/pp-ingest", "show",
++                            f"{commit}:{path}"], capture_output=True, text=True)
++        if r.returncode != 0:
++            self.skipTest("pp-ingest's history is not readable here")
++        import re as _re
++        m = _re.search(r'BTC_SCREEN = re.compile\(r"(.*?)"\s*\n\s*r"(.*?)", re.I\)', r.stdout)
++        self.assertIsNotNone(m)
++        self.assertEqual(E.BTC_SCREEN.pattern, m.group(1) + m.group(2))
++        self.assertEqual(E.BTC_SCREEN_SOURCE, "pp-ingest pipeline/ingest/mine.py@8e6afb61")
++        self.assertTrue(E.BTC_SCREEN.flags & _re.I)
++
+     def test_duration_count_subject_lead(self):
+         short = self.hook(["Bitcoin fell five percent overnight on the open."])
+         self.assertNotIn("duration", short.names())                                              # law L-o: a target
+@@ -267,6 +281,10 @@ class TestSpan(unittest.TestCase):
+         alt = self.hook(["Solana rallied twenty percent this week after the exchange listing news broke on "
+                          "Monday morning, leading every large cap token higher into the weekend close."])
+         self.assertIn("no_bitcoin", alt.names())                                                 # an altcoin sentence
++        sats = self.hook(["Michael Saylor just bought another twenty thousand coins for the treasury this week."])
++        self.assertNotIn("no_bitcoin", sats.names())              # ruling 34: the miner's screen ('saylor'), the hook
++        src = source(["Gold has been the premier monetary asset for most of human history, people say."])
++        self.assertNotIn("no_bitcoin", E.eligible(E.Span(src, 0, 0), ctx("clip")).names())   # a clip: per line-up
+         tight = source(["Prices were calm overnight in Asia.", HOOK_TXT], pause=0.0)    # 40 ms between words only
+         sp = E.Span(tight, 1, 1)
+         self.assertIn("hook_lead", E.eligible(sp, ctx("hook", story=statements(sp))).names())   # 40 ms gap (G17a)
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 30f6c0dc..971d971a 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -332,6 +332,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+ 
+     def gates(self, pk, **over):
+         g = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
++        g["stand_alone"] = dict(g["stand_alone"], screen=E.BTC_SCREEN.pattern)      # the screen it judged with
+         g.update(over)
+         return g
+ 
+@@ -725,6 +726,61 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
+         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+ 
+ 
++class TestRuling34Screen(unittest.TestCase):
++    """Ruling 34 (render side merged at 55315124): the topic test is the miner's about-Bitcoin screen the pin seals;
++    the hook must pass it itself, a clip may complete the previous claim, and the MEDLEY must name Bitcoin once."""
++
++    def check(self, *texts):
++        return PK.stand_alone_check([{"text": t} for t in texts])
++
++    def test_the_screen_is_the_topic_and_the_medley_must_name_bitcoin(self):
++        r = self.check("The halving cut the new supply in half.", "Saylor keeps buying.", "Sats are the unit.")
++        self.assertEqual([x["topic"]["pass"] for x in r["rows"]], [True, True, True])      # the screen, each one
++        self.assertFalse(r["medley_names_bitcoin"]["pass"])                                  # but no "Bitcoin"
++        self.assertFalse(r["ok"])
++        r = self.check("The halving cut the new supply in half.", "Saylor keeps buying Bitcoin.",
++                       "That was 25 % of the float.")                                       # completes the claim
++        self.assertTrue(r["ok"], r["rows"])
++        self.assertEqual(r["medley_names_bitcoin"]["segments"], ["clip_01"])
++        self.assertEqual(r["screen"], E.BTC_SCREEN.pattern)
++        r = self.check("Bitcoin is the hardest money.", "Saylor keeps buying.", "Sats are the unit.")
++        self.assertTrue(r["ok"], r["rows"])                                                  # the hook alone names it
++        self.assertEqual(r["medley_names_bitcoin"]["segments"], ["hook"])
++        r = self.check("Gold is the oldest money.", "Bitcoin is the newest.", "Bitcoin wins.")
++        self.assertFalse(r["ok"])                                                            # the hook must pass
++        self.assertIn("the hook does not pass the miner's about-Bitcoin screen", r["rows"][0]["topic"]["why"])
++
++    def test_a_moment_with_no_place_under_the_topic_rule_is_left_out(self):
++        self.assertIn("ruling 34", PK.no_topic({"text": "Gold is the oldest money."}))
++        for t in ("Saylor keeps buying.", "That was 25 % of the float.", "Bitcoin is money."):
++            self.assertIsNone(PK.no_topic({"text": t}), t)
++
++    def test_every_medley_seals_the_screen_and_the_recompute_needs_it(self):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0))}
++        fields = {"takeaway": {"text": "No ruler, just rules nobody gets to bend.", "cites": []}, "bridge": None,
++                  "bridge_after": None, "title": {"text": "No ruler.", "cites": []},
++                  "caption": {"text": "three clips", "cites": []}}
++        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
++        self.assertEqual(pk["btc_screen"], {"pattern": E.BTC_SCREEN.pattern, "source": E.BTC_SCREEN_SOURCE})
++        pk["gates"] = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1}
++                       for k in package_pin.required_gates(pk)}
++        with self.assertRaises(package_pin.PinRefused):                 # no judged screen on the stand_alone row
++            package_pin.to_pin(spk(pk), "test")
++        pk["gates"]["stand_alone"]["screen"] = PK.stand_alone_check(pk["segments"])["screen"]   # what it judged
++        pin = package_pin.to_pin(spk(pk), "test")
++        mp = pin["moments_package"]
++        self.assertEqual(mp["btc_screen"], pk["btc_screen"])
++        args = (pin["segments"], mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"])
++        self.assertEqual(package_pin.seal(*args, mp.get("btc_screen")), mp["package_sha256"])   # check_pin_only's
++        self.assertNotEqual(package_pin.seal(*args), mp["package_sha256"])                      # 7-argument call
++        for bad in (None, {"pattern": "", "source": "s"}, {"pattern": "(", "source": "s"},
++                    {"pattern": "x" * 501, "source": "s"}, {"pattern": "bitcoin"},
++                    {"pattern": "bitcoin", "source": "s"}):         # compiles, but not the pattern it was judged with
++            p = dict(spk(pk), btc_screen=bad)
++            with self.assertRaises(package_pin.PinRefused):
++                package_pin.to_pin(p, "test")
++
++
+ class TestAdReadBeforeTheAngle(unittest.TestCase):
+     """The exclusion screen's deterministic part (moments.ad_read_marker) runs before step A, so no angle is built
+     around a moment the package stage would refuse. The 03:39 build lost its line-up's hook to it after the write."""

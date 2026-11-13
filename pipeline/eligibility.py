@@ -56,6 +56,12 @@ MIN_STATEMENT_TOKENS = 5                    # T14 story_semantics.py:372 (quote_
 HOOK_LEAD_S = sentence_law.HEAD_LEAD_MIN_S  # T12 sentence_law.py:57 (D1; G17a's hook lead; GPT-cut F12)
 CLIP_SCORER_MIN = stand_alone.CLIP_MIN_SCORE  # T8 stand_alone.py:30
 BITCOIN_TERMS = re.compile(r"\b(bitcoins?|btcs?)\b", re.I)          # T11 / G2 editorial_select.py:59
+# RULING 34 (orchestrator 03:12 ET Nov 13; the render's side merged at 55315124): the miner's about-Bitcoin screen,
+# verbatim, is the per-segment topic test of a moments package. It is sealed into every moments pin (package_pin:
+# moments_package.btc_screen), and the render's stand_alone.check_edl applies exactly the sealed pattern.
+BTC_SCREEN_SOURCE = "pp-ingest pipeline/ingest/mine.py@8e6afb61"
+BTC_SCREEN = re.compile(r"\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|"
+                        r"cold storage|microstrategy|mstr|ibit|saylor)\b", re.I)
 V2F_VIDEO_IDS = frozenset({"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"})   # S3 editorial_select.py:60
 CONTINUATION_OPENERS = frozenset(stand_alone.CONJUNCTIONS)          # T8 = editorial_select.py:127
 INTERJECTIONS = frozenset({"oh", "ah", "wow", "yeah", "yes", "right", "okay", "mhm", "hmm", "huh", "wait", "sure",
@@ -451,9 +457,11 @@ def _span(span, ctx, role):
     else:
         facts["duration_s"] = None
         R("duration", "no word timestamps: the duration is not measured")
-    # T11 subject
-    if not names_bitcoin(text):
-        R("no_bitcoin", "does not name Bitcoin (Bitcoin-only editorial line; stand_alone.topical at selection)")
+    # T11 subject. Ruling 34: the literal regex is retired. The HOOK must pass the miner's about-Bitcoin screen itself;
+    # a clip is judged per line-up (stand_alone.check_edl with the screen: the screen, or it completes the previous
+    # claim), and the medley must name Bitcoin once (check_edl's medley_names_bitcoin).
+    if role == "hook" and not BTC_SCREEN.search(text):
+        R("no_bitcoin", "the hook does not pass the miner's about-Bitcoin screen (ruling 34)")
     # T12 the hook's lead-in
     if role == "hook":
         if w0 == 0:

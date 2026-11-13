@@ -252,6 +252,20 @@ class TestSpan(unittest.TestCase):
         self.assertNotIn("opener", r.names(), r.why())
         self.assertTrue(any("'and so'" in t for t in r.facts["targets_missed"]), r.facts)
 
+    def test_the_screen_is_the_miners_verbatim(self):                  # ruling 34: sealed as its source names it
+        import subprocess
+        path, commit = E.BTC_SCREEN_SOURCE.split()[-1].split("@")     # 'pipeline/ingest/mine.py', '8e6afb61'
+        r = subprocess.run(["git", "--no-optional-locks", "-C", "/home/ultron/worktrees/pp-ingest", "show",
+                            f"{commit}:{path}"], capture_output=True, text=True)
+        if r.returncode != 0:
+            self.skipTest("pp-ingest's history is not readable here")
+        import re as _re
+        m = _re.search(r'BTC_SCREEN = re.compile\(r"(.*?)"\s*\n\s*r"(.*?)", re.I\)', r.stdout)
+        self.assertIsNotNone(m)
+        self.assertEqual(E.BTC_SCREEN.pattern, m.group(1) + m.group(2))
+        self.assertEqual(E.BTC_SCREEN_SOURCE, "pp-ingest pipeline/ingest/mine.py@8e6afb61")
+        self.assertTrue(E.BTC_SCREEN.flags & _re.I)
+
     def test_duration_count_subject_lead(self):
         short = self.hook(["Bitcoin fell five percent overnight on the open."])
         self.assertNotIn("duration", short.names())                                              # law L-o: a target
@@ -267,6 +281,10 @@ class TestSpan(unittest.TestCase):
         alt = self.hook(["Solana rallied twenty percent this week after the exchange listing news broke on "
                          "Monday morning, leading every large cap token higher into the weekend close."])
         self.assertIn("no_bitcoin", alt.names())                                                 # an altcoin sentence
+        sats = self.hook(["Michael Saylor just bought another twenty thousand coins for the treasury this week."])
+        self.assertNotIn("no_bitcoin", sats.names())              # ruling 34: the miner's screen ('saylor'), the hook
+        src = source(["Gold has been the premier monetary asset for most of human history, people say."])
+        self.assertNotIn("no_bitcoin", E.eligible(E.Span(src, 0, 0), ctx("clip")).names())   # a clip: per line-up
         tight = source(["Prices were calm overnight in Asia.", HOOK_TXT], pause=0.0)    # 40 ms between words only
         sp = E.Span(tight, 1, 1)
         self.assertIn("hook_lead", E.eligible(sp, ctx("hook", story=statements(sp))).names())   # 40 ms gap (G17a)
