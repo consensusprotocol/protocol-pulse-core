@@ -1,4 +1,181 @@
-NO PIN READY. Batch pin #1 (1b4a63d0) was HELD at render 01:39 ET (G17 hook onset 30 ms; the pin-stage check that would have caught it is built and pushed, 307e2ca7). The FRESH medley has no package yet: after every gate the fresh supply is too thin. Builds re-run after each word-pass cycle (since 02:28 ET).
+FRESH PIN READY: tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json (moments-ledger_20261113_073738-d2657bbe). The integrator's check_pin_only says READY. Sent to the integrator at 02:54 ET. Clip 2 (WTCwyxW-lHk) is time-sensitive and must render before 12:42 ET today (L-v 3: 24 h on the render clock).
+
+
+## 02:56 ET: FUNNEL TABLE (orchestrator 02:45 item 1)
+
+**Record.** The table is taken from the 02:37 build, tests/package/proof/ledger_20261113_073738 (code 2cc6c0a3, render
+clock 07:37:38 UTC). That build ended in the pin above. It was read from the record only, with no vendor spend:
+inputs.json, package.json, step_a.json and package.log. Two things were recomputed offline:
+- the stage-3 edge reasons, from the RECORDED scribe replies (Router replay=True; a miss raises, nothing is fetched);
+- the pause levels, from the cached L-v 2 WAVs (CPU).
+
+The full output is in the record as FUNNEL.md and FUNNEL_pre_edge.txt. The two scripts that made them (funnel.py, pre_edge.py) are committed with the ruling-32 change, under its audit.
+
+**Upstream: pp-ingest's adapter excluded 175 rows before the 507.** My recount of the adapter's own rule on the ledger
+(same since, now and 24 h horizon) gives the same 123 hard-flag rows. A row can carry several flags; "alone" counts
+the rows that flag alone excludes.
+
+| lost | alone | exact reason | one example |
+|---|---|---|---|
+| 73 | 59 | hard flag `accusation` (L-u, the miner's risk label) | "Some of my experiences, even in just the Bitcoin community of interacting with economic hitmen, whether that be at the B…" |
+| 28 | 21 | hard flag `imperative` (L-u) | "So if you think about it, stablecoins are going to continue growing regardless of what happens in crypto or even in AI." |
+| 13 | 8 | hard flag `single_source_breaking` (L-u) | "And I think where this is particularly timely is I think we have just witnessed in 2026 an operation Ajax 2.0 in Iran, y…" |
+| 9 | 3 | hard flag `partner_attack` (L-u) | "Uh like this Sailor fanboyism where uh in chapter eight of the Bitcoin Sanders, it says there's only one way to own Bitc…" |
+| 7 | 4 | hard flag `ad_read` (L-u) | "Your Bitcoin secured across five keys three on hardware from different vendors, one on your phone and one held by Casa." |
+| 6 | 5 | hard flag `guaranteed_return` (L-u) | "I mean, look, when I came into crypto, Bitcoin was on the order of a thousand, a couple thousand dollars. So since then,…" |
+| 6 | 5 | hard flag `third_party_media` (L-u) | ">> You know, it's not that important to us. It's a fairly dimminimous amount of capital that they control. We think we t…" |
+| 30 | - | altcoin or not about Bitcoin (the miner's flags) | n/a (the adapter keeps no example) |
+| 22 | - | speaker change inside (caption marker, L-v 1) | n/a |
+
+**Stage 0: 507 ledger rows -> 70 moments (437 not moments)**
+
+| lost | exact reason | one example |
+|---|---|---|
+| 332 | SUPPLY: waits for its OWN window record (the word-pass worker has not reached the row) | n/a |
+| 71 | SUPPLY: no word record yet (none in the store, no sentence-ready window record) | n/a |
+| 15 | duplicate: the same speech as a kept moment (time overlap in one video, L-p) | "The number one way to compromise anything is through social engineering. And so what that means is Bitcoin has the software…" |
+| 12 | not whole sentences of the word record: more than SNAP_WORDS = 3 words of its edge sentences fall outside it (RULING 32'S CASE) | "But you talk to someone in Venezuela and they're like, wait, oh, you're like, oh, it's volatile. It's like, what do you mean…" |
+| 7 | the row's text does not anchor in the word record (sentence_law.anchor) | "Um, but we're willing to underwrite Bitcoin going down 80%. We put cash on the balance sheet. So it's kind of like you mix…" |
+
+The 12 ruling-32 rows, as words of their edge sentences outside the anchored text (before / after):
+- 0/6, 0/9, 9/0, 0/11, 0/11, 2/12, 16/0, 0/32, 0/39, 0/47, 0/47, 0/57.
+- This is not "0 before / 6 to 12 after" for 11 rows: 2 rows snap backward, and 5 rows need 32-57 more words.
+- Each snapped span must be measured against the 20 s clip limit before it is used (see ruling 32 below).
+
+**Stage 1: 70 moments -> 23 usable (47 lost).**
+- A moment is out on screen only when it fails BOTH as hook and as clip, so the CLIP role's flags are the binding
+  reasons.
+- "alone" = the moments that this flag alone keeps out (lifting only it brings them back).
+
+| moments | alone | exact reason (clip role) | one example |
+|---|---|---|---|
+| 17 | 11 | `no_bitcoin`: the words do not match the regex `\b(bitcoins?\|btcs?)\b` (T11, the old story selector's subject screen) | "There's eight and a half billion people. We all have a money problem. It's not like we sort of maybe have a money problem." |
+| 17 | 7 | `too_many_sentences`: more than 3 sentences (T9, the old selector's MAX_WINDOW_SENTENCES) | "Like, you know, I've run a Bitcoin meetup for 10 years now. And I've interacted with thousands of Bitcoiners, as I'm sure you have, Giacomo…" |
+| 16 | 7 | `layout_ineligible`: the channel has a burned-in chyron (registry has_chyron, DEC-12d) | "But the headline sounds far, far, far worse than what's actually happening, right? The cycle ran on time and the calendar split it…" |
+| 7 | 3 | `not_statement`: ends on a question | "I believe open source will win, and I believe Bitcoin will win too. Will that help us find our way back to each other, to nature, and to God?" |
+| 4 | 1 | `opener`: opens on a pronoun or reply word (stand_alone.opener) | "Well, every time Nvidia has taken a hit over the last month, Bitcoin has gone down with it. It doesn't match point for point…" |
+| 3 | 3 | over the 20 s per source video (L-u) | "Can Bitcoin front run it perhaps? But I believe Bitcoin does need the dollar to come back down…" |
+
+**Stage 2: 23 usable -> 9 cleared step A (14 lost; L-s on each moment's own context)**
+
+| moments | alone | exact reason | one example |
+|---|---|---|---|
+| 9 | 9 | `REFERENT_OUTSIDE`: a word refers outside the clip AND resolving it changes the assertion. All 9 were judged "changes: yes"; none failed on an uncertain answer. | "Now if a board can take a founder's company from him in four days, it's worth asking who c…" ('him' -> 'Jensen Huang') |
+| 5 | 5 | `NOT_OWN_SINCERE`: 4 ad reads and 1 hypothetical | "In the world of Bitcoin, security isn't just a feature. It's the entire foundation." (view: ad_read) |
+
+**Stage 3: 9 cleared -> 4 pass L-v 2 + CUTTABLE (5 lost)**
+
+| lost | exact reason | one example, measured |
+|---|---|---|
+| 3 | CUTTABLE IN edge: "the window starts at the clip: no word before it" | "I don't really think Bitcoin and crypto are partisan issues, right?…" The L-v 2 window starts 1.5 s before the clip (PAD_S). The audio there is the tail of a word, then ~1.0 s at -54 to -59 dBFS (a pause). The recogniser heard no word in the pad. |
+| 1 | CUTTABLE OUT edge: "the recogniser has no '68000' within 0.8 s of the clip's end" | "…down around 67 to 68,000." The recogniser wrote "sixty-eight thousand." ending at 9.48 s; the clip ends at 9.44 s; its next word is "James". L-v 2 itself passed this clip. |
+| 1 | L-v 2 FAIL: two speakers measured inside ("Mm-hmm" by a second speaker) | "Bitcoin is like a place where you come. Like, you know, the Bitcoin, everyone gets Bitcoin at the price they deserve…" |
+
+The 3 IN-edge losses, exactly:
+- **CNBC Television GXWj2JO9bz8 and Strategy xfLi0cH_VqM.** Both carry the same speech, "I don't really think
+  Bitcoin and crypto are partisan issues". Both have a measured ~1.0 s pause before the clip.
+- **What Bitcoin Did acxge3Orsv8, clip at 2.35 s.** These are the episode's first words. Nothing is spoken before them
+  in the file. The window starts at 0.85 s, so it does not reach the file head.
+
+**Stage 4: 4 cuttable -> 3 can open (G17a at the pin stage).** One moment did not pass: "0 ms of genuine quiet before
+the hook's first onset < 90 ms" ("But we have very rarely in Bitcoin's history seen six negative weeks…"). It stayed in
+play as a non-hook clip and is clip 1 of the pin.
+
+**Stage 5: the angle step.** 4 moments were offered (42.34 s, 3 channels), and the step gave 3 angles from
+heimdall:deepseek-v4.1-flash. Then:
+- angle 1, line-up 1 (3 clips, 37.5 s): clips alone PASS 5/4/5, with one flagged join;
+- write 1: fidelity FAIL (the takeaway was COMMENTARY);
+- write 2: fidelity, context and coherence PASS -> PIN.
+
+**What rejects moments for reasons that are not integrity.** This is my reading of the table; you rule. Integrity rules
+stay hard, and nothing below is changed without a ruling.
+1. **Stage 1 `no_bitcoin` (17 moments, 11 alone).** It is a literal regex from the old story selector. Every one of
+   these rows already passed the miner's about_bitcoin screen at the adapter. That screen is pp-ingest's BTC_SCREEN,
+   which also counts sats, Satoshi, halving, hash rate and self-custody. The regex misses words such as "Bitcoiners".
+2. **Stage 1 `too_many_sentences` (17, 7 alone).** It is the old selector's 3-sentence cap. The hard limit is 20 s per
+   clip (L-u), and usable() checks that separately.
+3. **Stage 1 `layout_ineligible` (16, 7 alone).** It is a presentation decision (DEC-12d, burned-in chyron), not
+   integrity. It is a standing PBX decision, so it is yours to rule.
+4. **Stage 1 `not_statement` (7, 3 alone): ends on a question.** A question can be a hook.
+5. **Stage 3 IN edge "no word before it" (3).** The rule itself is integrity: the independent recogniser must show a
+   sentence end before the clip. The loss comes from the measurement window (PAD_S = 1.5 s), which ends inside a
+   measured pause. Measuring a longer window before the clip is a measurement change, not an acceptance change.
+   - The third case is an episode's first words. The window would have to reach the file head, and you would rule
+     whether a clip that starts at the first word of the file counts as a sentence start.
+6. **Stage 3 OUT edge "no '68000'" (1).** The edge matcher compares raw word prefixes, so "sixty-eight thousand." does
+   not match "68,000.". L-v 2's own comparison canonicalises numbers and passed this clip. This is a matching defect,
+   flagged (K2) and not changed.
+7. **Upstream `imperative` (28, 21 alone) and `accusation` (73, 59 alone).** These are the miner's labels, and they are
+   L-u hard laws at pp-ingest's adapter. The imperative example above ("So if you think about it, stablecoins are going
+   to continue growing…") is not an imperative. The label quality belongs to pp-ingest; I only report it.
+
+**The integrity losses (they stay):**
+- REFERENT_OUTSIDE 9, NOT_OWN_SINCERE 5, the L-v 2 two-speaker fail 1;
+- "does not anchor" 7, duplicates 15 (L-p), over 20 s 3 (L-u);
+- the upstream caption-marker speaker changes 22.
+
+
+## 02:56 ET: THE ANGLE STEP (orchestrator 02:45 item 3)
+
+**What it demands.** These come from ANGLE_PROMPT (pipeline/package.py:429) and check_angles (:531):
+1. **A SHARED POINT:** "An angle is ONE sentence a viewer could repeat: a point that several of these clips GENUINELY
+   support together (each clip adds a different reason, fact or voice to the same point)." **This is the old strategy
+   leaking in.** L-y asks for one takeaway that is true of every clip, not a point that every clip argues.
+   - The same demand recurs in two more places. The clips-alone verdict (MEDLEY_PROMPT) passes only with "a
+     through-line a viewer can state" and every clip rated >= 4 on "how much it advances that through-line (5 =
+     essential, 1 = off topic)". The writer (WRITE_LY) gets "THE ANGLE (the point this video makes)".
+2. **"moments: the ids of 4 to 8 clips".** The prompt asks for 4 to 8, but check_angles accepts 3-8.
+3. **">= 3 different channels".** The prompt also says "ONE per channel, from 3-5 DIFFERENT channels".
+4. **"together 36.7-51.5 seconds of clips".** This is medley_content_range: one takeaway lands the factory's estimate
+   in 60-70 s (L-o, hard). lineup_for enforces it again.
+5. **The hook:** the first id, "whose FIRST WORDS grab attention AND set up the angle". Each clip also needs a "support"
+   note.
+
+**The 02:21 build's 3 moments.** They were Pompliano 16.23 s, Simply Bitcoin 11.58 s and The Bitcoin Layer 4.80 s:
+32.61 s from 3 channels.
+- **Demand 2 failed (3 offered, 4-8 asked).** Every reply was impossible.
+- **Demand 4 failed (32.61 s < 36.7 s).** This one is binding by itself: lineup_for refuses any line-up of these
+  three, so no angle, shared or not, could have made a 60-70 s video. The supply was short of seconds; the angle was
+  not the bottleneck.
+- **Demand 3 was met** (exactly 3 channels).
+- **Whether demand 1 also refused is NOT RECORDED.** Both replies (seeds 7 and 8) were out of contract ("exactly
+  {'angles': [1-3 items]}": an empty list or more than 3). The router deletes an out-of-contract reply by design, so it
+  is asked again instead of served, and the text is not on disk. I did not spend to re-ask, because the seconds
+  already decide the outcome.
+
+**The 02:37 build, 4 moments.** The step answered with 3 angles. Each angle is a forced single argument through all 4
+clips, for example: "Bitcoin's unstoppable open-source design doesn't prevent rare six-week losing streaks or early
+turns before liquidity, so even institutions keep allocations small." Its first line-up passed and became the pin.
+
+**For your ruling (not done; it changes what a check accepts):**
+- ANGLE_PROMPT would ask for a hook, a play order and one takeaway that is true of every clip (L-q: not every clip on
+  one topic), and for "3 to 8" ids to match check_angles.
+- MEDLEY_PROMPT would rate each clip on whether the takeaway is true of it, and on whether the viewer can follow the
+  join, not on how much it "advances a through-line".
+
+
+## 02:56 ET: RULING 32 (orchestrator 02:45 item 2): in progress
+
+The plan:
+- implement it in ledger_build.reanchor;
+- add tests;
+- run a 2-cycle audit before it is used;
+- then rebuild.
+
+The facts that shape it:
+- **The clip length limit:** the hard limit is SEG_MAX_S = 20 s per clip (L-u). CLIP_S 12-20 and HOOK_S 8-12 only rank
+  (L-o).
+- **The speaker condition, with a CORRECTION.** Caption records DO carry speaker markers. They are stored HTML-escaped
+  as "&gt;&gt;": 454 of 811 records in main's store, 170 of 239 in pp-ingest's store. My earlier "0 of 638" searched for
+  the raw ">>" only, so it was wrong.
+  - pp-ingest's adapter reads these markers (contract.turn_change_inside). A marker after the span's first token is a
+    measured change. No marker is "not measured".
+  - Ruling 32 applies the same rule on the snapped span: a marker inside it is a measured speaker change, and the row
+    stays out.
+  - With no marker, nothing is measured at the snap. Then L-v 2 decides (scribe diarisation: "exactly one speaker
+    measured inside"), together with step A's speaker_changes_inside. Both are hard on the snapped span.
+
+(The status line before this was "NO PIN READY", 02:28-02:53 ET.)
 
 
 ## 02:28 ET: FRESH, the 24 h window (in scope: the integrator's reading of the 01:55 order, item 2)

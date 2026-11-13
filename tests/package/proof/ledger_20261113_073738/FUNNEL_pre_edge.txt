@@ -1,0 +1,30 @@
+
+CNBC Television GXWj2JO9bz8 clip 124.16-138.10, window from 122.66 (pad 1.50 s); IN: the window starts at the clip: no word before it | OUT: a sentence ends at the clip's last word
+  recogniser's first words (s into the window, text, speaker): [(2.0, 'I,', 'speaker_0'), (2.18, 'I', 'speaker_0'), (2.24, "don't", 'speaker_0'), (2.4, 'really', 'speaker_0'), (2.64, 'think', 'speaker_0'), (2.86, 'Bitcoin', 'speaker_0')]
+  pre-clip RMS dBFS per 50 ms: [-11.1, -25.1, -21.4, -21.6, -39.3, -30.8, -33.2, -35.6, -32.2, -39.5, -53.8, -54.4, -56.6, -56.9, -56.8, -56.4, -56.2, -55.3, -55.2, -55.4, -55.7, -55.9, -55.2, -55.3, -56.5, -56.7, -58.1, -57.1, -57.1, -57.4]
+  clip's first 0.5 s RMS dBFS per 50 ms: [-48.0, -46.8, -45.1, -41.6, -41.7, -49.6, -54.8, -55.8, -26.9, -13.4]
+  primary (store) text starts: "I don't really think Bitcoin and crypto are partisan issues, right? Bi"
+
+Strategy (MicroStrategy) xfLi0cH_VqM clip 111.98-125.80, window from 110.48 (pad 1.50 s); IN: the window starts at the clip: no word before it | OUT: a sentence ends at the clip's last word
+  recogniser's first words (s into the window, text, speaker): [(1.92, 'I,', 'speaker_0'), (2.08, 'I', 'speaker_0'), (2.16, "don't", 'speaker_0'), (2.3, 'really', 'speaker_0'), (2.56, 'think', 'speaker_0'), (2.78, 'Bitcoin', 'speaker_0')]
+  pre-clip RMS dBFS per 50 ms: [-27.4, -24.4, -36.1, -36.2, -35.2, -40.9, -36.1, -39.6, -53.8, -56.8, -57.5, -59.0, -58.1, -58.3, -57.2, -56.6, -56.1, -57.0, -56.2, -56.4, -56.2, -55.9, -58.1, -57.7, -58.4, -58.5, -58.3, -58.4, -48.8, -44.5]
+  clip's first 0.5 s RMS dBFS per 50 ms: [-45.3, -39.1, -39.3, -41.6, -51.9, -53.9, -25.9, -12.8, -16.4, -22.2]
+  primary (store) text starts: "I don't really think Bitcoin and crypto are partisan issues, right? Bi"
+
+What Bitcoin Did acxge3Orsv8 clip 2.35-11.81, window from 0.85 (pad 1.50 s); IN: the window starts at the clip: no word before it | OUT: a sentence ends at the clip's last word
+  recogniser's first words (s into the window, text, speaker): [(1.94, 'I', 'speaker_0'), (2.0, 'will', 'speaker_0'), (2.12, 'bet', 'speaker_0'), (2.3, 'you', 'speaker_0'), (2.48, 'one', 'speaker_0'), (2.68, 'Bitcoin', 'speaker_0')]
+  pre-clip RMS dBFS per 50 ms: [-41.5, -46.9, -55.9, -50.7, -45.3, -41.6, -39.0, -44.7, -51.8, -54.9, -50.0, -44.8, -40.8, -39.5, -45.2, -46.0, -46.6, -44.8, -46.3, -45.0, -47.0, -53.8, -48.6, -45.5, -37.5, -40.6, -38.2, -41.0, -43.1, -59.8]
+  clip's first 0.5 s RMS dBFS per 50 ms: [-51.5, -47.1, -42.5, -39.2, -43.0, -45.7, -49.4, -31.3, -17.5, -16.7]
+  primary (store) text starts: "I will bet you one Bitcoin that RSA has broken in 10 years, and I'll b"
+
+What Bitcoin Did acxge3Orsv8 clip 2673.95-2683.63, window from 2672.45 (pad 1.50 s); IN: a sentence ends before the clip | OUT: a sentence ends at the clip's last word
+  recogniser's first words (s into the window, text, speaker): [(0.0, 'sort', 'speaker_0'), (0.42, 'of', 'speaker_0'), (0.46, 'desperation,', 'speaker_0'), (1.16, 'right?', 'speaker_0'), (1.38, 'Bitcoin', 'speaker_0'), (1.82, 'is', 'speaker_0')]
+  pre-clip RMS dBFS per 50 ms: [-19.5, -20.2, -24.1, -31.2, -42.0, -47.5, -59.6, -37.9, -36.7, -19.8, -21.3, -25.9, -41.4, -25.1, -24.9, -24.7, -25.7, -23.8, -26.8, -24.9, -27.4, -31.2, -30.4, -29.1, -27.1, -29.9, -38.8, -25.1, -18.8, -39.3]
+  clip's first 0.5 s RMS dBFS per 50 ms: [-39.1, -20.4, -21.8, -23.2, -22.5, -20.2, -17.1, -24.7, -26.9, -24.4]
+  primary (store) text starts: 'Bitcoin is like a place where you come. Like, you know, the Bitcoin, e'
+
+Simply Bitcoin BS0XC_tixa8 clip 572.74-580.68, window from 571.24 (pad 1.50 s); IN: a sentence ends before the clip | OUT: the recogniser has no '68000' within 0.8 s of the clip's end
+  recogniser's first words (s into the window, text, speaker): [(0.0, 'The', 'speaker_0'), (0.16, 'pain', 'speaker_0'), (0.46, 'is', 'speaker_0'), (0.64, 'real.', 'speaker_0'), (1.5, 'Bitcoin', 'speaker_0'), (1.76, 'has', 'speaker_0')]
+  pre-clip RMS dBFS per 50 ms: [-19.4, -40.4, -36.1, -37.2, -23.6, -25.7, -28.4, -29.6, -30.8, -31.9, -37.5, -39.1, -28.8, -18.7, -20.4, -20.1, -30.1, -42.5, -53.8, -61.2, -62.1, -61.9, -59.3, -58.9, -59.8, -62.0, -59.7, -61.4, -55.0, -44.8]
+  clip's first 0.5 s RMS dBFS per 50 ms: [-20.6, -34.0, -25.9, -18.4, -21.2, -20.0, -28.9, -34.9, -19.4, -35.8]
+  primary (store) text starts: 'Bitcoin has dipped below its 50 -week and its 200 -day moving averages'

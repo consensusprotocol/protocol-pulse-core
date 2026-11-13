@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7cca1a71b2865b43128e03975f8384e569c13927f53eaa461ab990e7d5bda90c",
+ "result": {
+  "text": "where we, where we stand right now. But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back to back. I think that was six. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.28,
+    "text": "where we, where we stand right now. But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back to back. I think that was six. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "where",
+    "start": 0.0,
+    "end": 0.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we,",
+    "start": 0.06,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 0.42,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 0.6,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stand",
+    "start": 0.76,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 1.02,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 1.24,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.46,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.64,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 1.76,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 2.66,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rarely",
+    "start": 3.1,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.54,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 3.68,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "history",
+    "start": 4.14,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 4.58,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "six",
+    "start": 5.38,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "negative",
+    "start": 5.76,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks",
+    "start": 6.18,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 6.9,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.14,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 7.28,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.52,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 7.64,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.0,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 8.119,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.74,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 8.88,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.0,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back.",
+    "start": 10.14,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.48,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.56,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.74,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 10.84,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "six.",
+    "start": 11.0,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 12.08,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.73
+ },
+ "usd": 0.002546,
+ "seconds": 0.94,
+ "recorded_at": "2026-11-13T07:40:35Z"
+}

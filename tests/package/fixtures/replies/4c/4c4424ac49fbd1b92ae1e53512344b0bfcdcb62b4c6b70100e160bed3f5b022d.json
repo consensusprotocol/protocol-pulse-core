@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>it looks like the next support area is the 200 week moving average which is roughly what 68 68k. So this week is going to be interesting. I think we're going to see a lot of volatility to round out this week. But if I was a betting man, which I'm really not, you know, I really don't like to gamble. That's why I'm a Bitcoiner. I would say that probably we will find the floor somewhere around where we currently are and 68 as the 200week moving average. And if you zoom out, the 200week moving average is really it doesn't break below the 200E moving average for that long. So it historically can break below the 200week moving average but usually the 200E moving average is a pretty much generational buy in terms of Bitcoin price action moving forward. So that's really I guess now what we're watching guys. 200E moving average. Are we going to break below? Will it support? Will it hold us? It's uh it's getting it's getting a little it's getting a little brutal out there in price action, guys. Do I think that the bare market is officially or sorry, the bull market is officially over and the bare market's back? No. I will hold my breath until the weekly close. Once I see the weekly close for this week, I I will have a personal better understanding of where we where we stand right</before>\n<moment>But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.</moment>\n<after>six. So is it all over? I hope not. I think the 200E moving average is a is a pretty safe bet. Like if you have cash and you want to and you want to catch falling knives, I think putting some limit orders around the 60 or sorry the 200E moving average is probably going to be a very good buy. It's almost like an insta buy around that price. But also it could be potentially setting up a really solid short squeeze for next week. Like this week price action's pretty bad. We are seeing a lot of shorts pile up above the current price action all the way up into about 83K. It's a lot of liquidity up above the current price action if we get a little bit of spot demand coming back in. It could it could be a pretty fun week next week. But this week guys, it's kind of uh you know, buckle up</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Speaker observes rarity of six consecutive negative weeks in Bitcoin history\"}",
+ "usage": {
+  "in": 999,
+  "out": 441,
+  "usd_reported": 0.00221685
+ },
+ "usd": 0.01602,
+ "seconds": 5.46,
+ "recorded_at": "2026-11-13T07:44:02Z"
+}

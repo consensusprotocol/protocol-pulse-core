@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Open code, rough weeks, small allocations\nCAPTION: a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.\"\nVOICE-OVER: On Simply Bitcoin, the topic is six negative weeks in a row.\nCLIP label=\"clip_01\" (on screen: Simply Bitcoin): \"But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.\"\nCLIP label=\"clip_02\" (on screen: Anthony Pompliano): \"But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.\"\nVOICE-OVER: Durability alone does not make an asset easy to hold through doubt.\nVOICE-OVER: Clips today from Simply Bitcoin, and Anthony Pompliano. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\n  \"through_line\": \"Despite Bitcoin being an open-source technology that cannot be shut down, rare streaks of negative weeks create doubt that leads big holders to keep allocations small.\",\n  \"clips\": {\n    \"hook\": 4,\n    \"clip_01\": 5,\n    \"clip_02\": 5\n  },\n  \"vo_point\": 5\n}",
+ "usage": {
+  "in": 649,
+  "out": 1934,
+  "usd_reported": 0.00551185
+ },
+ "usd": 0.051595,
+ "seconds": 19.43,
+ "recorded_at": "2026-11-13T07:51:36Z"
+}

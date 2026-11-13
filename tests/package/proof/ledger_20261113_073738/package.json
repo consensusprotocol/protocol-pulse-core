@@ -1,0 +1,2286 @@
+{
+ "shape": "medley",
+ "packages": [
+  {
+   "schema": "pp.package/1",
+   "type": "moments",
+   "angle": "Bitcoin's unstoppable open-source design doesn't prevent rare six-week losing streaks or early turns before liquidity, so even institutions keep allocations small.",
+   "vo_kind": "medley (L-y), written, attempt 2",
+   "style": "medley",
+   "segments": [
+    {
+     "label": "hook",
+     "moment_id": "326b88b0592bba35452b",
+     "source_key": "BS0XC_tixa8@949.209-1032.000",
+     "video_id": "BS0XC_tixa8",
+     "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+     "channel": "Simply Bitcoin",
+     "k0": 12,
+     "k1": 14,
+     "words": [
+      165,
+      205
+     ],
+     "start": 994.329,
+     "end": 1005.909,
+     "duration_s": 11.58,
+     "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+     "published_at": "2026-11-12T22:14:35+00:00",
+     "transcript_sha256": "66e70e0d1b2a44bb9d995fa4df41499d6d3448c34abf84010c5352bb54423926",
+     "time_sensitive": false,
+     "source_published_at": "2026-11-12T22:14:35Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=BS0XC_tixa8&t=964s",
+     "speaker": {
+      "name": "unknown",
+      "role": null,
+      "line": null,
+      "basis": null,
+      "why": "nothing in the transcript or clip names a speaker, addresses anyone by name, or ties the first-person statements to any specific person named in the source lines",
+      "people": [],
+      "measured": true,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false
+     }
+    },
+    {
+     "label": "clip_01",
+     "moment_id": "05e5643da9b3c67c371a",
+     "source_key": "WTCwyxW-lHk@1641.408-1743.203",
+     "video_id": "WTCwyxW-lHk",
+     "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+     "channel": "Simply Bitcoin",
+     "k0": 10,
+     "k1": 12,
+     "words": [
+      123,
+      150
+     ],
+     "start": 1685.968,
+     "end": 1695.698,
+     "duration_s": 9.73,
+     "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.",
+     "published_at": "2026-11-12T17:42:43+00:00",
+     "transcript_sha256": "20ff91210ffa023d8209e9bdc06aa18bfc1b330ad49f5d92eb219a8d42571741",
+     "time_sensitive": true,
+     "source_published_at": "2026-11-12T17:42:43Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=WTCwyxW-lHk&t=1655s",
+     "speaker": {
+      "name": "unknown",
+      "role": null,
+      "line": null,
+      "basis": null,
+      "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+      "people": [
+       {
+        "name": "Dan Held",
+        "role": "guest",
+        "line": "00:57:07 - CULTURE: Dan Held shares his 13 years bitcoin experience with us on the current era, price action and has his thesis changed at all??"
+       }
+      ],
+      "measured": true,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false
+     }
+    },
+    {
+     "label": "clip_02",
+     "moment_id": "8ff542f9877c3a1afc36",
+     "source_key": "mJviDNOhIyw@1569.201-1675.315",
+     "video_id": "mJviDNOhIyw",
+     "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+     "channel": "Anthony Pompliano",
+     "k0": 9,
+     "k1": 11,
+     "words": [
+      135,
+      187
+     ],
+     "start": 1614.601,
+     "end": 1630.831,
+     "duration_s": 16.23,
+     "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.",
+     "published_at": "2026-11-12T22:00:05+00:00",
+     "transcript_sha256": "eecf0697932a7a61373f38d050952752aed1666e60ffab8c0648697c9743c153",
+     "time_sensitive": false,
+     "source_published_at": "2026-11-12T22:00:05Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=mJviDNOhIyw&t=1584s",
+     "speaker": {
+      "name": "unknown",
+      "role": null,
+      "line": null,
+      "basis": null,
+      "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+      "people": [
+       {
+        "name": "Anthony Pompliano",
+        "role": "host",
+        "line": "channel: Anthony Pompliano"
+       },
+       {
+        "name": "Matt Cole",
+        "role": "guest",
+        "line": "Matt Cole is the CEO of Strive. In this conversation, we break down Strive\u2019s perpetual preferred equity and how it works as a permanent short on the US dollar. We also discuss digital credit, institutional bitcoin adoption, using bitcoin as the hurdle rate, and the future of the ETF industry."
+       }
+      ],
+      "measured": true,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "replayed": false
+     }
+    }
+   ],
+   "vo": {
+    "intro": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+    "bridges": [
+     "Durability alone does not make an asset easy to hold through doubt."
+    ],
+    "bridges_after_clip": [
+     2
+    ],
+    "signoff": "Clips today from Simply Bitcoin, and Anthony Pompliano. Go follow them for more. Links are below."
+   },
+   "title": "Open code, rough weeks, small allocations",
+   "caption": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+   "hook_first_words": "Bitcoin is the one piece of open source",
+   "lines": [
+    {
+     "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+     "cites": [
+      "05e5643da9b3c67c371a"
+     ],
+     "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+     "slot": "intro"
+    },
+    {
+     "text": "Durability alone does not make an asset easy to hold through doubt.",
+     "cites": [],
+     "slot": "takeaway"
+    },
+    {
+     "text": "Open code, rough weeks, small allocations",
+     "cites": [
+      "326b88b0592bba35452b",
+      "05e5643da9b3c67c371a",
+      "8ff542f9877c3a1afc36"
+     ],
+     "slot": "title"
+    },
+    {
+     "text": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+     "cites": [
+      "326b88b0592bba35452b",
+      "8ff542f9877c3a1afc36"
+     ],
+     "slot": "caption"
+    }
+   ],
+   "runtime_s_estimate": 63.44,
+   "runtime_note": "segments 37.54 s (word timing) + VO 24 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+   "shape": "medley",
+   "bridge": {
+    "after": "hook",
+    "after_clip": 0,
+    "join": "hook -> clip_01",
+    "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+    "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+    "confirmed_by": {
+     "join": "hook -> clip_01",
+     "why": "abrupt jump from philosophical importance to specific price history with no link",
+     "backend": "xai:grok-4.20-0309-reasoning"
+    }
+   },
+   "supply_exception": "one clip per channel cannot fill the medley's seconds from this angle's moments: Simply Bitcoin gives two clips, from two videos (L-y 4)",
+   "no_voice": null,
+   "medley": {
+    "through_line": "Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt jump from philosophical importance to specific price history with no link"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "both discuss Bitcoin price drops and investor/portfolio consequences"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "gates": {
+    "vo_fidelity_deterministic": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.check_deterministic)",
+     "replayed": false,
+     "n": 1
+    },
+    "vo_fidelity_verdict": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "duplicate": {
+     "status": "PASS",
+     "by": "code (package.duplicates)",
+     "replayed": false,
+     "n": 1
+    },
+    "price_now": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.price_now)",
+     "replayed": false,
+     "n": 1
+    },
+    "runtime": {
+     "status": "PASS",
+     "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+     "replayed": false,
+     "n": 1
+    },
+    "r4": {
+     "status": "PASS",
+     "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+     "replayed": false,
+     "n": 1
+    },
+    "context_a": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "context_b": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "context_c": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "exclusion": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "second_pass": {
+     "status": "PASS",
+     "by": [
+      "elevenlabs_stt:scribe_v1"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "cuttable": {
+     "status": "PASS",
+     "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+     "replayed": false,
+     "n": 3
+    },
+    "coherence": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "medley": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1,
+     "flagged": [
+      "hook -> clip_01"
+     ]
+    },
+    "ly_shape": {
+     "status": "PASS",
+     "by": "code (package.ly_shape, L-y)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    },
+    "house_style": {
+     "status": "PASS",
+     "by": "code (house_style.lint_lines, ruling 6)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    },
+    "hook_onset": {
+     "status": "PASS",
+     "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+     "replayed": false,
+     "n": 1,
+     "lead_ms": 250,
+     "cut_in": 994.089,
+     "why": "ok"
+    }
+   },
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   },
+   "checks": {
+    "fidelity": {
+     "deterministic": {
+      "ok": true,
+      "violations": [],
+      "price_now_measured": true
+     },
+     "verdict": {
+      "ok": true,
+      "claims": [
+       {
+        "line": "intro",
+        "words": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+        "class": "attribution",
+        "claim": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+        "supported": "yes",
+        "support": [
+         {
+          "segment": "05e5643da9b3c67c371a",
+          "words": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+         }
+        ],
+        "tests": {}
+       },
+       {
+        "line": "takeaway",
+        "words": "Durability alone does not make an asset easy to hold through doubt.",
+        "class": "commentary",
+        "claim": "Durability alone does not make an asset easy to hold through doubt.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "Open code, rough weeks, small allocations",
+        "class": "commentary",
+        "claim": "Open code, rough weeks, small allocations",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "a network that cannot be shut down still leaves doubt.",
+        "class": "commentary",
+        "claim": "a network that cannot be shut down still leaves doubt.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "that doubt keeps big holders small.",
+        "class": "commentary",
+        "claim": "that doubt keeps big holders small.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       }
+      ],
+      "violations": [],
+      "classes": {
+       "intro": [
+        "attribution"
+       ],
+       "takeaway": [
+        "commentary"
+       ],
+       "title": [
+        "commentary"
+       ],
+       "caption": [
+        "commentary",
+        "commentary"
+       ]
+      }
+     },
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false,
+     "seed": 7,
+     "violations": [],
+     "ok": true
+    },
+    "context": {
+     "segments": {
+      "hook": {
+       "A": {
+        "label": "326b88b0592bba35452b",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "that",
+          "refers_to": "open source technology",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin is the one piece of open source technology that cannot be shut down or removed, so its success means open source wins and holding any is a vote against the digital prison being built around everyone.",
+        "certainty": "certain",
+        "speaker_is": "host",
+        "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "hook",
+        "asserts": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "hook",
+        "asserts": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. Every sat you hold is a vote against the digital prison being built around all of us.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "hook",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        904.277,
+        1033.6
+       ]
+      },
+      "clip_01": {
+       "A": {
+        "label": "05e5643da9b3c67c371a",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "that",
+          "refers_to": "six negative weeks back to back",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [
+         {
+          "text": "in Bitcoin's history",
+          "inside": true
+         }
+        ],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "We have very rarely seen six consecutive negative weeks in Bitcoin's history.",
+        "certainty": "likely",
+        "speaker_is": "host",
+        "speaker_evidence": "that's really I guess now what we're watching guys.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_01",
+        "asserts": "We have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back to back. I think that was six.",
+        "certainty": "likely",
+        "polarity": "negative"
+       },
+       "B0": {
+        "label": "clip_01",
+        "asserts": "We have very rarely in Bitcoin's history seen six negative weeks in a row.",
+        "certainty": "likely",
+        "polarity": "negative"
+       },
+       "C": {
+        "label": "clip_01",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        1595.937,
+        1755.841
+       ]
+      },
+      "clip_02": {
+       "A": {
+        "label": "8ff542f9877c3a1afc36",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "that",
+          "refers_to": "the scenario of dropping 25% in Bitcoin for someone who doesn't understand it when it drops 50%",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [
+         {
+          "text": "if someone doesn't understand Bitcoin and you drop 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%",
+          "inside": true
+         }
+        ],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "If someone doesn't understand Bitcoin and you allocate 25% of their portfolio to it that then drops 50%, you get fired and they sell, which is why firms like BlackRock walked back to a 1-5% allocation.",
+        "certainty": "likely",
+        "speaker_is": "host",
+        "speaker_evidence": "All right, Matt Cole, everyone, thank you.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_02",
+        "asserts": "If someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50%, you get fired and they sell their Bitcoin. That is why you've seen people like BlackRock logically walk that back to 1-5% allocation.",
+        "certainty": "speculative",
+        "polarity": "neutral"
+       },
+       "B0": {
+        "label": "clip_02",
+        "asserts": "If someone doesn't understand Bitcoin and you allocate 25% of their portfolio to it and Bitcoin goes down 50%, you get fired and they sell. This is why firms like BlackRock have walked back to suggesting 1-5% allocation.",
+        "certainty": "likely",
+        "polarity": "neutral"
+       },
+       "C": {
+        "label": "clip_02",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        1524.558,
+        1680.72
+       ]
+      }
+     },
+     "relations": [
+      {
+       "labels": [
+        "hook",
+        "clip_01"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_02"
+       ],
+       "relation": "none"
+      }
+     ],
+     "violations": [],
+     "backends": {
+      "A": {
+       "hook": "xai:grok-4.20-0309-reasoning",
+       "clip_01": "xai:grok-4.20-0309-reasoning",
+       "clip_02": "xai:grok-4.20-0309-reasoning"
+      },
+      "B0": "xai:grok-4.20-0309-reasoning",
+      "B": "xai:grok-4.20-0309-reasoning",
+      "C": "xai:grok-4.20-0309-reasoning"
+     },
+     "measured": true,
+     "replayed": false,
+     "judged": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "ok": true
+    },
+    "coherence": {
+     "through_line": "Despite Bitcoin being an open-source technology that cannot be shut down, rare streaks of negative weeks create doubt that leads big holders to keep allocations small.",
+     "clips": {
+      "hook": 4,
+      "clip_01": 5,
+      "clip_02": 5
+     },
+     "vo_point": 5,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    },
+    "medley": {
+     "through_line": "Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 5
+     },
+     "joins": {
+      "hook -> clip_01": {
+       "followable": false,
+       "why": "abrupt jump from philosophical importance to specific price history with no link"
+      },
+      "clip_01 -> clip_02": {
+       "followable": true,
+       "why": "both discuss Bitcoin price drops and investor/portfolio consequences"
+      }
+     },
+     "flagged": [
+      "hook -> clip_01"
+     ],
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    }
+   },
+   "seconds": 833.4,
+   "usd": 2.12
+  }
+ ],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin's unstoppable open-source design doesn't prevent rare six-week losing streaks or early turns before liquidity, so even institutions keep allocations small.",
+   "lineup": [
+    "326b88b0592bba35452b",
+    "05e5643da9b3c67c371a",
+    "8ff542f9877c3a1afc36"
+   ],
+   "supply_exception": "one clip per channel cannot fill the medley's seconds from this angle's moments: Simply Bitcoin gives two clips, from two videos (L-y 4)",
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 65.44,
+     "bridge": {
+      "after": "hook",
+      "after_clip": 0,
+      "join": "hook -> clip_01",
+      "text": "On Simply Bitcoin, a look at Bitcoin's rare losing streaks.",
+      "why": "Without it, the shift from open-source resilience to a specific stretch of negative weeks feels disconnected.",
+      "confirmed_by": {
+       "join": "hook -> clip_01",
+       "why": "abrupt jump from philosophical importance to specific price history with no link",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      17,
+      20
+     ],
+     "lines": [
+      {
+       "slot": "intro",
+       "text": "On Simply Bitcoin, a look at Bitcoin's rare losing streaks.",
+       "cites": [
+        "05e5643da9b3c67c371a"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "Open rules do not erase market timing. That gap keeps large holders cautious, and it should stay that way.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Open source cannot time the market",
+       "cites": [
+        "326b88b0592bba35452b",
+        "05e5643da9b3c67c371a",
+        "8ff542f9877c3a1afc36"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "open rules do not remove timing risk. that gap shapes how much conviction gets deployed.",
+       "cites": [
+        "326b88b0592bba35452b",
+        "05e5643da9b3c67c371a",
+        "8ff542f9877c3a1afc36"
+       ]
+      }
+     ],
+     "violations": [
+      {
+       "slot": "takeaway",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'That gap keeps large holders cautious, and it should stay that way.' fails imperative_or_prediction"
+      },
+      {
+       "slot": "intro",
+       "rule": "VERDICT_INCOMPLETE",
+       "detail": "no claim covers ['look'] in \"On Simply Bitcoin, a look at Bitcoin's rare losing streaks.\""
+      }
+     ],
+     "verdict_classes": {
+      "intro": [
+       "production",
+       "fact"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "takeaway": [
+       "commentary",
+       "commentary"
+      ],
+      "caption": [
+       "commentary",
+       "commentary"
+      ]
+     }
+    },
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 63.44,
+     "bridge": {
+      "after": "hook",
+      "after_clip": 0,
+      "join": "hook -> clip_01",
+      "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+      "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+      "confirmed_by": {
+       "join": "hook -> clip_01",
+       "why": "abrupt jump from philosophical importance to specific price history with no link",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      10,
+      20
+     ],
+     "lines": [
+      {
+       "slot": "intro",
+       "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+       "cites": [
+        "05e5643da9b3c67c371a"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "Durability alone does not make an asset easy to hold through doubt.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Open code, rough weeks, small allocations",
+       "cites": [
+        "326b88b0592bba35452b",
+        "05e5643da9b3c67c371a",
+        "8ff542f9877c3a1afc36"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+       "cites": [
+        "326b88b0592bba35452b",
+        "8ff542f9877c3a1afc36"
+       ]
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "intro": [
+       "attribution"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary",
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "326b88b0592bba35452b": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Moment promotes Bitcoin as open-source tech that resists shutdown and control",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "05e5643da9b3c67c371a": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker observes rarity of six consecutive negative weeks in Bitcoin history",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "8ff542f9877c3a1afc36": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Explains Bitcoin portfolio allocation risks and why firms like BlackRock limit exposure",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "326b88b0592bba35452b": {
+       "video_id": "BS0XC_tixa8",
+       "start": 994.329,
+       "end": 1005.909,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced, or removed. If Bitcoin wins, open source wins, and every sat you hold is a vote against the digital prison being built around all of us.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "1"
+        ],
+        "negations": [
+         "can't"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "BS0XC_tixa8_992829_1007409.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Bitcoin",
+         "before": "human.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "us.",
+         "after": "So",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "05e5643da9b3c67c371a": {
+       "video_id": "WTCwyxW-lHk",
+       "start": 1685.968,
+       "end": 1695.698,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back to back. I think that was six.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "6",
+         "6"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "WTCwyxW-lHk_1684468_1697198.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "But",
+         "before": "now.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "six.",
+         "after": "So",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "8ff542f9877c3a1afc36": {
+       "video_id": "mJviDNOhIyw",
+       "start": 1614.601,
+       "end": 1630.831,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "But then if someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50%, you get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one five percent allocation.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "25",
+         "50",
+         "1",
+         "5"
+        ],
+        "negations": [
+         "doesn't"
+        ],
+        "names": [
+         "BlackRock"
+        ]
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "mJviDNOhIyw_1613101_1632331.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "But",
+         "before": "portfolio.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "allocation.",
+         "after": "And",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Despite Bitcoin being an open-source technology that cannot be shut down, rare streaks of negative weeks create doubt that leads big holders to keep allocations small.",
+      "clips": {
+       "hook": 4,
+       "clip_01": 5,
+       "clip_02": 5
+      },
+      "vo_point": 5,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt jump from philosophical importance to specific price history with no link"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "both discuss Bitcoin price drops and investor/portfolio consequences"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "result": "PACKAGE"
+  }
+ ],
+ "unusable": {
+  "16a7c6c3d110c411f759": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "df03a41d4042bcc725bb": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "122695e46c698b2a6557": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "3ef9d4de892af5cca51a": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "a9a7b471d917763f8dbb": "not eligible on screen: hook: layout_ineligible, hook_lead; clip: layout_ineligible",
+  "f7ec06ffcf4dfb600973": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "1e75fe8c36e5f7cd45e9": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "5217250daaec7267e57d": "not eligible on screen: hook: opener, no_bitcoin, hook_lead; clip: no_bitcoin",
+  "a4bfff4015e2bc11a4ab": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "b6391ff95cb1ef5a2063": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "bb667f8f01f8d838d88a": "not eligible on screen: hook: not_statement, opener, too_many_sentences; clip: not_statement, too_many_sentences",
+  "c58e95e73ab9e1e7f4a3": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "34b943930289128d51a4": "not eligible on screen: hook: layout_ineligible, too_many_sentences; clip: layout_ineligible, too_many_sentences",
+  "5e3daf6741a46dcba548": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "a33d652b96d7020f970a": "not eligible on screen: hook: layout_ineligible, opener, too_many_sentences; clip: layout_ineligible, too_many_sentences",
+  "acc0e7982d506384e1d0": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "0f50515021b30ddfbec6": "not eligible on screen: hook: not_statement, too_many_sentences; clip: not_statement, too_many_sentences",
+  "1e2bb73ac82b4d7665ca": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "4178ddd19465e979f8f1": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "b618302f54cdb669520f": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "c28f29b576c2cd7ef805": "not eligible on screen: hook: not_statement, no_bitcoin; clip: not_statement, no_bitcoin",
+  "102c159070b6117b5dfc": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "c1112b13bb88daba32ba": "not eligible on screen: hook: layout_ineligible, too_many_sentences, hook_lead; clip: layout_ineligible, too_many_sentences",
+  "12b74e9893af988262c6": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "36fe85b3dae986208380": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "4c6a5339e833e18dcfee": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "da6df4e8b39553cf9c20": "not eligible on screen: hook: not_statement, too_many_sentences; clip: not_statement, too_many_sentences",
+  "e8b910e6041e1e8033b6": "not eligible on screen: hook: layout_ineligible, opener, too_many_sentences; clip: layout_ineligible, too_many_sentences",
+  "6ca2fa2312c708ff6145": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "896d7f492e5f77e4da7a": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "904b25c5d5e37d19913e": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "b2bf0b55140f711795d0": "not eligible on screen: hook: layout_ineligible, opener, too_many_sentences, no_bitcoin; clip: layout_ineligible, too_many_sentences, no_bitcoin",
+  "b36b3ff54650a043183a": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "c869d7f10b2821d9a1f5": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "f159818401398182a256": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "0a7f484be379188f64ef": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "810f058d45f2831e0b0b": "20.06 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cebf528e7f0a9b482156": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "ff84fb3a9eba7f43ab5f": "21.82 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "51e08e417bc63324ee48": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "358ecb08f94c6ba7aba6": "not eligible on screen: hook: opener; clip: opener",
+  "49324a44353254567fe7": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "96196a23c87ed724acf0": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, opener, no_bitcoin",
+  "fc6210c28e9d1eaf2dd3": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "1b82dacefeedb64dae9d": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "4cd1e2ff6234a0aea238": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "8071219c5dfba7c99978": "21.95 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 23,
+ "current_levels": [
+  68000.0,
+  71000.0
+ ],
+ "prescreen": {
+  "screened": 23,
+  "cleared": 9,
+  "failed": {
+   "16df0954cc411a943bbc": [
+    "REFERENT_OUTSIDE"
+   ],
+   "b799cf6a63d3a47d7d9d": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8935a0b351127fe16b1c": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8eb7874dda967502eb6b": [
+    "NOT_OWN_SINCERE"
+   ],
+   "6f6d6f54de605b086ab3": [
+    "NOT_OWN_SINCERE"
+   ],
+   "eb63e8dcd4eb9502451e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "0d4d772b8d54fe42950f": [
+    "REFERENT_OUTSIDE"
+   ],
+   "bb57e854fd863e0773ef": [
+    "NOT_OWN_SINCERE"
+   ],
+   "ce90631aaac92be0d6d1": [
+    "REFERENT_OUTSIDE"
+   ],
+   "eb5ef19bc37fa4ee9ad5": [
+    "REFERENT_OUTSIDE"
+   ],
+   "88574641595f10d34454": [
+    "REFERENT_OUTSIDE"
+   ],
+   "301b5c1e6f3f2a8a2eb3": [
+    "REFERENT_OUTSIDE"
+   ],
+   "28fb4e4d24ab818032f0": [
+    "REFERENT_OUTSIDE"
+   ],
+   "720619e88bc57e6948e8": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "second_pass": {
+   "a45d26b88cd5b176ae13": "not cuttable at an edge (ruling C / 7)",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "3a6cb29a4d904118192c": "not cuttable at an edge (ruling C / 7)",
+   "326b88b0592bba35452b": "PASS",
+   "8ff542f9877c3a1afc36": "PASS",
+   "95d20143d5e2af5612b1": "not cuttable at an edge (ruling C / 7)",
+   "f83f52fc4f432b465030": "L-v 2 FAIL",
+   "4e1c31ba109b9b76b357": "not cuttable at an edge (ruling C / 7)",
+   "05e5643da9b3c67c371a": "PASS"
+  },
+  "cuttable": 4,
+  "hook_onset": {
+   "326b88b0592bba35452b": "PASS",
+   "05e5643da9b3c67c371a": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "8ff542f9877c3a1afc36": "PASS"
+  }
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin's unstoppable open-source design doesn't prevent rare six-week losing streaks or early turns before liquidity, so even institutions keep allocations small.",
+   "moments": [
+    "326b88b0592bba35452b",
+    "05e5643da9b3c67c371a",
+    "2e77a0a7af2aab66a3a4",
+    "8ff542f9877c3a1afc36"
+   ],
+   "hook": "326b88b0592bba35452b"
+  },
+  {
+   "angle": "Bitcoin can turn before macro liquidity does, but its rare six-week losing streaks mean investors must keep allocations small enough to avoid forced selling.",
+   "moments": [
+    "2e77a0a7af2aab66a3a4",
+    "05e5643da9b3c67c371a",
+    "8ff542f9877c3a1afc36",
+    "326b88b0592bba35452b"
+   ],
+   "hook": "2e77a0a7af2aab66a3a4"
+  },
+  {
+   "angle": "Bitcoin's rare six-week losing streaks and early turns before liquidity explain why institutions cap allocations at 1-5% for people who don't understand it.",
+   "moments": [
+    "8ff542f9877c3a1afc36",
+    "05e5643da9b3c67c371a",
+    "2e77a0a7af2aab66a3a4",
+    "326b88b0592bba35452b"
+   ],
+   "hook": "8ff542f9877c3a1afc36"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "Open rules do not erase market timing. That gap keeps large holders cautious, and it should stay that way.",
+   "words": 19,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [
+    "COMMENTARY"
+   ],
+   "passed": false,
+   "context_framing": []
+  },
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 2,
+   "text": "Durability alone does not make an asset easy to hold through doubt.",
+   "words": 12,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": {
+  "schema": "pp.package/1",
+  "type": "moments",
+  "angle": "Bitcoin's unstoppable open-source design doesn't prevent rare six-week losing streaks or early turns before liquidity, so even institutions keep allocations small.",
+  "vo_kind": "medley (L-y), written, attempt 2",
+  "style": "medley",
+  "segments": [
+   {
+    "label": "hook",
+    "moment_id": "326b88b0592bba35452b",
+    "source_key": "BS0XC_tixa8@949.209-1032.000",
+    "video_id": "BS0XC_tixa8",
+    "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+    "channel": "Simply Bitcoin",
+    "k0": 12,
+    "k1": 14,
+    "words": [
+     165,
+     205
+    ],
+    "start": 994.329,
+    "end": 1005.909,
+    "duration_s": 11.58,
+    "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+    "published_at": "2026-11-12T22:14:35+00:00",
+    "transcript_sha256": "66e70e0d1b2a44bb9d995fa4df41499d6d3448c34abf84010c5352bb54423926",
+    "time_sensitive": false,
+    "source_published_at": "2026-11-12T22:14:35Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=BS0XC_tixa8&t=964s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "nothing in the transcript or clip names a speaker, addresses anyone by name, or ties the first-person statements to any specific person named in the source lines",
+     "people": [],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   },
+   {
+    "label": "clip_01",
+    "moment_id": "05e5643da9b3c67c371a",
+    "source_key": "WTCwyxW-lHk@1641.408-1743.203",
+    "video_id": "WTCwyxW-lHk",
+    "channel_id": "UCB6Q0S1gUHXMe5-Jjx0_laQ",
+    "channel": "Simply Bitcoin",
+    "k0": 10,
+    "k1": 12,
+    "words": [
+     123,
+     150
+    ],
+    "start": 1685.968,
+    "end": 1695.698,
+    "duration_s": 9.73,
+    "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.",
+    "published_at": "2026-11-12T17:42:43+00:00",
+    "transcript_sha256": "20ff91210ffa023d8209e9bdc06aa18bfc1b330ad49f5d92eb219a8d42571741",
+    "time_sensitive": true,
+    "source_published_at": "2026-11-12T17:42:43Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=WTCwyxW-lHk&t=1655s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+     "people": [
+      {
+       "name": "Dan Held",
+       "role": "guest",
+       "line": "00:57:07 - CULTURE: Dan Held shares his 13 years bitcoin experience with us on the current era, price action and has his thesis changed at all??"
+      }
+     ],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   },
+   {
+    "label": "clip_02",
+    "moment_id": "8ff542f9877c3a1afc36",
+    "source_key": "mJviDNOhIyw@1569.201-1675.315",
+    "video_id": "mJviDNOhIyw",
+    "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+    "channel": "Anthony Pompliano",
+    "k0": 9,
+    "k1": 11,
+    "words": [
+     135,
+     187
+    ],
+    "start": 1614.601,
+    "end": 1630.831,
+    "duration_s": 16.23,
+    "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.",
+    "published_at": "2026-11-12T22:00:05+00:00",
+    "transcript_sha256": "eecf0697932a7a61373f38d050952752aed1666e60ffab8c0648697c9743c153",
+    "time_sensitive": false,
+    "source_published_at": "2026-11-12T22:00:05Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=mJviDNOhIyw&t=1584s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+     "people": [
+      {
+       "name": "Anthony Pompliano",
+       "role": "host",
+       "line": "channel: Anthony Pompliano"
+      },
+      {
+       "name": "Matt Cole",
+       "role": "guest",
+       "line": "Matt Cole is the CEO of Strive. In this conversation, we break down Strive\u2019s perpetual preferred equity and how it works as a permanent short on the US dollar. We also discuss digital credit, institutional bitcoin adoption, using bitcoin as the hurdle rate, and the future of the ETF industry."
+      }
+     ],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   }
+  ],
+  "vo": {
+   "intro": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+   "bridges": [
+    "Durability alone does not make an asset easy to hold through doubt."
+   ],
+   "bridges_after_clip": [
+    2
+   ],
+   "signoff": "Clips today from Simply Bitcoin, and Anthony Pompliano. Go follow them for more. Links are below."
+  },
+  "title": "Open code, rough weeks, small allocations",
+  "caption": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+  "hook_first_words": "Bitcoin is the one piece of open source",
+  "lines": [
+   {
+    "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+    "cites": [
+     "05e5643da9b3c67c371a"
+    ],
+    "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+    "slot": "intro"
+   },
+   {
+    "text": "Durability alone does not make an asset easy to hold through doubt.",
+    "cites": [],
+    "slot": "takeaway"
+   },
+   {
+    "text": "Open code, rough weeks, small allocations",
+    "cites": [
+     "326b88b0592bba35452b",
+     "05e5643da9b3c67c371a",
+     "8ff542f9877c3a1afc36"
+    ],
+    "slot": "title"
+   },
+   {
+    "text": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+    "cites": [
+     "326b88b0592bba35452b",
+     "8ff542f9877c3a1afc36"
+    ],
+    "slot": "caption"
+   }
+  ],
+  "runtime_s_estimate": 63.44,
+  "runtime_note": "segments 37.54 s (word timing) + VO 24 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+  "shape": "medley",
+  "bridge": {
+   "after": "hook",
+   "after_clip": 0,
+   "join": "hook -> clip_01",
+   "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+   "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+   "confirmed_by": {
+    "join": "hook -> clip_01",
+    "why": "abrupt jump from philosophical importance to specific price history with no link",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "supply_exception": "one clip per channel cannot fill the medley's seconds from this angle's moments: Simply Bitcoin gives two clips, from two videos (L-y 4)",
+  "no_voice": null,
+  "medley": {
+   "through_line": "Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 5
+   },
+   "joins": {
+    "hook -> clip_01": {
+     "followable": false,
+     "why": "abrupt jump from philosophical importance to specific price history with no link"
+    },
+    "clip_01 -> clip_02": {
+     "followable": true,
+     "why": "both discuss Bitcoin price drops and investor/portfolio consequences"
+    }
+   },
+   "flagged": [
+    "hook -> clip_01"
+   ],
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": [
+     "hook -> clip_01"
+    ]
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "hook_onset": {
+    "status": "PASS",
+    "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+    "replayed": false,
+    "n": 1,
+    "lead_ms": 250,
+    "cut_in": 994.089,
+    "why": "ok"
+   }
+  },
+  "models": {
+   "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+   "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+   "medley": "xai:grok-4.20-0309-reasoning",
+   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+   "context": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "coherence": "xai:grok-4.20-0309-reasoning"
+  },
+  "checks": {
+   "fidelity": {
+    "deterministic": {
+     "ok": true,
+     "violations": [],
+     "price_now_measured": true
+    },
+    "verdict": {
+     "ok": true,
+     "claims": [
+      {
+       "line": "intro",
+       "words": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+       "class": "attribution",
+       "claim": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+       "supported": "yes",
+       "support": [
+        {
+         "segment": "05e5643da9b3c67c371a",
+         "words": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+        }
+       ],
+       "tests": {}
+      },
+      {
+       "line": "takeaway",
+       "words": "Durability alone does not make an asset easy to hold through doubt.",
+       "class": "commentary",
+       "claim": "Durability alone does not make an asset easy to hold through doubt.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "Open code, rough weeks, small allocations",
+       "class": "commentary",
+       "claim": "Open code, rough weeks, small allocations",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "a network that cannot be shut down still leaves doubt.",
+       "class": "commentary",
+       "claim": "a network that cannot be shut down still leaves doubt.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "that doubt keeps big holders small.",
+       "class": "commentary",
+       "claim": "that doubt keeps big holders small.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      }
+     ],
+     "violations": [],
+     "classes": {
+      "intro": [
+       "attribution"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary",
+       "commentary"
+      ]
+     }
+    },
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false,
+    "seed": 7,
+    "violations": [],
+    "ok": true
+   },
+   "context": {
+    "segments": {
+     "hook": {
+      "A": {
+       "label": "326b88b0592bba35452b",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "that",
+         "refers_to": "open source technology",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin is the one piece of open source technology that cannot be shut down or removed, so its success means open source wins and holding any is a vote against the digital prison being built around everyone.",
+       "certainty": "certain",
+       "speaker_is": "host",
+       "speaker_evidence": "I'm Hurley. This is Truth Block with Simply Bitcoin.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "hook",
+       "asserts": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "hook",
+       "asserts": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. Every sat you hold is a vote against the digital prison being built around all of us.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "hook",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       904.277,
+       1033.6
+      ]
+     },
+     "clip_01": {
+      "A": {
+       "label": "05e5643da9b3c67c371a",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "that",
+         "refers_to": "six negative weeks back to back",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [
+        {
+         "text": "in Bitcoin's history",
+         "inside": true
+        }
+       ],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "We have very rarely seen six consecutive negative weeks in Bitcoin's history.",
+       "certainty": "likely",
+       "speaker_is": "host",
+       "speaker_evidence": "that's really I guess now what we're watching guys.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_01",
+       "asserts": "We have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back to back. I think that was six.",
+       "certainty": "likely",
+       "polarity": "negative"
+      },
+      "B0": {
+       "label": "clip_01",
+       "asserts": "We have very rarely in Bitcoin's history seen six negative weeks in a row.",
+       "certainty": "likely",
+       "polarity": "negative"
+      },
+      "C": {
+       "label": "clip_01",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       1595.937,
+       1755.841
+      ]
+     },
+     "clip_02": {
+      "A": {
+       "label": "8ff542f9877c3a1afc36",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "that",
+         "refers_to": "the scenario of dropping 25% in Bitcoin for someone who doesn't understand it when it drops 50%",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [
+        {
+         "text": "if someone doesn't understand Bitcoin and you drop 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%",
+         "inside": true
+        }
+       ],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "If someone doesn't understand Bitcoin and you allocate 25% of their portfolio to it that then drops 50%, you get fired and they sell, which is why firms like BlackRock walked back to a 1-5% allocation.",
+       "certainty": "likely",
+       "speaker_is": "host",
+       "speaker_evidence": "All right, Matt Cole, everyone, thank you.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_02",
+       "asserts": "If someone doesn't understand Bitcoin and you drop 25% of their portfolio in Bitcoin and Bitcoin goes down 50%, you get fired and they sell their Bitcoin. That is why you've seen people like BlackRock logically walk that back to 1-5% allocation.",
+       "certainty": "speculative",
+       "polarity": "neutral"
+      },
+      "B0": {
+       "label": "clip_02",
+       "asserts": "If someone doesn't understand Bitcoin and you allocate 25% of their portfolio to it and Bitcoin goes down 50%, you get fired and they sell. This is why firms like BlackRock have walked back to suggesting 1-5% allocation.",
+       "certainty": "likely",
+       "polarity": "neutral"
+      },
+      "C": {
+       "label": "clip_02",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       1524.558,
+       1680.72
+      ]
+     }
+    },
+    "relations": [
+     {
+      "labels": [
+       "hook",
+       "clip_01"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_02"
+      ],
+      "relation": "none"
+     }
+    ],
+    "violations": [],
+    "backends": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "measured": true,
+    "replayed": false,
+    "judged": [
+     "hook",
+     "clip_01",
+     "clip_02"
+    ],
+    "ok": true
+   },
+   "coherence": {
+    "through_line": "Despite Bitcoin being an open-source technology that cannot be shut down, rare streaks of negative weeks create doubt that leads big holders to keep allocations small.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 5
+    },
+    "vo_point": 5,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley": {
+    "through_line": "Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt jump from philosophical importance to specific price history with no link"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "both discuss Bitcoin price drops and investor/portfolio consequences"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   }
+  },
+  "seconds": 833.4,
+  "usd": 2.12
+ },
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 833.4,
+ "usd": 2.12,
+ "usd_estimate": 2.12,
+ "usd_best_known": 0.2059,
+ "full": {
+  "est": 2.4126,
+  "best": 0.26,
+  "model_s": 1124.38,
+  "calls": 28
+ },
+ "code": "2cc6c0a3+d80eba78be87",
+ "now": "2026-11-13T07:37:38.262997+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 507,
+  "no_word_record": 71,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 71
+  },
+  "no_word_record_videos": {
+   "ArpmEcnzCCM": {
+    "rows": 13,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "zZM2ZmHYIGw": {
+    "rows": 2,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "WghTi5Ep4ro": {
+    "rows": 25,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "YSF_wkyArYY": {
+    "rows": 5,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "mKNAcOFMYD4": {
+    "rows": 11,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "8HRAH-P7I4g": {
+    "rows": 11,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "W4PIkmjwGsQ": {
+    "rows": 4,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "acxge3Orsv8": [
+    "transcripts/acxge3Orsv8/windows/1768.035-1863.710.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1585.579-1685.080.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2256.200-2354.670.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/0.000-57.070.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2628.888-2728.816.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1311.882-1416.990.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1323.720-1421.910.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1177.063-1271.317.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1678.279-1784.830.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2400.353-2493.281.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2256.200-2349.370.whisper_words_punct.json"
+   ],
+   "BS0XC_tixa8": [
+    "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/956.097-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-385.970.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/867.891-971.790.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/624.807-735.146.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/535.818-636.487.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/543.979-640.457.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-387.586.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-89.648.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/638.631-737.943.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/924.858-1021.856.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/782.600-882.246.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/792.310-891.389.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/505.410-606.137.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/527.640-625.741.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/683.959-787.372.whisper_words_punct.json"
+   ],
+   "-6iycj8dTss": [
+    "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.000-55.664.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/38.621-145.710.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.953-102.481.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/352.840-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/73.717-172.144.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/182.949-298.289.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/222.612-331.651.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/110.756-209.317.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/313.125-422.085.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/381.615-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/290.331-393.816.whisper_words_punct.json"
+   ],
+   "4msljdLlmnU": [
+    "transcripts/4msljdLlmnU/windows/2116.472-2237.103.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3530.897-3640.589.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/6052.578-6164.548.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3539.038-3642.606.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/831.718-931.671.whisper_words_punct.json"
+   ],
+   "mJviDNOhIyw": [
+    "transcripts/mJviDNOhIyw/windows/226.017-334.510.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/215.816-320.243.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/538.862-638.214.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1115.454-1223.424.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/244.520-346.151.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/734.572-839.025.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/453.918-558.470.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/232.586-340.656.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1087.335-1202.778.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1569.201-1675.315.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/922.388-1035.096.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1604.968-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/356.842-468.780.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/140.264-242.377.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/783.324-894.632.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/766.353-873.270.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1023.490-1139.401.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1136.764-1245.414.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1127.085-1226.669.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1561.675-1667.932.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1608.479-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1322.712-1430.124.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1073.621-1170.420.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1235.140-1367.374.whisper_words_punct.json"
+   ],
+   "WTCwyxW-lHk": [
+    "transcripts/WTCwyxW-lHk/windows/4123.607-4241.490.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1641.408-1743.203.whisper_words_punct.json"
+   ],
+   "5yaK-qNOKqE": [
+    "transcripts/5yaK-qNOKqE/windows/1013.665-1110.150.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/539.732-639.400.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/0.000-71.040.whisper_words_punct.json"
+   ],
+   "jNp4JtVtvWQ": [
+    "transcripts/jNp4JtVtvWQ/windows/570.668-679.281.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1276.069-1411.547.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1315.393-1435.454.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1174.055-1281.445.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1926.440-2041.003.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/104.367-212.424.whisper_words_punct.json"
+   ],
+   "GXWj2JO9bz8": [
+    "transcripts/GXWj2JO9bz8/windows/89.767-196.575.whisper_words_punct.json"
+   ],
+   "HWuMai_mAug": [
+    "transcripts/HWuMai_mAug/windows/1690.622-1805.272.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/641.847-757.800.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1680.317-1784.285.whisper_words_punct.json"
+   ],
+   "1vg1cufkadc": [
+    "transcripts/1vg1cufkadc/windows/2731.583-2834.250.whisper_words_punct.json"
+   ],
+   "QthZS6fDFh0": [
+    "transcripts/QthZS6fDFh0/windows/520.680-628.509.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/610.396-720.750.whisper_words_punct.json"
+   ],
+   "RTck1cfw3GY": [
+    "transcripts/RTck1cfw3GY/windows/579.079-666.000.whisper_words_punct.json"
+   ],
+   "xfLi0cH_VqM": [
+    "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/170.496-274.509.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/175.177-274.509.whisper_words_punct.json"
+   ],
+   "lYca6Bg0FkM": [
+    "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/324.574-419.606.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/418.599-523.127.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/15.652-127.219.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/658.742-760.000.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/206.599-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/531.019-646.172.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/318.964-417.444.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/350.985-453.231.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/216.820-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/0.000-102.670.whisper_words_punct.json"
+   ],
+   "eHfc3uZPzYc": [
+    "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 332,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "5d4fc9180ddc36df0d1d": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "8cdc9387e80b6fdd1dbc": "the anchored text is not whole sentences of the word record (0 word(s) before it and 6 after it inside its edge sentences; at most 3)",
+   "700d175431139cef9d04": "the anchored text is not whole sentences of the word record (2 word(s) before it and 12 after it inside its edge sentences; at most 3)",
+   "35f403d415d518b14586": "the row's text does not anchor in the word record (sentence_law.anchor, searched 241-320 s)",
+   "7242d436827e66a080c8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 554-623 s)",
+   "92bab9e3c71c9e146acf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1130-1208 s)",
+   "c627679ac7b969fc04f0": "the anchored text is not whole sentences of the word record (0 word(s) before it and 39 after it inside its edge sentences; at most 3)",
+   "d8e41854d328617c1e0c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 469-543 s)",
+   "f26da623f40a82f837eb": "the anchored text is not whole sentences of the word record (9 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "24b980f447493d07af9b": "the anchored text is not whole sentences of the word record (0 word(s) before it and 47 after it inside its edge sentences; at most 3)",
+   "66c931f8324de6e1c613": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1152-1230 s)",
+   "fb2912a0450eb6593999": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1142-1212 s)",
+   "ae77e7982c51d938c130": "the anchored text is not whole sentences of the word record (0 word(s) before it and 32 after it inside its edge sentences; at most 3)",
+   "27a57a8f569f4b930d10": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1291-1397 s)",
+   "8233de7d0812aa8f81b2": "the anchored text is not whole sentences of the word record (0 word(s) before it and 11 after it inside its edge sentences; at most 3)",
+   "2a4ea58277bc25a1a003": "the anchored text is not whole sentences of the word record (0 word(s) before it and 47 after it inside its edge sentences; at most 3)",
+   "5703fd9c38620e4d2e49": "the anchored text is not whole sentences of the word record (16 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "24d7c1b7024bbcff04a4": "the anchored text is not whole sentences of the word record (0 word(s) before it and 11 after it inside its edge sentences; at most 3)",
+   "fe56662e63c4664c3e41": "the anchored text is not whole sentences of the word record (0 word(s) before it and 57 after it inside its edge sentences; at most 3)"
+  },
+  "malformed": {},
+  "duplicates": 15,
+  "duplicates_of": {
+   "706326f11b5200502315": "63e4ee88367d8faa9bc9",
+   "69091c3f0099b749f466": "6cd19b5db7cfe51ceebc",
+   "33e1a38c8a2f1fae3d32": "2cbfca353511dc5c92c2",
+   "dfde70043a82e3a6e227": "7b6e62ea0fbe37be7408",
+   "47c34386c4994a945d0b": "d7899e5a37203b45c07a",
+   "98ae27d234079bdaaa69": "a5f5e1f06421da7e8955",
+   "9a2bb7065288ed039953": "40f162dd1c5caa94e1dd",
+   "ca9280e1b53d54caca7b": "55f5e2be2dac6ae33e98",
+   "74aa0d65fe2ce26505b6": "4138df2ee9cfce182dac",
+   "8533bef7d59bfafca173": "dcd2ee89c6490bba3587",
+   "4e12f09e7b5009cfdc7e": "09726516dbd81cec5f0f",
+   "b84d83b6b56cf8cd1b75": "21cdf7dc2d46339a1548",
+   "272f2a914aa1f0ea6953": "b256bf8d178283dff8df",
+   "832252b379c58c6e485c": "a2eeb075fe7d1420a616",
+   "0fecafbfbaf6b71c38f0": "0032edb1b34015e3895d"
+  },
+  "moments": 70,
+  "videos": 15,
+  "sources": 70,
+  "word_records": {},
+  "word_pass": {
+   "rows": 160,
+   "unreadable": 0,
+   "ready": 142,
+   "not_ready": 18,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "pin": {
+  "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+  "story_id": "moments-ledger_20261113_073738-d2657bbe",
+  "package_sha256": "d2657bbe123def7db639730ab698d7c313464cffd6d39ed5563c9c53a6de4890"
+ }
+}

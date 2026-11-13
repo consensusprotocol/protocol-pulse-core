@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.\"\nCLIP label=\"clip_01\" (on screen: Simply Bitcoin): \"But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.\"\nCLIP label=\"clip_02\" (on screen: Anthony Pompliano): \"But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin is an un-shuttable open-source technology that resists digital prisons, but its rare streaks of negative performance weeks are leading institutions to limit portfolio allocations due to volatility risks.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 4,\n    \"clip_02\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": false,\n      \"why\": \"abrupt jump from philosophical importance to specific price history with no link\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"both discuss Bitcoin price drops and investor/portfolio consequences\"\n    }\n  }\n}",
+ "usage": {
+  "in": 628,
+  "out": 3239,
+  "usd_reported": 0.0087481
+ },
+ "usd": 0.084115,
+ "seconds": 36.83,
+ "recorded_at": "2026-11-13T07:43:56Z"
+}

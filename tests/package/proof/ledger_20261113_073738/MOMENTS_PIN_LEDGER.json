@@ -1,0 +1,292 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-ledger_20261113_073738-d2657bbe",
+ "label": "bitcoin",
+ "headline": "Open code, rough weeks, small allocations",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-13T07:53:42+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, ledger_20261113_073738)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "BS0XC_tixa8",
+   "channel": "Simply Bitcoin",
+   "start": 994.329,
+   "end": 1005.909,
+   "approved_text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us.",
+   "transcript_sha256": "66e70e0d1b2a44bb9d995fa4df41499d6d3448c34abf84010c5352bb54423926",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-12T22:14:35Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "nothing in the transcript or clip names a speaker, addresses anyone by name, or ties the first-person statements to any specific person named in the source lines",
+    "people": [],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "start": 1685.968,
+   "end": 1695.698,
+   "approved_text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six.",
+   "transcript_sha256": "20ff91210ffa023d8209e9bdc06aa18bfc1b330ad49f5d92eb219a8d42571741",
+   "time_sensitive": true,
+   "source_published_at": "2026-11-12T17:42:43Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+    "people": [
+     {
+      "name": "Dan Held",
+      "role": "guest",
+      "line": "00:57:07 - CULTURE: Dan Held shares his 13 years bitcoin experience with us on the current era, price action and has his thesis changed at all??"
+     }
+    ],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "start": 1614.601,
+   "end": 1630.831,
+   "approved_text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation.",
+   "transcript_sha256": "eecf0697932a7a61373f38d050952752aed1666e60ffab8c0648697c9743c153",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-12T22:00:05Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+    "people": [
+     {
+      "name": "Anthony Pompliano",
+      "role": "host",
+      "line": "channel: Anthony Pompliano"
+     },
+     {
+      "name": "Matt Cole",
+      "role": "guest",
+      "line": "Matt Cole is the CEO of Strive. In this conversation, we break down Strive\u2019s perpetual preferred equity and how it works as a permanent short on the US dollar. We also discuss digital credit, institutional bitcoin adoption, using bitcoin as the hurdle rate, and the future of the ETF industry."
+     }
+    ],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "d2657bbe123def7db639730ab698d7c313464cffd6d39ed5563c9c53a6de4890",
+  "type": "moments",
+  "vo_kind": "medley (L-y), written, attempt 2",
+  "edl_vo": {
+   "intro": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+   "bridges": [
+    {
+     "text": "Durability alone does not make an asset easy to hold through doubt.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Simply Bitcoin, and Anthony Pompliano. Go follow them for more. Links are below.",
+  "title": "Open code, rough weeks, small allocations",
+  "caption": "a network that cannot be shut down still leaves doubt. that doubt keeps big holders small.",
+  "hook_first_words": "Bitcoin is the one piece of open source",
+  "vo_jobs": {
+   "intro": "connection",
+   "takeaway": "takeaway"
+  },
+  "shape": "medley",
+  "bridge": {
+   "after": "hook",
+   "after_clip": 0,
+   "join": "hook -> clip_01",
+   "text": "On Simply Bitcoin, the topic is six negative weeks in a row.",
+   "why": "Without it, the jump from open-source philosophy to a specific stretch of weekly price history feels disconnected.",
+   "confirmed_by": {
+    "join": "hook -> clip_01",
+    "why": "abrupt jump from philosophical importance to specific price history with no link",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "supply_exception": "one clip per channel cannot fill the medley's seconds from this angle's moments: Simply Bitcoin gives two clips, from two videos (L-y 4)",
+  "no_voice": null,
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": [
+     "hook -> clip_01"
+    ]
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "hook_onset": {
+    "status": "PASS",
+    "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+    "replayed": false,
+    "n": 1,
+    "lead_ms": 250,
+    "cut_in": 994.089,
+    "why": "ok"
+   }
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "runtime_s_estimate": 63.44,
+  "cut_evidence": null,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=BS0XC_tixa8&t=964s",
+   "https://www.youtube.com/watch?v=WTCwyxW-lHk&t=1655s",
+   "https://www.youtube.com/watch?v=mJviDNOhIyw&t=1584s"
+  ]
+ }
+}
