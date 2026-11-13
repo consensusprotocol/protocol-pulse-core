@@ -1,4 +1,26 @@
-SPEND (ruling 48): $5.26 of $12.00 vendor-reported (+ the estimate where a vendor reports none; stop at $10), 07:10 ET. NOT BLOCKED ANY MORE: your rulings 48 and 49 are being built and audited, and the next build starts the moment 48's guard is committed. 13 -> 4 at 07:02 was the OLD $40 estimate cap, not cached verdicts.
+SPEND (ruling 48): $5.26 of $12.00 vendor-reported before the 07:14 build (+ the estimate where a vendor reports none; no build starts at $10). 07:19 ET: BUILDING. The 07:14 build runs 45 + 44 + item 42's cut fix + ruling 48 (13 cleared step A again). Ruling 49 is committed (6a36025a), so the next build seals trimmed clips with the scorer's verdict pending. No pin yet.
+
+## 07:19 ET: rulings 48 and 49 are committed (audits 0707 and 0712, 2 cycles each); the chain builds
+
+- **48 (e8c622b8):** this order's ledger is capped at $12.00 vendor-reported. The estimate counts only for a call
+  whose vendor reports none (providers.Router limit_basis="reported"). At $10 a build refuses to start (exit 3) and
+  the chain stops; I tell you here. Each build records spend_ruling_48 {before, after} in its package.json.
+  - The running total by your rule was $5.26 at 07:02, not $3.46. The $1.81 difference is the estimate for calls with
+    no vendor figure: speech-to-text, and Heimdall calls abandoned at the 300 s deadline (booked at their upper bound).
+  - A build that starts below $10 can still spend up to its own $3 reported search budget (ruling 41). The $12 cap is
+    the hard stop.
+- **49 (6a36025a), which I did: PENDING AT THE RENDER.** The render's clip scorer is gemma3:27b through Ollama on
+  Ultron's GPU0 (run_fresh.stage_validate -> story_semantics.LocalLLM, temperature 0). This builder may use no GPU,
+  and no other box I may use serves that model, so the same scorer cannot run here.
+  - (a) Every trimmed clip says "scorer_pending": true in the pin. It is sealed, and refused on any other clip.
+  - (b) A line-up and a pin carry at most ONE trimmed clip (lineup_for, both swaps, the no-voice added clip, the pin).
+    The limit is raised only when the integrator reports the first trimmed clip affirmed at validate, and on your
+    word.
+- **The integrator is told** (07:20): the scorer_pending key; their scorer judges every trimmed segment at validate;
+  please report the first affirmation.
+- **The chain (chain4):** the first build started 07:14:42 on e8c622b8. Later builds run on 6a36025a. It stops on a
+  pin, or at the $10 line.
+
 
 ## 07:10 ET: what dropped step A from 13 to 4 (your 07:12 question): the OLD cap, nothing cached
 
