@@ -112,15 +112,32 @@ def topical_screen(kind, text, prev_text, screen):
     return False, f"does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
 
 
+def trimmed_word(seg):
+    """The leading word a segment's lock trims (ruling 33 part 2: selection_lock.trimmed_leading), else None."""
+    t = (seg.get("selection_lock") or {}).get("trimmed_leading")
+    return str(t.get("word") or "?") if isinstance(t, dict) else None
+
+
+def trimmed_opener(word, score, fault):
+    """Ruling 33 part 2 (orchestrator 2026-11-13 '03:42'): a segment locked with ONE leading word trimmed passes only
+    when the clip scorer affirms the TRIMMED text stands alone at the unchanged threshold, whatever its first word."""
+    if score is None:
+        return False, f"{word!r} trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)"
+    if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
+        return True, f"{word!r} trimmed; the clip scorer affirms the trimmed text stands alone ({score}, fault {fault})"
+    return False, f"{word!r} trimmed; the clip scorer does not affirm the trimmed text stands alone ({score}, fault {fault})"
+
+
 def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
-    clips opening on a conjunction / reply fragment (the clip scorer); without it they fail closed.
+    clips opening on a conjunction / reply fragment (the clip scorer) and for every segment whose lock trims a leading
+    word (ruling 33 part 2, the hook included); without it they fail closed.
     screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
     and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
     speaker's own words. screen None: every segment names the subject, as before (the story path)."""
     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
-    need = [(label, s) for label, kind, s in segs if kind == "clip" and _words(s.get("text"))[:1]
-            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS)]
+    need = [(label, s) for label, kind, s in segs if trimmed_word(s) or (kind == "clip" and _words(s.get("text"))[:1]
+            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS))]
     scores, rate_error = {}, None
     if need and rate is not None:
         try:
@@ -133,6 +150,8 @@ def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
         sc = scores.get(label)
         score, fault = (sc[0], sc[2]) if sc else (None, None)
         o_ok, o_why = opener(kind, s.get("text"), score, fault)
+        if o_ok and trimmed_word(s):                                   # ruling 33 part 2
+            o_ok, o_why = trimmed_opener(trimmed_word(s), score, fault)
         t_ok, t_why = topical_screen(kind, s.get("text"), prev, screen) if screen is not None else \
             topical(kind, s.get("text"), prev, subject)
         rows.append({"segment": label, "channel": s.get("channel"), "first_words": " ".join((s.get("text") or "").split()[:6]),
