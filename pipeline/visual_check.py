@@ -200,11 +200,12 @@ def _call_local(image_path, text, model, timeout):
     gpu0.swap_to (law L-r: the caller holds the GPU0 lease; without it swap_to refuses and nothing loads)."""
     import urllib.request
     import gpu0
-    gpu0.swap_to(model)
+    gpu0.swap_to(model)                  # gpu0 keys Ollama models 'ollama:<name>' (REQUIREMENT_MIB) and strips the prefix
+    with open(image_path, "rb") as f:
+        img = base64.b64encode(f.read()).decode()
     body = {"model": model.split(":", 1)[1], "stream": False, "keep_alive": "5m",
             "options": {"temperature": 0, "num_predict": 4096, "num_ctx": 8192},
-            "messages": [{"role": "user", "content": text,
-                          "images": [base64.b64encode(open(image_path, "rb").read()).decode()]}]}
+            "messages": [{"role": "user", "content": text, "images": [img]}]}
     req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
     raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())

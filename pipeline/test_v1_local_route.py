@@ -39,12 +39,19 @@ class TestLocalRoute(unittest.TestCase):
 @unittest.skipIf(gpu0.held(), "a GPU session holds the lease: the refusal is tested in a CPU session")
 class TestLocalRouteNeedsTheLease(unittest.TestCase):
     def test_no_lease_no_load_no_request(self):
+        import urllib.request
         img = os.path.join(tempfile.mkdtemp(prefix="v1local_"), "f.jpg")
         open(img, "wb").write(b"\xff\xd8\xff\xd9")
-        with self.assertRaises(gpu0.Gpu0Stop):
-            VC._call_local(img, "q", VC.LOCAL_VISION, 5)
-        with self.assertRaises(gpu0.Gpu0Stop):                         # not swallowed as a route error: a run HOLDs
-            VC.ask_vision(img, "16x9", model=VC.LOCAL_VISION, attempts=1)
+        sent, real = [], urllib.request.urlopen
+        urllib.request.urlopen = lambda *a, **k: sent.append(a) or real(*a, **k)   # audit batch 43: count requests
+        try:
+            with self.assertRaises(gpu0.Gpu0Stop):
+                VC._call_local(img, "q", VC.LOCAL_VISION, 5)
+            with self.assertRaises(gpu0.Gpu0Stop):                     # not swallowed as a route error: a run HOLDs
+                VC.ask_vision(img, "16x9", model=VC.LOCAL_VISION, attempts=1)
+        finally:
+            urllib.request.urlopen = real
+        self.assertEqual(sent, [])                                     # nothing reached Ollama (or anything else)
 
 
 if __name__ == "__main__":
