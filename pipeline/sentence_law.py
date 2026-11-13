@@ -673,6 +673,101 @@ def _accepted_cut_pair(src, plan, step=HOP_S):
     return (c["cut_in"], c["cut_out"]) if c else None
 
 
+def _cut_head(src, c, fade_ms):
+    """LEVEL_WINDOW_S of `src` from `c`, stereo 48 kHz float, with the clip's own linear fade-in of `fade_ms` applied
+    as prepare applies it (audit batch 56 C1, qwen: measure what the prepared clip will hold)."""
+    r = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{c:.3f}", "-i", src, "-t", f"{LEVEL_WINDOW_S}", "-vn", "-ac",
+                        "2", "-ar", "48000", "-f", "f32le", "-"], capture_output=True, check=True, timeout=60)
+    x = np.frombuffer(r.stdout, np.float32).reshape(-1, 2).astype(np.float64).copy()
+    k = min(len(x), int(round(fade_ms / 1000 * 48000)))
+    if k > 0:
+        x[:k] *= np.linspace(0.0, 1.0, k)[:, None]
+    return x
+
+
+def _head_tail_of(x):
+    import tempfile
+    import wave
+    with tempfile.TemporaryDirectory() as d:
+        w = os.path.join(d, "head.wav")
+        with wave.open(w, "wb") as f:
+            f.setnchannels(2)
+            f.setsampwidth(2)
+            f.setframerate(48000)
+            f.writeframes((np.clip(x, -1, 1) * 32767).astype(np.int16).tobytes())
+        return head_tail(SourceAudio(w))
+
+
+def hook_lead_at(src, c, fade_ms=0):
+    """(genuine lead ms, onset s) of the audio as cut at `c` with its fade-in: G17a's own measure (head_tail)."""
+    ht = _head_tail_of(_cut_head(src, c, fade_ms))
+    return ht["lead_ms"], ht["onset"]
+
+
+def padded_lead_ms(src, c, cut_out, fade_ms=0):
+    """G17a's own measure (head_tail) on the head the D1 pad would build: room_tone(src, c, cut_out, LEAD_PAD_S) (the
+    source's own quietest genuine run, looped, exactly what apply_lead_in_pad prepends) + the audio as cut at c.
+    None when the source has no room tone (room_tone fails closed). A gated source whose room tone dips to digital
+    silence at its loop joins measures short: the pad then does not count (measured on pin #1's hook: 20 ms)."""
+    try:
+        tone, _ = room_tone(src, c, cut_out, LEAD_PAD_S)
+    except LawError:
+        return None
+    return _head_tail_of(np.concatenate([tone, _cut_head(src, c, fade_ms)]))["lead_ms"]   # the clip's fade, then pad
+
+
+def hook_lead(src, plan, pick, sa=None):
+    """Ruling 28 (orchestrator 2026-11-13 '01:55'): the hook starts playback, so it keeps >= HEAD_LEAD_MIN_S (80 ms, D1)
+    of GENUINE quiet before its first word, measured the way G17a measures it (hook_lead_at: head_tail on the audio
+    as cut). On pin #1 the planner placed the cut by the word gap (400 ms) while the gate measured the sound: a breath,
+    then digital zeros from a hard edit, left 20-30 ms. Steps:
+    1. the planned cut keeps >= 80 ms: it stands.
+    2. the legal candidates inside the same pause (cut_candidates: cut_accept-clean, nearest the plan's target first),
+       each with its edge fade and neighbour_clear: the first that keeps >= 80 ms is taken.
+    3. the D1 room-tone pad (LEAD_PAD_S) before a candidate whose quiet is genuine ALL the way from the cut to the
+       first word, and only when the padded head itself measures >= 80 ms by G17a's measure (padded_lead_ms): the
+       source's own room tone must count as genuine quiet.
+    4. otherwise no legal cut can open this hook: the entry is refused here, before any render, with the measured
+       reason. (Pin #1: digital zeros up to about 40 ms before the first word, and the word record puts the word's
+       start before the zeros end, so no legal cut lies after them.)
+    Only a hook that is not at a file head comes here (a file head has its own D1 rule in edge_plan). Returns the
+    record the cut table keeps; "refused" carries why."""
+    sa = sa or SourceAudio(src)
+    need = int(round(HEAD_LEAD_MIN_S * 1000))
+    lead0, onset0 = hook_lead_at(src, pick["cut_in"], pick["fade_in_ms"])
+    rec = {"need_ms": need, "planned_cut_in": pick["cut_in"], "planned_lead_ms": lead0}
+    if lead0 >= need:
+        return {**rec, "cut_in": pick["cut_in"], "fade_in_ms": pick["fade_in_ms"], "pad_s": 0.0, "lead_ms": lead0,
+                "how": "the planned cut keeps the hook's lead"}
+    tried = []
+    for c in cut_candidates(src, plan)["in"]:
+        fi, fo, _ = edge_fades(sa, plan, c, pick["cut_out"])
+        ok = neighbour_clear(sa, plan, c, pick["cut_out"], fi, fo)[0]
+        lead, onset = hook_lead_at(src, c, fi * 1000)
+        joins = (onset is not None and onset > HOP_S + 1e-9            # quiet after the cut (a cut ON a breath
+                 and lead >= onset * 1000 - HOP_S * 1000 - 1e-6)        # reads onset 0: never a join), genuine to it
+        tried.append({"cut_in": c, "lead_ms": lead, "onset_s": onset, "neighbour_clear": ok, "fade_in_ms": int(round(fi * 1000)),
+                      "genuine_from_cut": joins})
+        if ok and lead >= need:
+            return {**rec, "cut_in": c, "fade_in_ms": tried[-1]["fade_in_ms"], "pad_s": 0.0, "lead_ms": lead,
+                    "how": "moved inside the pause to keep 80 ms", "tried": tried}
+    for t in [t for t in tried if t["neighbour_clear"] and t["genuine_from_cut"]]:   # nearest the target first
+        padded = padded_lead_ms(src, t["cut_in"], pick["cut_out"], t["fade_in_ms"])
+        t["padded_lead_ms"] = padded
+        if padded is not None and padded >= need:
+            return {**rec, "cut_in": t["cut_in"], "fade_in_ms": t["fade_in_ms"], "pad_s": LEAD_PAD_S,
+                    "lead_ms": padded, "how": f"the D1 room-tone pad ({LEAD_PAD_S:.3f} s) before the cut measures "
+                    f"{padded} ms of genuine lead by G17a's own measure", "tried": tried}
+    padded = [(t["cut_in"], t["padded_lead_ms"]) for t in tried if "padded_lead_ms" in t]
+    return {**rec, "refused": (f"no legal cut in the pause keeps {need} ms of genuine quiet before the hook's first word "
+                               f"(best {max((t['lead_ms'] for t in tried), default=lead0)} ms)"
+                               + (f", and the D1 room-tone pad does not give it either: G17a measures "
+                                  + ", ".join(f"{m} ms at {c:.3f}" for c, m in padded)
+                                  + " (the source's own room tone is not genuine quiet: it dips to digital silence)"
+                                  if padded else ", and no legal cut has genuine quiet from the cut to the word for a "
+                                                 "D1 pad to join (digital zeros lie between)")), "tried": tried}
+
+
 def write_lock_cut_table(run_dir):
     """cuts_final.json with every cut placed inside the pause that bounds its LOCKED sentence(s):
     the cut can never add or drop a word. A segment whose locked edges are not cuttable is written
@@ -708,10 +803,20 @@ def write_lock_cut_table(run_dir):
                 f"{plan['in']['cut_hi']}, OUT {plan['out']['cut_lo']}-{plan['out']['cut_hi']})")})
             continue
         cut_in, cut_out = pick["cut_in"], pick["cut_out"]
+        fade_in_ms, pad_s, hook, valley_in = pick["fade_in_ms"], plan["in"]["lead_in_pad_s"], None, pick["valley_in"]
+        if label == "hook" and not plan["in"].get("file_head"):         # ruling 28: the hook keeps 80 ms (D1)
+            hook = hook_lead(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan, pick)
+            if hook.get("refused"):                                    # fail closed BEFORE any render (G17a)
+                cuts.append({**entry, "verified": False, "error": f"hook lead (ruling 28): {hook['refused']}",
+                             "hook_lead": hook})
+                continue
+            if hook["cut_in"] != pick["cut_in"]:          # a moved cut is a cut_accept-clean candidate, never a
+                valley_in = False                          # valley (audit batch 56 C1)
+            cut_in, fade_in_ms, pad_s = hook["cut_in"], hook["fade_in_ms"], hook["pad_s"]
         cuts.append({**entry, "cut_in": cut_in, "cut_out": cut_out, "cut_duration": round(cut_out - cut_in, 3),
-                     "fade_in_ms": pick["fade_in_ms"], "fade_out_ms": pick["fade_out_ms"],
-                     "valley_in": pick["valley_in"], "valley_out": pick["valley_out"],
-                     "lead_in_pad_s": plan["in"]["lead_in_pad_s"], "verified": True})
+                     "fade_in_ms": fade_in_ms, "fade_out_ms": pick["fade_out_ms"],
+                     "valley_in": valley_in, "valley_out": pick["valley_out"],
+                     "lead_in_pad_s": pad_s, "verified": True, **({"hook_lead": hook} if hook else {})})
     with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
         json.dump(cuts, f, indent=2)
     return cuts
