@@ -1,0 +1,114 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips from YouTube
+channels, sealed in a pin that the integrator renders). Your role: a strict reviewer of a fail-closed admission path.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- The render's STAND_ALONE check (stand_alone.check_edl, run at validate before any render) judges each segment's
+  opener:
+  - a HOOK that opens on a pronoun, a conjunction or a reply fragment always fails;
+  - a CLIP that opens on a conjunction or a reply fragment passes only when the render's clip scorer affirms it: score
+    >= CLIP_MIN_SCORE 3.5 and fault != "starts_mid_thought";
+  - a segment whose lock trims ONE leading word (ruling 33 part 2: selection_lock.trimmed_leading) passes only when the
+    scorer affirms the trimmed text;
+  - check_edl calls rate(passages) -> {pid: (score, reason, fault)} for exactly those segments; without a rating they
+    fail closed.
+- The scorer is a local model (gemma3:27b) on GPU0, which this builder may not use. So the builder left out every
+  moment that opens on a conjunction or reply fragment (no_role_on_screen), and since ruling 33 part 2 it offers a
+  variant with ONE leading word trimmed (trim_variant).
+- Ruling 49 (07:02) let a trimmed clip be sealed with the scorer's verdict "pending at the render"
+  (scorer_pending: true), and added "If you can call the same scorer ... do that instead". Ruling 49 (b) allows at
+  most ONE trimmed clip per line-up until the first one is affirmed AT VALIDATE.
+- The integrator now runs a pin-stage service that asks the render's own scorer (the same code path as validate) and
+  writes a verdicts file. Their contract, adopted by both sides:
+  - I write a candidates file: {generated_at, build, candidates: [{pid, video_id, channel, duration, text,
+    text_sha256, trimmed_leading}]}. A new generated_at starts a pass, and texts already rated are reused.
+  - They write verdicts/latest.json: {rated_at, build, candidates_generated_at, scorer: {model, threshold 3.5, event
+    "Pinned: bitcoin", scorer_sha}, verdicts: {pid: {text_sha256, score, reason, fault, affirmed, prompt_sha256} |
+    {text_sha256, error}}}.
+  - scorer_sha = sha256 over the render's pipeline/stand_alone.py + pipeline/story_semantics.py bytes. A verdict
+    under another scorer_sha is not the render's code.
+  - "Admit only pid + text_sha256 matches with affirmed true. Check scorer.event and scorer.scorer_sha." Validate
+    re-asks at render with its own event.
+- The integrator's pin check imports pipeline/package_pin.py from this worktree and recomputes seal(). A field added
+  to the seal body must enter it only when a segment carries it (SEALED_LATER), so that every earlier pin recomputes.
+
+The order this diff implements (ORCHESTRATOR RULING 56, 09:59 ET Nov 13): "You will get a pin-stage way to ask the
+render's own STAND_ALONE scorer (gemma3:27b on GPU0) about the ~105 moments you leave out as 'an opener the clip
+scorer would have to affirm'. Submit them all, untrimmed and trimmed variants; seal only what it affirms."
+
+The change (pipeline/package.py, pipeline/package_pin.py, tests/package/proof_ledger.py, tests/package/test_medley.py):
+
+1. scorer_verdicts(path, code_sha), read only. It uses nothing at all on:
+   - a missing, unreadable or malformed file;
+   - an event other than "Pinned: bitcoin";
+   - a scorer_sha other than code_sha. render_scorer_sha() recomputes code_sha from the render's two files, read only;
+     None when unreadable;
+   - a threshold other than stand_alone.CLIP_MIN_SCORE.
+   A single verdict is no verdict when it lacks a numeric score, carries an error, or its "affirmed" disagrees with the
+   render's own rule.
+2. with_verdict / verdict_of: a verdict attaches to a moment only when its text_sha256 is the sha256 of the moment's
+   CURRENT text. A copied key on a trimmed variant is never its verdict.
+3. no_role_on_screen: the CLIP role reads the attached verdict (stand_alone.opener with its score and fault); the
+   hook role never does.
+4. stand_alone_check:
+   - check_edl gets a rate() answered from the attached verdicts;
+   - a trimmed segment always carries the render's lock marker, so trimmed_opener judges it, as at validate;
+   - the scorer_pending list and its row text are removed.
+5. placement(): a moment whose text the render's hook rule refuses is told "cannot open", even when it is
+   hook-eligible. Such a moment is a conjunction opener admitted by a verdict; eligibility treats a conjunction as a
+   target under law L-o.
+6. build(scorer_verdicts_path, scorer_candidates_path, build_name), via scorer_pass():
+   - It reads the verdicts and attaches them before the STAND_ALONE rules. out["scorer"]["admitted"] lists the openers
+     that took a clip place.
+   - A trimmed variant without an affirmation is left out BEFORE step A (trim_refused); out["scorer"]["trims_out"]
+     records why.
+   - It writes the next pass's candidates: the moments no_role_on_screen leaves out whose topic rule passes, plus the
+     trimmed variant of every moment left out. The set is computed before any verdict attaches. The write is atomic
+     (.tmp, then rename) and happens only when the (pid, text_sha256) set changed.
+7. The package's rows seal "scorer_verdict" only when it affirms. scorer_pending is no longer produced:
+   TRIM_SCORER_PENDING is removed.
+8. package_pin:
+   - "scorer_verdict" joins SEALED_LATER. "scorer_pending" stays there, so pins sealed with it still recompute.
+   - SCORER_MIN 3.5 (a test holds it equal to stand_alone.CLIP_MIN_SCORE).
+   - affirmed_verdict(s): affirmed true, threshold == SCORER_MIN, a numeric score >= it, fault != starts_mid_thought,
+     a scorer_sha and an event, and text_sha256 == the sha256 of approved_text (pin) or text (package).
+   - scorer_problems: any clip after the hook that opens on a conjunction or reply fragment must carry an affirmation;
+     any carried verdict must affirm exactly its text.
+   - trim_problems: every trimmed clip must carry an affirmation, and scorer_pending is refused on any segment.
+   - to_pin runs scorer_problems.
+9. The stand_alone inventory row's "by" text names the verdicts. Its empty scorer_pending field is gone.
+10. proof_ledger passes the integrator's latest.json, the candidates file path and the record's name.
+11. Tests: 8 new (TestRuling56Scorer). The ruling-49 tests of the pending form are rewritten for the verdict path.
+    test_medley 102 OK; every other suite OK, including "every earlier pin still recomputes".
+
+Stated readings (say so if you read the rulings differently):
+- K1: "seal only what it affirms" retires ruling 49 (a)'s pending form, and 49 itself said "If you can call the same
+  scorer ... do that instead". The integrator also wrote "nothing sealed pending". So a trimmed variant without an
+  affirmation never reaches a vendor, and the pin refuses scorer_pending.
+- K2: an affirmed opener is admitted for the CLIP role only. A hook is never rescued by the scorer at the render.
+- K3: a moment that also fails the topic rule is not submitted, because no verdict can give it a place. Its trimmed
+  variant is submitted when the trimmed text passes both rules (trim_variant already requires that).
+- K4: TRIMMED_PER_LINEUP_MAX stays 1. Ruling 49 (b) waits for an affirmation AT VALIDATE, which a pin-stage verdict
+  is not.
+- K5: the scorer_sha check recomputes the render's code sha at build time (read only). A service restarted on newer
+  code, or a newer render tree, therefore makes old verdicts unusable until they are re-rated. That fails closed, by
+  the integrator's own definition.
+
+Evidence (dry run of this code on the real verdicts file and the last build's moments, read only):
+- 145 verdicts read, 0 affirmed, 0 that disagree with the rule; the scorer_sha matches the render's code now.
+- 0 openers admitted; 57 trimmed variants, all left out (52 refused, 5 not yet rated).
+- 123 candidates: 112 identical to the current file, 11 new, 33 dropped. The 33 are untrimmed moments that also fail
+  the topic rule.
+
+Check in particular:
+- every fail-closed path;
+- the sha matching (a trimmed variant never inherits);
+- that an admitted opener can never open a line-up;
+- the pin's three checks and the seal's backward compatibility;
+- the atomic, only-on-change write;
+- any remaining reader of scorer_pending or TRIM_SCORER_PENDING;
+- that no check accepts more than before except through an affirmation, by the render's own scorer, of exactly the
+  text that is sealed.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

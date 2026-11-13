@@ -1,0 +1,863 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index a3bc8fc..85204a9 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -82,11 +82,18 @@ SEARCH_USD_ESTIMATE = 10.00        # ruling 5's $1.50 / 15 min is per PACKAGE de
+                                    # ceiling keeps ruling 5's ratio ($5.00 : $1.50) for calls whose vendor reports no cost
+ SEARCH_WALL_S = 2400.0             # the build ends cleanly before its driver's timeout (a killed build writes no record)
+ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: the ONE leading word a cut may trim
+-TRIM_SCORER_PENDING = True         # ruling 33 (b): the render's clip scorer (gemma3:27b on Ultron's GPU0, which the
+-                                   # pin stage may not use) must affirm every trimmed segment. RULING 49 (07:02 Nov 13):
+-                                   # YES, a trimmed clip is sealed with that verdict PENDING AT THE RENDER (stage_validate
+-                                   # runs before any render; a refusal there costs no GPU), stated in the sealed row and
+-                                   # per clip in the pin (scorer_pending: true). False: the render's check with no scorer
++# Ruling 33 (b): the render's clip scorer (gemma3:27b on Ultron's GPU0, which the pin stage may not use itself) must
++# affirm every trimmed segment. RULING 49 (07:02 Nov 13) let a trimmed clip be sealed with that verdict pending at the
++# render, and said "If you can call the same scorer ... do that instead". RULING 56 (09:59): the integrator's pin-stage
++# service asks that same scorer; "seal only what it affirms". The pending form is retired: a trimmed clip is sealed
++# only with the scorer's affirmation of its trimmed text, and package_pin refuses scorer_pending.
++SCORER_VERDICTS = "/home/ultron/protocol_pulse/data/stand_alone_scorer/verdicts/latest.json"   # ruling 56: the
++SCORER_EVENT = "Pinned: bitcoin"   # integrator's verdicts (read only), asked with validate's event for a moments pin
++RENDER_SCORER_CODE = tuple(f"/home/ultron/protocol_pulse/pipeline/{f}" for f in ("stand_alone.py", "story_semantics.py"))
++                                   # ^ read only: the render's scorer code; the integrator's scorer_sha is a sha256 over
++                                   # these two files in this order, so a verdict under other code is not the render's now
++SCORER_CANDIDATES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "audits",
++                                 "parallel", "pp-selectid_SCORER_CANDIDATES.json")   # ruling 56: what I ask it next
+ TRIMMED_PER_LINEUP_MAX = 1         # ruling 49 (b): at most ONE trimmed clip per line-up until the first trimmed clip has
+                                    # been affirmed at validate once (the integrator says when): one refusal cannot sink a
+                                    # line-up twice. package_pin.TRIMMED_PER_PIN_MAX holds the pin to the same number
+@@ -311,10 +318,10 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
+                         "time_sensitive": bool(time_sensitive(m)),          # ruling 1 (22:40): L-v 3 on the render
+                         "source_published_at": utc_z(m.get("published_at")),  # clock, both sealed in the pin
+                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
+-                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"],
+-                            "scorer_pending": bool(TRIM_SCORER_PENDING)}   # ruling 49 (a): the clip scorer's verdict
+-                           if m.get("trimmed_leading") else {})}   # on the trimmed text is pending at the render
+-                                                                   # (strict: False, which the pin refuses)
++                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
++                           if m.get("trimmed_leading") else {}),
++                        **({"scorer_verdict": verdict_of(m)}  # ruling 56: "seal only what it affirms" (the pin
++                           if (verdict_of(m) or {}).get("affirmed") is True else {})}   # refuses any other)
+                        for lb, m in zip(labels(len(segs)), segs)],
+           "vo": dict(vo, signoff=signoff(segs, ctx)),
+           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
+@@ -640,30 +647,30 @@ def check_angles(obj, by_id, k=MAX_ANGLES):
+ def stand_alone_check(segs):
+     """The render's STAND_ALONE (main run_fresh.stage_validate -> stand_alone.check_edl) on one line-up, at the pin stage
+     (the integrator held pin d2657bbe on it, 03:00 ET Nov 13): the hook, then the clips in play order (clip_01, ...), the
+-    subject Bitcoin (run_fresh.stand_alone_subject for a pinned moments package labelled 'bitcoin'), and NO clip scorer.
+-    The render's scorer is a local model on GPU0, which this stage may not use, so a clip that opens on a conjunction or
+-    a reply fragment fails closed here, as check_edl does without one: never sealed for the scorer to rescue.
+-    check_edl's verdict reads only each segment's text, the subject and rate (channel and duration feed only the
+-    scorer's passages, unused with rate=None; the labels come from the order). The subject is fixed because
+-    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1).
++    subject Bitcoin (run_fresh.stand_alone_subject for a pinned moments package labelled 'bitcoin'), and as the clip
++    scorer the verdicts the integrator's pin-stage service gave on each segment's CURRENT text (ruling 56: the render's
++    own scorer, on GPU0, which this stage may not use itself). A clip that opens on a conjunction or a reply fragment,
++    and a trimmed segment (its lock's marker, as the render sets it), pass only with an affirming verdict and fail
++    closed without one, as check_edl does. check_edl's verdict reads only each segment's text, the subject and rate
++    (channel and duration feed only the scorer's passages, which rate answers from the sealed verdicts; the labels
++    come from the order). The subject is fixed because package_pin.to_pin labels every moments pin 'bitcoin' (audit
++    0310 C1, glm P1-1 / qwen P1-1).
+     RULING 34 (the render's side merged at 55315124): the topic test is the miner's about-Bitcoin screen that every
+     moments pin seals (eligibility.BTC_SCREEN, moments_package.btc_screen), and the MEDLEY must name Bitcoin in at
+     least one segment (out["medley_names_bitcoin"], part of out["ok"]): check_edl(..., screen=...), as the render."""
+     import stand_alone as SA
+     def seg(m, extra):
+-        lock = {} if TRIM_SCORER_PENDING or not m.get("trimmed_leading") else \
++        lock = {} if not m.get("trimmed_leading") else \
+             {"selection_lock": {"trimmed_leading": {"word": m["trimmed_leading"]}}}    # the render's own marker
+         return dict(extra, text=m["text"], channel=m.get("channel_name"), **lock)
+-    edl = {"hook": seg(segs[0], {}),
++    by_label = dict(zip(labels(len(segs)), segs))
++
++    def rate(passages):                      # ruling 56: the render's own clip scorer, as its verdicts on each
++        return {p["pid"]: (v["score"], v["reason"], v["fault"]) for p in passages     # segment's current text; a
++                for v in [verdict_of(by_label.get(p["pid"]))] if v}                     # segment without one fails
++    edl = {"hook": seg(segs[0], {}),                                                    # closed, as check_edl does
+            "clips": [seg(m, {"index": i, "duration": m.get("duration_s")}) for i, m in enumerate(segs[1:], 1)]}
+-    r = SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
+-    r["scorer_pending"] = [lb for lb, m in zip(labels(len(segs)), segs)
+-                           if m.get("trimmed_leading") and TRIM_SCORER_PENDING]            # ruling 33 (b), item 42
+-    for row in r["rows"]:              # the sealed row STATES the divergence, not only the labels (audit 0530 C2, glm)
+-        if row["segment"] in r["scorer_pending"]:
+-            row["opener"]["why"] += ("; the clip scorer's verdict on the trimmed text is PENDING AT THE RENDER (GPU0; "
+-                                     "ruling 33 part 2)")
+-    return r
++    return SA.check_edl(edl, rate=rate, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
+ 
+ 
+ def ad_read_out(ms, sources):
+@@ -693,7 +700,8 @@ def trim_variant(m, sources):
+     place under the render's STAND_ALONE as trimmed (no_role_on_screen and no_topic both None on the trimmed text).
+     Then it is judged like any moment: step A on the trimmed span (ruling 33 c), L-v 2 with the trimmed word heard right
+     before the clip (transcript_truth.edges), and the acoustic onset rule on the trimmed cut (ruling 33 a, build()).
+-    The clip scorer's verdict (ruling 33 b) is the render's, on GPU0: pending at the render (stand_alone_check). -> the
++    The clip scorer's verdict on the trimmed text (ruling 33 b) is the render's own scorer's, given at the pin stage
++    by the integrator's service (ruling 56): build() keeps the variant only with its affirmation (trim_refused). -> the
+     variant, or None."""
+     import canon
+     try:
+@@ -833,6 +841,134 @@ def reposted_once(ms, sources):
+     return out, dup
+ 
+ 
++def text_sha(text):
++    """The sha256 of a text's UTF-8 bytes: the integrator's text_sha256 (ruling 56)."""
++    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
++
++
++def render_scorer_sha(paths=RENDER_SCORER_CODE):
++    """RULING 56: the integrator's scorer_sha recomputed from the render's scorer code as it is NOW (read only): a
++    sha256 over the files' bytes, in order. None when one cannot be read (then no verdict is used)."""
++    h = hashlib.sha256()
++    try:
++        for p in paths:
++            with open(p, "rb") as f:
++                h.update(f.read())
++    except OSError:
++        return None
++    return h.hexdigest()
++
++
++def scorer_verdicts(path, code_sha):
++    """RULING 56: the integrator's pin-stage verdicts of the render's own clip scorer (read only). -> ({pid: verdict},
++    the record of the read). Fail closed, nothing used: a missing, unreadable or malformed file; another event than
++    SCORER_EVENT; a scorer_sha other than code_sha (the render's scorer code now, render_scorer_sha); another threshold
++    than stand_alone.CLIP_MIN_SCORE. A verdict without a numeric score, with an error, or whose "affirmed" disagrees with
++    the render's own rule (stand_alone.opener: score >= threshold and fault not starts_mid_thought) is no verdict."""
++    import stand_alone as SA
++    num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
++    try:
++        with open(path) as f:
++            d = json.load(f)
++        sc, vs = d["scorer"], d["verdicts"]
++        why = ("another event" if sc.get("event") != SCORER_EVENT else
++               "the render's scorer code could not be read" if not code_sha else
++               "a scorer_sha that is not the render's scorer code now" if sc.get("scorer_sha") != code_sha else
++               "another threshold" if not num(sc.get("threshold")) or sc["threshold"] != SA.CLIP_MIN_SCORE else
++               "no verdicts" if not isinstance(vs, dict) else None)
++    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
++        return {}, {"read": False, "why": f"{type(e).__name__}: {str(e)[:160]}"}
++    if why:
++        return {}, {"read": False, "why": why, "event": sc.get("event"), "scorer_sha": sc.get("scorer_sha"),
++                    "render_scorer_sha": code_sha, "threshold": sc.get("threshold")}
++    out, disagree = {}, []
++    for pid, v in vs.items():
++        if not (isinstance(v, dict) and isinstance(v.get("text_sha256"), str) and num(v.get("score")) and
++                not v.get("error")):
++            continue
++        rule = v["score"] >= SA.CLIP_MIN_SCORE and v.get("fault") != "starts_mid_thought"
++        if (v.get("affirmed") is True) != rule:
++            disagree.append(pid)
++            continue
++        out[str(pid)] = {"score": v["score"], "reason": v.get("reason"), "fault": v.get("fault"), "affirmed": rule,
++                         "text_sha256": v["text_sha256"], "prompt_sha256": v.get("prompt_sha256"),
++                         "model": sc.get("model"), "event": sc["event"], "scorer_sha": sc["scorer_sha"],
++                         "threshold": sc["threshold"], "rated_at": d.get("rated_at")}
++    return out, {"read": True, "rated_at": d.get("rated_at"), "build": d.get("build"),
++                 "candidates_generated_at": d.get("candidates_generated_at"), "model": sc.get("model"),
++                 "event": sc["event"], "scorer_sha": sc["scorer_sha"], "threshold": sc["threshold"],
++                 "verdicts": len(out), "affirmed": sum(v["affirmed"] for v in out.values()),
++                 "disagree_with_the_rule": disagree}
++
++
++def verdict_of(m):
++    """RULING 56: the clip scorer's verdict attached to a moment when it is for the moment's CURRENT text, else None."""
++    v = (m or {}).get("scorer_verdict")
++    return v if isinstance(v, dict) and v.get("text_sha256") == text_sha((m or {}).get("text")) else None
++
++
++def with_verdict(m, index):
++    """The moment with the scorer's verdict for its id attached when that verdict is for its current text (ruling 56);
++    any other verdict it carries is dropped (a trimmed variant never inherits its original's)."""
++    m = {k: x for k, x in m.items() if k != "scorer_verdict"}
++    v = index.get(m["moment_id"])
++    return dict(m, scorer_verdict=v) if v and v["text_sha256"] == text_sha(m.get("text")) else m
++
++
++def trim_refused(v):
++    """RULING 56: why a trimmed variant is left out before any vendor call, else None: no clip-scorer verdict on its
++    trimmed text, or one that does not affirm it ("seal only what it affirms")."""
++    s = verdict_of(v)
++    if s is None:
++        return (f"{v.get('trimmed_leading')!r} trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: "
++                f"sealed only when the scorer affirms it)")
++    if not s["affirmed"]:
++        return (f"{v.get('trimmed_leading')!r} trimmed; the clip scorer does not affirm the trimmed text stands alone "
++                f"({s['score']}, fault {s['fault']})")
++    return None
++
++
++def write_candidates(path, ms, ctx, build_name):
++    """RULING 56: the next pass's request in the integrator's contract ({generated_at, build, event_expected,
++    candidates: [{pid, video_id, channel, duration, text, text_sha256, trimmed_leading}]}), written atomically (.tmp,
++    then rename), and only when its set of (pid, text_sha256) differs from the file's: a new generated_at starts a
++    pass, and rated texts are reused there. -> True when written."""
++    from datetime import datetime, timezone
++    cands = [{"pid": m["moment_id"], "video_id": m["video_id"], "channel": _name(m, ctx), "duration": m["duration_s"],
++              "text": m["text"], "text_sha256": text_sha(m["text"]), "trimmed_leading": m.get("trimmed_leading")}
++             for m in ms]
++    try:
++        with open(path) as f:
++            old = {(c["pid"], c["text_sha256"]) for c in json.load(f)["candidates"]}
++    except (OSError, ValueError, KeyError, TypeError):
++        old = None
++    if old == {(c["pid"], c["text_sha256"]) for c in cands}:
++        return False
++    doc = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "build": build_name,
++           "event_expected": SCORER_EVENT, "candidates": cands}
++    with open(path + ".tmp", "w") as f:
++        json.dump(doc, f, indent=1)
++    os.replace(path + ".tmp", path)
++    return True
++
++
++def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name):
++    """RULING 56, once per build, before any verdict is attached. (1) The integrator's verdicts (scorer_verdicts, fail
++    closed). (2) The next pass's candidates (write_candidates): every moment the render's STAND_ALONE leaves out as an
++    opener the clip scorer would have to affirm (no_role_on_screen fires, the topic rule does not: no verdict could
++    give a moment that fails the topic rule a place), and the trimmed variant of every moment left out (ruling 33 part
++    2), each with its text exactly as it would be locked. -> {"index": {pid: verdict}, "record": {...}}."""
++    index, rec = scorer_verdicts(verdicts_path, render_scorer_sha()) if verdicts_path else \
++        ({}, {"read": False, "why": "no verdicts file given"})
++    if candidates_path:
++        left = [(m, no_role_on_screen(m), no_topic(m)) for m in
++                ({k: x for k, x in m.items() if k != "scorer_verdict"} for m in ms)]
++        ask = [m for m, o, t in left if o and not t] + \
++            [v for m, o, t in left if o or t for v in [trim_variant(m, sources)] if v]
++        rec = dict(rec, candidates=len(ask), candidates_written=write_candidates(candidates_path, ask, ctx, build_name))
++    return {"index": index, "record": rec}
++
++
+ def no_topic(m):
+     """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
+     fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
+@@ -844,13 +980,16 @@ def no_topic(m):
+ 
+ 
+ def no_role_on_screen(m):
+-    """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
+-    opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
+-    it), else None. build() leaves such moments out before any vendor call."""
++    """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule (it opens on a conjunction
++    or a reply fragment: the clip role fails closed without an affirming clip-scorer verdict, the hook role fails on
++    it), else None. RULING 56: the clip role reads the render's own scorer's verdict on the moment's CURRENT text when
++    one is attached (verdict_of); the hook role never does. build() leaves such moments out before any vendor call."""
+     import stand_alone as SA
+-    c_ok, c_why = SA.opener("clip", m["text"])          # a moment without text fails fast (audit 0310 C2, qwen)
++    v = verdict_of(m)
++    c_ok, c_why = SA.opener("clip", m["text"], *((v["score"], v["fault"]) if v else ()))   # (audit 0310 C2, qwen)
+     h_ok, h_why = SA.opener("hook", m["text"])
+-    return None if (c_ok or h_ok) else f"the render's STAND_ALONE with no clip scorer at the pin stage: {c_why}; {h_why}"
++    return None if (c_ok or h_ok) else ("the render's STAND_ALONE " + ("with the clip scorer's verdict" if v else
++                                        "with no clip scorer at the pin stage") + f": {c_why}; {h_why}")
+ 
+ 
+ def lineup_ok(segs, crange=None, repeat_ok=False):
+@@ -923,9 +1062,12 @@ def placement(m):
+     """RULING 54: a clip's placement limits as the angle proposer is told them, exactly lineup_for's rules. Without hook
+     eligibility and a passed hook onset (G17a) it cannot open. Under SHORT_CLIP_S it may not play mid-line-up: the
+     short-clip rule binds the clips AFTER the hook only, so a short clip that can open may be the hook or the LAST clip,
+-    and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook)."""
++    and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook). RULING 56: a
++    moment the clip scorer's verdict admits (it opens on a conjunction or a reply fragment) never opens: the render's
++    hook rule refuses it, as stand_alone_check does inside lineup_for."""
++    import stand_alone as SA
+     opens = bool((m.get("eligibility") or {}).get("hook", {}).get("ok")) and \
+-        (m.get("hook_onset") or {}).get("pass") is True
++        (m.get("hook_onset") or {}).get("pass") is True and SA.opener("hook", m.get("text") or "")[0]
+     if m["duration_s"] < SHORT_CLIP_S:
+         return f" | under {SHORT_CLIP_S:.0f} s: " + ("only the hook or the LAST clip" if opens else "only the LAST clip")
+     return "" if opens else " | cannot open (never the hook)"
+@@ -1437,22 +1579,31 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
+ 
+ 
+ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+-          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD):
++          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, scorer_verdicts_path=None,
++          scorer_candidates_path=None, build_name=""):
+     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+     one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
+     work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
+     spend: a callable returning the ledger's USD (dollars per package).
++    scorer_verdicts_path / scorer_candidates_path / build_name (ruling 56, scorer_pass): the integrator's verdicts of the
++    render's clip scorer to read, and where to write the next pass's candidates (None: neither).
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+     ms, why = usable(moments, ctx, delivered, optout)
+     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
+     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
++    scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name)   # ruling 56
++    ms = [with_verdict(m, scorer["index"]) for m in ms]
+     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
+                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
+-    trims = {m["moment_id"]: v for m in ms if m["moment_id"] in no_role for v in [trim_variant(m, sources)] if v}
++    admitted = sorted(m["moment_id"] for m in ms if verdict_of(m) and m["moment_id"] not in no_role)   # ruling 56
++    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms if m["moment_id"] in no_role
++             for v in [trim_variant(m, sources)] if v}
++    trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
++    trims = {k: v for k, v in trims.items() if k not in trim_out}
+     ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42)
+     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+@@ -1463,6 +1614,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
+            "reposted": reposted,
++           "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+@@ -1471,6 +1623,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
+         f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
+         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
++    sc = out["scorer"]
++    log(f"  the clip scorer's verdicts (ruling 56): " + (
++        f"{sc['verdicts']} read, {sc['affirmed']} affirmed (rated {sc['rated_at']}, scorer {str(sc['scorer_sha'])[:12]})"
++        if sc.get("read") else f"none used ({sc.get('why')})") +
++        f"; {len(admitted)} opener(s) admitted as clips, {len(trims)} trimmed variant(s) affirmed, {len(trim_out)} left "
++        f"out without an affirmation" + (f"; candidates {sc['candidates']} ("
++                                         f"{'written' if sc['candidates_written'] else 'unchanged'})"
++                                         if "candidates" in sc else ""))
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+         return out
+@@ -2019,10 +2179,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                                lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"))}
+            if hook is not None else {}),
+         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
+-                                    "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
++                                    "stage, with the render's clip scorer's verdicts as the integrator's service gave "
++                                    "them (ruling 56); without an affirming one a conjunction, reply-fragment or "
++                                    "trimmed opener fails closed)"),
+                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
+                                       f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
+-                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"),
+-                                scorer_pending=stand.get("scorer_pending") or [])}
++                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
+            if stand is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index dfbb94f..32a1deb 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -68,12 +68,15 @@ def recency_problems(segments):
+ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): the render clock checks L-v 3 on these
+                 "speaker",                                 # the 00:05 ET Nov 13 order, item 3
+                 "trimmed_leading", "untrimmed_start",      # ruling 33 part 2 (render merged 11e361cc): only when a word
+-                "scorer_pending")                          # is trimmed, so every other pin seals as before (ruling 49 a)
++                "scorer_pending",                          # is trimmed, so every other pin seals as before (ruling 49 a;
++                                                           # retired by ruling 56: kept so its pins still recompute)
++                "scorer_verdict")                          # ruling 56: the clip scorer's affirmation, only when sealed
+ TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
+                                                            # separate constant (a test holds them equal): the
+                                                            # integrator's check_pin_only imports this module, which
+                                                            # must never pull package.py into that process
+ TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE leading word a cut may trim
++SCORER_MIN = 3.5                                           # = stand_alone.CLIP_MIN_SCORE (a test holds them equal)
+ 
+ 
+ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
+@@ -100,12 +103,45 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
+     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+ 
+ 
++def affirmed_verdict(s):
++    """RULING 56: True when the segment carries the render's own clip scorer's AFFIRMATION of exactly its text
++    (approved_text in a pin, text in a package): scorer_verdict with affirmed true, threshold SCORER_MIN, a numeric
++    score at or over it, a fault other than starts_mid_thought (stand_alone.affirmed), a scorer_sha and an event, and
++    text_sha256 = the sha256 of the text's UTF-8 bytes."""
++    v = s.get("scorer_verdict")
++    num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
++    text = s["approved_text"] if "approved_text" in s else s.get("text")
++    return isinstance(v, dict) and v.get("affirmed") is True and num(v.get("score")) and \
++        v.get("threshold") == SCORER_MIN and v["score"] >= SCORER_MIN and v.get("fault") != "starts_mid_thought" and \
++        bool(v.get("scorer_sha")) and bool(v.get("event")) and isinstance(text, str) and \
++        v.get("text_sha256") == hashlib.sha256(text.encode("utf-8")).hexdigest()
++
++
++def scorer_problems(segments):
++    """[why] for segments that need the clip scorer and do not carry its affirmation (ruling 56: "seal only what it
++    affirms"): every clip after the hook whose first word is a conjunction or a reply fragment (the render's
++    stand_alone.check_edl asks its scorer for exactly these), and any segment carrying a scorer_verdict that is not an
++    affirmation of exactly its text. A trimmed clip's affirmation is trim_problems'."""
++    import stand_alone as SA
++    out = []
++    for i, s in enumerate(segments):
++        text = s["approved_text"] if "approved_text" in s else s.get("text")
++        w = SA._words(text)[:1]
++        needs = i > 0 and bool(w) and (w[0] in SA.CONJUNCTIONS or w[0] in SA.REPLY_FRAGMENTS)
++        if needs and not affirmed_verdict(s):
++            out.append(f"segment {i}: opens on {w[0]!r}: the clip scorer's affirmation of its text must be sealed "
++                       f"(ruling 56)")
++        elif "scorer_verdict" in s and not affirmed_verdict(s):
++            out.append(f"segment {i}: carries a clip-scorer verdict that does not affirm exactly its text (ruling 56)")
++    return out
++
++
+ def trim_problems(segments):
+     """[why] for segments whose trim does not match the render's contract (ruling 33 part 2; pinned.validate_schema
+     refuses anything else): "trimmed_leading" and "untrimmed_start" both present or both absent; the trimmed word's
+-    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start. RULING 49: (a) every trimmed clip says
+-    scorer_pending: true (the clip scorer's verdict is pending at the render) and no other clip carries the key;
+-    (b) at most TRIMMED_PER_PIN_MAX trimmed clips."""
++    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start. RULING 49 (b): at most TRIMMED_PER_PIN_MAX
++    trimmed clips. RULING 56 ("seal only what it affirms", retiring 49 a's pending form): every trimmed clip carries
++    the clip scorer's affirmation of its trimmed text (affirmed_verdict), and no segment carries scorer_pending."""
+     import canon
+     out = []
+     n = sum("trimmed_leading" in s or "untrimmed_start" in s for s in segments)
+@@ -114,13 +150,14 @@ def trim_problems(segments):
+                    f"(ruling 49 b)")
+     for i, s in enumerate(segments):
+         has_w, has_s = "trimmed_leading" in s, "untrimmed_start" in s
++        if "scorer_pending" in s:
++            out.append(f"segment {i}: scorer_pending is no longer sealed (ruling 56: seal only what the scorer "
++                       f"affirms)")
+         if not has_w and not has_s:
+-            if "scorer_pending" in s:
+-                out.append(f"segment {i}: scorer_pending belongs to a trimmed clip only (ruling 49 a)")
+             continue
+-        if s.get("scorer_pending") is not True:
+-            out.append(f"segment {i}: a trimmed clip must say scorer_pending: true (ruling 49 a: the clip scorer's "
+-                       f"verdict on the trimmed text is pending at the render)")
++        if not affirmed_verdict(s):
++            out.append(f"segment {i}: a trimmed clip must carry the clip scorer's affirmation of its trimmed text "
++                       f"(ruling 56)")
+         if has_w != has_s:
+             out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
+             continue
+@@ -231,7 +268,7 @@ def to_pin(pk, run_name):
+     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
+                                                                      for x in line_problems(pk)] + \
+         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
+-        screen_problems(pk) + trim_problems(pk.get("segments") or [])
++        screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or [])
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -241,7 +278,7 @@ def to_pin(pk, run_name):
+                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
+                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
+                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
+-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_pending") if k in s},
++                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict") if k in s},
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 1ea63a0..fb31df2 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -134,7 +134,8 @@ def main(argv=None):
+     t0 = time.time()
+     res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
+                    work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
+-                   spend=lambda: (own["est"], own["best"]))
++                   spend=lambda: (own["est"], own["best"]), scorer_verdicts_path=PK.SCORER_VERDICTS,   # ruling 56
++                   scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir))
+     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
+                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
+                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 04cb0a1..f766c47 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -70,6 +70,19 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
+ 
+ 
+ 
++def sv(text, score, fault="none"):
++    """A clip-scorer verdict on exactly `text` as build() attaches it (package.scorer_verdicts' shape, ruling 56)."""
++    return {"score": score, "reason": "r", "fault": fault, "affirmed": score >= 3.5 and fault != "starts_mid_thought",
++            "text_sha256": PK.text_sha(text), "prompt_sha256": "p" * 64, "model": "gemma3:27b",
++            "event": "Pinned: bitcoin", "scorer_sha": "s" * 64, "threshold": 3.5, "rated_at": "2026-11-13T15:35:10Z"}
++
++
++def fv(text, score, fault="none"):
++    """One verdict as the integrator's verdicts file holds it (their contract, ruling 56), on exactly `text`."""
++    return {"text_sha256": PK.text_sha(text), "score": score, "reason": "r", "fault": fault,
++            "affirmed": score >= 3.5 and fault != "starts_mid_thought", "prompt_sha256": "p" * 64}
++
++
+ def spk(pk):
+     """speakers.attribute's record on every segment, as the real flow attaches it before the pin is sealed (the
+     00:05 ET Nov 13 order, item 3): an unknown speaker, measured, no person named."""
+@@ -505,12 +518,13 @@ class Rig:
+ 
+     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+-                 trim_fail=()):
++                 trim_fail=(), verdicts=None):
+         import providers as P
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
+         self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
++        self.verdicts = verdicts                           # ruling 56: {pid: verdict} in the integrator's file shape
+         self.medley_calls, self.write_calls, self.prompts = [], [], []
+         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
+         self.screens, self.events, self.a_seen = [], [], []
+@@ -607,15 +621,27 @@ class Rig:
+                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
+                                                              "replayed": False}),
+         }
++        kw, path = {}, None
++        if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
++            import tempfile
++            fd, path = tempfile.mkstemp(suffix=".json")
++            with os.fdopen(fd, "w") as f:
++                json.dump({"rated_at": "2026-11-13T15:35:10Z", "build": "test", "scorer": {
++                    "model": "gemma3:27b", "threshold": 3.5, "event": PK.SCORER_EVENT, "scorer_sha": "s" * 64},
++                    "verdicts": self.verdicts}, f)
++            kw["scorer_verdicts_path"] = path
++            stubs["render_scorer_sha"] = lambda *a, **k: "s" * 64       # the render's scorer code, as it is now
+         saved = {k: getattr(PK, k) for k in stubs}
+         try:
+             for k, v in stubs.items():
+                 setattr(PK, k, v)
+             return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent",
+-                            spend=self.spend)
++                            spend=self.spend, **kw)
+         finally:
+             for k, v in saved.items():
+                 setattr(PK, k, v)
++            if path:
++                os.remove(path)
+ 
+ 
+ class TestBuildLoop(unittest.TestCase):
+@@ -858,7 +884,8 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+     """Ruling 33 part 2 (render merged 11e361cc), used per the 04:58 order's item 42: a moment opening on ONE of
+     but/and/so/well/now/yeah, left out by the render's STAND_ALONE opener rule, may be cut one word in. The variant is
+     judged like any moment (step A, L-v 2 with the trimmed word heard, the acoustic onset rule at the trimmed cut); the
+-    clip scorer's verdict is pending at the render; the pin seals trimmed_leading and untrimmed_start."""
++    clip scorer must affirm the trimmed text (ruling 56: the integrator's pin-stage verdicts; ruling 49 a's pending form
++    is retired); the pin seals trimmed_leading, untrimmed_start and the affirmation."""
+ 
+     def moment(self, sentence, mid="t"):
+         src = source([sentence], vid="vT")
+@@ -890,24 +917,25 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         m, srcs = self.moment("But Bitcoin wins now.")                    # 3 kept words: no statement (glm P0-2)
+         self.assertIsNone(PK.trim_variant(m, srcs))
+ 
+-    def test_pending_at_the_render_by_ruling_49_and_strict_on_the_switch(self):
++    def test_ruling_56_a_trimmed_clip_passes_only_with_the_scorers_affirmation(self):
+         m, srcs = self.moment("But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
+         v = PK.trim_variant(m, srcs)
+-        line = [{"text": "Bitcoin is the hardest money ever made."}, v, {"text": "Bitcoin wins."}]
+-        self.assertTrue(PK.TRIM_SCORER_PENDING)                       # ruling 49 (07:02): YES
+-        r = PK.stand_alone_check(line)
+-        self.assertTrue(r["ok"], r["rows"])
+-        self.assertEqual(r["scorer_pending"], ["clip_01"])
+-        self.assertIn("PENDING AT THE RENDER", r["rows"][1]["opener"]["why"])      # stated in the sealed row
+-        saved = PK.TRIM_SCORER_PENDING
+-        try:                                                          # the strict switch: the render's check with
+-            PK.TRIM_SCORER_PENDING = False                            # no scorer fails closed, never sealed
+-            r = PK.stand_alone_check(line)
+-        finally:
+-            PK.TRIM_SCORER_PENDING = saved
++        hook, last = {"text": "Bitcoin is the hardest money ever made."}, {"text": "Bitcoin wins."}
++        self.assertFalse(hasattr(PK, "TRIM_SCORER_PENDING"))          # ruling 49 (a)'s pending form is retired
++        r = PK.stand_alone_check([hook, v, last])                     # no verdict: fails closed, as at validate
+         self.assertFalse(r["ok"])
+         self.assertIn("no clip-scorer verdict on the trimmed text", r["rows"][1]["opener"]["why"])
+-        self.assertEqual(r["scorer_pending"], [])
++        self.assertNotIn("scorer_pending", r)
++        r = PK.stand_alone_check([hook, dict(v, scorer_verdict=sv(v["text"], 4.0)), last])
++        self.assertTrue(r["ok"], r["rows"])
++        self.assertIn("the clip scorer affirms the trimmed text", r["rows"][1]["opener"]["why"])
++        self.assertEqual(r["rows"][1]["scorer"]["score"], 4.0)        # the verdict used is in the sealed row
++        for bad in (sv(v["text"], 3.0, "ends_mid_thought"), sv(v["text"], 4.0, "starts_mid_thought"),
++                    sv(m["text"], 4.0)):                              # the untrimmed text's verdict is not its own
++            self.assertFalse(PK.stand_alone_check([hook, dict(v, scorer_verdict=bad), last])["ok"], bad)
++        self.assertIn("no clip-scorer verdict on the trimmed text yet", PK.trim_refused(v))
++        self.assertIsNone(PK.trim_refused(dict(v, scorer_verdict=sv(v["text"], 4.0))))
++        self.assertIn("does not affirm", PK.trim_refused(dict(v, scorer_verdict=sv(v["text"], 3.0, "other"))))
+ 
+     def test_ruling_49_one_trimmed_clip_per_line_up_and_per_pin(self):
+         self.assertEqual(PK.TRIMMED_PER_LINEUP_MAX, package_pin.TRIMMED_PER_PIN_MAX)
+@@ -923,10 +951,12 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+                {"trimmed_leading": "So", "untrimmed_start": 0.0, "start": 1.0, "scorer_pending": True}]
+         self.assertIn("2 trimmed clips", package_pin.trim_problems(two)[0])
+ 
+-    def test_the_pin_seals_the_trim_and_refuses_a_malformed_one(self):
++    def test_the_pin_seals_the_trim_with_its_affirmation_and_refuses_a_malformed_one(self):
++        import copy
++        x_text = "Bitcoin keeps every promise it ever made to me."
+         segs = [dict(pm("h", "A", 12.0), text="Bitcoin is the hardest money ever made."),
+-                dict(pm("x", "B", 14.0), text="Bitcoin keeps every promise it ever made to me.",
+-                     trimmed_leading="But", untrimmed_start=0.0, start=0.3),
++                dict(pm("x", "B", 14.0), text=x_text, trimmed_leading="But", untrimmed_start=0.0, start=0.3,
++                     scorer_verdict=sv(x_text, 4.0)),
+                 dict(pm("y", "C", 13.0), text="Bitcoin wins in the end, every single time.")]
+         by = {m["moment_id"]: m for m in segs}
+         fields = {"takeaway": {"text": "No ruler, just rules nobody gets to bend.", "cites": []}, "bridge": None,
+@@ -935,32 +965,41 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
+         self.assertEqual((pk["segments"][1]["trimmed_leading"], pk["segments"][1]["untrimmed_start"]), ("But", 0.0))
+         pk["gates"] = TestMedleyPackageAndPin().gates(pk)
+-        pin = package_pin.to_pin(spk(pk), "test")
++        pin = package_pin.to_pin(copy.deepcopy(spk(pk)), "test")
+         s1 = pin["segments"][1]
+-        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"], s1["scorer_pending"]), ("But", 0.0, True))
+-        self.assertNotIn("trimmed_leading", pin["segments"][0])                   # untrimmed segments: unchanged
+-        self.assertNotIn("scorer_pending", pin["segments"][0])                    # ruling 49 (a): per trimmed clip
++        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"]), ("But", 0.0))
++        self.assertTrue(package_pin.affirmed_verdict(s1))                         # ruling 56: sealed, on its text
++        self.assertNotIn("scorer_pending", s1)
++        for k in ("trimmed_leading", "scorer_verdict", "scorer_pending"):         # untrimmed segments: unchanged
++            self.assertNotIn(k, pin["segments"][0])
+         mp = pin["moments_package"]
+         args = (mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"], mp["btc_screen"])
+         self.assertEqual(package_pin.seal(pin["segments"], *args), mp["package_sha256"])
+-        other = [dict(x) for x in pin["segments"]]
++        other = copy.deepcopy(pin["segments"])
+         other[1]["trimmed_leading"] = "And"                                       # the trim is inside the seal
+         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+-        other[1]["trimmed_leading"], other[1]["scorer_pending"] = "But", False      # and so is scorer_pending
++        other = copy.deepcopy(pin["segments"])
++        other[1]["scorer_verdict"]["score"] = 5.0                                 # and so is the affirmation
+         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+         for bad in ({"trimmed_leading": "Because"}, {"trimmed_leading": "But so"}, {"trimmed_leading": "and/or"},
+                     {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
+-                    {"scorer_pending": False}):                                       # ruling 49 (a) in plain words
+-            p = spk(pk)
++                    {"scorer_pending": True},                                     # ruling 56: never sealed
++                    {"scorer_verdict": sv(x_text, 3.0, "ends_mid_thought")},      # a refusal
++                    {"scorer_verdict": sv("But " + x_text, 4.0)}):                # another text's verdict
++            p = copy.deepcopy(spk(pk))                                            # each case on its own
+             p["segments"][1] = dict(p["segments"][1], **bad)
+-            with self.assertRaises(package_pin.PinRefused):
++            with self.assertRaises(package_pin.PinRefused, msg=str(bad)):
+                 package_pin.to_pin(p, "test")
+-        p = spk(pk)
+-        p["segments"][0] = dict(p["segments"][0], scorer_pending=True)                # only on a trimmed clip
++        p = copy.deepcopy(spk(pk))
++        p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "scorer_verdict"}   # no affirmation
++        with self.assertRaises(package_pin.PinRefused):
++            package_pin.to_pin(p, "test")
++        p = copy.deepcopy(spk(pk))
++        p["segments"][0] = dict(p["segments"][0], scorer_pending=True)                # not on any segment
+         with self.assertRaises(package_pin.PinRefused):
+             package_pin.to_pin(p, "test")
+         self.assertTrue(package_pin.trim_problems([{"trimmed_leading": "But", "untrimmed_start": 0.0, "start": None}]))
+-        p = spk(pk)                                                       # ^ refused, never raised (glm P0-8)
++        p = copy.deepcopy(spk(pk))                                        # ^ refused, never raised (glm P0-8)
+         p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "untrimmed_start"}
+         with self.assertRaises(package_pin.PinRefused):                          # both keys or neither
+             package_pin.to_pin(p, "test")
+@@ -972,9 +1011,10 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         saved = PK.trim_variant
+         try:
+             PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
+-            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"})
++            ok = {"b~trim": fv("Bitcoin x.", 4.0)}                  # ruling 56: the scorer affirms the trimmed text
++            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"}, verdicts=ok)
+             out = rig.run()
+-            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
++            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"}, verdicts=ok)
+             out2 = rig2.run()
+         finally:
+             PK.trim_variant = saved
+@@ -987,6 +1027,195 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
+ 
+ 
++class TestRuling56Scorer(unittest.TestCase):
++    """RULING 56 (09:59): the render's own STAND_ALONE clip scorer, asked at the pin stage by the integrator's service
++    about every moment left out as an opener it would have to affirm, untrimmed and trimmed; only what it affirms is
++    sealed. Their verdicts file is read only and fail closed."""
++
++    OPENER = "And Bitcoin is the hardest money ever made, which is why it wins."
++
++    def file(self, verdicts=None, **scorer):
++        import tempfile
++        fd, path = tempfile.mkstemp(suffix=".json")
++        with os.fdopen(fd, "w") as f:
++            json.dump({"rated_at": "2026-11-13T15:35:10Z", "build": "b", "candidates_generated_at": "g",
++                       "scorer": dict({"model": "gemma3:27b", "threshold": 3.5, "event": "Pinned: bitcoin",
++                                       "scorer_sha": "s" * 64}, **scorer), "verdicts": verdicts or {}}, f)
++        self.addCleanup(os.remove, path)
++        return path
++
++    def test_the_verdicts_file_is_used_only_when_every_check_holds(self):
++        good = {"a": fv(self.OPENER, 4.0), "b": fv("Bitcoin b.", 3.0, "ends_mid_thought")}
++        idx, rec = PK.scorer_verdicts(self.file(good), "s" * 64)
++        self.assertEqual(sorted(idx), ["a", "b"])
++        self.assertEqual((rec["read"], rec["verdicts"], rec["affirmed"]), (True, 2, 1))
++        self.assertEqual((idx["a"]["affirmed"], idx["b"]["affirmed"]), (True, False))
++        self.assertEqual((idx["a"]["event"], idx["a"]["scorer_sha"], idx["a"]["threshold"]),
++                         ("Pinned: bitcoin", "s" * 64, 3.5))
++        for scorer, code, why in (({"event": "Pinned: gold"}, "s" * 64, "another event"),
++                                  ({}, "t" * 64, "a scorer_sha that is not the render's scorer code now"),
++                                  ({}, None, "the render's scorer code could not be read"),
++                                  ({"threshold": 3.0}, "s" * 64, "another threshold"),
++                                  ({"threshold": True}, "s" * 64, "another threshold")):
++            idx, rec = PK.scorer_verdicts(self.file(good, **scorer), code)
++            self.assertEqual((idx, rec["read"], rec["why"]), ({}, False, why))
++        idx, rec = PK.scorer_verdicts("/nonexistent/latest.json", "s" * 64)
++        self.assertEqual((idx, rec["read"]), ({}, False))
++        bad = self.file()
++        with open(bad, "w") as f:
++            f.write("{not json")
++        self.assertEqual(PK.scorer_verdicts(bad, "s" * 64)[0], {})
++        odd = {"e": dict(fv("x", 4.0), error="not rated"), "n": dict(fv("x", 4.0), score=None),
++               "t": dict(fv("x", 4.0), score=True), "d": dict(fv("x", 3.0), affirmed=True),
++               "s": dict(fv("x", 4.0), text_sha256=None)}
++        idx, rec = PK.scorer_verdicts(self.file(odd), "s" * 64)
++        self.assertEqual(idx, {})                                       # none of them is a verdict
++        self.assertEqual(rec["disagree_with_the_rule"], ["d"])          # "affirmed" against the render's own rule
++
++    def test_the_scorer_sha_is_recomputed_from_the_renders_code(self):
++        import hashlib
++        import tempfile
++        self.assertEqual(PK.RENDER_SCORER_CODE, ("/home/ultron/protocol_pulse/pipeline/stand_alone.py",
++                                                 "/home/ultron/protocol_pulse/pipeline/story_semantics.py"))
++        with tempfile.TemporaryDirectory() as d:
++            a, b = os.path.join(d, "a.py"), os.path.join(d, "b.py")
++            for path, data in ((a, b"one"), (b, b"two")):
++                with open(path, "wb") as f:
++                    f.write(data)
++            self.assertEqual(PK.render_scorer_sha((a, b)), hashlib.sha256(b"onetwo").hexdigest())
++            self.assertIsNone(PK.render_scorer_sha((a, os.path.join(d, "missing.py"))))
++
++    def test_a_verdict_attaches_only_to_its_own_text(self):
++        m = dict(pm("a", "A", 12.0), text=self.OPENER)
++        got = PK.with_verdict(m, {"a": sv(self.OPENER, 4.0)})
++        self.assertIs(PK.verdict_of(got), got["scorer_verdict"])
++        self.assertNotIn("scorer_verdict", PK.with_verdict(m, {"a": sv("Another text.", 4.0)}))
++        self.assertNotIn("scorer_verdict", PK.with_verdict(m, {"b": sv(self.OPENER, 4.0)}))
++        trimmed = dict(got, moment_id="a~trim", text=self.OPENER[len("And "):])   # carries the key, not the verdict
++        self.assertIsNone(PK.verdict_of(trimmed))
++        self.assertNotIn("scorer_verdict", PK.with_verdict(trimmed, {"a": sv(self.OPENER, 4.0)}))
++
++    def test_an_affirmed_opener_plays_as_a_clip_never_as_the_hook(self):
++        m = dict(pm("a", "A", 12.0), text=self.OPENER, hook_onset={"pass": True})
++        self.assertIn("with no clip scorer", PK.no_role_on_screen(m))
++        ok = dict(m, scorer_verdict=sv(self.OPENER, 4.0))
++        self.assertIsNone(PK.no_role_on_screen(ok))
++        why = PK.no_role_on_screen(dict(m, scorer_verdict=sv(self.OPENER, 3.0, "ends_mid_thought")))
++        self.assertIn("with the clip scorer's verdict", why)
++        self.assertIn("does not affirm", why)
++        self.assertTrue(ok["eligibility"]["hook"]["ok"])               # hook-eligible (L-o: a conjunction is a target)
++        self.assertEqual(PK.placement(ok), " | cannot open (never the hook)")   # but the render's hook rule refuses
++        self.assertEqual(PK.placement(dict(ok, duration_s=6.0)), " | under 8 s: only the LAST clip")
++        hook, x = dict(pm("h", "B", 12.0), hook_onset={"pass": True}), dict(pm("x", "C", 13.0), hook_onset={"pass": True})
++        r = PK.stand_alone_check([hook, ok, x])
++        self.assertTrue(r["ok"], r["rows"])
++        self.assertIn("the clip scorer affirms it stands alone", r["rows"][1]["opener"]["why"])
++        self.assertFalse(PK.stand_alone_check([ok, hook, x])["ok"])    # never the hook
++        by = {y["moment_id"]: y for y in (ok, hook, x, dict(pm("y", "D", 13.0), hook_onset={"pass": True}))}
++        segs = PK.lineup_for(angle(["a", "h", "x", "y"], "a"), by, need_onset=True, need_stand_alone=True)
++        self.assertNotEqual(segs[0]["moment_id"], "a")                  # the proposer's hook gives way ...
++        self.assertIn("a", [y["moment_id"] for y in segs])             # ... and it plays as a clip
++
++    def test_the_build_admits_only_what_the_scorer_affirms(self):
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), dict(pm("b", "E", 13.0), text=self.OPENER)]
++        rig = Rig(ms, ["h", "b", "x", "y"], [(True, [], None, Rig.LINE)], [None], verdicts={"b": fv(self.OPENER, 4.0)})
++        out = rig.run()
++        self.assertNotIn("b", out["no_role"])
++        self.assertEqual((out["scorer"]["read"], out["scorer"]["admitted"]), (True, ["b"]))
++        self.assertIn("id=b | E | 13.0 s | cannot open (never the hook) | ",
++                      next(p for r, p in rig.prompts if r == "angle_write"))
++        seg = next(s for s in out["package"]["segments"] if s["moment_id"] == "b")      # it plays, as a clip,
++        self.assertTrue(package_pin.affirmed_verdict(seg))                                # its affirmation sealed
++        self.assertNotEqual(out["package"]["segments"][0]["moment_id"], "b")
++        refused = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None],
++                      verdicts={"b": fv(self.OPENER, 3.0, "ends_mid_thought")}).run()
++        self.assertIn("with the clip scorer's verdict", refused["no_role"]["b"])
++        self.assertEqual(refused["scorer"]["admitted"], [])
++        none = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None]).run()     # no verdicts: as before 56
++        self.assertIn("with no clip scorer", none["no_role"]["b"])
++        self.assertEqual(none["scorer"]["why"], "no verdicts file given")
++
++    def test_a_trimmed_variant_needs_the_affirmation_before_any_vendor_call(self):
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
++              dict(pm("b", "E", 13.0), text="But Bitcoin x.")]
++        v = dict(ms[4], moment_id="b~trim", text="Bitcoin x.", trimmed_leading="But", untrimmed_start=0.0)
++        saved, outs = PK.trim_variant, {}
++        try:
++            PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
++            for k, vs in (("none", None), ("refused", {"b~trim": fv("Bitcoin x.", 3.0, "ends_mid_thought")}),
++                          ("affirmed", {"b~trim": fv("Bitcoin x.", 4.0)})):
++                rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], verdicts=vs)
++                outs[k] = (rig, rig.run())
++        finally:
++            PK.trim_variant = saved
++        for k in ("none", "refused"):
++            rig, out = outs[k]
++            self.assertEqual(out["trimmed"], {}, k)
++            self.assertFalse(any("b~trim" in ids for _, ids in rig.screens), k)     # never sent to step A
++        self.assertIn("no clip-scorer verdict on the trimmed text yet", outs["none"][1]["scorer"]["trims_out"]["b"])
++        self.assertIn("does not affirm", outs["refused"][1]["scorer"]["trims_out"]["b"])
++        rig, out = outs["affirmed"]
++        self.assertEqual((out["trimmed"], out["scorer"]["trims_affirmed"]), ({"b": "b~trim"}, ["b"]))
++        self.assertTrue(any("b~trim" in ids for _, ids in rig.screens))
++
++    def test_the_candidates_file_asks_about_every_opener_left_out_and_changes_only_with_its_set(self):
++        import tempfile
++        but, srcs = TestRuling33TrimAtThePinStage().moment(
++            "But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
++        opener = dict(pm("o", "B", 12.0), text=self.OPENER)
++        gold = dict(pm("g", "C", 12.0), text="And gold is the hardest money ever made, which is why it wins.")
++        plain = pm("p", "D", 12.0)
++        with tempfile.TemporaryDirectory() as d:
++            path = os.path.join(d, "candidates.json")
++
++            def load():
++                with open(path) as f:
++                    return json.load(f)
++            r = PK.scorer_pass([but, opener, gold, plain], srcs, ctx(), None, path, "ledger_test")
++            self.assertEqual((r["index"], r["record"]["read"], r["record"]["candidates_written"]), ({}, False, True))
++            doc = load()
++            self.assertEqual((doc["build"], doc["event_expected"]), ("ledger_test", "Pinned: bitcoin"))
++            got = {c["pid"]: c for c in doc["candidates"]}
++            self.assertEqual(sorted(got), ["o", "t", "t~trim"])           # gold fails the topic rule: never asked
++            for pid, c in got.items():
++                self.assertEqual(c["text_sha256"], PK.text_sha(c["text"]), pid)
++                self.assertEqual(set(c), {"pid", "video_id", "channel", "duration", "text", "text_sha256",
++                                          "trimmed_leading"})
++            self.assertEqual((got["t~trim"]["trimmed_leading"], got["o"]["trimmed_leading"]), ("But", None))
++            self.assertTrue(got["t~trim"]["text"].startswith("Bitcoin has rarely"))
++            gen = doc["generated_at"]
++            r = PK.scorer_pass([but, dict(opener, scorer_verdict=sv(self.OPENER, 4.0)), gold, plain], srcs, ctx(),
++                               None, path, "ledger_test2")                # a verdict attached changes nothing asked
++            self.assertFalse(r["record"]["candidates_written"])
++            self.assertEqual(load()["generated_at"], gen)
++            r = PK.scorer_pass([but, plain], srcs, ctx(), None, path, "ledger_test3")
++            self.assertTrue(r["record"]["candidates_written"])
++            self.assertEqual(sorted(c["pid"] for c in load()["candidates"]), ["t", "t~trim"])
++            self.assertFalse(os.path.exists(path + ".tmp"))
++        self.assertTrue(PK.SCORER_CANDIDATES.endswith("docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json"))
++
++    def test_the_pin_holds_the_affirmation_to_its_text(self):
++        import stand_alone as SA
++        self.assertEqual(package_pin.SCORER_MIN, SA.CLIP_MIN_SCORE)
++        s = {"approved_text": self.OPENER, "scorer_verdict": sv(self.OPENER, 4.0)}
++        self.assertTrue(package_pin.affirmed_verdict(s))
++        self.assertTrue(package_pin.affirmed_verdict({"text": self.OPENER, "scorer_verdict": sv(self.OPENER, 4.0)}))
++        for bad in (dict(sv(self.OPENER, 4.0), affirmed=False), sv(self.OPENER, 3.0),
++                    sv(self.OPENER, 4.0, "starts_mid_thought"), dict(sv(self.OPENER, 4.0), threshold=3.0),
++                    dict(sv(self.OPENER, 4.0), score="4"), dict(sv(self.OPENER, 4.0), scorer_sha=""),
++                    dict(sv(self.OPENER, 4.0), event=None), sv(self.OPENER + " ", 4.0), None, "affirmed"):
++            self.assertFalse(package_pin.affirmed_verdict(dict(s, scorer_verdict=bad)), bad)
++        segs = [{"approved_text": "Bitcoin is money."}, {"approved_text": self.OPENER},
++                {"approved_text": "Yeah, Bitcoin is money."},
++                {"approved_text": "Bitcoin x.", "scorer_verdict": sv("Bitcoin y.", 4.0)}]
++        self.assertEqual([x.split(":")[0] for x in package_pin.scorer_problems(segs)],
++                         ["segment 1", "segment 2", "segment 3"])
++        for i, t in ((1, self.OPENER), (2, "Yeah, Bitcoin is money."), (3, "Bitcoin x.")):
++            segs[i]["scorer_verdict"] = sv(t, 4.0)
++        self.assertEqual(package_pin.scorer_problems(segs), [])
++        self.assertEqual(package_pin.scorer_problems([{"approved_text": self.OPENER}]), [])   # a hook: the gate's
++
++
+ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+     """ORDER 06:22: 45, step A from BOTH vendors on every cuttable clip before the angle step; 44, a failed re-screen
+     after a write swaps out that clip only, and the line-up carries on."""
