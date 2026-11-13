@@ -336,9 +336,54 @@ def publish_kit(run_dir, snap=None):
         e = reg[ch]
         src = ", ".join(f"https://www.youtube.com/watch?v={v}" for v in vids[ch])
         lines.append(f"- {ch} {e['yt_handle']}: {e['url']} (clip from {src})")
+    sp = speaker_lines(run_dir)
+    if sp:
+        lines += ["", SPEAKERS_HEAD] + sp
     handles = " ".join(reg[ch]["yt_handle"] for ch in credited)
     lines += ["", "FIRST COMMENT:", f"credits: {handles}", ORANGE_HEART]
     return "\n".join(lines)
+
+
+SPEAKERS_HEAD = "SPEAKERS (for tags; the builder's sealed record, never a guess):"
+SPEAKERS_MAX = 1200          # the block's cap: a long record never pushes a note past TEXT_MAX
+
+
+def _cut(text, n):
+    text = str(text)
+    return text if len(text) <= n else text[:n - 3].rstrip() + "..."
+
+
+def speaker_lines(run_dir):
+    """Order '00:05' (3): each segment's speaker as the builder sealed it in the pin (PINNED_DECISION.json, pin
+    segments[i].speaker): a name with its evidence line, or 'unknown' with why; then the people the source's title /
+    description names, each with its line (PBX tags them when he posts). [] for a pin without speaker records."""
+    try:
+        with open(os.path.join(run_dir, "PINNED_DECISION.json")) as f:
+            segs = (json.load(f).get("pin") or {}).get("segments") or []
+    except (OSError, ValueError, AttributeError):
+        return []
+    out = []
+    for i, seg in enumerate(segs):
+        sp = seg.get("speaker") if isinstance(seg, dict) else None
+        if not isinstance(sp, dict):
+            continue
+        name = str(sp.get("name") or "unknown")
+        known = name.lower() != "unknown"
+        line = f"- {'hook' if i == 0 else f'clip {i}'} ({seg.get('channel')}): speaker {name}"
+        if known:
+            line += (f" ({sp['role']})" if sp.get("role") else "") + (f', evidence: "{_cut(sp["line"], 140)}"'
+                                                                      if sp.get("line") else "")
+        elif sp.get("why"):
+            line += f" ({_cut(sp['why'], 120)})"
+        out.append(line)
+        people = [p for p in sp.get("people") or [] if isinstance(p, dict) and p.get("name")]
+        out += [f"  named by the source: {p['name']}" + (f" ({p['role']})" if p.get("role") else "")
+                + (f': "{_cut(p["line"], 140)}"' if p.get("line") else "") for p in people] or \
+            ["  the source names nobody"]
+    text = "\n".join(out)
+    if len(text) > SPEAKERS_MAX:
+        text = text[:SPEAKERS_MAX - 14].rsplit("\n", 1)[0] + "\n- (truncated)"
+    return text.split("\n") if text else []
 
 
 PHOTO_MAX_BYTES = 9_500_000     # Telegram sendPhoto takes <= 10 MB; the margin keeps a near-limit sheet from a
@@ -605,6 +650,9 @@ def review_texts(run_dir, nonpass, digests):
         link = links[i] if isinstance(links, list) and i < len(links) else \
             f"https://www.youtube.com/watch?v={s.get('video_id')}"
         lines.append(f"- {role}: {s.get('channel')} | {s.get('duration')} s of locked words | {link}")
+    sp = speaker_lines(run_dir)
+    if sp:
+        lines += ["", SPEAKERS_HEAD] + sp
     dev = []
     for fmt, rel in FINALS.items():
         try:

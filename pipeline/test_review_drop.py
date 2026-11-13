@@ -221,6 +221,48 @@ class TestReviewDrop(unittest.TestCase):
         self._write("GATE_REPORT.json", rep)
         self._refused(r"G20_signoff_names_all FAIL \(the G20 evidence is not readable")
 
+    SPEAKER_PIN = {"segments": [
+        {"role": "hook", "channel": "Saifedean Ammous", "speaker": {
+            "name": "unknown", "role": None, "line": None, "why": "several people speak and nothing shows which one",
+            "people": [{"name": "Saifedean Ammous", "role": "host", "line": "channel: Saifedean Ammous"},
+                       {"name": "Jason Hickel", "role": "guest", "line": "a debate with Jason Hickel"}]}},
+        {"role": "clip", "channel": "What Bitcoin Did", "speaker": {
+            "name": "Patrick Witt", "role": "guest", "line": "title: Patrick Witt on the strategic reserve",
+            "people": [{"name": "Patrick Witt", "role": "guest", "line": "title: Patrick Witt on the strategic reserve"}]}},
+        {"role": "clip", "channel": "Natalie Brunell", "speaker": {"name": "unknown", "people": []}}]}
+
+    def test_order_0005_the_sealed_speakers_are_in_the_review_note(self):
+        self._write("PINNED_DECISION.json", {"pin": self.SPEAKER_PIN})
+        T.review_drop(self.run, send=self._send)
+        note = self.sent[-1][2]["text"]
+        self.assertIn(T.SPEAKERS_HEAD, note)
+        self.assertIn("- hook (Saifedean Ammous): speaker unknown (several people speak and nothing shows which one)", note)
+        self.assertIn('  named by the source: Jason Hickel (guest): "a debate with Jason Hickel"', note)
+        self.assertIn('- clip 1 (What Bitcoin Did): speaker Patrick Witt (guest), evidence: "title: Patrick Witt on the '
+                      'strategic reserve"', note)
+        self.assertIn("- clip 2 (Natalie Brunell): speaker unknown\n  the source names nobody", note)
+
+    def test_order_0005_a_pin_without_speaker_records_adds_no_block(self):
+        T.review_drop(self.run, send=self._send)
+        self.assertNotIn(T.SPEAKERS_HEAD, self.sent[-1][2]["text"])
+
+    def test_order_0005_a_huge_speaker_record_is_capped_and_never_blocks_the_drop(self):
+        big = {"segments": [{"channel": "Saifedean Ammous", "speaker": {"name": "unknown", "why": "w" * 5000, "people": [
+            {"name": f"Person {i}", "line": "x" * 500} for i in range(40)]}}]}
+        self._write("PINNED_DECISION.json", {"pin": big})
+        T.review_drop(self.run, send=self._send)
+        note = self.sent[-1][2]["text"]
+        block = note[note.index(T.SPEAKERS_HEAD):]
+        self.assertIn("- (truncated)", block)
+        self.assertLessEqual(len(note), T.TEXT_MAX)
+
+    def test_order_0005_the_publish_kit_carries_the_sealed_speakers(self):
+        self._write("PINNED_DECISION.json", {"pin": self.SPEAKER_PIN})
+        kit = T.publish_kit(self.run)
+        self.assertIn(T.SPEAKERS_HEAD, kit)
+        self.assertLess(kit.index(T.SPEAKERS_HEAD), kit.index("FIRST COMMENT:"))
+        self.assertIn("speaker Patrick Witt (guest)", kit)
+
     def test_a_review_drop_never_authorises_release_and_is_not_repeated(self):
         T.review_drop(self.run, send=self._send)
         ok, why, _ = release_auth.authorise(self.run)
