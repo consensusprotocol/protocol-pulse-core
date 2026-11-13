@@ -1,0 +1,50 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging). This branch's builds call
+paid model vendors through providers.Router, which books every call in a spend ledger (SPEND_LY.json) and refuses a
+call that would pass a limit. Your role: a strict reviewer of the spend guard.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- The ledger keeps, per call, the price-table ESTIMATE (usd_estimate: every call, an upper bound) and, separately, the
+  vendor's OWN reported cost where the reply carries one (usd_reported: xAI cost_in_usd_ticks, Heimdall usage.cost),
+  else the estimate for that call (usd_unreported_estimate: calls with no vendor figure, e.g. speech-to-text, and calls
+  abandoned at a deadline, booked at their upper bound). Router._settle maintains all three.
+- Before a paid call, Router._reserve reserves the call's price-table upper bound under a file lock and refuses it
+  (SpendLimit) when spent + reserved + upper > limit_usd. Until this diff, "spent" was always usd_estimate.
+- The build driver (tests/package/proof_ledger.py) and the saved-runs driver (proof_ly.py) construct the Router for
+  this order with limit_usd = LY_LIMIT_USD (was 40.0, by the estimate).
+
+The order this diff implements (ORCHESTRATOR RULING 48, 07:02 ET Nov 13, verbatim): "SPEND. The cap is on
+VENDOR-REPORTED dollars, not the price-table estimate (the estimate reads 12x high: $40 estimated = $3.46 reported).
+New cap for this fresh batch: $12.00 vendor-reported in total, from where you stand ($3.46 used). For calls where a
+vendor reports no cost, count the estimate for that call only. Keep the running total on STATE line 1 with every
+build: reported / cap. At $10 reported stop and tell me."
+- Measured before this diff: usd_estimate $39.49, usd_reported $3.46, usd_unreported_estimate $1.81 (STT and calls
+  abandoned at the 300 s deadline). So the running total by the ruling's own rule is $5.26, not $3.46; STATE says so.
+
+The change:
+1. pipeline/providers.py:
+   - Router(..., limit_basis="estimate"): "estimate" keeps the old behaviour for every other caller (the default);
+     "reported" checks usd_reported + usd_unreported_estimate; anything else raises ValueError.
+   - _basis_total(d) computes the basis; spent() returns it under the ledger lock.
+   - _reserve compares spent-on-the-basis + reserved + upper with limit_usd. Reservations stay price-table upper
+     bounds, so the guard can only stop early, never late.
+2. tests/package/proof_ly.py: LY_LIMIT_USD = 12.0, LY_LIMIT_BASIS = "reported", LY_STOP_USD = 10.0; proof_ly's own
+   Router uses the basis.
+3. tests/package/proof_ledger.py (one build): the Router uses the basis. Before the build: at or over LY_STOP_USD it
+   logs REFUSED and exits 3, with no paid call. Else it logs the running total. After the build it logs and records
+   spend_ruling_48 {before, after, cap, stop, basis} in package.json. A build that starts below $10 may still spend
+   up to its own per-build budget (ruling 41: $3.00 reported for the search); the Router's $12 cap is the hard stop.
+4. tests/providers/test_providers.py: one new test. The old basis refuses at 39.5 + upper > 40. The reported basis
+   reads 5.27 and lets a call run. A call with no vendor figure adds its estimate; a call with a figure adds only the
+   figure. The limit refuses at spent + upper; reservations are released; an unknown basis is refused.
+
+Check in particular:
+- that the reported basis counts every call exactly once (reported OR its estimate), never zero for a paid call, and
+  that the lock and reservation logic are unchanged;
+- that nothing else changes for callers that do not pass limit_basis;
+- that a build can never start at or over $10, and that the hard cap is $12 on the ruling's basis;
+- whether "at $10 reported stop" is satisfied by refusing to START a build at $10 while a running build may continue
+  to the $12 cap (bounded by its own $3 reported search budget). Say so if you read the ruling differently.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

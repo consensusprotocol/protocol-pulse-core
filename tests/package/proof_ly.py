@@ -18,8 +18,9 @@ is out too. What is left:
 CPU and network only. The inputs are read-only: the saved runs and the main store's transcripts.
 
 SPEND: a ledger of this order's own (tests/package/proof/SPEND_LY.json) holds the price-table estimate beside the
-vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). Its guard is LY_LIMIT_USD by the
-estimate (an upper bound). No budget was stated at 20:30; the cap is the builder's, and STATE says so.
+vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). RULING 48 (orchestrator 07:02 Nov 13):
+its guard is LY_LIMIT_USD on VENDOR-REPORTED dollars, the estimate counted only for a call whose vendor reports none
+(Router limit_basis="reported"); at LY_STOP_USD no new build starts (proof_ledger) and the orchestrator is told.
 
 Usage: python3 tests/package/proof_ly.py --runs fresh_20261112_050611 ... [--table]
 """
@@ -46,10 +47,10 @@ import speakers as SP  # noqa: E402
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
 SPEND = os.path.join(OUT, "SPEND_LY.json")
-LY_LIMIT_USD = 40.0                # the price-table estimate (an upper bound): xAI's own figure ran 1/8 of it on
-                                   # this order's first calls (estimate $0.636 vs reported $0.078 for 3 grok calls),
-                                   # so about $5 real; each paid call also RESERVES its upper bound (~$0.26-0.96)
-                                   # while in flight, and three workers run concurrently
+LY_LIMIT_USD = 12.0                # ruling 48 (07:02 Nov 13): $12.00 VENDOR-REPORTED in total for this order (the
+LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate read ~12x high: $39.49 = $3.46 reported);
+LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
+                                   # Each paid call still RESERVES its price-table upper bound while in flight.
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
 RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
         "fresh_20261111_192645", "fresh_20261111_190259", "fresh_20261110_093150", "fresh_20261107_080503",
@@ -274,7 +275,8 @@ def main(argv=None):
     if a.table:
         print(table())
         return 0
-    router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD, chains=chains())
+    router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD,
+                      limit_basis=LY_LIMIT_BASIS, chains=chains())
     own = meter(router)
     used = reply_meter(router)
     os.makedirs(a.work_dir, exist_ok=True)

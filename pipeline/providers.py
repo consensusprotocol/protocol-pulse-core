@@ -501,11 +501,14 @@ class Router:
     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
 
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
-                 local_llm=None, chains=None):
+                 local_llm=None, chains=None, limit_basis="estimate"):
         with open(config) as f:
             self.config = json.load(f)
         self.env_path = env_path or ENV_PATH
         self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
+        if limit_basis not in ("estimate", "reported"):
+            raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
+        self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
         self.down, self.notices = {}, []
         self.backends = {}
         for name, spec in self.config["backends"].items():
@@ -575,16 +578,37 @@ class Router:
         with self._lock():
             return float(self._ledger()["usd_estimate"])
 
+    def _basis_total(self, d):
+        """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
+        bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
+        estimate for each call whose vendor reports none (usd_unreported_estimate: those calls, and a call abandoned at
+        its deadline, booked at its upper bound)."""
+        if self.limit_basis == "reported":
+            if d.get("calls", 0) and "usd_reported" not in d and "usd_unreported_estimate" not in d:
+                raise SpendLimit("the ledger has calls but keeps no vendor-reported figures: the reported basis "
+                                 "cannot be read (fail closed; audit 0707 C1, glm P1-2)")
+            return float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
+        return float(d["usd_estimate"])
+
+    def spent(self):
+        """The ledger's total on this router's limit basis (0.0 with no ledger; raises SpendLimit when unreadable)."""
+        if not self.spend_path:
+            return 0.0
+        with self._lock():
+            return self._basis_total(self._ledger())
+
     def _reserve(self, b, upper):
         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
-        SpendLimit when spent + reserved + this call's upper bound would pass the limit."""
+        SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
+        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late."""
         if not self.spend_path or b.free():
             return None
         with self._lock():
             d = self._ledger()
             held = sum(float(x) for x in d["reserved"].values())
-            if d["usd_estimate"] + held + upper > self.limit_usd:
-                raise SpendLimit(f"spend estimate {d['usd_estimate']:.2f} USD + reserved {held:.2f} + this call's upper "
+            spent = self._basis_total(d)
+            if spent + held + upper > self.limit_usd:
+                raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's upper "
                                  f"bound {upper:.2f} > the limit {self.limit_usd} USD")
             key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
             d["reserved"][key] = round(upper, 6)

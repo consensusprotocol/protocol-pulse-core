@@ -185,6 +185,37 @@ class TestRouter(unittest.TestCase):
             a.answer = '{"ok": 1}'
             self.assertEqual((r.call("write", "p").text, a.calls), ('{"ok": 1}', 2))
 
+    def test_ruling_48_the_limit_counts_vendor_reported_dollars(self):
+        """Ruling 48 (07:02 Nov 13): the cap counts the vendors' own reported dollars, plus the estimate for a call
+        whose vendor reports none; the price-table estimate (12x high on xAI) no longer binds."""
+        with tempfile.TemporaryDirectory() as d:
+            led = os.path.join(d, "SPEND.json")
+            json.dump({"usd_estimate": 39.5, "calls": 400, "by_backend": {}, "by_role": {}, "reserved": {},
+                       "usd_reported": 3.46, "usd_unreported_estimate": 1.81}, open(led, "w"))
+            a = Fake("openai:x", "openai", answer="{}", usage={"in": 1000, "out": 100})        # no vendor figure
+            rep = Fake("openai:y", "openai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
+            p = "p" * 50_000
+            with self.assertRaises(P.SpendLimit):                   # the old basis: 39.5 + the upper bound > 40
+                router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=40).call("write", p)
+            r = router(d, [a, rep], {"write": ["openai:x"], "judge": ["openai:y"]}, spend_path=led, limit_usd=12,
+                       limit_basis="reported")
+            self.assertAlmostEqual(r.spent(), 5.27, places=6)
+            r.call("write", p)                                      # 5.27 + its upper bound < 12: it runs
+            self.assertAlmostEqual(r.spent(), 5.27 + 0.02, places=6)                 # no figure: its estimate counts
+            r.call("judge", p)
+            self.assertAlmostEqual(r.spent(), 5.29 + 0.001, places=6)                # a figure: only the figure counts
+            self.assertGreater(json.load(open(led))["usd_estimate"], 39.5)
+            r.limit_usd = r.spent() + 0.05
+            with self.assertRaises(P.SpendLimit):                   # spent + this call's upper bound > the limit
+                r.call("write", p)
+            self.assertEqual(json.load(open(led))["reserved"], {})
+            with self.assertRaises(ValueError):
+                router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_basis="dollars")
+            json.dump({"usd_estimate": 1.0, "calls": 3, "by_backend": {}, "by_role": {}, "reserved": {}},
+                      open(led, "w"))                       # calls, but no reported figures: never a silent 0.0
+            with self.assertRaises(P.SpendLimit):
+                r.spent()
+
     def test_the_spend_guard_reserves_the_upper_bound_and_never_passes_the_limit(self):
         with tempfile.TemporaryDirectory() as d:
             led = os.path.join(d, "SPEND.json")

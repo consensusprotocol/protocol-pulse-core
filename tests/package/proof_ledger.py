@@ -121,7 +121,15 @@ def main(argv=None):
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
                   f, indent=1, default=str)
     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
-                      chains=PL.chains())
+                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains())
+    spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+    if spent0 >= PL.LY_STOP_USD:
+        say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+            f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator decides")
+        logf.close()
+        return 3
+    say(f"  spend (ruling 48): ${spent0:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported before this build (no build "
+        f"starts at ${PL.LY_STOP_USD:.2f})")
     own, used = PL.meter(router), PL.reply_meter(router)
     t0 = time.time()
     res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
@@ -144,6 +152,14 @@ def main(argv=None):
             say(f"PIN REFUSED: {e}")
     else:
         say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
+    try:                                         # the record is written whatever the ledger says (audit 0707 C1)
+        after = round(router.spent(), 4)
+    except Exception as e:                       # noqa: BLE001
+        after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
+    res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
+                              "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
+    say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
+        f"vendor-reported after this build (before it: ${spent0:.2f})")
     with open(os.path.join(out_dir, "package.json"), "w") as f:
         json.dump(res, f, indent=1, default=str)
     logf.close()

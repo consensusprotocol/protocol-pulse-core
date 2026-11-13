@@ -1,0 +1,169 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index e65bca1..27fc5f4 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -501,11 +501,14 @@ class Router:
+     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
+ 
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+-                 local_llm=None, chains=None):
++                 local_llm=None, chains=None, limit_basis="estimate"):
+         with open(config) as f:
+             self.config = json.load(f)
+         self.env_path = env_path or ENV_PATH
+         self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
++        if limit_basis not in ("estimate", "reported"):
++            raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
++        self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
+         self.down, self.notices = {}, []
+         self.backends = {}
+         for name, spec in self.config["backends"].items():
+@@ -575,16 +578,34 @@ class Router:
+         with self._lock():
+             return float(self._ledger()["usd_estimate"])
+ 
++    def _basis_total(self, d):
++        """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
++        bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
++        estimate for each call whose vendor reports none (usd_unreported_estimate: those calls, and a call abandoned at
++        its deadline, booked at its upper bound)."""
++        if self.limit_basis == "reported":
++            return float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
++        return float(d["usd_estimate"])
++
++    def spent(self):
++        """The ledger's total on this router's limit basis (0.0 with no ledger; raises SpendLimit when unreadable)."""
++        if not self.spend_path:
++            return 0.0
++        with self._lock():
++            return self._basis_total(self._ledger())
++
+     def _reserve(self, b, upper):
+         """Reserve a paid call's upper bound -> a reservation key (None for a free back-end or no ledger); raises
+-        SpendLimit when spent + reserved + this call's upper bound would pass the limit."""
++        SpendLimit when spent (on the limit basis) + reserved + this call's upper bound would pass the limit. The
++        reservations stay price-table upper bounds whatever the basis: the guard can only stop early, never late."""
+         if not self.spend_path or b.free():
+             return None
+         with self._lock():
+             d = self._ledger()
+             held = sum(float(x) for x in d["reserved"].values())
+-            if d["usd_estimate"] + held + upper > self.limit_usd:
+-                raise SpendLimit(f"spend estimate {d['usd_estimate']:.2f} USD + reserved {held:.2f} + this call's upper "
++            spent = self._basis_total(d)
++            if spent + held + upper > self.limit_usd:
++                raise SpendLimit(f"spend ({self.limit_basis}) {spent:.2f} USD + reserved {held:.2f} + this call's upper "
+                                  f"bound {upper:.2f} > the limit {self.limit_usd} USD")
+             key = f"{os.getpid()}:{uuid.uuid4().hex[:10]}"
+             d["reserved"][key] = round(upper, 6)
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 44aaa8e..021086f 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -121,7 +121,15 @@ def main(argv=None):
+                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
+                   f, indent=1, default=str)
+     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+-                      chains=PL.chains())
++                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains())
++    spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
++    if spent0 >= PL.LY_STOP_USD:
++        say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
++            f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator decides")
++        logf.close()
++        return 3
++    say(f"  spend (ruling 48): ${spent0:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported before this build (no build "
++        f"starts at ${PL.LY_STOP_USD:.2f})")
+     own, used = PL.meter(router), PL.reply_meter(router)
+     t0 = time.time()
+     res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
+@@ -144,6 +152,10 @@ def main(argv=None):
+             say(f"PIN REFUSED: {e}")
+     else:
+         say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
++    res["spend_ruling_48"] = {"before": round(spent0, 4), "after": round(router.spent(), 4), "cap": PL.LY_LIMIT_USD,
++                              "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
++    say(f"  spend (ruling 48): ${res['spend_ruling_48']['after']:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported after "
++        f"this build (${res['spend_ruling_48']['after'] - spent0:.2f} spent by it)")
+     with open(os.path.join(out_dir, "package.json"), "w") as f:
+         json.dump(res, f, indent=1, default=str)
+     logf.close()
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 75193f6..c958eab 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -18,8 +18,9 @@ is out too. What is left:
+ CPU and network only. The inputs are read-only: the saved runs and the main store's transcripts.
+ 
+ SPEND: a ledger of this order's own (tests/package/proof/SPEND_LY.json) holds the price-table estimate beside the
+-vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). Its guard is LY_LIMIT_USD by the
+-estimate (an upper bound). No budget was stated at 20:30; the cap is the builder's, and STATE says so.
++vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). RULING 48 (orchestrator 07:02 Nov 13):
++its guard is LY_LIMIT_USD on VENDOR-REPORTED dollars, the estimate counted only for a call whose vendor reports none
++(Router limit_basis="reported"); at LY_STOP_USD no new build starts (proof_ledger) and the orchestrator is told.
+ 
+ Usage: python3 tests/package/proof_ly.py --runs fresh_20261112_050611 ... [--table]
+ """
+@@ -46,10 +47,10 @@ import speakers as SP  # noqa: E402
+ REPLIES = os.path.join(HERE, "fixtures", "replies")
+ OUT = os.path.join(HERE, "proof")
+ SPEND = os.path.join(OUT, "SPEND_LY.json")
+-LY_LIMIT_USD = 40.0                # the price-table estimate (an upper bound): xAI's own figure ran 1/8 of it on
+-                                   # this order's first calls (estimate $0.636 vs reported $0.078 for 3 grok calls),
+-                                   # so about $5 real; each paid call also RESERVES its upper bound (~$0.26-0.96)
+-                                   # while in flight, and three workers run concurrently
++LY_LIMIT_USD = 12.0                # ruling 48 (07:02 Nov 13): $12.00 VENDOR-REPORTED in total for this order (the
++LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate read ~12x high: $39.49 = $3.46 reported);
++LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
++                                   # Each paid call still RESERVES its price-table upper bound while in flight.
+ TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
+ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
+         "fresh_20261111_192645", "fresh_20261111_190259", "fresh_20261110_093150", "fresh_20261107_080503",
+@@ -274,7 +275,8 @@ def main(argv=None):
+     if a.table:
+         print(table())
+         return 0
+-    router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD, chains=chains())
++    router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD,
++                      limit_basis=LY_LIMIT_BASIS, chains=chains())
+     own = meter(router)
+     used = reply_meter(router)
+     os.makedirs(a.work_dir, exist_ok=True)
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index fca9414..438e1f9 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -185,6 +185,33 @@ class TestRouter(unittest.TestCase):
+             a.answer = '{"ok": 1}'
+             self.assertEqual((r.call("write", "p").text, a.calls), ('{"ok": 1}', 2))
+ 
++    def test_ruling_48_the_limit_counts_vendor_reported_dollars(self):
++        """Ruling 48 (07:02 Nov 13): the cap counts the vendors' own reported dollars, plus the estimate for a call
++        whose vendor reports none; the price-table estimate (12x high on xAI) no longer binds."""
++        with tempfile.TemporaryDirectory() as d:
++            led = os.path.join(d, "SPEND.json")
++            json.dump({"usd_estimate": 39.5, "calls": 400, "by_backend": {}, "by_role": {}, "reserved": {},
++                       "usd_reported": 3.46, "usd_unreported_estimate": 1.81}, open(led, "w"))
++            a = Fake("openai:x", "openai", answer="{}", usage={"in": 1000, "out": 100})        # no vendor figure
++            rep = Fake("openai:y", "openai", answer="{}", usage={"in": 1000, "out": 100, "usd_reported": 0.001})
++            p = "p" * 50_000
++            with self.assertRaises(P.SpendLimit):                   # the old basis: 39.5 + the upper bound > 40
++                router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_usd=40).call("write", p)
++            r = router(d, [a, rep], {"write": ["openai:x"], "judge": ["openai:y"]}, spend_path=led, limit_usd=12,
++                       limit_basis="reported")
++            self.assertAlmostEqual(r.spent(), 5.27, places=6)
++            r.call("write", p)                                      # 5.27 + its upper bound < 12: it runs
++            self.assertAlmostEqual(r.spent(), 5.27 + 0.02, places=6)                 # no figure: its estimate counts
++            r.call("judge", p)
++            self.assertAlmostEqual(r.spent(), 5.29 + 0.001, places=6)                # a figure: only the figure counts
++            self.assertGreater(json.load(open(led))["usd_estimate"], 39.5)
++            r.limit_usd = r.spent() + 0.05
++            with self.assertRaises(P.SpendLimit):                   # spent + this call's upper bound > the limit
++                r.call("write", p)
++            self.assertEqual(json.load(open(led))["reserved"], {})
++            with self.assertRaises(ValueError):
++                router(d, [a], {"write": ["openai:x"]}, spend_path=led, limit_basis="dollars")
++
+     def test_the_spend_guard_reserves_the_upper_bound_and_never_passes_the_limit(self):
+         with tempfile.TemporaryDirectory() as d:
+             led = os.path.join(d, "SPEND.json")
