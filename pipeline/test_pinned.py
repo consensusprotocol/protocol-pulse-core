@@ -286,6 +286,18 @@ class TestMomentsPackage(Fixture):
         self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
 
+    def test_a_bridges_recorded_reason_reaches_the_edl(self):
+        """Law L-y 2 (orchestrator 2026-11-12 '20:30'): a bridge between clips carries the package's recorded reason
+        ('why'); moments_vo copies it into the EDL, where edl_rules R11 reads it; a line without one stays without."""
+        segs = self.pin()["segments"]
+        clips = [{"index": 1}, {"index": 2}]
+        vo = {"intro": None, "bridges": [{"text": "x", "after_clip": 1, "why": "clip 2's 'it' is clip 1's subject"},
+                                         {"text": "y", "after_clip": 2}]}
+        got = pinned.moments_vo(self.mp(type="moments", edl_vo=vo), clips, segs)
+        self.assertEqual(got["bridges"], [{"text": "x", "after_clip": 1, "why": "clip 2's 'it' is clip 1's subject"},
+                                          {"text": "y", "after_clip": 2}])
+        self.assertIsNone(got["intro"])
+
     def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
         """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
         (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,

@@ -25,6 +25,9 @@ Rules:
     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
                               that ends a sentence (. ? !) plus 0.20-0.45s tail
                               pause, strictly before the next source word starts.
+    R11 VO_SHAPE:             (law L-y) a package of type 'moments': no VO intro;
+                              at most ONE bridge between clips, with its recorded
+                              reason ('why'). No minimum VO.
 """
 import math
 import argparse
@@ -648,6 +651,47 @@ def rule_r10(edl, transcripts=None):
 # VALIDATE ALL
 # ==============================================================
 
+# ==============================================================
+# R11: VO_SHAPE (law L-y, orchestrator 2026-11-12 '20:30')
+# ==============================================================
+
+def rule_r11(edl):
+    """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): (1) no VO intro after
+    the hook; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
+    recorded reason why it was needed ('why', non-empty text, from moments_package edl_vo via pinned.moments_vo). The
+    one line after the LAST clip is the takeaway (its slot and its 30-word cap are R4's). No minimum: a package with no
+    VO line passes this rule. Story-type and untyped EDLs (the protected references) are not moments packages and are
+    unchanged. Fail closed: a 'moments' EDL without a vo object and clips, or whose bridges are not a list, fails; a line
+    whose slot is not the last clip counts as a bridge between clips."""
+    if edl.get("package_type") != "moments":
+        return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+    vo, clips = edl.get("vo"), edl.get("clips")
+    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
+        return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
+    bridges = vo.get("bridges") if vo.get("bridges") is not None else []
+    if not isinstance(bridges, list):
+        return False, "R11 FAIL (law L-y): vo bridges is not a list"
+    failures = []
+    intro = vo.get("intro")
+    if intro is not None and (not isinstance(intro, str) or intro.strip()):
+        failures.append("law L-y 1: a VO intro after the hook (a moments package opens hook -> clip)")
+    last = max((c.get("index") for c in clips if isinstance(c, dict) and type(c.get("index")) is int), default=None)
+    between = [b for b in bridges
+               if not (isinstance(b, dict) and type(b.get("after_clip")) is int and b["after_clip"] == last)]
+    if len(between) > 1:
+        failures.append(f"law L-y 2: {len(between)} bridges between clips (at most one; two or more = the line-up "
+                        f"is wrong)")
+    for b in between:
+        why = b.get("why") if isinstance(b, dict) else None
+        if not isinstance(why, str) or not why.strip():
+            failures.append(f"law L-y 2: the bridge after clip {(b.get('after_clip') if isinstance(b, dict) else None)!r}"
+                            f" has no recorded reason ('why')")
+    if failures:
+        return False, "R11 FAIL (law L-y): " + "; ".join(failures)
+    return True, (f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; "
+                  f"{len(bridges) - len(between)} takeaway line(s)")
+
+
 def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
                   transcripts=None):
     """Run all rules. Returns (all_pass, results list).
@@ -666,6 +710,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
         (rule_r8, (edl, channels_registry)),
         (rule_r9, (edl, transcripts)),
         (rule_r10, (edl, transcripts)),
+        (rule_r11, (edl,)),
     ]:
         ok, reason = rule_fn(*args)
         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})

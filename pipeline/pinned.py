@@ -526,7 +526,9 @@ def moments_vo(mp, clips, segments=None):
             raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{top}, "
                            f"strictly increasing")
         prev = a
-    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
+    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"],   # law L-y 2: a bridge's
+                                         **({"why": b["why"]} if "why" in b else {})}       # recorded reason,
+                                        for b in bridges]}                                   # read by R11
 
 
 def prepare(pin_path, run_dir, log=print):

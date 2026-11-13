@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       rule_r9, validate_edl)
+                       rule_r9, rule_r11, validate_edl)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1055,6 +1055,106 @@ class TestR4Moments(unittest.TestCase):
             self.assertFalse(ok, t)
             self.assertIn("VO=40% of runtime (max 25%)", why, t)
             self.assertNotIn("moments", why, t)
+
+
+
+class TestR11VoShape(unittest.TestCase):
+    """Law L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30', PBX on the review video: 'too much voiceover ...
+    only one input at the end'): for a package of type 'moments', R11 refuses a VO intro and more than one bridge
+    between clips, and a bridge between clips without its recorded reason; the default shape (clips back to back, one
+    takeaway after the LAST clip) and a package with no VO line at all pass. R4-moments has no minimum VO share (only its
+    45 % upper bound). Story-type and untyped EDLs (the protected references) are unchanged."""
+    MARK = TestR4Moments.MARK
+
+    def edl(self, clips=(12, 12, 8), intro=None, bridges=(), t="moments", hook=10.0):
+        e = {"hook": {"duration": hook, "channel": "H"},
+             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
+             "vo": {"intro": intro, "bridges": [dict(b) if isinstance(b, dict) else b for b in bridges]},
+             "total_clip_duration": round(hook + sum(clips), 2)}
+        if t is not None:
+            e["package_type"] = t
+        if t == "moments":
+            e.update(self.MARK)
+        return e
+
+    TAKE = {"text": " ".join(["w"] * 24), "after_clip": 3}            # the takeaway: the line after the LAST clip
+
+    def test_the_default_shape_passes_and_r4_has_no_minimum(self):
+        for bridges, hook in (((), 15.0), ((self.TAKE,), 10.0)):     # no VO line at all; one takeaway
+            e = self.edl(bridges=bridges, hook=hook)
+            ok, why = rule_r11(e)
+            self.assertTrue(ok, why)
+            ok, why = rule_r4(e)                                      # 47 + 0 + 14.3 = 61.3 s; 42 + 10.6 + 14.3 = 66.9 s
+            self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(intro="", bridges=(self.TAKE,)))  # an empty intro is no intro
+        self.assertTrue(ok, why)
+
+    def test_an_intro_fails(self):
+        for intro in ("Bitcoin does not have any authority.", "w", 5, ["w"]):
+            ok, why = rule_r11(self.edl(intro=intro, bridges=(self.TAKE,)))
+            self.assertFalse(ok, intro)
+            self.assertIn("law L-y 1", why, intro)
+            self.assertNotIn("law L-y 2", why, intro)
+
+    def test_two_bridges_between_clips_fail(self):
+        two = ({"text": "a b", "after_clip": 1, "why": "the referent of 'it' in clip 2 is clip 1's"},
+               {"text": "c d", "after_clip": 2, "why": "clip 3 names no subject"}, self.TAKE)
+        ok, why = rule_r11(self.edl(bridges=two))
+        self.assertFalse(ok, why)
+        self.assertIn("law L-y 2: 2 bridges between clips", why)
+        ok, why = rule_r11(self.edl(bridges=two[1:]))                 # one bridge with its reason + the takeaway
+        self.assertTrue(ok, why)
+
+    def test_a_bridge_between_clips_needs_its_reason(self):
+        for why in (None, "", "   ", 5):
+            b = {"text": "a b", "after_clip": 1, **({} if why is None else {"why": why})}
+            ok, reason = rule_r11(self.edl(bridges=(b, self.TAKE)))
+            self.assertFalse(ok, why)
+            self.assertIn("the bridge after clip 1 has no recorded reason", reason, why)
+        for bad in ({"text": "a b", "after_clip": "3", "why": ""}, {"text": "a b"}, "a b"):   # no valid slot = between
+            ok, reason = rule_r11(self.edl(bridges=(bad,)))
+            self.assertFalse(ok, bad)
+            self.assertIn("has no recorded reason", reason, bad)
+
+    def test_fail_closed_shapes(self):
+        e = self.edl()
+        e["vo"]["bridges"] = "a b"
+        self.assertFalse(rule_r11(e)[0])
+        for drop in ("vo", "clips"):
+            e = self.edl()
+            del e[drop]
+            self.assertFalse(rule_r11(e)[0], drop)
+
+    def test_story_type_and_untyped_edls_are_unchanged(self):
+        busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})
+        for t in ("story", None, "Moments"):
+            ok, why = rule_r11(self.edl(intro="An intro line.", bridges=busy, t=t))
+            self.assertTrue(ok, (t, why))
+            self.assertIn("not a moments package", why)
+
+    def test_validate_edl_rejects_a_moments_edl_with_an_intro(self):
+        ok, results = validate_edl(self.edl(intro="An intro line.", bridges=(self.TAKE,)))
+        self.assertFalse(ok)
+        row = next(r for r in results if r["rule"] == "rule_r11")
+        self.assertFalse(row["pass"])
+        self.assertIn("law L-y 1", row["reason"])
+
+    RUN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "runs", "pinned_20261112_165629")
+
+    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "edl.json")), "the delivered review run not on this machine")
+    def test_the_delivered_review_video_fails_and_its_l_y_reshape_passes(self):
+        """The video PBX was 'very pleased' with, but with 'too much voiceover': its real EDL (an intro and a bridge
+        between its two clips, no recorded reason) fails both parts; the same package reshaped to L-y (no intro, its
+        own takeaway after the last clip) passes R11."""
+        with open(os.path.join(self.RUN, "edl.json")) as f:
+            e = json.load(f)
+        ok, why = rule_r11(e)
+        self.assertFalse(ok)
+        self.assertIn("law L-y 1", why)
+        self.assertIn("law L-y 2: the bridge after clip 1 has no recorded reason", why)
+        e["vo"] = {**e["vo"], "intro": None, "bridges": [b for b in e["vo"]["bridges"] if b["after_clip"] == 2]}
+        ok, why = rule_r11(e)
+        self.assertTrue(ok, why)
 
 
 if __name__ == "__main__":
