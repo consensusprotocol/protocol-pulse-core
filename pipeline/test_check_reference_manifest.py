@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """check_reference_manifest (order 2026-11-12 '20:30' (c)): a protected reference is exactly its SHA256SUMS.
 Must-fail: a changed byte, a missing file, an added file, an unreadable or empty manifest. Pass: the untouched copy.
-SKIP (2): no manifest. On this machine also the real references/pulse_moments_2026-11-12 (read-only, untouched)."""
+No manifest returns 2 (regression.sh step 7 fails it whenever the checkout tracks the reference). On this machine also the real references/pulse_moments_2026-11-12 (read-only, untouched)."""
 import hashlib
 import os
 import shutil
@@ -59,7 +59,7 @@ class TestReferenceManifest(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("manifest lists no file", bad)
 
-    def test_no_manifest_is_a_skip(self):
+    def test_no_manifest_returns_2_for_the_caller_to_decide(self):
         os.remove(os.path.join(self.ref, "SHA256SUMS"))
         self.assertEqual(check(self.ref)[0], 2)
 

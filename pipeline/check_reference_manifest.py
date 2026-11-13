@@ -2,8 +2,8 @@
 """A protected reference is exactly its SHA256SUMS (orchestrator order 2026-11-12 '20:30' (c): the review video PBX was
 "very pleased" with, references/pulse_moments_2026-11-12, docs/references/REFERENCE_PULSE_MOMENTS_2026-11-12.md):
 every listed file present with its listed sha256, and no file that the manifest does not list. Fail closed: an empty or
-unreadable manifest is a failure. Exit 0 = identical, 1 = changed / missing / added (or a bad manifest), 2 = the
-reference is not on this machine (SKIP).
+unreadable manifest is a failure. Exit 0 = identical, 1 = changed / missing / added (or a bad manifest), 2 = no
+manifest (the caller decides: regression.sh step 7 fails it whenever the checkout tracks the reference).
 Usage: python3 pipeline/check_reference_manifest.py REFERENCE_DIR"""
 import hashlib
 import os
@@ -40,8 +40,8 @@ def check(ref):
 
 def main(argv):
     rc, bad, n = check(argv[1])
-    if rc == 2:
-        print(f"  SKIP: {bad[0]}")
+    if rc == 2:                                           # the caller decides SKIP or FAIL (regression.sh step 7)
+        print(f"  NO MANIFEST: {bad[0]}")
     else:
         print(f"  {n} files listed: " + ("; ".join(bad[:10]) if bad else "all present and identical, none added"))
     return rc
