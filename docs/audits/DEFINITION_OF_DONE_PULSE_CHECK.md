@@ -6,6 +6,21 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:59 ORDER '11:01' A, FACTS: THE CLIP SCORER IS THE OLD STORY TEST. Delivered PBX-approved clips fail it: 2 of 9 pass.
+(1) THE PROMPT, verbatim (story_semantics.CLIP_PROMPT; {note} = the UNTRUSTED_NOTE security paragraph; {passages} = one <excerpt id channel seconds> per clip):
+"You pick clips for a short Bitcoin news video about this event:\nEVENT: {event}\n\n{note}\nRate each candidate passage 1-5 for use as a standalone clip:\n5 = complete, strong, specific statement about this event that makes sense on its own;\n3 = relevant but weak, partial or dependent on missing context;\n1 = off-topic, a question, filler, an ad, or starts/ends mid-thought.\nAlso name each passage's main fault: "none"; "starts_mid_thought" or "ends_mid_thought" ONLY when\nthe passage states this event and its only problem is that it begins or ends in the middle of a\nthought; "off_topic" when it does not state this event; "other" for anything else.\n{passages}\nReturn ONLY JSON: {"ratings": [{"id": passage id, "score": 1-5, "fault": one of the five, "reason": short}]}"
+- 'off_topic' is measured against THE EVENT: "when it does not state this event". The event is validate's 'Pinned: <headline>', so a clip scores 5 only as a 'specific statement about this event'.
+(2) WHY EXACTLY 3.0: no code sets it. rate_passages takes the model's number, clamped to 1-5.
+- But the rubric anchors three values in words: 5, 3, and 1, where 3 = "relevant but weak, partial or dependent on missing context".
+- A relevant clip that leans on context (any opener) is told to be 3, below the 3.5 bar.
+- Every verdict tonight is 1, 3, 4 or 5, never 2. The 145: 77 x 1.0, 68 x 3.0.
+(3) THE 9 DELIVERED SPANS (hook + 2 clips of 37c5b5f5 / 41f29b1f / 1b4a63d0, from their delivered runs' own EDLs), the unchanged scorer with each video's own event:
+- 37c5b5f5 ('Pinned: No authority. That's the design.'): hook 5.0 none PASS; clip_01 3.0 other; clip_02 3.0 other.
+- 41f29b1f, the approved medley ('Pinned: Bitcoin's overlooked value comes from a market no government owns'): hook 3.0 other; clip_01 3.0 other; clip_02 4.0 other PASS.
+- 1b4a63d0 ('Pinned: The crowd feels. The structure holds.'): hook, clip_01, clip_02 all 1.0 off_topic.
+- 2 of 9 PASS. PBX-approved clips score under 3.5. The two that pass do so on their headline's words ('Directly addresses the no authority aspect'). Every refusal's reason names the event ('doesn't directly state the no authority principle', 'unrelated to the event'), never the clip's own completeness.
+- CONFIRMED: the scorer judges topicality against the headline, not stand-alone. Ruling 60 applies (B, below).
+
 ## 10:39 ITEM 56, THE EVENT PROBE: THE ZERO IS NOT THE PRE-FILTER EVENT'S. 16 of the 75 'off_topic' candidates (8 untrimmed, 8 trimmed) were re-asked with a REAL validate event, the approved medley's headline: 'Pinned: Bitcoin's overlooked value comes from a market no government owns'. Result: 16 / 16 still 1.0 'off_topic'; 0 changed, 0 affirmed. (Results appended to each moment's file under that event.)
 - The refusals are genuine judgments, one per fault:
   - '... dumped in the throne as a six-year-old boy ...': 1.0 off_topic, 'Analogy about responsibility; does not mention Bitcoin.'
