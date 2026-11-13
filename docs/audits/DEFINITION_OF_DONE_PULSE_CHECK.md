@@ -6,6 +6,14 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:33 MERGED AND PUSHED (c1c9deee), no run in flight: RULING 68 (34b4256a, audits batch 64 x2) and THE 9:16 COLOUR-TAG FIX (c1c9deee, audits batch 65 x2).
+- regression_test.sh: 26 PASS / 0 FAIL / 4 WARN.
+- pipeline/regression.sh: exit 0, PULSE MEDLEY REFERENCE: REPRODUCED.
+- On the merged tree: test_lock_precheck 14 passed + test_safe_frame_colour CPU 2 passed.
+- The colour fix's GPU must-fail ran on GPU0 at 15:29: on the old code the stack2 case FAILS ('unknown,unknown,unknown'); on the fix all 5 pass. Evidence in docs/audits/pulse-sentence-law/batch65_vert_colour_tags/EVIDENCE.md.
+- The G9 floor is unchanged.
+- Ruling 68's measurement started at 15:33 on GPU0, under the lease with the yield flag.
+
 ## 15:28 FACTS FOR THE G19 / G9 RULINGS (order '15:28' 2), run pinned_20261113_191409 (pin 0c68b589). Both are measured on the run's own finals.
 G19_edge_shots 9:16, ONE FRAME:
 - WHICH SHOT: the hook's LAST frame, frame 406 at 16.917 s of the final (24 fps). It is the SOURCE's own punch-in on Simply Bitcoin's host: the same man, cut to a tighter framing.
