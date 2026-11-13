@@ -11,6 +11,11 @@ Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fa
   - 'punch in my code' (the pin: 'punch you my code');
   - "and that's why that's why we bitcoin" (the pin: "And that's why we Bitcoin.", which drops the repeated "that's why").
 - The check is right. Two recognisers agree that the pin's text is not what the speaker says. The fix is on the pin side.
+- WHERE THE WRONG TEXT CAME FROM: the pin's approved text is word for word the word pass's Whisper decode of window 710.624-809.790. The run's Whisper on its own acquired window heard otherwise, and scribe_v1 agrees with the run. Bible E-FAIL-081.
+- The hook (DcUbBkyeh9M) and clip 2 (GXWj2JO9bz8) passed ruling 17: the run's decode equals their approved text.
+- The builder was told at 13:50:39 ET (the send's own transcript timestamp) with the three readings and the attested text that passes. The two ways out are a re-seal with that text or a swap of clip 3; which one, and what a re-seal re-opens on their side, is theirs to rule. A re-sealed pin renders at once.
+- MY SLIP (E-FAIL-078): I committed the 13:47 DoD entry (d06f9647) at 13:48:07, while this run was in flight. That moved the release branch's HEAD during the run. It did not change this run: the run held at stage pinned at 13:48:33 for ruling 17, and its attestation records no 'HEAD moved'. From now on, while a run is in flight, the DoD entry is written to disk FIRST (context safety) and committed only after the run ends.
+- PROPOSAL (not a time saver until measured, L-aa): a pin-stage ruling-17 pre-check. The render's own acquisition, decode and adjudicate_lock would run on each line-up span before the builder's paid verdicts, under the GPU0 lease with the yield flag. It would have caught this before the seal. It costs the same Whisper pass plus scribe_v1 per differing span. For the orchestrator to rule.
 
 ## 13:47 THE BUILDER'S PIN IS RENDERING: ledger_20261113_183302 (seal 61fd55d013b3e190), run runs/pinned_20261113_184605.
 - The render holds the GPU0 lease: pulse_check_run 20261113_184525, PID 3916660, since 13:45:25 ET. Preflight passed every check at HEAD 758bfc99.
