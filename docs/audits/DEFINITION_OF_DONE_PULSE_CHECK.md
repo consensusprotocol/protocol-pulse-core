@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 01:39 RESULT: BATCH PIN #1, run pinned_20261113_054035 (seal 1b4a63d0), exited 3 = HOLD at 01:39:21. NOT SENT: G17_onset_tail is a content-integrity row the review drop refuses (L-j (a)). Every stage ran; render 7.6 + 9.0 min.
+REQUIRED ROWS NOT PASS, measured:
+(1) G17_onset_tail, both formats. The PREPARED hook (Stephan Livera's Sjb6lUiL0m4) has 30 ms of quiet lead before its first word. The hook rule (D1, sentence_law.HEAD_LEAD_MIN_S) wants 80 ms or a declared pad. Its cut_in, 14.61 s, sits at the very start of a 230 ms pause, with no pad. The finals' own head and tail checks pass.
+(2) G5_tech, both formats: integrated loudness -15.2 LUFS against -14 +- 1.
+(3) G9_tail, both formats: 16:9 13.9 against 14.29; 9:16 14.5 against 14.73. The hook comes from the BT.601 source Sjb6lUiL0m4: the color-tag mechanism of ruling 26, now in BOTH formats.
+(4) G18_word_for_word 9:16, the hook. The decode inserts 'when' (start edge 'when when' against the locked 'when bitcoin'), 'and' and "that's that's why the bull".
+MONITORING, not in the holds: G4_faces_per_shot FAIL in both formats (clip_01#1 faces [1,0,0,0,0,0]; clip_02#0 [1,1,1,1,0,0]); G14 9:16 LIMITED (frame similarity is not valid for a crop).
+PASSED, AS RULED:
+- G20 in both formats through the phonetic route of ruling 24 (b): Stephan Livera heard as 'stefanlevera', Saifedean Ammous as 'seifedeanamos', Coin Bureau exact.
+- RULING 27 IN PRODUCTION: HEAD moved 0a645ab4 -> 3643eec3 during the run (the integrator's DoD commits and the site commit); the executable trees are equal at launch and end; executed_code_not_at_revision = []. The attestation no longer holds a run for docs.
+THE BATCH: one pin, so nothing more to render tonight from this supply.
+NEXT: merge the speaker tags and the word-pass worker; start the worker on GPU1; ruling 25 (the G8 spread) on GPU0 now that it is free. For the orchestrator: G17 / G5 / G9 / G18 on pin #1 are measured facts above; nothing loosened.
+
 ## 01:01 GPU1 ORDER '22:50' ITEM 3 DONE: THE WEBSITE'S OLLAMA FALLBACK IS OFF GPU0 (8278f45a); THE BATCH IS ONE PIN.
 ITEM 3, the change: core/services/ai_service.generate_content_ollama asks the same model (deepseek-coder-v2:16b, the same options and 180 s timeout) through services/gpu_lease_client.chat_gpu1, loaded by its absolute path. It holds the GPU1 lease (a wait of up to 300 s), uses keep_alive 0, and confirms the unload. Every failure still raises, so the article chain moves to its next provider as before. Before, it posted to :11434 (GPU0) with no lease; the live site set no OLLAMA_URL.
 ITEM 3, verified live during the render:
