@@ -1236,6 +1236,39 @@ class TestProposal1PoolFill(unittest.TestCase):
         self.assertIsNotNone(out["package"])
 
 
+class TestRuling57Fresh(unittest.TestCase):
+    """RULING 57 (09:59): with a 72 h window, a line-up with at least one clip from the last 24 h is preferred over one
+    with none, then the newest clips. The build stops at its first passing package, so the preference decides what is
+    TRIED first: inside an angle and across angles."""
+
+    def at(self, mid, ch, dur, hours_ago, **kw):
+        return dict(pm(mid, ch, dur, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat(),
+                    hook_onset={"pass": True})
+
+    def test_a_line_up_with_a_fresh_clip_is_tried_first(self):
+        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
+              self.at("z", "D", 13.0, 5)]                                  # only z is under 24 h
+        by = {m["moment_id"]: m for m in ms}
+        a = angle(["h", "x", "y", "z"], "h")
+        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by, need_onset=True)], ["h", "x", "y"])
+        segs = PK.lineup_for(a, by, need_onset=True, now=NOW)              # without now: the proposer's earliest
+        self.assertIn("z", [m["moment_id"] for m in segs])                 # with now: a fresh clip first
+        self.assertTrue(PK.fresh_key(segs, NOW)[0])
+        old = dict(by, z=self.at("z", "D", 13.0, 40))                      # nothing fresh: the newest clips next
+        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, old, need_onset=True, now=NOW)], ["h", "x", "z"])
+        self.assertFalse(PK.fresh_key([dict(ms[0], published_at=None)], NOW)[0])   # no readable time: never fresh
+        unknown = [dict(m, published_at=None) for m in ms[:3]]              # audit 1006 C1 (qwen P1): all unknown
+        self.assertLess(PK.fresh_key(unknown, NOW), PK.fresh_key(ms[:3], NOW))   # ranks below 50-70 h, never newest
+
+    def test_the_angle_with_a_fresh_line_up_is_judged_first(self):
+        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
+              self.at("f", "D", 12.0, 3), self.at("g", "E", 14.0, 4), self.at("k", "F", 13.0, 6)]
+        rig = Rig(ms, [["h", "x", "y"], ["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])             # the writer's 2nd angle, fresh, first
+        self.assertEqual(out["angles"][0]["hook"], "f")
+
+
 class TestRuling41Search(unittest.TestCase):
     """Ruling 41 (04:58): when the clips-alone verdict fails, the segments rated below the bar are swapped at their
     place for the next by score from the whole cleared pool (a hook for the next hook, a clip for the next clip), the

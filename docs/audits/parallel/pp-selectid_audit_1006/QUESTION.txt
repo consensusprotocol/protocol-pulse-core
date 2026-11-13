@@ -1,0 +1,49 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips from YouTube
+channels). Your role: a strict reviewer of a selection preference.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- A build reads moments from videos inside a publish window, screens them, asks an angle writer for up to 3 angles
+  (a sentence + clip ids in play order), and tries line-ups. lineup_for() picks one line-up per angle under every
+  rule; its preference was (the proposer's earliest moments: the lowest sum of play positions, then the seconds
+  nearest the middle of the range). The search stops at the FIRST package that passes every gate.
+- Time-sensitive moments ('today', a price level) must come from a source <= 24 h old (L-v 3; usable() enforces it on
+  the build clock, and the render re-checks on its own clock). The window itself is the build driver's --hours (72 by
+  default), not in this diff.
+
+The order this diff implements (ORCHESTRATOR RULING 57, 09:59 ET Nov 13, the part that is code): "When several line-ups
+pass, prefer the one with the newest clips; a line-up with at least one clip from the last 24 h is preferred over one
+with none."
+
+The change (pipeline/package.py, tests/package/test_medley.py):
+1. FRESH_H = 24.0. fresh_key(segs, now) = (holds a clip <= FRESH_H old on the clock `now`, minus the mean age in
+   hours). A clip with no readable publish time is never fresh and counts as the oldest.
+2. lineup_for(..., now=None):
+   - with now, its key is (fresh, newest, the proposer's earliest, the seconds nearest the middle);
+   - without now, the key is unchanged, so every other caller behaves as before;
+   - every rule is unchanged, and the chosen clips still play in the proposer's order.
+3. pool_fill(..., now=None) passes now through. build() passes ctx.now to lineup_for and pool_fill.
+4. build(): before the line-ups, the angles are stably re-ordered so that an angle whose first line-up (lineup_for
+   with now) holds a fresh clip is tried before one whose line-up does not. Within each group the writer's order
+   stands. out["angles"] records the order tried.
+5. tests:
+   - with now, a line-up with a fresh clip is chosen over the proposer's earliest;
+   - with nothing fresh, the newest clips are chosen;
+   - without now, nothing changes;
+   - no readable time is never fresh;
+   - the build judges the writer's second angle first when only its line-up holds fresh clips.
+- test_medley 92 OK; every other suite OK.
+
+Stated readings (say so if you read the ruling differently):
+- K1: a build stops at its first passing package, so "when several line-ups pass, prefer..." is applied to the ORDER
+  of trying: the fresh-first line-up inside an angle, and fresh-first angles across the build. The alternative,
+  continuing to search after a pass to compare passing packages, would spend the search budget twice.
+- K2: "newest clips" is the mean age of the line-up's segments, the hook included.
+- K3: recency now ranks above the proposer's earliest-moment preference (a heuristic, not a law); the proposer's PLAY
+  ORDER is kept.
+
+Check in particular: that no line-up rule changed; that time-sensitive moments are not affected; that the angle
+re-order is stable and only by freshness; the cost of the extra lineup_for call per angle; the no-time cases.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

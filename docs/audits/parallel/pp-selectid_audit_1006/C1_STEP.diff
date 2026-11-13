@@ -1,0 +1,133 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index c1d391f..b1a38d0 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -62,6 +62,7 @@ RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the packaging target the fact
+ VO_S = (6.0, 22.0)                 # the PBX MAX v3 VO's seconds (intro + bridges), content_range()'s slack
+ R4_WPS, R4_PREROLL_S, R4_SHARE = 2.5, 1.0, 0.25      # edl_rules.rule_r4's own estimate (the factory's rule)
+ TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
++FRESH_H = 24.0                     # ruling 57 (09:59 Nov 13): a line-up with a clip this fresh is preferred
+ PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
+ PRESCREEN_BATCH = 8                # excerpts per step-A call
+ PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
+@@ -925,7 +926,7 @@ def placement(m):
+     return "" if opens else " | cannot open (never the hook)"
+ 
+ 
+-def pool_fill(angle, pool, dropped=frozenset()):
++def pool_fill(angle, pool, dropped=frozenset(), now=None):
+     """PROPOSAL 1: an angle whose own moments form no line-up (lineup_for, one clip per channel, then L-y 4's
+     exception) is completed from the WHOLE cleared pool, as ruling 41's swap fills a place: the pool's other moments
+     are appended to the angle's after its own, best by rank_score, and lineup_for runs again under every unchanged
+@@ -944,7 +945,8 @@ def pool_fill(angle, pool, dropped=frozenset()):
+     mine = set(own)
+     half = lambda segs: 2 * sum(m["moment_id"] in mine for m in segs) >= len(segs)   # the angle's own: >= half
+     for repeat_ok in (False, True):
+-        segs = lineup_for(ext, pool, dropped, repeat_ok=repeat_ok, need_onset=True, need_stand_alone=True, accept=half)
++        segs = lineup_for(ext, pool, dropped, repeat_ok=repeat_ok, need_onset=True, need_stand_alone=True, accept=half,
++                          now=now)
+         if segs is not None:
+             return segs, [m["moment_id"] for m in segs if m["moment_id"] not in mine]
+     return None, None
+@@ -960,8 +962,18 @@ def supply_exception(segs, ctx):
+             f" gives two clips, from two videos (L-y 4)")
+ 
+ 
++def fresh_key(segs, now):
++    """RULING 57: how a line-up ranks by its clips' age on the render clock `now`: (holds a clip <= FRESH_H old, minus
++    the mean age in hours). A clip with no readable publish time is never fresh and counts as the oldest."""
++    ages = [E.age_hours(m.get("published_at"), now) for m in segs]
++    known = [a for a in ages if a is not None]
++    oldest = max(known, default=0.0) + 1.0
++    return (any(a is not None and a <= FRESH_H for a in ages),
++            -sum(a if a is not None else oldest for a in ages) / max(1, len(ages)))
++
++
+ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False,
+-               need_stand_alone=False, accept=None):
++               need_stand_alone=False, accept=None, now=None):
+     """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
+     medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
+     angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
+@@ -1004,6 +1016,9 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
+                 if need_stand_alone and not stand_alone_check([h] + order)["ok"]:
+                     continue
+                 key = (-sum(pos[m["moment_id"]] for m in order), -abs(dur - (lo + hi) / 2))
++                if now is not None:                       # ruling 57: a fresh clip first, then the newest clips,
++                    f = fresh_key([h] + order, now)       # then the proposer's earliest (its play order is kept)
++                    key = (f[0], f[1], key[0], key[1])
+                 if best is None or key > best[0]:
+                     best = (key, [h] + order)
+         if best:
+@@ -1513,6 +1528,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     if not angles:
+         return out
+     out.pop("why_none", None)
++    def first_fresh(a):                                   # ruling 57: the angles whose first line-up holds a clip
++        segs = lineup_for(a, cleared, need_onset=True, need_stand_alone=True, now=ctx.now)   # <= FRESH_H old go first
++        return bool(segs) and fresh_key(segs, ctx.now)[0]
++    angles = sorted(angles, key=lambda a: not first_fresh(a))      # stable: the writer's order within each group
+     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
+     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
+     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
+@@ -1663,15 +1682,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     exception = supply_exception(segs, ctx)
+                 else:
+                     segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
+-                                                 need_stand_alone=True), None
++                                                 need_stand_alone=True, now=ctx.now), None
+                     if segs is None:                      # L-y 4: one clip per channel unless the supply forces otherwise
+                         segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True,
+-                                          need_stand_alone=True)
++                                          need_stand_alone=True, now=ctx.now)
+                         if segs is not None:
+                             exception = supply_exception(segs, ctx)
+                     filled = None
+                     if segs is None and n_lineup == 0:    # PROPOSAL 1: the angle's own moments form not even its
+-                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed))   # FIRST line-up: the
++                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed), ctx.now)   # FIRST: the
+                         # pool completes it. A re-line after a drop moves on to the next angle, as before
+                         exception = supply_exception(segs, ctx) if segs is not None else None
+                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 814be17..4b5ea0f 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1191,6 +1191,37 @@ class TestProposal1PoolFill(unittest.TestCase):
+         self.assertIsNotNone(out["package"])
+ 
+ 
++class TestRuling57Fresh(unittest.TestCase):
++    """RULING 57 (09:59): with a 72 h window, a line-up with at least one clip from the last 24 h is preferred over one
++    with none, then the newest clips. The build stops at its first passing package, so the preference decides what is
++    TRIED first: inside an angle and across angles."""
++
++    def at(self, mid, ch, dur, hours_ago, **kw):
++        return dict(pm(mid, ch, dur, **kw), published_at=(NOW - timedelta(hours=hours_ago)).isoformat(),
++                    hook_onset={"pass": True})
++
++    def test_a_line_up_with_a_fresh_clip_is_tried_first(self):
++        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
++              self.at("z", "D", 13.0, 5)]                                  # only z is under 24 h
++        by = {m["moment_id"]: m for m in ms}
++        a = angle(["h", "x", "y", "z"], "h")
++        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, by, need_onset=True)], ["h", "x", "y"])
++        segs = PK.lineup_for(a, by, need_onset=True, now=NOW)              # without now: the proposer's earliest
++        self.assertIn("z", [m["moment_id"] for m in segs])                 # with now: a fresh clip first
++        self.assertTrue(PK.fresh_key(segs, NOW)[0])
++        old = dict(by, z=self.at("z", "D", 13.0, 40))                      # nothing fresh: the newest clips next
++        self.assertEqual([m["moment_id"] for m in PK.lineup_for(a, old, need_onset=True, now=NOW)], ["h", "x", "z"])
++        self.assertFalse(PK.fresh_key([dict(ms[0], published_at=None)], NOW)[0])   # no readable time: never fresh
++
++    def test_the_angle_with_a_fresh_line_up_is_judged_first(self):
++        ms = [self.at("h", "A", 12.0, 50), self.at("x", "B", 14.0, 60), self.at("y", "C", 13.0, 70),
++              self.at("f", "D", 12.0, 3), self.at("g", "E", 14.0, 4), self.at("k", "F", 13.0, 6)]
++        rig = Rig(ms, [["h", "x", "y"], ["f", "g", "k"]], [(True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(rig.medley_calls[0], ["f", "g", "k"])             # the writer's 2nd angle, fresh, first
++        self.assertEqual(out["angles"][0]["hook"], "f")
++
++
+ class TestRuling41Search(unittest.TestCase):
+     """Ruling 41 (04:58): when the clips-alone verdict fails, the segments rated below the bar are swapped at their
+     place for the next by score from the whole cleared pool (a hook for the next hook, a clip for the next clip), the
