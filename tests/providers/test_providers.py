@@ -65,6 +65,56 @@ def wav(tmp, seconds=2.0):
     return p
 
 
+class Slow(Fake):
+    """A back-end that answers only after `delay` seconds (a Heimdall angle call that hangs)."""
+
+    def __init__(self, name, vendor, answer, delay, **kw):
+        super().__init__(name, vendor, answer=answer, **kw)
+        self.delay = delay
+
+    def complete(self, prompt, max_tokens, seed, system=None):
+        import time as _t
+        _t.sleep(self.delay)
+        return super().complete(prompt, max_tokens, seed, system)
+
+
+class TestDeadline(unittest.TestCase):
+    """Orchestrator 22:40 ruling 5: one writer call never waits more than its deadline; it fails over to the next
+    back-end, the failover is recorded, and the abandoned call's upper bound is booked as spent."""
+
+    def test_a_call_that_passes_its_deadline_fails_over_and_is_recorded(self):
+        import tempfile
+        import time as _t
+        with tempfile.TemporaryDirectory() as d:
+            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
+            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
+            r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
+                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0)
+            t0 = _t.time()
+            rep = r.call("angle_write", "p", 100, 7, deadline_s=0.3)
+            self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
+            self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
+            self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
+            self.assertIn("abandoned at the deadline", rep.tried[0][1])
+            led = json.load(open(os.path.join(d, "SPEND.json")))
+            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)       # booked, at its upper bound
+            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"],
+                                   slow.upper_usd("p", 100), places=6)
+            self.assertEqual(led["reserved"], {})                      # no reservation left behind
+
+    def test_an_answer_inside_the_deadline_and_an_error_keep_their_meaning(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            ok = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=0.05)
+            r = router(d, [ok], {"angle_write": ["heimdall:deepseek"]})
+            self.assertEqual(r.call("angle_write", "p", 100, 7, deadline_s=5).text, '{"ok": 1}')
+            bad = Fake("heimdall:deepseek", "heimdall", fail="HTTP 503")
+            r2 = router(d, [bad], {"angle_write": ["heimdall:deepseek"]})
+            with self.assertRaises(P.ProviderError) as cm:            # the back-end's own error, not a deadline
+                r2.call("angle_write", "p", 100, 7, deadline_s=5)
+            self.assertIn("HTTP 503", str(cm.exception))
+
+
 class TestRouter(unittest.TestCase):
     def test_the_chain_fails_over_and_names_the_model_that_answered(self):
         with tempfile.TemporaryDirectory() as d:

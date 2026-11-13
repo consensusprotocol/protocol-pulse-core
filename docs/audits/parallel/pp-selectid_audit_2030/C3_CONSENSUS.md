@@ -1,4 +1,4 @@
-# pp-selectid audit of the L-y diff, ROUND 2: cycle 3 consensus (synthesis by the pp-selectid session, 21:30 ET Nov 12)
+# pp-selectid audit of the L-y diff, ROUND 2: cycle 3 consensus (synthesis by the pp-selectid session, 21:28 ET Nov 12)
 
 **Run.** Cycle 3 is a fresh first review of the final diff, which includes the post-cycle-2 changes, QUESTION items
 11-15. C3_STEP.diff is 129,213 bytes; the prompt is 166,034 bytes. Reviewers:

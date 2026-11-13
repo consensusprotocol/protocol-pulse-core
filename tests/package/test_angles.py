@@ -55,7 +55,7 @@ class TestAngles(unittest.TestCase):
         seg = PK.lineup_for(angle(["a", "d", "b", "c"], "a"), by)
         self.assertIsNotNone(seg)
         self.assertNotIn("d", [m["moment_id"] for m in seg[1:-1]])                # 6 s: never in the middle
-        by2 = {m["moment_id"]: m for m in (pm("a", "A", 12.0), pm("b", "B", 16.0), pm("d", "D", 6.0))}
+        by2 = {m["moment_id"]: m for m in (pm("a", "A", 12.0), pm("b", "B", 19.0), pm("d", "D", 6.0))}
         seg2 = PK.lineup_for(angle(["a", "b", "d"], "a"), by2)
         self.assertEqual([m["moment_id"] for m in seg2], ["a", "b", "d"])         # allowed as the last (the punchline)
 
@@ -128,7 +128,8 @@ class TestPinAndTruth(unittest.TestCase):
                 "lines": [{"slot": "intro", "text": "I"}, {"slot": "bridge_1", "text": "B"},
                           {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
                 "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
-                              "transcript_sha256": "t", "url_30s_before": "u"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
+                              "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
+                              "source_published_at": "2026-11-12T01:00:00Z"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
 
     def test_the_pin_refuses_anything_not_exactly_pass_and_is_sealed(self):
         pin = package_pin.to_pin(self.pk(), "r")
@@ -155,6 +156,36 @@ class TestPinAndTruth(unittest.TestCase):
         p = self.pk(context_b={"status": "PASS", "by": "x", "replayed": None, "n": 1})   # replayed not stated
         with self.assertRaises(package_pin.PinRefused):
             package_pin.to_pin(p, "r")
+
+    def test_every_pin_segment_states_its_recency_facts_inside_the_seal(self):
+        """Ruling 1 (22:40): the render clock checks L-v 3 on pin.segments[i].time_sensitive / source_published_at;
+        both are sealed, and a pin without them is never written (the render side holds such a run too)."""
+        pin = package_pin.to_pin(self.pk(), "r")
+        self.assertEqual([(s["time_sensitive"], s["source_published_at"]) for s in pin["segments"]],
+                         [(False, "2026-11-12T01:00:00Z")] * 2)
+        mp = pin["moments_package"]
+        for key, val in (("time_sensitive", True), ("source_published_at", "2026-11-12T01:00:01Z")):
+            segs = [dict(pin["segments"][0], **{key: val})] + pin["segments"][1:]
+            self.assertNotEqual(mp["package_sha256"], package_pin.seal(segs, mp["edl_vo"], mp["signoff_expected"],
+                                                                        mp["title"], mp["caption"], mp["gates"]), key)
+        for key, bad in (("time_sensitive", None), ("time_sensitive", "true"), ("time_sensitive", 1),
+                         ("source_published_at", None), ("source_published_at", "2026-11-12T01:00:00+00:00"),
+                         ("source_published_at", "2026-11-12 01:00:00Z"), ("source_published_at", "2026-13-40T01:00:00Z")):
+            p = self.pk()
+            p["segments"] = [dict(p["segments"][0], **{key: bad})] + p["segments"][1:]
+            with self.assertRaises(package_pin.PinRefused) as cm:
+                package_pin.to_pin(p, "r")
+            self.assertIn(f"segment 0: {key}", str(cm.exception))
+        p = self.pk()
+        p["segments"] = [{k: v for k, v in p["segments"][0].items() if k != "source_published_at"}] + p["segments"][1:]
+        with self.assertRaises(package_pin.PinRefused):
+            package_pin.to_pin(p, "r")
+
+    def test_the_package_states_each_clips_recency_from_its_moment(self):
+        self.assertEqual(PK.utc_z("2026-11-11T13:03:23-05:00"), "2026-11-11T18:03:23Z")
+        self.assertEqual(PK.utc_z("2026-11-11T18:03:23Z"), "2026-11-11T18:03:23Z")
+        self.assertIsNone(PK.utc_z("2026-11-11T18:03:23"))                       # no offset: not a time we can place
+        self.assertIsNone(PK.utc_z(None))
 
     def test_the_second_pass_compares_both_ways_inside_the_clip_only(self):
         self.assertFalse(TT.compare("Bitcoin is going to zero.", "Bitcoin is not going to zero.")["ok"])   # a dropped not

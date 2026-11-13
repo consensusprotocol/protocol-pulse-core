@@ -1,0 +1,1343 @@
+diff --git a/pipeline/house_style.py b/pipeline/house_style.py
+new file mode 100644
+index 00000000..195a6912
+--- /dev/null
++++ b/pipeline/house_style.py
+@@ -0,0 +1,183 @@
++#!/usr/bin/env python3
++"""pipeline/house_style.py — ORCHESTRATOR RULING 6 (22:40 ET Nov 12): the HOUSE STYLE of the text a viewer reads or
++hears. That is the TITLE, the CAPTION and the TAKEAWAY (the one VO line); a BRIDGE / INTRO gets the rules shared by every
++surface.
++
++PBX's standing copy rules: lowercase, no hashtags, no em-dashes, no emoji clutter, no AI-sounding phrasing, no hedging.
++
++A deterministic lint, no model:
++- lint(slot, text) -> [violation];
++- lint_lines(lines) lints a package's lines;
++- PROMPT_RULES tells the writer the same rules, built from the same constants so the two never drift.
++
++Each violation is {"slot", "rule": "STYLE", "detail": "<rule id>: <the offending words>"}, one per rule id.
++
++It is a gate on the writer's text BESIDE the VO-fidelity and context gates (L-q / L-t), never instead of them.
++
++Decisions the ruling leaves open:
++- the caption's "short" is CAPTION_MAX_WORDS (24);
++- a period after a one-letter abbreviation ("u.s.") ends no sentence;
++- money words match as STEMS on purpose ("investigation" trips invest\\w*);
++- "May" the month trips the hedge "may";
++- a title's first-word contraction ("It's", "That's") is not a possessive.
++"""
++import re
++
++STYLE_SLOTS = ("title", "caption", "takeaway", "bridge", "intro")   # "bridge_1" etc. and "intro" use the bridge rules
++
++# every surface
++HEDGES = ("may", "might", "could be", "perhaps", "possibly", "arguably")
++AI_PHRASES = ("it's worth noting", "it is worth noting", "delve", "delves", "delving", "tapestry", "testament to",
++              "in today's world", "ever-evolving", "game-changer", "navigate the")
++EM_DASHES = ("—", "–", " -- ")                         # em-dash, en-dash, the typed double hyphen
++EMOJI_RE = re.compile("[\U0001F300-\U0001FAFF\U0001F1E6-\U0001F1FF☀-➿⭐⭕️]")
++HASHTAG_RE = re.compile(r"#\w")
++
++# caption
++CAPTION_MAX_SENTENCES = 2
++CAPTION_MAX_WORDS = 24             # the builder's reading of "one or two SHORT sentences"
++SELF_REFERENCE = ("this medley", "this video", "this clip", "these clips", "builds toward", "this montage")
++MONEY_PATTERNS = (r"opportunit\w*", r"invest\w*", r"profit\w*", r"get\s+rich", r"to\s+the\s+moon", r"buy\s+the\s+dip",
++                  r"financial\s+advice")   # stems on purpose: "opportunity"/"invest"-style words in any form
++
++# title
++TITLE_MAX_WORDS = 8
++CONTRACTIONS = ("it's", "that's", "what's", "here's", "there's", "who's", "let's", "he's", "she's", "where's", "how's",
++                "why's")          # a first word that ends in 's but is not a possessive
++
++# takeaway
++TAKEAWAY_MAX_WORDS = 20
++TAKEAWAY_OPENERS = ("what stands out", "it's worth noting", "ultimately", "in the end")
++WHICH_MAKES_RE = re.compile(r"\bwhich\s+makes\b", re.I)
++STYLE_REFERENCE = ("No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss "
++                   "when they look at Bitcoin.")   # the line PBX appreciated (24 words; the 20-word cap is for new lines)
++
++RULE_IDS = ("hashtag", "em-dash", "emoji", "hedge", "ai-phrasing",
++            "caption-lowercase", "caption-sentences", "caption-words", "self-reference", "money-word",
++            "title-words", "title-possessive",
++            "takeaway-words", "takeaway-opener", "which-makes")
++
++
++def _norm(text):
++    """Curly apostrophes read as straight ones, so "it’s worth noting" is caught as "it's worth noting"."""
++    return (text or "").replace("’", "'").replace("‘", "'")
++
++
++def _phrase_re(phrase):
++    """A word-bounded, case-insensitive pattern for a phrase; any run of spaces between its words."""
++    return re.compile(r"\b" + r"\s+".join(re.escape(w) for w in phrase.split()) + r"\b", re.I)
++
++
++_HEDGE_RES = [(h, _phrase_re(h)) for h in HEDGES]
++_AI_RES = [(p, _phrase_re(p)) for p in AI_PHRASES]
++_SELF_RES = [(p, _phrase_re(p)) for p in SELF_REFERENCE]
++_MONEY_RES = [(p, re.compile(r"\b" + p + r"\b", re.I)) for p in MONEY_PATTERNS]
++_OPENER_RES = [(o, re.compile(r"^\W*" + r"\s+".join(re.escape(w) for w in o.split()) + r"\b", re.I))
++               for o in TAKEAWAY_OPENERS]
++_END_RE = re.compile(r"[.!?]['\")\]]*$")
++_ABBREV_RE = re.compile(r"(\w\.)+['\")\]]*")
++
++
++def words(text):
++    return len((text or "").split())
++
++
++def sentence_count(text):
++    """Sentences = tokens that end a sentence ('.', '!', '?', then closing quotes or brackets), not counting a
++    one-letter abbreviation ("u.s.", "e.g."); a last sentence without final punctuation still counts."""
++    toks = (text or "").split()
++    n = sum(1 for t in toks if _END_RE.search(t) and not _ABBREV_RE.fullmatch(t))
++    if toks and not _END_RE.search(toks[-1]):
++        n += 1
++    return max(n, 1) if toks else 0
++
++
++def _found(res, text):
++    return [name for name, rx in res if rx.search(text)]
++
++
++def lint(slot, text):
++    """The house style of one line -> [{"slot", "rule": "STYLE", "detail": "<rule id>: <the offending words>"}], one
++    violation per broken rule. slot: "title", "caption", "takeaway", "intro" or "bridge*" (the bridge rules)."""
++    kind = "bridge" if slot == "intro" or slot.startswith("bridge") else slot
++    if kind not in ("title", "caption", "takeaway", "bridge"):
++        raise ValueError(f"house_style.lint: unknown slot {slot!r}")
++    t = _norm(text)
++    out = []
++
++    def v(rule, why):
++        out.append({"slot": slot, "rule": "STYLE", "detail": f"{rule}: {why}"})
++
++    # every surface
++    tags = re.findall(r"#\w+", t)
++    if tags:
++        v("hashtag", ", ".join(repr(x) for x in tags))
++    dashes = [d for d in EM_DASHES if d in t]
++    if dashes:
++        v("em-dash", ", ".join(repr(d.strip() or d) for d in dashes) + " (use a period or a comma)")
++    emo = EMOJI_RE.findall(t)
++    if emo:
++        v("emoji", ", ".join(repr(e) for e in emo))
++    hedges = _found(_HEDGE_RES, t)
++    if hedges:
++        v("hedge", ", ".join(repr(h) for h in hedges) + " (say it plainly or not at all)")
++    ai = _found(_AI_RES, t)
++    if ai:
++        v("ai-phrasing", ", ".join(repr(p) for p in ai))
++
++    if kind == "caption":
++        if t != t.lower():
++            upper = [w for w in t.split() if w != w.lower()]
++            v("caption-lowercase", "capitals in " + ", ".join(repr(w) for w in upper[:5]) + " (all lowercase, names too)")
++        n = sentence_count(t)
++        if n > CAPTION_MAX_SENTENCES:
++            v("caption-sentences", f"{n} sentences (at most {CAPTION_MAX_SENTENCES})")
++        if words(t) > CAPTION_MAX_WORDS:
++            v("caption-words", f"{words(t)} words (at most {CAPTION_MAX_WORDS})")
++        selfref = _found(_SELF_RES, t)
++        if selfref:
++            v("self-reference", ", ".join(repr(p) for p in selfref) + " (never talk about the video itself)")
++        money = [m.group(0) for _, rx in _MONEY_RES for m in [rx.search(t)] if m]
++        if money:
++            v("money-word", ", ".join(repr(m) for m in money))
++    elif kind == "title":
++        if words(t) > TITLE_MAX_WORDS:
++            v("title-words", f"{words(t)} words (at most {TITLE_MAX_WORDS})")
++        first = t.split()[0] if t.split() else ""
++        tok = re.sub(r"^\W+|[^\w']+$", "", first).lower()
++        if re.fullmatch(r"[\w-]+'s|[\w-]+s'", tok) and tok not in CONTRACTIONS:
++            v("title-possessive", f"opens with the possessive {first!r} (say the thing: 'The market no government owns')")
++    elif kind == "takeaway":
++        if words(t) > TAKEAWAY_MAX_WORDS:
++            v("takeaway-words", f"{words(t)} words (at most {TAKEAWAY_MAX_WORDS})")
++        opener = _found(_OPENER_RES, t)
++        if opener:
++            v("takeaway-opener", f"opens with {opener[0]!r} (make the point; no throat-clearing)")
++        if WHICH_MAKES_RE.search(t):
++            v("which-makes", "a 'which makes ...' clause (end the sentence; say the point in the next one)")
++    return out
++
++
++def lint_lines(lines):
++    """The house style of a package's lines ([{"slot", "text", ...}]): every title, caption, takeaway, intro and
++    bridge* line, each violation under the line's own slot; other slots are not text a viewer gets."""
++    out = []
++    for ln in lines or []:
++        slot = ln.get("slot") or ""
++        if slot in STYLE_SLOTS or slot.startswith("bridge"):
++            out += lint(slot, ln.get("text") or "")
++    return out
++
++
++PROMPT_RULES = (
++    "HOUSE STYLE (PBX's standing copy rules; a line that breaks one is rejected):\n"
++    f"- Everywhere: no hashtags; no em-dash or en-dash (use a period or a comma); no emoji; no hedging words "
++    f"({', '.join(HEDGES)}); no AI-sounding phrasing ({', '.join(AI_PHRASES)}).\n"
++    f"- CAPTION: all lowercase, names too; one or two short sentences, at most {CAPTION_MAX_WORDS} words in all; never "
++    f"talk about the video itself ({', '.join(SELF_REFERENCE)}); no money words (opportunity, invest, profit, get "
++    f"rich, to the moon, buy the dip, financial advice).\n"
++    f"- TITLE: at most {TITLE_MAX_WORDS} words, plain; never open with a possessive (not \"Bitcoin's overlooked value "
++    f"comes from ...\" but \"The market no government owns\").\n"
++    f"- TAKEAWAY: at most {TAKEAWAY_MAX_WORDS} words in short declarative sentences: a point, not a summary; never "
++    f"open with " + ", ".join(f'"{o}"' for o in TAKEAWAY_OPENERS) + "; no \"which makes ...\" clause.\n"
++    f"- PBX MAX's voice, for its rhythm, never its words: \"{STYLE_REFERENCE}\"")
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 2ca61824..cf9d0ce3 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -54,6 +54,7 @@ from concurrent.futures import ThreadPoolExecutor
+ 
+ import context_integrity as CI
+ import eligibility as E
++import house_style as HS
+ import vo_fidelity as VF
+ 
+ SEG_MAX_S = 20.0                   # L-u: at most 20 s per source video
+@@ -68,7 +69,12 @@ SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is
+ MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
+ WRITES = 2
+ COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
+-BUDGET_S, BUDGET_USD = 360.0, 1.50  # orchestrator 05:25 item 5: per package
++BUDGET_WALL_S = 900.0              # orchestrator 22:40 ruling 5 (Heimdall as the writer; was 05:25 item 5's 360 s x2):
++BUDGET_USD_REPORTED = 1.50         # per package 15 min wall and $1.50 by the vendors' OWN reported cost,
++BUDGET_USD_ESTIMATE = 5.00         # with the price-table estimate (it over-states ~7x) only as a hard ceiling
++NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
++WRITER_DEADLINE_S = 300.0          # ruling 5: one writer call never waits more than 5 min; it fails over (deepseek ->
++                                   # qwen -> xAI in the writer chain) and the failover is recorded
+ VO_DEPENDENT = ("NOT_ENTAILED", "POLARITY", "STRONGER", "FALSE_RELATION")   # context failures the VO's framing causes
+ VO_FIX = {"NOT_ENTAILED": "the viewer would take this clip to assert more than its speaker said in context: do not "
+                           "frame or restate it",
+@@ -139,7 +145,9 @@ R4_MOMENTS_SHARE = 0.45            # orchestrator 08:29 ruling 9: moments-first
+ 
+ 
+ LY_CLIPS = (2, 4)                  # L-y 4: 3 to 5 clips = the hook + 2-4 clips, back to back (the medley)
+-LY_TAKEAWAY_MIN_WORDS = 8          # L-y 5: one or two sentences; the cap is ruling 10's MOMENTS_TAKEAWAY_WORD_CAP
++LY_TAKEAWAY_MIN_WORDS = 8          # L-y 5: one or two sentences
++LY_TAKEAWAY_MAX_WORDS = HS.TAKEAWAY_MAX_WORDS   # ruling 6 (22:40): at most 20 words for a new takeaway; ruling 10's
++                                   # MOMENTS_TAKEAWAY_WORD_CAP (30) stays the factory's upper bound in R4
+ LY_BRIDGE_WORDS = 12               # L-y 2: the one exceptional bridge, "as short as it can be" (asked of the writer;
+                                    # config.BRIDGE_WORD_CAP 20 stays the hard bound, ly_shape)
+ LY_BRIDGE_MIN_WORDS = 3            # the shortest bridge a first write budgets for ("Next, on keys.")
+@@ -150,10 +158,10 @@ LY_LINEUPS = 2                     # line-ups tried per angle (a clips-alone fai
+ 
+ 
+ def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
+-    """Seconds the clips may fill so that ONE takeaway of LY_TAKEAWAY_MIN_WORDS..MOMENTS_TAKEAWAY_WORD_CAP words (and
++    """Seconds the clips may fill so that ONE takeaway of LY_TAKEAWAY_MIN_WORDS..LY_TAKEAWAY_MAX_WORDS words (and
+     n_bridges bridges of bridge_words) lands the factory's estimate (runtime()) inside 60-70 s (L-y 4)."""
+     extra = n_bridges * (bridge_words / R4_WPS + R4_PREROLL_S)
+-    lo = RUNTIME_S[0] - FINAL_TAIL_S - extra - (MOMENTS_TAKEAWAY_WORD_CAP / R4_WPS + R4_PREROLL_S)
++    lo = RUNTIME_S[0] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MAX_WORDS / R4_WPS + R4_PREROLL_S)
+     hi = RUNTIME_S[1] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MIN_WORDS / R4_WPS + R4_PREROLL_S)
+     return round(lo, 2), round(hi, 2)
+ 
+@@ -177,11 +185,11 @@ def bridge_budget(content_s):
+ def takeaway_budget(content_s, other=()):
+     """(lo, hi) words for the takeaway, given the clips' seconds and the other VO lines' texts (a bridge): the factory's
+     estimate (runtime()) inside LY_AIM_S when the clips allow it, else inside 60-70 s; never under
+-    LY_TAKEAWAY_MIN_WORDS, above the cap of 30 or past R4's share. None when no length lands 60-70 s."""
++    LY_TAKEAWAY_MIN_WORDS, above house style's cap (20, ruling 6) or past R4's share. None when no length lands 60-70 s."""
+     other = [t for t in other if t and t.strip()]
+     fixed = content_s + FINAL_TAIL_S + sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in other)
+     words_at = lambda s: R4_WPS * (s - fixed - R4_PREROLL_S)     # the takeaway's words that land the estimate at s
+-    cap = min(MOMENTS_TAKEAWAY_WORD_CAP,
++    cap = min(LY_TAKEAWAY_MAX_WORDS,
+               r4_max_vo_words(content_s, 1 + len(other)) - sum(len(t.split()) for t in other))
+     for a, b in (LY_AIM_S, RUNTIME_S):
+         lo, hi = max(LY_TAKEAWAY_MIN_WORDS, math.ceil(words_at(a) - 1e-9)), min(cap, math.floor(words_at(b) + 1e-9))
+@@ -254,6 +262,17 @@ def signoff(segs, ctx):
+     return f"Clips today from {who}. Go follow them for more. Links are below."
+ 
+ 
++def utc_z(when):
++    """An ISO 8601 time with its offset -> "YYYY-MM-DDTHH:MM:SSZ" (UTC), or None when it cannot be read (the pin then
++    refuses it: ruling 1, 22:40, recency on the render clock needs the source's publish time)."""
++    from datetime import datetime, timezone
++    try:
++        t = datetime.fromisoformat(str(when).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return None
++    return None if t.tzinfo is None else t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
++
++
+ def labels(n):
+     """The segments' labels in play order: the hook, then clip_01 ... (the renderer's clip index = the position)."""
+     return ["hook" if i == 0 else f"clip_{i:02d}" for i in range(n)]
+@@ -268,6 +287,8 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
+                         "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
+                         "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
+                         "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
++                        "time_sensitive": bool(time_sensitive(m)),          # ruling 1 (22:40): L-v 3 on the render
++                        "source_published_at": utc_z(m.get("published_at")),  # clock, both sealed in the pin
+                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
+                        for lb, m in zip(labels(len(segs)), segs)],
+           "vo": dict(vo, signoff=signoff(segs, ctx)),
+@@ -301,17 +322,19 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
+     (None, 0 = after the hook, or k), title, caption."""
+     segs = [by_id[i] for i in order]
+     n_clips = len(segs) - 1
+-    b, k = fields.get("bridge"), fields.get("bridge_after")
++    b, k, t = fields.get("bridge"), fields.get("bridge_after"), fields.get("takeaway")
+     if b is not None and (type(k) is not int or not 0 <= k < n_clips):
+         raise ValueError(f"a bridge sits at a join between two clips: after 0..{n_clips - 1}, not {k!r}")
++    if t is None and b is not None:
++        raise ValueError("a no-voice medley carries no bridge either (ruling 3, 22:40: clips back to back)")
+     mid = b is not None and k > 0
+     lines = ([dict(b, slot="intro")] if b is not None and k == 0 else []) + \
+         ([dict(b, slot="bridge_1")] if mid else []) + \
+-        [dict(fields["takeaway"], slot="takeaway"), dict(fields["title"], slot="title"),
+-         dict(fields["caption"], slot="caption")]
++        ([dict(t, slot="takeaway")] if t is not None else []) + \
++        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
+     vo = {"intro": b["text"] if b is not None and k == 0 else None,
+-          "bridges": ([b["text"]] if mid else []) + [fields["takeaway"]["text"]],
+-          "bridges_after_clip": ([k] if mid else []) + [n_clips]}
++          "bridges": ([b["text"]] if mid else []) + ([t["text"]] if t is not None else []),
++          "bridges_after_clip": ([k] if mid else []) + ([n_clips] if t is not None else [])}
+     pk = _package(segs, ctx, fields, vo_kind, vo, lines)
+     pk["shape"] = "medley"
+     pk["bridge"] = None if b is None else {"after": pk["segments"][k]["label"], "after_clip": k,
+@@ -319,6 +342,7 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
+                                            "text": b["text"], "why": b.get("why"),
+                                            "confirmed_by": fields.get("bridge_confirmed_by")}
+     pk["supply_exception"] = fields.get("supply_exception")
++    pk["no_voice"] = fields.get("no_voice")
+     return pk
+ 
+ 
+@@ -437,8 +461,8 @@ in one conversation and never answer each other):
+ 
+ After the last clip you speak ONE closing line, the TAKEAWAY; then a sign-off credits every channel (written by code).
+ {bridge}Write:
+-- "takeaway": one or two sentences, {lo}-{hi} words: the point the medley adds up to, as YOUR OWN commentary (your
+-  opinion or conclusion), never a restatement of any clip.
++- "takeaway": {lo}-{hi} words in short declarative sentences: the point the medley adds up to, as YOUR OWN
++  commentary (your opinion or conclusion), a point and not a summary, never a restatement of any clip.
+ - "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters. Both carry the angle.
+ Every line gives "cites": the ids of the clips it relies on (none for your own commentary).
+ RULES (a line that breaks one is rejected):
+@@ -452,8 +476,8 @@ RULES (a line that breaks one is rejected):
+ - Never say or imply that channels agree, answer, rebut or react to each other.
+ - No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
+   "slams", "exposes", "admits", "confirms", "caught".
+-- Write the title and caption in sentence case: capitalise only the first word and real names. A line that names a
+-  show, a person or Bitcoin's price cites the clips it comes from.
++- A line that names a show, a person or Bitcoin's price cites the clips it comes from.
++{style}
+ {extra}Return ONLY this JSON object: {{"takeaway": {{"text": "...", "cites": []}}, "bridge": {bridge_shape},
+ "title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""
+ 
+@@ -697,8 +721,8 @@ def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7,
+     angle_text = " ".join(quote_data(angle["angle"], 300).replace('"', "'").split())     # M9: escaped, one line
+     prompt = WRITE_LY.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
+                              lineup=_lineup_block(segs, ctx, a_by), bridge=ask, lo=budget[0], hi=budget[1],
+-                             extra=(extra + "\n") if extra else "", bridge_shape=shape)
+-    r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor)
++                             extra=(extra + "\n") if extra else "", bridge_shape=shape, style=HS.PROMPT_RULES)
++    r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor, deadline_s=WRITER_DEADLINE_S)
+     try:
+         obj = json.loads(r.text.strip())
+         ids = [m["moment_id"] for m in segs]
+@@ -739,7 +763,13 @@ def ly_shape(pk):
+     if not LY_CLIPS[0] <= n_clips <= LY_CLIPS[1]:
+         fails.append(f"{len(segs)} segments: a medley plays 3-5 (the hook + {LY_CLIPS[0]}-{LY_CLIPS[1]} clips)")
+     bridges, after = list(vo.get("bridges") or []), list(vo.get("bridges_after_clip") or [])
+-    if not bridges or len(after) != len(bridges) or after[-1] != n_clips or not (bridges[-1] or "").strip():
++    nv = pk.get("no_voice")
++    if nv is not None:                        # ruling 3 (22:40): clips back to back and the sign-off, NO VO line at all,
++        if not isinstance(nv, dict) or not str(nv.get("why") or "").strip():   # only after the takeaway failed twice
++            fails.append("a no-voice medley must record why (ruling 3: the takeaway failed its gates twice)")
++        if bridges or after or vo.get("intro"):
++            fails.append("a no-voice medley carries no VO line (ruling 3)")
++    elif not bridges or len(after) != len(bridges) or after[-1] != n_clips or not (bridges[-1] or "").strip():
+         fails.append("no takeaway after the last clip (L-y 1)")
+     js = joins([sg["label"] for sg in segs])
+     bad = [a for a in after[:-1] if type(a) is not int or not 0 < a < n_clips]
+@@ -805,6 +835,7 @@ def cheap_checks(pk, a_by, levels, now):
+         ([] if r4_res[0] else [{"slot": "-", "rule": "R4", "detail": r4_res[1]}])
+     if pk.get("shape") == "medley":
+         v += [{"slot": "-", "rule": "LY_SHAPE", "detail": why} for why in ly_shape(pk)[1]]
++        v += HS.lint_lines(pk["lines"])                    # ruling 6 (22:40): PBX's copy rules, deterministic
+     return v, det, dup, rt_ok, r4_res
+ 
+ 
+@@ -927,7 +958,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     spend: a callable returning the ledger's USD (dollars per package).
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+-    usd0 = spend() if spend else None
++    usd0 = _spent(spend)
+     ms, why = usable(moments, ctx, delivered, optout)
+     wv, wf = _writers(router)
+     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
+@@ -970,7 +1001,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         r = None
+         try:
+             r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
+-                                                               clips=clips, k=max_angles, lo=lo, hi=hi), 3000, seed)
++                                                               clips=clips, k=max_angles, lo=lo, hi=hi), 3000, seed,
++                            deadline_s=WRITER_DEADLINE_S)
+             angles, angle_reply = check_angles(json.loads(r.text.strip()), cleared, max_angles), r
+             break
+         except Exception as e:
+@@ -981,13 +1013,119 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         return out
+     out.pop("why_none", None)
+     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
++    out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
+     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
++    writer_avoid = {router.backends[n].vendor for n in router.chain("angle_write") if n in router.backends} - \
++        {angle_reply.vendor}                   # every write stays on the angle's vendor, so a judge is always left
+     log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)")
+     doomed = set()                                         # moments a per-moment gate dropped: out of every angle
++
++    def over_budget(ai):
++        """Ruling 5 (22:40): per package 15 min wall / $1.50 reported / the $5 estimate ceiling. Checked before every
++        line-up and every write (audit 2240 C1, glm), not only when an angle ends. -> the stop record, or None."""
++        used_s = time.time() - t0
++        est, rep = (a - b for a, b in zip(_spent(spend), usd0))
++        if used_s <= BUDGET_WALL_S and rep <= BUDGET_USD_REPORTED and est <= BUDGET_USD_ESTIMATE:
++            return None
++        out["why_none"] = (f"stopped in angle {ai + 1} of {len(angles)}: {used_s:.0f} s of {BUDGET_WALL_S:.0f} s wall / "
++                           f"${rep:.2f} of ${BUDGET_USD_REPORTED:.2f} reported / ${est:.2f} of the "
++                           f"${BUDGET_USD_ESTIMATE:.2f} estimate ceiling (ruling 5, 22:40)")
++        out["budget_stop"] = {"seconds": round(used_s, 1), "usd_reported": round(rep, 4), "usd_estimate": round(est, 4),
++                              "angles_tried": ai + 1, "angles": len(angles)}
++        return out["budget_stop"]
++
++    def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup):
++        """Ruling 3 (22:40): the takeaway failed its gates twice on a line-up whose clips ALONE passed with no join a
++        viewer cannot follow, so the package ships with NO VO line: clips back to back and the sign-off. It is not
++        dropped. The title and caption are the latest write's and go through every gate again. The factory's estimate
++        must still land 60-70 s, so when the clips are too short one more clip of the angle is added in the proposer's
++        order, and the new line-up is judged on the clips alone again. -> a package, or None (rec["no_voice"] why)."""
++        nv_lo, nv_hi = RUNTIME_S[0] - FINAL_TAIL_S, RUNTIME_S[1] - FINAL_TAIL_S
++        pos = {m_: i for i, m_ in enumerate(angle["moments"])}
++        rec["no_voice"] = note = {"tried": True}
++        if med.get("measured") is not True or med.get("flagged") != []:     # audit 2240 C1 (qwen, glm): its own guard
++            note["why_not"] = "the clips-alone verdict is not a measured pass with every join followable"
++            return None
++        order, added, nv_med = list(segs), None, med
++        content = sum(m["duration_s"] for m in order)
++        if content > nv_hi:
++            note["why_not"] = f"{content:.1f} s of clips: over {nv_hi:.1f} s with no VO line"
++            return None
++        if content < nv_lo:                                  # "the packager may add a clip"
++            chans = {m["channel_id"] for m in segs}
++            for mid in angle["moments"]:
++                m = cleared.get(mid)
++                if m is None or m in segs or mid in dropped or mid in doomed or m["channel_id"] in chans or \
++                        not (m.get("eligibility") or {}).get("clip", {}).get("ok"):
++                    continue
++                cand = [segs[0]] + sorted(segs[1:] + [m], key=lambda x: pos.get(x["moment_id"], 99))
++                if len(cand) - 1 > LY_CLIPS[1] or [x for x in cand[1:-1] if x["duration_s"] < SHORT_CLIP_S] or \
++                        sum("price_prediction" in x.get("risk", []) for x in cand) > PRICE_PREDICTIONS_MAX or \
++                        not nv_lo <= sum(x["duration_s"] for x in cand) <= nv_hi:
++                    continue
++                order, added = cand, mid
++                break
++            if added is None:
++                note["why_not"] = f"{content:.1f} s of clips and no one clip of the angle lands {nv_lo:.1f}-{nv_hi:.1f} s"
++                return None
++            ok2, nv_med = medley(router, order, ctx, writers_v, seed=50 + n_lineup + 10 * ai, writer_family=writers_f)
++            note["medley"] = nv_med
++            if not ok2 or nv_med["flagged"]:
++                note["why_not"] = "the line-up with the added clip fails on the clips alone (or has a join to bridge)"
++                return None
++        fields = {"takeaway": None, "bridge": None, "bridge_after": None, "title": last["title"],
++                  "caption": last["caption"], "type": "moments", "angle": angle["angle"], "style": "medley, no voice",
++                  "supply_exception": exception,
++                  "no_voice": {"why": "the takeaway failed its gates in both writes; ruling 3 (22:40) ships the clips "
++                                      "back to back with the sign-off only", "added_clip": added,
++                               "lineup_before": [m["moment_id"] for m in segs]}}
++        pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
++        pk["medley"] = nv_med
++        cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
++        if cheap:
++            note["why_not"] = f"cheap gates: {sorted({v['rule'] for v in cheap})}"
++            note["violations"] = cheap
++            return None
++        with ThreadPoolExecutor(max_workers=8) as nv_pool:
++            bg2 = {m["moment_id"]: (nv_pool.submit(exclusion_for, router, m, sources, exc),
++                                    nv_pool.submit(truth_for, router, m, work_dir, tru)) for m in order}
++            got = {mid: (f[0].result(), f[1].result()) for mid, f in bg2.items()}
++            if any(e.get("verdict") != "keep" or not t.get("ok") or (t.get("edges") or {}).get("cuttable") is not True
++                   for e, t in got.values()):
++                note["why_not"] = "a clip fails exclusion, the second pass or CUTTABLE"
++                return None
++            fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, nv_pool)
++        if not fid["ok"] or not cx["ok"]:
++            note["why_not"] = "the title / caption fail VO fidelity or context integrity"
++            note["violations"] = fid["violations"] + cx["violations"]
++            return None
++        coh = dict(nv_med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
++        a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
++        pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab, {k: v for k, (v, _) in got.items()},
++                                {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
++                                shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]))
++        import package_pin
++        problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
++        if problems:
++            note["why_not"] = f"a required gate is not exactly PASS: {problems}"
++            return None
++        pk["models"] = {"angle": angle_reply.backend, "writer": "the latest write's title and caption",
++                        "medley": nv_med.get("backend"), "fidelity_verdict": fid.get("backend"),
++                        "context": cx.get("backends"), "coherence": nv_med.get("backend")}
++        pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": nv_med}
++        pk["seconds"] = round(time.time() - t0, 1)
++        pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
++        note["result"] = "PACKAGE"
++        log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package ({len(order)} clips, "
++            f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
++        return pk
++
+     with ThreadPoolExecutor(max_workers=8) as pool:
+         for ai, angle in enumerate(angles):
+             dropped, n_lineup = set(), 0
+-            while n_lineup < lineups and not out["packages"]:
++            while n_lineup < lineups and not out["packages"] and not out.get("budget_stop"):
++                if over_budget(ai):
++                    break
+                 segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed)), None
+                 if segs is None:                          # L-y 4: one clip per channel unless the supply forces otherwise
+                     segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True)
+@@ -1029,11 +1167,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
+                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
+                 extra, relined, w_used, written = "", False, 0, ()
++                take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
+                 while w_used < writes:
++                    if over_budget(ai):
++                        break
+                     w_used += 1
+                     try:
+                         wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
+-                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup, other=written)
++                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup,
++                                                    avoid_vendor=writer_avoid or None, other=written)
+                     except NoBridgeFits as e:                  # the seconds rule it out: re-line, no write is paid
+                         if join is not None:
+                             dropped.add(segs[join[0] + 1]["moment_id"])
+@@ -1077,6 +1219,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     rec["attempts"].append(att)
+                     take = _takeaway_record(ai, n_lineup, w_used, pk, cheap)
+                     out["takeaways"].append(take)
++                    last_fields = fields
+                     log(f"  angle {ai + 1} line-up {n_lineup} write {w_used} ({wr.backend}, takeaway {take['words']} "
+                         f"words, {pk['runtime_s_estimate']} s): " +
+                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
+@@ -1097,6 +1240,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         break
+                     if cheap:
+                         att["violations"] = cheap
++                        take_failed += take["passed"] is False
+                         b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
+                         extra = _redo([dict(v, detail=v["detail"] + (f" (a takeaway of {b[0]}-{b[1]} words lands it)"
+                                                                      if b else " (no takeaway length lands it with this "
+@@ -1112,6 +1256,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'} (takeaway "
+                         f"{'PASS' if take['passed'] else take['verdict_fail']}), context "
+                         f"{'PASS' if cx['ok'] else 'FAIL'} ({time.time() - t0:.0f} s)")
++                    take_failed += take["passed"] is False
+                     if not fid["ok"] or not cx["ok"]:
+                         if fid["ok"] and not framing:
+                             rec["why"] = "context integrity failed on something the VO cannot fix"
+@@ -1130,12 +1275,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+                     pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
+                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
+-                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk))
++                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk),
++                                            style=HS.lint_lines(pk["lines"]))
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
+                                 coh["vo_point"] < COHERENCE_MIN and min(coh["clips"].values()) >= COHERENCE_MIN and \
+                                 len(tl.split()) >= 4 and not NO_LINE.search(tl):
++                            take_failed += 1                  # the takeaway's point failed its coherence gate
+                             extra = _redo([{"slot": "takeaway", "rule": "COHERENCE", "detail":
+                                             f"a blind viewer rated the takeaway's point {coh['vo_point']} of 5 for "
+                                             f"being supported by the clips: land the point the clips make together"}])
+@@ -1158,29 +1305,36 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                     "coherence": coh.get("backend")}
+                     pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
+                     pk["seconds"] = round(time.time() - t0, 1)
+-                    pk["usd"] = round(spend() - usd0, 4) if spend else None
++                    pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+                     out["packages"].append(pk)
+                     rec["result"] = "PACKAGE"
+                     break
++                if not out["packages"] and not relined and ok_m and not med["flagged"] and \
++                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop"):
++                    nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
++                    if nv is not None:
++                        out["packages"].append(nv)
++                        rec["result"] = "PACKAGE (no voice, ruling 3)"
+                 if out["packages"] or not relined:
+                     break
+-            if out["packages"]:
+-                break
+-            used_s, used_usd = time.time() - t0, (spend() - usd0) if spend else 0.0
+-            if used_s > BUDGET_S * 2 or used_usd > BUDGET_USD * 2:
+-                out["why_none"] = (f"stopped after angle {ai + 1} of {len(angles)}: {used_s:.0f} s of the "
+-                                   f"{BUDGET_S * 2:.0f} s / ${used_usd:.2f} of the ${BUDGET_USD * 2:.2f} (estimate) "
+-                                   f"per-package budget (05:25 item 5, twice)")
+-                out["budget_stop"] = {"seconds": round(used_s, 1), "usd_estimate": round(used_usd, 4),
+-                                      "angles_tried": ai + 1, "angles": len(angles)}
++            if out["packages"] or out.get("budget_stop") or over_budget(ai):
+                 break
+     out["package"] = out["packages"][0] if out["packages"] else None
+     out["seconds"] = round(time.time() - t0, 1)
+-    out["usd"] = round(spend() - usd0, 4) if spend else None
++    out["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+     return out
+ 
+ 
+-def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None):
++def _spent(spend):
++    """(estimate, vendor-reported) from the caller's meter. A bare number is the estimate alone; its reported figure
++    is then taken to be the same (the conservative reading). No meter: (0, 0)."""
++    if not spend:
++        return 0.0, 0.0
++    v = spend()
++    return (float(v[0]), float(v[1])) if isinstance(v, (tuple, list)) else (float(v), float(v))
++
++
++def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
+@@ -1237,4 +1391,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+            if medley is not None else {}),
+         **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]))}
+            if shape is not None else {}),
++        **({"house_style": dict(row(not style, "code (house_style.lint_lines, ruling 6)"),
++                                why=[f"{v['slot']}: {v['detail']}" for v in style])}
++           if style is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index b1da529b..c079de8f 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -20,12 +20,14 @@ gates -> release authorisation) renders a moments-first package.
+ import hashlib
+ import json
+ import os
++import re
+ from datetime import datetime, timezone
+ 
+ SCHEMA = "protocol_pulse.pinned_story.v1"
+ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
+                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
+-MEDLEY_GATES = ("medley", "ly_shape")      # L-y (orchestrator 20:30): the clips-alone verdict and the medley's shape
++MEDLEY_GATES = ("medley", "ly_shape", "house_style")   # L-y (20:30): the clips-alone verdict, the medley's shape;
++                                                         # ruling 6 (22:40): PBX's copy rules on every line
+ 
+ 
+ def required_gates(pk):
+@@ -38,13 +40,40 @@ class PinRefused(Exception):
+     """The package may not become a pinned decision."""
+ 
+ 
++RECENCY_AT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
++
++
++def recency_problems(segments):
++    """[why] for segments that do not state the recency facts the render clock checks (ruling 1, 22:40): every segment
++    a bool "time_sensitive" and "source_published_at" as "YYYY-MM-DDTHH:MM:SSZ" (UTC) that parses."""
++    from datetime import datetime
++    out = []
++    for i, s in enumerate(segments):
++        if type(s.get("time_sensitive")) is not bool:
++            out.append(f"segment {i}: time_sensitive must be true or false (got {s.get('time_sensitive')!r})")
++        at = s.get("source_published_at")
++        ok = isinstance(at, str) and bool(RECENCY_AT.match(at))
++        if ok:
++            try:
++                datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ")
++            except ValueError:
++                ok = False
++        if not ok:
++            out.append(f"segment {i}: source_published_at must be YYYY-MM-DDTHH:MM:SSZ (got {at!r})")
++    return out
++
++
+ def seal(segments, edl_vo, signoff, title, caption, gates):
+     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
+-    words, the transcript sha), the VO the renderer will speak (intro, bridges with after_clip), the sign-off, the ONE
+-    title and caption (law L-t), and the gate inventory."""
++    words, the transcript sha, and since ruling 1 (22:40) time_sensitive and source_published_at), the VO the renderer
++    will speak (intro, bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate
++    inventory."""
+     body = {"segments": [{"video_id": s["video_id"], "start": round(float(s["start"]), 3),
+                           "end": round(float(s["end"]), 3), "text": s["approved_text"],
+-                          "transcript_sha256": s.get("transcript_sha256")} for s in segments],
++                          "transcript_sha256": s.get("transcript_sha256"),
++                          "time_sensitive": s.get("time_sensitive"),             # ruling 1 (22:40): the render clock
++                          "source_published_at": s.get("source_published_at")}   # checks L-v 3 on these
++                         for s in segments],
+             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
+                                                              for b in edl_vo.get("bridges") or []]},
+             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
+@@ -96,7 +125,8 @@ def line_problems(pk):
+ 
+ def to_pin(pk, run_name):
+     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
+-                                                                     for x in line_problems(pk)]
++                                                                     for x in line_problems(pk)] + \
++        recency_problems(pk.get("segments") or [])
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -104,6 +134,7 @@ def to_pin(pk, run_name):
+         segs.append({"role": "hook" if i == 0 else "clip", "video_id": s["video_id"], "channel": s["channel"],
+                      "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
+                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
++                     "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 6e8220ca..e65bca1c 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -221,6 +221,32 @@ class OpenAIBackend(Backend):
+         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
+ 
+ 
++class DeadlineExceeded(Exception):
++    """A back-end gave no answer within the caller's deadline (orchestrator 22:40 ruling 5: one writer call never waits
++    more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
++
++
++def _within(seconds, fn):
++    """fn() in a daemon thread, waited for at most `seconds`. -> its value, or its own exception re-raised, or
++    DeadlineExceeded. An abandoned thread finishes (or times out) on its own; its result is dropped unrecorded."""
++    import threading
++    box, done = {}, threading.Event()
++
++    def run():
++        try:
++            box["value"] = fn()
++        except BaseException as e:            # handed back to the caller below
++            box["error"] = e
++        finally:
++            done.set()
++    threading.Thread(target=run, daemon=True, name="pp-deadline").start()
++    if not done.wait(seconds):
++        raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
++    if "error" in box:
++        raise box["error"]
++    return box["value"]
++
++
+ def _num(x):
+     import math
+     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
+@@ -642,7 +668,7 @@ class Router:
+         os.replace(tmp, path)
+ 
+     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+-             avoid_family=None):
++             avoid_family=None, deadline_s=None):
+         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
+         tried, notices = [], []
+         for name in self.chain(role):
+@@ -662,13 +688,21 @@ class Router:
+             if self.replay:
+                 tried.append((name, "replay: not recorded"))
+                 continue
+-            key = self._reserve(b, b.upper_usd(prompt, max_tokens, system))
++            upper = b.upper_usd(prompt, max_tokens, system)
++            key = self._reserve(b, upper)
+             if b.vendor == "heimdall":
+                 n = self.heimdall_tripwire()
+                 if n:
+                     notices.append(n)
+             try:
+-                text, usage, secs = b.complete(prompt, max_tokens, seed, system)
++                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
++                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system))
++                else:
++                    text, usage, secs = b.complete(prompt, max_tokens, seed, system)
++            except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
++                self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
++                tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
++                continue
+             except RequestRejected as e:
+                 self._settle(key)
+                 tried.append((name, f"refused this request: {e}"))
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 23286dd1..40779901 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -55,7 +55,9 @@ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448
+         "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
+ NEWEST = RUNS[0]
+ FROZEN = ("local:", "anthropic:", "openai:", "openai_stt:")         # GPU0 (never this builder's); out of credit 20:32
+-WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"]
++WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",      # ruling 5 (22:40): a writer
++           "xai:grok-4.20-0309-reasoning"]       # call over 5 min fails over deepseek -> qwen -> xAI; the writes then
++                                                 # stay on the angle's vendor and every verdict avoids it (L-x)
+ SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
+ 
+ 
+@@ -145,7 +147,8 @@ def run_one(run, router, work_dir, log, own, used=None, as_of_now=False):
+     u0 = dict(used) if used is not None else None
+     t0 = time.time()
+     res = PK.build(router, rec_m["moments"], sources, ctx, delivered=(), optout=M.optout_ids(), log=log,
+-                   work_dir=work_dir, store=os.path.join(OUT, run, f"step_a{suffix}.json"), spend=lambda: own["est"])
++                   work_dir=work_dir, store=os.path.join(OUT, run, f"step_a{suffix}.json"),
++                   spend=lambda: (own["est"], own["best"]))       # ruling 5: the budget reads the reported cost
+     e1, b1 = own["est"], own["best"]
+     res.update(run=run, seconds=round(time.time() - t0, 1), usd_estimate=round(e1 - e0, 4),
+                usd_best_known=round(b1 - b0, 4), code=code_sha(), chains=router.chains,
+diff --git a/tests/package/test_angles.py b/tests/package/test_angles.py
+index 61cb0ed8..34762dcd 100644
+--- a/tests/package/test_angles.py
++++ b/tests/package/test_angles.py
+@@ -55,7 +55,7 @@ class TestAngles(unittest.TestCase):
+         seg = PK.lineup_for(angle(["a", "d", "b", "c"], "a"), by)
+         self.assertIsNotNone(seg)
+         self.assertNotIn("d", [m["moment_id"] for m in seg[1:-1]])                # 6 s: never in the middle
+-        by2 = {m["moment_id"]: m for m in (pm("a", "A", 12.0), pm("b", "B", 16.0), pm("d", "D", 6.0))}
++        by2 = {m["moment_id"]: m for m in (pm("a", "A", 12.0), pm("b", "B", 19.0), pm("d", "D", 6.0))}
+         seg2 = PK.lineup_for(angle(["a", "b", "d"], "a"), by2)
+         self.assertEqual([m["moment_id"] for m in seg2], ["a", "b", "d"])         # allowed as the last (the punchline)
+ 
+@@ -128,7 +128,8 @@ class TestPinAndTruth(unittest.TestCase):
+                 "lines": [{"slot": "intro", "text": "I"}, {"slot": "bridge_1", "text": "B"},
+                           {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
+                 "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
+-                              "transcript_sha256": "t", "url_30s_before": "u"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
++                              "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
++                              "source_published_at": "2026-11-12T01:00:00Z"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
+ 
+     def test_the_pin_refuses_anything_not_exactly_pass_and_is_sealed(self):
+         pin = package_pin.to_pin(self.pk(), "r")
+@@ -156,6 +157,36 @@ class TestPinAndTruth(unittest.TestCase):
+         with self.assertRaises(package_pin.PinRefused):
+             package_pin.to_pin(p, "r")
+ 
++    def test_every_pin_segment_states_its_recency_facts_inside_the_seal(self):
++        """Ruling 1 (22:40): the render clock checks L-v 3 on pin.segments[i].time_sensitive / source_published_at;
++        both are sealed, and a pin without them is never written (the render side holds such a run too)."""
++        pin = package_pin.to_pin(self.pk(), "r")
++        self.assertEqual([(s["time_sensitive"], s["source_published_at"]) for s in pin["segments"]],
++                         [(False, "2026-11-12T01:00:00Z")] * 2)
++        mp = pin["moments_package"]
++        for key, val in (("time_sensitive", True), ("source_published_at", "2026-11-12T01:00:01Z")):
++            segs = [dict(pin["segments"][0], **{key: val})] + pin["segments"][1:]
++            self.assertNotEqual(mp["package_sha256"], package_pin.seal(segs, mp["edl_vo"], mp["signoff_expected"],
++                                                                        mp["title"], mp["caption"], mp["gates"]), key)
++        for key, bad in (("time_sensitive", None), ("time_sensitive", "true"), ("time_sensitive", 1),
++                         ("source_published_at", None), ("source_published_at", "2026-11-12T01:00:00+00:00"),
++                         ("source_published_at", "2026-11-12 01:00:00Z"), ("source_published_at", "2026-13-40T01:00:00Z")):
++            p = self.pk()
++            p["segments"] = [dict(p["segments"][0], **{key: bad})] + p["segments"][1:]
++            with self.assertRaises(package_pin.PinRefused) as cm:
++                package_pin.to_pin(p, "r")
++            self.assertIn(f"segment 0: {key}", str(cm.exception))
++        p = self.pk()
++        p["segments"] = [{k: v for k, v in p["segments"][0].items() if k != "source_published_at"}] + p["segments"][1:]
++        with self.assertRaises(package_pin.PinRefused):
++            package_pin.to_pin(p, "r")
++
++    def test_the_package_states_each_clips_recency_from_its_moment(self):
++        self.assertEqual(PK.utc_z("2026-11-11T13:03:23-05:00"), "2026-11-11T18:03:23Z")
++        self.assertEqual(PK.utc_z("2026-11-11T18:03:23Z"), "2026-11-11T18:03:23Z")
++        self.assertIsNone(PK.utc_z("2026-11-11T18:03:23"))                       # no offset: not a time we can place
++        self.assertIsNone(PK.utc_z(None))
++
+     def test_the_second_pass_compares_both_ways_inside_the_clip_only(self):
+         self.assertFalse(TT.compare("Bitcoin is going to zero.", "Bitcoin is not going to zero.")["ok"])   # a dropped not
+         self.assertFalse(TT.compare("Bitcoin is not going to zero.", "Bitcoin is going to zero.")["ok"])
+diff --git a/tests/package/test_gates.py b/tests/package/test_gates.py
+index 3f5e7b23..71cc0330 100644
+--- a/tests/package/test_gates.py
++++ b/tests/package/test_gates.py
+@@ -22,7 +22,7 @@ class Canned:
+         self.answers, self.calls, self.rejected = {k: list(v) for k, v in answers.items()}, [], []
+ 
+     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+-             avoid_family=None):
++             avoid_family=None, deadline_s=None):
+         self.calls.append((role, avoid_vendor, avoid_family))
+         q = self.answers.get(role)
+         if not q:
+diff --git a/tests/package/test_house_style.py b/tests/package/test_house_style.py
+new file mode 100644
+index 00000000..3d75022d
+--- /dev/null
++++ b/tests/package/test_house_style.py
+@@ -0,0 +1,166 @@
++#!/usr/bin/env python3
++"""pipeline/house_style.py, ORCHESTRATOR RULING 6 (22:40 ET Nov 12): the house style of the title, the caption and the
++takeaway (bridges get the rules shared by every surface). Must-fail and must-pass cases; the 41f29b1f pin's own lines
++are the fixtures the ruling names. Offline, no model."""
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import house_style as HS  # noqa: E402
++
++PIN_41F29B1F = {   # the delivered medley's lines (tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json)
++    "caption": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and "
++               "that is the point this medley builds toward.",
++    "title": "Bitcoin's overlooked value comes from a market no government owns",
++    "takeaway": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which "
++                "makes the usual political drama feel irrelevant.",
++}
++
++
++def ids(slot, text):
++    return {v["detail"].split(":")[0] for v in HS.lint(slot, text)}
++
++
++class TestTheDeliveredLines(unittest.TestCase):
++    def test_the_41f29b1f_caption_fails_four_rules(self):
++        got = ids("caption", PIN_41F29B1F["caption"])
++        self.assertTrue({"caption-lowercase", "hedge", "self-reference", "money-word"} <= got, got)
++        self.assertIn("caption-words", got)                     # 26 words, over 24
++        self.assertGreaterEqual(len(got), 4)
++
++    def test_the_41f29b1f_title_fails_possessive_and_length(self):
++        self.assertEqual(ids("title", PIN_41F29B1F["title"]), {"title-possessive", "title-words"})
++
++    def test_the_41f29b1f_takeaway_fails_opener_which_makes_and_length(self):
++        self.assertEqual(ids("takeaway", PIN_41F29B1F["takeaway"]),
++                         {"takeaway-opener", "which-makes", "takeaway-words"})
++
++    def test_the_style_reference_fails_only_its_length(self):
++        self.assertEqual(len(HS.STYLE_REFERENCE.split()), 24)
++        self.assertEqual(ids("takeaway", HS.STYLE_REFERENCE), {"takeaway-words"})
++
++
++class TestMustPass(unittest.TestCase):
++    def test_plain_lines_pass(self):
++        self.assertEqual(HS.lint("title", "The market no government owns"), [])
++        self.assertEqual(HS.lint("caption", "no authority. that's the design."), [])
++        self.assertEqual(HS.lint("bridge", "Next, on keys."), [])
++        self.assertEqual(HS.lint("bridge_1", "Next, on keys."), [])
++        self.assertEqual(HS.lint("intro", "Next, on keys."), [])
++        self.assertEqual(HS.lint("takeaway", "No ruler. Just rules nobody gets to bend."), [])
++
++    def test_pbx_s_own_caption_fails_only_the_sentence_count(self):
++        self.assertEqual(ids("caption", "no authority. that's the design. three clips, links below."),
++                         {"caption-sentences"})
++
++    def test_no_false_hedges_and_no_false_possessives(self):
++        for ok in ("the mayor spoke", "maybe not", "mighty rules", "the perhapsless case"):
++            self.assertNotIn("hedge", ids("caption", ok), ok)
++        self.assertNotIn("title-possessive", ids("title", "It's the market no government owns"))
++        self.assertNotIn("title-possessive", ids("title", "That's the design"))
++        self.assertIn("title-possessive", ids("title", "Bitcoin’s quiet edge"))      # a curly apostrophe too
++        self.assertIn("title-possessive", ids("title", "Holders' real problem"))      # a plural possessive
++
++    def test_a_one_letter_abbreviation_ends_no_sentence(self):
++        self.assertEqual(HS.sentence_count("u.s. markets fell. bitcoin did not."), 2)
++        self.assertEqual(HS.sentence_count("no authority"), 1)
++        self.assertEqual(HS.sentence_count(""), 0)
++
++    def test_money_words_are_stems_on_purpose(self):
++        self.assertIn("money-word", ids("caption", "an investigation of the network"))    # deliberate: invest\w*
++        self.assertNotIn("money-word", ids("caption", "a nonprofit keeps the code"))     # not a word start
++
++
++class TestEveryRuleFails(unittest.TestCase):
++    def test_hashtag_on_every_surface(self):
++        for slot in ("title", "caption", "takeaway", "bridge"):
++            self.assertIn("hashtag", ids(slot, "rules #bitcoin"), slot)
++        self.assertNotIn("hashtag", ids("caption", "rule # one"))                        # a bare '#' is no tag
++
++    def test_each_dash_form(self):
++        for d in ("—", "–", " -- "):
++            self.assertIn("em-dash", ids("caption", f"no ruler{d}just rules"), repr(d))
++        self.assertNotIn("em-dash", ids("caption", "self-custody, no ruler"))             # a hyphen is fine
++
++    def test_emoji(self):
++        for e in ("\U0001F680", "⭐", "✅", "\U0001F1FA\U0001F1F8"):
++            self.assertIn("emoji", ids("title", f"No ruler {e}"), repr(e))
++
++    def test_every_hedge(self):
++        for h in HS.HEDGES:
++            self.assertIn("hedge", ids("takeaway", f"It {h} hold."), h)
++            self.assertIn("hedge", ids("caption", f"it {h.upper()} hold."), h)          # case-insensitive
++
++    def test_every_ai_phrase(self):
++        for p in HS.AI_PHRASES:
++            self.assertIn("ai-phrasing", ids("bridge", f"Here, {p} things."), p)
++        self.assertIn("ai-phrasing", ids("bridge", "It’s worth noting the rules."))     # the curly apostrophe
++
++    def test_every_self_reference(self):
++        for p in HS.SELF_REFERENCE:
++            self.assertIn("self-reference", ids("caption", f"look at {p} now."), p)
++
++    def test_every_money_pattern(self):
++        for word in ("opportunity", "opportunities", "invest", "investors", "profit", "profitable", "get rich",
++                     "to the moon", "buy the dip", "financial advice"):
++            self.assertIn("money-word", ids("caption", f"some {word} here."), word)
++
++    def test_the_length_rules(self):
++        self.assertIn("title-words", ids("title", " ".join(["word"] * (HS.TITLE_MAX_WORDS + 1))))
++        self.assertNotIn("title-words", ids("title", " ".join(["word"] * HS.TITLE_MAX_WORDS)))
++        self.assertIn("takeaway-words", ids("takeaway", " ".join(["word"] * (HS.TAKEAWAY_MAX_WORDS + 1))))
++        self.assertNotIn("takeaway-words", ids("takeaway", " ".join(["word"] * HS.TAKEAWAY_MAX_WORDS)))
++        self.assertIn("caption-words", ids("caption", " ".join(["word"] * (HS.CAPTION_MAX_WORDS + 1))))
++        self.assertNotIn("caption-words", ids("caption", " ".join(["word"] * HS.CAPTION_MAX_WORDS)))
++        self.assertIn("caption-lowercase", ids("caption", "no Ruler."))
++
++    def test_every_opener_and_which_makes(self):
++        for o in HS.TAKEAWAY_OPENERS:
++            self.assertIn("takeaway-opener", ids("takeaway", f"\"{o.capitalize()}, the rules hold."), o)
++            self.assertNotIn("takeaway-opener", ids("takeaway", f"The rules hold, {o}."), o)    # only as the opener
++        self.assertIn("which-makes", ids("takeaway", "The rules hold, which makes it rare."))
++
++    def test_every_rule_id_has_a_must_fail_case(self):
++        fired = set()
++        for slot, text in [("caption", PIN_41F29B1F["caption"]), ("title", PIN_41F29B1F["title"]),
++                           ("takeaway", PIN_41F29B1F["takeaway"]), ("caption", "one. two. three."),
++                           ("bridge", "#tag — \U0001F680 delve")]:
++            fired |= ids(slot, text)
++        self.assertEqual(fired, set(HS.RULE_IDS))
++
++
++class TestTheInterface(unittest.TestCase):
++    def test_violations_carry_the_slot_rule_and_a_rule_id_detail(self):
++        for v in HS.lint("caption", PIN_41F29B1F["caption"]):
++            self.assertEqual((v["slot"], v["rule"]), ("caption", "STYLE"))
++            self.assertIn(v["detail"].split(":")[0], HS.RULE_IDS)
++        self.assertEqual(len({v["detail"].split(":")[0] for v in HS.lint("caption", PIN_41F29B1F["caption"])}),
++                         len(HS.lint("caption", PIN_41F29B1F["caption"])))             # one violation per rule id
++
++    def test_lint_lines_keeps_each_line_s_own_slot_and_skips_the_rest(self):
++        lines = [{"slot": "intro", "text": "Next — keys."}, {"slot": "bridge_1", "text": "maybe #keys"},
++                 {"slot": "takeaway", "text": PIN_41F29B1F["takeaway"]}, {"slot": "title", "text": "Fine title"},
++                 {"slot": "caption", "text": "fine caption."}, {"slot": "-", "text": "#ignored"}]
++        got = [(v["slot"], v["detail"].split(":")[0]) for v in HS.lint_lines(lines)]
++        self.assertIn(("intro", "em-dash"), got)
++        self.assertIn(("bridge_1", "hashtag"), got)
++        self.assertNotIn(("bridge_1", "hedge"), got)                                      # "maybe" is no hedge
++        self.assertIn(("takeaway", "which-makes"), got)
++        self.assertFalse([s for s, _ in got if s in ("title", "caption", "-")])
++
++    def test_an_unknown_slot_is_refused(self):
++        with self.assertRaises(ValueError):
++            HS.lint("signoff", "Clips today from A.")
++
++    def test_the_prompt_states_the_same_rules(self):
++        p = HS.PROMPT_RULES
++        for x in (str(HS.CAPTION_MAX_WORDS), str(HS.TITLE_MAX_WORDS), str(HS.TAKEAWAY_MAX_WORDS), HS.STYLE_REFERENCE,
++                  "lowercase", "possessive", "which makes") + HS.HEDGES + HS.SELF_REFERENCE + HS.TAKEAWAY_OPENERS:
++            self.assertIn(x, p, x)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index f0a35edc..9c6fe5af 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -60,9 +60,9 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
+ class TestMedleyArithmetic(unittest.TestCase):
+     def test_the_medley_seconds_let_one_takeaway_land_60_to_70(self):
+         lo, hi = PK.medley_content_range()
+-        self.assertEqual((lo, hi), (32.7, 51.5))          # 60 - 14.30 - (30 / 2.5 + 1); 70 - 14.30 - (8 / 2.5 + 1)
+-        seg = lambda c: [{"duration_s": c}]
+-        self.assertAlmostEqual(PK.runtime(seg(lo), [W(PK.MOMENTS_TAKEAWAY_WORD_CAP)]), 60.0, places=2)
++        self.assertEqual((lo, hi), (36.7, 51.5))          # 60 - 14.30 - (20 / 2.5 + 1); 70 - 14.30 - (8 / 2.5 + 1)
++        seg = lambda c: [{"duration_s": c}]               # (ruling 6, 22:40: a new takeaway is at most 20 words)
++        self.assertAlmostEqual(PK.runtime(seg(lo), [W(PK.LY_TAKEAWAY_MAX_WORDS)]), 60.0, places=2)
+         self.assertAlmostEqual(PK.runtime(seg(hi), [W(PK.LY_TAKEAWAY_MIN_WORDS)]), 70.0, places=2)
+         lo1, hi1 = PK.medley_content_range(n_bridges=1)
+         self.assertAlmostEqual(lo - lo1, PK.LY_BRIDGE_WORDS / 2.5 + 1.0, places=2)
+@@ -77,7 +77,7 @@ class TestMedleyArithmetic(unittest.TestCase):
+                 self.assertTrue(c > PK.medley_content_range()[1] or c < PK.medley_content_range()[0], c)
+                 continue
+             lo, hi = b
+-            self.assertTrue(PK.LY_TAKEAWAY_MIN_WORDS <= lo <= hi <= PK.MOMENTS_TAKEAWAY_WORD_CAP, (c, b))
++            self.assertTrue(PK.LY_TAKEAWAY_MIN_WORDS <= lo <= hi <= PK.LY_TAKEAWAY_MAX_WORDS, (c, b))
+             for w in (lo, hi):
+                 est = PK.runtime([{"duration_s": c}], [W(w)])
+                 self.assertTrue(PK.RUNTIME_S[0] <= est <= PK.RUNTIME_S[1], (c, w, est))
+@@ -87,7 +87,7 @@ class TestMedleyArithmetic(unittest.TestCase):
+             aimed += all(PK.LY_AIM_S[0] <= PK.runtime([{"duration_s": c}], [W(w)]) <= PK.LY_AIM_S[1] for w in (lo, hi))
+         self.assertGreater(aimed, 100)                    # most clip lengths land the aim (61.5-68.5 s)
+         self.assertIsNone(PK.takeaway_budget(60.0))       # too many seconds of clips: no takeaway lands 70 s
+-        b0, b1 = PK.takeaway_budget(40.0), PK.takeaway_budget(40.0, other=[W(10)])
++        b0, b1 = PK.takeaway_budget(45.0), PK.takeaway_budget(45.0, other=[W(10)])
+         self.assertLess(b1[1], b0[1])                     # a bridge's seconds come off the takeaway
+ 
+ 
+@@ -100,9 +100,9 @@ class TestMedleyLineup(unittest.TestCase):
+         self.assertTrue(PK.medley_content_range()[0] <= sum(m["duration_s"] for m in seg) <= PK.medley_content_range()[1])
+ 
+     def test_more_clips_when_two_do_not_fill_the_medley(self):
+-        by = {m["moment_id"]: m for m in (pm("h", "A", 9.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 9.0))}
++        by = {m["moment_id"]: m for m in (pm("h", "A", 9.5), pm("x", "B", 9.5), pm("y", "C", 9.5), pm("z", "D", 9.5))}
+         seg = PK.lineup_for(angle(["h", "x", "y", "z"], "h"), by)
+-        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "y", "z"])   # 36 s: the hook + 3 clips
++        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "y", "z"])   # 38 s: the hook + 3 clips
+         short = {k: dict(v, duration_s=6.0) for k, v in by.items()}
+         self.assertIsNone(PK.lineup_for(angle(["h", "x", "y", "z"], "h"), short))   # 24 s: no medley fits
+ 
+@@ -212,7 +212,7 @@ class TestWriteTakeaway(unittest.TestCase):
+                 continue
+             fits += 1
+             PK.write_takeaway(r, angle(["h", "x", "y"], "h"), segs, E.Context(NOW, REG), {}, join=(1, "w"))
+-            lo, hi = map(int, re.search(r"one or two sentences, (\d+)-(\d+) words", prompts[0]).groups())
++            lo, hi = map(int, re.search(r'"takeaway": (\d+)-(\d+) words', prompts[0]).groups())
+             n = int(re.search(r"as short as it can be \(at most (\d+) words\)", prompts[0]).group(1))
+             self.assertEqual((n, (lo, hi)), bb)
+             self.assertTrue(PK.LY_BRIDGE_MIN_WORDS <= n <= PK.LY_BRIDGE_WORDS)
+@@ -220,7 +220,7 @@ class TestWriteTakeaway(unittest.TestCase):
+                 for bw in range(PK.LY_BRIDGE_MIN_WORDS, n + 1):
+                     est = PK.runtime([{"duration_s": c}], [W(t), W(bw)])
+                     self.assertTrue(PK.RUNTIME_S[0] <= est <= PK.RUNTIME_S[1], (c, t, bw, est))
+-        self.assertGreater(fits, 50)
++        self.assertGreater(fits, 40)                       # coverage: both branches exercised (50 fit, ruling 6 caps)
+         self.assertGreater(none, 0)                         # at the top of the medley's seconds no bridge fits
+ 
+     def test_the_prompt_asks_for_one_takeaway_inside_the_budget(self):
+@@ -230,7 +230,8 @@ class TestWriteTakeaway(unittest.TestCase):
+         r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
+         PK.write_takeaway(r, angle(["h", "x", "y"], "h"), self.SEGS, E.Context(NOW, REG), {})
+         lo, hi = PK.takeaway_budget(39.0)
+-        self.assertIn(f"one or two sentences, {lo}-{hi} words", prompts[0])
++        self.assertIn(f'"takeaway": {lo}-{hi} words in short declarative sentences', prompts[0])
++        self.assertIn("HOUSE STYLE", prompts[0])                  # ruling 6 (22:40): the copy rules ride every write
+         self.assertNotIn("ONE JOIN NEEDS HELP", prompts[0])
+         self.assertNotIn('"intro"', prompts[0])
+ 
+@@ -284,6 +285,16 @@ class TestLyShape(unittest.TestCase):
+         pk["vo"] = dict(pk["vo"], bridges=[], bridges_after_clip=[])
+         self.assertFalse(PK.ly_shape(pk)[0])
+ 
++    def test_a_no_voice_medley_needs_its_record_and_no_vo_line(self):
++        pk = medley_pk()
++        pk["vo"] = dict(pk["vo"], bridges=[], bridges_after_clip=[])
++        self.assertFalse(PK.ly_shape(pk)[0])                          # no takeaway and no record: L-y 1 fails
++        self.assertTrue(PK.ly_shape(dict(pk, no_voice={"why": "the takeaway failed twice"}, bridge=None))[0])
++        self.assertFalse(PK.ly_shape(dict(pk, no_voice={"why": " "}, bridge=None))[0])      # a record without a why
++        self.assertFalse(PK.ly_shape(dict(medley_pk(), no_voice={"why": "x"}))[0])        # a VO line with the record
++        flagged = dict(pk, no_voice={"why": "x"}, bridge=None, medley={"measured": True, "flagged": ["hook -> clip_01"]})
++        self.assertFalse(PK.ly_shape(flagged)[0])                     # a join a viewer cannot follow, left unbridged
++
+     def test_three_to_five_segments_and_one_clip_per_channel(self):
+         self.assertFalse(PK.ly_shape(medley_pk(n=2))[0])
+         self.assertFalse(PK.ly_shape(medley_pk(n=6))[0])
+@@ -323,6 +334,16 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+         self.assertAlmostEqual(pk["runtime_s_estimate"], 39.0 + 8 / 2.5 + 1.0 + PK.FINAL_TAIL_S, places=2)
+         self.assertEqual(PK.r4(pk)[0], True)
+ 
++    def test_each_segment_states_whether_its_clip_is_time_sensitive_and_when_it_was_published(self):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0, risk=("time_sensitive",)),
++                                          pm("y", "C", 13.0))}
++        fields = {"takeaway": {"text": "No ruler, just rules.", "cites": []}, "bridge": None, "bridge_after": None,
++                  "title": {"text": "No ruler", "cites": []}, "caption": {"text": "three clips", "cites": []}}
++        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
++        self.assertEqual([s["time_sensitive"] for s in pk["segments"]], [False, True, False])
++        self.assertEqual({s["source_published_at"] for s in pk["segments"]}, {PK.utc_z(by["h"]["published_at"])})
++        self.assertRegex(pk["segments"][0]["source_published_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
++
+     def test_the_one_bridge_after_a_clip_or_after_the_hook(self):
+         b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
+         pk = self.build(bridge=b, k=1, n=4)
+@@ -337,14 +358,14 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+ 
+     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
+         pk = self.build()
+-        self.assertEqual(package_pin.required_gates(pk)[-2:], ("medley", "ly_shape"))
++        self.assertEqual(package_pin.required_gates(pk)[-3:], ("medley", "ly_shape", "house_style"))
+         pk["gates"] = self.gates(pk)
+         pin = package_pin.to_pin(pk, "test")
+         mp = pin["moments_package"]
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
+         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
+         self.assertEqual(mp["shape"], "medley")
+-        for missing in ("medley", "ly_shape"):
++        for missing in ("medley", "ly_shape", "house_style"):
+             g = self.gates(pk)
+             g.pop(missing)
+             with self.assertRaises(package_pin.PinRefused):
+@@ -389,9 +410,11 @@ class Rig:
+     A_OK = {"backend": "xai:grok", "replayed": False, "speaker_changes_inside": "no", "view": "own_sincere",
+             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
+ 
+-    def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=()):
++    def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
++                 spend=None):
+         import providers as P
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
++        self.takeaways, self.spend = list(takeaways or []), spend
+         self.uncuttable, self.excluded = set(uncuttable), set(excluded)
+         self.medley_calls, self.write_calls, self.prompts = [], [], []
+         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
+@@ -399,7 +422,11 @@ class Rig:
+         call = self.router.call
+         self.router.call = lambda role, prompt, *a, **k: (self.prompts.append((role, prompt)),
+                                                           call(role, prompt, *a, **k))[1]
+-        self.router.backends = {"xai:grok": type("B", (), {"vendor": "xai", "family": "grok"})()}
++        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
++        self.router.backends = {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall", "deepseek"),
++                                "heimdall:qwen": B("heimdall", "qwen")}
++        self.router.chain = lambda role: ["heimdall:deepseek", "heimdall:qwen", "xai:grok"]
++        self.write_avoid = []
+ 
+     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
+         self.medley_calls.append([m["moment_id"] for m in segs])
+@@ -412,11 +439,12 @@ class Rig:
+         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
+             raise PK.NoBridgeFits("no bridge of 3-12 words fits (the real write_takeaway's precondition)")
+         self.write_calls.append(([m["moment_id"] for m in segs], join))
++        self.write_avoid.append(avoid_vendor)
+         b = self.writes.pop(0)
+-        fields = {"takeaway": {"text": self.LINE, "cites": []}, "bridge": b,
++        fields = {"takeaway": {"text": self.takeaways.pop(0) if self.takeaways else self.LINE, "cites": []}, "bridge": b,
+                   "bridge_after": join[0] if join is not None and b is not None else None,
+                   "title": {"text": "Nobody bends the rules", "cites": []},
+-                  "caption": {"text": "three voices, one point", "cites": []},
++                  "caption": {"text": "nobody bends these rules", "cites": []},
+                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
+         return self.P.Reply("{}", "heimdall:deepseek", "heimdall", family="deepseek"), fields
+ 
+@@ -446,7 +474,8 @@ class Rig:
+         try:
+             for k, v in stubs.items():
+                 setattr(PK, k, v)
+-            return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent")
++            return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent",
++                            spend=self.spend)
+         finally:
+             for k, v in saved.items():
+                 setattr(PK, k, v)
+@@ -525,6 +554,59 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertEqual(len(rig.write_calls), 2)          # the paid verdicts never ran on the doomed line-up
+         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "z", "w"])
+ 
++    def test_no_voice_when_the_takeaway_fails_twice_on_clips_that_hold_alone(self):
++        """Ruling 3 (22:40): clips back to back and the sign-off, NOT dropped; one clip added to land 60-70 s."""
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
++                  [None, None], takeaways=bad)
++        out = rig.run()
++        pk = out["package"]
++        self.assertIsNotNone(pk)
++        self.assertEqual(len(rig.write_calls), 2)                  # both takeaways failed (takeaway-opener)
++        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y", "z"])   # 39 s + z: 52 s
++        self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])   # the new line-up judged on the clips alone
++        self.assertEqual((pk["vo"]["intro"], pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"]), (None, [], []))
++        self.assertEqual(pk["no_voice"]["added_clip"], "z")
++        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])
++        self.assertAlmostEqual(pk["runtime_s_estimate"], 52.0 + PK.FINAL_TAIL_S, places=2)
++        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
++        self.assertIn("no VO line", pk["checks"]["coherence"]["note"])
++        mp = package_pin.to_pin(pk, "test")["moments_package"]
++        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
++
++    def test_no_voice_never_ships_a_join_the_blind_check_flagged(self):
++        b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        rig = Rig(self.MS, ["h", "x", "y"], [(True, ["clip_01 -> clip_02"], None, Rig.LINE)], [b, b], takeaways=bad)
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertNotIn("no_voice", out["tried"][0])           # not tried: the clips need a bridge to be followed
++
++    def test_every_write_stays_on_the_angles_vendor(self):
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
++        out = rig.run()
++        self.assertEqual(rig.write_avoid, [{"heimdall", "xai"}])  # the angle came from vendor "fake": all others out
++        self.assertEqual(out["angle_backend"], "fake:angle_write")
++        self.assertEqual(out["angle_tried"], [])
++
++    def test_the_budget_stops_on_the_reported_cost_or_the_estimate_ceiling(self):
++        """Ruling 5 (22:40): per package 15 min wall / $1.50 by the vendors' reported cost; the estimate only as a $5
++        ceiling. Checked before every line-up and every write (audit 2240 C1, glm), not only when an angle ends."""
++        for spent, why in (((0.10, 1.51), "reported"), ((5.01, 0.20), "estimate ceiling")):
++            reads = [(0.0, 0.0), (0.0, 0.0)]                  # the baseline, then the check before line-up 1
++            calls = iter(reads + [spent] * 50)                # ... then over budget from the next check on
++            rig = Rig(self.MS, [["h", "x", "y"], ["h", "x", "z"]], [(False, [], None, "none")] * 2, [],
++                      spend=lambda: next(calls))
++            out = rig.run()
++            self.assertIn("ruling 5", out["why_none"], why)
++            self.assertEqual(len(rig.medley_calls), 1, why)          # line-up 1 ran; nothing after the stop
++            self.assertEqual(out["budget_stop"]["angles_tried"], 1, why)
++        over = iter([(0.0, 0.0)] + [(9.0, 9.0)] * 50)               # over budget from the very first check
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], spend=lambda: next(over))
++        out = rig.run()
++        self.assertEqual((rig.medley_calls, rig.write_calls), ([], []))   # no clips-alone call, no write paid
++        self.assertIsNone(out["package"])
++
+     def test_the_supply_exception_is_recorded(self):
+         ms = [pm("h", "A", 14.0), pm("x", "B", 13.0), pm("y", "C", 3.0), pm("e", "A", 13.0)]
+         rig = Rig(ms, ["h", "x", "y", "e"], [(True, [], None, Rig.LINE)], [None])
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index 23c2775b..fca94141 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -65,6 +65,56 @@ def wav(tmp, seconds=2.0):
+     return p
+ 
+ 
++class Slow(Fake):
++    """A back-end that answers only after `delay` seconds (a Heimdall angle call that hangs)."""
++
++    def __init__(self, name, vendor, answer, delay, **kw):
++        super().__init__(name, vendor, answer=answer, **kw)
++        self.delay = delay
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        import time as _t
++        _t.sleep(self.delay)
++        return super().complete(prompt, max_tokens, seed, system)
++
++
++class TestDeadline(unittest.TestCase):
++    """Orchestrator 22:40 ruling 5: one writer call never waits more than its deadline; it fails over to the next
++    back-end, the failover is recorded, and the abandoned call's upper bound is booked as spent."""
++
++    def test_a_call_that_passes_its_deadline_fails_over_and_is_recorded(self):
++        import tempfile
++        import time as _t
++        with tempfile.TemporaryDirectory() as d:
++            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
++            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
++            r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
++                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0)
++            t0 = _t.time()
++            rep = r.call("angle_write", "p", 100, 7, deadline_s=0.3)
++            self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
++            self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
++            self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
++            self.assertIn("abandoned at the deadline", rep.tried[0][1])
++            led = json.load(open(os.path.join(d, "SPEND.json")))
++            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)       # booked, at its upper bound
++            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"],
++                                   slow.upper_usd("p", 100), places=6)
++            self.assertEqual(led["reserved"], {})                      # no reservation left behind
++
++    def test_an_answer_inside_the_deadline_and_an_error_keep_their_meaning(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            ok = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=0.05)
++            r = router(d, [ok], {"angle_write": ["heimdall:deepseek"]})
++            self.assertEqual(r.call("angle_write", "p", 100, 7, deadline_s=5).text, '{"ok": 1}')
++            bad = Fake("heimdall:deepseek", "heimdall", fail="HTTP 503")
++            r2 = router(d, [bad], {"angle_write": ["heimdall:deepseek"]})
++            with self.assertRaises(P.ProviderError) as cm:            # the back-end's own error, not a deadline
++                r2.call("angle_write", "p", 100, 7, deadline_s=5)
++            self.assertIn("HTTP 503", str(cm.exception))
++
++
+ class TestRouter(unittest.TestCase):
+     def test_the_chain_fails_over_and_names_the_model_that_answered(self):
+         with tempfile.TemporaryDirectory() as d:

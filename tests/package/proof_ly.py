@@ -55,7 +55,9 @@ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448
         "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
 NEWEST = RUNS[0]
 FROZEN = ("local:", "anthropic:", "openai:", "openai_stt:")         # GPU0 (never this builder's); out of credit 20:32
-WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"]
+WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",      # ruling 5 (22:40): a writer
+           "xai:grok-4.20-0309-reasoning"]       # call over 5 min fails over deepseek -> qwen -> xAI; the writes then
+                                                 # stay on the angle's vendor and every verdict avoids it (L-x)
 SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
 
 
@@ -145,7 +147,8 @@ def run_one(run, router, work_dir, log, own, used=None, as_of_now=False):
     u0 = dict(used) if used is not None else None
     t0 = time.time()
     res = PK.build(router, rec_m["moments"], sources, ctx, delivered=(), optout=M.optout_ids(), log=log,
-                   work_dir=work_dir, store=os.path.join(OUT, run, f"step_a{suffix}.json"), spend=lambda: own["est"])
+                   work_dir=work_dir, store=os.path.join(OUT, run, f"step_a{suffix}.json"),
+                   spend=lambda: (own["est"], own["best"]))       # ruling 5: the budget reads the reported cost
     e1, b1 = own["est"], own["best"]
     res.update(run=run, seconds=round(time.time() - t0, 1), usd_estimate=round(e1 - e0, 4),
                usd_best_known=round(b1 - b0, 4), code=code_sha(), chains=router.chains,

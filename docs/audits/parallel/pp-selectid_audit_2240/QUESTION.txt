@@ -1,0 +1,60 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse, moments-first packaging under law L-y, the MEDLEY: clips
+back to back, ONE takeaway VO line at the end). It implements the orchestrator's rulings of 22:40 ET Nov 12. Standing
+laws: nothing measured is never a pass (L-m); fail closed (L-j); never change what a check accepts in order to make
+something pass; every verdict avoids the vendor and model family of any reply whose text it judges (L-x).
+
+THE RULINGS (paraphrased exactly):
+R1 Recency is checked against the RENDER clock, not the universe's. Pins carry, per segment, "time_sensitive" (bool)
+   and "source_published_at" (ISO 8601 UTC), INSIDE the seal. The render side holds a run when a time-sensitive clip is
+   older than 24 h at render time, and holds any pin missing or malforming either field.
+R3 NO-VOICE FALLBACK (replaces the old plain-VO fallback, which had no L-y form): if the takeaway fails its gates twice,
+   the package ships with NO takeaway (clips back to back and the sign-off only), provided the clips-alone verdict
+   passed. It is not dropped. The runtime rule still applies, so the packager may add a clip.
+R5 BUDGET with Heimdall as the writer: per package 15 min wall and $1.50 by the vendors' reported cost; the price-table
+   estimate (it over-states about 7x) only as a hard ceiling at $5. One writer (angle) call may not wait more than
+   5 min: on timeout it fails over to the next back-end (qwen, then xAI), and the failover is recorded.
+R6 HOUSE STYLE on the three text surfaces, as a deterministic lint, writer-prompt rules and must-fail tests. PBX's copy
+   rules: lowercase captions, no hashtags, no em-dashes, no emoji, no AI-sounding phrasing, no hedging.
+   - CAPTION: lowercase, one or two short sentences; no hedges (may, might, could be, perhaps); no self-reference (this
+     medley, this video, builds toward); no "opportunity"/"invest"-style words.
+   - TITLE: at most 8 words, plain, no possessive throat-clearing.
+   - TAKEAWAY: at most 20 words, short declarative sentences; never opens with "What stands out", "It's worth noting",
+     "Ultimately", "In the end"; no "which makes ..." clause.
+   The delivered 41f29b1f caption is a must-fail fixture. Still gated by VO fidelity / context integrity as before.
+
+What changed, and what to check:
+1. pipeline/package_pin.py: seal() hashes time_sensitive and source_published_at per segment; to_pin() refuses a
+   package whose segment lacks either, or has a non-bool time_sensitive or a published time that is not exactly
+   YYYY-MM-DDTHH:MM:SSZ and parseable (recency_problems). The pin's segments carry both fields.
+   pipeline/package.py: _package computes them per segment (time_sensitive() of the moment; utc_z of its published_at).
+   Can a pin be written whose recency facts are missing, wrong or outside the seal? Is utc_z right on offsets?
+2. pipeline/house_style.py (new): lint(slot, text) and lint_lines(lines); the rules and constants; PROMPT_RULES.
+   package.cheap_checks runs it on every line of a medley; a sealed "house_style" inventory row is required for a medley
+   pin (package_pin.MEDLEY_GATES); the writer prompt carries PROMPT_RULES; the takeaway's word budget is capped at 20
+   (LY_TAKEAWAY_MAX_WORDS), so medley_content_range is now 36.7-51.5 s. Check false positives and negatives, the
+   sentence counting, the possessive / contraction handling and the emoji ranges.
+3. The no-voice fallback in package.build(): a line-up whose clips-alone verdict passed with NO flagged join, whose
+   takeaway failed its own gates in both writes (take_failed >= NO_VOICE_AFTER), gets no_voice():
+   - the latest write's title and caption;
+   - when the clips are under 45.7 s, ONE more clip of the angle in the proposer's order, and that line-up judged on
+     the clips alone again with no flagged join;
+   - assemble_medley with no takeaway and no bridge, recording pk["no_voice"] = {why, added_clip, lineup_before};
+   - every gate again: cheap, exclusion / L-v 2 / CUTTABLE, fidelity and context;
+   - coherence = the clips-alone verdict;
+   - the inventory, then package_pin.gate_problems.
+   ly_shape accepts no VO line only with that record. Can a no-voice package ship without its clips-alone verdict, with
+   a join a viewer cannot follow, with a VO line, outside 60-70 s, or with title / caption that skipped a gate?
+4. pipeline/providers.py: Router.call(..., deadline_s): the back-end runs in a daemon thread (_within). Past the
+   deadline the call is abandoned (DeadlineExceeded), its reservation is settled at its UPPER bound as spent, the
+   failover is recorded in Reply.tried, and the next back-end in the chain is tried. Can a reservation leak? Can an
+   abandoned call's late answer be recorded or served? Is a back-end's own error still reported as before?
+5. package.build(): every writer call carries WRITER_DEADLINE_S (300 s); every takeaway write avoids every writer
+   vendor except the angle's (writer_avoid), so the judges keep a vendor; out["angle_tried"] records the failover.
+   The budget stop (checked when an angle ends) is: wall > 900 s, or vendor-reported > $1.50, or estimate > $5;
+   spend() returns (estimate, reported).
+6. tests: test_medley.py (no-voice, vendor pinning, budget, recency), test_house_style.py, test_angles.py (recency
+   must-fails), test_providers.py (TestDeadline), test_gates.py (the Canned router takes deadline_s).
+
+Output: findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess. End with a verdict line:
+"SHIP: yes | yes with conditions | no".

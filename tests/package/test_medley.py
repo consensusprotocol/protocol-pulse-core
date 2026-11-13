@@ -28,6 +28,7 @@ from config import BRIDGE_WORD_CAP  # noqa: E402
 from test_eligibility import NOW, REG  # noqa: E402
 from test_gates import Canned  # noqa: E402
 from test_moments import pm  # noqa: E402
+import house_style as HS  # noqa: E402
 
 W = lambda n: " ".join(["word"] * n)
 
@@ -60,9 +61,9 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
 class TestMedleyArithmetic(unittest.TestCase):
     def test_the_medley_seconds_let_one_takeaway_land_60_to_70(self):
         lo, hi = PK.medley_content_range()
-        self.assertEqual((lo, hi), (32.7, 51.5))          # 60 - 14.30 - (30 / 2.5 + 1); 70 - 14.30 - (8 / 2.5 + 1)
-        seg = lambda c: [{"duration_s": c}]
-        self.assertAlmostEqual(PK.runtime(seg(lo), [W(PK.MOMENTS_TAKEAWAY_WORD_CAP)]), 60.0, places=2)
+        self.assertEqual((lo, hi), (36.7, 51.5))          # 60 - 14.30 - (20 / 2.5 + 1); 70 - 14.30 - (8 / 2.5 + 1)
+        seg = lambda c: [{"duration_s": c}]               # (ruling 6, 22:40: a new takeaway is at most 20 words)
+        self.assertAlmostEqual(PK.runtime(seg(lo), [W(PK.LY_TAKEAWAY_MAX_WORDS)]), 60.0, places=2)
         self.assertAlmostEqual(PK.runtime(seg(hi), [W(PK.LY_TAKEAWAY_MIN_WORDS)]), 70.0, places=2)
         lo1, hi1 = PK.medley_content_range(n_bridges=1)
         self.assertAlmostEqual(lo - lo1, PK.LY_BRIDGE_WORDS / 2.5 + 1.0, places=2)
@@ -77,7 +78,7 @@ class TestMedleyArithmetic(unittest.TestCase):
                 self.assertTrue(c > PK.medley_content_range()[1] or c < PK.medley_content_range()[0], c)
                 continue
             lo, hi = b
-            self.assertTrue(PK.LY_TAKEAWAY_MIN_WORDS <= lo <= hi <= PK.MOMENTS_TAKEAWAY_WORD_CAP, (c, b))
+            self.assertTrue(PK.LY_TAKEAWAY_MIN_WORDS <= lo <= hi <= PK.LY_TAKEAWAY_MAX_WORDS, (c, b))
             for w in (lo, hi):
                 est = PK.runtime([{"duration_s": c}], [W(w)])
                 self.assertTrue(PK.RUNTIME_S[0] <= est <= PK.RUNTIME_S[1], (c, w, est))
@@ -87,7 +88,7 @@ class TestMedleyArithmetic(unittest.TestCase):
             aimed += all(PK.LY_AIM_S[0] <= PK.runtime([{"duration_s": c}], [W(w)]) <= PK.LY_AIM_S[1] for w in (lo, hi))
         self.assertGreater(aimed, 100)                    # most clip lengths land the aim (61.5-68.5 s)
         self.assertIsNone(PK.takeaway_budget(60.0))       # too many seconds of clips: no takeaway lands 70 s
-        b0, b1 = PK.takeaway_budget(40.0), PK.takeaway_budget(40.0, other=[W(10)])
+        b0, b1 = PK.takeaway_budget(45.0), PK.takeaway_budget(45.0, other=[W(10)])
         self.assertLess(b1[1], b0[1])                     # a bridge's seconds come off the takeaway
 
 
@@ -100,9 +101,9 @@ class TestMedleyLineup(unittest.TestCase):
         self.assertTrue(PK.medley_content_range()[0] <= sum(m["duration_s"] for m in seg) <= PK.medley_content_range()[1])
 
     def test_more_clips_when_two_do_not_fill_the_medley(self):
-        by = {m["moment_id"]: m for m in (pm("h", "A", 9.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 9.0))}
+        by = {m["moment_id"]: m for m in (pm("h", "A", 9.5), pm("x", "B", 9.5), pm("y", "C", 9.5), pm("z", "D", 9.5))}
         seg = PK.lineup_for(angle(["h", "x", "y", "z"], "h"), by)
-        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "y", "z"])   # 36 s: the hook + 3 clips
+        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "y", "z"])   # 38 s: the hook + 3 clips
         short = {k: dict(v, duration_s=6.0) for k, v in by.items()}
         self.assertIsNone(PK.lineup_for(angle(["h", "x", "y", "z"], "h"), short))   # 24 s: no medley fits
 
@@ -212,7 +213,7 @@ class TestWriteTakeaway(unittest.TestCase):
                 continue
             fits += 1
             PK.write_takeaway(r, angle(["h", "x", "y"], "h"), segs, E.Context(NOW, REG), {}, join=(1, "w"))
-            lo, hi = map(int, re.search(r"one or two sentences, (\d+)-(\d+) words", prompts[0]).groups())
+            lo, hi = map(int, re.search(r'"takeaway": (\d+)-(\d+) words', prompts[0]).groups())
             n = int(re.search(r"as short as it can be \(at most (\d+) words\)", prompts[0]).group(1))
             self.assertEqual((n, (lo, hi)), bb)
             self.assertTrue(PK.LY_BRIDGE_MIN_WORDS <= n <= PK.LY_BRIDGE_WORDS)
@@ -220,7 +221,7 @@ class TestWriteTakeaway(unittest.TestCase):
                 for bw in range(PK.LY_BRIDGE_MIN_WORDS, n + 1):
                     est = PK.runtime([{"duration_s": c}], [W(t), W(bw)])
                     self.assertTrue(PK.RUNTIME_S[0] <= est <= PK.RUNTIME_S[1], (c, t, bw, est))
-        self.assertGreater(fits, 50)
+        self.assertGreater(fits, 40)                       # coverage: both branches exercised (50 fit, ruling 6 caps)
         self.assertGreater(none, 0)                         # at the top of the medley's seconds no bridge fits
 
     def test_the_prompt_asks_for_one_takeaway_inside_the_budget(self):
@@ -230,7 +231,8 @@ class TestWriteTakeaway(unittest.TestCase):
         r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
         PK.write_takeaway(r, angle(["h", "x", "y"], "h"), self.SEGS, E.Context(NOW, REG), {})
         lo, hi = PK.takeaway_budget(39.0)
-        self.assertIn(f"one or two sentences, {lo}-{hi} words", prompts[0])
+        self.assertIn(f'"takeaway": {lo}-{hi} words in short declarative sentences', prompts[0])
+        self.assertIn("HOUSE STYLE", prompts[0])                  # ruling 6 (22:40): the copy rules ride every write
         self.assertNotIn("ONE JOIN NEEDS HELP", prompts[0])
         self.assertNotIn('"intro"', prompts[0])
 
@@ -284,6 +286,16 @@ class TestLyShape(unittest.TestCase):
         pk["vo"] = dict(pk["vo"], bridges=[], bridges_after_clip=[])
         self.assertFalse(PK.ly_shape(pk)[0])
 
+    def test_a_no_voice_medley_needs_its_record_and_no_vo_line(self):
+        pk = medley_pk()
+        pk["vo"] = dict(pk["vo"], bridges=[], bridges_after_clip=[])
+        self.assertFalse(PK.ly_shape(pk)[0])                          # no takeaway and no record: L-y 1 fails
+        self.assertTrue(PK.ly_shape(dict(pk, no_voice={"why": "the takeaway failed twice"}, bridge=None))[0])
+        self.assertFalse(PK.ly_shape(dict(pk, no_voice={"why": " "}, bridge=None))[0])      # a record without a why
+        self.assertFalse(PK.ly_shape(dict(medley_pk(), no_voice={"why": "x"}))[0])        # a VO line with the record
+        flagged = dict(pk, no_voice={"why": "x"}, bridge=None, medley={"measured": True, "flagged": ["hook -> clip_01"]})
+        self.assertFalse(PK.ly_shape(flagged)[0])                     # a join a viewer cannot follow, left unbridged
+
     def test_three_to_five_segments_and_one_clip_per_channel(self):
         self.assertFalse(PK.ly_shape(medley_pk(n=2))[0])
         self.assertFalse(PK.ly_shape(medley_pk(n=6))[0])
@@ -323,6 +335,16 @@ class TestMedleyPackageAndPin(unittest.TestCase):
         self.assertAlmostEqual(pk["runtime_s_estimate"], 39.0 + 8 / 2.5 + 1.0 + PK.FINAL_TAIL_S, places=2)
         self.assertEqual(PK.r4(pk)[0], True)
 
+    def test_each_segment_states_whether_its_clip_is_time_sensitive_and_when_it_was_published(self):
+        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0, risk=("time_sensitive",)),
+                                          pm("y", "C", 13.0))}
+        fields = {"takeaway": {"text": "No ruler, just rules.", "cites": []}, "bridge": None, "bridge_after": None,
+                  "title": {"text": "No ruler", "cites": []}, "caption": {"text": "three clips", "cites": []}}
+        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
+        self.assertEqual([s["time_sensitive"] for s in pk["segments"]], [False, True, False])
+        self.assertEqual({s["source_published_at"] for s in pk["segments"]}, {PK.utc_z(by["h"]["published_at"])})
+        self.assertRegex(pk["segments"][0]["source_published_at"], r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
+
     def test_the_one_bridge_after_a_clip_or_after_the_hook(self):
         b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
         pk = self.build(bridge=b, k=1, n=4)
@@ -337,14 +359,14 @@ class TestMedleyPackageAndPin(unittest.TestCase):
 
     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
         pk = self.build()
-        self.assertEqual(package_pin.required_gates(pk)[-2:], ("medley", "ly_shape"))
+        self.assertEqual(package_pin.required_gates(pk)[-3:], ("medley", "ly_shape", "house_style"))
         pk["gates"] = self.gates(pk)
         pin = package_pin.to_pin(pk, "test")
         mp = pin["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
         self.assertEqual(mp["shape"], "medley")
-        for missing in ("medley", "ly_shape"):
+        for missing in ("medley", "ly_shape", "house_style"):
             g = self.gates(pk)
             g.pop(missing)
             with self.assertRaises(package_pin.PinRefused):
@@ -389,9 +411,11 @@ class Rig:
     A_OK = {"backend": "xai:grok", "replayed": False, "speaker_changes_inside": "no", "view": "own_sincere",
             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
 
-    def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=()):
+    def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+                 spend=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+        self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded = set(uncuttable), set(excluded)
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
@@ -399,7 +423,11 @@ class Rig:
         call = self.router.call
         self.router.call = lambda role, prompt, *a, **k: (self.prompts.append((role, prompt)),
                                                           call(role, prompt, *a, **k))[1]
-        self.router.backends = {"xai:grok": type("B", (), {"vendor": "xai", "family": "grok"})()}
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        self.router.backends = {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall", "deepseek"),
+                                "heimdall:qwen": B("heimdall", "qwen")}
+        self.router.chain = lambda role: ["heimdall:deepseek", "heimdall:qwen", "xai:grok"]
+        self.write_avoid = []
 
     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
         self.medley_calls.append([m["moment_id"] for m in segs])
@@ -412,11 +440,12 @@ class Rig:
         if join is not None and not other and PK.bridge_budget(sum(m["duration_s"] for m in segs)) is None:
             raise PK.NoBridgeFits("no bridge of 3-12 words fits (the real write_takeaway's precondition)")
         self.write_calls.append(([m["moment_id"] for m in segs], join))
+        self.write_avoid.append(avoid_vendor)
         b = self.writes.pop(0)
-        fields = {"takeaway": {"text": self.LINE, "cites": []}, "bridge": b,
+        fields = {"takeaway": {"text": self.takeaways.pop(0) if self.takeaways else self.LINE, "cites": []}, "bridge": b,
                   "bridge_after": join[0] if join is not None and b is not None else None,
                   "title": {"text": "Nobody bends the rules", "cites": []},
-                  "caption": {"text": "three voices, one point", "cites": []},
+                  "caption": {"text": "nobody bends these rules", "cites": []},
                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
         return self.P.Reply("{}", "heimdall:deepseek", "heimdall", family="deepseek"), fields
 
@@ -446,7 +475,8 @@ class Rig:
         try:
             for k, v in stubs.items():
                 setattr(PK, k, v)
-            return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent")
+            return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent",
+                            spend=self.spend)
         finally:
             for k, v in saved.items():
                 setattr(PK, k, v)
@@ -525,6 +555,59 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(len(rig.write_calls), 2)          # the paid verdicts never ran on the doomed line-up
         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "z", "w"])
 
+    def test_no_voice_when_the_takeaway_fails_twice_on_clips_that_hold_alone(self):
+        """Ruling 3 (22:40): clips back to back and the sign-off, NOT dropped; one clip added to land 60-70 s."""
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None, None], takeaways=bad)
+        out = rig.run()
+        pk = out["package"]
+        self.assertIsNotNone(pk)
+        self.assertEqual(len(rig.write_calls), 2)                  # both takeaways failed (takeaway-opener)
+        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y", "z"])   # 39 s + z: 52 s
+        self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])   # the new line-up judged on the clips alone
+        self.assertEqual((pk["vo"]["intro"], pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"]), (None, [], []))
+        self.assertEqual(pk["no_voice"]["added_clip"], "z")
+        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])
+        self.assertAlmostEqual(pk["runtime_s_estimate"], 52.0 + PK.FINAL_TAIL_S, places=2)
+        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
+        self.assertIn("no VO line", pk["checks"]["coherence"]["note"])
+        mp = package_pin.to_pin(pk, "test")["moments_package"]
+        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
+
+    def test_no_voice_never_ships_a_join_the_blind_check_flagged(self):
+        b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        rig = Rig(self.MS, ["h", "x", "y"], [(True, ["clip_01 -> clip_02"], None, Rig.LINE)], [b, b], takeaways=bad)
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertNotIn("no_voice", out["tried"][0])           # not tried: the clips need a bridge to be followed
+
+    def test_every_write_stays_on_the_angles_vendor(self):
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        out = rig.run()
+        self.assertEqual(rig.write_avoid, [{"heimdall", "xai"}])  # the angle came from vendor "fake": all others out
+        self.assertEqual(out["angle_backend"], "fake:angle_write")
+        self.assertEqual(out["angle_tried"], [])
+
+    def test_the_budget_stops_on_the_reported_cost_or_the_estimate_ceiling(self):
+        """Ruling 5 (22:40): per package 15 min wall / $1.50 by the vendors' reported cost; the estimate only as a $5
+        ceiling. Checked before every line-up and every write (audit 2240 C1, glm), not only when an angle ends."""
+        for spent, why in (((0.10, 1.51), "reported"), ((5.01, 0.20), "estimate ceiling")):
+            reads = [(0.0, 0.0), (0.0, 0.0)]                  # the baseline, then the check before line-up 1
+            calls = iter(reads + [spent] * 50)                # ... then over budget from the next check on
+            rig = Rig(self.MS, [["h", "x", "y"], ["h", "x", "z"]], [(False, [], None, "none")] * 2, [],
+                      spend=lambda: next(calls))
+            out = rig.run()
+            self.assertIn("ruling 5", out["why_none"], why)
+            self.assertEqual(len(rig.medley_calls), 1, why)          # line-up 1 ran; nothing after the stop
+            self.assertEqual(out["budget_stop"]["angles_tried"], 1, why)
+        over = iter([(0.0, 0.0)] + [(9.0, 9.0)] * 50)               # over budget from the very first check
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], spend=lambda: next(over))
+        out = rig.run()
+        self.assertEqual((rig.medley_calls, rig.write_calls), ([], []))   # no clips-alone call, no write paid
+        self.assertIsNone(out["package"])
+
     def test_the_supply_exception_is_recorded(self):
         ms = [pm("h", "A", 14.0), pm("x", "B", 13.0), pm("y", "C", 3.0), pm("e", "A", 13.0)]
         rig = Rig(ms, ["h", "x", "y", "e"], [(True, [], None, Rig.LINE)], [None])
@@ -532,6 +615,70 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "e"])
         self.assertIn("gives two clips, from two videos (L-y 4)", pk["supply_exception"])
         self.assertEqual(pk["gates"]["ly_shape"]["status"], "PASS")
+
+
+class TestNoVoiceRealGates(unittest.TestCase):
+    """Audit 2240 C2 (glm N8): a no-voice package through the REAL VO-fidelity and context-integrity decisions (canned
+    model replies, no stubbed gate): every required row, the medley rows included, exactly PASS, and the pin is
+    written."""
+
+    def test_a_no_voice_package_can_pass_every_gate_and_pin(self):
+        import context_integrity as CI
+        import vo_fidelity as VF
+        from test_gates import a_item, c_item
+        by = {m["moment_id"]: dict(m, text=t) for m, t in (
+            (pm("h", "A", 15.0), "Bitcoin is a global free market."), (pm("x", "B", 17.0), "Nobody can stop Bitcoin."),
+            (pm("y", "C", 18.0), "Bitcoin rules apply to everyone."))}
+        fields = {"takeaway": None, "bridge": None, "bridge_after": None,
+                  "title": {"text": "The market no government owns", "cites": []},
+                  "caption": {"text": "no ruler, just rules", "cites": []},
+                  "no_voice": {"why": "the takeaway failed its gates twice (test)", "added_clip": None,
+                               "lineup_before": ["h", "x", "y"]}}
+        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y), no voice")
+        labs = [sg["label"] for sg in pk["segments"]]
+        med = dict(verdict(labs), flagged=[], backend="xai:grok", measured=True, replayed=False)
+        pk["medley"] = med
+        cheap, det, dup, rt_ok, r4_res = PK.cheap_checks(pk, {}, [], NOW)
+        self.assertEqual(cheap, [])                                # 50 s of clips + the tail: 64.3 s, no VO line
+        T0 = {t: "no" for t in VF.COMMENTARY_TESTS}
+        lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
+        r = Canned(fidelity_verdict=[{"claims": [
+            {"line": x["slot"], "words": x["text"], "class": "commentary", "claim": "c", "supported": "n/a",
+             "support": [], "tests": T0} for x in lines]}])
+        fid = VF.check(r, PK.fidelity_segments(pk, {}), lines, "heimdall", 7, {"channels": ["A", "B", "C"]}, [],
+                       "deepseek")
+        self.assertTrue(fid["ok"], fid["violations"])
+        ctx_ = {lb: {"text": CI.mark([("before.", False), (sg["text"], True), ("after.", False)]), "title": "t",
+                     "channel": sg["channel"]} for lb, sg in zip(labs, pk["segments"])}
+        import itertools
+        rel = [{"labels": [a, b], "relation": "none"} for a, b in itertools.combinations(labs, 2)]   # every pair
+        B = {"takeaways": [{"label": lb, "asserts": "p", "certainty": "certain", "polarity": "neutral"} for lb in labs],
+             "relations": rel}
+        rc = Canned(context_verdict=[{"excerpts": [a_item(lb) for lb in labs]}, {"pairs": [c_item(lb) for lb in labs]}],
+                    viewer_takeaway=[B, B])
+        cx = CI.check_contexts(rc, pk, ctx_, writer_vendor="heimdall", writer_family="deepseek")
+        self.assertTrue(cx["ok"], cx.get("violations"))
+        a_lab = {lb: dict(Rig.A_OK) for lb in labs}
+        exc = {sg["moment_id"]: {"verdict": "keep", "measured": True, "replayed": False, "backend": "xai:grok"}
+               for sg in pk["segments"]}
+        tru = {sg["moment_id"]: {"ok": True, "edges": {"cuttable": True}, "replayed": False, "model": "scribe_v1"}
+               for sg in pk["segments"]}
+        coh = dict(med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
+        pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
+                                   shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]))
+        self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
+        mp = package_pin.to_pin(pk, "test")["moments_package"]
+        self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))
+
+    def test_a_published_time_without_an_offset_fails_before_any_paid_verdict(self):
+        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0))}
+        by["x"] = dict(by["x"], published_at="2026-11-12T01:00:00")         # naive: no offset
+        fields = {"takeaway": {"text": "No ruler, just rules.", "cites": []}, "bridge": None, "bridge_after": None,
+                  "title": {"text": "No ruler", "cites": []}, "caption": {"text": "three clips", "cites": []}}
+        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
+        pk["medley"] = {"measured": True, "flagged": []}
+        cheap = PK.cheap_checks(pk, {}, [], NOW)[0]
+        self.assertTrue(any(v["rule"] == "RECENCY" and "segment 1" in v["detail"] for v in cheap), cheap)
 
 
 class TestInventoryRows(unittest.TestCase):

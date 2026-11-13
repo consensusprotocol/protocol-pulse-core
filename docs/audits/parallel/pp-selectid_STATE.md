@@ -1,3 +1,67 @@
+DELIVERING, not a new READY (ruling 1 (a), 22:40): the integrator delivers the 41f29b1f medley REVIEW ONLY, as it is; you tell PBX that clip_02 was 33 h old at delivery. The NEXT READY pin will be the first FRESH medley, built from the ingest ledger once the integrator's word-pass worker (GPU1) marks moments sentence-ready (ruling 2). Every pin from this commit on seals per-segment recency facts (ruling 1).
+
+
+## 23:00 ET: the 22:40 rulings, builder items (code audited 2 cycles; 181 tests; regression 0 FAIL)
+
+- **Ruling 1, recency on the RENDER clock: DONE.**
+  - Each pin segment carries "time_sensitive" (a bool: package.time_sensitive(), the miner's flag, a recency word or
+    a current-kind price) and "source_published_at" ("YYYY-MM-DDTHH:MM:SSZ", UTC). Both are INSIDE the seal.
+  - to_pin refuses a segment that misses or malforms either, and cheap_checks fails it earlier (rule RECENCY), before
+    any paid verdict.
+  - The integrator's pinned.recency_problems reads the same fields: a time-sensitive clip older than 24 h at render
+    holds the run. Their check_pin_only imports my package_pin.seal, so they need this commit merged.
+- **Ruling 3, the no-voice fallback: DONE.**
+  - When a line-up's clips-alone verdict passed with every join followable, and its takeaway failed its gates in both
+    writes, the package ships with NO VO line: the clips back to back, then the sign-off. A takeaway whose point
+    coherence rates under 4 also counts as a failure.
+  - The latest write's title and caption go through every gate again.
+  - When the clips fall short of the factory's 60 s, one more clip of the angle is added in the proposer's order, and
+    the new line-up is judged on the clips alone again.
+  - The pin carries moments_package.no_voice = {why, added_clip, lineup_before} and edl_vo {"intro": null,
+    "bridges": []}. The integrator's R11 takes a package with no VO line.
+  - Proven by a test that runs the REAL fidelity and context decisions on a no-voice package, every required row
+    exactly PASS. That test found and fixed one gap: the pin did not yet carry the no_voice record.
+- **Ruling 4:** the rule for a bridge the writer declines stands, unchanged.
+- **Ruling 5, budget and deadline: DONE.**
+  - Per package: 15 min wall, $1.50 by the vendors' reported cost, and $5 by the estimate as a hard ceiling. Checked
+    before every line-up and every write, not only when an angle ends.
+  - Every writer call (angle and takeaway) has a 5 min deadline. The router abandons the call (Python cannot kill the
+    thread), books its upper bound as spent and fails over: deepseek, then qwen, then xAI grok.
+  - The failover is recorded: out["angle_tried"], and attempts[].writer_tried for the writes.
+  - Every write stays on the angle's vendor, so the judges always keep a vendor (L-x).
+  - When Anthropic / OpenAI credit returns, the writer A/B runs again (not run yet: both still out at 20:32).
+- **Ruling 6, house style: DONE.** pipeline/house_style.py has 15 rule ids, each with a must-fail test (23 tests).
+  - What it runs on:
+    - every line of a medley, inside the cheap gates;
+    - a sealed "house_style" row, required for a medley pin;
+    - its rules in the writer prompt, with PBX's line as the voice reference ("for its rhythm, never its words").
+  - The takeaway's budget is now capped at 20 words (the 30-word cap stays the factory's upper bound), so a medley's
+    clips now fill 36.7-51.5 s.
+  - The delivered 41f29b1f lines are the must-fail fixtures:
+    - caption: 5 rules (lowercase, 26 words, the hedge "may", self-reference, "opportunity");
+    - title: 2 (10 words, possessive opener);
+    - takeaway: 3 ("What stands out", "which makes", 29 words).
+    - PBX's reference line fails only the 20-word cap, as the ruling says.
+- **Ruling 2, the ledger build path: next.**
+  - The word-pass contract is agreed with the integrator (the integrator's proposal tonight):
+    - window records go to transcripts/<vid>/windows/<w0>-<w1>.whisper_words_punct.json, youtube clock, offset
+      recorded;
+    - readiness is in their data/editorial/moments/word_pass.jsonl, and ledger rows never change;
+    - I re-anchor each moment by its TEXT (sentence_law.anchor);
+    - L-s context is read from the caption record (>= 90 s before, >= 60 s after).
+  - The 378 ledger moments that already have full-video word records sit in 14 videos published Nov 9-11, the same
+    videos as tonight's universe. They prove the path but are not fresh. The first FRESH medley waits on the worker's
+    window records for new videos.
+- **Not re-run:** the 10-universe table above is from the 21:57 code, before rulings 3, 5 and 6. Under house style
+  and the 20-word cap the same universes would give different lines, and no-voice packages are now possible. A re-run
+  costs about $1-2 by the vendors' own figures and about 45 min. Say if you want it.
+- Audit: docs/audits/parallel/pp-selectid_audit_2240/ (C1_CONSENSUS.md, C2_DISPOSITIONS.md). No reviewer kept a P0;
+  cycle-2 conditions met. House style was built by a fork of this session as a new module (pipeline/house_style.py)
+  and integrated here.
+
+
+## Superseded at 23:00 ET (the 22:05 READY line, as it stood; delivered per ruling 1 (a))
+
 READY TO RENDER (22:05 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json.
 - An L-y MEDLEY: story moments-fresh_20261112_050611-41f29b1f, seal 41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70.
 - All 15 gates are exactly PASS (the 13 plus "medley" and "ly_shape"), measured live.

@@ -1,4 +1,4 @@
-# pp-selectid audit of the L-y diff, ROUND 2: cycle 4 dispositions (synthesis by the pp-selectid session, 21:40 ET Nov 12)
+# pp-selectid audit of the L-y diff, ROUND 2: cycle 4 dispositions (synthesis by the pp-selectid session, 21:32 ET Nov 12)
 
 **Run.** Cycle 4 cross-reviews the fixed diff (C4_STEP.diff, 133,013 bytes; prompt 174,137 bytes) with the cycle-3
 reviews and C3_CONSENSUS.md. Every reviewer: SHIP yes with conditions; no P0.

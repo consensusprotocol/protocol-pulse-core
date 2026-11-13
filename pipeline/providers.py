@@ -221,6 +221,32 @@ class OpenAIBackend(Backend):
         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
 
 
+class DeadlineExceeded(Exception):
+    """A back-end gave no answer within the caller's deadline (orchestrator 22:40 ruling 5: one writer call never waits
+    more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
+
+
+def _within(seconds, fn):
+    """fn() in a daemon thread, waited for at most `seconds`. -> its value, or its own exception re-raised, or
+    DeadlineExceeded. An abandoned thread finishes (or times out) on its own; its result is dropped unrecorded."""
+    import threading
+    box, done = {}, threading.Event()
+
+    def run():
+        try:
+            box["value"] = fn()
+        except BaseException as e:            # handed back to the caller below
+            box["error"] = e
+        finally:
+            done.set()
+    threading.Thread(target=run, daemon=True, name="pp-deadline").start()
+    if not done.wait(seconds):
+        raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
+    if "error" in box:
+        raise box["error"]
+    return box["value"]
+
+
 def _num(x):
     import math
     return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
@@ -642,7 +668,7 @@ class Router:
         os.replace(tmp, path)
 
     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
-             avoid_family=None):
+             avoid_family=None, deadline_s=None):
         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
         tried, notices = [], []
         for name in self.chain(role):
@@ -662,13 +688,21 @@ class Router:
             if self.replay:
                 tried.append((name, "replay: not recorded"))
                 continue
-            key = self._reserve(b, b.upper_usd(prompt, max_tokens, system))
+            upper = b.upper_usd(prompt, max_tokens, system)
+            key = self._reserve(b, upper)
             if b.vendor == "heimdall":
                 n = self.heimdall_tripwire()
                 if n:
                     notices.append(n)
             try:
-                text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
+                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system))
+                else:
+                    text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+            except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
+                self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
+                tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
+                continue
             except RequestRejected as e:
                 self._settle(key)
                 tried.append((name, f"refused this request: {e}"))

@@ -20,12 +20,14 @@ gates -> release authorisation) renders a moments-first package.
 import hashlib
 import json
 import os
+import re
 from datetime import datetime, timezone
 
 SCHEMA = "protocol_pulse.pinned_story.v1"
 REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
-MEDLEY_GATES = ("medley", "ly_shape")      # L-y (orchestrator 20:30): the clips-alone verdict and the medley's shape
+MEDLEY_GATES = ("medley", "ly_shape", "house_style")   # L-y (20:30): the clips-alone verdict, the medley's shape;
+                                                         # ruling 6 (22:40): PBX's copy rules on every line
 
 
 def required_gates(pk):
@@ -38,13 +40,40 @@ class PinRefused(Exception):
     """The package may not become a pinned decision."""
 
 
+RECENCY_AT = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+
+
+def recency_problems(segments):
+    """[why] for segments that do not state the recency facts the render clock checks (ruling 1, 22:40): every segment
+    a bool "time_sensitive" and "source_published_at" as "YYYY-MM-DDTHH:MM:SSZ" (UTC) that parses."""
+    from datetime import datetime
+    out = []
+    for i, s in enumerate(segments):
+        if type(s.get("time_sensitive")) is not bool:
+            out.append(f"segment {i}: time_sensitive must be true or false (got {s.get('time_sensitive')!r})")
+        at = s.get("source_published_at")
+        ok = isinstance(at, str) and bool(RECENCY_AT.match(at))
+        if ok:
+            try:
+                datetime.strptime(at, "%Y-%m-%dT%H:%M:%SZ")
+            except ValueError:
+                ok = False
+        if not ok:
+            out.append(f"segment {i}: source_published_at must be YYYY-MM-DDTHH:MM:SSZ (got {at!r})")
+    return out
+
+
 def seal(segments, edl_vo, signoff, title, caption, gates):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
-    words, the transcript sha), the VO the renderer will speak (intro, bridges with after_clip), the sign-off, the ONE
-    title and caption (law L-t), and the gate inventory."""
+    words, the transcript sha, and since ruling 1 (22:40) time_sensitive and source_published_at), the VO the renderer
+    will speak (intro, bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate
+    inventory."""
     body = {"segments": [{"video_id": s["video_id"], "start": round(float(s["start"]), 3),
                           "end": round(float(s["end"]), 3), "text": s["approved_text"],
-                          "transcript_sha256": s.get("transcript_sha256")} for s in segments],
+                          "transcript_sha256": s.get("transcript_sha256"),
+                          "time_sensitive": s.get("time_sensitive"),             # ruling 1 (22:40): the render clock
+                          "source_published_at": s.get("source_published_at")}   # checks L-v 3 on these
+                         for s in segments],
             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
                                                              for b in edl_vo.get("bridges") or []]},
             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
@@ -96,7 +125,8 @@ def line_problems(pk):
 
 def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
-                                                                     for x in line_problems(pk)]
+                                                                     for x in line_problems(pk)] + \
+        recency_problems(pk.get("segments") or [])
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -104,6 +134,7 @@ def to_pin(pk, run_name):
         segs.append({"role": "hook" if i == 0 else "clip", "video_id": s["video_id"], "channel": s["channel"],
                      "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
+                     "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
@@ -126,6 +157,7 @@ def to_pin(pk, run_name):
                                 "shape": pk.get("shape"),
                                 "bridge": pk.get("bridge"),
                                 "supply_exception": pk.get("supply_exception"),
+                                "no_voice": pk.get("no_voice"),          # ruling 3 (22:40): why no VO line ships
                                 "gates": pk["gates"],
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
                                            "derived_from": "gates (every required row exactly PASS, checked above)",

@@ -22,7 +22,7 @@ class Canned:
         self.answers, self.calls, self.rejected = {k: list(v) for k, v in answers.items()}, [], []
 
     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
-             avoid_family=None):
+             avoid_family=None, deadline_s=None):
         self.calls.append((role, avoid_vendor, avoid_family))
         q = self.answers.get(role)
         if not q:
