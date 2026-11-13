@@ -695,6 +695,60 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     return False, d1
 
 
+BT601_MATRICES = ("smpte170m", "bt470bg")
+
+
+def to_bt709(run_dir, video_ids):
+    """Ruling 30 (orchestrator 2026-11-13 '01:55'): a source whose MATRIX is BT.601 (color_space smpte170m / bt470bg)
+    is converted to BT.709 before any clip is prepared, so its frames read, and its final's tail measures, as a 709
+    source's do (pin #1: Sjb6lUiL0m4 is smpte170m; its 9:16 and 16:9 finals came out untagged and G9 read 13.6 / 13.9
+    through RGB while the luma plane was the 709 sources' own). The colorspace filter maps the matrix (and the
+    primaries / transfer the source declares, else BT.601's own) to BT.709. It is a lossless x264 encode (qp 0) with
+    every frame's timestamp passed through (-vsync 0), so the cuts' source times and the one lossy encode of prepare
+    are unchanged. The audio is copied. Output tags: bt709 / bt709 / bt709 / tv. The original is kept as
+    sources_bt601/<vid>.mp4. 709 and untagged sources are not touched. Returns {video_id: record}."""
+    out = {}
+    for vid in sorted(set(video_ids)):
+        src = os.path.join(run_dir, "sources", f"{vid}.mp4")
+        tags = media_tags(src)
+        if tags.get("color_space") not in BT601_MATRICES:
+            continue
+        keep = os.path.join(run_dir, "sources_bt601", f"{vid}.mp4")
+        ip = tags.get("color_primaries") if tags.get("color_primaries") not in (None, "", "unknown") else tags["color_space"]
+        it = tags.get("color_transfer") if tags.get("color_transfer") not in (None, "", "unknown") else tags["color_space"]
+        ir = "pc" if tags.get("color_range") == "pc" else "tv"     # a full-range source keeps its own range in
+        vf = (f"colorspace=space=bt709:primaries=bt709:trc=bt709:range=tv:format=yuv420p:"   # (batch 54 C1, glm)
+              f"ispace={tags['color_space']}:iprimaries={ip}:itrc={it}:irange={ir}")
+        tmp = src + ".bt709.mp4"
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-map", "0:v:0", "-map", "0:a?", "-vf", vf,
+                            "-vsync", "0", "-c:v", "libx264", "-qp", "0", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                            "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+                            "-color_range", "tv", "-c:a", "copy", "-movflags", "+faststart", tmp],
+                           capture_output=True, text=True, timeout=1800)
+        if r.returncode != 0 or not os.path.exists(tmp):
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+            raise Hold(f"ruling 30: the BT.601 -> BT.709 conversion of {vid} failed: {r.stderr.strip()[-200:]}")
+        before = sha256(src)
+        os.makedirs(os.path.dirname(keep), exist_ok=True)              # only once the encode has succeeded
+        os.replace(src, keep)
+        os.replace(tmp, src)
+        out[vid] = {"from": {k: tags.get(k) for k in ("color_space", "color_primaries", "color_transfer", "color_range")},
+                    "filter": vf, "original": os.path.relpath(keep, run_dir), "original_sha256": before,
+                    "converted_sha256": sha256(src), "lossless": "libx264 qp 0, -vsync 0, audio copied"}
+    return out
+
+
+def media_tags(path):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                        "stream=color_space,color_primaries,color_transfer,color_range", "-of", "json", path],
+                       capture_output=True, text=True, timeout=60)
+    try:
+        return (json.loads(r.stdout).get("streams") or [{}])[0]
+    except ValueError:
+        return {}
+
+
 def stage_prepare(run, cuts):
     from run_isolated import prerender_clips as _prerender_isolated
 
@@ -706,6 +760,10 @@ def stage_prepare(run, cuts):
     from clip_contract import check_clip
     from cut_accept import check_edge_words
     from config import FPS, NVENC_QP_INTERMEDIATE
+    run.prov["bt709_conversion"] = {**(run.prov.get("bt709_conversion") or {}),       # ruling 30, before any clip;
+                                    **to_bt709(run.dir, [c["video_id"] for c in cuts])}  # a re-run keeps the record
+    for vid, rec in run.prov["bt709_conversion"].items():
+        print(f"  {vid}: BT.601 ({rec['from'].get('color_space')}) source converted to BT.709 (lossless)")
     prerender_clips(run.dir, cuts)
     pads = {}
     for c in cuts:
