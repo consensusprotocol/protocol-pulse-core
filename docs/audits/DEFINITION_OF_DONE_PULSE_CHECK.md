@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:39 ITEM 56, THE EVENT PROBE: THE ZERO IS NOT THE PRE-FILTER EVENT'S. 16 of the 75 'off_topic' candidates (8 untrimmed, 8 trimmed) were re-asked with a REAL validate event, the approved medley's headline: 'Pinned: Bitcoin's overlooked value comes from a market no government owns'. Result: 16 / 16 still 1.0 'off_topic'; 0 changed, 0 affirmed. (Results appended to each moment's file under that event.)
+- The refusals are genuine judgments, one per fault:
+  - '... dumped in the throne as a six-year-old boy ...': 1.0 off_topic, 'Analogy about responsibility; does not mention Bitcoin.'
+  - 'But this was not, as a as again ... no kings because kings cannot be trusted ...': 3.0 starts_mid_thought, 'Starts mid-sentence, referencing a previous point.'
+  - 'But I don't know if it will last forever ... Fiat monies historically eventually fail.': 3.0 ends_mid_thought, 'ends abruptly'.
+  - '... the amplified Bitcoin side, like it's a win-win transaction ...': 3.0 other, 'doesn't specifically mention a pinned event'.
+- The builder's cross-check: of the 75 off_topic, 27 also fail its own topic screen, and 26 pass its BTC screen. The scorer's 'off_topic' is 'does not state this event', not 'not about Bitcoin'.
+- CONCLUSION: item 56 works as built (the same judge, asked earlier, verdicts in the builder's hands; the builder audited the file: every pid / sha / event / scorer_sha matches). On this supply it unblocks NOTHING. The ~105 openers are now JUDGED and refused by the render's own scorer, instead of discarded unjudged.
+- FOR THE ORCHESTRATOR (a ruling, not mine): the scorer's rubric rates 'a complete, strong, specific statement about this event'. A moments medley has no single event. Whether moments pins should keep validate's 'Pinned: <headline>' event and this rubric is a question about validate's own judge; nothing here changes it.
+
 ## 10:36 ITEM 56 RESULT: THE SCORER AFFIRMS 0 OF 145. The builder's first 72 h candidates (ledger_20261113_145246: 93 untrimmed openers + 52 trimmed variants of 94 moments), event 'Pinned: bitcoin', scorer_sha f19aab6cc5cc, rated 10:17-10:35 ET, 0 errors. verdicts/verdicts_20261113T1516070000.json (= latest.json).
 - Affirmed: untrimmed 0 / 93; trimmed 0 / 52. No moment has an affirmed variant.
 - Scores: 1.0 x 77, 3.0 x 68 (none above 3.0; the bar is 3.5).
