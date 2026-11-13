@@ -1,0 +1,106 @@
+{
+ "question": "Batch 67 = RULING 72 (orchestrator 2026-11-13 '15:45'), verbatim: \"lock-as-spoken on EVERY span (the second recogniser against the lock, about $0.03 a line-up) is RULING 72: YES, in the pre-check service, because repeats and dropped words that both Whisper passes smooth over are exactly what G18 then finds after a 27-minute render. A difference confined to the speaker's own immediate repetitions or function words adopts the spoken text (ruling 67's class); anything else holds before the seal.\" Plus the builder's request (it may not write under the main tree): the service also READS requests from the builder's own directory, without ever writing there.\nBackground: pipeline/lock_precheck.py (ruling 68) runs the render's own pinned.acquire, validate_range and segment_lock per line-up span and answers ruling 17's outcome. Ruling 17 (pinned.adjudicate_lock) calls the second recogniser (scribe_v1, paid) ONLY when the decode and the approved text differ in canonical tokens, so repeats that BOTH Whisper passes drop go unseen until G18 on the final (1b4a63d0's hook: the recorded scribe reading has 'When, when', 'and, and', \"that's, that's why the bull--\"). Ruling 67's class is the builder's pipeline/attest.carry_class: each side of a difference must be an immediate repetition on that side, or all function words (its FUNCTION_WORDS); no law L-v 2 critical token (number, negation, name).\nThe change (lock_precheck.py only):\n- second_reading(a, wd): ONE paid reading per acquisition window, cached in its work dir (keyed by the source file's sha256). Both ruling 17's recogniser and ruling 72 read it.\n- carry_class and FUNCTION_WORDS: copied in behaviour from the builder's attest.py (critical() is the render's pinned._lv2_critical).\n- _spill(L, S): the reading's tokens before the lock's first aligned token (after its last) are the neighbouring sentence's spill (adjudicate_lock's +-0.3 s window), unless they repeat the tokens next to them (the speaker's repeat at the sentence's edge).\n- as_spoken(lock, words, sw): the lock's canonical tokens against the reading over [i0 start - 0.3, i1 end + 0.3], spill left out. -> \"same\" | \"adopt\" (every difference in ruling 67's class) | \"hold\".\n- answer(): after ruling 17's lock stands, every span gets as_spoken.\n  - \"adopt\": the spoken text is put through the render's OWN validate_range + segment_lock (so the render's ruling 17 must adopt it); \"adopt_spoken\" with spoken_text and that lock, or \"hold\" naming the render's refusal.\n  - \"hold\": outcome \"hold\" with the differences, the lock and the spoken text.\n  - Entries carry as_spoken, spoken_text and rules (RULES); latest() and reuse match only the current RULES.\n- EXTRA (the builder's directory): pending() lists its *.json whose name + content sha256[:16] has no marker in answered/. _close() never moves or writes there: a copy goes to done/ or failed/ here, plus the marker. Own requests move as before.\nTests (test_lock_precheck.py, 22, CPU):\n- the old ones updated to one paid reading per acquisition.\n- ruling 72: the speaker's repeats adopt the spoken text (the render's own lock adopts it); a spill word inside the 0.3 s window is left out of the comparison, but the render's edge rule then refuses that text, so the pre-check holds as the render would; a content difference ('the bull') holds; a function word ('the'/'a') adopts; one paid reading for two spans of one window; an entry without the current rules is never reused.\n- the builder's directory: answered, the file byte- and mtime-identical, answered once per content, re-asked when changed; a malformed one is recorded here and left alone.\nFIND: a span where the pre-check passes but the render's ruling 17 or G18 would fail (or the reverse) because of a second code path; a paid reading made more than once per window; spill or alignment that turns the speaker's own words into 'spill' or the neighbouring sentence into a difference; a difference outside ruling 67's class that is adopted (a critical token above all); any write to the builder's directory; a stale reuse across rules; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 21.6,
+   "cost": 0.000994914,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 18.2,
+   "cost": 0.000318401,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 15.4,
+   "cost": 0.000811332,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 22.5,
+   "cost": 0.000382168,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/lock_precheck.py",
+   "line": 215,
+   "issue": "The second recogniser is called twice per span: once inside `pinned.segment_lock` (via the `recognise` callback) and again explicitly in `answer` for the `as_spoken` check. This violates the 'ONE paid reading per acquisition window' requirement and the test `test_one_paid_reading_per_acquisition` which expects `len(self.heard) == 1` for two spans.",
+   "evidence": "lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)\n                    outcome, reason = _outcome(s, lock), None\n                    verdict, diffs, text = as_spoken(lock, a[\"transcript\"][\"words\"], recognise(a[\"path\"])[0])",
+   "fix": "Capture the words returned by the first `recognise` call (e.g., by modifying `recognise` to store the result or by having `segment_lock` return the words) and reuse them for `as_spoken` instead of calling `recognise` again.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/lock_precheck.py",
+   "line": 263,
+   "issue": "The `spoken` text reconstruction is incorrect. It joins words from `sel` (the raw Whisper words) using indices from `spans` (the canonical spans). If a canonical token maps to multiple raw words (e.g., punctuation or contractions) or if `spans` indices don't align 1:1 with `sel` indices, the resulting `spoken` text will be malformed or missing words. Specifically, `spans[lo][1]` and `spans[hi-1][2]` are indices into the `spans` list, not necessarily valid indices into `sel` if the mapping isn't 1:1.",
+   "evidence": "spoken = \" \".join(str(sel[i][\"word\"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))",
+   "fix": "Ensure that the indices used to slice `sel` correspond to the actual raw word indices. If `canon.canon_spans` returns `(token, start_idx, end_idx)` where `start_idx` and `end_idx` are indices into the input list of raw words, then `spans[lo][1]` and `spans[hi-1][2]` are correct. However, if `spans` is a list of tuples `(token, start, end)` where `start` and `end` are indices into the *canonical* list, this is wrong. Given `canon.canon_spans` typically maps raw words to canonical tokens, the indices should be into the raw list. The code assumes `spans[i][1]` is the start index in `sel`. If `canon_spans` returns indices into the input list, this is correct. But if it returns something else, it's a bug. Assuming standard behavior, this might be okay, but it's fragile. A safer approach is to track the raw word indices during canonicalization.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": null,
+   "issue": "A paid second reading can be made more than once per acquisition window: second_reading caches by the source file's sha256, but the cache file lives in work_dir(vid, lo, hi, sha) \u2014 a per-request-window dir \u2014 while the ruling's 'ONE paid reading per acquisition window' and the test's two spans share one acquisition. If two spans of one acquisition resolve to different work dirs (or the cached sha key is absent, since provenance's source_file_sha256 may be missing, making the cached check c.get(...) == None pass/fail inconsistently), the second span pays again. The test test_one_paid_reading_per_acquisition only asserts len(self.heard)==1, which passes even if the second span's call were served from the decode cache rather than the reading cache, so it does not prove one paid call per window by the cache.",
+   "evidence": "p, sha = os.path.join(wd, \"second_recogniser.json\"), a[\"provenance\"].get(\"source_file_sha256\"); if os.path.exists(p): ... if c.get(\"source_file_sha256\") == sha: return c[\"words\"], 0.0",
+   "fix": "Key the cache by the acquisition (the acquired file's path or its sha) in a shared per-acquisition dir, and assert the spend (usd==0.0 on the second span) in the test.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 316,
+   "issue": "When ruling 72's verdict is 'adopt' but the render's segment_lock on the spoken text raises PinError, the entry records outcome 'hold' with lock=None, discarding the already-computed ruling-17 lock that DID stand; the contract says 'hold' names the render's refusal, but the original lock (which ruling 17 approved) is lost from the entry, so a consumer cannot see what would have been sealed vs. what the render refused.",
+   "evidence": "except pinned.PinError as e:\n                            outcome, lock = \"hold\", None\n                            reason = f\"ruling 72: the spoken text {text!r} is not adopted...\"",
+   "fix": "Keep the original lock in the entry (e.g. a separate field) while outcome is 'hold' with the refusal reason, so the standing ruling-17 lock remains visible."
+  }
+ ],
+ "total_cost": 0.002506815,
+ "out_dir": "/home/ultron/worktrees/r72/docs/audits/pulse-sentence-law/batch67_r72_as_spoken/cycle1/heimdall"
+}

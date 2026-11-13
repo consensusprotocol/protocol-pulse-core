@@ -1,0 +1,495 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index bace993c..b4754008 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -23,10 +23,23 @@ CONTRACT (the builder):
+   same canonical tokens meets no difference at the render), "no_difference", "adopted" (ruling 17: the second recogniser
+   reads the approved words), "two_readings" (ruling 18), "hold" (the render's stage pinned would hold: reason is its
+   PinError), "error" (no verdict, never a pass: the acquisition or the decode failed).
+-  An identical span, window and request fields (KEY: role, approved text, trimmed fields) under the same DECODER_SHA is
+-  answered from its last non-error entry ("reused": true; no decode, no second-recogniser spend). Run ONE serving
+-  process: a result file is appended read-then-replace.
+-- The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed.
++  An identical span, window and request fields (KEY: role, approved text, trimmed fields) under the same DECODER_SHA and
++  RULES is answered from its last non-error entry ("reused": true; no decode, no second-recogniser spend). Run ONE
++  serving process: a result file is appended read-then-replace.
++- RULING 72 (orchestrator 2026-11-13 '15:45'), LOCK AS SPOKEN ON EVERY SPAN: once ruling 17's lock stands, the second
++  recogniser's reading of the lock's own words (adjudicate_lock's window, the neighbouring sentence's spill at the
++  edges left out) is compared with the lock. Repeats and dropped words that both Whisper passes smooth over are what G18
++  then finds after a 27-minute render.
++  - No difference: the outcome stands.
++  - Every difference the speaker's own immediate repetition or function words (ruling 67's class, the builder's
++    pipeline/attest.py carry_class, copied): outcome "adopt_spoken". "spoken_text" is the text to seal. It has been put
++    through the render's own validate_range + segment_lock (the render's ruling 17 adopts it), and "lock" is that lock.
++  - Anything else: "hold", before the seal.
++  ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences) and
++  "rules" (RULES).
++- The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed. A request in the
++  builder's own directory (EXTRA; the builder may not write under this tree) is READ ONLY there: never moved or
++  written. It is answered once per name and content (a marker in answered/), and its copy is kept in done/ or failed/.
+ - DECODER_SHA: sha256 over CODE, the acquisition, decoder and lock code. An entry under another DECODER_SHA is not
+   this code's.
+ GPU0 (law L-r): stand_alone_scorer's discipline. Downloads run before the lease; a batch of BATCH requests is decoded
+@@ -55,6 +68,21 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
++RULES = "ruling 17 + ruling 72"         # what an entry's verdict judged; an entry under other rules is never reused
++EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
++# RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
++# behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
++FUNCTION_WORDS = frozenset("""
++a an the this that these those that's this's there there's here here's
++i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
++myself yourself himself herself itself ourselves themselves one's
++i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
++i'd you'd he'd she'd we'd they'd
++in on at to of for from with by about into onto upon over under up down out off through as like than via per
++and or but so because if then when while though although whether
++is are was were be been being am do does did have has had will would can could shall should may might must
++what which who whom whose why how where
++""".split())
+ 
+ 
+ def decoder_sha():
+@@ -122,7 +150,7 @@ def latest(video_id, start, end, sha=None, window=None, approved_text=None, **se
+     want = [float(x) for x in (window or (start, end))]
+     seg = dict(seg, approved_text=approved_text)
+     es = [e for e in _entries(result_path(video_id, start, end, sha))
+-          if e["start"] == start and e["end"] == end and e["window"] == want
++          if e["start"] == start and e["end"] == end and e["window"] == want and e.get("rules") == RULES
+           and all(e.get(k) == seg[k] for k in KEY if k in seg)]
+     return es[-1] if es else None
+ 
+@@ -181,13 +209,84 @@ def decode(r, sha, log=print):
+     return out
+ 
+ 
++def second_reading(a, wd):
++    """The second recogniser's words on the acquired window: ONE paid call per acquisition, cached in its work dir and
++    keyed by the source file's sha256. -> (words, the spend of a call made now; 0.0 when cached)."""
++    p, sha = os.path.join(wd, "second_recogniser.json"), a["provenance"].get("source_file_sha256")
++    if os.path.exists(p):
++        with open(p) as f:
++            c = json.load(f)
++        if c.get("source_file_sha256") == sha:
++            return c["words"], 0.0
++    words, usd = pinned._second_recogniser_words(a["path"])
++    with open(p + ".tmp", "w") as f:
++        json.dump({"source_file_sha256": sha, "usd": usd, "words": words}, f)
++    os.replace(p + ".tmp", p)
++    return words, usd
++
++
++def carry_class(r, p, op, texts):
++    """RULING 67's class of one difference (the builder's attest.carry_class): -> "immediate repetition",
++    "function word", or None. Each side's tokens must repeat the tokens right before or right after them on that side,
++    or be all function words; no law L-v 2 critical token (pinned._lv2_critical) is ever in the class."""
++    _tag, a, b, c, d = op
++    if any(pinned._lv2_critical(t, texts) for t in r[a:b] + p[c:d]):
++        return None
++
++    def repeats(x, lo, hi):
++        n = hi - lo
++        return n > 0 and (x[max(lo - n, 0):lo] == x[lo:hi] or x[hi:hi + n] == x[lo:hi])
++    sides = ((r, a, b), (p, c, d))
++    if not all(repeats(x, lo, hi) or all(t in FUNCTION_WORDS for t in x[lo:hi]) for x, lo, hi in sides):
++        return None
++    return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
++
++
++def _spill(L, S):
++    """[lo, hi) of the reading's tokens S without the window's spill: tokens before the lock's first aligned token
++    (after its last) belong to the neighbouring sentence unless they repeat the tokens right after (before) them, the
++    speaker's own repeat at the sentence's edge."""
++    from difflib import SequenceMatcher
++    ops = SequenceMatcher(None, L, S, autojunk=False).get_opcodes()
++    lo, hi = 0, len(S)
++    if ops and ops[0][0] == "insert" and ops[0][1] == 0:
++        d = ops[0][4]
++        lo = next((d - n for n in range(d, 0, -1) if S[d - n:d] == S[d:d + n]), d)
++    if ops and ops[-1][0] == "insert" and ops[-1][1] == len(L):
++        c = ops[-1][3]
++        hi = next((c + n for n in range(len(S) - c, 0, -1) if S[c:c + n] == S[c - n:c]), c)
++    return lo, max(lo, hi)
++
++
++def as_spoken(lock, words, sw):
++    """RULING 72: the lock against the second recogniser's reading of its own words ([i0 start - 0.3, i1 end + 0.3],
++    adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold", differences, spoken text)."""
++    import canon
++    from difflib import SequenceMatcher
++    t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
++    sel = [w for w in sw if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1]
++    spans = canon.canon_spans([str(w["word"]) for w in sel])
++    L, S = canon.canon_tokens(lock["text"]), [t for t, _, _ in spans]
++    lo, hi = _spill(L, S)
++    if lo >= hi:
++        return "hold", [[lock["text"], ""]], ""
++    S2 = S[lo:hi]
++    spoken = " ".join(str(sel[i]["word"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))
++    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
++    diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]
++    if not ops:
++        return "same", [], spoken
++    ok = all(carry_class(L, S2, op, (lock["text"], spoken)) for op in ops)
++    return ("adopt" if ok else "hold"), diffs, spoken
++
++
+ def _outcome(s, lock):
+     if not s.get("approved_text"):
+         return "decoded"
+     return "adopted" if "adjudication" in lock else "two_readings" if "alternatives" in lock else "no_difference"
+ 
+ 
+-def answer(path, r, dl, dec, sha, log=print):
++def answer(path, r, dl, dec, sha, dg=None, log=print):
+     """After the lease: every segment's lock (pinned.segment_lock, with the second recogniser where ruling 17 calls
+     it) appended to its result file; the request moved to done/."""
+     import faster_whisper
+@@ -199,10 +298,11 @@ def answer(path, r, dl, dec, sha, log=print):
+                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+         else:
+             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
+-            spent, lock, reason, t = [], None, err, time.time()
++            spent, lock, reason, t, spoken = [], None, err, time.time(), None
++            wd = work_dir(vid, lo, hi, sha)
+ 
+-            def recognise(src):                                  # the real second recogniser, its spend recorded
+-                words, usd = pinned._second_recogniser_words(src)
++            def recognise(src):                                  # ONE paid reading per acquisition (cached), spend kept
++                words, usd = second_reading(a, wd)
+                 spent.append(usd)
+                 return words, usd
+             outcome = "error"
+@@ -211,6 +311,21 @@ def answer(path, r, dl, dec, sha, log=print):
+                     v = pinned.validate_range(s, a)
+                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
+                     outcome, reason = _outcome(s, lock), None
++                    verdict, diffs, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
++                    spoken = {"verdict": verdict, "differences": diffs, "text": text}      # ruling 72, every span
++                    if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
++                        s2 = dict(s, approved_text=text)
++                        try:
++                            lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)
++                            outcome = "adopt_spoken"
++                        except pinned.PinError as e:
++                            outcome, lock = "hold", None
++                            reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
++                    elif verdict == "hold":
++                        reason = (f"ruling 72: the second recogniser reads the span differently beyond the speaker's own "
++                                  f"repetitions and function words at {diffs} | lock: {lock['text']!r} | spoken: "
++                                  f"{text!r}")
++                        outcome, lock = "hold", None
+                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
+                     outcome, reason = "hold", str(e)
+                 except Exception as e:
+@@ -225,7 +340,8 @@ def answer(path, r, dl, dec, sha, log=print):
+                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
+                      if lock else None,
+                      "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
+-                     "scribe_usd": round(sum(spent), 4), "reused": False,
++                     "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
++                     "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
+                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},
+                      "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+         out = result_path(vid, s["start"], s["end"], sha)
+@@ -236,21 +352,65 @@ def answer(path, r, dl, dec, sha, log=print):
+         os.replace(tmp, out)
+         log(f"  {r['request_id']}: {vid} {s['start']:.3f}-{s['end']:.3f}: {entry['outcome']}"
+             f"{' (reused)' if entry['reused'] else ''}{': ' + entry['reason'][:160] if entry['reason'] else ''}")
+-    os.makedirs(os.path.join(ROOT, "requests", "done"), exist_ok=True)
+-    os.replace(path, os.path.join(ROOT, "requests", "done", os.path.basename(path)))
++    _close(path, r, dg)
++
++
++def _own(path):
++    return os.path.dirname(os.path.abspath(path)) == os.path.abspath(os.path.join(ROOT, "requests"))
++
++
++def _marker(path, dg):
++    return os.path.join(ROOT, "answered", f"{os.path.basename(path)}.{dg}")
++
++
++def _close(path, r, dg, why=None):
++    """Answered (why None) or malformed. An own request moves to done/ (to failed/, with why). A request in the
++    builder's directory is never touched there: its copy goes to done/ or failed/ here, and a marker keyed by its name
++    and the content that was read (dg) keeps it from being asked again until the builder changes it."""
++    sub = os.path.join(ROOT, "requests", "failed" if why else "done")
++    os.makedirs(sub, exist_ok=True)
++    if _own(path):
++        if why:
++            with open(os.path.join(sub, os.path.basename(path)), "w") as f:
++                json.dump({"request": r, "why": why}, f, indent=1)
++            os.remove(path)
++        else:
++            os.replace(path, os.path.join(sub, os.path.basename(path)))
++        return
++    with open(os.path.join(sub, "extra." + os.path.basename(path)), "w") as f:
++        json.dump({"request": r, "why": why, "from": path, "content_sha256_16": dg}, f, indent=1)
++    os.makedirs(os.path.join(ROOT, "answered"), exist_ok=True)
++    open(_marker(path, dg), "w").close()
++
++
++def _digest(path):
++    with open(path, "rb") as f:
++        return hashlib.sha256(f.read()).hexdigest()[:16]
+ 
+ 
+ def _load(path):
++    """-> (request, problems, the read content's sha256[:16])."""
++    with open(path, "rb") as f:
++        raw = f.read()
++    dg = hashlib.sha256(raw).hexdigest()[:16]
+     try:
+-        with open(path) as f:
+-            r = json.load(f)
++        r = json.loads(raw)
+     except ValueError as e:
+-        return None, [f"not JSON: {e}"]
+-    return r, problems(r)
++        return None, [f"not JSON: {e}"], dg
++    return r, problems(r), dg
+ 
+ 
+ def pending():
+-    return sorted(glob.glob(os.path.join(ROOT, "requests", "*.json")))
++    """Own requests, then the builder's (EXTRA) whose name and content have not been answered."""
++    own = sorted(glob.glob(os.path.join(ROOT, "requests", "*.json")))
++    extra = []
++    for p in sorted(glob.glob(os.path.join(EXTRA, "*.json"))) if EXTRA else []:
++        try:
++            if not os.path.exists(_marker(p, _digest(p))):
++                extra.append(p)
++        except OSError:                          # renamed or removed while listed: the next pass sees it
++            continue
++    return own + extra
+ 
+ 
+ def serve_once(log=print):
+@@ -262,19 +422,16 @@ def serve_once(log=print):
+         return 0
+     sha, ready, n = decoder_sha(), [], 0
+     for path in todo:
+-        r, why = _load(path)
++        r, why, dg = _load(path)
+         if why:
+-            os.makedirs(os.path.join(ROOT, "requests", "failed"), exist_ok=True)
+-            with open(os.path.join(ROOT, "requests", "failed", os.path.basename(path)), "w") as f:
+-                json.dump({"request": r, "why": why}, f, indent=1)
+-            os.remove(path)
++            _close(path, r, dg, why)
+             log(f"  {os.path.basename(path)}: malformed: {'; '.join(why)}")
+             n += 1
+         elif _cached(r, sha):
+-            answer(path, r, {}, {}, sha, log=log)
++            answer(path, r, {}, {}, sha, dg, log=log)
+             n += 1
+         else:
+-            ready.append((path, r, prefetch(r, sha)))
++            ready.append((path, r, prefetch(r, sha), dg))
+     decoded = {}
+     if ready and not LJ.render_wants_gpu0():
+         try:
+@@ -282,7 +439,7 @@ def serve_once(log=print):
+                 if LJ.render_wants_gpu0():                       # it asked while the lease was being taken
+                     return n
+                 try:
+-                    for path, r, _ in ready:
++                    for path, r, _, _ in ready:
+                         d = decode(r, sha, log=log)
+                         if d is None:                            # a render asked: the rest stay pending
+                             break
+@@ -291,9 +448,9 @@ def serve_once(log=print):
+                     gpu0.release_all()                           # GPU0 left as found before the lease goes
+         except gpu0.Gpu0Stop as e:          # busy, a foreign user, out of memory: what was decoded is answered below,
+             log(f"  GPU0 stop, the rest stay pending: {type(e).__name__}: {e}")   # the rest asked again (b64 c2)
+-    for path, r, dl in ready:
++    for path, r, dl, dg in ready:
+         if path in decoded:
+-            answer(path, r, dl, decoded[path], sha, log=log)
++            answer(path, r, dl, decoded[path], sha, dg, log=log)
+             n += 1
+     return n
+ 
+diff --git a/pipeline/test_lock_precheck.py b/pipeline/test_lock_precheck.py
+index a5f226f9..264be89c 100644
+--- a/pipeline/test_lock_precheck.py
++++ b/pipeline/test_lock_precheck.py
+@@ -62,7 +62,8 @@ class Base(unittest.TestCase):
+                 with open(p) as f:
+                     return json.load(f)
+             self.decodes.append(video_id)
+-            out = {"words": words_of(self.run_text), "language": "en", "duration": 39.0}
++            out = {"words": getattr(self, "run_words", None) or words_of(self.run_text), "language": "en",
++                   "duration": 39.0}
+             os.makedirs(os.path.dirname(p), exist_ok=True)
+             with open(p, "w") as f:
+                 json.dump(out, f)
+@@ -70,10 +71,11 @@ class Base(unittest.TestCase):
+ 
+         def scribe(src):
+             self.heard.append(src)
+-            return words_of(self.scribe_text), 0.0078
++            return getattr(self, "scribe_words", None) or words_of(self.scribe_text), 0.0078
+ 
+         self.wants = mock.Mock(return_value=False)
+         for p in (mock.patch.object(LP, "ROOT", self.root),
++                  mock.patch.object(LP, "EXTRA", os.path.join(self.root, "extra")),    # never the builder's real dir
+                   mock.patch.object(select_passages, "_download_window", download),
+                   mock.patch.object(select_passages, "_whisper_transcribe", transcribe),
+                   mock.patch.object(pinned, "_duration", lambda path: 39.0),
+@@ -137,20 +139,20 @@ class TestOutcomes(Base):
+         self.assertEqual((e["lock"]["first_word"], e["lock"]["last_word"]), ("My", "Bitcoin."))
+         self.assertEqual(e["window"], [START, END])
+         self.assertEqual(e["offset"], 740.0)
+-        self.assertEqual(e["scribe_usd"], 0)
+-        self.assertEqual(self.heard, [])
++        self.assertEqual((e["as_spoken"]["verdict"], e["rules"]), ("same", LP.RULES))   # ruling 72: every span
++        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))              # ONE reading per acquisition
+         self.assertTrue(os.path.basename(LP.result_path(VID, START, END, LP.decoder_sha())).startswith(
+             f"{VID}.755.454-764.214.{LP.decoder_sha()[:12]}"))
+         self.assertTrue(os.path.exists(os.path.join(self.root, "requests", "done", "r1.json")))
+         self.assertEqual([d[:3] for d in self.downloads], [(VID, START, END)] * 2)   # prefetch + acquire's cache hit
+         self.assertEqual(self.decodes, [VID])
+ 
+-    def test_the_attested_text_meets_no_difference_and_no_spend(self):
++    def test_the_attested_text_meets_no_difference_and_one_reading(self):
+         self.request(approved_text=ATTESTED.upper().replace(".", ""))      # canonical tokens equal
+         LP.serve_once(log=self.log)
+         e = self.entry(ATTESTED.upper().replace(".", ""))
+-        self.assertEqual(e["outcome"], "no_difference", e)
+-        self.assertEqual((e["scribe_usd"], self.heard), (0, []))
++        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e)
++        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
+ 
+     def test_the_word_pass_text_holds_as_the_render_held_it(self):
+         self.request(approved_text=WORD_PASS)
+@@ -283,5 +285,127 @@ class TestDiscipline(Base):
+         self.assertEqual(self.entry(ATTESTED)["outcome"], "no_difference")
+ 
+ 
++def spread(text, t0=15.5, t1=24.1, before=None):
++    """text's words evenly over [t0, t1] on the acquired window's clock, after an optional (word, start, end)."""
++    ws = text.split()
++    step = (t1 - t0) / len(ws)
++    out = [{"word": w, "start": round(t0 + i * step, 3), "end": round(t0 + i * step + 0.8 * step, 3)}
++           for i, w in enumerate(ws)]
++    return ([{"word": before[0], "start": before[1], "end": before[2]}] if before else []) + out
++
++
++LOCKED = "When Bitcoin and an asset is going up, everyone loves it."
++SPOKEN = "When, when Bitcoin and, and an asset is going up, everyone loves it."
++
++
++class TestRuling72(Base):
++    """RULING 72 (orchestrator '15:45'): the second recogniser against the lock on EVERY span."""
++
++    def test_the_speakers_repeats_adopt_the_spoken_text(self):
++        self.run_words = spread(LOCKED)
++        self.scribe_words = spread(SPOKEN, before=("markets.", 14.3, 14.8))   # the last sentence, outside the window
++        self.request(approved_text=LOCKED)
++        LP.serve_once(log=self.log)
++        e = self.entry(LOCKED)
++        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN), e)
++        self.assertEqual(e["lock"]["text"], SPOKEN)               # the render's own ruling 17 adopted it
++        self.assertEqual(e["adjudication"]["verdict"], "approved")
++        self.assertEqual(sorted(d[1] for d in e["as_spoken"]["differences"]), ["and", "when"])
++        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
++
++    def test_spill_is_not_a_difference_but_the_render_must_still_adopt(self):
++        self.run_words = spread(LOCKED)
++        self.scribe_words = spread(SPOKEN, before=("markets.", 15.2, 15.4))   # inside adjudicate_lock's 0.3 s window
++        self.request(approved_text=LOCKED)
++        LP.serve_once(log=self.log)
++        e = self.entry(LOCKED)
++        self.assertEqual(e["as_spoken"]["verdict"], "adopt")      # 'markets.' left out as the neighbouring sentence
++        self.assertEqual(e["as_spoken"]["text"], SPOKEN)
++        self.assertEqual(e["outcome"], "hold")                    # ... but the render's ruling 17 refuses the edge
++        self.assertIn("is not adopted by the render's ruling 17", e["reason"])
++        self.assertIn("lock text not adjudicated (ruling 17)", e["reason"])
++
++    def test_a_content_difference_holds_before_the_seal(self):
++        self.run_words = spread("And that's why the price got high.")
++        self.scribe_words = spread("And that's, that's why the bull, that's why the price got high.")
++        self.request(approved_text="And that's why the price got high.")
++        LP.serve_once(log=self.log)
++        e = self.entry("And that's why the price got high.")
++        self.assertEqual(e["outcome"], "hold")
++        self.assertIn("ruling 72: the second recogniser reads the span differently", e["reason"])
++        self.assertIn("bull", e["reason"])
++        self.assertIsNone(e["lock"])
++
++    def test_a_function_word_adopts(self):
++        self.run_words = spread("I go to the bank and I punch in my code.")
++        self.scribe_words = spread("I go to a bank and I punch in my code.")
++        self.request(approved_text="I go to the bank and I punch in my code.")
++        LP.serve_once(log=self.log)
++        e = self.entry("I go to the bank and I punch in my code.")
++        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", "I go to a bank and I punch in my code."))
++        self.assertEqual(e["as_spoken"]["differences"], [["the", "a"]])
++
++    def test_one_paid_reading_per_acquisition(self):
++        self.run_words = spread(ATTESTED)
++        self.scribe_words = spread(ATTESTED)
++        a = {"video_id": VID, "start": START, "end": 759.6, "role": "hook"}
++        b = {"video_id": VID, "start": 759.9, "end": END, "role": "clip"}
++        self.request(segments=[a, b])
++        LP.serve_once(log=self.log)
++        for s in (a, b):
++            e = LP.latest(VID, s["start"], s["end"], window=(START, END))
++            self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("decoded", "same"), e)
++        self.assertEqual(len(self.heard), 1)
++
++    def test_an_entry_under_other_rules_is_never_reused(self):
++        out = LP.result_path(VID, START, END, LP.decoder_sha())
++        os.makedirs(os.path.dirname(out))
++        old = {"request_id": "r0", "video_id": VID, "start": START, "end": END, "role": "clip", "window": [START, END],
++               "approved_text": ATTESTED, "trimmed_leading": None, "untrimmed_start": None, "outcome": "no_difference"}
++        with open(out, "w") as f:
++            json.dump([old], f)                                   # ruling 68's entry: no 'rules'
++        self.request(approved_text=ATTESTED)
++        LP.serve_once(log=self.log)
++        e = self.entry(ATTESTED)
++        self.assertEqual((e["request_id"], e["reused"], e["rules"]), ("r1", False, LP.RULES))
++
++
++class TestBuildersDirectory(Base):
++    """The builder may not write under the main tree: its requests are READ from its own directory, never touched."""
++
++    def test_read_only_answered_once_per_content(self):
++        os.makedirs(LP.EXTRA)
++        p = os.path.join(LP.EXTRA, "b1.json")
++        body = {"request_id": "b1", "segments": [{"video_id": VID, "start": START, "end": END, "role": "clip",
++                                                  "approved_text": ATTESTED}]}
++        with open(p, "w") as f:
++            json.dump(body, f)
++        before = (open(p, "rb").read(), os.stat(p).st_mtime_ns)
++        self.assertEqual(LP.pending(), [p])
++        self.assertEqual(LP.serve_once(log=self.log), 1)
++        self.assertEqual((open(p, "rb").read(), os.stat(p).st_mtime_ns), before)      # never written, never moved
++        self.assertEqual(LP.pending(), [])                                             # answered once for this content
++        self.assertTrue(os.path.exists(os.path.join(self.root, "requests", "done", "extra.b1.json")))
++        self.assertEqual(self.entry(ATTESTED)["outcome"], "no_difference")
++        body["request_id"] = "b2"                                                      # the builder changes it
++        with open(p, "w") as f:
++            json.dump(body, f)
++        self.assertEqual(LP.pending(), [p])
++        self.assertEqual(LP.serve_once(log=self.log), 1)
++        self.assertEqual([e["request_id"] for e in LP._entries(LP.result_path(VID, START, END, LP.decoder_sha()))],
++                         ["b1", "b2"])
++
++    def test_a_malformed_request_there_is_recorded_here_and_left_alone(self):
++        os.makedirs(LP.EXTRA)
++        p = os.path.join(LP.EXTRA, "bad.json")
++        with open(p, "w") as f:
++            f.write("{not json")
++        self.assertEqual(LP.serve_once(log=self.log), 1)
++        self.assertTrue(os.path.exists(p))
++        with open(os.path.join(self.root, "requests", "failed", "extra.bad.json")) as f:
++            self.assertIn("not JSON", " ".join(json.load(f)["why"]))
++        self.assertEqual(LP.pending(), [])
++
++
+ if __name__ == "__main__":
+     unittest.main()

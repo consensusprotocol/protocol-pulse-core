@@ -1,0 +1,172 @@
+{
+ "question": "Batch 67 CYCLE 2 (cycle 1: no consensus findings; the integrator found and fixed a fail-open: an exception after ruling 17 now makes the outcome \"error\", never a pass, never reused) = RULING 72 (orchestrator 2026-11-13 '15:45'), verbatim: \"lock-as-spoken on EVERY span (the second recogniser against the lock, about $0.03 a line-up) is RULING 72: YES, in the pre-check service, because repeats and dropped words that both Whisper passes smooth over are exactly what G18 then finds after a 27-minute render. A difference confined to the speaker's own immediate repetitions or function words adopts the spoken text (ruling 67's class); anything else holds before the seal.\" Plus the builder's request (it may not write under the main tree): the service also READS requests from the builder's own directory, without ever writing there.\nBackground: pipeline/lock_precheck.py (ruling 68) runs the render's own pinned.acquire, validate_range and segment_lock per line-up span and answers ruling 17's outcome. Ruling 17 (pinned.adjudicate_lock) calls the second recogniser (scribe_v1, paid) ONLY when the decode and the approved text differ in canonical tokens, so repeats that BOTH Whisper passes drop go unseen until G18 on the final (1b4a63d0's hook: the recorded scribe reading has 'When, when', 'and, and', \"that's, that's why the bull--\"). Ruling 67's class is the builder's pipeline/attest.carry_class: each side of a difference must be an immediate repetition on that side, or all function words (its FUNCTION_WORDS); no law L-v 2 critical token (number, negation, name).\nThe change (lock_precheck.py only):\n- second_reading(a, wd): ONE paid reading per acquisition window, cached in its work dir (keyed by the source file's sha256). Both ruling 17's recogniser and ruling 72 read it.\n- carry_class and FUNCTION_WORDS: copied in behaviour from the builder's attest.py (critical() is the render's pinned._lv2_critical).\n- _spill(L, S): the reading's tokens before the lock's first aligned token (after its last) are the neighbouring sentence's spill (adjudicate_lock's +-0.3 s window), unless they repeat the tokens next to them (the speaker's repeat at the sentence's edge).\n- as_spoken(lock, words, sw): the lock's canonical tokens against the reading over [i0 start - 0.3, i1 end + 0.3], spill left out. -> \"same\" | \"adopt\" (every difference in ruling 67's class) | \"hold\".\n- answer(): after ruling 17's lock stands, every span gets as_spoken.\n  - \"adopt\": the spoken text is put through the render's OWN validate_range + segment_lock (so the render's ruling 17 must adopt it); \"adopt_spoken\" with spoken_text and that lock, or \"hold\" naming the render's refusal.\n  - \"hold\": outcome \"hold\" with the differences, the lock and the spoken text.\n  - Entries carry as_spoken, spoken_text and rules (RULES); latest() and reuse match only the current RULES.\n- EXTRA (the builder's directory): pending() lists its *.json whose name + content sha256[:16] has no marker in answered/. _close() never moves or writes there: a copy goes to done/ or failed/ here, plus the marker. Own requests move as before.\nTests (test_lock_precheck.py, 23, CPU; + a failed second reading is an error):\n- the old ones updated to one paid reading per acquisition.\n- ruling 72: the speaker's repeats adopt the spoken text (the render's own lock adopts it); a spill word inside the 0.3 s window is left out of the comparison, but the render's edge rule then refuses that text, so the pre-check holds as the render would; a content difference ('the bull') holds; a function word ('the'/'a') adopts; one paid reading for two spans of one window; an entry without the current rules is never reused.\n- the builder's directory: answered, the file byte- and mtime-identical, answered once per content, re-asked when changed; a malformed one is recorded here and left alone.\nFIND: a span where the pre-check passes but the render's ruling 17 or G18 would fail (or the reverse) because of a second code path; a paid reading made more than once per window; spill or alignment that turns the speaker's own words into 'spill' or the neighbouring sentence into a difference; a difference outside ruling 67's class that is adopted (a critical token above all); any write to the builder's directory; a stale reuse across rules; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 21.3,
+   "cost": 0.0017258475,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 49.8,
+   "cost": 0.000425506,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 4,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 20.6,
+   "cost": 0.001083202,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 106.6,
+   "cost": 0.000635779,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/lock_precheck.py",
+   "line": 314,
+   "issue": "The pre-check calls `recognise(a[\"path\"])` to get the second reading for Ruling 72. This function calls `second_reading`, which appends the USD cost to the `spent` list. If the second recogniser was already called during `pinned.segment_lock` (Ruling 17), the cost is appended again, resulting in double-billing for a single paid reading.",
+   "evidence": "def recognise(src):                                  # ONE paid reading per acquisition (cached), spend kept\n                words, usd = second_reading(a, wd)\n                spent.append(usd)\n                return words, usd",
+   "fix": "Track whether the second reading has already been paid for in this window (e.g., a flag or checking if `spent` already contains a non-zero value for this specific acquisition) and only append the cost if it is a new call, or refactor `second_reading` to not return the cost if it was cached and ensure `recognise` doesn't double-append.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/lock_precheck.py",
+   "line": 314,
+   "issue": "The `as_spoken` function is called with `recognise(a[\"path\"])[0]`. If the second recogniser call fails (raises an exception), this exception is caught by the outer `except Exception` block, setting the outcome to \"error\". However, the `lock` variable might have been successfully created by `pinned.segment_lock` just before. The code sets `lock = None` in the exception handler, discarding a valid lock. More critically, if `pinned.segment_lock` succeeded but `as_spoken` fails, the outcome is \"error\", which is correct per the prompt ('never a pass'), but the logic flow is fragile. The main issue is that `as_spoken` is called *after* `segment_lock`. If `segment_lock` didn't call the second recogniser (e.g., no difference), `as_spoken` triggers the first call. If it did, `as_spoken` triggers a cached read. The double-billing in F1 is the primary defect here.",
+   "evidence": "lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)\n                    outcome, reason = _outcome(s, lock), None\n                    verdict, diffs, text = as_spoken(lock, a[\"transcript\"][\"words\"], recognise(a[\"path\"])[0])",
+   "fix": "Ensure `second_reading` and `recognise` correctly handle the 'already paid' state to prevent double-logging of spend.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "second_reading caches by work dir but the cache key check trusts the file's recorded sha; if a['provenance']['source_file_sha256'] is missing (None) the cache is written with source_file_sha256: null and any later window whose provenance also lacks the key silently reuses the first window's words, so the second reading can be the wrong window's words \u2014 a second code path where the pre-check passes but the render's ruling 17/G18 would differ.",
+   "evidence": "p, sha = os.path.join(wd, \"second_recogniser.json\"), a[\"provenance\"].get(\"source_file_sha256\")\n        if os.path.exists(p):\n            with open(p) as f:\n                c = json.load(f)\n            if c.get(\"source_file_sha256\") == sha:\n                return c[\"words\"], 0.0",
+   "fix": "Treat a missing/None source_file_sha256 as a cache miss (or include the window bounds in the cache key) so the paid reading is always taken for that acquisition.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "as_spoken indexes the acquired words with the lock's i0/i1, but those indices are into the acquisition's own word list; if the second reading's word list (a[\"transcript\"][\"words\"] passed as `words`) differs in length/offset from what segment_lock indexed, the window [t0,t1] is taken from the wrong words \u2014 the speaker's own words can be classified as spill or the neighbouring sentence becomes a difference. Only safe because both come from the same acquisition; any divergence (e.g. the cached-reading path in F1) silently misaligns.",
+   "evidence": "t0, t1 = words[lock[\"i0\"]][\"start\"] - 0.3, words[lock[\"i1\"]][\"end\"] + 0.3\n    sel = [w for w in sw if t0 <= (float(w[\"start\"]) + float(w[\"end\"])) / 2 <= t1]",
+   "fix": "Assert len(words) == len(sw) (or that they are the same list) before indexing, else fall to outcome \"error\"/\"hold\".",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "carry_class's repeats() compares x[lo-n:lo] == x[lo:hi] with max(lo-n,0) clamping, so a repetition at the very start of the text (lo < n) compares a shorter prefix; a difference whose left side is shorter than the repetition length can be judged an immediate repetition when it is not, adopting a difference outside ruling 67's class (a critical token at the span's head).",
+   "evidence": "def repeats(x, lo, hi):\n        n = hi - lo\n        return n > 0 and (x[max(lo - n, 0):lo] == x[lo:hi] or x[hi:hi + n] == x[lo:hi])",
+   "fix": "Require lo - n >= 0 for the left-side repeat (or compare only when the full n tokens exist on that side).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F4",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "_close for a non-own (builder's) malformed request writes the copy to failed/ with why, but the marker is still created; pending() then never re-asks it, yet the builder's file is unchanged \u2014 correct per the ruling, but if the builder later fixes the content the digest changes and it is re-asked; however for a malformed file the copy's 'why' records the read digest dg while the marker uses the same dg, so a transient read (truncated mid-write by the builder) permanently answers a content that was never valid, and the builder's later identical good write with the same 16-hex digest collision chance aside is fine \u2014 the real defect: the marker is written even when the answer failed, so a malformed-then-unchanged file is never retried after a transient error (e.g. GPU0 stop) because _close(why=...) still marks it.",
+   "evidence": "with open(os.path.join(sub, \"extra.\" + os.path.basename(path)), \"w\") as f:\n        json.dump({\"request\": r, \"why\": why, \"from\": path, \"content_sha256_16\": dg}, f, indent=1)\n    os.makedirs(os.path.join(ROOT, \"answered\"), exist_ok=True)\n    open(_marker(path, dg), \"w\").close()",
+   "fix": "Only write the answered/ marker when why is None (the request was actually answered); malformed files should stay pending until the builder changes them or the failure is recorded without a marker.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "high",
+   "file": "pipeline/lock_precheck.py",
+   "line": 314,
+   "issue": "as_spoken's spoken text is rebuilt from the second reading's raw word strings (sel[i]['word']) over the span [spans[lo][1], spans[hi-1][2]], but the comparison S2 uses canon.canon_spans of the same words; when the second reading's punctuation attaches differently (e.g. a word token like 'it.' vs 'it' at the span edge), the spoken text's last token can include the neighbouring sentence's final punctuation-attached word or drop the span's last word, producing a spoken_text whose canonical tokens differ from S2 \u2014 the text adopted (or held) is not the text compared, so the render's ruling 17 adjudicates a different text than ruling 72 judged.",
+   "evidence": "S2 = S[lo:hi]\n    spoken = ' '.join(str(sel[i]['word']).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))\n    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != 'equal']\n    ...\n    ok = all(carry_class(L, S2, op, (lock['text'], spoken)) for op in ops)",
+   "fix": "Rebuild spoken from the same canon_spans token boundaries used for S2 (or re-canonicalise spoken and assert its tokens equal S2) before carry_class/adopt; on mismatch, hold."
+  },
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 314,
+   "issue": "In the adopt branch, the second segment_lock call passes recognise=recognise again; if the spoken text's adjudication needs a second-recogniser reading of the NEW text (ruling 17's adjudicate_lock on s2), the cached reading of the ORIGINAL acquisition is returned \u2014 the adjudication of the adopted text uses the old reading, which is the same acquisition so arguably correct, but the spend accounting: spent now accumulates 0.0 (cache hit) \u2014 correct. The real defect: outcome 'adopt_spoken' replaces the lock, but the entry's 'adjudication' field reads lock.get('adjudication') or lock.get('alternatives') from the NEW lock; if the new segment_lock returns no_difference (no adjudication key), the entry loses the original ruling-17 adjudication evidence while outcome claims adopt_spoken \u2014 the answer no longer shows why ruling 17 stood.",
+   "evidence": "lock = pinned.segment_lock(s2, a, pinned.validate_range(s2, a), recognise=recognise, log=log)\n    outcome = 'adopt_spoken'\n    ...\n    'adjudication': (lock.get('adjudication') or lock.get('alternatives')) if lock else None,",
+   "fix": "Keep the original ruling-17 lock's adjudication in the entry (e.g. record both locks, or carry the original adjudication forward) so the answer still evidences ruling 17's standing."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "pending() catches only OSError when stat-ing extra files, but _digest (called inside the try via _marker(p, _digest(p))) opens the file; a builder file deleted between glob and open raises OSError \u2014 caught \u2014 but a permission/UnicodeDecodeError... _digest reads bytes so decode errors cannot occur; however _load's open(path, 'rb') for an extra file deleted between pending() and _load raises OSError uncaught, crashing serve_once instead of skipping, unlike pending()'s own defensive continue.",
+   "evidence": "def _load(path):\n    with open(path, 'rb') as f:\n        raw = f.read()",
+   "fix": "Wrap _load's open in try/except OSError in serve_once (or in _load) so a vanished extra request is skipped, matching pending()'s tolerance."
+  }
+ ],
+ "total_cost": 0.0038703344999999998,
+ "out_dir": "/home/ultron/worktrees/r72/docs/audits/pulse-sentence-law/batch67_r72_as_spoken/cycle2/heimdall"
+}

@@ -62,7 +62,8 @@ class Base(unittest.TestCase):
                 with open(p) as f:
                     return json.load(f)
             self.decodes.append(video_id)
-            out = {"words": words_of(self.run_text), "language": "en", "duration": 39.0}
+            out = {"words": getattr(self, "run_words", None) or words_of(self.run_text), "language": "en",
+                   "duration": 39.0}
             os.makedirs(os.path.dirname(p), exist_ok=True)
             with open(p, "w") as f:
                 json.dump(out, f)
@@ -70,10 +71,11 @@ class Base(unittest.TestCase):
 
         def scribe(src):
             self.heard.append(src)
-            return words_of(self.scribe_text), 0.0078
+            return getattr(self, "scribe_words", None) or words_of(self.scribe_text), 0.0078
 
         self.wants = mock.Mock(return_value=False)
         for p in (mock.patch.object(LP, "ROOT", self.root),
+                  mock.patch.object(LP, "EXTRA", os.path.join(self.root, "extra")),    # never the builder's real dir
                   mock.patch.object(select_passages, "_download_window", download),
                   mock.patch.object(select_passages, "_whisper_transcribe", transcribe),
                   mock.patch.object(pinned, "_duration", lambda path: 39.0),
@@ -137,20 +139,20 @@ class TestOutcomes(Base):
         self.assertEqual((e["lock"]["first_word"], e["lock"]["last_word"]), ("My", "Bitcoin."))
         self.assertEqual(e["window"], [START, END])
         self.assertEqual(e["offset"], 740.0)
-        self.assertEqual(e["scribe_usd"], 0)
-        self.assertEqual(self.heard, [])
+        self.assertEqual((e["as_spoken"]["verdict"], e["rules"]), ("same", LP.RULES))   # ruling 72: every span
+        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))              # ONE reading per acquisition
         self.assertTrue(os.path.basename(LP.result_path(VID, START, END, LP.decoder_sha())).startswith(
             f"{VID}.755.454-764.214.{LP.decoder_sha()[:12]}"))
         self.assertTrue(os.path.exists(os.path.join(self.root, "requests", "done", "r1.json")))
         self.assertEqual([d[:3] for d in self.downloads], [(VID, START, END)] * 2)   # prefetch + acquire's cache hit
         self.assertEqual(self.decodes, [VID])
 
-    def test_the_attested_text_meets_no_difference_and_no_spend(self):
+    def test_the_attested_text_meets_no_difference_and_one_reading(self):
         self.request(approved_text=ATTESTED.upper().replace(".", ""))      # canonical tokens equal
         LP.serve_once(log=self.log)
         e = self.entry(ATTESTED.upper().replace(".", ""))
-        self.assertEqual(e["outcome"], "no_difference", e)
-        self.assertEqual((e["scribe_usd"], self.heard), (0, []))
+        self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("no_difference", "same"), e)
+        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
 
     def test_the_word_pass_text_holds_as_the_render_held_it(self):
         self.request(approved_text=WORD_PASS)
@@ -281,6 +283,152 @@ class TestDiscipline(Base):
         self.request("r2", approved_text=ATTESTED)
         LP.serve_once(log=self.log)
         self.assertEqual(self.entry(ATTESTED)["outcome"], "no_difference")
+
+
+def spread(text, t0=15.5, t1=24.1, before=None):
+    """text's words evenly over [t0, t1] on the acquired window's clock, after an optional (word, start, end)."""
+    ws = text.split()
+    step = (t1 - t0) / len(ws)
+    out = [{"word": w, "start": round(t0 + i * step, 3), "end": round(t0 + i * step + 0.8 * step, 3)}
+           for i, w in enumerate(ws)]
+    return ([{"word": before[0], "start": before[1], "end": before[2]}] if before else []) + out
+
+
+LOCKED = "When Bitcoin and an asset is going up, everyone loves it."
+SPOKEN = "When, when Bitcoin and, and an asset is going up, everyone loves it."
+
+
+class TestRuling72(Base):
+    """RULING 72 (orchestrator '15:45'): the second recogniser against the lock on EVERY span."""
+
+    def test_the_speakers_repeats_adopt_the_spoken_text(self):
+        self.run_words = spread(LOCKED)
+        self.scribe_words = spread(SPOKEN, before=("markets.", 14.3, 14.8))   # the last sentence, outside the window
+        self.request(approved_text=LOCKED)
+        LP.serve_once(log=self.log)
+        e = self.entry(LOCKED)
+        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN), e)
+        self.assertEqual(e["lock"]["text"], SPOKEN)               # the render's own ruling 17 adopted it
+        self.assertEqual(e["adjudication"]["verdict"], "approved")
+        self.assertEqual(sorted(d[1] for d in e["as_spoken"]["differences"]), ["and", "when"])
+        self.assertEqual((e["scribe_usd"], len(self.heard)), (0.0078, 1))
+
+    def test_spill_is_not_a_difference_but_the_render_must_still_adopt(self):
+        self.run_words = spread(LOCKED)
+        self.scribe_words = spread(SPOKEN, before=("markets.", 15.2, 15.4))   # inside adjudicate_lock's 0.3 s window
+        self.request(approved_text=LOCKED)
+        LP.serve_once(log=self.log)
+        e = self.entry(LOCKED)
+        self.assertEqual(e["as_spoken"]["verdict"], "adopt")      # 'markets.' left out as the neighbouring sentence
+        self.assertEqual(e["as_spoken"]["text"], SPOKEN)
+        self.assertEqual(e["outcome"], "hold")                    # ... but the render's ruling 17 refuses the edge
+        self.assertIn("is not adopted by the render's ruling 17", e["reason"])
+        self.assertIn("lock text not adjudicated (ruling 17)", e["reason"])
+
+    def test_a_content_difference_holds_before_the_seal(self):
+        self.run_words = spread("And that's why the price got high.")
+        self.scribe_words = spread("And that's, that's why the bull, that's why the price got high.")
+        self.request(approved_text="And that's why the price got high.")
+        LP.serve_once(log=self.log)
+        e = self.entry("And that's why the price got high.")
+        self.assertEqual(e["outcome"], "hold")
+        self.assertIn("ruling 72: the second recogniser reads the span differently", e["reason"])
+        self.assertIn("bull", e["reason"])
+        self.assertIsNone(e["lock"])
+
+    def test_a_function_word_adopts(self):
+        self.run_words = spread("I go to the bank and I punch in my code.")
+        self.scribe_words = spread("I go to a bank and I punch in my code.")
+        self.request(approved_text="I go to the bank and I punch in my code.")
+        LP.serve_once(log=self.log)
+        e = self.entry("I go to the bank and I punch in my code.")
+        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", "I go to a bank and I punch in my code."))
+        self.assertEqual(e["as_spoken"]["differences"], [["the", "a"]])
+
+    def test_one_paid_reading_per_acquisition(self):
+        self.run_words = spread(ATTESTED)
+        self.scribe_words = spread(ATTESTED)
+        a = {"video_id": VID, "start": START, "end": 759.6, "role": "hook"}
+        b = {"video_id": VID, "start": 759.9, "end": END, "role": "clip"}
+        self.request(segments=[a, b])
+        LP.serve_once(log=self.log)
+        for s in (a, b):
+            e = LP.latest(VID, s["start"], s["end"], window=(START, END))
+            self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("decoded", "same"), e)
+        self.assertEqual(len(self.heard), 1)
+
+    def test_a_failed_second_reading_is_an_error_never_a_pass(self):
+        def broken(src):
+            raise KeyError("no recogniser key")
+        with mock.patch.object(pinned, "_second_recogniser_words", broken):
+            self.request(approved_text=ATTESTED)                  # ruling 17: no difference, so no reading there
+            LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["outcome"], e["lock"], e["as_spoken"]), ("error", None, None), e)
+        self.assertIn("KeyError", e["reason"])
+        self.request("r2", approved_text=ATTESTED)                # an error is not reused: asked again, answered
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["request_id"], e["outcome"], e["reused"]), ("r2", "no_difference", False))
+
+    def test_an_entry_under_other_rules_is_never_reused(self):
+        out = LP.result_path(VID, START, END, LP.decoder_sha())
+        os.makedirs(os.path.dirname(out))
+        old = {"request_id": "r0", "video_id": VID, "start": START, "end": END, "role": "clip", "window": [START, END],
+               "approved_text": ATTESTED, "trimmed_leading": None, "untrimmed_start": None, "outcome": "no_difference"}
+        with open(out, "w") as f:
+            json.dump([old], f)                                   # ruling 68's entry: no 'rules'
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["request_id"], e["reused"], e["rules"]), ("r1", False, LP.RULES))
+
+
+class TestBuildersDirectory(Base):
+    """The builder may not write under the main tree: its requests are READ from its own directory, never touched."""
+
+    def test_read_only_answered_once_per_content(self):
+        os.makedirs(LP.EXTRA)
+        p = os.path.join(LP.EXTRA, "b1.json")
+        body = {"request_id": "b1", "segments": [{"video_id": VID, "start": START, "end": END, "role": "clip",
+                                                  "approved_text": ATTESTED}]}
+        with open(p, "w") as f:
+            json.dump(body, f)
+        before = (open(p, "rb").read(), os.stat(p).st_mtime_ns)
+        self.assertEqual(LP.pending(), [p])
+        self.assertEqual(LP.serve_once(log=self.log), 1)
+        self.assertEqual((open(p, "rb").read(), os.stat(p).st_mtime_ns), before)      # never written, never moved
+        self.assertEqual(LP.pending(), [])                                             # answered once for this content
+        self.assertTrue(os.path.exists(os.path.join(self.root, "requests", "done", "extra.b1.json")))
+        self.assertEqual(self.entry(ATTESTED)["outcome"], "no_difference")
+        body["request_id"] = "b2"                                                      # the builder changes it
+        with open(p, "w") as f:
+            json.dump(body, f)
+        self.assertEqual(LP.pending(), [p])
+        self.assertEqual(LP.serve_once(log=self.log), 1)
+        self.assertEqual([e["request_id"] for e in LP._entries(LP.result_path(VID, START, END, LP.decoder_sha()))],
+                         ["b1", "b2"])
+
+    def test_a_file_removed_after_it_was_listed_is_skipped_not_a_crash(self):
+        os.makedirs(LP.EXTRA)
+        p = os.path.join(LP.EXTRA, "gone.json")
+        said = []
+        with mock.patch.object(LP, "pending", lambda: [p]):      # listed, then removed by the builder before the read
+            self.assertEqual(LP.serve_once(log=said.append), 0)  # no crash: the skip path ran
+        self.assertEqual(said, ["  gone.json: not readable now (FileNotFoundError); the next pass sees it"])
+        for d in ("answered", os.path.join("requests", "done"), os.path.join("requests", "failed")):
+            self.assertFalse(os.path.exists(os.path.join(self.root, d)), d)   # not answered, not closed
+
+    def test_a_malformed_request_there_is_recorded_here_and_left_alone(self):
+        os.makedirs(LP.EXTRA)
+        p = os.path.join(LP.EXTRA, "bad.json")
+        with open(p, "w") as f:
+            f.write("{not json")
+        self.assertEqual(LP.serve_once(log=self.log), 1)
+        self.assertTrue(os.path.exists(p))
+        with open(os.path.join(self.root, "requests", "failed", "extra.bad.json")) as f:
+            self.assertIn("not JSON", " ".join(json.load(f)["why"]))
+        self.assertEqual(LP.pending(), [])
 
 
 if __name__ == "__main__":
