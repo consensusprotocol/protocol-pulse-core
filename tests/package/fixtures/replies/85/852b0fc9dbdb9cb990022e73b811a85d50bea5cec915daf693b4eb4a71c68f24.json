@@ -1,0 +1,92 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "050206fbfca3d6e073d9fb22508d6e7a22d201df98b9d43f0bbc6eadc65ddfbf",
+ "result": {
+  "text": "2024. Bitcoin priced in gold also peaked in late 2024. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 6.06,
+    "text": "2024. Bitcoin priced in gold also peaked in late 2024. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "2024.",
+    "start": 0.14,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.5,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "priced",
+    "start": 2.08,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.38,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 2.52,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 3.04,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peaked",
+    "start": 3.42,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.9,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "late",
+    "start": 4.019,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2024.",
+    "start": 4.32,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 5.96,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 6.34
+ },
+ "usd": 0.001268,
+ "seconds": 1.57,
+ "recorded_at": "2026-11-13T02:18:55Z"
+}

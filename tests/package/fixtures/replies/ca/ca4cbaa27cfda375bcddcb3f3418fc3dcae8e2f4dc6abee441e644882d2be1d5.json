@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "cac72fcab070a5483fdcaac14768e740af7c085053c733b55d8bac3985069e4d",
+ "result": {
+  "text": "It finally allows us a way to opt out. Bitcoin is the first technology that we have for moving money outside of the state or through international",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.0,
+    "text": "It finally allows us a way to opt out. Bitcoin is the first technology that we have for moving money outside of the state or through international"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finally",
+    "start": 0.08,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "allows",
+    "start": 0.36,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 0.58,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.7,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 0.76,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.88,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opt",
+    "start": 1.02,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out.",
+    "start": 1.22,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.4,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.66,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.72,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 1.82,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technology",
+    "start": 2.0,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.38,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.48,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.6,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 2.8,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 3.04,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 3.46,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outside",
+    "start": 4.22,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.86,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.04,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "state",
+    "start": 5.2,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 6.12,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 6.42,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "international",
+    "start": 6.66,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.02
+ },
+ "usd": 0.001404,
+ "seconds": 2.9,
+ "recorded_at": "2026-11-13T02:19:08Z"
+}

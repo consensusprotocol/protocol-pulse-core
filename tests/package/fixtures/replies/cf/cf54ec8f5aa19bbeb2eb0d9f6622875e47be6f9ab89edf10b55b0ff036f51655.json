@@ -1,0 +1,182 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5077b733ef7f62b16c312842efed017b60db4e2617bb6adb8bd6969579739ca2",
+ "result": {
+  "text": "how they knew that day. Bitcoin is not a set it and forget it asset. HODLing is an active process. I've helped a lot of people",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 6.48,
+    "text": "how they knew that day. Bitcoin is not a set it and forget it asset. HODLing is an active process. I've helped a lot of people"
+   }
+  ],
+  "words": [
+   {
+    "text": "how",
+    "start": 0.08,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 0.2,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knew",
+    "start": 0.36,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.62,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.",
+    "start": 0.84,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.46,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.78,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 1.9,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.12,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "set",
+    "start": 2.26,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.42,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.52,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forget",
+    "start": 2.64,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.92,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 3.18,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "HODLing",
+    "start": 3.6,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.94,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 4.04,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "active",
+    "start": 4.38,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "process.",
+    "start": 4.8,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 5.28,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "helped",
+    "start": 5.42,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.6,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 5.78,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.0,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 6.2,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 6.66
+ },
+ "usd": 0.001332,
+ "seconds": 2.09,
+ "recorded_at": "2026-11-13T02:06:36Z"
+}

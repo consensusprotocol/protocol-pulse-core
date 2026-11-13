@@ -25,6 +25,13 @@ from datetime import datetime, timezone
 SCHEMA = "protocol_pulse.pinned_story.v1"
 REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
+MEDLEY_GATES = ("medley", "ly_shape")      # L-y (orchestrator 20:30): the clips-alone verdict and the medley's shape
+
+
+def required_gates(pk):
+    """The rows a package's inventory must hold, each exactly PASS: REQUIRED_GATES, and for a medley (L-y) also the
+    clips-alone verdict and the L-y shape."""
+    return REQUIRED_GATES + (MEDLEY_GATES if (pk or {}).get("shape") == "medley" else ())
 
 
 class PinRefused(Exception):
@@ -44,18 +51,29 @@ def seal(segments, edl_vo, signoff, title, caption, gates):
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
-def gate_problems(gates):
+def gate_problems(gates, required=REQUIRED_GATES):
     """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
     if not isinstance(gates, dict):
         return ["no gate inventory"]
     out = []
-    for g in REQUIRED_GATES:
+    for g in required:
         row = gates.get(g)
         if not isinstance(row, dict) or row.get("status") != "PASS":
             out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
         elif row.get("replayed") is not False:
             out.append(f"{g}: replayed or not stated (never deliverable, law L-j)")
     return out
+
+
+def bridge_slots(pk):
+    """The line slot of each VO bridge, in order: bridge_1, bridge_2 ...; in a medley (L-y) the line after the LAST clip
+    is the "takeaway" and the one bridge before it is bridge_1."""
+    vo = pk.get("vo") or {}
+    after = list(vo.get("bridges_after_clip") or [])
+    last = len(pk.get("segments") or []) - 1
+    if pk.get("shape") == "medley":
+        return ["takeaway" if a == last else f"bridge_{i + 1}" for i, a in enumerate(after)]
+    return [f"bridge_{i + 1}" for i in range(len(vo.get("bridges") or []))]
 
 
 def line_problems(pk):
@@ -66,8 +84,9 @@ def line_problems(pk):
     if by.get("intro") != vo.get("intro"):
         out.append("intro")
     bridges, after = list(vo.get("bridges") or []), list(vo.get("bridges_after_clip") or [])
-    if len(bridges) != len(after) or any(by.get(f"bridge_{i + 1}") != t for i, t in enumerate(bridges)) or \
-            any(k.startswith("bridge_") and int(k.split("_")[1]) > len(bridges) for k in by if k):
+    slots = bridge_slots(pk)
+    if len(bridges) != len(after) or any(by.get(s) != t for s, t in zip(slots, bridges)) or \
+            any(k not in slots and (k.startswith("bridge_") or k == "takeaway") for k in by if k):
         out.append("bridges")
     for k in ("title", "caption"):
         if by.get(k) != pk.get(k):
@@ -76,8 +95,8 @@ def line_problems(pk):
 
 
 def to_pin(pk, run_name):
-    problems = gate_problems(pk.get("gates")) + [f"{x}: the gated line differs from the one shipped"
-                                                 for x in line_problems(pk)]
+    problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
+                                                                     for x in line_problems(pk)]
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -100,8 +119,13 @@ def to_pin(pk, run_name):
                                 "signoff_expected": pk["vo"]["signoff"],
                                 "title": pk["title"], "caption": pk["caption"],
                                 "hook_first_words": pk["hook_first_words"],
-                                "vo_jobs": {"intro": "context", **{f"bridge_{i + 1}": "connection"
-                                                                   for i in range(len(pk["vo"]["bridges"]))}},
+                                "vo_jobs": {**({"intro": "context" if pk.get("shape") != "medley" else "connection"}
+                                               if pk["vo"]["intro"] else {}),
+                                            **{s: "takeaway" if s == "takeaway" else "connection"
+                                               for s in bridge_slots(pk)}},
+                                "shape": pk.get("shape"),
+                                "bridge": pk.get("bridge"),
+                                "supply_exception": pk.get("supply_exception"),
                                 "gates": pk["gates"],
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
                                            "derived_from": "gates (every required row exactly PASS, checked above)",

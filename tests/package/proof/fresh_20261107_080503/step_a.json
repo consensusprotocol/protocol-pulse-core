@@ -1,0 +1,183 @@
+{
+ "78e71dcf656b766b850a:9d43580c729b": {
+  "label": "78e71dcf656b766b850a",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "holding your own keys",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin/money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if your family can access it too",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Self-custodied Bitcoin cannot be switched off by any app, so holding your own keys means nobody can switch your money off, but this only works if your family can access it too.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Walking my wife through my old multi -sig setup kept me up at night because I needed to know she could get access to her Bitcoin when I wasn't around.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb4c37f972143dbc1c38:9d43580c729b": {
+  "label": "eb4c37f972143dbc1c38",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "their",
+    "refers_to": "many public companies",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "my",
+    "refers_to": "the speaker Corey Clifston",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "investing in Bitcoin without predicting AI winners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Cheaper and better AI is wrecking stocks of many public companies by enabling new competitors to take their customers, and AI uncertainty is a big part of the speaker's personal thesis for investing in Bitcoin since it means not having to predict which companies will win the AI race.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Corey Clifston, founder of Swan Bitcoin, and this is outside money.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "71a70788e75b17f227d8:9d43580c729b": {
+  "label": "71a70788e75b17f227d8",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if it can hold the line here at the short term holder cost basis",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin can hold the line at the short term holder cost basis, the speaker thinks Bitcoin will close 2026 above 90,000.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "I expect nothing different if we were to get a prolonged drawdown in these AI stocks.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f27e21eaf3ba9ee6636d:9d43580c729b": {
+  "label": "f27e21eaf3ba9ee6636d",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the case that Bitcoin does very well under socialism due to loss of trust in institutions",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "He",
+    "refers_to": "Jeff Park",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Washington moves towards socialism",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Jeff Park wrote that Bitcoin does very well if Washington moves towards socialism because wealth taxes, taxes on unrealized gains, and limits on moving money speed up the loss of trust in institutions, with the thesis for Bitcoin adoption being institutional rejection.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I think Schiff is right. Bigger deficits and more inflation are the whole reason to own money that nobody can print.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "173710b2b1821c4450e5:9d43580c729b": {
+  "label": "173710b2b1821c4450e5",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Washington going the route of capital controls and seizing assets",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that's",
+    "refers_to": "the situation of capital controls and seizing assets",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Washington ever goes the route of capital controls and seizing assets",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Washington goes the route of capital controls and seizing assets, that hurts the price of just about everything including Bitcoin, but that is exactly when holding your own keys matters the most.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Groman just told you the slow road. which is keeping real rates deeply negative, is really good for Bitcoin.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a4a840619cc6dd510fd7:9d43580c729b": {
+  "label": "a4a840619cc6dd510fd7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "Leverage made things worse for Bitcoin as more than a billion dollars of crypto derivatives positions were liquidated over 24 hours, mostly bets on rising prices.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Corey Clifston, founder of Swan Bitcoin, and this is outside money.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

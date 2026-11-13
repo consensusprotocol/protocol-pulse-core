@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "330f3f2583b7fcab1cc0a1cbd70413f7a7b4113dee4f0a90535fff5ed518710e",
+ "result": {
+  "text": "passport and verify. I feel like the Achilles' heel with Bitcoin is that especially now with all these things happening with AI, quantum, self-custody is turning into something that people are increasingly scared of, and yet you need it",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 14.74,
+    "text": "passport and verify. I feel like the Achilles' heel with Bitcoin is that especially now with all these things happening with AI, quantum, self-custody is turning into something that people are increasingly scared of, and yet you need it"
+   }
+  ],
+  "words": [
+   {
+    "text": "passport",
+    "start": 0.1,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.34,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "verify.",
+    "start": 0.5,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.56,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feel",
+    "start": 1.7,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.88,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.2,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Achilles'",
+    "start": 2.42,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "heel",
+    "start": 2.94,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 3.18,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.36,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.94,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.14,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "especially",
+    "start": 4.4,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 5.22,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.16,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 6.46,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 6.64,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 6.82,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happening",
+    "start": 7.08,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 7.52,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI,",
+    "start": 7.86,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quantum,",
+    "start": 8.84,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "self-custody",
+    "start": 10.08,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.96,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turning",
+    "start": 11.12,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 11.4,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 11.58,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.86,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 12.0,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 12.22,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increasingly",
+    "start": 12.34,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scared",
+    "start": 12.98,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 13.26,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.86,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yet",
+    "start": 14.0,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.2,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 14.36,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.62,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.96
+ },
+ "usd": 0.002992,
+ "seconds": 2.3,
+ "recorded_at": "2026-11-13T02:16:47Z"
+}

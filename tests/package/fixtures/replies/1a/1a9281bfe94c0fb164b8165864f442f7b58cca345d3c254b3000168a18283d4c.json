@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "92e8c351f071f909daf8da2de6bf84826bd153422f3cf4eba0902d09286e5a90",
+ "result": {
+  "text": "Popular. At, at this point, it's been concluded that Bitcoin broke to the downside in the stock-to-flow model. The stock-to-flow model was too, too bullish, and the stock-to-flow model was simply charting the stock-to-flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate. So showing that",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 17.12,
+    "text": "Popular. At, at this point, it's been concluded that Bitcoin broke to the downside in the stock-to-flow model. The stock-to-flow model was too, too bullish, and the stock-to-flow model was simply charting the stock-to-flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate. So showing that"
+   }
+  ],
+  "words": [
+   {
+    "text": "Popular.",
+    "start": 0.0,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "At,",
+    "start": 1.4,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 1.52,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.64,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point,",
+    "start": 1.8,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.0,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 2.2,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concluded",
+    "start": 2.42,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.06,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.7,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broke",
+    "start": 4.12,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.4,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.52,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "downside",
+    "start": 4.62,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.2,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.3,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock-to-flow",
+    "start": 5.42,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "model.",
+    "start": 5.96,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 6.22,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock-to-flow",
+    "start": 6.32,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "model",
+    "start": 6.84,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 7.32,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too,",
+    "start": 7.52,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too",
+    "start": 7.84,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bullish,",
+    "start": 8.02,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.86,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.94,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock-to-flow",
+    "start": 9.04,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "model",
+    "start": 9.54,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 9.8,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simply",
+    "start": 9.96,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "charting",
+    "start": 10.76,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.02,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock-to-flow",
+    "start": 11.14,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.64,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 11.76,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 12.12,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.28,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 12.42,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.82,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "inverse",
+    "start": 13.04,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.88,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.02,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply",
+    "start": 14.46,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.92,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "inflation",
+    "start": 15.0,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate.",
+    "start": 15.58,
+    "end": 15.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.379,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "showing",
+    "start": 16.56,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.96,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.3
+ },
+ "usd": 0.00346,
+ "seconds": 2.19,
+ "recorded_at": "2026-11-13T02:19:12Z"
+}

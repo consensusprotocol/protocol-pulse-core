@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: BTC Sessions): \"Bitcoin is not a set at and forget an asset. Hoddling is an active process.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: Natalie Brunell): \"So you can now use Bitcoin privately, completely privately on top of Bitcoin, pegged in one -to -one Bitcoin and be in e -cash really easily and have private money and private communications.\"\nCLIP label=\"clip_03\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to buy Bitcoin in 2020.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin is a secure, private, and decentralized asset that requires active user engagement rather than passive holding.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 4,\n    \"clip_02\": 4,\n    \"clip_03\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": false,\n      \"why\": \"abrupt topic shift from active hodling to Bitcoin security and hacks\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"builds on Bitcoin's unique nature by introducing privacy features\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": false,\n      \"why\": \"jumps from private usage to no central authority with unclear link\"\n    }\n  }\n}",
+ "usage": {
+  "in": 662,
+  "out": 2634,
+  "usd_reported": 0.0072781
+ },
+ "usd": 0.06916,
+ "seconds": 22.17,
+ "recorded_at": "2026-11-13T02:03:43Z"
+}

@@ -1,0 +1,205 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-fresh_20261111_192645-e9282e2d",
+ "label": "bitcoin",
+ "headline": "Bitcoin thrives on sentiment, not politics",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-13T03:01:27+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, fresh_20261111_192645)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "wdk5JZ9hPzs",
+   "channel": "Natalie Brunell",
+   "start": 3218.14,
+   "end": 3221.64,
+   "approved_text": "Bitcoin imposes a global free market for the first time ever.",
+   "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "c1JGheQBPH4",
+   "channel": "What Bitcoin Did",
+   "start": 2403.23,
+   "end": 2422.07,
+   "approved_text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+   "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "start": 3090.75,
+   "end": 3109.87,
+   "approved_text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.",
+   "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "e9282e2d08309230b1f26d7e3ae66ae3a03f1e99b78538509e26f21fbc50774b",
+  "type": "moments",
+  "vo_kind": "medley (L-y), written, attempt 2",
+  "edl_vo": {
+   "intro": null,
+   "bridges": [
+    {
+     "text": "The lesson is that Bitcoin's survival is a story of human emotion and free choice, not institutional permission.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.",
+  "title": "Bitcoin thrives on sentiment, not politics",
+  "caption": "Bitcoin offers a free-market escape from government money, and its appeal survives political noise.",
+  "hook_first_words": "Bitcoin imposes a global free market for the",
+  "vo_jobs": {
+   "takeaway": "takeaway"
+  },
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   }
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "runtime_s_estimate": 63.96,
+  "cut_evidence": null,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s",
+   "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
+   "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=3060s"
+  ]
+ }
+}

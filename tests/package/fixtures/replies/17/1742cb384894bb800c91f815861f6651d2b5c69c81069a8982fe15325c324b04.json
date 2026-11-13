@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d30c918d15958f2228343f2d2f032153ff2c44deaf91a177d7d758b0b5cf06c2",
+ "result": {
+  "text": "soon looks slim. Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky. Now, despite all of-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.66,
+    "text": "soon looks slim. Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky. Now, despite all of-"
+   }
+  ],
+  "words": [
+   {
+    "text": "soon",
+    "start": 0.0,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "looks",
+    "start": 0.28,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slim.",
+    "start": 0.6,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 1.46,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher",
+    "start": 1.84,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rates",
+    "start": 2.2,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 2.66,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 3.06,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 3.5,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attractive",
+    "start": 3.7,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.4,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "borrowed",
+    "start": 4.8,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 5.18,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 5.62,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expensive,",
+    "start": 5.84,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 6.64,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.88,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 7.04,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 7.26,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.6,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wrong",
+    "start": 7.8,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "combo",
+    "start": 8.2,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 8.84,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anything",
+    "start": 9.02,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risky,",
+    "start": 9.38,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.9,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.4,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 10.52,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "definitely",
+    "start": 11.04,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sees",
+    "start": 11.68,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.08,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 12.7,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risky.",
+    "start": 12.9,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 13.7,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "despite",
+    "start": 14.0,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 14.46,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of-",
+    "start": 14.6,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.68
+ },
+ "usd": 0.002936,
+ "seconds": 2.04,
+ "recorded_at": "2026-11-13T02:14:30Z"
+}

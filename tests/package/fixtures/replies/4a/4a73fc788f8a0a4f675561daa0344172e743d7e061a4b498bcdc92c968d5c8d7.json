@@ -1,0 +1,266 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5772c30431e5214de6e69892a35b2bccec8c2648349f6cb36a408ebd948a32b4",
+ "result": {
+  "text": "Into the financial system. So you think about attacks on, uh, Bitcoin, um, would have catastrophic, um, of, uh, uh, implications, you know, for the economy because it's now a part of the, the economy. It's a pillar at, uh",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 14.94,
+    "text": "Into the financial system. So you think about attacks on, uh, Bitcoin, um, would have catastrophic, um, of, uh, uh, implications, you know, for the economy because it's now a part of the, the economy. It's a pillar at, uh"
+   }
+  ],
+  "words": [
+   {
+    "text": "Into",
+    "start": 0.1,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.36,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 0.48,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 0.96,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 1.46,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.06,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.14,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.32,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attacks",
+    "start": 2.66,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on,",
+    "start": 3.24,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 3.72,
+    "end": 3.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 3.94,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 5.12,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 5.92,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 6.1,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "catastrophic,",
+    "start": 6.74,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 7.92,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 8.42,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 8.94,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 9.3,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "implications,",
+    "start": 9.74,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.6,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 10.66,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 10.86,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.0,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy",
+    "start": 11.1,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 11.58,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 11.88,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 12.06,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.32,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 12.48,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.84,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 13.02,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.24,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy.",
+    "start": 13.36,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 13.76,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.9,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pillar",
+    "start": 14.0,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at,",
+    "start": 14.5,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh",
+    "start": 14.82,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.2
+ },
+ "usd": 0.00304,
+ "seconds": 2.54,
+ "recorded_at": "2026-11-13T02:19:45Z"
+}

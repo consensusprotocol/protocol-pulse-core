@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>Issuing money is theft, and a more precise way of putting it is slavery.</before>\n<moment>If I own a form of money, but you have the ability to print more of that money, you're essentially stealing my purchasing power. Until Bitcoin came around. We had no choice.</moment>\n<after>Money. Most of us spend our lives thinking about it, earning it, spending it, worrying about it, without ever asking who creates it, who regulates it, and who that system was built to serve. The central bank cannot force money on the population. They don't print money and just drop it by helicopters. It does not work this way. You could tax the rich. Taxing the rich basically reduces their purchasing power. Today we're asking, who controls money. The Bitcoin Standard podcast is sponsored by BitGo. When it comes to Bitcoin, security isn't a feature. It's the whole business. That's Bitcoin. For more than a decade, they've been the infrastructure behind the scenes, protecting billions in Bitcoin for exchanges. funds, and institutions. Now they are opening up their services to individuals. I still believe self -custody is the best way to hold Bitcoin, but self -custody also comes with real operational risk and can turn your entire setup into a single point of failure for your wealth. Once your Bitcoin holdings become significant to you, it can make sense to diversify your custody rather than have everything depend on one setup, one disaster, or one mistake.</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Describes money printing as theft of purchasing power, resolved by Bitcoin.\"}",
+ "usage": {
+  "in": 783,
+  "out": 718,
+  "usd_reported": 0.00263935
+ },
+ "usd": 0.021865,
+ "seconds": 8.35,
+ "recorded_at": "2026-11-13T02:01:42Z"
+}

@@ -1,0 +1,134 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "95ff86c45672c57ea9e83541c4505471a7bdb76fab38f24a2a3a7bfd9f52351d",
+ "result": {
+  "text": "Not as necessary. You know, Bitcoin's pretty clearly not a security. It's, uh, no one's trying to make",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 5.48,
+    "text": "Not as necessary. You know, Bitcoin's pretty clearly not a security. It's, uh, no one's trying to make"
+   }
+  ],
+  "words": [
+   {
+    "text": "Not",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 0.36,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessary.",
+    "start": 0.58,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.44,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 1.52,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 1.7,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 2.42,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clearly",
+    "start": 2.66,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 3.18,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.46,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "security.",
+    "start": 3.62,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 4.26,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.62,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 4.86,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one's",
+    "start": 4.98,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 5.16,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.32,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 5.4,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 5.5
+ },
+ "usd": 0.0011,
+ "seconds": 0.91,
+ "recorded_at": "2026-11-13T02:50:07Z"
+}

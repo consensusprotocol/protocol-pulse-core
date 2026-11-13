@@ -1,0 +1,140 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "593397a45e97c45aa53b8260a4795fdfc9fa1d2e7cd8dce76c9e32cf80709d73",
+ "result": {
+  "text": "Bitcoin just lost the line that told us the bear market was over, and people are already asking if-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 4.64,
+    "text": "Bitcoin just lost the line that told us the bear market was over, and people are already asking if-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin",
+    "start": 0.18,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.56,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lost",
+    "start": 0.78,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.04,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "line",
+    "start": 1.18,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.44,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "told",
+    "start": 1.62,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 1.86,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.04,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 2.18,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 2.4,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.74,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over,",
+    "start": 2.94,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.4,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 3.5,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 3.76,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 3.94,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asking",
+    "start": 4.26,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if-",
+    "start": 4.6,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 4.66
+ },
+ "usd": 0.000932,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-13T02:50:01Z"
+}

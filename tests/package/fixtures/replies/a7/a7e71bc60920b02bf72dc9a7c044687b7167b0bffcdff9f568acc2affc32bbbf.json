@@ -1,0 +1,566 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7ae224a12da8af9062398e82929352c729c64e19358cdb557e150d574d879476",
+ "result": {
+  "text": "Like that's the nature of markets. When, when Bitcoin and, and an asset is going up and the bull market is super hot, everyone loves it. When the bear market's happening and Bitcoin is going down, everyone hates it. And like that's, that's why the bull-- That's why the price got high and the why-- that's why the price got low, because everyone loved it at the top and everyone wanted exposure, and everyone hated it and w- and didn't want exposure at the bottom. And if that's the case",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.02,
+    "text": "Like that's the nature of markets. When, when Bitcoin and, and an asset is going up and the bull market is super hot, everyone loves it. When the bear market's happening and Bitcoin is going down, everyone hates it. And like that's, that's why the bull-- That's why the price got high and the why-- that's why the price got low, because everyone loved it at the top and everyone wanted exposure, and everyone hated it and w- and didn't want exposure at the bottom. And if that's the case"
+   }
+  ],
+  "words": [
+   {
+    "text": "Like",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.18,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.38,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nature",
+    "start": 0.46,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.72,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "markets.",
+    "start": 0.84,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "When,",
+    "start": 1.58,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 1.82,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.06,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 2.62,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.0,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 3.38,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 3.52,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.84,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 4.04,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 4.36,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.94,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.22,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 5.32,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 5.48,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.72,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "super",
+    "start": 5.84,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hot,",
+    "start": 6.08,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 6.74,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loves",
+    "start": 7.08,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 7.34,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "When",
+    "start": 8.02,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.28,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 8.38,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market's",
+    "start": 8.56,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happening",
+    "start": 9.22,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.7,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.12,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.42,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 10.52,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 10.72,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 11.02,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hates",
+    "start": 11.34,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 11.6,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 12.12,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 12.2,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's,",
+    "start": 12.32,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 12.6,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 12.82,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.02,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull--",
+    "start": 13.14,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 13.42,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 13.56,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.68,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 13.78,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 14.02,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high",
+    "start": 14.16,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.36,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.44,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why--",
+    "start": 14.52,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 14.72,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 14.86,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.0,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 15.1,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 15.36,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "low,",
+    "start": 15.58,
+    "end": 15.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 15.8,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 16.02,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loved",
+    "start": 16.3,
+    "end": 16.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.52,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 16.6,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.72,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 16.74,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 16.94,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 17.04,
+    "end": 17.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanted",
+    "start": 17.38,
+    "end": 17.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exposure,",
+    "start": 17.64,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.48,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 18.54,
+    "end": 18.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hated",
+    "start": 18.82,
+    "end": 19.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 19.06,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.14,
+    "end": 19.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "w-",
+    "start": 19.22,
+    "end": 19.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.38,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 19.52,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 19.68,
+    "end": 19.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exposure",
+    "start": 19.84,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 20.2,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.28,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom.",
+    "start": 20.34,
+    "end": 20.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 21.08,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 21.2,
+    "end": 21.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 21.34,
+    "end": 21.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.54,
+    "end": 21.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case",
+    "start": 21.68,
+    "end": 22.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.12
+ },
+ "usd": 0.004424,
+ "seconds": 2.91,
+ "recorded_at": "2026-11-13T02:19:00Z"
+}

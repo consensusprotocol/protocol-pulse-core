@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "dc2d5f634973dd401a59beb31c6366ae5920149d75a602a3ee75aee5746464d0",
+ "result": {
+  "text": "See what's ha- what's happening. But it's, uh, but we are going to have a new internet, and the new internet is gonna be bound by Bitcoin, and it is going to provide abundance to 8 billion people. What would make you question",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.24,
+    "end": 10.12,
+    "text": "See what's ha- what's happening. But it's, uh, but we are going to have a new internet, and the new internet is gonna be bound by Bitcoin, and it is going to provide abundance to 8 billion people."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 10.36,
+    "end": 11.56,
+    "text": "What would make you question"
+   }
+  ],
+  "words": [
+   {
+    "text": "See",
+    "start": 0.24,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what's",
+    "start": 0.4,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ha-",
+    "start": 0.6,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what's",
+    "start": 0.82,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happening.",
+    "start": 1.02,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.42,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's,",
+    "start": 1.54,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 1.84,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 1.94,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.56,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.7,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 2.86,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.12,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 3.16,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.38,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 3.48,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet,",
+    "start": 3.7,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.8,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.88,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 5.0,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet",
+    "start": 5.2,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.58,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 5.7,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 5.82,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bound",
+    "start": 5.98,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 6.26,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.42,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.6,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.76,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.94,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 8.08,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.32,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "provide",
+    "start": 8.46,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "abundance",
+    "start": 8.86,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.34,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "8",
+    "start": 9.48,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 9.56,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people.",
+    "start": 9.86,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 10.36,
+    "end": 10.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "would",
+    "start": 10.5,
+    "end": 10.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "make",
+    "start": 10.66,
+    "end": 10.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 10.88,
+    "end": 10.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "question",
+    "start": 11.04,
+    "end": 11.56,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.6
+ },
+ "usd": 0.00232,
+ "seconds": 3.56,
+ "recorded_at": "2026-11-13T02:19:42Z"
+}

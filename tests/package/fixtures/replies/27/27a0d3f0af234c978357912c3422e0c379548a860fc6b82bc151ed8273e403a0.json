@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "dab3eb5d755b59f6119377671eda869f7a5d3ee5e41408ec71f27c12d9865a13",
+ "result": {
+  "text": "data centers. And Bitcoin gets sold alongside stocks when investors need cash or want less risk. Leverage also made things worse for Bitcoin as more than a billion dollars of crypto derivatives positions were liquidated over twenty-four hours, mostly bets on rising prices. AI can deliver on its promises and still cause huge losses for investors in the build-out. We've seen-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.08,
+    "end": 22.82,
+    "text": "data centers. And Bitcoin gets sold alongside stocks when investors need cash or want less risk. Leverage also made things worse for Bitcoin as more than a billion dollars of crypto derivatives positions were liquidated over twenty-four hours, mostly bets on rising prices. AI can deliver on its promises and still cause huge losses for investors in the build-out. We've seen-"
+   }
+  ],
+  "words": [
+   {
+    "text": "data",
+    "start": 0.08,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "centers.",
+    "start": 0.36,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.4,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.62,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 2.16,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold",
+    "start": 2.46,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "alongside",
+    "start": 2.76,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks",
+    "start": 3.38,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 3.78,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investors",
+    "start": 3.92,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 4.54,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 4.8,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 5.2,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 5.32,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less",
+    "start": 5.54,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk.",
+    "start": 5.8,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Leverage",
+    "start": 7.0,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 7.4,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "made",
+    "start": 7.7,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 7.94,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse",
+    "start": 8.22,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 8.44,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.56,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 9.18,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 9.4,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 9.58,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.7,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 9.8,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 10.16,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.76,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 10.96,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "derivatives",
+    "start": 11.28,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "positions",
+    "start": 11.8,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 12.28,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidated",
+    "start": 12.44,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 13.12,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "twenty-four",
+    "start": 13.32,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hours,",
+    "start": 13.84,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mostly",
+    "start": 14.36,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bets",
+    "start": 14.72,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 14.96,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rising",
+    "start": 15.12,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prices.",
+    "start": 15.44,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 16.92,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 17.16,
+    "end": 17.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deliver",
+    "start": 17.28,
+    "end": 17.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 17.62,
+    "end": 17.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 17.72,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "promises",
+    "start": 17.88,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.38,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 18.62,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cause",
+    "start": 18.94,
+    "end": 19.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "huge",
+    "start": 19.28,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "losses",
+    "start": 19.58,
+    "end": 20.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 20.04,
+    "end": 20.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investors",
+    "start": 20.2,
+    "end": 20.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.72,
+    "end": 20.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.82,
+    "end": 20.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "build-out.",
+    "start": 20.92,
+    "end": 21.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We've",
+    "start": 22.44,
+    "end": 22.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen-",
+    "start": 22.66,
+    "end": 22.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.87
+ },
+ "usd": 0.004574,
+ "seconds": 1.37,
+ "recorded_at": "2026-11-13T02:54:37Z"
+}

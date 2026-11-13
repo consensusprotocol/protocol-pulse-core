@@ -1,0 +1,344 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "31a020718b1e9b0648dba83d9f45fa3c1b7e6628f7f74ccd17b43244dfa21954",
+ "result": {
+  "text": "an amazing return. If you look at Bitcoin, gold, and land as equal sleeves of a portfolio, that portfolio is about 170% over the same five-year period. During that five years, the reason why that period is really important is the dollar has lost 30% of its purchasing power over five years. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 17.24,
+    "text": "an amazing return. If you look at Bitcoin, gold, and land as equal sleeves of a portfolio, that portfolio is about 170% over the same five-year period. During that five years, the reason why that period is really important is the dollar has lost 30% of its purchasing power over five years. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "an",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amazing",
+    "start": 0.0,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "return.",
+    "start": 0.42,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 1.46,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.6,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 1.7,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 1.92,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 2.26,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 2.72,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.96,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "land",
+    "start": 3.14,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 4.0,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equal",
+    "start": 4.26,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sleeves",
+    "start": 4.62,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.02,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.12,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio,",
+    "start": 5.2,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.34,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio",
+    "start": 6.6,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.92,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 7.1,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "170%",
+    "start": 7.32,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 8.68,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.8,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 8.94,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five-year",
+    "start": 9.12,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period.",
+    "start": 9.44,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "During",
+    "start": 10.78,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.06,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 11.28,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 11.54,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.76,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 11.86,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 12.04,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.16,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period",
+    "start": 12.3,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.52,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 12.6,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important",
+    "start": 12.78,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.44,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.56,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollar",
+    "start": 13.72,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 14.0,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lost",
+    "start": 14.14,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30%",
+    "start": 14.48,
+    "end": 14.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.8,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 14.86,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 15.02,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power",
+    "start": 15.42,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 15.64,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 15.82,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 16.02,
+    "end": 16.219,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.98,
+    "end": 17.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.8
+ },
+ "usd": 0.00356,
+ "seconds": 1.77,
+ "recorded_at": "2026-11-13T02:40:25Z"
+}

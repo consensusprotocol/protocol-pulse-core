@@ -1,0 +1,88 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse, moments-first packaging), written 20:30-21:10 ET Nov 12
+under the orchestrator's new law L-y. The code gates a video package before a pinned render. Standing laws: nothing
+measured is never a pass (L-m); fail closed (L-j); never change what a check accepts in order to make something pass;
+every model verdict avoids the vendor and model family of any reply whose text it judges (L-x).
+
+LAW L-y VOICEOVER IS MINIMAL (the order, paraphrased exactly):
+ 1. DEFAULT SHAPE: hook clip -> clip -> clip (-> clip) back to back as a medley, joined by the approved transition, then
+    ONE voiceover line at the END (the takeaway) and the sign-off naming every channel. No VO intro after the hook. No
+    bridges between clips.
+ 2. A bridge between two clips is the EXCEPTION, used only when the packager judges, and the blind coherence check
+    confirms, that a viewer could not follow the jump without it (the second clip's subject or referent is unclear
+    coming from the first). At most ONE bridge per video, as short as it can be, and the package records why it was
+    needed. If two or more bridges would be needed, the line-up is wrong: pick clips that sit together.
+ 3. SELECTION carries the weight: the packager chooses moments that follow from one another WITHOUT narration - each
+    clip's opening must make sense after the previous clip's ending, in the speaker's own words. The coherence verdict
+    is asked on the clips ALONE first ("played back to back with no narration, is there a through-line a viewer can
+    state?"), and only then on the takeaway.
+ 4. Runtime: 3 to 5 clips, the measured final 58-72 s accepted, target 60-70 (the packaging estimate stays inside
+    60-70). Per-clip duration targets stay targets. One clip per channel still holds unless the supply forces
+    otherwise (then say so in the package).
+ 5. The takeaway is host commentary (class D): one or two sentences; it is still gated (VO fidelity, context
+    integrity). The title and caption still carry the angle. The existing caps stay as upper bounds (takeaway 30 words,
+    bridge 20 words, VO share <= 45 % of the runtime estimate).
+ 6. Keep every VO gate.
+
+What changed, and what to check:
+1. package.build(): the medley is the default. Per angle up to LY_LINEUPS line-ups; each line-up is judged on the
+   clips ALONE first (package.medley) before anything is written; only a passing line-up gets writes
+   (write_takeaway); the one bridge is offered to the writer ONLY at the join the clips-alone verdict flagged, and if
+   the writer declines it, the line-up is dropped (re-lined); then the cheap gates (incl. ly_shape), the fidelity
+   verdict and context integrity, exclusion and the second recognition pass, and last the coherence verdict WITH the
+   takeaway. Check the loop control (dropped / relined / next angle), that nothing is written for a line-up whose
+   clips alone fail, and that the takeaway's gate results are recorded honestly (_takeaway_record).
+2. package.ly_shape(): the code check of L-y on the package. Can a package pass with: an intro when no hook join was
+   flagged; a bridge at a join that was not flagged; a flagged join left unbridged; two bridges; no takeaway after the
+   last clip; a bridge without its recorded reason; a bridge over 20 words; 2 or 6 segments; two clips of one channel
+   without the recorded supply exception; an unmeasured clips-alone verdict?
+3. package.medley(): the blind clips-alone verdict. Is its JSON contract strict (exact keys, every consecutive join,
+   booleans)? Does the prompt carry NO voice-over and NO title? Is "flagged" right? ok = a stated through-line
+   (>= 4 words, not 'none'), every clip >= 4, at most one unfollowable join.
+4. package.write_takeaway(): a bridge must be null unless a join was offered; an offered bridge needs text, cites from
+   the line-up and a non-empty reason. The takeaway's word budget (takeaway_budget) must land the factory's runtime
+   estimate (package.runtime: clips' word spans + each VO line words / 2.5 + 1.0 s + the 14.30 s tail) in 60-70 s and
+   respect the 30-word cap and R4's 45 % share. medley_content_range() gives the clips' seconds that allow that.
+5. package.lineup_for(): the hook + 2-4 clips in the proposer's play order, one per channel; repeat_ok allows ONE
+   channel twice, only from two different videos, and build() uses it only when no one-per-channel line-up exists,
+   recording the supply exception.
+6. package.assemble_medley() and package_pin.py: intro None (the deployed pinned.py accepts "intro null"); the takeaway
+   is the line after the LAST clip (slot "takeaway"); a bridge after the hook is the renderer's intro slot, after clip
+   k a bridge after_clip k; required_gates(pk) adds "medley" and "ly_shape" for a medley; line_problems maps the
+   slots; the seal is unchanged in form.
+7. pipeline/providers.py: the ledger now records the vendor's own cost per call (xAI cost_in_usd_ticks / 1e10,
+   Heimdall usage.cost) beside the price-table estimate; the spend guard still reads the estimate. Any way this can
+   corrupt the ledger or let spend pass the guard?
+8. tests/package/proof_ly.py: the re-run driver. Chains: no local leg (the builder never uses the GPU), no Anthropic /
+   OpenAI (out of credit); writer = Heimdall deepseek then qwen; verdicts avoid the writer's vendor, so xAI. Its own
+   ledger and cap. The table: packages per universe, zero / one bridge, the takeaway pass rate, time and dollars.
+9. Removed: write_v3, STYLES, budgets, plain_vo (intro + bridges shapes, contrary to L-y 1) and plain_vo's title test.
+   Does anything still need them?
+10. tests/package/test_medley.py: do the must-fail tests prove each rule above?
+
+Output: findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess. End with a verdict line:
+"SHIP: yes | yes with conditions | no".
+
+ROUND 2 (cycles 3 and 4, 21:20 ET): the same diff plus these changes made after cycle 2. Review them first.
+11. The first write for a flagged join budgets the takeaway so that ANY bridge of 3-12 words lands 60-70 s, the
+    intersection of both budgets (package.write_takeaway). Every redo budgets with the bridge as written.
+12. package.ly_shape also fails a bridge record whose text differs from the bridge line, a record whose confirmed_by
+    is missing, a bool or empty, and a record with no bridge line. This mirrors the integrator's render-side R11.
+13. CUTTABLE (the independent recogniser's sentence boundary at both edges, a REQUIRED gate) was never a drop reason
+    in build(); the live run found a package with CUTTABLE FAIL, which the pin refused. Now:
+    - L-v 2's second pass and CUTTABLE run ONCE PER CLEARED MOMENT BEFORE the angle call, and the angle proposer
+      only sees moments that pass both (out["prescreen"]["second_pass"]);
+    - a moment lost to exclusion is "doomed": no later angle may use it;
+    - the per-clip results (exclusion, L-v 2, CUTTABLE) are read BEFORE the paid fidelity / context verdicts, so no
+      verdict is paid on a line-up that is already lost;
+    - build() returns a package only when package_pin.gate_problems(required_gates) is empty.
+    Check that filtering early can never let through a moment the later gates would refuse, and never refuse one
+    they would pass.
+14. The writer prompt's rules now name the fidelity verdict's commentary tests (no checkable fact, no speaker view,
+    no prediction, no advice or instruction to the viewer, no accusation, nothing that sounds like a quote) and ask
+    for sentence-case titles and captions (title-case words were read as names by the deterministic NAME rule).
+    Only the prompt changed; no gate changed.
+15. tests/package/proof_ly.py: each worker meters its OWN spend at Router._settle, because the shared ledger moves
+    with every worker. The per-package budget stop names which limit stopped it (out["budget_stop"]). A refused pin
+    is recorded and the next universe still runs. tests/package/pin_and_verify.py also runs rule_r11 where the
+    factory copy has it.

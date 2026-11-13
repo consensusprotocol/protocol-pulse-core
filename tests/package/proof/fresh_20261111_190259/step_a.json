@@ -1,0 +1,651 @@
+{
+ "876662b7dc4e961d47e1:9d43580c729b": {
+  "label": "876662b7dc4e961d47e1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the fact that other intermediaries rather than Bitcoin are getting hacked",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The hacks in the crypto space are affecting other intermediaries rather than Bitcoin, which highlights Bitcoin's secure and unique nature.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Our office intentionally stayed out of any pardon discussions. There is a pardon czar. I don't know if it's officially a czar role, but someone that's in charge of that and kind of runs all of those things through the White House counsel's office.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b0b787f8a62d97d81dbb:9d43580c729b": {
+  "label": "b0b787f8a62d97d81dbb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "right now / last I checked",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is by far the most undervalued asset in the global financial system with gold parity around $1.4-1.5 million per Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8055c5252b61b9639cbe:9d43580c729b": {
+  "label": "8055c5252b61b9639cbe",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the new internet",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A new internet bound by Bitcoin will emerge and provide abundance for 8 billion people.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "that's why it's really hard to tell people how excited I am because you actually have to live in it to see what's happening.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c49cd35dfd86efb624e0:9d43580c729b": {
+  "label": "c49cd35dfd86efb624e0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is not a set-it-and-forget-it asset as hodling is an active process.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I've helped a lot of people build their way to multi -vender multi -six setups.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e375df8065e9bd8f421b:9d43580c729b": {
+  "label": "e375df8065e9bd8f421b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the first technology that allows for moving money outside of the state.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "You wrote the Bitcoin standard. You are a very public advocate of Bitcoin. How do you think, first of all, how does Bitcoin essentially operate and why does it solve the problems that you've put on the table?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7a17f3252d14fe2ed7aa:9d43580c729b": {
+  "label": "7a17f3252d14fe2ed7aa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "Nvidia's CEO admitting to an affair with a suspected Chinese spy and the resulting market reaction",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Nvidia CEO scandal is another glaring reason why Bitcoin having no CEO is a feature, not a bug.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "01154f025a00f40132a7:9d43580c729b": {
+  "label": "01154f025a00f40132a7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "which",
+    "refers_to": "higher rates making cash more attractive and borrowed money more expensive",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Higher interest rates make cash more attractive and borrowing more expensive, which is the wrong combination for risky assets since the market sees Bitcoin as risky.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f216541bd2f9e5eb672d:9d43580c729b": {
+  "label": "f216541bd2f9e5eb672d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin imposes a global free market for the first time ever.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So I ask typically, is it true that the free market is deflation? Is that true? And most people will eventually say, yes, and then but.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4f9d38e1d86556b36d9c:9d43580c729b": {
+  "label": "4f9d38e1d86556b36d9c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when it's persecuted and when it's in the crosshairs",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's success is not dependent on who is in the White House or controls Congress, and its price tends to do well when it is persecuted.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Mm -hmm.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "55722e7365cc43558d7e:9d43580c729b": {
+  "label": "55722e7365cc43558d7e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "public miners",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "public miners",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "public miners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Many public Bitcoin miners are pivoting to AI and selling or winding down Bitcoin mining to fund AI data center construction.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So talk to us a bit about this idea from your perspective.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5e38ec62aa36eae80132:9d43580c729b": {
+  "label": "5e38ec62aa36eae80132",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "all it has to do, is stay decentralized and secure",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is a new system of measure for the first free market that has ever existed and only needs to stay decentralized and secure.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "people might think i'm insane, that i don't believe it will",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "984b91dd88d5f86e3158:9d43580c729b": {
+  "label": "984b91dd88d5f86e3158",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "late 2024",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin priced in gold peaked in late 2024, allowing the argument that the real peak was in December 2024 when measured in hard money, similar to 2021.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, I mean, I think, like I said, we've only seen digital credit really and mostly a Bitcoin bear market.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f91c4a6b4a5ea9388c32:9d43580c729b": {
+  "label": "f91c4a6b4a5ea9388c32",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "especially now, with all these things happening with AI, quantum",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Achilles heel with Bitcoin is that self-custody is becoming something people are increasingly scared of due to AI and quantum computing.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "people might think i'm insane, that i don't believe it will",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "04a149678014424229d3:9d43580c729b": {
+  "label": "04a149678014424229d3",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "making a loan in Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "the deposit in another bank",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the created money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if somebody makes a loan in Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On a Bitcoin standard, a loan in Bitcoin creates a deposit that leads to credit creation, with the resulting money created and denominated in something else.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I'm not so sure that I understand the question. The money is created when we finance economic activity. And so you can have money that is privately created. You can have Bitcoin, and money will be created.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "316f66f81603ea55899a:9d43580c729b": {
+  "label": "316f66f81603ea55899a",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the process of issuing more dollar credit against Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the price of Bitcoin goes higher",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin's price rises it becomes better collateral for issuing more dollar credit, and this is sustainable because Bitcoin is perfectly scarce while more dollars are created by design in the financial system.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah. I mean, I think part of it is like just the simple failure of fiat currencies.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "43e6d312e1a1e6a4e33c:9d43580c729b": {
+  "label": "43e6d312e1a1e6a4e33c",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if you want to have confidence that any purchases of Bitcoin are going to be legal",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Authorization from Congress is needed to have confidence that any purchases of Bitcoin are legal.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I can tell you the president's interested in it.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "6d91c6af0e23f79c946e:9d43580c729b": {
+  "label": "6d91c6af0e23f79c946e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the concept of digital credit",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "pioneering digital credit at Bitcoin all-time highs followed by decline",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "issuing or using digital credit",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in a Bitcoin bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The concept of digital credit was pioneered at Bitcoin all-time highs before declining sharply, and this has not yet been observed in a Bitcoin bull market.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f81db985a39acf8dcc8e:9d43580c729b": {
+  "label": "f81db985a39acf8dcc8e",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if the treasury companies didn't exist",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the past Bitcoin cycle, the bull market might have reached higher prices if treasury companies had not existed, though it is hard to tell.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0c751a33022013fb3086:9d43580c729b": {
+  "label": "0c751a33022013fb3086",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "everyone loving Bitcoin at the top and hating it at the bottom",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People love Bitcoin and want exposure when its price rises in a hot bull market but hate it and avoid exposure when it falls in a bear market, which drives prices high at tops and low at bottoms.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "6353ef6c32236e89f0cc:9d43580c729b": {
+  "label": "6353ef6c32236e89f0cc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "even if you have Bitcoin as a standard",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Even under a Bitcoin standard, speculators will still issue liabilities denominated in Bitcoin because someone will always issue loans.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "91ca972a48f7ce95d11b:9d43580c729b": {
+  "label": "91ca972a48f7ce95d11b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "the audience or investor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "your wealth",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these assets",
+    "refers_to": "house, equities or bonds",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over a long period of time, historically",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Even without holding Bitcoin, one can and should measure wealth from assets like houses, equities and bonds in Bitcoin terms, as those assets have historically underperformed it over long periods.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9a9ed680fa64a4ae7305:9d43580c729b": {
+  "label": "9a9ed680fa64a4ae7305",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is now possible to use Bitcoin completely privately via e-cash systems pegged one-to-one on top of Bitcoin for private money and communications.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c6cdbadebbac52e4e623:9d43580c729b": {
+  "label": "c6cdbadebbac52e4e623",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "individual rights and freedoms",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "Bitcoin and its associated freedom technology",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "while that exists in us",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The US Constitution's founding principles of individual rights and freedoms are the same as Bitcoin's, and while those principles exist in people this is unstoppable.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f56505eda00b45f4675e:9d43580c729b": {
+  "label": "f56505eda00b45f4675e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "ending up with more Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If some people end up with more Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has no authority that lets anyone take others' wealth, so greater holdings come from voluntary choices like the interlocutor's friends buying it in 2020.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

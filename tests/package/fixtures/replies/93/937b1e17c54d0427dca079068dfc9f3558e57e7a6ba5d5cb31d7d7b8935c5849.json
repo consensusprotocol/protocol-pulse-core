@@ -1,0 +1,332 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "9176df5844a1af229fae23f0194e9b34eafc3be0434e56e92055f088f8f0a7e3",
+ "result": {
+  "text": "The current monetary system. And even if you have, uh, Bitcoin as a standard, you will not s- uh, prevent the speculators issuing liabilities d- denominated in Bitcoin, right? The, the problem is that there will always be somebody issuing some kind of loan, and it's not the government. You know",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.56,
+    "text": "The current monetary system. And even if you have, uh, Bitcoin as a standard, you will not s- uh, prevent the speculators issuing liabilities d- denominated in Bitcoin, right? The, the problem is that there will always be somebody issuing some kind of loan, and it's not the government. You know"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "current",
+    "start": 0.1,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "monetary",
+    "start": 0.38,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 0.84,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.4,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 1.54,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 1.76,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.86,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have,",
+    "start": 1.98,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.42,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.58,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 3.16,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.32,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standard,",
+    "start": 3.5,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.46,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 4.54,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 4.7,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "s-",
+    "start": 5.34,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 5.42,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prevent",
+    "start": 5.6,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.34,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "speculators",
+    "start": 6.86,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issuing",
+    "start": 7.62,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liabilities",
+    "start": 8.02,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "d-",
+    "start": 8.82,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "denominated",
+    "start": 9.06,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.74,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 9.92,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 10.46,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The,",
+    "start": 10.96,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.12,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem",
+    "start": 11.26,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.64,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.72,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 11.86,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 12.0,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 12.2,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.42,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "somebody",
+    "start": 12.54,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issuing",
+    "start": 13.04,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 13.46,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 13.64,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.82,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loan,",
+    "start": 13.98,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.28,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 14.36,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 14.48,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.62,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "government.",
+    "start": 14.78,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 15.42,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 15.48,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.67
+ },
+ "usd": 0.003134,
+ "seconds": 2.31,
+ "recorded_at": "2026-11-13T02:19:12Z"
+}

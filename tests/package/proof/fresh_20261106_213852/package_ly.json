@@ -1,0 +1,91 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "5490fe25a19b66f4ab94": "not eligible on screen: hook: opener, hook_lead; clip: opener",
+  "8793ee774e91835ff3b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "47a1131355459c927162": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 9,
+ "current_levels": [
+  76000.0
+ ],
+ "prescreen": {
+  "screened": 9,
+  "cleared": 5,
+  "failed": {
+   "8e71e37db05ccbcdb34c": [
+    "RETRACTION"
+   ],
+   "d6eb1618ee8fe0691778": [
+    "REFERENT_OUTSIDE"
+   ],
+   "173710b2b1821c4450e5": [
+    "NOT_OWN_SINCERE"
+   ],
+   "71a70788e75b17f227d8": [
+    "REFERENT_OUTSIDE"
+   ]
+  }
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "5 moments cleared step A from fewer than 3 channels",
+ "run": "fresh_20261106_213852",
+ "seconds": 0.1,
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:51 EST",
+ "as_of": "2026-11-06T21:38:54.269034+00:00",
+ "full": {
+  "est": 0.0,
+  "best": 0.0,
+  "model_s": 0.0,
+  "calls": 0
+ }
+}

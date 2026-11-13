@@ -1,0 +1,278 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6afd7a9e3da8beb7c42e02b7fe3cb07bb4d262773c5d64a9b86a1c08a33d7bfd",
+ "result": {
+  "text": "Yes. And, and certainly if you wanna have confidence that any purchases of Bitcoin, um, are going to be, uh, legal, then yeah, you would need authorization from Congress. Um, you know, Congress control the purse strings. Um, so if you c-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.9,
+    "end": 15.52,
+    "text": "Yes. And, and certainly if you wanna have confidence that any purchases of Bitcoin, um, are going to be, uh, legal, then yeah, you would need authorization from Congress. Um, you know, Congress control the purse strings. Um, so if you c-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yes.",
+    "start": 0.9,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 1.38,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.58,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "certainly",
+    "start": 1.76,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 2.24,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.36,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 2.48,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.7,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confidence",
+    "start": 2.96,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.54,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchases",
+    "start": 4.64,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 5.58,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 6.7,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.0,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 7.18,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.5,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 7.64,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 8.26,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "legal,",
+    "start": 8.46,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 9.16,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 9.4,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.62,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 9.68,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 9.8,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "authorization",
+    "start": 10.02,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 10.74,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Congress.",
+    "start": 10.98,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 11.74,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.36,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.42,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Congress",
+    "start": 12.6,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "control",
+    "start": 12.98,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.34,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purse",
+    "start": 13.46,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "strings.",
+    "start": 13.68,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 14.68,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 15.12,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 15.28,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 15.4,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "c-",
+    "start": 15.52,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.54
+ },
+ "usd": 0.003108,
+ "seconds": 1.92,
+ "recorded_at": "2026-11-13T02:19:04Z"
+}

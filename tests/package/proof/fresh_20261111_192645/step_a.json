@@ -1,0 +1,669 @@
+{
+ "b0b787f8a62d97d81dbb:9d43580c729b": {
+  "label": "b0b787f8a62d97d81dbb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "right now / last I checked",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is by far the most undervalued asset in the global financial system with gold parity around $1.4-1.5 million per Bitcoin.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Interesting. And when would you say that could be? Like, if we're saying the power law might break down, is there a timeline? You think that would be realistic to happen? I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "876662b7dc4e961d47e1:9d43580c729b": {
+  "label": "876662b7dc4e961d47e1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the fact that it is not Bitcoin getting hacked but other intermediaries",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is not Bitcoin that is getting hacked but other intermediaries, which highlights Bitcoin's secure and unique nature.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Mm -hmm. I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c49cd35dfd86efb624e0:9d43580c729b": {
+  "label": "c49cd35dfd86efb624e0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is not a set-it-and-forget-it asset because hodling is an active process.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I've helped a lot of people build their way to multi -vender multi -six setups. And almost every time, Trezer was one of those devices.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e375df8065e9bd8f421b:9d43580c729b": {
+  "label": "e375df8065e9bd8f421b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the first technology that allows moving money outside of the state.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "You wrote the Bitcoin standard. You are a very public advocate of Bitcoin. How do you think, first of all, how does Bitcoin essentially operate and why does it solve the problems that you've put on the table?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f216541bd2f9e5eb672d:9d43580c729b": {
+  "label": "f216541bd2f9e5eb672d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "for the first time ever",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin imposes a global free market for the first time ever.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So now everyone's, I guess, in the stock market? Can you imagine the writers of the Constitution thinking, we got to make government bigger and we got to, like, it's so crazy that that's the world we live in today.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7a17f3252d14fe2ed7aa:9d43580c729b": {
+  "label": "7a17f3252d14fe2ed7aa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "Nvidia CEO affair scandal and market reaction",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Nvidia CEO scandal is another glaring reason why Bitcoin having no CEO is a feature not a bug.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "91ca972a48f7ce95d11b:9d43580c729b": {
+  "label": "91ca972a48f7ce95d11b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "your wealth",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these assets",
+    "refers_to": "house, equities, bonds or other holdings",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "today / over a long period of time, historically",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Even without holding Bitcoin one can and should measure wealth in Bitcoin terms, as houses, equities and bonds have historically underperformed it.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Interesting. And when would you say that could be? Like, if we're saying the power law might break down, is there a timeline? You think that would be realistic to happen? I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "55722e7365cc43558d7e:9d43580c729b": {
+  "label": "55722e7365cc43558d7e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "public miners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A lot of public miners are pivoting from Bitcoin to AI and selling Bitcoin or winding down mining to fund AI data center buildouts.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So talk to us a bit about this idea from your perspective. People who maybe they come into Bitcoin, but they don't, it doesn't stick the first time. Yeah, it's a, it's a really great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7a5f734f844bbfd67c1f:9d43580c729b": {
+  "label": "7a5f734f844bbfd67c1f",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin's return/CAGR",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "zero percent CAGR/Bitcoin doing nothing",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People are pointing out and saying that Bitcoin has done nothing over the last five years with about zero percent CAGR, which is not a great return.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I was on the other side of the trade of like, okay, like I'm watching the company sell the shares and I'm watching watching the company buy the Bitcoin. It's basically like one for, you know. One for one, back at that time, like, if we raised money, we'd, we'd buy Bitcoin with the money.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "984b91dd88d5f86e3158:9d43580c729b": {
+  "label": "984b91dd88d5f86e3158",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in late 2024",
+    "inside": true
+   },
+   {
+    "text": "similar to 2021",
+    "inside": true
+   },
+   {
+    "text": "spring of 2021",
+    "inside": true
+   },
+   {
+    "text": "December 2024",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin priced in gold peaked in late 2024, so one can argue that similar to 2021 the real peak may have been in December 2024 when measured against another hard money.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like, I believe Stretch came out in like June or July of last year, 2025. Strategy, like their stock, for instance, peaked in late 2024.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f91c4a6b4a5ea9388c32:9d43580c729b": {
+  "label": "f91c4a6b4a5ea9388c32",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the Achilles heel with Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "especially now, with all these things happening with AI, quantum",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The Achilles heel with Bitcoin is that self-custody is turning into something people are increasingly scared of especially now with AI and quantum developments.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "people might think i'm insane, that i don't believe it will, but they don't see it to see what i get to see because they're they're measuring their relative view of the world.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "077e975c9d52dde86ef3:9d43580c729b": {
+  "label": "077e975c9d52dde86ef3",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "having hundreds of pro-Bitcoin lawmakers or the pro-crypto Congress",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Committee chairs decide what gets a hearing so hundreds of lawmakers calling themselves pro-Bitcoin won't mean much if the two chairs holding the gavels never let a bill out.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "But I would actually hold the celebration because the two people most likely to run the committees that write the rules are Elizabeth Warren. and Sherrod Brown.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "128b99b7a2487f58d3ba:9d43580c729b": {
+  "label": "128b99b7a2487f58d3ba",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the entity with ability to print more money",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the form of money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Until Bitcoin came around",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If I own a form of money but you can print more of that money you are stealing my purchasing power and until Bitcoin we had no choice.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "The Bitcoin Standard podcast is sponsored by BitGo.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "27bf8bffdcdc5f785bb8:9d43580c729b": {
+  "label": "27bf8bffdcdc5f785bb8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin, gold, and land as equal sleeves",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the five year period",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the same five year period",
+    "inside": true
+   },
+   {
+    "text": "During that five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A portfolio of Bitcoin, gold and land as equal sleeves returned about 170% over the same five-year period in which the dollar lost 30% of its purchasing power.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So is it too late to buy Bitcoin? No. Bitcoin is going to continue to go up for the rest of our lives because the politicians are going to print money for the rest of our lives.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9a9ed680fa64a4ae7305:9d43580c729b": {
+  "label": "9a9ed680fa64a4ae7305",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "You can now easily use Bitcoin privately on top of Bitcoin pegged one-to-one as e-cash for private money and private communications.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "But you probably haven't heard of Phipps or what's happening on Noster or some of the, or fetament, or you've heard of some of these things. You're probably not using them. But all of these things and all of this freedom tech is. coalescing and coming together and getting stronger and easier to use and faster and use.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0c751a33022013fb3086:9d43580c729b": {
+  "label": "0c751a33022013fb3086",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "why the price got high and why the price got low",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "When Bitcoin and an asset is going up and the bull market is super hot",
+    "inside": true
+   },
+   {
+    "text": "When the bear market is happening and Bitcoin is going down",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When Bitcoin is going up in a super hot bull market everyone loves it and that drives the high price while in a bear market when Bitcoin is going down everyone hates it and that drives the low price.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I think corporations are actually particularly interesting in this aspect because you have a lot of different key stakeholders, right? Like you have the executive team, which is not just typically one person.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "316f66f81603ea55899a:9d43580c729b": {
+  "label": "316f66f81603ea55899a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "creating more dollar credit against rising Bitcoin (the feedback loop)",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the price of Bitcoin goes higher",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin's price rises it becomes better collateral allowing issuance of more dollar credit, and this process can be sustainable because Bitcoin has perfect scarcity while dollars are continually created by design.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Or like, what do you, what do you, is there a specific like point of why you think that would happen? Yeah. I mean, I think part of it is like just the simple failure of fiat currencies.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5e38ec62aa36eae80132:9d43580c729b": {
+  "label": "5e38ec62aa36eae80132",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Bitcoin stays decentralized and secure",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is a new system of measure for the first free market that has ever existed and only needs to remain decentralized and secure for the right outcomes to emerge.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Oh, really? Yeah. And from riding on a beam of light...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8055c5252b61b9639cbe:9d43580c729b": {
+  "label": "8055c5252b61b9639cbe",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the new internet",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A new internet bound by Bitcoin will emerge and provide abundance for 8 billion people.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like how do we kind of steer this ship? So. So some of the things is kind of come out of my mouth next will be completely that people won't believe it because they're measuring Bitcoin from the other system.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "863cc95ab7c5e0c11482:9d43580c729b": {
+  "label": "863cc95ab7c5e0c11482",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "until Bitcoin came around",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the modern world before Bitcoin, people had no choice but to use government money that steals purchasing power via inflation.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Safe, I can see you writing things down. Yes. I wonder what you have to say. A lot. First of all, let me begin by saying...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9c14612153405f8983e4:9d43580c729b": {
+  "label": "9c14612153405f8983e4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin will outperform US equities as a whole and will likely outperform individual companies in US equities because it functions as a global productivity index like the S&P 500 does for stocks.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "And just with the AI example, I think it's interesting because Most people refer back to the so -called chat GPT moment...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f56505eda00b45f4675e:9d43580c729b": {
+  "label": "f56505eda00b45f4675e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "some people [who end up with more Bitcoin]",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "ending up with more Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If some people end up with more Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has no authority that lets anyone seize others' wealth, so unequal holdings result from voluntary choices like buying Bitcoin in 2020 or not.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Global South countries actually really do require a national currency...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "39cb7d2a1a661ba699e2:9d43580c729b": {
+  "label": "39cb7d2a1a661ba699e2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "the people who are in charge of the money printer",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "people / listeners in general",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin removing the ability to loot",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin removes from central money printers the ability to loot people through inflation, which is why Bitcoin matters.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Stop, right? I mean, but that's a political question. It's not a question of monetary design. No, it is not a political question...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4f9d38e1d86556b36d9c:9d43580c729b": {
+  "label": "4f9d38e1d86556b36d9c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's success is independent of who controls the White House, Senate or House, and it tends to perform well when persecuted or targeted.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Like, do you think it's been a success? I do. I do. I think despite, you know, not necessarily getting everything done that we wanted to get done...",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

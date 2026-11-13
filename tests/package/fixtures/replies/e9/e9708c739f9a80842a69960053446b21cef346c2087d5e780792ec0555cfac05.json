@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f5f21dc822cbe43bdf0df9dff5cb8cde76443f7811620f720d37fe19ffccaacf",
+ "result": {
+  "text": "Long-term money, and Bitcoin as a hurdle rate basically just means don't lose money. Like, don't lose the Bitcoin that you have today. Even if you don't have your wealth in Bitcoin, you can measure your wealth today in Bitcoin, like your house or your equities or your bonds or whatever else you hold, and you can measure it in Bit-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.02,
+    "end": 17.96,
+    "text": "Long-term money, and Bitcoin as a hurdle rate basically just means don't lose money. Like, don't lose the Bitcoin that you have today. Even if you don't have your wealth in Bitcoin, you can measure your wealth today in Bitcoin, like your house or your equities or your bonds or whatever else you hold, and you can measure it in Bit-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Long-term",
+    "start": 0.02,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 0.6,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.46,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.16,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 2.48,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.6,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hurdle",
+    "start": 2.66,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate",
+    "start": 2.96,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 3.16,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 3.48,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "means",
+    "start": 3.64,
+    "end": 3.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.44,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lose",
+    "start": 4.66,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 4.92,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 5.56,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 5.76,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lose",
+    "start": 6.0,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.28,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.44,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.86,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.0,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 7.1,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today.",
+    "start": 7.3,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Even",
+    "start": 8.22,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 8.36,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.46,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 8.54,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 8.74,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 8.98,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wealth",
+    "start": 9.1,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.3,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 9.44,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.26,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.38,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "measure",
+    "start": 10.58,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 11.0,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wealth",
+    "start": 11.16,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 11.44,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.14,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 12.26,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 12.66,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 12.84,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "house",
+    "start": 12.98,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 13.76,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 13.88,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities",
+    "start": 14.04,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 14.86,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 14.94,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bonds",
+    "start": 15.06,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 15.4,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whatever",
+    "start": 15.5,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 15.84,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.1,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold,",
+    "start": 16.239,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.12,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 17.26,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 17.34,
+    "end": 17.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "measure",
+    "start": 17.48,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 17.72,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 17.78,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bit-",
+    "start": 17.88,
+    "end": 17.96,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.04
+ },
+ "usd": 0.003608,
+ "seconds": 2.5,
+ "recorded_at": "2026-11-13T01:56:02Z"
+}

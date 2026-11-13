@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7e0a47cefa10f1bd7069b5215c138fb1e5cc351cbd17302efdfc87c27388b614",
+ "result": {
+  "text": "Customers. AI uncertainty is a big part of my personal thesis for investing in Bitcoin. I love that I don't have to predict which companies will win the AI race to make that bet. I'm betting on",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.74,
+    "text": "Customers. AI uncertainty is a big part of my personal thesis for investing in Bitcoin. I love that I don't have to predict which companies will win the AI race to make that bet. I'm betting on"
+   }
+  ],
+  "words": [
+   {
+    "text": "Customers.",
+    "start": 0.0,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 1.54,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uncertainty",
+    "start": 1.94,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.68,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.82,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 3.14,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 3.8,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.18,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 4.36,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "personal",
+    "start": 4.92,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis",
+    "start": 5.4,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.9,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investing",
+    "start": 6.04,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.48,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 6.6,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 7.78,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "love",
+    "start": 7.92,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.16,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.34,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 8.4,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 8.62,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.76,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "predict",
+    "start": 8.88,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 9.34,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 9.6,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "win",
+    "start": 10.3,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.52,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 10.72,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "race",
+    "start": 11.1,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.5,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 11.64,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.86,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bet.",
+    "start": 12.08,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 13.0,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "betting",
+    "start": 13.16,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 13.66,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.79
+ },
+ "usd": 0.002758,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-13T02:54:36Z"
+}

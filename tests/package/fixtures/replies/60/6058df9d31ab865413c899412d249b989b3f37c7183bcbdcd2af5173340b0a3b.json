@@ -1,0 +1,326 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4c1ebfadaf79bc8434da2285c68e77984ae69b240db8a27cff0e40818f2b3ba4",
+ "result": {
+  "text": "2024. Bitcoin priced in gold also peaked in late 2024. So, so you can make arguments that, like, similar to 2021, maybe the real peak was, like, spring of 2021. Maybe the real Bitcoin peak was, like, December 2024 measured in, like, another hard money. And, and digital credit has",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 19.7,
+    "text": "2024. Bitcoin priced in gold also peaked in late 2024. So, so you can make arguments that, like, similar to 2021, maybe the real peak was, like, spring of 2021. Maybe the real Bitcoin peak was, like, December 2024 measured in, like, another hard money. And, and digital credit has"
+   }
+  ],
+  "words": [
+   {
+    "text": "2024.",
+    "start": 0.14,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.5,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "priced",
+    "start": 2.08,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.38,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 2.52,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 3.04,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peaked",
+    "start": 3.42,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.88,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "late",
+    "start": 4.019,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2024.",
+    "start": 4.32,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 5.96,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 6.34,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.5,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 6.56,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 6.66,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "arguments",
+    "start": 6.86,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 7.28,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 7.44,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "similar",
+    "start": 8.02,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.32,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2021,",
+    "start": 8.54,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 9.74,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.94,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 10.04,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peak",
+    "start": 10.28,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was,",
+    "start": 10.52,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 10.64,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spring",
+    "start": 10.88,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.16,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2021.",
+    "start": 11.34,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Maybe",
+    "start": 12.5,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.72,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 12.84,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.08,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peak",
+    "start": 13.48,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was,",
+    "start": 13.78,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.94,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "December",
+    "start": 14.74,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2024",
+    "start": 15.34,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "measured",
+    "start": 16.54,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 16.88,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 17.02,
+    "end": 17.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 17.28,
+    "end": 17.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 17.68,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 18.0,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 18.42,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.82,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 19.04,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit",
+    "start": 19.32,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 19.6,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.76
+ },
+ "usd": 0.003952,
+ "seconds": 2.5,
+ "recorded_at": "2026-11-13T02:19:03Z"
+}

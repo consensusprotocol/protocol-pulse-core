@@ -1,0 +1,1914 @@
+{
+ "shape": "medley",
+ "packages": [
+  {
+   "schema": "pp.package/1",
+   "type": "moments",
+   "angle": "Bitcoin is a global free-market productivity layer that no political authority controls.",
+   "vo_kind": "medley (L-y), written, attempt 2",
+   "style": "medley",
+   "segments": [
+    {
+     "label": "hook",
+     "moment_id": "f216541bd2f9e5eb672d",
+     "video_id": "wdk5JZ9hPzs",
+     "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+     "channel": "Natalie Brunell",
+     "k0": 715,
+     "k1": 715,
+     "words": [
+      8742,
+      8752
+     ],
+     "start": 3218.14,
+     "end": 3221.64,
+     "duration_s": 3.5,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "published_at": "2026-11-10T13:45:51+00:00",
+     "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+     "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+    },
+    {
+     "label": "clip_01",
+     "moment_id": "c8827879545a98fdec4e",
+     "video_id": "Sjb6lUiL0m4",
+     "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+     "channel": "Stephan Livera",
+     "k0": 250,
+     "k1": 250,
+     "words": [
+      3999,
+      4021
+     ],
+     "start": 1347.37,
+     "end": 1355.47,
+     "duration_s": 8.1,
+     "text": "In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.",
+     "published_at": "2026-11-11T18:03:23+00:00",
+     "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+     "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1317s"
+    },
+    {
+     "label": "clip_02",
+     "moment_id": "3b3050f4afd6f3c011e7",
+     "video_id": "vgsSZ4mAHfQ",
+     "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+     "channel": "Saifedean Ammous",
+     "k0": 1179,
+     "k1": 1180,
+     "words": [
+      16659,
+      16688
+     ],
+     "start": 5144.99,
+     "end": 5153.37,
+     "duration_s": 8.38,
+     "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+     "published_at": "2026-11-10T08:21:50+00:00",
+     "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+     "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
+    },
+    {
+     "label": "clip_03",
+     "moment_id": "4f9d38e1d86556b36d9c",
+     "video_id": "c1JGheQBPH4",
+     "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+     "channel": "What Bitcoin Did",
+     "k0": 464,
+     "k1": 464,
+     "words": [
+      7325,
+      7386
+     ],
+     "start": 2403.23,
+     "end": 2422.07,
+     "duration_s": 18.84,
+     "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+     "published_at": "2026-11-09T17:00:09+00:00",
+     "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+     "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+    }
+   ],
+   "vo": {
+    "intro": null,
+    "bridges": [
+     "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic."
+    ],
+    "bridges_after_clip": [
+     3
+    ],
+    "signoff": "Clips today from Natalie Brunell, Stephan Livera, Saifedean Ammous, and What Bitcoin Did. Go follow them for more. Links are below."
+   },
+   "title": "The idea of a borderless productivity layer beyond political control",
+   "caption": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+   "hook_first_words": "Bitcoin imposes a global free market for the",
+   "lines": [
+    {
+     "text": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+     "cites": [],
+     "slot": "takeaway"
+    },
+    {
+     "text": "The idea of a borderless productivity layer beyond political control",
+     "cites": [],
+     "slot": "title"
+    },
+    {
+     "text": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+     "cites": [],
+     "slot": "caption"
+    }
+   ],
+   "runtime_s_estimate": 62.52,
+   "runtime_note": "segments 38.82 s (word timing) + VO 21 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+   "shape": "medley",
+   "bridge": null,
+   "supply_exception": null,
+   "medley": {
+    "through_line": "The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4,
+     "clip_03": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both describe positive global economic aspects of Bitcoin"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "links productivity measure to merit-based voluntary wealth accumulation"
+     },
+     "clip_02 -> clip_03": {
+      "followable": true,
+      "why": "connects lack of coercive authority to independence from politics"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "gates": {
+    "vo_fidelity_deterministic": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.check_deterministic)",
+     "replayed": false,
+     "n": 1
+    },
+    "vo_fidelity_verdict": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "duplicate": {
+     "status": "PASS",
+     "by": "code (package.duplicates)",
+     "replayed": false,
+     "n": 1
+    },
+    "price_now": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.price_now)",
+     "replayed": false,
+     "n": 1
+    },
+    "runtime": {
+     "status": "PASS",
+     "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+     "replayed": false,
+     "n": 1
+    },
+    "r4": {
+     "status": "PASS",
+     "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+     "replayed": false,
+     "n": 1
+    },
+    "context_a": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 4
+    },
+    "context_b": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "context_c": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "exclusion": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 4
+    },
+    "second_pass": {
+     "status": "PASS",
+     "by": [
+      "elevenlabs_stt:scribe_v1"
+     ],
+     "replayed": false,
+     "n": 4
+    },
+    "cuttable": {
+     "status": "PASS",
+     "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+     "replayed": false,
+     "n": 4
+    },
+    "coherence": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "medley": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1,
+     "flagged": []
+    },
+    "ly_shape": {
+     "status": "PASS",
+     "by": "code (package.ly_shape, L-y)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    }
+   },
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning",
+      "clip_03": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   },
+   "checks": {
+    "fidelity": {
+     "deterministic": {
+      "ok": true,
+      "violations": [],
+      "price_now_measured": true
+     },
+     "verdict": {
+      "ok": true,
+      "claims": [
+       {
+        "line": "takeaway",
+        "words": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+        "class": "commentary",
+        "claim": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "The idea of a borderless productivity layer beyond political control",
+        "class": "commentary",
+        "claim": "The idea of a borderless productivity layer beyond political control",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+        "class": "commentary",
+        "claim": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       }
+      ],
+      "violations": [],
+      "classes": {
+       "takeaway": [
+        "commentary"
+       ],
+       "title": [
+        "commentary"
+       ],
+       "caption": [
+        "commentary"
+       ]
+      }
+     },
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false,
+     "seed": 7,
+     "violations": [],
+     "ok": true
+    },
+    "context": {
+     "segments": {
+      "hook": {
+       "A": {
+        "label": "f216541bd2f9e5eb672d",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "speculative",
+        "speaker_is": "guest",
+        "speaker_evidence": "Okay, so let's wrap this up with maybe some news you can use. How do you share this message with people that believe that there's a fix from within the control system",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "hook",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "yes",
+        "raising_words": ""
+       },
+       "window": [
+        685,
+        725
+       ]
+      },
+      "clip_01": {
+       "A": {
+        "label": "c8827879545a98fdec4e",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "this",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin can be thought of as a global productivity index in a similar way that the S&P 500 relates to individual stocks.",
+        "certainty": "likely",
+        "speaker_is": "guest",
+        "speaker_evidence": "Yeah, it's a really interesting question. Yeah, I mean, that's probably an endless rabbit hold that you could twist your brain around.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_01",
+        "asserts": "Bitcoin is like this global productivity index, similar to the S&P 500 for individual stocks.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_01",
+        "asserts": "Bitcoin is like a global productivity index, similar to the S&P 500 for individual stocks.",
+        "certainty": "likely",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_01",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "yes",
+        "raising_words": ""
+       },
+       "window": [
+        224,
+        262
+       ]
+      },
+      "clip_02": {
+       "A": {
+        "label": "3b3050f4afd6f3c011e7",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "that",
+          "refers_to": "some people end up with more Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin has no authority allowing anyone to take others' wealth, so unequal holdings result purely from voluntary choice.",
+        "certainty": "certain",
+        "speaker_is": "host",
+        "speaker_evidence": "No, it absolutely is not. And I think the fundamental difference in the way that this is presented demonstrates a very, very serious difference in the worldview.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_02",
+        "asserts": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_02",
+        "asserts": "Bitcoin has no authority allowing seizure of others' wealth, and unequal holdings result from voluntary choices.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_02",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        1157,
+        1200
+       ]
+      },
+      "clip_03": {
+       "A": {
+        "label": "4f9d38e1d86556b36d9c",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         },
+         {
+          "word": "its",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         },
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin's success is independent of who is in the White House or controls Congress and it tends to perform well when persecuted.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin? Mm -hmm.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_03",
+        "asserts": "The good news about Bitcoin is its success is not dependent upon US political control, and it tends to do well when persecuted.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_03",
+        "asserts": "Bitcoin's success is independent of US political control and it tends to perform well when persecuted.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_03",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        446,
+        473
+       ]
+      }
+     },
+     "relations": [
+      {
+       "labels": [
+        "hook",
+        "clip_01"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_03"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_03"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_02",
+        "clip_03"
+       ],
+       "relation": "none"
+      }
+     ],
+     "violations": [],
+     "backends": {
+      "A": {
+       "hook": "xai:grok-4.20-0309-reasoning",
+       "clip_01": "xai:grok-4.20-0309-reasoning",
+       "clip_02": "xai:grok-4.20-0309-reasoning",
+       "clip_03": "xai:grok-4.20-0309-reasoning"
+      },
+      "B0": "xai:grok-4.20-0309-reasoning",
+      "B": "xai:grok-4.20-0309-reasoning",
+      "C": "xai:grok-4.20-0309-reasoning"
+     },
+     "measured": true,
+     "replayed": false,
+     "notes": [
+      "hook: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)",
+      "clip_01: step C reads the viewer's takeaway as firmer than the speaker in context (likely -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+     ],
+     "judged": [
+      "hook",
+      "clip_01",
+      "clip_02",
+      "clip_03"
+     ],
+     "ok": true
+    },
+    "coherence": {
+     "through_line": "Bitcoin creates a borderless productivity layer immune to political control that enables voluntary global free markets.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 5,
+      "clip_02": 4,
+      "clip_03": 5
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    },
+    "medley": {
+     "through_line": "The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4,
+      "clip_03": 5
+     },
+     "joins": {
+      "hook -> clip_01": {
+       "followable": true,
+       "why": "both describe positive global economic aspects of Bitcoin"
+      },
+      "clip_01 -> clip_02": {
+       "followable": true,
+       "why": "links productivity measure to merit-based voluntary wealth accumulation"
+      },
+      "clip_02 -> clip_03": {
+       "followable": true,
+       "why": "connects lack of coercive authority to independence from politics"
+      }
+     },
+     "flagged": [],
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    }
+   },
+   "seconds": 0.6,
+   "usd": 0.0,
+   "usd_best_known": 0.0
+  }
+ ],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is a global free-market productivity layer that no political authority controls.",
+   "lineup": [
+    "f216541bd2f9e5eb672d",
+    "c8827879545a98fdec4e",
+    "3b3050f4afd6f3c011e7",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 64.92,
+     "bridge": null,
+     "takeaway_budget": [
+      19,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "takeaway",
+       "text": "The through-line here is that voluntary coordination can outgrow the boundaries of any single jurisdiction. That is a quiet but profound shift in how value gets organized.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin as a global free-market productivity layer",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "c8827879545a98fdec4e"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "A medley on Bitcoin as a borderless productivity layer that no political authority controls.",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "c8827879545a98fdec4e",
+        "3b3050f4afd6f3c011e7",
+        "4f9d38e1d86556b36d9c"
+       ]
+      }
+     ],
+     "violations": [
+      {
+       "slot": "takeaway",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'The through-line here is that voluntary coordination can outgrow the boundaries of any single jurisd' fails speaker_view"
+      },
+      {
+       "slot": "title",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'Bitcoin as a global free-market productivity layer' fails speaker_view"
+      },
+      {
+       "slot": "caption",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'A medley on Bitcoin as a borderless productivity layer that no political authority controls.' fails speaker_view"
+      }
+     ],
+     "verdict_classes": {
+      "takeaway": [
+       "commentary",
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    },
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 62.52,
+     "bridge": null,
+     "takeaway_budget": [
+      19,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "takeaway",
+       "text": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "The idea of a borderless productivity layer beyond political control",
+       "cites": []
+      },
+      {
+       "slot": "caption",
+       "text": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+       "cites": []
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "f216541bd2f9e5eb672d": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Direct claim about Bitcoin creating a global free market",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "c8827879545a98fdec4e": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Analogy likening Bitcoin to a global productivity index like S&P 500",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "3b3050f4afd6f3c011e7": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Explains Bitcoin has no authority to seize wealth; more BTC results from voluntary choice",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "4f9d38e1d86556b36d9c": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker states Bitcoin success independent of US politics and does well when persecuted.",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "f216541bd2f9e5eb672d": {
+       "video_id": "wdk5JZ9hPzs",
+       "start": 3218.14,
+       "end": 3221.64,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "bitcoin imposes a global free market for the first time ever.",
+       "self_repair": "Bit-",
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "bitcoin",
+         "before": "path.",
+         "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+         "self_repair": "Bit-"
+        },
+        "out": {
+         "ok": true,
+         "word": "ever.",
+         "after": "Okay,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "c8827879545a98fdec4e": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 1347.37,
+       "end": 1355.47,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "In a way, I think of Bitcoin being like this global productivity index, similar to the S&P 500 is to individual stocks.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "500"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_1345870_1356970.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "In",
+         "before": "equities.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "stocks.",
+         "after": "Like,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "3b3050f4afd6f3c011e7": {
+       "video_id": "vgsSZ4mAHfQ",
+       "start": 5144.99,
+       "end": 5153.37,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "not"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "vgsSZ4mAHfQ_5143490_5154870.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Bitcoin",
+         "before": "fundamental.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "that.",
+         "after": "Your",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "4f9d38e1d86556b36d9c": {
+       "video_id": "c1JGheQBPH4",
+       "start": 2403.23,
+       "end": 2422.07,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "not",
+         "not"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "c1JGheQBPH4_2401730_2423570.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "I",
+         "before": "Mm-hmm.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "well.",
+         "after": "Um,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Bitcoin creates a borderless productivity layer immune to political control that enables voluntary global free markets.",
+      "clips": {
+       "hook": 5,
+       "clip_01": 5,
+       "clip_02": 4,
+       "clip_03": 5
+      },
+      "vo_point": 4,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4,
+     "clip_03": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both describe positive global economic aspects of Bitcoin"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "links productivity measure to merit-based voluntary wealth accumulation"
+     },
+     "clip_02 -> clip_03": {
+      "followable": true,
+      "why": "connects lack of coercive authority to independence from politics"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "result": "PACKAGE"
+  }
+ ],
+ "unusable": {
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7c46bca70309e1f05c2f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "500fcb95a3b0519c81f8": "20.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6be02607c83590d280db": "23.67 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6645c9ad4109de35828": "25.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3e369b77ef5c3dc70792": "hard exclusion (L-u): ['single_source_breaking']",
+  "4f4996633385a1aa71a0": "23.92 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "93a72a73ccc6c44ed897": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "bf1d09d20f7b2fbba5d9": "38.03 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "df8c617a00a53552c002": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "a746ada209ac1c17a521": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 40,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "55722e7365cc43558d7e": [
+    "CONDITION_OUTSIDE"
+   ],
+   "f3777190a2ef934d854f": [
+    "REFERENT_OUTSIDE"
+   ],
+   "316f66f81603ea55899a": [
+    "REFERENT_OUTSIDE"
+   ],
+   "5d5e163125435e85061a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "98148a8112d2b2a996d6": [
+    "UNCERTAIN"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ]
+  },
+  "second_pass": {
+   "8055c5252b61b9639cbe": "PASS",
+   "f216541bd2f9e5eb672d": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "3b3050f4afd6f3c011e7": "PASS",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "91ca972a48f7ce95d11b": "not cuttable at an edge (ruling C / 7)",
+   "c8827879545a98fdec4e": "PASS",
+   "0c751a33022013fb3086": "PASS",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "9a9ed680fa64a4ae7305": "not cuttable at an edge (ruling C / 7)",
+   "b0b787f8a62d97d81dbb": "PASS",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "4f9d38e1d86556b36d9c": "PASS",
+   "01154f025a00f40132a7": "PASS",
+   "ec76d3ba5033f86461cd": "L-v 2 FAIL",
+   "9b5e0af2287788a52dfc": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 8
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is a global free-market productivity layer that no political authority controls.",
+   "moments": [
+    "f216541bd2f9e5eb672d",
+    "c8827879545a98fdec4e",
+    "3b3050f4afd6f3c011e7",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "hook": "f216541bd2f9e5eb672d"
+  },
+  {
+   "angle": "Bitcoin is undervalued because its politically independent, free-market fundamentals are stronger than the market's short-term risk sentiment.",
+   "moments": [
+    "f216541bd2f9e5eb672d",
+    "4f9d38e1d86556b36d9c",
+    "01154f025a00f40132a7",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "hook": "f216541bd2f9e5eb672d"
+  },
+  {
+   "angle": "Bitcoin's price is driven by sentiment and macro risk, but its underlying value is a voluntary, abundant new internet.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7",
+    "8055c5252b61b9639cbe",
+    "3b3050f4afd6f3c011e7"
+   ],
+   "hook": "0c751a33022013fb3086"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "The through-line here is that voluntary coordination can outgrow the boundaries of any single jurisdiction. That is a quiet but profound shift in how value gets organized.",
+   "words": 27,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [
+    "COMMENTARY"
+   ],
+   "passed": false,
+   "context_framing": []
+  },
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 2,
+   "text": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+   "words": 21,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": {
+  "schema": "pp.package/1",
+  "type": "moments",
+  "angle": "Bitcoin is a global free-market productivity layer that no political authority controls.",
+  "vo_kind": "medley (L-y), written, attempt 2",
+  "style": "medley",
+  "segments": [
+   {
+    "label": "hook",
+    "moment_id": "f216541bd2f9e5eb672d",
+    "video_id": "wdk5JZ9hPzs",
+    "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+    "channel": "Natalie Brunell",
+    "k0": 715,
+    "k1": 715,
+    "words": [
+     8742,
+     8752
+    ],
+    "start": 3218.14,
+    "end": 3221.64,
+    "duration_s": 3.5,
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+    "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+   },
+   {
+    "label": "clip_01",
+    "moment_id": "c8827879545a98fdec4e",
+    "video_id": "Sjb6lUiL0m4",
+    "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+    "channel": "Stephan Livera",
+    "k0": 250,
+    "k1": 250,
+    "words": [
+     3999,
+     4021
+    ],
+    "start": 1347.37,
+    "end": 1355.47,
+    "duration_s": 8.1,
+    "text": "In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+    "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1317s"
+   },
+   {
+    "label": "clip_02",
+    "moment_id": "3b3050f4afd6f3c011e7",
+    "video_id": "vgsSZ4mAHfQ",
+    "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+    "channel": "Saifedean Ammous",
+    "k0": 1179,
+    "k1": 1180,
+    "words": [
+     16659,
+     16688
+    ],
+    "start": 5144.99,
+    "end": 5153.37,
+    "duration_s": 8.38,
+    "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+    "published_at": "2026-11-10T08:21:50+00:00",
+    "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+    "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s"
+   },
+   {
+    "label": "clip_03",
+    "moment_id": "4f9d38e1d86556b36d9c",
+    "video_id": "c1JGheQBPH4",
+    "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+    "channel": "What Bitcoin Did",
+    "k0": 464,
+    "k1": 464,
+    "words": [
+     7325,
+     7386
+    ],
+    "start": 2403.23,
+    "end": 2422.07,
+    "duration_s": 18.84,
+    "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+    "published_at": "2026-11-09T17:00:09+00:00",
+    "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+    "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+   }
+  ],
+  "vo": {
+   "intro": null,
+   "bridges": [
+    "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic."
+   ],
+   "bridges_after_clip": [
+    3
+   ],
+   "signoff": "Clips today from Natalie Brunell, Stephan Livera, Saifedean Ammous, and What Bitcoin Did. Go follow them for more. Links are below."
+  },
+  "title": "The idea of a borderless productivity layer beyond political control",
+  "caption": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+  "hook_first_words": "Bitcoin imposes a global free market for the",
+  "lines": [
+   {
+    "text": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+    "cites": [],
+    "slot": "takeaway"
+   },
+   {
+    "text": "The idea of a borderless productivity layer beyond political control",
+    "cites": [],
+    "slot": "title"
+   },
+   {
+    "text": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+    "cites": [],
+    "slot": "caption"
+   }
+  ],
+  "runtime_s_estimate": 62.52,
+  "runtime_note": "segments 38.82 s (word timing) + VO 21 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "medley": {
+   "through_line": "The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 4,
+    "clip_03": 5
+   },
+   "joins": {
+    "hook -> clip_01": {
+     "followable": true,
+     "why": "both describe positive global economic aspects of Bitcoin"
+    },
+    "clip_01 -> clip_02": {
+     "followable": true,
+     "why": "links productivity measure to merit-based voluntary wealth accumulation"
+    },
+    "clip_02 -> clip_03": {
+     "followable": true,
+     "why": "connects lack of coercive authority to independence from politics"
+    }
+   },
+   "flagged": [],
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 4
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 4
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 4
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 4
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   }
+  },
+  "models": {
+   "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+   "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+   "medley": "xai:grok-4.20-0309-reasoning",
+   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+   "context": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning",
+     "clip_03": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "coherence": "xai:grok-4.20-0309-reasoning"
+  },
+  "checks": {
+   "fidelity": {
+    "deterministic": {
+     "ok": true,
+     "violations": [],
+     "price_now_measured": true
+    },
+    "verdict": {
+     "ok": true,
+     "claims": [
+      {
+       "line": "takeaway",
+       "words": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+       "class": "commentary",
+       "claim": "I find it plausible that decentralized systems leave room for voluntary exchange to outlast centralized gatekeeping, even if that sounds idealistic.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "The idea of a borderless productivity layer beyond political control",
+       "class": "commentary",
+       "claim": "The idea of a borderless productivity layer beyond political control",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+       "class": "commentary",
+       "claim": "A medley on the idea of a borderless productivity layer that no political authority controls.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      }
+     ],
+     "violations": [],
+     "classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    },
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false,
+    "seed": 7,
+    "violations": [],
+    "ok": true
+   },
+   "context": {
+    "segments": {
+     "hook": {
+      "A": {
+       "label": "f216541bd2f9e5eb672d",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "speculative",
+       "speaker_is": "guest",
+       "speaker_evidence": "Okay, so let's wrap this up with maybe some news you can use. How do you share this message with people that believe that there's a fix from within the control system",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "hook",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "yes",
+       "raising_words": ""
+      },
+      "window": [
+       685,
+       725
+      ]
+     },
+     "clip_01": {
+      "A": {
+       "label": "c8827879545a98fdec4e",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "this",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin can be thought of as a global productivity index in a similar way that the S&P 500 relates to individual stocks.",
+       "certainty": "likely",
+       "speaker_is": "guest",
+       "speaker_evidence": "Yeah, it's a really interesting question. Yeah, I mean, that's probably an endless rabbit hold that you could twist your brain around.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_01",
+       "asserts": "Bitcoin is like this global productivity index, similar to the S&P 500 for individual stocks.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_01",
+       "asserts": "Bitcoin is like a global productivity index, similar to the S&P 500 for individual stocks.",
+       "certainty": "likely",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_01",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "yes",
+       "raising_words": ""
+      },
+      "window": [
+       224,
+       262
+      ]
+     },
+     "clip_02": {
+      "A": {
+       "label": "3b3050f4afd6f3c011e7",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "that",
+         "refers_to": "some people end up with more Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin has no authority allowing anyone to take others' wealth, so unequal holdings result purely from voluntary choice.",
+       "certainty": "certain",
+       "speaker_is": "host",
+       "speaker_evidence": "No, it absolutely is not. And I think the fundamental difference in the way that this is presented demonstrates a very, very serious difference in the worldview.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_02",
+       "asserts": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_02",
+       "asserts": "Bitcoin has no authority allowing seizure of others' wealth, and unequal holdings result from voluntary choices.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_02",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       1157,
+       1200
+      ]
+     },
+     "clip_03": {
+      "A": {
+       "label": "4f9d38e1d86556b36d9c",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        },
+        {
+         "word": "its",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        },
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin's success is independent of who is in the White House or controls Congress and it tends to perform well when persecuted.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "But I guess the thing I'm nervous about is because Trump has been supportive of Bitcoin, does that mean that any of these sort of future Democrat Party is automatically going to be against Bitcoin? Mm -hmm.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_03",
+       "asserts": "The good news about Bitcoin is its success is not dependent upon US political control, and it tends to do well when persecuted.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_03",
+       "asserts": "Bitcoin's success is independent of US political control and it tends to perform well when persecuted.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_03",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       446,
+       473
+      ]
+     }
+    },
+    "relations": [
+     {
+      "labels": [
+       "hook",
+       "clip_01"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_03"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_03"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_02",
+       "clip_03"
+      ],
+      "relation": "none"
+     }
+    ],
+    "violations": [],
+    "backends": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning",
+      "clip_03": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "measured": true,
+    "replayed": false,
+    "notes": [
+     "hook: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)",
+     "clip_01: step C reads the viewer's takeaway as firmer than the speaker in context (likely -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+    ],
+    "judged": [
+     "hook",
+     "clip_01",
+     "clip_02",
+     "clip_03"
+    ],
+    "ok": true
+   },
+   "coherence": {
+    "through_line": "Bitcoin creates a borderless productivity layer immune to political control that enables voluntary global free markets.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 5
+    },
+    "vo_point": 4,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley": {
+    "through_line": "The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4,
+     "clip_03": 5
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both describe positive global economic aspects of Bitcoin"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "links productivity measure to merit-based voluntary wealth accumulation"
+     },
+     "clip_02 -> clip_03": {
+      "followable": true,
+      "why": "connects lack of coercive authority to independence from politics"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   }
+  },
+  "seconds": 0.6,
+  "usd": 0.0,
+  "usd_best_known": 0.0
+ },
+ "seconds": 0.6,
+ "usd": 0.0,
+ "run": "fresh_20261111_213954",
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:22 EST",
+ "as_of": "2026-11-11T21:39:56.204360+00:00",
+ "full": {
+  "est": 1.5607,
+  "best": 0.2309,
+  "model_s": 684.95,
+  "calls": 34
+ },
+ "pin": {
+  "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_LY.json",
+  "story_id": "moments-fresh_20261111_213954-655ee7fc",
+  "package_sha256": "655ee7fce7de323f90d157ac3443240008fe3590687f494d10243a7522eacd1a"
+ }
+}

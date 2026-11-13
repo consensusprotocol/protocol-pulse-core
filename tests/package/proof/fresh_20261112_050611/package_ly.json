@@ -1,0 +1,1602 @@
+{
+ "shape": "medley",
+ "packages": [
+  {
+   "schema": "pp.package/1",
+   "type": "moments",
+   "angle": "Bitcoin is the most undervalued asset because it is a global free market outside government control.",
+   "vo_kind": "medley (L-y), written, attempt 1",
+   "style": "medley",
+   "segments": [
+    {
+     "label": "hook",
+     "moment_id": "f216541bd2f9e5eb672d",
+     "video_id": "wdk5JZ9hPzs",
+     "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+     "channel": "Natalie Brunell",
+     "k0": 715,
+     "k1": 715,
+     "words": [
+      8742,
+      8752
+     ],
+     "start": 3218.14,
+     "end": 3221.64,
+     "duration_s": 3.5,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "published_at": "2026-11-10T13:45:51+00:00",
+     "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+     "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+    },
+    {
+     "label": "clip_01",
+     "moment_id": "4f9d38e1d86556b36d9c",
+     "video_id": "c1JGheQBPH4",
+     "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+     "channel": "What Bitcoin Did",
+     "k0": 464,
+     "k1": 464,
+     "words": [
+      7325,
+      7386
+     ],
+     "start": 2403.23,
+     "end": 2422.07,
+     "duration_s": 18.84,
+     "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+     "published_at": "2026-11-09T17:00:09+00:00",
+     "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+     "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+    },
+    {
+     "label": "clip_02",
+     "moment_id": "b0b787f8a62d97d81dbb",
+     "video_id": "Sjb6lUiL0m4",
+     "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+     "channel": "Stephan Livera",
+     "k0": 331,
+     "k1": 333,
+     "words": [
+      5401,
+      5443
+     ],
+     "start": 1826.54,
+     "end": 1843.48,
+     "duration_s": 16.94,
+     "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+     "published_at": "2026-11-11T18:03:23+00:00",
+     "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+     "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+    }
+   ],
+   "vo": {
+    "intro": null,
+    "bridges": [
+     "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant."
+    ],
+    "bridges_after_clip": [
+     2
+    ],
+    "signoff": "Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below."
+   },
+   "title": "Bitcoin's overlooked value comes from a market no government owns",
+   "caption": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+   "hook_first_words": "Bitcoin imposes a global free market for the",
+   "lines": [
+    {
+     "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+     "cites": [],
+     "slot": "takeaway"
+    },
+    {
+     "text": "Bitcoin's overlooked value comes from a market no government owns",
+     "cites": [
+      "f216541bd2f9e5eb672d",
+      "4f9d38e1d86556b36d9c",
+      "b0b787f8a62d97d81dbb"
+     ],
+     "slot": "title"
+    },
+    {
+     "text": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+     "cites": [
+      "f216541bd2f9e5eb672d",
+      "4f9d38e1d86556b36d9c",
+      "b0b787f8a62d97d81dbb"
+     ],
+     "slot": "caption"
+    }
+   ],
+   "runtime_s_estimate": 66.18,
+   "runtime_note": "segments 39.28 s (word timing) + VO 29 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+   "shape": "medley",
+   "bridge": null,
+   "supply_exception": null,
+   "medley": {
+    "through_line": "Bitcoin creates a global free market independent of political control and is significantly undervalued.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Both highlight Bitcoin's independence from government"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Ends on doing well price-wise, leads to undervalued discussion"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "gates": {
+    "vo_fidelity_deterministic": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.check_deterministic)",
+     "replayed": false,
+     "n": 1
+    },
+    "vo_fidelity_verdict": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "duplicate": {
+     "status": "PASS",
+     "by": "code (package.duplicates)",
+     "replayed": false,
+     "n": 1
+    },
+    "price_now": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.price_now)",
+     "replayed": false,
+     "n": 1
+    },
+    "runtime": {
+     "status": "PASS",
+     "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+     "replayed": false,
+     "n": 1
+    },
+    "r4": {
+     "status": "PASS",
+     "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+     "replayed": false,
+     "n": 1
+    },
+    "context_a": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "context_b": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "context_c": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "exclusion": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "second_pass": {
+     "status": "PASS",
+     "by": [
+      "elevenlabs_stt:scribe_v1"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "cuttable": {
+     "status": "PASS",
+     "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+     "replayed": false,
+     "n": 3
+    },
+    "coherence": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "medley": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1,
+     "flagged": []
+    },
+    "ly_shape": {
+     "status": "PASS",
+     "by": "code (package.ly_shape, L-y)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    }
+   },
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   },
+   "checks": {
+    "fidelity": {
+     "deterministic": {
+      "ok": true,
+      "violations": [],
+      "price_now_measured": true
+     },
+     "verdict": {
+      "ok": true,
+      "claims": [
+       {
+        "line": "takeaway",
+        "words": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+        "class": "commentary",
+        "claim": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "Bitcoin's overlooked value comes from a market no government owns",
+        "class": "commentary",
+        "claim": "Bitcoin's overlooked value comes from a market no government owns",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+        "class": "commentary",
+        "claim": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       }
+      ],
+      "violations": [],
+      "classes": {
+       "takeaway": [
+        "commentary"
+       ],
+       "title": [
+        "commentary"
+       ],
+       "caption": [
+        "commentary"
+       ]
+      }
+     },
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false,
+     "seed": 7,
+     "violations": [],
+     "ok": true
+    },
+    "context": {
+     "segments": {
+      "hook": {
+       "A": {
+        "label": "f216541bd2f9e5eb672d",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "Bitcoin imposes a global free market for the first time ever. Okay, so let's wrap this up with maybe some news you can use.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "hook",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        685,
+        725
+       ]
+      },
+      "clip_01": {
+       "A": {
+        "label": "4f9d38e1d86556b36d9c",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "its",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         }
+        ],
+        "conditions": [
+         {
+          "text": "when it's persecuted and when it's in the crosshairs",
+          "inside": true
+         }
+        ],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin's success is not dependent on who controls the White House, Senate or House, and it tends to perform well when persecuted.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "Mm -hmm.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_01",
+        "asserts": "The good news about Bitcoin is that its success is not dependent upon who's in the White House or controlling the Senate or House, and it tends to do well when persecuted.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_01",
+        "asserts": "The good news about Bitcoin is that its success is not dependent on US political control and it tends to do well when persecuted.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_01",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        446,
+        473
+       ]
+      },
+      "clip_02": {
+       "A": {
+        "label": "b0b787f8a62d97d81dbb",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "It",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with gold parity around $1.4-1.5 million per Bitcoin, making it very undervalued.",
+        "certainty": "speculative",
+        "speaker_is": "guest",
+        "speaker_evidence": "I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_02",
+        "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with Bitcoin gold parity around $1.4-1.5 million per Bitcoin.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_02",
+        "asserts": "Bitcoin is by far the most undervalued asset in the global financial system with gold parity around $1.5 million per Bitcoin.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_02",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "yes",
+        "raising_words": ""
+       },
+       "window": [
+        316,
+        349
+       ]
+      }
+     },
+     "relations": [
+      {
+       "labels": [
+        "hook",
+        "clip_01"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_02"
+       ],
+       "relation": "none"
+      }
+     ],
+     "violations": [],
+     "backends": {
+      "A": {
+       "hook": "xai:grok-4.20-0309-reasoning",
+       "clip_01": "xai:grok-4.20-0309-reasoning",
+       "clip_02": "xai:grok-4.20-0309-reasoning"
+      },
+      "B0": "xai:grok-4.20-0309-reasoning",
+      "B": "xai:grok-4.20-0309-reasoning",
+      "C": "xai:grok-4.20-0309-reasoning"
+     },
+     "measured": true,
+     "replayed": false,
+     "notes": [
+      "clip_02: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+     ],
+     "judged": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "ok": true
+    },
+    "coherence": {
+     "through_line": "Bitcoin's overlooked value comes from imposing a global free market that no government owns or can control, making it the most undervalued asset independent of political drama.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "vo_point": 5,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    },
+    "medley": {
+     "through_line": "Bitcoin creates a global free market independent of political control and is significantly undervalued.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "joins": {
+      "hook -> clip_01": {
+       "followable": true,
+       "why": "Both highlight Bitcoin's independence from government"
+      },
+      "clip_01 -> clip_02": {
+       "followable": true,
+       "why": "Ends on doing well price-wise, leads to undervalued discussion"
+      }
+     },
+     "flagged": [],
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    }
+   },
+   "seconds": 2.4,
+   "usd": 0.0,
+   "usd_best_known": 0.0
+  }
+ ],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is the most undervalued asset because it is a global free market outside government control.",
+   "lineup": [
+    "f216541bd2f9e5eb672d",
+    "4f9d38e1d86556b36d9c",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 66.18,
+     "bridge": null,
+     "takeaway_budget": [
+      18,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "takeaway",
+       "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin's overlooked value comes from a market no government owns",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "4f9d38e1d86556b36d9c",
+        "b0b787f8a62d97d81dbb"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "4f9d38e1d86556b36d9c",
+        "b0b787f8a62d97d81dbb"
+       ]
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "f216541bd2f9e5eb672d": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Direct claim about Bitcoin creating a global free market",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "4f9d38e1d86556b36d9c": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker states Bitcoin success independent of US politics and does well when persecuted.",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "b0b787f8a62d97d81dbb": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "speaker opinion on BTC undervalued vs gold, no risks apply",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "f216541bd2f9e5eb672d": {
+       "video_id": "wdk5JZ9hPzs",
+       "start": 3218.14,
+       "end": 3221.64,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "bitcoin imposes a global free market for the first time ever.",
+       "self_repair": "Bit-",
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "bitcoin",
+         "before": "path.",
+         "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+         "self_repair": "Bit-"
+        },
+        "out": {
+         "ok": true,
+         "word": "ever.",
+         "after": "Okay,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "4f9d38e1d86556b36d9c": {
+       "video_id": "c1JGheQBPH4",
+       "start": 2403.23,
+       "end": 2422.07,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "not",
+         "not"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "c1JGheQBPH4_2401730_2423570.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "I",
+         "before": "Mm-hmm.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "well.",
+         "after": "Um,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "b0b787f8a62d97d81dbb": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 1826.54,
+       "end": 1843.48,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around, like, $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "1.5",
+         "1400000"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_1825040_1844980.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "However,",
+         "before": "tomorrow.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "undervalued.",
+         "after": "Like,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Bitcoin's overlooked value comes from imposing a global free market that no government owns or can control, making it the most undervalued asset independent of political drama.",
+      "clips": {
+       "hook": 5,
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 5,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin creates a global free market independent of political control and is significantly undervalued.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Both highlight Bitcoin's independence from government"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Ends on doing well price-wise, leads to undervalued discussion"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "result": "PACKAGE"
+  }
+ ],
+ "unusable": {
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1e31dd4b7ddb686a18d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "bb4e1ce55c244ad108e1": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "1b82abcee7fb3034a40d": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1d4382d292f18207ea2": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c6d4845f9d7643e6a1c": "20.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6c26e6ba3e9362d33c6e": "30.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "fb5522673f5af6c7d405": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a093672188a95f92324f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6645c9ad4109de35828": "25.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "1a4a93dd82cd9db5344d": "40.05 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "5fcaee37108031034f78": "24.08 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 37,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 20,
+  "failed": {
+   "aff2e3571d56180a9e06": [
+    "NOT_OWN_SINCERE"
+   ],
+   "c0db3cbbdd5d08a64e85": [
+    "REFERENT_OUTSIDE"
+   ],
+   "316f66f81603ea55899a": [
+    "REFERENT_OUTSIDE"
+   ],
+   "7a5f734f844bbfd67c1f": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "second_pass": {
+   "b0b787f8a62d97d81dbb": "PASS",
+   "40ffa6e345a223d30429": "PASS",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "f216541bd2f9e5eb672d": "PASS",
+   "b67215ae008c60a827bd": "not cuttable at an edge (ruling C / 7)",
+   "a3a5a50ffc1f5bed0174": "not cuttable at an edge (ruling C / 7)",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "4f9d38e1d86556b36d9c": "PASS",
+   "01154f025a00f40132a7": "PASS",
+   "5314289c424298d950c4": "PASS",
+   "5d5e163125435e85061a": "PASS",
+   "0c751a33022013fb3086": "PASS",
+   "60174b6059b1d67c34bd": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "3b3050f4afd6f3c011e7": "PASS",
+   "8055c5252b61b9639cbe": "PASS",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 11
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is the most undervalued asset because it is a global free market outside government control.",
+   "moments": [
+    "f216541bd2f9e5eb672d",
+    "3b3050f4afd6f3c011e7",
+    "4f9d38e1d86556b36d9c",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "hook": "f216541bd2f9e5eb672d"
+  },
+  {
+   "angle": "Bitcoin is the undervalued exit from government money into a new internet of abundance.",
+   "moments": [
+    "8055c5252b61b9639cbe",
+    "863cc95ab7c5e0c11482",
+    "5d5e163125435e85061a",
+    "b0b787f8a62d97d81dbb"
+   ],
+   "hook": "8055c5252b61b9639cbe"
+  },
+  {
+   "angle": "Bitcoin ownership is free from authority, but its price still swings with government rules and market sentiment.",
+   "moments": [
+    "3b3050f4afd6f3c011e7",
+    "5d5e163125435e85061a",
+    "01154f025a00f40132a7",
+    "0c751a33022013fb3086"
+   ],
+   "hook": "3b3050f4afd6f3c011e7"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+   "words": 29,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": {
+  "schema": "pp.package/1",
+  "type": "moments",
+  "angle": "Bitcoin is the most undervalued asset because it is a global free market outside government control.",
+  "vo_kind": "medley (L-y), written, attempt 1",
+  "style": "medley",
+  "segments": [
+   {
+    "label": "hook",
+    "moment_id": "f216541bd2f9e5eb672d",
+    "video_id": "wdk5JZ9hPzs",
+    "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+    "channel": "Natalie Brunell",
+    "k0": 715,
+    "k1": 715,
+    "words": [
+     8742,
+     8752
+    ],
+    "start": 3218.14,
+    "end": 3221.64,
+    "duration_s": 3.5,
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+    "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+   },
+   {
+    "label": "clip_01",
+    "moment_id": "4f9d38e1d86556b36d9c",
+    "video_id": "c1JGheQBPH4",
+    "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+    "channel": "What Bitcoin Did",
+    "k0": 464,
+    "k1": 464,
+    "words": [
+     7325,
+     7386
+    ],
+    "start": 2403.23,
+    "end": 2422.07,
+    "duration_s": 18.84,
+    "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+    "published_at": "2026-11-09T17:00:09+00:00",
+    "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+    "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+   },
+   {
+    "label": "clip_02",
+    "moment_id": "b0b787f8a62d97d81dbb",
+    "video_id": "Sjb6lUiL0m4",
+    "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+    "channel": "Stephan Livera",
+    "k0": 331,
+    "k1": 333,
+    "words": [
+     5401,
+     5443
+    ],
+    "start": 1826.54,
+    "end": 1843.48,
+    "duration_s": 16.94,
+    "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+    "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+   }
+  ],
+  "vo": {
+   "intro": null,
+   "bridges": [
+    "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant."
+   ],
+   "bridges_after_clip": [
+    2
+   ],
+   "signoff": "Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below."
+  },
+  "title": "Bitcoin's overlooked value comes from a market no government owns",
+  "caption": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+  "hook_first_words": "Bitcoin imposes a global free market for the",
+  "lines": [
+   {
+    "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+    "cites": [],
+    "slot": "takeaway"
+   },
+   {
+    "text": "Bitcoin's overlooked value comes from a market no government owns",
+    "cites": [
+     "f216541bd2f9e5eb672d",
+     "4f9d38e1d86556b36d9c",
+     "b0b787f8a62d97d81dbb"
+    ],
+    "slot": "title"
+   },
+   {
+    "text": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+    "cites": [
+     "f216541bd2f9e5eb672d",
+     "4f9d38e1d86556b36d9c",
+     "b0b787f8a62d97d81dbb"
+    ],
+    "slot": "caption"
+   }
+  ],
+  "runtime_s_estimate": 66.18,
+  "runtime_note": "segments 39.28 s (word timing) + VO 29 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "medley": {
+   "through_line": "Bitcoin creates a global free market independent of political control and is significantly undervalued.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 4
+   },
+   "joins": {
+    "hook -> clip_01": {
+     "followable": true,
+     "why": "Both highlight Bitcoin's independence from government"
+    },
+    "clip_01 -> clip_02": {
+     "followable": true,
+     "why": "Ends on doing well price-wise, leads to undervalued discussion"
+    }
+   },
+   "flagged": [],
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   }
+  },
+  "models": {
+   "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+   "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+   "medley": "xai:grok-4.20-0309-reasoning",
+   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+   "context": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "coherence": "xai:grok-4.20-0309-reasoning"
+  },
+  "checks": {
+   "fidelity": {
+    "deterministic": {
+     "ok": true,
+     "violations": [],
+     "price_now_measured": true
+    },
+    "verdict": {
+     "ok": true,
+     "claims": [
+      {
+       "line": "takeaway",
+       "words": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+       "class": "commentary",
+       "claim": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "Bitcoin's overlooked value comes from a market no government owns",
+       "class": "commentary",
+       "claim": "Bitcoin's overlooked value comes from a market no government owns",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+       "class": "commentary",
+       "claim": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      }
+     ],
+     "violations": [],
+     "classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    },
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false,
+    "seed": 7,
+    "violations": [],
+    "ok": true
+   },
+   "context": {
+    "segments": {
+     "hook": {
+      "A": {
+       "label": "f216541bd2f9e5eb672d",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "Bitcoin imposes a global free market for the first time ever. Okay, so let's wrap this up with maybe some news you can use.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "hook",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       685,
+       725
+      ]
+     },
+     "clip_01": {
+      "A": {
+       "label": "4f9d38e1d86556b36d9c",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "its",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        }
+       ],
+       "conditions": [
+        {
+         "text": "when it's persecuted and when it's in the crosshairs",
+         "inside": true
+        }
+       ],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin's success is not dependent on who controls the White House, Senate or House, and it tends to perform well when persecuted.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "Mm -hmm.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_01",
+       "asserts": "The good news about Bitcoin is that its success is not dependent upon who's in the White House or controlling the Senate or House, and it tends to do well when persecuted.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_01",
+       "asserts": "The good news about Bitcoin is that its success is not dependent on US political control and it tends to do well when persecuted.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_01",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       446,
+       473
+      ]
+     },
+     "clip_02": {
+      "A": {
+       "label": "b0b787f8a62d97d81dbb",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "It",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with gold parity around $1.4-1.5 million per Bitcoin, making it very undervalued.",
+       "certainty": "speculative",
+       "speaker_is": "guest",
+       "speaker_evidence": "I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_02",
+       "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with Bitcoin gold parity around $1.4-1.5 million per Bitcoin.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_02",
+       "asserts": "Bitcoin is by far the most undervalued asset in the global financial system with gold parity around $1.5 million per Bitcoin.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_02",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "yes",
+       "raising_words": ""
+      },
+      "window": [
+       316,
+       349
+      ]
+     }
+    },
+    "relations": [
+     {
+      "labels": [
+       "hook",
+       "clip_01"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_02"
+      ],
+      "relation": "none"
+     }
+    ],
+    "violations": [],
+    "backends": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "measured": true,
+    "replayed": false,
+    "notes": [
+     "clip_02: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+    ],
+    "judged": [
+     "hook",
+     "clip_01",
+     "clip_02"
+    ],
+    "ok": true
+   },
+   "coherence": {
+    "through_line": "Bitcoin's overlooked value comes from imposing a global free market that no government owns or can control, making it the most undervalued asset independent of political drama.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "vo_point": 5,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley": {
+    "through_line": "Bitcoin creates a global free market independent of political control and is significantly undervalued.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Both highlight Bitcoin's independence from government"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Ends on doing well price-wise, leads to undervalued discussion"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   }
+  },
+  "seconds": 2.4,
+  "usd": 0.0,
+  "usd_best_known": 0.0
+ },
+ "seconds": 2.4,
+ "usd": 0.0,
+ "run": "fresh_20261112_050611",
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:09 EST",
+ "as_of": "2026-11-12T05:06:13.234375+00:00",
+ "full": {
+  "est": 0.9811,
+  "best": 0.1497,
+  "model_s": 578.47,
+  "calls": 31
+ },
+ "pin": {
+  "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+  "story_id": "moments-fresh_20261112_050611-41f29b1f",
+  "package_sha256": "41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70"
+ }
+}

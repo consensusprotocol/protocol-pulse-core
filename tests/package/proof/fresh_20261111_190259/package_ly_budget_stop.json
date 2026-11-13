@@ -1,0 +1,230 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is a global free market that no authority controls, which is why it is undervalued despite being seen as risky.",
+   "lineup": [
+    "f216541bd2f9e5eb672d",
+    "b0b787f8a62d97d81dbb",
+    "01154f025a00f40132a7",
+    "f56505eda00b45f4675e"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin is a highly undervalued asset enabling a global free market without central authorities.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 3,
+     "clip_03": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt shift from free market to specific undervaluation with no linking idea"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "both discuss Bitcoin's position and risks in the financial system"
+     },
+     "clip_02 -> clip_03": {
+      "followable": false,
+      "why": "unconnected jump from rates/risk to voluntary ownership and no authority"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01",
+     "clip_02 -> clip_03"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['01154f025a00f40132a7', 'f56505eda00b45f4675e'], re-lined"
+  },
+  {
+   "angle": 1,
+   "text": "Bitcoin is a global free market that no authority controls, which is why it is undervalued despite being seen as risky.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2d2ee640cf1d2adab655": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "219465c7c3b73c49143a": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "2952b07ede23dd542a69": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "82a9946883d124030934": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "c6e1e853c2ae8ea88ddb": "40.39 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "cc661d19abea81e5b9b7": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "a51d8398638df74b3f4a": "20.48 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6ad350843b54d1f48f05": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 40,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "7a17f3252d14fe2ed7aa": [
+    "REFERENT_OUTSIDE"
+   ],
+   "04a149678014424229d3": [
+    "NOT_OWN_SINCERE"
+   ],
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "43e6d312e1a1e6a4e33c": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "91ca972a48f7ce95d11b": [
+    "REFERENT_OUTSIDE"
+   ],
+   "c6cdbadebbac52e4e623": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "8055c5252b61b9639cbe": "PASS",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "984b91dd88d5f86e3158": "PASS",
+   "6d91c6af0e23f79c946e": "not cuttable at an edge (ruling C / 7)",
+   "b0b787f8a62d97d81dbb": "PASS",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "01154f025a00f40132a7": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "9a9ed680fa64a4ae7305": "not cuttable at an edge (ruling C / 7)",
+   "f216541bd2f9e5eb672d": "PASS",
+   "f56505eda00b45f4675e": "PASS",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "4f9d38e1d86556b36d9c": "PASS"
+  },
+  "cuttable": 8
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is a global free market that no authority controls, which is why it is undervalued despite being seen as risky.",
+   "moments": [
+    "f216541bd2f9e5eb672d",
+    "b0b787f8a62d97d81dbb",
+    "01154f025a00f40132a7",
+    "f56505eda00b45f4675e"
+   ],
+   "hook": "f216541bd2f9e5eb672d"
+  },
+  {
+   "angle": "Bitcoin's price is driven by sentiment and macro risk appetite, even though it is a global free market no authority controls.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7",
+    "f216541bd2f9e5eb672d",
+    "f56505eda00b45f4675e"
+   ],
+   "hook": "0c751a33022013fb3086"
+  },
+  {
+   "angle": "Bitcoin is a new internet and global free market that no authority controls, even if markets see it as risky.",
+   "moments": [
+    "8055c5252b61b9639cbe",
+    "f56505eda00b45f4675e",
+    "01154f025a00f40132a7",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "hook": "8055c5252b61b9639cbe"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "why_none": "stopped after angle 1 of 3: 869 s of the 720 s / $0.79 of the $3.00 (estimate) per-package budget (05:25 item 5, twice)",
+ "budget_stop": {
+  "seconds": 869.0,
+  "usd_estimate": 0.7912,
+  "angles_tried": 1,
+  "angles": 3
+ },
+ "seconds": 869.0,
+ "usd": 0.7912,
+ "run": "fresh_20261111_190259",
+ "usd_estimate": 0.7912,
+ "usd_best_known": 0.0254,
+ "code": "cf0dcaf5+eb79e9262e3a",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 21:42:48 EST"
+}

@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "acdd9aa3e4409b1e2ccefb6df665f36c3e57ab438cb30271d74ff12da7c3f707",
+ "result": {
+  "text": "Not as necessary. You know, Bitcoin's pretty clearly not a security. It's, uh, no one's trying to make that case anymore. Um- Yeah ... so it, it didn't necessarily, uh, Bitcoin didn't necessarily need clarity to pass. But similarly, I think the",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.32,
+    "text": "Not as necessary. You know, Bitcoin's pretty clearly not a security. It's, uh, no one's trying to make that case anymore. Um-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 7.42,
+    "end": 7.5,
+    "text": "Yeah"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 7.5,
+    "end": 12.9,
+    "text": "... so it, it didn't necessarily, uh, Bitcoin didn't necessarily need clarity to pass. But similarly, I think the"
+   }
+  ],
+  "words": [
+   {
+    "text": "Not",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 0.36,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessary.",
+    "start": 0.58,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.44,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 1.52,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 1.7,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 2.42,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clearly",
+    "start": 2.66,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 3.18,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.46,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "security.",
+    "start": 3.6,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 4.24,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.62,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 4.88,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one's",
+    "start": 4.98,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 5.16,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.32,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 5.42,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.6,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case",
+    "start": 5.8,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anymore.",
+    "start": 6.06,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um-",
+    "start": 7.12,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah",
+    "start": 7.42,
+    "end": 7.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 7.5,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.58,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 7.72,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.92,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 8.02,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessarily,",
+    "start": 8.24,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 9.46,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.6,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 9.92,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "necessarily",
+    "start": 10.08,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 10.52,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clarity",
+    "start": 10.74,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.08,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pass.",
+    "start": 11.2,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 11.54,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "similarly,",
+    "start": 11.74,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.28,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 12.38,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.72,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.96
+ },
+ "usd": 0.002592,
+ "seconds": 1.91,
+ "recorded_at": "2026-11-13T02:19:44Z"
+}

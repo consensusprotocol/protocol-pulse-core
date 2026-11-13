@@ -221,6 +221,17 @@ class OpenAIBackend(Backend):
         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
 
 
+def _num(x):
+    import math
+    return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) and x >= 0
+
+
+def _reported(usd):
+    """{"usd_reported": the vendor's own figure for this call} when the reply carries one, else {} (the ledger then keeps
+    the price-table estimate for it, labelled as an estimate)."""
+    return {"usd_reported": round(float(usd), 8)} if _num(usd) else {}
+
+
 class HeimdallBackend(OpenAIBackend):
     """Heimdall: an OpenAI-compatible multi-model API (HEIMDALL_API_KEY) at the config's base_url. JSON is asked for in
     words only (its models differ in json_object support); its /credits endpoint feeds the 90% tripwire."""
@@ -246,7 +257,8 @@ class HeimdallBackend(OpenAIBackend):
             text = j["choices"][0]["message"].get("content") or ""
         except (KeyError, IndexError, TypeError):
             raise RequestRejected("heimdall: no choices") from None
-        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
+        return text, dict({"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)},
+                          **_reported(u.get("cost"))), time.time() - t0
 
     def credits(self):
         """(total_usage, total_credits) in USD from GET /credits, or None when it cannot be read."""
@@ -285,8 +297,9 @@ class XAIBackend(Backend):
             text = j["choices"][0]["message"].get("content") or ""
         except (KeyError, IndexError, TypeError):
             raise RequestRejected("xai: no choices") from None
-        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning}, \
-            time.time() - t0
+        ticks = u.get("cost_in_usd_ticks")                    # the vendor's own cost: 1 USD = 1e10 ticks
+        return text, dict({"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning},
+                          **_reported(ticks / 1e10 if _num(ticks) else None)), time.time() - t0
 
 
 class AnthropicBackend(Backend):
@@ -575,6 +588,13 @@ class Router:
                 r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
                 r.update(calls=r["calls"] + 1, usd_estimate=round(r["usd_estimate"] + usd, 6))
                 d.update(calls=d["calls"] + 1, usd_estimate=round(d["usd_estimate"] + usd, 6))
+                if _num(usage.get("usd_reported")):    # the vendor's own figure (xAI ticks, Heimdall usage.cost)
+                    rep = float(usage["usd_reported"])
+                    b.update(usd_reported=round(b.get("usd_reported", 0.0) + rep, 8),
+                             reported_calls=b.get("reported_calls", 0) + 1)
+                    d["usd_reported"] = round(d.get("usd_reported", 0.0) + rep, 8)
+                else:                                  # no vendor figure: the estimate stands for this call
+                    d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) + usd, 6)
             self._save(d)
 
     def reject(self, reply, why=""):

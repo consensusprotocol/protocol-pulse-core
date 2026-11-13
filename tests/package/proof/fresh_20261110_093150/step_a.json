@@ -1,0 +1,325 @@
+{
+ "876662b7dc4e961d47e1:9d43580c729b": {
+  "label": "876662b7dc4e961d47e1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the situation where intermediaries rather than Bitcoin are getting hacked",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is not Bitcoin that is getting hacked but other intermediaries, which in some ways highlights the secure and unique nature of Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Our office intentionally stayed out of any pardon discussions. There is a pardon czar. I don't know if it's officially a czar role, but someone that's in charge of that and kind of runs all of those things through the White House counsel's office. You know, for a number of reasons, David, myself, Bo, like that was never something that we wanted to be involved in.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c38aec1a984e418619d5:9d43580c729b": {
+  "label": "c38aec1a984e418619d5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin's last cycle high of 69K in November of 2021",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the inflation-adjusted equivalent of the 69K high",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the calculation of being 10% below the inflation-adjusted high",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "today",
+    "refers_to": "the time of the video in November 2026",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's 2021 cycle high of 69K adjusts for inflation to about 83.5K today, meaning it remains around 10% below that high in real terms using CPI which understates inflation.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a5836cd284a9185c2350:9d43580c729b": {
+  "label": "a5836cd284a9185c2350",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has performed exceptionally well despite all the bad news, as it remains up 25% from lows below 60K while other markets are rattled.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "57671945c6879045237c:9d43580c729b": {
+  "label": "57671945c6879045237c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "U.S. Bitcoin ETFs had about 1.3 billion dollars in net outflows just last week.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "The news of the week, all in one block, brought to you exclusively by Leden.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fa8873536a79d37e65f6:9d43580c729b": {
+  "label": "fa8873536a79d37e65f6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has just lost the 50-week moving average line that had signaled the bear market was over.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7605290f4214546e1fd0:9d43580c729b": {
+  "label": "7605290f4214546e1fd0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "here",
+    "refers_to": "current Bitcoin price level near 75K",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "more than 10 billion dollars of levered shorts",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if price turns up even a little bit",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On the daily chart Bitcoin is the most oversold since the bottom near 58K, with more than 10 billion of levered shorts stacked between current levels and 83K so that a small upward move would force those shorts to cover and produce a big squeeze.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7a17f3252d14fe2ed7aa:9d43580c729b": {
+  "label": "7a17f3252d14fe2ed7aa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "Nvidia's reliance on one man as CEO combined with the scandal causing over 200 billion in market value loss",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Nvidia's dependence on a single CEO is a glaring reason why Bitcoin having no CEO is a feature not a bug.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93a72a73ccc6c44ed897:9d43580c729b": {
+  "label": "93a72a73ccc6c44ed897",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this morning",
+    "refers_to": "the morning of the day the video segment was recorded",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Over the last 10 years Bitcoin and Nvidia have both gone up 100x, and as of this morning Bitcoin is back on top as the best performing asset of the last 10 years.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truth Block. I'm Hurley. Let's mind truth.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4931432a6157accb80d7:9d43580c729b": {
+  "label": "4931432a6157accb80d7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Trump administration team including the speaker",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The administration created the Strategic Bitcoin Reserve via executive order, which stopped the government from selling crypto assets in a fire-sale manner.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So when you go into that, how much do you have to work on just getting everyone up to a base level understanding on Bitcoin and why this is important? It completely varies.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4be7bf773bbcbb896e0c:9d43580c729b": {
+  "label": "4be7bf773bbcbb896e0c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is pretty clearly not a security.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Going back to your question around competency and how savvy are people around Bitcoin, I think a lot of it has to do with the perception overall.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4f9d38e1d86556b36d9c:9d43580c729b": {
+  "label": "4f9d38e1d86556b36d9c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when it's persecuted and when it's in the crosshairs",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's success is not dependent on who controls the White House or Congress, and it tends to perform well when persecuted.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Mm -hmm. I mean, the good news about Bitcoin is it's not",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a746ada209ac1c17a521:9d43580c729b": {
+  "label": "a746ada209ac1c17a521",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "the first Bitcoin president and his administration",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The strategic Bitcoin reserve has been a nothingburger because no coins have been purchased.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truthblock with Simply Bitcoin. Thanks for hanging out. And I'll see you on Thursday.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ac48048d07c26b36e347:9d43580c729b": {
+  "label": "ac48048d07c26b36e347",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "the printer",
+    "refers_to": "the money printer or power to print money",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin can remove control of the money printer from powerful and corrupt men but cannot teach people how to live a meaningful life.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Truthblock with Simply Bitcoin. Thanks for hanging out. And I'll see you on Thursday.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

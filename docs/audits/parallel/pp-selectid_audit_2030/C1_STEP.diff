@@ -1,0 +1,1583 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 51f24c7d..662f4297 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -9,29 +9,44 @@ usable()      moments a package may use: on screen eligible (word timing, law L-
+ prescreen()   step A of law L-s on each usable moment's own context, ONCE per moment (package-independent), stored on
+               the moment (`store`: a JSON ledger keyed by moment and the step-A prompt); never recomputed
+ ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
+-              channels (one clip per channel, L-u)
+-lineup_for()  code: hook + 2-3 clips for one angle, every segment from a different channel, at most one price prediction
+-              (L-u), a clip under SHORT_CLIP_S only as the punchline, and the length the runtime (60-70 s, L-o) AND the
+-              factory's EDL rule R4 (VO <= 25 % of runtime, one bridge per channel transition) both allow
+-write_v3()    role angle_write: the PBX MAX VO in the renderer's order (hook -> intro -> clip 1 -> bridge -> ...), in
+-              one of two styles (05:25 item 3): "host" (tease / hedge-matched hand-off of a VERIFIED speaker / the
+-              host's own takeaway after a clip) or "quote" (show + topic, at most four exact words quoted); NEVER a
+-              restatement of a clip's claim; word budgets from R4 and the runtime
+-GATES (hard, every one, recorded in a sealed inventory, package_pin.REQUIRED_GATES):
+-              cheap first (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4;
++              channels (one clip per channel, L-u), listed in PLAY ORDER (L-y 3)
++lineup_for()  code: the hook + 2-4 clips for one angle in the proposer's play order, every segment from a different
++              channel, at most one price prediction (L-u), a clip under SHORT_CLIP_S only as the punchline, and seconds
++              that let ONE takeaway land the factory's runtime estimate in 60-70 s (L-o, L-y 4)
++medley()      the blind clips-ALONE verdict (L-y 3): a through-line, a rating per clip, a verdict per join
++write_takeaway() role angle_write: the ONE takeaway (host commentary), ONE title, ONE caption, and the one bridge only
++              at a join the clips-alone verdict flagged (L-y 2); NEVER a restatement of a clip's claim
++GATES (hard, every one, recorded in a sealed inventory, package_pin.required_gates):
++              the clips-alone verdict first (no writing before it passes);
++              cheap (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4, the L-y shape;
+               then concurrently: the classifying fidelity verdict (A / B / C / D, 05:25 items 1-2) and context
+               integrity B0 / B / C (L-s; step A precomputed); exclusion (L-u) and the second recognition pass (L-v 2)
+-              start in the background as soon as a line-up is fixed; then COHERENCE (blind, >= 4).
++              start in the background once the clips-alone verdict passes; then COHERENCE with the takeaway (>= 4).
+               Every verdict avoids the vendors and model families of every reply whose text it judges (L-x).
+               A rejected line goes back to the writer with the exact violations; a clip that fails exclusion or L-v 2
+-              is dropped and the angle re-lined; at most WRITES writes per angle and MAX_ANGLES angles; the first
+-              package with coherence >= COHERENCE_MIN wins (05:30).
++              is dropped and the angle re-lined; at most WRITES writes per line-up, LY_LINEUPS line-ups per angle and
++              MAX_ANGLES angles; the first package that passes every gate wins (05:30).
+ OUTPUT pp.package/1: segments (moment ids, verbatim text, times), VO, title, caption, the gate inventory, the model per
+               artefact, seconds and dollars.
++
++L-y VOICEOVER IS MINIMAL (orchestrator 20:30 ET Nov 12, PBX's verdict on the reviewed video; amends L-q, L-w 1 and
++R4-moments): build() makes the MEDLEY the default shape. The hook and 2-4 clips play back to back with no narration,
++then ONE takeaway after the last clip (host commentary, class D, one or two sentences, <= 30 words), then the
++sign-off. There is no intro after the hook and no bridge.
++- SELECTION carries the weight: the angle proposer gives the moments in PLAY ORDER, each clip's opening making sense
++  after the previous clip's ending in the speaker's own words (lineup_for).
++- The blind coherence verdict is asked on the clips ALONE first (medley(): a through-line a viewer can state, a rating
++  per clip, and per join whether a viewer can follow the jump). Only then is it asked on the takeaway (coherence()).
++- A bridge is the EXCEPTION: at most ONE, only at the join the clips-alone verdict flagged, and only when the writer
++  also judges a viewer cannot follow it. The package records why (ly_shape()). Two or more flagged joins mean the
++  line-up is wrong: other clips are picked.
++- 3-5 clips; the factory's runtime estimate stays inside 60-70 s (the measured final is accepted at 58-72 s, ruling 12).
++- One clip per channel unless the supply forces otherwise, and then the package says so (supply_exception).
+ """
+ import hashlib
+ import itertools
+ import json
++import math
+ import os
+ import re
+ import time
+@@ -42,11 +57,8 @@ import eligibility as E
+ import vo_fidelity as VF
+ 
+ SEG_MAX_S = 20.0                   # L-u: at most 20 s per source video
+-RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the one hard length rule
+-WPS = 2.6                          # PBX MAX VO words per second: an ASSUMPTION until the render measures it
+-SIGNOFF_WORDS = 18                 # the preview's sign-off ("Clips today from A, B, and C. Go follow them ...")
+-FIXED_S = round(E.TAIL_S - SIGNOFF_WORDS / WPS, 2)   # credits card + outro + transitions without VO (~7.4 s)
+-VO_S = (6.0, 22.0)                 # the VO's seconds (intro + bridges), the slack that lands the runtime
++RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the packaging target the factory's estimate must meet (ruling 12)
++VO_S = (6.0, 22.0)                 # the PBX MAX v3 VO's seconds (intro + bridges), content_range()'s slack
+ R4_WPS, R4_PREROLL_S, R4_SHARE = 2.5, 1.0, 0.25      # edl_rules.rule_r4's own estimate (the factory's rule)
+ TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
+ PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
+@@ -113,8 +125,8 @@ def runtime(segs, vo_lines):
+     """The FACTORY's own estimate, the one its hard 60-70 s check reads (edl_rules._r4_moments, main a5ec0f17: "hook +
+     clips + VO + FINAL_TAIL_S", each VO line "words / 2.5 + the 1.0 s pre-roll"): segments' word spans + every VO line
+     (intro, bridges) at R4_WPS w/s + R4_PREROLL_S each + FINAL_TAIL_S (the sign-off is inside it). It replaced (07:42)
+-    this module's own estimate (2.6 w/s, no pre-roll, FIXED_S + the sign-off), which ran 3-4 s lower than the factory's
+-    on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
++    this module's own estimate (2.6 w/s, no pre-roll, a fixed tail + the sign-off), which ran 3-4 s lower than the
++    factory's on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
+     vo = sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in vo_lines if t and t.strip())
+     return round(sum(m["duration_s"] for m in segs) + vo + FINAL_TAIL_S, 2)
+ 
+@@ -126,6 +138,41 @@ R4_MOMENTS_SHARE = 0.45            # orchestrator 08:29 ruling 9: moments-first
+                                    # clip; 60-70 s stays hard
+ 
+ 
++LY_CLIPS = (2, 4)                  # L-y 4: 3 to 5 clips = the hook + 2-4 clips, back to back (the medley)
++LY_TAKEAWAY_MIN_WORDS = 8          # L-y 5: one or two sentences; the cap is ruling 10's MOMENTS_TAKEAWAY_WORD_CAP
++LY_BRIDGE_WORDS = 12               # L-y 2: the one exceptional bridge, "as short as it can be" (asked of the writer;
++                                   # config.BRIDGE_WORD_CAP 20 stays the hard bound, ly_shape)
++LY_MAX_BRIDGES = 1                 # L-y 2: at most ONE bridge per video
++LY_AIM_S = (61.5, 68.5)            # the takeaway's length aims the factory's estimate here when the clips allow it
++                                   # (inside 60-70 s with margin: the voice measured 2.91 w/s vs R4's 2.5, ruling 12)
++LY_LINEUPS = 2                     # line-ups tried per angle (a clips-alone failure drops its weak clips once)
++
++
++def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
++    """Seconds the clips may fill so that ONE takeaway of LY_TAKEAWAY_MIN_WORDS..MOMENTS_TAKEAWAY_WORD_CAP words (and
++    n_bridges bridges of bridge_words) lands the factory's estimate (runtime()) inside 60-70 s (L-y 4)."""
++    extra = n_bridges * (bridge_words / R4_WPS + R4_PREROLL_S)
++    lo = RUNTIME_S[0] - FINAL_TAIL_S - extra - (MOMENTS_TAKEAWAY_WORD_CAP / R4_WPS + R4_PREROLL_S)
++    hi = RUNTIME_S[1] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MIN_WORDS / R4_WPS + R4_PREROLL_S)
++    return round(lo, 2), round(hi, 2)
++
++
++def takeaway_budget(content_s, other=()):
++    """(lo, hi) words for the takeaway, given the clips' seconds and the other VO lines' texts (a bridge): the factory's
++    estimate (runtime()) inside LY_AIM_S when the clips allow it, else inside 60-70 s; never under
++    LY_TAKEAWAY_MIN_WORDS, above the cap of 30 or past R4's share. None when no length lands 60-70 s."""
++    other = [t for t in other if t and t.strip()]
++    fixed = content_s + FINAL_TAIL_S + sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in other)
++    words_at = lambda s: R4_WPS * (s - fixed - R4_PREROLL_S)     # the takeaway's words that land the estimate at s
++    cap = min(MOMENTS_TAKEAWAY_WORD_CAP,
++              r4_max_vo_words(content_s, 1 + len(other)) - sum(len(t.split()) for t in other))
++    for a, b in (LY_AIM_S, RUNTIME_S):
++        lo, hi = max(LY_TAKEAWAY_MIN_WORDS, math.ceil(words_at(a) - 1e-9)), min(cap, math.floor(words_at(b) + 1e-9))
++        if lo <= hi:
++            return lo, hi
++    return None
++
++
+ def r4_max_vo_words(content_s, n_vo):
+     """The most VO words (intro + bridges) the moments-first R4 allows: edl_rules' own estimate (words / 2.5 + 1 s per
+     VO line) <= R4_MOMENTS_SHARE of the runtime estimate (runtime(): content + that VO + FINAL_TAIL_S)."""
+@@ -179,13 +226,6 @@ def r4(pk):
+                          "R4 (moments-first, 06:00) PASS") + f" | {note}"
+ 
+ 
+-def budgets(content_s, n_bridges=1):
+-    """Word budgets (intro, each bridge, (min, max) total) that land 60-70 s and fit R4; 40 % to the intro."""
+-    hi = min(r4_max_vo_words(content_s, 1 + n_bridges), int(VO_S[1] * WPS))
+-    lo = min(min_vo_words(content_s, 1 + n_bridges), hi)
+-    return max(6, int(hi * 0.4)), max(4, int(hi * 0.6 / max(1, n_bridges))), (lo, hi)
+-
+-
+ def _name(m, ctx):
+     return (ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]
+ 
+@@ -197,38 +237,23 @@ def signoff(segs, ctx):
+     return f"Clips today from {who}. Go follow them for more. Links are below."
+ 
+ 
+-def plain_vo(segs, ctx):
+-    """L-w 2: the plain factual fallback VO ("Next, <show> on <topic>."): it claims nothing beyond who speaks. Ranked
+-    last (orchestrator 03:40); the title names whole channels only (U11)."""
+-    intro = {"text": f"Here's {_name(segs[0], ctx)} on Bitcoin.", "cites": []}
+-    bridges = [{"text": f"Next, {_name(m, ctx)} on Bitcoin.", "cites": []} for m in segs[2:]]
+-    chans = list(dict.fromkeys(_name(m, ctx) for m in segs))
+-    title = "Bitcoin: " + ", ".join(chans[:-1]) + f" and {chans[-1]}"
+-    while len(title) > 70 and len(chans) > 1:
+-        chans = chans[:-1]
+-        title = "Bitcoin: " + ", ".join(chans) + " and others"
+-    caption = f"Clips from {', '.join(dict.fromkeys(_name(m, ctx) for m in segs))}. Links to every source below."
+-    return intro, bridges, {"text": title[:70], "cites": []}, {"text": caption, "cites": []}
++def labels(n):
++    """The segments' labels in play order: the hook, then clip_01 ... (the renderer's clip index = the position)."""
++    return ["hook" if i == 0 else f"clip_{i:02d}" for i in range(n)]
+ 
+ 
+-def assemble(order, by_id, fields, ctx, vo_kind):
+-    segs = [by_id[i] for i in order]
+-    lines = [dict(fields["intro"], slot="intro")] + \
+-        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
+-        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
+-    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"].startswith(("intro", "bridge")))
++def _package(segs, ctx, fields, vo_kind, vo, lines):
++    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"] not in ("title", "caption"))
+     pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
+           "vo_kind": vo_kind, "style": fields.get("style"),
+-          "segments": [{"label": "hook" if i == 0 else f"clip_{i:02d}", "moment_id": m["moment_id"],
++          "segments": [{"label": lb, "moment_id": m["moment_id"],
+                         "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": _name(m, ctx),
+                         "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
+                         "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
+                         "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
+                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
+-                       for i, m in enumerate(segs)],
+-          "vo": {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
+-                 "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1)),     # the renderer's after_clip
+-                 "signoff": signoff(segs, ctx)},
++                       for lb, m in zip(labels(len(segs)), segs)],
++          "vo": dict(vo, signoff=signoff(segs, ctx)),
+           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
+           "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
+           "lines": lines}
+@@ -240,6 +265,46 @@ def assemble(order, by_id, fields, ctx, vo_kind):
+     return pk
+ 
+ 
++def assemble(order, by_id, fields, ctx, vo_kind):
++    """The PBX MAX v3 shape (an intro after the hook and a line after clips; the orchestrator's given packages of the
++    night of Nov 11-12). L-y's medley is assemble_medley()."""
++    segs = [by_id[i] for i in order]
++    lines = [dict(fields["intro"], slot="intro")] + \
++        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
++        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
++    vo = {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
++          "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1))}      # the renderer's after_clip
++    return _package(segs, ctx, fields, vo_kind, vo, lines)
++
++
++def assemble_medley(order, by_id, fields, ctx, vo_kind):
++    """L-y: the clips back to back, ONE takeaway after the last clip (slot "takeaway", the renderer's after_clip = the
++    last clip), and at most one bridge: after the hook it is the renderer's intro slot (slot "intro"), after clip k it is
++    a bridge after_clip k (slot "bridge_1"). fields: takeaway, bridge (None or {"text", "cites", "why"}), bridge_after
++    (None, 0 = after the hook, or k), title, caption."""
++    segs = [by_id[i] for i in order]
++    n_clips = len(segs) - 1
++    b, k = fields.get("bridge"), fields.get("bridge_after")
++    if b is not None and (type(k) is not int or not 0 <= k < n_clips):
++        raise ValueError(f"a bridge sits at a join between two clips: after 0..{n_clips - 1}, not {k!r}")
++    mid = b is not None and k > 0
++    lines = ([dict(b, slot="intro")] if b is not None and k == 0 else []) + \
++        ([dict(b, slot="bridge_1")] if mid else []) + \
++        [dict(fields["takeaway"], slot="takeaway"), dict(fields["title"], slot="title"),
++         dict(fields["caption"], slot="caption")]
++    vo = {"intro": b["text"] if b is not None and k == 0 else None,
++          "bridges": ([b["text"]] if mid else []) + [fields["takeaway"]["text"]],
++          "bridges_after_clip": ([k] if mid else []) + [n_clips]}
++    pk = _package(segs, ctx, fields, vo_kind, vo, lines)
++    pk["shape"] = "medley"
++    pk["bridge"] = None if b is None else {"after": pk["segments"][k]["label"], "after_clip": k,
++                                           "join": f"{pk['segments'][k]['label']} -> {pk['segments'][k + 1]['label']}",
++                                           "text": b["text"], "why": b.get("why"),
++                                           "confirmed_by": fields.get("bridge_confirmed_by")}
++    pk["supply_exception"] = fields.get("supply_exception")
++    return pk
++
++
+ # ── step A once per moment (orchestrator 05:25 item 5) ──
+ 
+ STEP_A_VERSION = hashlib.sha256(CI.STEP_A.encode()).hexdigest()[:12]
+@@ -309,9 +374,10 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+     return a_by, fails, vendors, families
+ 
+ 
+-ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words, with a
+-voice-over that makes a point. Below are clips (verbatim quotes, each with its channel and length) that passed our
+-checks. The channels were not in one conversation and never answer each other.
++ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words. The clips
++play BACK TO BACK as a medley, with NO narration between them; the host speaks ONE closing line at the end. Below are
++clips (verbatim quotes, each with its channel and length) that passed our checks. The channels were not in one
++conversation and never answer each other.
+ 
+ {note}
+ {clips}
+@@ -320,52 +386,65 @@ Find up to {k} ANGLES, best first. An angle is ONE sentence a viewer could repea
+ GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
+ the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
+ it is today's.
+-The video uses ONE clip per channel: a hook and 2-3 clips, from 3-4 DIFFERENT channels, together {lo:.0f}-{hi:.0f}
+-seconds of clips. Give as many good angles as the clips allow (aim for {k}); for each angle give: "angle" (the
+-sentence); "moments": the ids of 5 to 8 clips that support it (more choice survives a clip that later fails a check),
+-from at least 3 different channels, with enough seconds among them; "hook": one of those ids whose FIRST WORDS grab
+-attention AND set up the angle; "support": for each of those ids, a few words on what it adds (an internal note).
++With no narration the ORDER carries the video: list each angle's clips in the order they should PLAY, so that every
++clip's opening makes sense right after the previous clip's ending, in the speakers' own words (no clip may need an
++introduction to be understood). The video plays the hook and 2-4 more clips, ONE per channel, from 3-5 DIFFERENT
++channels, together {lo:.0f}-{hi:.0f} seconds of clips. Give as many good angles as the clips allow (aim for {k}); for
++each angle give: "angle" (the sentence); "moments": the ids of 4 to 8 clips IN PLAY ORDER, the hook first (more choice
++survives a clip that later fails a check), from at least 3 different channels, with enough seconds among them;
++"hook": the first id, whose FIRST WORDS grab attention AND set up the angle; "support": for each of those ids, a few
++words on what it adds and why it follows the clip before it (an internal note).
+ Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
+ "support": {{"id": "..."}}}}]}}"""
+ 
+-STYLES = {
+-    "host": "HOST STYLE: you have a point of view. A bridge may (a) tease the next clip with a question or a topic, never "
+-            "saying what its speaker thinks; (b) hand off with an attribution ONLY for a clip whose speaker is marked "
+-            "VERIFIED, with the clip's own hedge (\"Stephan Livera thinks so.\"); (c) land your own takeaway AFTER a "
+-            "clip, as your opinion, never as what the speaker said.",
+-    "quote": "QUOTE-LED STYLE: introduce each clip by its show and its topic in a few words; you may quote AT MOST FOUR "
+-             "exact words of that clip in quotation marks; the point is carried by the sequence of clips and the ONE "
+-             "title."}
++MEDLEY_PROMPT = """You watch a short video made ONLY of these clips, played back to back with NO narration between them.
++Each clip is a person's own words from a show; the shows were not in one conversation.
++
++{clips}
+ 
+-WRITE_V3 = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
++1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or
++   "none" if there is none.
++2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
++3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
++   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few
++   words.
++Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "joins": {{{joins}}}}}"""
++
++WRITE_LY = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
+ THE ANGLE (the point this video makes): "{angle}"
+-The clips, in play order (verbatim; the channels were not in one conversation and never answer each other):
++The clips play BACK TO BACK as a medley, with no narration between them (verbatim, in play order; the channels were not
++in one conversation and never answer each other):
+ 
+ {note}
+ {lineup}
+ 
+-The video plays: the HOOK clip, then your INTRO, then clip 1, then {slots}, then a sign-off that credits every channel
+-(written by code).
+-Write:
+-- "intro": heard right AFTER the hook: your own take that sets up the angle.
+-- "bridges": exactly {n_bridges} line(s), one after each clip but the last.
+-- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters.
+-- LENGTH: intro + bridges together {lo}-{hi} words; the intro at most {intro_words}, each bridge at most {bridge_words}.
++After the last clip you speak ONE closing line, the TAKEAWAY; then a sign-off credits every channel (written by code).
++{bridge}Write:
++- "takeaway": one or two sentences, {lo}-{hi} words: the point the medley adds up to, as YOUR OWN commentary (your
++  opinion or conclusion), never a restatement of any clip.
++- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters. Both carry the angle.
+ Every line gives "cites": the ids of the clips it relies on (none for your own commentary).
+-{style}
+ RULES (a line that breaks one is rejected):
+-- NEVER restate a clip's claim before or after it, and never repeat its words: the clip says it, in its own words.
+-- Your OWN commentary (an opinion, framing, a question, a tease, a takeaway) is welcome, but it must contain no number,
+-  price, date, named person or company, must not say or imply what any speaker thinks, and must not relate speakers.
++- NEVER restate a clip's claim, and never repeat its words: the clip says it, in its own words.
++- Your OWN commentary must contain no number, price, date, named person or company, must not say or imply what any
++  speaker thinks, and must not relate speakers.
+ - Say what a speaker says or thinks ONLY for a clip marked VERIFIED, by that name, with the clip's own hedge: "thinks"
+   for "I think", "feels" for "I feel like", "says" only for a flat statement. For any other clip credit the SHOW only
+   ("on Coin Bureau", "from What Bitcoin Did's show"), never "<name> says".
+ - Never say or imply that channels agree, answer, rebut or react to each other.
+ - No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
+   "slams", "exposes", "admits", "confirms", "caught".
+-{extra}Return ONLY this JSON object: {{"intro": {{"text": "...", "cites": []}}, "bridges": [{{"text": "...", "cites": ["id"]}}],
++{extra}Return ONLY this JSON object: {{"takeaway": {{"text": "...", "cites": []}}, "bridge": {bridge_shape},
+ "title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""
+ 
++BRIDGE_ASK = """ONE JOIN NEEDS HELP: a blind viewer who watched these clips back to back could not follow the jump from
++{a} to {b} ("{why}"). Write ONE "bridge", heard between them: as short as it can be (at most {n} words); it only makes
++the next clip's subject or referent clear (its show and its topic, or a question); it never says what the next speaker
++thinks. Give "why": one sentence on why a viewer could not follow the jump without it. If you judge a viewer CAN
++follow this jump without narration, give "bridge": null (these clips then do not sit together, and other clips are
++picked).
++"""
++
+ COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
+ different person's own words).
+ 
+@@ -419,36 +498,43 @@ def check_angles(obj, by_id, k=MAX_ANGLES):
+     return out
+ 
+ 
+-def lineup_for(angle, by_id, dropped=frozenset()):
+-    """Hook + 2-3 clips for one angle: the proposer's hook (else the angle's best hook-eligible moment by its first
+-    2 s), clips from the angle's other moments, every segment from a different channel (L-u), at most
+-    PRICE_PREDICTIONS_MAX price predictions (L-u), a clip under SHORT_CLIP_S only as the last (the punchline), the
+-    length the runtime AND R4 allow. Best by the proposer's order. None if impossible."""
++def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False):
++    """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
++    medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
++    angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
++    predictions (L-u), a clip under SHORT_CLIP_S only as the last (the punchline), and the clips' seconds inside crange
++    (default medley_content_range(): one takeaway lands the factory's estimate in 60-70 s). Best = the proposer's
++    earliest moments (the lowest sum of play positions, so the default hook -> clip -> clip when it fits), then the
++    seconds nearest the middle of crange. repeat_ok (L-y 4, only when one clip per channel cannot fill the runtime):
++    ONE channel may give two clips, from two different videos. None if impossible."""
++    lo, hi = crange or medley_content_range()
++    pos = {m: i for i, m in enumerate(angle["moments"])}
+     ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
+     hooks = [m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok")]
+     hooks.sort(key=lambda m: (m["moment_id"] != angle["hook"], -m["scores"]["hook_first_2s"]))
+     for h in hooks:
+         pool = [m for m in ms if m is not h and (m.get("eligibility") or {}).get("clip", {}).get("ok")
+-                and m["channel_id"] != h["channel_id"]]
++                and (repeat_ok or m["channel_id"] != h["channel_id"])]
+         best = None
+-        for n in (3, 2):
+-            lo, hi = content_range(n)
++        for n in range(clips[0], clips[1] + 1):
+             for combo in itertools.combinations(pool, n):
+-                if len({m["channel_id"] for m in combo}) != n:
++                chans = [m["channel_id"] for m in (h, *combo)]
++                if len(set(chans)) != n + 1 and not (repeat_ok and len(set(chans)) == n and
++                                                     len({m["video_id"] for m in (h, *combo)}) == n + 1):
+                     continue
+                 if sum("price_prediction" in m.get("risk", []) for m in (h, *combo)) > PRICE_PREDICTIONS_MAX:
+                     continue
+-                order = sorted(combo, key=lambda m: angle["moments"].index(m["moment_id"]))
++                order = sorted(combo, key=lambda m: pos[m["moment_id"]])
+                 if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
+                     continue
+                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
+                 if not lo <= dur <= hi:
+                     continue
+-                key = (n, -sum(angle["moments"].index(m["moment_id"]) for m in order))
++                key = (-sum(pos[m["moment_id"]] for m in order), -abs(dur - (lo + hi) / 2))
+                 if best is None or key > best[0]:
+                     best = (key, [h] + order)
+-            if best:
+-                return best[1]
++        if best:
++            return best[1]
+     return None
+ 
+ 
+@@ -489,9 +575,9 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
+         r = router.call("coherence_verdict", COHERENCE_PROMPT.format(package=CI.package_view(pk)), 1200, seed,
+                         avoid_vendor=writer_vendor, avoid_family=writer_family)
+         v = json.loads(r.text.strip())
+-        labels = [sg["label"] for sg in pk["segments"]]
++        labs = [sg["label"] for sg in pk["segments"]]
+         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
+-                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labels) or \
++                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
+                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
+             raise ValueError("coherence verdict out of contract")
+     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+@@ -515,39 +601,133 @@ def _lineup_block(segs, ctx, a_by):
+     return "\n".join(out)
+ 
+ 
+-def write_v3(router, angle, segs, ctx, a_by, style="host", extra="", seed=7, avoid_vendor=None):
++def joins(labs):
++    """The joins of a medley in play order: "<label> -> <next label>"; join k follows segment k (k = 0 is the hook)."""
++    return [f"{a} -> {b}" for a, b in zip(labs, labs[1:])]
++
++
++def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
++    """L-y 3: the blind coherence verdict on the clips ALONE (no VO, no title), asked FIRST: "played back to back with
++    no narration, is there a through-line a viewer can state?", a 1-5 rating per clip, and per join whether a viewer
++    can follow the jump. Never the vendor / family of the writer. -> (ok, verdict): ok when the through-line is stated
++    (>= 4 words, not 'none'), every clip rates >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not followable;
++    verdict["flagged"] = the joins a viewer could not follow (a bridge may go only there, L-y 2)."""
++    import providers as P
++    labs = labels(len(segs))
++    js = joins(labs)
++    clips = "\n".join(f'CLIP label="{lb}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
++                      for lb, m in zip(labs, segs))
++    r = None
++    try:
++        r = router.call("coherence_verdict",
++                        MEDLEY_PROMPT.format(clips=clips, joins=", ".join(
++                            f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
++                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
++        v = json.loads(r.text.strip())
++        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
++                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
++                any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
++                not isinstance(v["joins"], dict) or set(v["joins"]) != set(js) or \
++                any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
++                    or not isinstance(x["why"], str) for x in v["joins"].values()):
++            raise ValueError("clips-alone verdict out of contract")
++    except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
++        if r is not None and isinstance(e, (ValueError, TypeError)):
++            router.reject(r)
++        return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
++    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
++    flagged = [j for j in js if v["joins"][j]["followable"] is False]
++    ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
++        min(v["clips"].values()) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
++    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
++                    replayed=bool(getattr(r, "replayed", False)))
++
++
++def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, avoid_vendor=None, other=()):
++    """L-y: ONE takeaway (host commentary, class D), ONE title, ONE caption, and a bridge ONLY at `join` (k, why), the
++    one join the clips-alone verdict flagged (L-y 2): the writer gives it with its reason, or null when it judges a
++    viewer can follow the jump. The takeaway's word budget lands the factory's estimate (takeaway_budget()).
++    -> (reply, fields) with fields["bridge_after"] = k when a bridge is given."""
+     from select_by_id import UNTRUSTED
+     from story_semantics import quote_data
+     content = sum(m["duration_s"] for m in segs)
+-    nb = len(segs) - 2
+-    iw, bw, (lo, hi) = budgets(content, nb)
+-    slots = ", then ".join(f"your bridge, then clip {i + 2}" for i in range(nb)) or "nothing"
++    budget = takeaway_budget(content, other) or (LY_TAKEAWAY_MIN_WORDS, MOMENTS_TAKEAWAY_WORD_CAP)
++    labs = labels(len(segs))
++    ask, shape = "", "null"
++    if join is not None:
++        k, why = join
++        ask = BRIDGE_ASK.format(a=labs[k].upper().replace("_", " "), b=labs[k + 1].upper().replace("_", " "),
++                                why=" ".join(quote_data(why, 300).replace('"', "'").split()), n=LY_BRIDGE_WORDS)
++        shape = '{"text": "...", "cites": ["id"], "why": "..."} or null'
+     angle_text = " ".join(quote_data(angle["angle"], 300).replace('"', "'").split())     # M9: escaped, one line
+-    prompt = WRITE_V3.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
+-                             lineup=_lineup_block(segs, ctx, a_by), slots=slots, n_bridges=nb, lo=lo, hi=hi,
+-                             intro_words=min(iw, 30), bridge_words=min(bw, 20), style=STYLES[style],
+-                             extra=(extra + "\n") if extra else "")
++    prompt = WRITE_LY.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
++                             lineup=_lineup_block(segs, ctx, a_by), bridge=ask, lo=budget[0], hi=budget[1],
++                             extra=(extra + "\n") if extra else "", bridge_shape=shape)
+     r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor)
+     try:
+         obj = json.loads(r.text.strip())
+         ids = [m["moment_id"] for m in segs]
+-        keys = {"intro", "bridges", "title", "caption"}
++        keys = {"takeaway", "bridge", "title", "caption"}
+         if not isinstance(obj, dict) or set(obj) != keys:
+             raise ValueError(f"keys must be exactly {sorted(keys)}")
+-        if not isinstance(obj["bridges"], list) or len(obj["bridges"]) != nb:
+-            raise ValueError(f"'bridges' must hold {nb} lines")
+-        for slot, ln in [("intro", obj["intro"]), ("title", obj["title"]), ("caption", obj["caption"])] + \
+-                [(f"bridge_{i + 1}", b) for i, b in enumerate(obj["bridges"])]:
+-            if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
++        lines = [("takeaway", obj["takeaway"], {"text", "cites"}), ("title", obj["title"], {"text", "cites"}),
++                 ("caption", obj["caption"], {"text", "cites"})]
++        if obj["bridge"] is not None:
++            if join is None:
++                raise ValueError("no join needs a bridge: 'bridge' must be null (L-y 1)")
++            lines.append(("bridge", obj["bridge"], {"text", "cites", "why"}))
++        for slot, ln, want in lines:
++            if not isinstance(ln, dict) or set(ln) != want or not isinstance(ln["text"], str) or \
+                     not ln["text"].strip() or not isinstance(ln["cites"], list) or \
+-                    any(not isinstance(c, str) or c not in ids for c in ln["cites"]):
+-                raise ValueError(f"{slot}: needs text and cites from the line-up's ids")
++                    any(not isinstance(c, str) or c not in ids for c in ln["cites"]) or \
++                    ("why" in want and (not isinstance(ln["why"], str) or not ln["why"].strip())):
++                raise ValueError(f"{slot}: needs text and cites from the line-up's ids" +
++                                 (" and a reason" if "why" in want else ""))
+         if len(obj["title"]["text"]) > 70 or len(obj["caption"]["text"]) > 220:
+             raise ValueError("title <= 70 characters, caption <= 220")
+     except (ValueError, TypeError):
+         router.reject(r)
+         raise
+-    return r, dict(obj, type="moments", angle=angle["angle"], style=style)
++    return r, dict(obj, bridge_after=join[0] if join is not None and obj["bridge"] is not None else None,
++                   type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
++
++
++def ly_shape(pk):
++    """L-y (orchestrator 20:30), checked by code on the package -> (ok, [why]): 3-5 segments; ONE takeaway, after the
++    last clip; at most LY_MAX_BRIDGES bridge(s), each at a join the clips-alone verdict flagged (pk["medley"], measured)
++    with its reason recorded, and every flagged join bridged (else these clips do not sit together); a bridge within
++    config.BRIDGE_WORD_CAP words; one clip per channel unless pk["supply_exception"] says why not (L-y 4)."""
++    from config import BRIDGE_WORD_CAP
++    segs, vo = pk["segments"], pk["vo"]
++    n_clips = len(segs) - 1
++    fails = []
++    if not LY_CLIPS[0] <= n_clips <= LY_CLIPS[1]:
++        fails.append(f"{len(segs)} segments: a medley plays 3-5 (the hook + {LY_CLIPS[0]}-{LY_CLIPS[1]} clips)")
++    bridges, after = list(vo.get("bridges") or []), list(vo.get("bridges_after_clip") or [])
++    if not bridges or len(after) != len(bridges) or after[-1] != n_clips or not (bridges[-1] or "").strip():
++        fails.append("no takeaway after the last clip (L-y 1)")
++    js = joins([sg["label"] for sg in segs])
++    bridged = ([js[0]] if vo.get("intro") else []) + [js[a] for a in after[:-1] if type(a) is int and 0 < a < n_clips]
++    texts = ([vo["intro"]] if vo.get("intro") else []) + bridges[:-1]
++    if len(bridged) != len(texts):
++        fails.append(f"a line after clips {after[:-1]} that is not at a join between two clips")
++    if len(texts) > LY_MAX_BRIDGES:
++        fails.append(f"{len(texts)} bridges (L-y 2: at most {LY_MAX_BRIDGES})")
++    med = pk.get("medley") or {}
++    if med.get("measured") is not True or not isinstance(med.get("flagged"), list):
++        fails.append("the clips-alone verdict was not measured (L-y 3)")
++    elif sorted(bridged) != sorted(med["flagged"]):
++        fails.append(f"bridges at {bridged or 'no join'}, the clips-alone verdict flagged {med['flagged'] or 'no join'}"
++                     f": a bridge goes only, and always, where a viewer could not follow the jump (L-y 2)")
++    if texts and not ((pk.get("bridge") or {}).get("why") or "").strip():
++        fails.append("the bridge's reason is not recorded (L-y 2)")
++    for t in texts:
++        if len(t.split()) > BRIDGE_WORD_CAP:
++            fails.append(f"bridge of {len(t.split())} words (max {BRIDGE_WORD_CAP})")
++    chans = [sg["channel_id"] for sg in segs]
++    if len(set(chans)) != len(chans) and not (pk.get("supply_exception") or "").strip():
++        fails.append("two clips from one channel without the supply exception recorded (L-y 4)")
++    return not fails, fails
+ 
+ 
+ def fidelity_segments(pk, a_by):
+@@ -563,7 +743,7 @@ def fidelity_segments(pk, a_by):
+ 
+ def cheap_checks(pk, a_by, levels, now):
+     """The gates that cost nothing, run before any paid verdict: VO fidelity's deterministic rules, DUPLICATE,
+-    runtime, R4. -> (violations, det, dup, rt_ok, r4_res)."""
++    runtime, R4, and for a medley the L-y shape. -> (violations, det, dup, rt_ok, r4_res)."""
+     segs_v = fidelity_segments(pk, a_by)
+     lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
+     man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
+@@ -571,10 +751,13 @@ def cheap_checks(pk, a_by, levels, now):
+     dup = duplicates(pk)
+     rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
+     r4_res = r4(pk)
++    what = "the takeaway's" if pk.get("shape") == "medley" else "the VO's"
+     v = det["violations"] + dup + ([] if rt_ok else [{"slot": "-", "rule": "RUNTIME", "detail":
+-                                                      f"{pk['runtime_s_estimate']} s outside 60-70 s: change the VO's "
++                                                      f"{pk['runtime_s_estimate']} s outside 60-70 s: change {what} "
+                                                       f"length"}]) + \
+         ([] if r4_res[0] else [{"slot": "-", "rule": "R4", "detail": r4_res[1]}])
++    if pk.get("shape") == "medley":
++        v += [{"slot": "-", "rule": "LY_SHAPE", "detail": why} for why in ly_shape(pk)[1]]
+     return v, det, dup, rt_ok, r4_res
+ 
+ 
+@@ -654,16 +837,43 @@ def _writers(router):
+ 
+ 
+ def _redo(violations):
++    """The writer's second try: exactly the failing lines, by the keys the writer returns ("bridge" for the one bridge,
++    whichever join it sits at)."""
++    key = {"intro": "bridge", "bridge_1": "bridge"}
+     return ("Your previous script was REJECTED. Exactly these lines failed, with the reason; rewrite ONLY them:\n" +
+-            "\n".join(f"- {v['slot']}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
++            "\n".join(f"- {key.get(v['slot'], v['slot'])}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
++
++
++def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None):
++    """One written takeaway and the gates on ITS line (L-y 6: "one free-text line to judge per video ... measure it"):
++    the deterministic fidelity rules and DUPLICATE on the takeaway slot, then the classifying verdict's violations on it.
++    passed: True / False once the verdict judged it, None when other gates stopped the write before the verdict."""
++    line = next((x for x in pk["lines"] if x["slot"] == "takeaway"), {})
++    rec = {"angle": ai + 1, "lineup": n_lineup, "write": w_used, "text": line.get("text"),
++           "words": len((line.get("text") or "").split()),
++           "cheap_fail": sorted({v["rule"] for v in cheap if v.get("slot") == "takeaway"}),
++           "other_cheap_fail": sorted({v["rule"] for v in cheap if v.get("slot") != "takeaway"}), "verdict_fail": None,
++           "passed": False if any(v.get("slot") == "takeaway" for v in cheap) else None}
++    if fid is not None:
++        ver = fid.get("verdict") or {}
++        if fid.get("measured") and isinstance(ver.get("violations"), list):
++            rec["verdict_fail"] = sorted({v["rule"] for v in ver["violations"] if v.get("slot") in ("takeaway", "-")})
++            rec["passed"] = not rec["cheap_fail"] and not rec["verdict_fail"]
++        else:
++            rec["verdict_fail"] = ["NOT MEASURED"]
++            rec["passed"] = False if rec["cheap_fail"] else None
++    return rec
+ 
+ 
+ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+-          writes=WRITES, work_dir=None, store=None, styles=("host", "quote"), spend=None):
+-    """Angle first, inside the orchestrator's budgets (05:25 item 5, 05:30): at most max_angles angles x `writes`
+-    writes, stopped at the first package that passes every hard gate with coherence >= COHERENCE_MIN. work_dir: where
+-    law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger. spend: a
+-    callable returning the ledger's USD (dollars per package). -> {"package", "packages", "tried", "angles", ...}."""
++          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LY_LINEUPS):
++    """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
++    item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
++    written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
++    one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
++    work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
++    spend: a callable returning the ledger's USD (dollars per package).
++    -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = spend() if spend else None
+     ms, why = usable(moments, ctx, delivered, optout)
+@@ -671,9 +881,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     levels = current_levels(sources.values(), ctx)
+-    out = {"packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
++    out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+-                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "package": None}
++                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
++           "package": None}
+     log(f"  {len(ms)} usable, {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+@@ -685,7 +896,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     from story_semantics import quote_data
+     clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
+                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
+-    lo, hi = content_range(2)[0], content_range(3)[1]
++    lo, hi = medley_content_range()
+     angles, angle_reply = None, None
+     for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
+         r = None
+@@ -707,25 +918,56 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     exc, tru = {}, {}
+     with ThreadPoolExecutor(max_workers=8) as pool:
+         for ai, angle in enumerate(angles):
+-            dropped, w_used = set(), 0
+-            while w_used < writes and not out["packages"]:
+-                segs = lineup_for(angle, cleared, frozenset(dropped))
+-                rec = {"angle": ai + 1, "text": angle["angle"],
+-                       "lineup": [m["moment_id"] for m in segs] if segs else None, "attempts": []}
++            dropped, n_lineup = set(), 0
++            while n_lineup < lineups and not out["packages"]:
++                segs, exception = lineup_for(angle, cleared, frozenset(dropped)), None
++                if segs is None:                          # L-y 4: one clip per channel unless the supply forces otherwise
++                    segs = lineup_for(angle, cleared, frozenset(dropped), repeat_ok=True)
++                    if segs is not None:
++                        rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs)
++                               if sum(m["channel_id"] == c for m in segs) > 1]
++                        exception = (f"one clip per channel cannot fill the medley's seconds from this angle's moments: "
++                                     f"{', '.join(_name(next(m for m in segs if m['channel_id'] == c), ctx) for c in rep)}"
++                                     f" gives two clips, from two videos (L-y 4)")
++                rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
++                       "supply_exception": exception, "attempts": []}
+                 out["tried"].append(rec)
+                 if segs is None:
+-                    rec["why"] = "no line-up: fewer than a hook + 2 clips from distinct channels in the length rules"
++                    rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+                     break
++                n_lineup += 1
++                ok_m, med = medley(router, segs, ctx, writers_v, seed=7 + n_lineup + 10 * ai, writer_family=writers_f)
++                rec["medley"] = med
++                log(f"  angle {ai + 1} line-up {n_lineup} ({len(segs)} clips, "
++                    f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone {'PASS' if ok_m else 'FAIL'} "
++                    f"{med.get('clips')} flagged {med.get('flagged')} ({time.time() - t0:.0f} s)")
++                labs = labels(len(segs))
++                if not ok_m:                              # L-y 2 / 3: pick clips that sit together
++                    by_lab = dict(zip(labs, segs))
++                    weak = {by_lab[lb]["moment_id"] for lb, x in (med.get("clips") or {}).items()
++                            if lb in by_lab and lb != "hook" and x < COHERENCE_MIN}
++                    if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
++                        weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
++                    if not med.get("measured") or not weak:
++                        rec["why"] = "the clips alone have no through-line a viewer can state (or it was not measured)"
++                        break
++                    dropped |= weak
++                    rec["why"] = f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, re-lined"
++                    continue
++                join = None
++                if med["flagged"]:
++                    k = joins(labs).index(med["flagged"][0])
++                    join = (k, med["joins"][med["flagged"][0]]["why"])
+                 bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
+                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
+-                extra, relined = "", False
++                extra, relined, w_used = "", False, 0
+                 while w_used < writes:
+-                    style = styles[min(w_used, len(styles) - 1)]
+                     w_used += 1
+                     try:
+-                        wr, fields = write_v3(router, angle, segs, ctx, a_by, style, extra, seed=7 + w_used + 10 * ai)
++                        wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
++                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup)
+                     except Exception as e:
+-                        rec["attempts"].append({"style": style, "writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
++                        rec["attempts"].append({"writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
+                         continue
+                     writers_v.add(wr.vendor)
+                     writers_f.add(wr.family)
+@@ -740,13 +982,28 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                             dropped |= {m["moment_id"] for m in stale if CI.a_failures(a_by.get(m["moment_id"], {}))}
+                             relined = True
+                             break
+-                    pk = assemble([m["moment_id"] for m in segs], cleared, fields, ctx,
+-                                  f"written ({style}), attempt {w_used}")
++                    if join is not None and fields["bridge"] is None:
++                        dropped.add(segs[join[0] + 1]["moment_id"])
++                        rec["why"] = (f"the clips-alone verdict flagged {med['flagged'][0]}; the writer judged it "
++                                      f"followable without a bridge: these clips do not sit together (L-y 2): re-lined")
++                        relined = True
++                        break
++                    if fields["bridge"] is not None:
++                        fields["bridge_confirmed_by"] = {"join": med["flagged"][0], "why": join[1],
++                                                         "backend": med.get("backend")}
++                    fields["supply_exception"] = exception
++                    pk = assemble_medley([m["moment_id"] for m in segs], cleared, fields, ctx,
++                                         f"medley (L-y), written, attempt {w_used}")
++                    pk["medley"] = med
+                     cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
+-                    att = {"style": style, "writer": wr.backend, "runtime": pk["runtime_s_estimate"],
++                    att = {"writer": wr.backend, "runtime": pk["runtime_s_estimate"], "bridge": pk["bridge"],
++                           "takeaway_budget": fields.get("takeaway_budget"),
+                            "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]]}
+                     rec["attempts"].append(att)
+-                    log(f"  angle {ai + 1} write {w_used} ({style}, {wr.backend}): " +
++                    take = _takeaway_record(ai, n_lineup, w_used, pk, cheap)
++                    out["takeaways"].append(take)
++                    log(f"  angle {ai + 1} line-up {n_lineup} write {w_used} ({wr.backend}, takeaway {take['words']} "
++                        f"words, {pk['runtime_s_estimate']} s): " +
+                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
+                         + f" ({time.time() - t0:.0f} s)")
+                     if cheap:
+@@ -754,11 +1011,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         extra = _redo(cheap)
+                         continue
+                     fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
++                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid)
+                     framing = [v for v in cx["violations"] if v["rule"] in VO_DEPENDENT]
+                     att["violations"] = fid["violations"] + cx["violations"]
+                     att["verdict_classes"] = (fid.get("verdict") or {}).get("classes")
+-                    log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'}, context {'PASS' if cx['ok'] else 'FAIL'} "
+-                        f"({time.time() - t0:.0f} s)")
++                    log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'} (takeaway "
++                        f"{'PASS' if take['passed'] else take['verdict_fail']}), context "
++                        f"{'PASS' if cx['ok'] else 'FAIL'} ({time.time() - t0:.0f} s)")
+                     if not fid["ok"] or not cx["ok"]:
+                         if fid["ok"] and not framing:
+                             rec["why"] = "context integrity failed on something the VO cannot fix"
+@@ -777,22 +1036,34 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         rec["why"] = f"exclusion / L-v 2 dropped {sorted(lost)}: re-lined"
+                         relined = True
+                         break
+-                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)
++                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)    # then on the takeaway
+                     att["coherence"] = coh
+-                    log(f"    coherence {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo {coh.get('vo_point')} "
+-                        f"({time.time() - t0:.0f} s)")
++                    log(f"    coherence with the takeaway {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo "
++                        f"{coh.get('vo_point')} ({time.time() - t0:.0f} s)")
+                     a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+                     pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
+                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
+-                                            ok_c, coh)
++                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk))
+                     if not ok_c:
+-                        rec["why"] = "coherence below 4 or no through-line: next angle"
+-                        w_used = writes
++                        tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
++                        if coh.get("measured") and type(coh.get("vo_point")) is int and \
++                                coh["vo_point"] < COHERENCE_MIN and min(coh["clips"].values()) >= COHERENCE_MIN and \
++                                len(tl.split()) >= 4 and not NO_LINE.search(tl):
++                            extra = _redo([{"slot": "takeaway", "rule": "COHERENCE", "detail":
++                                            f"a blind viewer rated the takeaway's point {coh['vo_point']} of 5 for "
++                                            f"being supported by the clips: land the point the clips make together"}])
++                            continue                          # the clips hold; only the takeaway's point is weak
++                        weak = {sg["moment_id"] for sg in pk["segments"][1:]
++                                if (coh.get("clips") or {}).get(sg["label"], COHERENCE_MIN) < COHERENCE_MIN}
++                        dropped |= weak
++                        relined = bool(weak)
++                        rec["why"] = ("coherence with the takeaway below 4 or no through-line: " +
++                                      (f"dropped {sorted(weak)}, re-lined" if weak else "next angle"))
+                         break
+-                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend,
++                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend, "medley": med.get("backend"),
+                                     "fidelity_verdict": fid.get("backend"), "context": cx.get("backends"),
+                                     "coherence": coh.get("backend")}
+-                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh}
++                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
+                     pk["seconds"] = round(time.time() - t0, 1)
+                     pk["usd"] = round(spend() - usd0, 4) if spend else None
+                     out["packages"].append(pk)
+@@ -811,9 +1082,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     return out
+ 
+ 
+-def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
+-    """The sealed GATE INVENTORY (audit p2 C1; package_pin.REQUIRED_GATES): one row per hard gate, each
+-    {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m)."""
++def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None):
++    """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
++    {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
++    A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
++    (shape=(ok, [why]) from ly_shape())."""
+     row = lambda ok, by, replayed=False, n=1, measured=True: {
+         "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
+         "replayed": replayed if isinstance(replayed, bool) else None, "n": n}     # None (unstated) refuses the pin
+@@ -861,4 +1134,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
+                         measured=all("edges" in t for t in truth.values())),
+         "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
+                           **votes_of(coh)),
++        **({"medley": dict(row(bool(medley[0]), medley[1].get("backend"), medley[1].get("replayed"),
++                               measured=bool(medley[1].get("measured"))), flagged=medley[1].get("flagged"))}
++           if medley is not None else {}),
++        **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]))}
++           if shape is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 3194dcc1..b1da529b 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -25,6 +25,13 @@ from datetime import datetime, timezone
+ SCHEMA = "protocol_pulse.pinned_story.v1"
+ REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
+                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
++MEDLEY_GATES = ("medley", "ly_shape")      # L-y (orchestrator 20:30): the clips-alone verdict and the medley's shape
++
++
++def required_gates(pk):
++    """The rows a package's inventory must hold, each exactly PASS: REQUIRED_GATES, and for a medley (L-y) also the
++    clips-alone verdict and the L-y shape."""
++    return REQUIRED_GATES + (MEDLEY_GATES if (pk or {}).get("shape") == "medley" else ())
+ 
+ 
+ class PinRefused(Exception):
+@@ -44,12 +51,12 @@ def seal(segments, edl_vo, signoff, title, caption, gates):
+     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+ 
+ 
+-def gate_problems(gates):
++def gate_problems(gates, required=REQUIRED_GATES):
+     """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
+     if not isinstance(gates, dict):
+         return ["no gate inventory"]
+     out = []
+-    for g in REQUIRED_GATES:
++    for g in required:
+         row = gates.get(g)
+         if not isinstance(row, dict) or row.get("status") != "PASS":
+             out.append(f"{g}: {(row or {}).get('status') if isinstance(row, dict) else 'missing'}")
+@@ -58,6 +65,17 @@ def gate_problems(gates):
+     return out
+ 
+ 
++def bridge_slots(pk):
++    """The line slot of each VO bridge, in order: bridge_1, bridge_2 ...; in a medley (L-y) the line after the LAST clip
++    is the "takeaway" and the one bridge before it is bridge_1."""
++    vo = pk.get("vo") or {}
++    after = list(vo.get("bridges_after_clip") or [])
++    last = len(pk.get("segments") or []) - 1
++    if pk.get("shape") == "medley":
++        return ["takeaway" if a == last else f"bridge_{i + 1}" for i, a in enumerate(after)]
++    return [f"bridge_{i + 1}" for i in range(len(vo.get("bridges") or []))]
++
++
+ def line_problems(pk):
+     """The gated lines must BE the VO, title and caption that will be spoken and shown (audit C2 K3)."""
+     by = {x.get("slot"): x.get("text") for x in pk.get("lines") or []}
+@@ -66,8 +84,9 @@ def line_problems(pk):
+     if by.get("intro") != vo.get("intro"):
+         out.append("intro")
+     bridges, after = list(vo.get("bridges") or []), list(vo.get("bridges_after_clip") or [])
+-    if len(bridges) != len(after) or any(by.get(f"bridge_{i + 1}") != t for i, t in enumerate(bridges)) or \
+-            any(k.startswith("bridge_") and int(k.split("_")[1]) > len(bridges) for k in by if k):
++    slots = bridge_slots(pk)
++    if len(bridges) != len(after) or any(by.get(s) != t for s, t in zip(slots, bridges)) or \
++            any(k not in slots and (k.startswith("bridge_") or k == "takeaway") for k in by if k):
+         out.append("bridges")
+     for k in ("title", "caption"):
+         if by.get(k) != pk.get(k):
+@@ -76,8 +95,8 @@ def line_problems(pk):
+ 
+ 
+ def to_pin(pk, run_name):
+-    problems = gate_problems(pk.get("gates")) + [f"{x}: the gated line differs from the one shipped"
+-                                                 for x in line_problems(pk)]
++    problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
++                                                                     for x in line_problems(pk)]
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -100,8 +119,13 @@ def to_pin(pk, run_name):
+                                 "signoff_expected": pk["vo"]["signoff"],
+                                 "title": pk["title"], "caption": pk["caption"],
+                                 "hook_first_words": pk["hook_first_words"],
+-                                "vo_jobs": {"intro": "context", **{f"bridge_{i + 1}": "connection"
+-                                                                   for i in range(len(pk["vo"]["bridges"]))}},
++                                "vo_jobs": {**({"intro": "context" if pk.get("shape") != "medley" else "connection"}
++                                               if pk["vo"]["intro"] else {}),
++                                            **{s: "takeaway" if s == "takeaway" else "connection"
++                                               for s in bridge_slots(pk)}},
++                                "shape": pk.get("shape"),
++                                "bridge": pk.get("bridge"),
++                                "supply_exception": pk.get("supply_exception"),
+                                 "gates": pk["gates"],
+                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
+                                            "derived_from": "gates (every required row exactly PASS, checked above)",
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 67dfd391..b0c948d5 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -221,6 +221,16 @@ class OpenAIBackend(Backend):
+         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
+ 
+ 
++def _num(x):
++    return isinstance(x, (int, float)) and not isinstance(x, bool) and x == x and x >= 0
++
++
++def _reported(usd):
++    """{"usd_reported": the vendor's own figure for this call} when the reply carries one, else {} (the ledger then keeps
++    the price-table estimate for it, labelled as an estimate)."""
++    return {"usd_reported": round(float(usd), 8)} if _num(usd) else {}
++
++
+ class HeimdallBackend(OpenAIBackend):
+     """Heimdall: an OpenAI-compatible multi-model API (HEIMDALL_API_KEY) at the config's base_url. JSON is asked for in
+     words only (its models differ in json_object support); its /credits endpoint feeds the 90% tripwire."""
+@@ -246,7 +256,8 @@ class HeimdallBackend(OpenAIBackend):
+             text = j["choices"][0]["message"].get("content") or ""
+         except (KeyError, IndexError, TypeError):
+             raise RequestRejected("heimdall: no choices") from None
+-        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
++        return text, dict({"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)},
++                          **_reported(u.get("cost"))), time.time() - t0
+ 
+     def credits(self):
+         """(total_usage, total_credits) in USD from GET /credits, or None when it cannot be read."""
+@@ -285,8 +296,9 @@ class XAIBackend(Backend):
+             text = j["choices"][0]["message"].get("content") or ""
+         except (KeyError, IndexError, TypeError):
+             raise RequestRejected("xai: no choices") from None
+-        return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning}, \
+-            time.time() - t0
++        ticks = u.get("cost_in_usd_ticks")                    # the vendor's own cost: 1 USD = 1e10 ticks
++        return text, dict({"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0) + reasoning},
++                          **_reported(ticks / 1e10 if _num(ticks) else None)), time.time() - t0
+ 
+ 
+ class AnthropicBackend(Backend):
+@@ -575,6 +587,13 @@ class Router:
+                 r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
+                 r.update(calls=r["calls"] + 1, usd_estimate=round(r["usd_estimate"] + usd, 6))
+                 d.update(calls=d["calls"] + 1, usd_estimate=round(d["usd_estimate"] + usd, 6))
++                if _num(usage.get("usd_reported")):    # the vendor's own figure (xAI ticks, Heimdall usage.cost)
++                    rep = float(usage["usd_reported"])
++                    b.update(usd_reported=round(b.get("usd_reported", 0.0) + rep, 8),
++                             reported_calls=b.get("reported_calls", 0) + 1)
++                    d["usd_reported"] = round(d.get("usd_reported", 0.0) + rep, 8)
++                else:                                  # no vendor figure: the estimate stands for this call
++                    d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) + usd, 6)
+             self._save(d)
+ 
+     def reject(self, reply, why=""):
+diff --git a/tests/moments/test_moments.py b/tests/moments/test_moments.py
+index 4535455d..7a41a3a3 100644
+--- a/tests/moments/test_moments.py
++++ b/tests/moments/test_moments.py
+@@ -129,13 +129,6 @@ class TestPackageUsable(unittest.TestCase):
+         self.assertEqual(PK.signoff(segs, ctx), "Clips today from DataDash, Natalie Brunell, and Yahoo Finance. "
+                                                 "Go follow them for more. Links are below.")
+ 
+-    def test_the_plain_title_never_cuts_a_name(self):
+-        ctx = E.Context(NOW, REG)
+-        segs = [pm("h", "Averyveryverylongchannelname One", 10.0), pm("c1", "Averyveryverylongchannelname Two", 15.0),
+-                pm("c2", "Averyveryverylongchannelname Three", 15.0)]
+-        title = PK.plain_vo(segs, ctx)[2]["text"]
+-        self.assertLessEqual(len(title), 70)
+-        self.assertTrue(title.endswith(("and others", "Two", "One")), title)
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+new file mode 100644
+index 00000000..eecc07fa
+--- /dev/null
++++ b/tests/package/proof_ly.py
+@@ -0,0 +1,203 @@
++#!/usr/bin/env python3
++"""ORCHESTRATOR ORDER 20:30 ET Nov 12 (law L-y, VOICEOVER IS MINIMAL): re-run tonight's universe and the saved ones
++through the packager's new default, the MEDLEY (pipeline/package.py build()). The table goes to the top of STATE:
++- packages per universe;
++- how many needed zero bridges and how many needed one;
++- the gate pass rate on the single takeaway line;
++- time and dollars per package.
++The top package of the newest universe becomes a sealed pin (MOMENTS_PIN_LY.json).
++
++LEGS (20:30: "local/Heimdall/xAI legs; Anthropic and OpenAI credit status: probe once, use if back"). The probe at
++20:32 ET found Anthropic "credit balance is too low" (HTTP 400) and OpenAI 429 credit_balance_exhausted, so both stay
++out. Local gemma runs on GPU0, which this builder never uses (L-r, the session's standing order), so every local leg
++is out too. What is left:
++- the writer (angle + takeaway) is Heimdall: deepseek-v4.1-flash, then qwen3.8-27b. This is the config's own
++  angle_write order once the frozen vendors drop out.
++- every verdict avoids the writer's vendor (L-x), so it runs on xAI grok-4.20.
++- the second recogniser is ElevenLabs scribe_v1.
++CPU and network only. The inputs are read-only: the saved runs and the main store's transcripts.
++
++SPEND: a ledger of this order's own (tests/package/proof/SPEND_LY.json) holds the price-table estimate beside the
++vendors' own figures (xAI cost_in_usd_ticks, Heimdall usage.cost; providers.py). Its guard is LY_LIMIT_USD by the
++estimate (an upper bound). No budget was stated at 20:30; the cap is the builder's, and STATE says so.
++
++Usage: python3 tests/package/proof_ly.py --runs fresh_20261112_050611 ... [--table]
++"""
++import argparse
++import hashlib
++import json
++import os
++import subprocess
++import sys
++import time
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "select_by_id"))
++sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
++import moments as M  # noqa: E402
++import package as PK  # noqa: E402
++import package_pin  # noqa: E402
++import proof_moments as PM  # noqa: E402
++import providers as P  # noqa: E402
++
++REPLIES = os.path.join(HERE, "fixtures", "replies")
++OUT = os.path.join(HERE, "proof")
++SPEND = os.path.join(OUT, "SPEND_LY.json")
++LY_LIMIT_USD = 15.0                # the price-table estimate (an upper bound; xAI's own figure ran ~1/7 of it, 05:30)
++TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
++RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
++        "fresh_20261111_192645", "fresh_20261111_190259", "fresh_20261110_093150", "fresh_20261107_080503",
++        "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
++NEWEST = RUNS[0]
++FROZEN = ("local:", "anthropic:", "openai:", "openai_stt:")         # GPU0 (never this builder's); out of credit 20:32
++WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"]
++SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
++
++
++def chains():
++    """Every role's configured chain without the frozen legs; the writer = two Heimdall families."""
++    cfg = json.load(open(P.CONFIG))
++    out = {r: [b for b in v["chain"] if not b.startswith(FROZEN)] for r, v in cfg["roles"].items()}
++    out["angle_write"] = list(WRITERS)
++    return out
++
++
++def ledger():
++    try:
++        d = json.load(open(SPEND))
++    except (OSError, ValueError):
++        d = {}
++    est = float(d.get("usd_estimate", 0.0))
++    best = float(d.get("usd_reported", 0.0)) + float(d.get("usd_unreported_estimate", 0.0))
++    return est, best, d
++
++
++def code_sha():
++    """The code this run used: HEAD plus the working tree's diff of pipeline/ and this driver (the results name it)."""
++    head = subprocess.run(["git", "-C", REPO, "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
++    diff = subprocess.run(["git", "-C", REPO, "diff", "HEAD", "--", "pipeline", "tests/package"], capture_output=True).stdout
++    return f"{head}+{hashlib.sha256(diff).hexdigest()[:12]}" if diff else head
++
++
++def run_one(run, router, work_dir, log):
++    rec_m = json.load(open(os.path.join(PM.OUT, run, "moments.json")))
++    words, captions, ctx, saved = PM.universe_sources(run)
++    sources = {s.video_id: s for s in words}
++    e0, b0, _ = ledger()
++    t0 = time.time()
++    res = PK.build(router, rec_m["moments"], sources, ctx, delivered=(), optout=M.optout_ids(), log=log,
++                   work_dir=work_dir, store=os.path.join(OUT, run, "step_a.json"), spend=lambda: ledger()[0])
++    e1, b1, _ = ledger()
++    res.update(run=run, seconds=round(time.time() - t0, 1), usd_estimate=round(e1 - e0, 4),
++               usd_best_known=round(b1 - b0, 4), code=code_sha(), chains=router.chains,
++               at=time.strftime("%Y-%m-%d %H:%M:%S %Z"))
++    os.makedirs(os.path.join(OUT, run), exist_ok=True)
++    if res["package"]:
++        pk = res["package"]
++        pk["usd_best_known"] = res["usd_best_known"]
++        path, pin = package_pin.write_pin(pk, run, os.path.join(OUT, run), name="MOMENTS_PIN_LY.json")
++        res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
++                      "package_sha256": pin["moments_package"]["package_sha256"]}
++        log(f"{run}: PACKAGE ({res['seconds']} s, ${res['usd_estimate']} estimate, ${res['usd_best_known']} best known)"
++            f" pin {path}")
++    else:
++        log(f"{run}: no package ({res.get('why_none')}); usable {res['usable']}, cleared "
++            f"{res['prescreen']['cleared']}")
++    json.dump(res, open(os.path.join(OUT, run, "package_ly.json"), "w"), indent=1, default=str)
++    return res
++
++
++def table():
++    rows = ["| universe | usable / cleared step A | line-ups judged on the clips alone (passed) | package | segments, "
++            "seconds of clips | bridges | takeaway writes: passed / judged (first write) | runtime estimate | time | "
++            "$ estimate / $ best known | why none |", "|---|---|---|---|---|---|---|---|---|---|---|"]
++    tot = {"universes": 0, "packages": 0, "zero": 0, "one": 0, "passed": 0, "judged": 0, "first_passed": 0,
++           "first_judged": 0, "s": [], "est": [], "best": []}
++    for run in RUNS:
++        f = os.path.join(OUT, run, "package_ly.json")
++        if not os.path.exists(f):
++            rows.append(f"| {run} | not run | | | | | | | | | |")
++            continue
++        r = json.load(open(f))
++        tot["universes"] += 1
++        tried = [t for t in r.get("tried") or [] if t.get("medley") is not None]
++        med_ok = sum(1 for t in tried if t["medley"].get("measured") and
++                     len(t["medley"].get("flagged") or []) <= PK.LY_MAX_BRIDGES and t.get("attempts"))
++        takes = r.get("takeaways") or []
++        judged = [x for x in takes if x.get("passed") is not None]
++        firsts = [x for x in judged if x.get("write") == 1]
++        tot["passed"] += sum(1 for x in judged if x["passed"])
++        tot["judged"] += len(judged)
++        tot["first_passed"] += sum(1 for x in firsts if x["passed"])
++        tot["first_judged"] += len(firsts)
++        pk = r.get("package")
++        if pk:
++            nb = 0 if not pk.get("bridge") else 1
++            tot["packages"] += 1
++            tot["zero" if nb == 0 else "one"] += 1
++            tot["s"].append(r["seconds"])
++            tot["est"].append(r.get("usd_estimate") or 0.0)
++            tot["best"].append(r.get("usd_best_known") or 0.0)
++            segs = f"{len(pk['segments'])}, {sum(s['duration_s'] for s in pk['segments']):.1f} s"
++            bridge = "0" if nb == 0 else f"1 ({pk['bridge']['join']}: {pk['bridge']['why']})".replace("|", "/")
++            pkg, rt, why = f"YES: \"{pk['title']}\"".replace("|", "/"), f"{pk['runtime_s_estimate']} s", ""
++        else:
++            segs = bridge = rt = "-"
++            pkg = "no"
++            why = (r.get("why_none") or "; ".join(f"angle {t['angle']}: {t.get('why') or '-'}" for t in r.get("tried") or [])
++                   )[:240].replace("|", "/")
++        rows.append(f"| {run} | {r['usable']} / {r['prescreen']['cleared']} | {len(tried)} ({med_ok}) | {pkg} | {segs} | "
++                    f"{bridge} | {sum(1 for x in judged if x['passed'])} / {len(judged)} "
++                    f"({sum(1 for x in firsts if x['passed'])} / {len(firsts)}) | {rt} | {r['seconds']} s | "
++                    f"${r.get('usd_estimate')} / ${r.get('usd_best_known')} | {why} |")
++    n = tot["packages"]
++    mean = lambda xs: (sum(xs) / len(xs)) if xs else 0.0
++    _, _, d = ledger()
++    summary = (f"\n**Totals:**\n"
++               f"- {tot['universes']} universes run; {n} packages.\n"
++               f"- Bridges: {tot['zero']} packages needed none, {tot['one']} needed one.\n"
++               f"- The takeaway line passed its gates in {tot['passed']} of {tot['judged']} judged writes "
++               f"({tot['first_passed']} of {tot['first_judged']} on the first write).\n"
++               f"- Per package: {mean(tot['s']):.0f} s mean, ${mean(tot['est']):.2f} estimate, "
++               f"${mean(tot['best']):.2f} best known.\n"
++               f"- This order's ledger: ${d.get('usd_estimate', 0):.2f} estimate; vendor-reported "
++               f"${d.get('usd_reported', 0):.4f} + unreported calls' estimate ${d.get('usd_unreported_estimate', 0):.2f}.\n")
++    text = ("# pp-selectid: the L-y medley re-run (generated by tests/package/proof_ly.py --table)\n\n" +
++            "\n".join(rows) + "\n" + summary)
++    open(TABLE, "w").write(text)
++    return text
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--runs", nargs="+", default=list(RUNS))
++    ap.add_argument("--table", action="store_true", help="only (re)write the table from the saved results")
++    ap.add_argument("--work-dir", default=os.path.join(SCRATCH, "lv2"))
++    a = ap.parse_args(argv)
++    if a.table:
++        print(table())
++        return 0
++    router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD, chains=chains())
++    os.makedirs(a.work_dir, exist_ok=True)
++    for run in a.runs:
++        os.makedirs(os.path.join(OUT, run), exist_ok=True)
++        logf = open(os.path.join(OUT, run, "package_ly.log"), "a")
++        say = lambda s: (print(f"[{run}] {s}", flush=True), logf.write(s + "\n"), logf.flush())
++        say(f"=== {time.strftime('%H:%M:%S %Z')} L-y medley build, code {code_sha()}, chains {json.dumps(router.chains)}")
++        try:
++            run_one(run, router, a.work_dir, say)
++        except P.SpendLimit as e:
++            say(f"STOPPED: {e}")
++            break
++        finally:
++            logf.close()
++    if router.notices:
++        print("NOTICES:", router.notices)
++    print(table())
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+new file mode 100644
+index 00000000..e340eaca
+--- /dev/null
++++ b/tests/package/test_medley.py
+@@ -0,0 +1,359 @@
++#!/usr/bin/env python3
++"""L-y VOICEOVER IS MINIMAL (orchestrator 20:30 ET Nov 12): the packager's MEDLEY, offline.
++
++- The arithmetic: the clips' seconds that let ONE takeaway land the factory's estimate in 60-70 s, and the takeaway's
++  word budget, which lands it there.
++- The line-up: the hook + 2-4 clips in the proposer's play order, one per channel (a repeat only as the recorded supply
++  exception).
++- The clips-ALONE verdict's contract.
++- The writer's contract: a bridge only at the flagged join.
++- ly_shape's must-fail cases.
++- The pin of a medley: intro null, the takeaway after the last clip, the two medley rows required.
++"""
++import json
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "eligibility"))
++sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
++sys.path.insert(0, HERE)
++import eligibility as E  # noqa: E402
++import package as PK  # noqa: E402
++import package_pin  # noqa: E402
++from config import BRIDGE_WORD_CAP  # noqa: E402
++from test_eligibility import NOW, REG  # noqa: E402
++from test_gates import Canned  # noqa: E402
++from test_moments import pm  # noqa: E402
++
++W = lambda n: " ".join(["word"] * n)
++
++
++def angle(ms, hook, text="Nobody controls Bitcoin."):
++    return {"angle": text, "moments": ms, "hook": hook, "support": {m: "x" for m in ms}}
++
++
++def verdict(labs, flagged=(), ratings=None, line="Nobody can change the rules of Bitcoin."):
++    js = PK.joins(labs)
++    return {"through_line": line, "clips": {lb: (ratings or {}).get(lb, 5) for lb in labs},
++            "joins": {j: {"followable": j not in flagged, "why": "the next speaker's 'it' has no referent"
++                          if j in flagged else "same subject"} for j in js}}
++
++
++def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=None, supply=None, intro=None):
++    """A medley package the shape check reads: n segments; the takeaway after the last clip; an optional bridge."""
++    labs = PK.labels(n)
++    segs = [{"label": lb, "channel_id": (chans or "ABCDEFG")[i], "duration_s": 12.0, "text": f"Bitcoin {lb}."}
++            for i, lb in enumerate(labs)]
++    bridges, aft = (["B " + W(5)] if bridge else []) + [W(20)], ([after] if bridge else []) + [n - 1]
++    return {"shape": "medley", "segments": segs,
++            "vo": {"intro": intro, "bridges": bridges, "bridges_after_clip": aft, "signoff": "S"},
++            "medley": {"measured": measured, "flagged": list(flagged)},
++            "bridge": {"why": bridge} if bridge or intro else None, "supply_exception": supply}
++
++
++class TestMedleyArithmetic(unittest.TestCase):
++    def test_the_medley_seconds_let_one_takeaway_land_60_to_70(self):
++        lo, hi = PK.medley_content_range()
++        self.assertEqual((lo, hi), (32.7, 51.5))          # 60 - 14.30 - (30 / 2.5 + 1); 70 - 14.30 - (8 / 2.5 + 1)
++        seg = lambda c: [{"duration_s": c}]
++        self.assertAlmostEqual(PK.runtime(seg(lo), [W(PK.MOMENTS_TAKEAWAY_WORD_CAP)]), 60.0, places=2)
++        self.assertAlmostEqual(PK.runtime(seg(hi), [W(PK.LY_TAKEAWAY_MIN_WORDS)]), 70.0, places=2)
++        lo1, hi1 = PK.medley_content_range(n_bridges=1)
++        self.assertAlmostEqual(lo - lo1, PK.LY_BRIDGE_WORDS / 2.5 + 1.0, places=2)
++        self.assertAlmostEqual(hi - hi1, PK.LY_BRIDGE_WORDS / 2.5 + 1.0, places=2)
++
++    def test_the_takeaway_budget_lands_the_estimate_and_never_passes_the_caps(self):
++        aimed = 0
++        for c10 in range(300, 560):
++            c = c10 / 10
++            b = PK.takeaway_budget(c)
++            if b is None:
++                self.assertTrue(c > PK.medley_content_range()[1] or c < PK.medley_content_range()[0], c)
++                continue
++            lo, hi = b
++            self.assertTrue(PK.LY_TAKEAWAY_MIN_WORDS <= lo <= hi <= PK.MOMENTS_TAKEAWAY_WORD_CAP, (c, b))
++            for w in (lo, hi):
++                est = PK.runtime([{"duration_s": c}], [W(w)])
++                self.assertTrue(PK.RUNTIME_S[0] <= est <= PK.RUNTIME_S[1], (c, w, est))
++                p = {"segments": [{"duration_s": c, "channel": "A"}, {"duration_s": 0.0, "channel": "B"}],
++                     "vo": {"intro": None, "bridges": [W(w)], "bridges_after_clip": [1]}, "runtime_s_estimate": est}
++                self.assertTrue(PK.r4(p)[0], (c, w, PK.r4(p)[1]))
++            aimed += all(PK.LY_AIM_S[0] <= PK.runtime([{"duration_s": c}], [W(w)]) <= PK.LY_AIM_S[1] for w in (lo, hi))
++        self.assertGreater(aimed, 100)                    # most clip lengths land the aim (61.5-68.5 s)
++        self.assertIsNone(PK.takeaway_budget(60.0))       # too many seconds of clips: no takeaway lands 70 s
++        b0, b1 = PK.takeaway_budget(40.0), PK.takeaway_budget(40.0, other=[W(10)])
++        self.assertLess(b1[1], b0[1])                     # a bridge's seconds come off the takeaway
++
++
++class TestMedleyLineup(unittest.TestCase):
++    def test_the_hook_and_clips_in_the_proposers_order_one_per_channel(self):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0),
++                                          pm("z", "D", 12.0), pm("e", "A", 14.0))}
++        seg = PK.lineup_for(angle(["h", "y", "x", "z", "e"], "h"), by)
++        self.assertEqual([m["moment_id"] for m in seg], ["h", "y", "x"])        # the earliest that fit, in that order
++        self.assertTrue(PK.medley_content_range()[0] <= sum(m["duration_s"] for m in seg) <= PK.medley_content_range()[1])
++
++    def test_more_clips_when_two_do_not_fill_the_medley(self):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 9.0), pm("x", "B", 9.0), pm("y", "C", 9.0), pm("z", "D", 9.0))}
++        seg = PK.lineup_for(angle(["h", "x", "y", "z"], "h"), by)
++        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "y", "z"])   # 36 s: the hook + 3 clips
++        short = {k: dict(v, duration_s=6.0) for k, v in by.items()}
++        self.assertIsNone(PK.lineup_for(angle(["h", "x", "y", "z"], "h"), short))   # 24 s: no medley fits
++
++    def test_a_channel_twice_only_as_the_supply_exception_and_from_two_videos(self):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 14.0), pm("x", "B", 13.0), pm("y", "C", 3.0),
++                                          pm("e", "A", 13.0))}
++        a = angle(["h", "x", "y", "e"], "h")
++        self.assertIsNone(PK.lineup_for(a, by))                                    # one per channel cannot fill it
++        seg = PK.lineup_for(a, by, repeat_ok=True)
++        self.assertEqual([m["moment_id"] for m in seg], ["h", "x", "e"])
++        same_video = dict(by, e=dict(by["e"], video_id=by["h"]["video_id"]))
++        self.assertIsNone(PK.lineup_for(a, same_video, repeat_ok=True))           # never two clips of one video
++
++
++class TestClipsAloneVerdict(unittest.TestCase):
++    SEGS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++    LABS = ["hook", "clip_01", "clip_02"]
++
++    def run_it(self, reply):
++        r = Canned(coherence_verdict=[reply])
++        ok, v = PK.medley(r, self.SEGS, E.Context(NOW, REG), {"heimdall"}, writer_family={"deepseek"})
++        return ok, v, r
++
++    def test_no_narration_in_the_prompt_and_the_writers_vendor_avoided(self):
++        r = Canned(coherence_verdict=[verdict(self.LABS)])
++        prompts = []
++        call = r.call
++        r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
++        ok, v = PK.medley(r, self.SEGS, E.Context(NOW, REG), {"heimdall"}, writer_family={"deepseek"})
++        self.assertTrue(ok)
++        self.assertEqual(v["flagged"], [])
++        self.assertNotIn("VOICE-OVER", prompts[0])
++        self.assertNotIn("TITLE", prompts[0])
++        self.assertIn('"hook -> clip_01"', prompts[0])
++        self.assertEqual(r.calls[0], ("coherence_verdict", {"heimdall"}, {"deepseek"}))
++
++    def test_one_unfollowable_join_passes_flagged_and_two_fail(self):
++        ok, v, _ = self.run_it(verdict(self.LABS, flagged=["clip_01 -> clip_02"]))
++        self.assertTrue(ok)
++        self.assertEqual(v["flagged"], ["clip_01 -> clip_02"])
++        ok, v, _ = self.run_it(verdict(self.LABS, flagged=["hook -> clip_01", "clip_01 -> clip_02"]))
++        self.assertFalse(ok)                              # two bridges would be needed: the line-up is wrong (L-y 2)
++
++    def test_no_through_line_or_a_weak_clip_fails(self):
++        self.assertFalse(self.run_it(verdict(self.LABS, line="none"))[0])
++        self.assertFalse(self.run_it(verdict(self.LABS, line="Bitcoin."))[0])
++        self.assertFalse(self.run_it(verdict(self.LABS, ratings={"clip_02": 3}))[0])
++
++    def test_out_of_contract_is_not_measured_and_rejected(self):
++        good = verdict(self.LABS)
++        for bad in (dict(good, joins={"hook -> clip_01": good["joins"]["hook -> clip_01"]}),      # a join missing
++                    dict(good, joins=dict(good["joins"], **{"clip_02 -> hook": {"followable": True, "why": ""}})),
++                    dict(good, joins={j: {"followable": "yes", "why": ""} for j in good["joins"]}),
++                    dict(good, vo_point=5),
++                    dict(good, clips={"hook": 5, "clip_01": 5})):
++            ok, v, r = self.run_it(bad)
++            self.assertFalse(ok)
++            self.assertFalse(v["measured"])
++            self.assertIsNone(v["flagged"])
++            self.assertEqual(r.rejected, ["fake:coherence_verdict"])
++
++
++class TestWriteTakeaway(unittest.TestCase):
++    SEGS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++
++    def write(self, reply, join=None):
++        r = Canned(angle_write=[reply])
++        return PK.write_takeaway(r, angle(["h", "x", "y"], "h"), self.SEGS, E.Context(NOW, REG), {}, join), r
++
++    def lines(self, bridge=None):
++        return {"takeaway": {"text": "No ruler, just rules.", "cites": []}, "bridge": bridge,
++                "title": {"text": "No ruler.", "cites": ["h"]}, "caption": {"text": "three clips", "cites": []}}
++
++    def test_no_bridge_unless_a_join_was_flagged(self):
++        (rep, f), _ = self.write(self.lines())
++        self.assertIsNone(f["bridge_after"])
++        with self.assertRaises(ValueError):
++            self.write(self.lines({"text": "Next, B.", "cites": ["x"], "why": "w"}))
++
++    def test_a_bridge_at_the_flagged_join_needs_its_reason_and_may_be_declined(self):
++        (rep, f), _ = self.write(self.lines({"text": "Next, B's show on keys.", "cites": ["x"], "why": "no referent"}),
++                                 join=(1, "the next speaker's 'it' has no referent"))
++        self.assertEqual(f["bridge_after"], 1)
++        (rep, f), _ = self.write(self.lines(None), join=(1, "w"))
++        self.assertIsNone(f["bridge_after"])                                       # declined: build re-lines
++        for bad in ({"text": "Next.", "cites": ["x"]}, {"text": "Next.", "cites": ["x"], "why": " "},
++                    {"text": "Next.", "cites": ["zz"], "why": "w"}):
++            with self.assertRaises(ValueError):
++                self.write(self.lines(bad), join=(1, "w"))
++
++    def test_the_prompt_asks_for_one_takeaway_inside_the_budget(self):
++        r = Canned(angle_write=[self.lines()])
++        prompts = []
++        call = r.call
++        r.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
++        PK.write_takeaway(r, angle(["h", "x", "y"], "h"), self.SEGS, E.Context(NOW, REG), {})
++        lo, hi = PK.takeaway_budget(39.0)
++        self.assertIn(f"one or two sentences, {lo}-{hi} words", prompts[0])
++        self.assertNotIn("ONE JOIN NEEDS HELP", prompts[0])
++        self.assertNotIn('"intro"', prompts[0])
++
++
++class TestLyShape(unittest.TestCase):
++    def test_a_clean_medley_passes(self):
++        self.assertEqual(PK.ly_shape(medley_pk()), (True, []))
++        self.assertTrue(PK.ly_shape(medley_pk(n=5))[0])
++
++    def test_a_bridge_only_and_always_at_the_flagged_join_with_its_reason(self):
++        self.assertTrue(PK.ly_shape(medley_pk(n=4, bridge="no referent", after=2, flagged=["clip_02 -> clip_03"]))[0])
++        self.assertTrue(PK.ly_shape(medley_pk(intro="Next, B.", flagged=["hook -> clip_01"]) | {
++            "bridge": {"why": "no referent"}})[0])
++        must_fail = {
++            "bridge at an unflagged join": medley_pk(n=4, bridge="w", after=1, flagged=["clip_02 -> clip_03"]),
++            "bridge with nothing flagged": medley_pk(n=4, bridge="w", after=1),
++            "flagged join left unbridged": medley_pk(flagged=["clip_01 -> clip_02"]),
++            "bridge without its reason": medley_pk(n=4, bridge="", after=2, flagged=["clip_02 -> clip_03"]) | {
++                "vo": medley_pk(n=4, bridge="w", after=2)["vo"]},
++            "an intro with nothing flagged": medley_pk(intro="Here's the thing.") | {"bridge": {"why": "w"}},
++            "two bridges": medley_pk(n=4, intro="Next.", bridge="w", after=2,
++                                     flagged=["hook -> clip_01", "clip_02 -> clip_03"]),
++            "verdict not measured": medley_pk(measured=False),
++            "verdict missing": medley_pk() | {"medley": None},
++        }
++        for why, pk in must_fail.items():
++            self.assertFalse(PK.ly_shape(pk)[0], why)
++
++    def test_the_takeaway_is_the_line_after_the_last_clip(self):
++        pk = medley_pk()
++        pk["vo"] = dict(pk["vo"], bridges_after_clip=[1])
++        self.assertFalse(PK.ly_shape(pk)[0])
++        pk["vo"] = dict(pk["vo"], bridges=[], bridges_after_clip=[])
++        self.assertFalse(PK.ly_shape(pk)[0])
++
++    def test_three_to_five_segments_and_one_clip_per_channel(self):
++        self.assertFalse(PK.ly_shape(medley_pk(n=2))[0])
++        self.assertFalse(PK.ly_shape(medley_pk(n=6))[0])
++        self.assertFalse(PK.ly_shape(medley_pk(chans="ABA"))[0])
++        self.assertTrue(PK.ly_shape(medley_pk(chans="ABA", supply="A gives two clips (L-y 4)"))[0])
++
++    def test_a_bridge_over_the_word_cap_fails(self):
++        pk = medley_pk(n=4, bridge="w", after=2, flagged=["clip_02 -> clip_03"])
++        pk["vo"]["bridges"][0] = W(BRIDGE_WORD_CAP + 1)
++        self.assertFalse(PK.ly_shape(pk)[0])
++
++
++def ctx():
++    return E.Context(NOW, REG)
++
++
++class TestMedleyPackageAndPin(unittest.TestCase):
++    def build(self, bridge=None, k=None, n=3, text="No ruler, just rules nobody gets to bend."):
++        by = {m["moment_id"]: m for m in (pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0),
++                                          pm("z", "D", 9.0))}
++        order = ["h", "x", "y", "z"][:n]
++        fields = {"takeaway": {"text": text, "cites": []}, "bridge": bridge, "bridge_after": k,
++                  "title": {"text": "No ruler.", "cites": []}, "caption": {"text": "three clips", "cites": []}}
++        return PK.assemble_medley(order, by, fields, ctx(), "medley (L-y)")
++
++    def gates(self, pk, **over):
++        g = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
++        g.update(over)
++        return g
++
++    def test_no_intro_and_one_takeaway_after_the_last_clip(self):
++        pk = self.build()
++        self.assertIsNone(pk["vo"]["intro"])
++        self.assertEqual((pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"]),
++                         (["No ruler, just rules nobody gets to bend."], [2]))
++        self.assertEqual([x["slot"] for x in pk["lines"]], ["takeaway", "title", "caption"])
++        self.assertAlmostEqual(pk["runtime_s_estimate"], 39.0 + 8 / 2.5 + 1.0 + PK.FINAL_TAIL_S, places=2)
++        self.assertEqual(PK.r4(pk)[0], True)
++
++    def test_the_one_bridge_after_a_clip_or_after_the_hook(self):
++        b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
++        pk = self.build(bridge=b, k=1, n=4)
++        self.assertEqual(pk["vo"]["bridges_after_clip"], [1, 3])
++        self.assertEqual([x["slot"] for x in pk["lines"]][:2], ["bridge_1", "takeaway"])
++        self.assertEqual(pk["bridge"]["join"], "clip_01 -> clip_02")
++        pk0 = self.build(bridge=b, k=0)
++        self.assertEqual(pk0["vo"]["intro"], "Next, on keys.")
++        self.assertEqual(pk0["vo"]["bridges_after_clip"], [2])
++        with self.assertRaises(ValueError):
++            self.build(bridge=b, k=2)                     # after the last clip is the takeaway's place
++
++    def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
++        pk = self.build()
++        self.assertEqual(package_pin.required_gates(pk)[-2:], ("medley", "ly_shape"))
++        pk["gates"] = self.gates(pk)
++        pin = package_pin.to_pin(pk, "test")
++        mp = pin["moments_package"]
++        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
++        self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
++        self.assertEqual(mp["shape"], "medley")
++        for missing in ("medley", "ly_shape"):
++            g = self.gates(pk)
++            g.pop(missing)
++            with self.assertRaises(package_pin.PinRefused):
++                package_pin.to_pin(dict(pk, gates=g), "test")
++        with self.assertRaises(package_pin.PinRefused):
++            package_pin.to_pin(dict(pk, gates=self.gates(pk, ly_shape={"status": "FAIL", "replayed": False})), "test")
++
++    def test_the_gated_takeaway_must_be_the_spoken_one(self):
++        pk = self.build()
++        pk["gates"] = self.gates(pk)
++        pk["vo"] = dict(pk["vo"], bridges=["A different closing line."])
++        with self.assertRaises(package_pin.PinRefused) as cm:
++            package_pin.to_pin(pk, "test")
++        self.assertIn("bridges", str(cm.exception))
++
++    def test_the_old_shape_keeps_its_slots(self):
++        pk = {"vo": {"intro": "I", "bridges": ["B", "T"], "bridges_after_clip": [1, 2]}, "segments": [{}, {}, {}]}
++        self.assertEqual(package_pin.bridge_slots(pk), ["bridge_1", "bridge_2"])
++        self.assertEqual(package_pin.bridge_slots(dict(pk, shape="medley")), ["bridge_1", "takeaway"])
++
++
++class TestInventoryRows(unittest.TestCase):
++    def test_the_two_medley_rows(self):
++        fid = {"deterministic": {"ok": True, "violations": [], "price_now_measured": True}, "verdict": {"ok": True},
++               "backend": "x", "replayed": False, "measured": True}
++        coh = {"backend": "x", "replayed": False, "measured": True}
++        args = (fid, [], True, (True, ""), {"ok": True, "measured": True, "replayed": False, "backends": {}},
++                {"hook": {"backend": "x", "replayed": False}}, {"h": {"verdict": "keep", "measured": True,
++                                                                      "replayed": False}},
++                {"h": {"ok": True, "edges": {"cuttable": True}, "replayed": False, "model": "s"}}, True, coh)
++        self.assertNotIn("medley", PK.inventory(*args))
++        g = PK.inventory(*args, medley=(True, {"backend": "x", "replayed": False, "measured": True, "flagged": []}),
++                         shape=(True, []))
++        self.assertEqual((g["medley"]["status"], g["ly_shape"]["status"]), ("PASS", "PASS"))
++        g = PK.inventory(*args, medley=(False, {"measured": False, "flagged": None}), shape=(False, ["two bridges"]))
++        self.assertEqual((g["medley"]["status"], g["ly_shape"]["status"]), ("NOT RUN", "FAIL"))
++        self.assertEqual(g["ly_shape"]["why"], ["two bridges"])
++
++
++class TestReportedCost(unittest.TestCase):
++    def test_the_ledger_keeps_the_vendors_own_figure_beside_the_estimate(self):
++        import tempfile
++        import providers as P
++        with tempfile.TemporaryDirectory() as d:
++            path = os.path.join(d, "SPEND.json")
++            r = P.Router(env_path=None, spend_path=path, limit_usd=10.0)
++            b = r.backends["xai:grok-4.20-0309-reasoning"]
++            r._settle(None, b, {"in": 1000, "out": 1000, "usd_reported": 0.002}, 0.03, "check")
++            r._settle(None, b, {"in": 1000, "out": 1000}, 0.03, "check")
++            led = json.load(open(path))
++            self.assertAlmostEqual(led["usd_estimate"], 0.06, places=6)
++            self.assertAlmostEqual(led["usd_reported"], 0.002, places=8)
++            self.assertAlmostEqual(led["usd_unreported_estimate"], 0.03, places=6)
++            self.assertEqual(led["by_backend"][b.name]["reported_calls"], 1)
++        self.assertEqual(P._reported(None), {})
++        self.assertEqual(P._reported(True), {})
++        self.assertEqual(P._reported(-1), {})
++        self.assertEqual(P._reported(0.5), {"usd_reported": 0.5})
++
++
++if __name__ == "__main__":
++    unittest.main()

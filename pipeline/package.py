@@ -9,29 +9,44 @@ usable()      moments a package may use: on screen eligible (word timing, law L-
 prescreen()   step A of law L-s on each usable moment's own context, ONCE per moment (package-independent), stored on
               the moment (`store`: a JSON ledger keyed by moment and the step-A prompt); never recomputed
 ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
-              channels (one clip per channel, L-u)
-lineup_for()  code: hook + 2-3 clips for one angle, every segment from a different channel, at most one price prediction
-              (L-u), a clip under SHORT_CLIP_S only as the punchline, and the length the runtime (60-70 s, L-o) AND the
-              factory's EDL rule R4 (VO <= 25 % of runtime, one bridge per channel transition) both allow
-write_v3()    role angle_write: the PBX MAX VO in the renderer's order (hook -> intro -> clip 1 -> bridge -> ...), in
-              one of two styles (05:25 item 3): "host" (tease / hedge-matched hand-off of a VERIFIED speaker / the
-              host's own takeaway after a clip) or "quote" (show + topic, at most four exact words quoted); NEVER a
-              restatement of a clip's claim; word budgets from R4 and the runtime
-GATES (hard, every one, recorded in a sealed inventory, package_pin.REQUIRED_GATES):
-              cheap first (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4;
+              channels (one clip per channel, L-u), listed in PLAY ORDER (L-y 3)
+lineup_for()  code: the hook + 2-4 clips for one angle in the proposer's play order, every segment from a different
+              channel, at most one price prediction (L-u), a clip under SHORT_CLIP_S only as the punchline, and seconds
+              that let ONE takeaway land the factory's runtime estimate in 60-70 s (L-o, L-y 4)
+medley()      the blind clips-ALONE verdict (L-y 3): a through-line, a rating per clip, a verdict per join
+write_takeaway() role angle_write: the ONE takeaway (host commentary), ONE title, ONE caption, and the one bridge only
+              at a join the clips-alone verdict flagged (L-y 2); NEVER a restatement of a clip's claim
+GATES (hard, every one, recorded in a sealed inventory, package_pin.required_gates):
+              the clips-alone verdict first (no writing before it passes);
+              cheap (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4, the L-y shape;
               then concurrently: the classifying fidelity verdict (A / B / C / D, 05:25 items 1-2) and context
               integrity B0 / B / C (L-s; step A precomputed); exclusion (L-u) and the second recognition pass (L-v 2)
-              start in the background as soon as a line-up is fixed; then COHERENCE (blind, >= 4).
+              start in the background once the clips-alone verdict passes; then COHERENCE with the takeaway (>= 4).
               Every verdict avoids the vendors and model families of every reply whose text it judges (L-x).
               A rejected line goes back to the writer with the exact violations; a clip that fails exclusion or L-v 2
-              is dropped and the angle re-lined; at most WRITES writes per angle and MAX_ANGLES angles; the first
-              package with coherence >= COHERENCE_MIN wins (05:30).
+              is dropped and the angle re-lined; at most WRITES writes per line-up, LY_LINEUPS line-ups per angle and
+              MAX_ANGLES angles; the first package that passes every gate wins (05:30).
 OUTPUT pp.package/1: segments (moment ids, verbatim text, times), VO, title, caption, the gate inventory, the model per
               artefact, seconds and dollars.
+
+L-y VOICEOVER IS MINIMAL (orchestrator 20:30 ET Nov 12, PBX's verdict on the reviewed video; amends L-q, L-w 1 and
+R4-moments): build() makes the MEDLEY the default shape. The hook and 2-4 clips play back to back with no narration,
+then ONE takeaway after the last clip (host commentary, class D, one or two sentences, <= 30 words), then the
+sign-off. There is no intro after the hook and no bridge.
+- SELECTION carries the weight: the angle proposer gives the moments in PLAY ORDER, each clip's opening making sense
+  after the previous clip's ending in the speaker's own words (lineup_for).
+- The blind coherence verdict is asked on the clips ALONE first (medley(): a through-line a viewer can state, a rating
+  per clip, and per join whether a viewer can follow the jump). Only then is it asked on the takeaway (coherence()).
+- A bridge is the EXCEPTION: at most ONE, only at the join the clips-alone verdict flagged, and only when the writer
+  also judges a viewer cannot follow it. The package records why (ly_shape()). Two or more flagged joins mean the
+  line-up is wrong: other clips are picked.
+- 3-5 clips; the factory's runtime estimate stays inside 60-70 s (the measured final is accepted at 58-72 s, ruling 12).
+- One clip per channel unless the supply forces otherwise, and then the package says so (supply_exception).
 """
 import hashlib
 import itertools
 import json
+import math
 import os
 import re
 import time
@@ -42,11 +57,8 @@ import eligibility as E
 import vo_fidelity as VF
 
 SEG_MAX_S = 20.0                   # L-u: at most 20 s per source video
-RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the one hard length rule
-WPS = 2.6                          # PBX MAX VO words per second: an ASSUMPTION until the render measures it
-SIGNOFF_WORDS = 18                 # the preview's sign-off ("Clips today from A, B, and C. Go follow them ...")
-FIXED_S = round(E.TAIL_S - SIGNOFF_WORDS / WPS, 2)   # credits card + outro + transitions without VO (~7.4 s)
-VO_S = (6.0, 22.0)                 # the VO's seconds (intro + bridges), the slack that lands the runtime
+RUNTIME_S = E.RUNTIME_S            # L-o: 60-70 s, the packaging target the factory's estimate must meet (ruling 12)
+VO_S = (6.0, 22.0)                 # the PBX MAX v3 VO's seconds (intro + bridges), content_range()'s slack
 R4_WPS, R4_PREROLL_S, R4_SHARE = 2.5, 1.0, 0.25      # edl_rules.rule_r4's own estimate (the factory's rule)
 TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
 PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
@@ -113,8 +125,8 @@ def runtime(segs, vo_lines):
     """The FACTORY's own estimate, the one its hard 60-70 s check reads (edl_rules._r4_moments, main a5ec0f17: "hook +
     clips + VO + FINAL_TAIL_S", each VO line "words / 2.5 + the 1.0 s pre-roll"): segments' word spans + every VO line
     (intro, bridges) at R4_WPS w/s + R4_PREROLL_S each + FINAL_TAIL_S (the sign-off is inside it). It replaced (07:42)
-    this module's own estimate (2.6 w/s, no pre-roll, FIXED_S + the sign-off), which ran 3-4 s lower than the factory's
-    on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
+    this module's own estimate (2.6 w/s, no pre-roll, a fixed tail + the sign-off), which ran 3-4 s lower than the
+    factory's on three VO lines. Neither is a measurement: the render measures the final (design section 8, open)."""
     vo = sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in vo_lines if t and t.strip())
     return round(sum(m["duration_s"] for m in segs) + vo + FINAL_TAIL_S, 2)
 
@@ -124,6 +136,58 @@ MOMENTS_TAKEAWAY_WORD_CAP = 30     # orchestrator 08:40 ruling 10: the VO line a
 R4_MOMENTS_SHARE = 0.45            # orchestrator 08:29 ruling 9: moments-first VO up to 45 % of the TOTAL runtime (06:00
                                    # ruling 4 said 40 %); a VO line after the hook, after every clip and after the last
                                    # clip; 60-70 s stays hard
+
+
+LY_CLIPS = (2, 4)                  # L-y 4: 3 to 5 clips = the hook + 2-4 clips, back to back (the medley)
+LY_TAKEAWAY_MIN_WORDS = 8          # L-y 5: one or two sentences; the cap is ruling 10's MOMENTS_TAKEAWAY_WORD_CAP
+LY_BRIDGE_WORDS = 12               # L-y 2: the one exceptional bridge, "as short as it can be" (asked of the writer;
+                                   # config.BRIDGE_WORD_CAP 20 stays the hard bound, ly_shape)
+LY_BRIDGE_MIN_WORDS = 3            # the shortest bridge a first write budgets for ("Next, on keys.")
+LY_MAX_BRIDGES = 1                 # L-y 2: at most ONE bridge per video
+LY_AIM_S = (61.5, 68.5)            # the takeaway's length aims the factory's estimate here when the clips allow it
+                                   # (inside 60-70 s with margin: the voice measured 2.91 w/s vs R4's 2.5, ruling 12)
+LY_LINEUPS = 2                     # line-ups tried per angle (a clips-alone failure drops its weak clips once)
+
+
+def medley_content_range(n_bridges=0, bridge_words=LY_BRIDGE_WORDS):
+    """Seconds the clips may fill so that ONE takeaway of LY_TAKEAWAY_MIN_WORDS..MOMENTS_TAKEAWAY_WORD_CAP words (and
+    n_bridges bridges of bridge_words) lands the factory's estimate (runtime()) inside 60-70 s (L-y 4)."""
+    extra = n_bridges * (bridge_words / R4_WPS + R4_PREROLL_S)
+    lo = RUNTIME_S[0] - FINAL_TAIL_S - extra - (MOMENTS_TAKEAWAY_WORD_CAP / R4_WPS + R4_PREROLL_S)
+    hi = RUNTIME_S[1] - FINAL_TAIL_S - extra - (LY_TAKEAWAY_MIN_WORDS / R4_WPS + R4_PREROLL_S)
+    return round(lo, 2), round(hi, 2)
+
+
+def bridge_budget(content_s):
+    """For a line-up that must carry one bridge (L-y 2), before the bridge is written: (n, (lo, hi)), the largest bridge
+    limit n <= LY_BRIDGE_WORDS words such that ANY bridge of LY_BRIDGE_MIN_WORDS..n words with a takeaway of lo..hi
+    words lands the factory's estimate in 60-70 s (the two budgets overlap), or None when no bridge fits these clips
+    (audit 2030 C3: the writer is never handed a range that a legal bridge can push outside 60-70 s)."""
+    w = lambda n: [" ".join(["word"] * n)]
+    short = takeaway_budget(content_s, w(LY_BRIDGE_MIN_WORDS))
+    if short is None:
+        return None
+    for n in range(LY_BRIDGE_WORDS, LY_BRIDGE_MIN_WORDS - 1, -1):
+        long_ = takeaway_budget(content_s, w(n))
+        if long_ is not None and max(short[0], long_[0]) <= min(short[1], long_[1]):
+            return n, (max(short[0], long_[0]), min(short[1], long_[1]))
+    return None
+
+
+def takeaway_budget(content_s, other=()):
+    """(lo, hi) words for the takeaway, given the clips' seconds and the other VO lines' texts (a bridge): the factory's
+    estimate (runtime()) inside LY_AIM_S when the clips allow it, else inside 60-70 s; never under
+    LY_TAKEAWAY_MIN_WORDS, above the cap of 30 or past R4's share. None when no length lands 60-70 s."""
+    other = [t for t in other if t and t.strip()]
+    fixed = content_s + FINAL_TAIL_S + sum(len(t.split()) / R4_WPS + R4_PREROLL_S for t in other)
+    words_at = lambda s: R4_WPS * (s - fixed - R4_PREROLL_S)     # the takeaway's words that land the estimate at s
+    cap = min(MOMENTS_TAKEAWAY_WORD_CAP,
+              r4_max_vo_words(content_s, 1 + len(other)) - sum(len(t.split()) for t in other))
+    for a, b in (LY_AIM_S, RUNTIME_S):
+        lo, hi = max(LY_TAKEAWAY_MIN_WORDS, math.ceil(words_at(a) - 1e-9)), min(cap, math.floor(words_at(b) + 1e-9))
+        if lo <= hi:
+            return lo, hi
+    return None
 
 
 def r4_max_vo_words(content_s, n_vo):
@@ -179,13 +243,6 @@ def r4(pk):
                          "R4 (moments-first, 06:00) PASS") + f" | {note}"
 
 
-def budgets(content_s, n_bridges=1):
-    """Word budgets (intro, each bridge, (min, max) total) that land 60-70 s and fit R4; 40 % to the intro."""
-    hi = min(r4_max_vo_words(content_s, 1 + n_bridges), int(VO_S[1] * WPS))
-    lo = min(min_vo_words(content_s, 1 + n_bridges), hi)
-    return max(6, int(hi * 0.4)), max(4, int(hi * 0.6 / max(1, n_bridges))), (lo, hi)
-
-
 def _name(m, ctx):
     return (ctx.channel(m["channel_id"]) or {}).get("display_name") or m["channel_name"]
 
@@ -197,38 +254,23 @@ def signoff(segs, ctx):
     return f"Clips today from {who}. Go follow them for more. Links are below."
 
 
-def plain_vo(segs, ctx):
-    """L-w 2: the plain factual fallback VO ("Next, <show> on <topic>."): it claims nothing beyond who speaks. Ranked
-    last (orchestrator 03:40); the title names whole channels only (U11)."""
-    intro = {"text": f"Here's {_name(segs[0], ctx)} on Bitcoin.", "cites": []}
-    bridges = [{"text": f"Next, {_name(m, ctx)} on Bitcoin.", "cites": []} for m in segs[2:]]
-    chans = list(dict.fromkeys(_name(m, ctx) for m in segs))
-    title = "Bitcoin: " + ", ".join(chans[:-1]) + f" and {chans[-1]}"
-    while len(title) > 70 and len(chans) > 1:
-        chans = chans[:-1]
-        title = "Bitcoin: " + ", ".join(chans) + " and others"
-    caption = f"Clips from {', '.join(dict.fromkeys(_name(m, ctx) for m in segs))}. Links to every source below."
-    return intro, bridges, {"text": title[:70], "cites": []}, {"text": caption, "cites": []}
+def labels(n):
+    """The segments' labels in play order: the hook, then clip_01 ... (the renderer's clip index = the position)."""
+    return ["hook" if i == 0 else f"clip_{i:02d}" for i in range(n)]
 
 
-def assemble(order, by_id, fields, ctx, vo_kind):
-    segs = [by_id[i] for i in order]
-    lines = [dict(fields["intro"], slot="intro")] + \
-        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
-        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
-    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"].startswith(("intro", "bridge")))
+def _package(segs, ctx, fields, vo_kind, vo, lines):
+    vo_words = sum(len(x["text"].split()) for x in lines if x["slot"] not in ("title", "caption"))
     pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
           "vo_kind": vo_kind, "style": fields.get("style"),
-          "segments": [{"label": "hook" if i == 0 else f"clip_{i:02d}", "moment_id": m["moment_id"],
+          "segments": [{"label": lb, "moment_id": m["moment_id"],
                         "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": _name(m, ctx),
                         "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
                         "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
                         "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
-                       for i, m in enumerate(segs)],
-          "vo": {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
-                 "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1)),     # the renderer's after_clip
-                 "signoff": signoff(segs, ctx)},
+                       for lb, m in zip(labels(len(segs)), segs)],
+          "vo": dict(vo, signoff=signoff(segs, ctx)),
           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
           "hook_first_words": " ".join(segs[0]["text"].split()[:8]),
           "lines": lines}
@@ -237,6 +279,46 @@ def assemble(order, by_id, fields, ctx, vo_kind):
     pk["runtime_note"] = (f"segments {sum(m['duration_s'] for m in segs):.2f} s (word timing) + VO {vo_words} words at "
                           f"{R4_WPS} w/s + {R4_PREROLL_S} s pre-roll per line + tail {FINAL_TAIL_S} s (sign-off, credits, "
                           f"outro, edges): the factory's own R4 estimate; the render measures the final")
+    return pk
+
+
+def assemble(order, by_id, fields, ctx, vo_kind):
+    """The PBX MAX v3 shape (an intro after the hook and a line after clips; the orchestrator's given packages of the
+    night of Nov 11-12). L-y's medley is assemble_medley()."""
+    segs = [by_id[i] for i in order]
+    lines = [dict(fields["intro"], slot="intro")] + \
+        [dict(b, slot=f"bridge_{i + 1}") for i, b in enumerate(fields["bridges"])] + \
+        [dict(fields["title"], slot="title"), dict(fields["caption"], slot="caption")]
+    vo = {"intro": fields["intro"]["text"], "bridges": [b["text"] for b in fields["bridges"]],
+          "bridges_after_clip": list(range(1, len(fields["bridges"]) + 1))}      # the renderer's after_clip
+    return _package(segs, ctx, fields, vo_kind, vo, lines)
+
+
+def assemble_medley(order, by_id, fields, ctx, vo_kind):
+    """L-y: the clips back to back, ONE takeaway after the last clip (slot "takeaway", the renderer's after_clip = the
+    last clip), and at most one bridge: after the hook it is the renderer's intro slot (slot "intro"), after clip k it is
+    a bridge after_clip k (slot "bridge_1"). fields: takeaway, bridge (None or {"text", "cites", "why"}), bridge_after
+    (None, 0 = after the hook, or k), title, caption."""
+    segs = [by_id[i] for i in order]
+    n_clips = len(segs) - 1
+    b, k = fields.get("bridge"), fields.get("bridge_after")
+    if b is not None and (type(k) is not int or not 0 <= k < n_clips):
+        raise ValueError(f"a bridge sits at a join between two clips: after 0..{n_clips - 1}, not {k!r}")
+    mid = b is not None and k > 0
+    lines = ([dict(b, slot="intro")] if b is not None and k == 0 else []) + \
+        ([dict(b, slot="bridge_1")] if mid else []) + \
+        [dict(fields["takeaway"], slot="takeaway"), dict(fields["title"], slot="title"),
+         dict(fields["caption"], slot="caption")]
+    vo = {"intro": b["text"] if b is not None and k == 0 else None,
+          "bridges": ([b["text"]] if mid else []) + [fields["takeaway"]["text"]],
+          "bridges_after_clip": ([k] if mid else []) + [n_clips]}
+    pk = _package(segs, ctx, fields, vo_kind, vo, lines)
+    pk["shape"] = "medley"
+    pk["bridge"] = None if b is None else {"after": pk["segments"][k]["label"], "after_clip": k,
+                                           "join": f"{pk['segments'][k]['label']} -> {pk['segments'][k + 1]['label']}",
+                                           "text": b["text"], "why": b.get("why"),
+                                           "confirmed_by": fields.get("bridge_confirmed_by")}
+    pk["supply_exception"] = fields.get("supply_exception")
     return pk
 
 
@@ -309,9 +391,10 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     return a_by, fails, vendors, families
 
 
-ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words, with a
-voice-over that makes a point. Below are clips (verbatim quotes, each with its channel and length) that passed our
-checks. The channels were not in one conversation and never answer each other.
+ANGLE_PROMPT = """You are the editor of PBX MAX: 60-second Bitcoin videos made of other channels' own words. The clips
+play BACK TO BACK as a medley, with NO narration between them; the host speaks ONE closing line at the end. Below are
+clips (verbatim quotes, each with its channel and length) that passed our checks. The channels were not in one
+conversation and never answer each other.
 
 {note}
 {clips}
@@ -320,51 +403,67 @@ Find up to {k} ANGLES, best first. An angle is ONE sentence a viewer could repea
 GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
 the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
 it is today's.
-The video uses ONE clip per channel: a hook and 2-3 clips, from 3-4 DIFFERENT channels, together {lo:.0f}-{hi:.0f}
-seconds of clips. Give as many good angles as the clips allow (aim for {k}); for each angle give: "angle" (the
-sentence); "moments": the ids of 5 to 8 clips that support it (more choice survives a clip that later fails a check),
-from at least 3 different channels, with enough seconds among them; "hook": one of those ids whose FIRST WORDS grab
-attention AND set up the angle; "support": for each of those ids, a few words on what it adds (an internal note).
+With no narration the ORDER carries the video: list each angle's clips in the order they should PLAY, so that every
+clip's opening makes sense right after the previous clip's ending, in the speakers' own words (no clip may need an
+introduction to be understood). The video plays the hook and 2-4 more clips, ONE per channel, from 3-5 DIFFERENT
+channels, together {lo:.0f}-{hi:.0f} seconds of clips. Give as many good angles as the clips allow (aim for {k}); for
+each angle give: "angle" (the sentence); "moments": the ids of 4 to 8 clips IN PLAY ORDER, the hook first (more choice
+survives a clip that later fails a check), from at least 3 different channels, with enough seconds among them;
+"hook": the first id, whose FIRST WORDS grab attention AND set up the angle; "support": for each of those ids, a few
+words on what it adds and why it follows the clip before it (an internal note).
 Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
 "support": {{"id": "..."}}}}]}}"""
 
-STYLES = {
-    "host": "HOST STYLE: you have a point of view. A bridge may (a) tease the next clip with a question or a topic, never "
-            "saying what its speaker thinks; (b) hand off with an attribution ONLY for a clip whose speaker is marked "
-            "VERIFIED, with the clip's own hedge (\"Stephan Livera thinks so.\"); (c) land your own takeaway AFTER a "
-            "clip, as your opinion, never as what the speaker said.",
-    "quote": "QUOTE-LED STYLE: introduce each clip by its show and its topic in a few words; you may quote AT MOST FOUR "
-             "exact words of that clip in quotation marks; the point is carried by the sequence of clips and the ONE "
-             "title."}
+MEDLEY_PROMPT = """You watch a short video made ONLY of these clips, played back to back with NO narration between them.
+Each clip is a person's own words from a show; the shows were not in one conversation.
 
-WRITE_V3 = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
+{clips}
+
+1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or
+   "none" if there is none.
+2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).
+3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next
+   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few
+   words.
+Return ONLY this JSON object: {{"through_line": "...", "clips": {{"<label>": 1}}, "joins": {{{joins}}}}}"""
+
+WRITE_LY = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
 THE ANGLE (the point this video makes): "{angle}"
-The clips, in play order (verbatim; the channels were not in one conversation and never answer each other):
+The clips play BACK TO BACK as a medley, with no narration between them (verbatim, in play order; the channels were not
+in one conversation and never answer each other):
 
 {note}
 {lineup}
 
-The video plays: the HOOK clip, then your INTRO, then clip 1, then {slots}, then a sign-off that credits every channel
-(written by code).
-Write:
-- "intro": heard right AFTER the hook: your own take that sets up the angle.
-- "bridges": exactly {n_bridges} line(s), one after each clip but the last.
-- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters.
-- LENGTH: intro + bridges together {lo}-{hi} words; the intro at most {intro_words}, each bridge at most {bridge_words}.
+After the last clip you speak ONE closing line, the TAKEAWAY; then a sign-off credits every channel (written by code).
+{bridge}Write:
+- "takeaway": one or two sentences, {lo}-{hi} words: the point the medley adds up to, as YOUR OWN commentary (your
+  opinion or conclusion), never a restatement of any clip.
+- "title": ONE title, at most 70 characters; "caption": ONE caption, at most 220 characters. Both carry the angle.
 Every line gives "cites": the ids of the clips it relies on (none for your own commentary).
-{style}
 RULES (a line that breaks one is rejected):
-- NEVER restate a clip's claim before or after it, and never repeat its words: the clip says it, in its own words.
-- Your OWN commentary (an opinion, framing, a question, a tease, a takeaway) is welcome, but it must contain no number,
-  price, date, named person or company, must not say or imply what any speaker thinks, and must not relate speakers.
+- NEVER restate a clip's claim, and never repeat its words: the clip says it, in its own words.
+- Your OWN commentary is an opinion or a conclusion, nothing else: no checkable fact, number, price, date, named person
+  or company; never what a speaker thinks or how speakers relate; no prediction of what will happen; no advice or
+  instruction to the viewer (no "you should", "your job", "must"); no accusation; nothing that sounds like a quote.
 - Say what a speaker says or thinks ONLY for a clip marked VERIFIED, by that name, with the clip's own hedge: "thinks"
   for "I think", "feels" for "I feel like", "says" only for a flat statement. For any other clip credit the SHOW only
-  ("on Coin Bureau", "from What Bitcoin Did's show"), never "<name> says".
+  ("on Coin Bureau", "from What Bitcoin Did's show"), never "<name> says" or "<name> discusses".
 - Never say or imply that channels agree, answer, rebut or react to each other.
 - No price level; no advice to buy, sell or use leverage; no quotes except a clip's exact words; no "destroys",
   "slams", "exposes", "admits", "confirms", "caught".
-{extra}Return ONLY this JSON object: {{"intro": {{"text": "...", "cites": []}}, "bridges": [{{"text": "...", "cites": ["id"]}}],
+- Write the title and caption in sentence case: capitalise only the first word and real names. A line that names a
+  show, a person or Bitcoin's price cites the clips it comes from.
+{extra}Return ONLY this JSON object: {{"takeaway": {{"text": "...", "cites": []}}, "bridge": {bridge_shape},
 "title": {{"text": "...", "cites": []}}, "caption": {{"text": "...", "cites": []}}}}"""
+
+BRIDGE_ASK = """ONE JOIN NEEDS HELP: a blind viewer who watched these clips back to back could not follow the jump from
+{a} to {b} ("{why}"). Write ONE "bridge", heard between them: as short as it can be (at most {n} words); it only makes
+the next clip's subject or referent clear (its show and its topic, or a question); it never says what the next speaker
+thinks. Give "why": one sentence on why a viewer could not follow the jump without it. If you judge a viewer CAN
+follow this jump without narration, give "bridge": null (these clips then do not sit together, and other clips are
+picked).
+"""
 
 COHERENCE_PROMPT = """You watch a 60-second video. Here is everything it says and shows, in order (each clip is a
 different person's own words).
@@ -419,36 +518,43 @@ def check_angles(obj, by_id, k=MAX_ANGLES):
     return out
 
 
-def lineup_for(angle, by_id, dropped=frozenset()):
-    """Hook + 2-3 clips for one angle: the proposer's hook (else the angle's best hook-eligible moment by its first
-    2 s), clips from the angle's other moments, every segment from a different channel (L-u), at most
-    PRICE_PREDICTIONS_MAX price predictions (L-u), a clip under SHORT_CLIP_S only as the last (the punchline), the
-    length the runtime AND R4 allow. Best by the proposer's order. None if impossible."""
+def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False):
+    """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
+    medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
+    angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
+    predictions (L-u), a clip under SHORT_CLIP_S only as the last (the punchline), and the clips' seconds inside crange
+    (default medley_content_range(): one takeaway lands the factory's estimate in 60-70 s). Best = the proposer's
+    earliest moments (the lowest sum of play positions, so the default hook -> clip -> clip when it fits), then the
+    seconds nearest the middle of crange. repeat_ok (L-y 4, only when one clip per channel cannot fill the runtime):
+    ONE channel may give two clips, from two different videos. None if impossible."""
+    lo, hi = crange or medley_content_range()
+    pos = {m: i for i, m in enumerate(angle["moments"])}
     ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
     hooks = [m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok")]
     hooks.sort(key=lambda m: (m["moment_id"] != angle["hook"], -m["scores"]["hook_first_2s"]))
     for h in hooks:
         pool = [m for m in ms if m is not h and (m.get("eligibility") or {}).get("clip", {}).get("ok")
-                and m["channel_id"] != h["channel_id"]]
+                and (repeat_ok or m["channel_id"] != h["channel_id"])]
         best = None
-        for n in (3, 2):
-            lo, hi = content_range(n)
+        for n in range(clips[0], clips[1] + 1):
             for combo in itertools.combinations(pool, n):
-                if len({m["channel_id"] for m in combo}) != n:
+                chans = [m["channel_id"] for m in (h, *combo)]
+                if len(set(chans)) != n + 1 and not (repeat_ok and len(set(chans)) == n and
+                                                     len({m["video_id"] for m in (h, *combo)}) == n + 1):
                     continue
                 if sum("price_prediction" in m.get("risk", []) for m in (h, *combo)) > PRICE_PREDICTIONS_MAX:
                     continue
-                order = sorted(combo, key=lambda m: angle["moments"].index(m["moment_id"]))
+                order = sorted(combo, key=lambda m: pos[m["moment_id"]])
                 if [m for m in order[:-1] if m["duration_s"] < SHORT_CLIP_S]:
                     continue
                 dur = h["duration_s"] + sum(m["duration_s"] for m in order)
                 if not lo <= dur <= hi:
                     continue
-                key = (n, -sum(angle["moments"].index(m["moment_id"]) for m in order))
+                key = (-sum(pos[m["moment_id"]] for m in order), -abs(dur - (lo + hi) / 2))
                 if best is None or key > best[0]:
                     best = (key, [h] + order)
-            if best:
-                return best[1]
+        if best:
+            return best[1]
     return None
 
 
@@ -489,9 +595,9 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None):
         r = router.call("coherence_verdict", COHERENCE_PROMPT.format(package=CI.package_view(pk)), 1200, seed,
                         avoid_vendor=writer_vendor, avoid_family=writer_family)
         v = json.loads(r.text.strip())
-        labels = [sg["label"] for sg in pk["segments"]]
+        labs = [sg["label"] for sg in pk["segments"]]
         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
-                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labels) or \
+                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
             raise ValueError("coherence verdict out of contract")
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
@@ -515,39 +621,160 @@ def _lineup_block(segs, ctx, a_by):
     return "\n".join(out)
 
 
-def write_v3(router, angle, segs, ctx, a_by, style="host", extra="", seed=7, avoid_vendor=None):
+def joins(labs):
+    """The joins of a medley in play order: "<label> -> <next label>"; join k follows segment k (k = 0 is the hook)."""
+    return [f"{a} -> {b}" for a, b in zip(labs, labs[1:])]
+
+
+def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
+    """L-y 3: the blind coherence verdict on the clips ALONE (no VO, no title), asked FIRST: "played back to back with
+    no narration, is there a through-line a viewer can state?", a 1-5 rating per clip, and per join whether a viewer
+    can follow the jump. Never the vendor / family of the writer. -> (ok, verdict): ok when the through-line is stated
+    (>= 4 words, not 'none'), every clip rates >= COHERENCE_MIN and at most LY_MAX_BRIDGES joins are not followable;
+    verdict["flagged"] = the joins a viewer could not follow (a bridge may go only there, L-y 2)."""
+    import providers as P
+    labs = labels(len(segs))
+    js = joins(labs)
+    clips = "\n".join(f'CLIP label="{lb}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
+                      for lb, m in zip(labs, segs))
+    r = None
+    try:
+        r = router.call("coherence_verdict",
+                        MEDLEY_PROMPT.format(clips=clips, joins=", ".join(
+                            f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
+                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
+        v = json.loads(r.text.strip())
+        if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
+                not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs) or \
+                any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
+                not isinstance(v["joins"], dict) or set(v["joins"]) != set(js) or \
+                any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
+                    or not isinstance(x["why"], str) for x in v["joins"].values()):
+            raise ValueError("clips-alone verdict out of contract")
+    except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+        if r is not None and isinstance(e, (ValueError, TypeError)):
+            router.reject(r)
+        return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
+    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
+    flagged = [j for j in js if v["joins"][j]["followable"] is False]
+    ok = bool(tl.strip()) and not NO_LINE.search(tl) and len(tl.split()) >= 4 and \
+        min(v["clips"].values()) >= COHERENCE_MIN and len(flagged) <= LY_MAX_BRIDGES
+    return ok, dict(v, flagged=flagged, backend=r.backend, measured=True,
+                    replayed=bool(getattr(r, "replayed", False)))
+
+
+class NoBridgeFits(ValueError):
+    """These clips leave no takeaway length (and, for a flagged join, no bridge length) that lands 60-70 s."""
+
+
+def write_takeaway(router, angle, segs, ctx, a_by, join=None, extra="", seed=7, avoid_vendor=None, other=()):
+    """L-y: ONE takeaway (host commentary, class D), ONE title, ONE caption, and a bridge ONLY at `join` (k, why), the
+    one join the clips-alone verdict flagged (L-y 2): the writer gives it with its reason, or null when it judges a
+    viewer can follow the jump. The takeaway's word budget lands the factory's estimate (takeaway_budget()) with the
+    other VO lines' texts `other` (a bridge already written; when a bridge is asked for and none is written yet, the
+    budget and the bridge limit come from bridge_budget(): any bridge the writer may write lands). Raises NoBridgeFits,
+    before any model call, when no length lands 60-70 s. -> (reply, fields) with fields["bridge_after"] = k when a
+    bridge is given."""
     from select_by_id import UNTRUSTED
     from story_semantics import quote_data
     content = sum(m["duration_s"] for m in segs)
-    nb = len(segs) - 2
-    iw, bw, (lo, hi) = budgets(content, nb)
-    slots = ", then ".join(f"your bridge, then clip {i + 2}" for i in range(nb)) or "nothing"
+    budget, n_bridge = takeaway_budget(content, other), LY_BRIDGE_WORDS
+    if join is not None and not other:                # until the bridge is written, a budget that holds for ANY bridge
+        bb = bridge_budget(content)                     # of 3..n words (audit 2030 C1 glm; C2 qwen, grok; C3 glm, qwen)
+        if bb is None:
+            raise NoBridgeFits(f"no bridge of {LY_BRIDGE_MIN_WORDS}-{LY_BRIDGE_WORDS} words and takeaway land 60-70 s "
+                               f"with {content:.1f} s of clips")
+        n_bridge, budget = bb
+    if budget is None:
+        raise NoBridgeFits(f"no takeaway length lands 60-70 s with {content:.1f} s of clips and the lines {list(other)}")
+    labs = labels(len(segs))
+    ask, shape = "", "null"
+    if join is not None:
+        k, why = join
+        ask = BRIDGE_ASK.format(a=labs[k].upper().replace("_", " "), b=labs[k + 1].upper().replace("_", " "),
+                                why=" ".join(quote_data(why, 300).replace('"', "'").split()), n=n_bridge)
+        shape = '{"text": "...", "cites": ["id"], "why": "..."} or null'
     angle_text = " ".join(quote_data(angle["angle"], 300).replace('"', "'").split())     # M9: escaped, one line
-    prompt = WRITE_V3.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
-                             lineup=_lineup_block(segs, ctx, a_by), slots=slots, n_bridges=nb, lo=lo, hi=hi,
-                             intro_words=min(iw, 30), bridge_words=min(bw, 20), style=STYLES[style],
-                             extra=(extra + "\n") if extra else "")
+    prompt = WRITE_LY.format(angle=angle_text, note=UNTRUSTED.replace("<sentences>", "the quotes"),
+                             lineup=_lineup_block(segs, ctx, a_by), bridge=ask, lo=budget[0], hi=budget[1],
+                             extra=(extra + "\n") if extra else "", bridge_shape=shape)
     r = router.call("angle_write", prompt, 3000, seed, avoid_vendor=avoid_vendor)
     try:
         obj = json.loads(r.text.strip())
         ids = [m["moment_id"] for m in segs]
-        keys = {"intro", "bridges", "title", "caption"}
+        keys = {"takeaway", "bridge", "title", "caption"}
         if not isinstance(obj, dict) or set(obj) != keys:
             raise ValueError(f"keys must be exactly {sorted(keys)}")
-        if not isinstance(obj["bridges"], list) or len(obj["bridges"]) != nb:
-            raise ValueError(f"'bridges' must hold {nb} lines")
-        for slot, ln in [("intro", obj["intro"]), ("title", obj["title"]), ("caption", obj["caption"])] + \
-                [(f"bridge_{i + 1}", b) for i, b in enumerate(obj["bridges"])]:
-            if not isinstance(ln, dict) or set(ln) != {"text", "cites"} or not isinstance(ln["text"], str) or \
+        lines = [("takeaway", obj["takeaway"], {"text", "cites"}), ("title", obj["title"], {"text", "cites"}),
+                 ("caption", obj["caption"], {"text", "cites"})]
+        if obj["bridge"] is not None:
+            if join is None:
+                raise ValueError("no join needs a bridge: 'bridge' must be null (L-y 1)")
+            lines.append(("bridge", obj["bridge"], {"text", "cites", "why"}))
+        for slot, ln, want in lines:
+            if not isinstance(ln, dict) or set(ln) != want or not isinstance(ln["text"], str) or \
                     not ln["text"].strip() or not isinstance(ln["cites"], list) or \
-                    any(not isinstance(c, str) or c not in ids for c in ln["cites"]):
-                raise ValueError(f"{slot}: needs text and cites from the line-up's ids")
+                    any(not isinstance(c, str) or c not in ids for c in ln["cites"]) or \
+                    ("why" in want and (not isinstance(ln["why"], str) or not ln["why"].strip())):
+                raise ValueError(f"{slot}: needs text and cites from the line-up's ids" +
+                                 (" and a reason" if "why" in want else ""))
         if len(obj["title"]["text"]) > 70 or len(obj["caption"]["text"]) > 220:
             raise ValueError("title <= 70 characters, caption <= 220")
     except (ValueError, TypeError):
         router.reject(r)
         raise
-    return r, dict(obj, type="moments", angle=angle["angle"], style=style)
+    return r, dict(obj, bridge_after=join[0] if join is not None and obj["bridge"] is not None else None,
+                   type="moments", angle=angle["angle"], style="medley", takeaway_budget=list(budget))
+
+
+def ly_shape(pk):
+    """L-y (orchestrator 20:30), checked by code on the package -> (ok, [why]): 3-5 segments; ONE takeaway, after the
+    last clip; at most LY_MAX_BRIDGES bridge(s), each at a join the clips-alone verdict flagged (pk["medley"], measured)
+    with its reason recorded, and every flagged join bridged (else these clips do not sit together); a bridge within
+    config.BRIDGE_WORD_CAP words; one clip per channel unless pk["supply_exception"] says why not (L-y 4)."""
+    from config import BRIDGE_WORD_CAP
+    segs, vo = pk["segments"], pk["vo"]
+    n_clips = len(segs) - 1
+    fails = []
+    if not LY_CLIPS[0] <= n_clips <= LY_CLIPS[1]:
+        fails.append(f"{len(segs)} segments: a medley plays 3-5 (the hook + {LY_CLIPS[0]}-{LY_CLIPS[1]} clips)")
+    bridges, after = list(vo.get("bridges") or []), list(vo.get("bridges_after_clip") or [])
+    if not bridges or len(after) != len(bridges) or after[-1] != n_clips or not (bridges[-1] or "").strip():
+        fails.append("no takeaway after the last clip (L-y 1)")
+    js = joins([sg["label"] for sg in segs])
+    bad = [a for a in after[:-1] if type(a) is not int or not 0 < a < n_clips]
+    if bad:                                    # audit 2030 C4 (glm P1 (a), grok P2): named, never only a count mismatch
+        fails.append(f"after_clip {bad}: a bridge between clips sits after clip 1..{n_clips - 1} (after the hook it is "
+                     f"the intro)")
+    bridged = ([js[0]] if vo.get("intro") else []) + [js[a] for a in after[:-1] if type(a) is int and 0 < a < n_clips]
+    texts = ([vo["intro"]] if vo.get("intro") else []) + bridges[:-1]
+    if len(bridged) != len(texts) and not bad:
+        fails.append(f"a line after clips {after[:-1]} that is not at a join between two clips")
+    if len(texts) > LY_MAX_BRIDGES:
+        fails.append(f"{len(texts)} bridges (L-y 2: at most {LY_MAX_BRIDGES})")
+    med = pk.get("medley") or {}
+    if med.get("measured") is not True or not isinstance(med.get("flagged"), list):
+        fails.append("the clips-alone verdict was not measured (L-y 3)")
+    elif sorted(bridged) != sorted(med["flagged"]):
+        fails.append(f"bridges at {bridged or 'no join'}, the clips-alone verdict flagged {med['flagged'] or 'no join'}"
+                     f": a bridge goes only, and always, where a viewer could not follow the jump (L-y 2)")
+    rec = pk.get("bridge") or {}
+    if texts and not (rec.get("why") or "").strip():
+        fails.append("the bridge's reason is not recorded (L-y 2)")
+    if texts and (not isinstance(rec.get("text"), str) or rec["text"].strip() != texts[0].strip()):
+        fails.append("the bridge record's text is not the bridge line (the factory's R11 binds them)")
+    cb = rec.get("confirmed_by")
+    if texts and not ((isinstance(cb, str) and cb.strip()) or (isinstance(cb, (list, dict)) and cb)):
+        fails.append("the bridge's confirmation by the clips-alone verdict is not recorded (L-y 2, R11)")
+    if not texts and pk.get("bridge"):
+        fails.append("a bridge record with no bridge line")
+    for t in texts:
+        if len(t.split()) > BRIDGE_WORD_CAP:
+            fails.append(f"bridge of {len(t.split())} words (max {BRIDGE_WORD_CAP})")
+    chans = [sg["channel_id"] for sg in segs]
+    if len(set(chans)) != len(chans) and not (pk.get("supply_exception") or "").strip():
+        fails.append("two clips from one channel without the supply exception recorded (L-y 4)")
+    return not fails, fails
 
 
 def fidelity_segments(pk, a_by):
@@ -563,7 +790,7 @@ def fidelity_segments(pk, a_by):
 
 def cheap_checks(pk, a_by, levels, now):
     """The gates that cost nothing, run before any paid verdict: VO fidelity's deterministic rules, DUPLICATE,
-    runtime, R4. -> (violations, det, dup, rt_ok, r4_res)."""
+    runtime, R4, and for a medley the L-y shape. -> (violations, det, dup, rt_ok, r4_res)."""
     segs_v = fidelity_segments(pk, a_by)
     lines = [{"slot": x["slot"], "text": x["text"], "cites": x["cites"]} for x in pk["lines"]]
     man = {"channels": [sg["channel"] for sg in pk["segments"]], "date": now.strftime("%Y-%m-%d") if now else None}
@@ -571,10 +798,13 @@ def cheap_checks(pk, a_by, levels, now):
     dup = duplicates(pk)
     rt_ok = RUNTIME_S[0] <= pk["runtime_s_estimate"] <= RUNTIME_S[1]
     r4_res = r4(pk)
+    what = "the takeaway's" if pk.get("shape") == "medley" else "the VO's"
     v = det["violations"] + dup + ([] if rt_ok else [{"slot": "-", "rule": "RUNTIME", "detail":
-                                                      f"{pk['runtime_s_estimate']} s outside 60-70 s: change the VO's "
+                                                      f"{pk['runtime_s_estimate']} s outside 60-70 s: change {what} "
                                                       f"length"}]) + \
         ([] if r4_res[0] else [{"slot": "-", "rule": "R4", "detail": r4_res[1]}])
+    if pk.get("shape") == "medley":
+        v += [{"slot": "-", "rule": "LY_SHAPE", "detail": why} for why in ly_shape(pk)[1]]
     return v, det, dup, rt_ok, r4_res
 
 
@@ -654,16 +884,48 @@ def _writers(router):
 
 
 def _redo(violations):
-    return ("Your previous script was REJECTED. Exactly these lines failed, with the reason; rewrite ONLY them:\n" +
-            "\n".join(f"- {v['slot']}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
+    """The writer's second try: exactly the failing lines, by the keys the writer returns ("bridge" for the one bridge,
+    whichever join it sits at)."""
+    key = {"intro": "bridge", "bridge_1": "bridge"}
+    return ("Your previous reply was REJECTED. Return the WHOLE JSON object again, every key; rewrite ONLY the lines "
+            "below and keep the others exactly as they were. The failing lines, with the reason:\n" +
+            "\n".join(f"- {key.get(v['slot'], v['slot'])}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
+
+
+def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
+    """One written takeaway and the gates on ITS line (L-y 6: "one free-text line to judge per video ... measure it"):
+    the deterministic fidelity rules and DUPLICATE on the takeaway slot, then the classifying verdict's violations on it.
+    passed: True / False once the verdict judged it, None when other gates stopped the write before the verdict.
+    context_framing: the context-integrity failures the VO's framing causes (VO_DEPENDENT; per clip, so not attributed
+    to one line: recorded beside `passed`, never folded into it)."""
+    line = next((x for x in pk["lines"] if x["slot"] == "takeaway"), {})
+    rec = {"angle": ai + 1, "lineup": n_lineup, "write": w_used, "text": line.get("text"),
+           "words": len((line.get("text") or "").split()),
+           "cheap_fail": sorted({v["rule"] for v in cheap if v.get("slot") == "takeaway"}),
+           "other_cheap_fail": sorted({v["rule"] for v in cheap if v.get("slot") != "takeaway"}), "verdict_fail": None,
+           "passed": False if any(v.get("slot") == "takeaway" for v in cheap) else None,
+           "context_framing": None if cx is None else sorted({v["rule"] for v in cx.get("violations") or []
+                                                              if v.get("rule") in VO_DEPENDENT})}
+    if fid is not None:
+        ver = fid.get("verdict") or {}
+        if fid.get("measured") and isinstance(ver.get("violations"), list):
+            rec["verdict_fail"] = sorted({v["rule"] for v in ver["violations"] if v.get("slot") in ("takeaway", "-")})
+            rec["passed"] = not rec["cheap_fail"] and not rec["verdict_fail"]
+        else:
+            rec["verdict_fail"] = ["NOT MEASURED"]
+            rec["passed"] = False if rec["cheap_fail"] else None
+    return rec
 
 
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
-          writes=WRITES, work_dir=None, store=None, styles=("host", "quote"), spend=None):
-    """Angle first, inside the orchestrator's budgets (05:25 item 5, 05:30): at most max_angles angles x `writes`
-    writes, stopped at the first package that passes every hard gate with coherence >= COHERENCE_MIN. work_dir: where
-    law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger. spend: a
-    callable returning the ledger's USD (dollars per package). -> {"package", "packages", "tried", "angles", ...}."""
+          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LY_LINEUPS):
+    """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+    item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+    written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+    one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
+    work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
+    spend: a callable returning the ledger's USD (dollars per package).
+    -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = spend() if spend else None
     ms, why = usable(moments, ctx, delivered, optout)
@@ -671,9 +933,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
-    out = {"packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
+    out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": len(ms), "current_levels": levels,
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
-                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "package": None}
+                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+           "package": None}
     log(f"  {len(ms)} usable, {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
@@ -683,9 +946,25 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         return out
     from select_by_id import UNTRUSTED
     from story_semantics import quote_data
+    exc, tru = {}, {}
+    with ThreadPoolExecutor(max_workers=8) as pre:     # L-v 2 + CUTTABLE per moment, before the angles (L-y 3)
+        futs = {mid: pre.submit(truth_for, router, m, work_dir, tru) for mid, m in cleared.items()}
+        tru.update({mid: f.result() for mid, f in futs.items()})
+    cut_ok = lambda t: bool(t.get("ok")) and (t.get("edges") or {}).get("cuttable") is True
+    out["prescreen"]["second_pass"] = {
+        mid: "PASS" if cut_ok(t) else ("NOT MEASURED: " + t["error"] if t.get("error") else
+                                       "L-v 2 FAIL" if not t.get("ok") else "not cuttable at an edge (ruling C / 7)")
+        for mid, t in tru.items()}
+    cleared = {mid: m for mid, m in cleared.items() if cut_ok(tru.get(mid) or {})}
+    out["prescreen"]["cuttable"] = len(cleared)
+    log(f"  {len(cleared)} of them pass the second recognition pass and CUTTABLE ({time.time() - t0:.0f} s)")
+    if len({m["channel_id"] for m in cleared.values()}) < 3:
+        out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass and CUTTABLE, from fewer than 3 "
+                           f"channels")
+        return out
     clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s | "{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
-    lo, hi = content_range(2)[0], content_range(3)[1]
+    lo, hi = medley_content_range()
     angles, angle_reply = None, None
     for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
         r = None
@@ -704,28 +983,65 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
     log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)")
-    exc, tru = {}, {}
+    doomed = set()                                         # moments a per-moment gate dropped: out of every angle
     with ThreadPoolExecutor(max_workers=8) as pool:
         for ai, angle in enumerate(angles):
-            dropped, w_used = set(), 0
-            while w_used < writes and not out["packages"]:
-                segs = lineup_for(angle, cleared, frozenset(dropped))
-                rec = {"angle": ai + 1, "text": angle["angle"],
-                       "lineup": [m["moment_id"] for m in segs] if segs else None, "attempts": []}
+            dropped, n_lineup = set(), 0
+            while n_lineup < lineups and not out["packages"]:
+                segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed)), None
+                if segs is None:                          # L-y 4: one clip per channel unless the supply forces otherwise
+                    segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True)
+                    if segs is not None:
+                        rep = [c for c in dict.fromkeys(m["channel_id"] for m in segs)
+                               if sum(m["channel_id"] == c for m in segs) > 1]
+                        exception = (f"one clip per channel cannot fill the medley's seconds from this angle's moments: "
+                                     f"{', '.join(_name(next(m for m in segs if m['channel_id'] == c), ctx) for c in rep)}"
+                                     f" gives two clips, from two videos (L-y 4)")
+                rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
+                       "supply_exception": exception, "attempts": []}
                 out["tried"].append(rec)
                 if segs is None:
-                    rec["why"] = "no line-up: fewer than a hook + 2 clips from distinct channels in the length rules"
+                    rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
                     break
+                n_lineup += 1
+                ok_m, med = medley(router, segs, ctx, writers_v, seed=7 + n_lineup + 10 * ai, writer_family=writers_f)
+                rec["medley"], rec["medley_ok"] = med, ok_m
+                log(f"  angle {ai + 1} line-up {n_lineup} ({len(segs)} clips, "
+                    f"{sum(m['duration_s'] for m in segs):.1f} s): clips alone {'PASS' if ok_m else 'FAIL'} "
+                    f"{med.get('clips')} flagged {med.get('flagged')} ({time.time() - t0:.0f} s)")
+                labs = labels(len(segs))
+                if not ok_m:                              # L-y 2 / 3: pick clips that sit together
+                    by_lab = dict(zip(labs, segs))
+                    weak = {by_lab[lb]["moment_id"] for lb, x in (med.get("clips") or {}).items()
+                            if lb in by_lab and lb != "hook" and x < COHERENCE_MIN}
+                    if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
+                        weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
+                    if not med.get("measured") or not weak:
+                        rec["why"] = "the clips alone have no through-line a viewer can state (or it was not measured)"
+                        break
+                    dropped |= weak
+                    rec["why"] = f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, re-lined"
+                    continue
+                join = None
+                if med["flagged"]:
+                    k = joins(labs).index(med["flagged"][0])
+                    join = (k, med["joins"][med["flagged"][0]]["why"])
                 bg = {m["moment_id"]: (pool.submit(exclusion_for, router, m, sources, exc),
                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
-                extra, relined = "", False
+                extra, relined, w_used, written = "", False, 0, ()
                 while w_used < writes:
-                    style = styles[min(w_used, len(styles) - 1)]
                     w_used += 1
                     try:
-                        wr, fields = write_v3(router, angle, segs, ctx, a_by, style, extra, seed=7 + w_used + 10 * ai)
+                        wr, fields = write_takeaway(router, angle, segs, ctx, a_by, join, extra,
+                                                    seed=7 + w_used + 10 * ai + 100 * n_lineup, other=written)
+                    except NoBridgeFits as e:                  # the seconds rule it out: re-line, no write is paid
+                        if join is not None:
+                            dropped.add(segs[join[0] + 1]["moment_id"])
+                        rec["why"] = f"{e}: re-lined"
+                        relined = join is not None
+                        break
                     except Exception as e:
-                        rec["attempts"].append({"style": style, "writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
+                        rec["attempts"].append({"writer_error": f"{type(e).__name__}: {str(e)[:200]}"})
                         continue
                     writers_v.add(wr.vendor)
                     writers_f.add(wr.family)
@@ -740,25 +1056,62 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             dropped |= {m["moment_id"] for m in stale if CI.a_failures(a_by.get(m["moment_id"], {}))}
                             relined = True
                             break
-                    pk = assemble([m["moment_id"] for m in segs], cleared, fields, ctx,
-                                  f"written ({style}), attempt {w_used}")
+                    if join is not None and fields["bridge"] is None:
+                        dropped.add(segs[join[0] + 1]["moment_id"])
+                        rec["why"] = (f"the clips-alone verdict flagged {med['flagged'][0]}; the writer judged it "
+                                      f"followable without a bridge: these clips do not sit together (L-y 2): re-lined")
+                        relined = True
+                        break
+                    if fields["bridge"] is not None:
+                        fields["bridge_confirmed_by"] = {"join": med["flagged"][0], "why": join[1],
+                                                         "backend": med.get("backend")}
+                    fields["supply_exception"] = exception
+                    pk = assemble_medley([m["moment_id"] for m in segs], cleared, fields, ctx,
+                                         f"medley (L-y), written, attempt {w_used}")
+                    pk["medley"] = med
+                    written = [fields["bridge"]["text"]] if fields.get("bridge") else ()   # a redo budgets with it
                     cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
-                    att = {"style": style, "writer": wr.backend, "runtime": pk["runtime_s_estimate"],
+                    att = {"writer": wr.backend, "runtime": pk["runtime_s_estimate"], "bridge": pk["bridge"],
+                           "takeaway_budget": fields.get("takeaway_budget"),
                            "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]]}
                     rec["attempts"].append(att)
-                    log(f"  angle {ai + 1} write {w_used} ({style}, {wr.backend}): " +
+                    take = _takeaway_record(ai, n_lineup, w_used, pk, cheap)
+                    out["takeaways"].append(take)
+                    log(f"  angle {ai + 1} line-up {n_lineup} write {w_used} ({wr.backend}, takeaway {take['words']} "
+                        f"words, {pk['runtime_s_estimate']} s): " +
                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
                         + f" ({time.time() - t0:.0f} s)")
+                    got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}   # the clips' own gates first
+                    lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")
+                            or (t.get("edges") or {}).get("cuttable") is not True}   # CUTTABLE is a required gate
+                    if lost:
+                        rec["lost_why"] = {mid: ("exclusion" if e.get("verdict") != "keep" else
+                                                 "second pass (L-v 2)" if not t.get("ok") else
+                                                 "not cuttable at an edge (ruling C / 7)")
+                                           for mid, (e, t) in got.items() if mid in lost}
+                        att["exclusion"] = {mid: e for mid, (e, _) in got.items()}
+                        dropped |= lost
+                        doomed |= lost                         # per-moment verdicts: no angle may use them again
+                        rec["why"] = f"exclusion / L-v 2 / CUTTABLE dropped {rec['lost_why']}: re-lined"
+                        relined = True
+                        break
                     if cheap:
                         att["violations"] = cheap
-                        extra = _redo(cheap)
+                        b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
+                        extra = _redo([dict(v, detail=v["detail"] + (f" (a takeaway of {b[0]}-{b[1]} words lands it)"
+                                                                     if b else " (no takeaway length lands it with this "
+                                                                                "bridge: shorten the bridge)" if written
+                                                                     else " (no takeaway length lands it)"))
+                                       if v["rule"] == "RUNTIME" else v for v in cheap])
                         continue
                     fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
+                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid, cx)
                     framing = [v for v in cx["violations"] if v["rule"] in VO_DEPENDENT]
                     att["violations"] = fid["violations"] + cx["violations"]
                     att["verdict_classes"] = (fid.get("verdict") or {}).get("classes")
-                    log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'}, context {'PASS' if cx['ok'] else 'FAIL'} "
-                        f"({time.time() - t0:.0f} s)")
+                    log(f"    fidelity {'PASS' if fid['ok'] else 'FAIL'} (takeaway "
+                        f"{'PASS' if take['passed'] else take['verdict_fail']}), context "
+                        f"{'PASS' if cx['ok'] else 'FAIL'} ({time.time() - t0:.0f} s)")
                     if not fid["ok"] or not cx["ok"]:
                         if fid["ok"] and not framing:
                             rec["why"] = "context integrity failed on something the VO cannot fix"
@@ -768,31 +1121,42 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                                             "detail": VO_FIX.get(v["rule"], v["detail"])}
                                                            for v in framing])
                         continue
-                    got = {mid: (f[0].result(), f[1].result()) for mid, f in bg.items()}
-                    lost = {mid for mid, (e, t) in got.items() if e.get("verdict") != "keep" or not t.get("ok")}
                     att["exclusion"] = {mid: e for mid, (e, _) in got.items()}
                     att["second_pass"] = {mid: t for mid, (_, t) in got.items()}
-                    if lost:
-                        dropped |= lost
-                        rec["why"] = f"exclusion / L-v 2 dropped {sorted(lost)}: re-lined"
-                        relined = True
-                        break
-                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)
+                    ok_c, coh = coherence(router, pk, writers_v, writer_family=writers_f)    # then on the takeaway
                     att["coherence"] = coh
-                    log(f"    coherence {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo {coh.get('vo_point')} "
-                        f"({time.time() - t0:.0f} s)")
+                    log(f"    coherence with the takeaway {'PASS' if ok_c else 'FAIL'} {coh.get('clips')} vo "
+                        f"{coh.get('vo_point')} ({time.time() - t0:.0f} s)")
                     a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
                     pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab,
                                             {k: v for k, (v, _) in got.items()}, {k: v for k, (_, v) in got.items()},
-                                            ok_c, coh)
+                                            ok_c, coh, medley=(ok_m, med), shape=ly_shape(pk))
                     if not ok_c:
-                        rec["why"] = "coherence below 4 or no through-line: next angle"
+                        tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                        if coh.get("measured") and type(coh.get("vo_point")) is int and \
+                                coh["vo_point"] < COHERENCE_MIN and min(coh["clips"].values()) >= COHERENCE_MIN and \
+                                len(tl.split()) >= 4 and not NO_LINE.search(tl):
+                            extra = _redo([{"slot": "takeaway", "rule": "COHERENCE", "detail":
+                                            f"a blind viewer rated the takeaway's point {coh['vo_point']} of 5 for "
+                                            f"being supported by the clips: land the point the clips make together"}])
+                            continue                          # the clips hold; only the takeaway's point is weak
+                        weak = {sg["moment_id"] for sg in pk["segments"][1:]
+                                if (coh.get("clips") or {}).get(sg["label"], COHERENCE_MIN) < COHERENCE_MIN}
+                        dropped |= weak
+                        relined = bool(weak)
+                        rec["why"] = ("coherence with the takeaway below 4 or no through-line: " +
+                                      (f"dropped {sorted(weak)}, re-lined" if weak else "next angle"))
+                        break
+                    import package_pin
+                    problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+                    if problems:                              # never return a package its pin would refuse (L-j)
+                        rec["why"] = f"a required gate is not exactly PASS: {problems}: next angle"
                         w_used = writes
                         break
-                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend,
+                    pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend, "medley": med.get("backend"),
                                     "fidelity_verdict": fid.get("backend"), "context": cx.get("backends"),
                                     "coherence": coh.get("backend")}
-                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh}
+                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
                     pk["seconds"] = round(time.time() - t0, 1)
                     pk["usd"] = round(spend() - usd0, 4) if spend else None
                     out["packages"].append(pk)
@@ -802,8 +1166,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     break
             if out["packages"]:
                 break
-            if time.time() - t0 > BUDGET_S * 2 or (spend and spend() - usd0 > BUDGET_USD * 2):
-                out["why_none"] = "twice the per-package time / spend budget is used: stopped"
+            used_s, used_usd = time.time() - t0, (spend() - usd0) if spend else 0.0
+            if used_s > BUDGET_S * 2 or used_usd > BUDGET_USD * 2:
+                out["why_none"] = (f"stopped after angle {ai + 1} of {len(angles)}: {used_s:.0f} s of the "
+                                   f"{BUDGET_S * 2:.0f} s / ${used_usd:.2f} of the ${BUDGET_USD * 2:.2f} (estimate) "
+                                   f"per-package budget (05:25 item 5, twice)")
+                out["budget_stop"] = {"seconds": round(used_s, 1), "usd_estimate": round(used_usd, 4),
+                                      "angles_tried": ai + 1, "angles": len(angles)}
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
     out["seconds"] = round(time.time() - t0, 1)
@@ -811,9 +1180,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     return out
 
 
-def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
-    """The sealed GATE INVENTORY (audit p2 C1; package_pin.REQUIRED_GATES): one row per hard gate, each
-    {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m)."""
+def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None):
+    """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+    {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+    A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
+    (shape=(ok, [why]) from ly_shape())."""
     row = lambda ok, by, replayed=False, n=1, measured=True: {
         "status": "NOT RUN" if not measured or n < 1 else ("PASS" if ok else "FAIL"), "by": by,
         "replayed": replayed if isinstance(replayed, bool) else None, "n": n}     # None (unstated) refuses the pin
@@ -861,4 +1232,9 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh):
                         measured=all("edges" in t for t in truth.values())),
         "coherence": dict(row(bool(coh_ok), coh.get("backend"), coh.get("replayed"), measured=bool(coh.get("measured"))),
                           **votes_of(coh)),
+        **({"medley": dict(row(bool(medley[0]), medley[1].get("backend"), medley[1].get("replayed"),
+                               measured=bool(medley[1].get("measured"))), flagged=medley[1].get("flagged"))}
+           if medley is not None else {}),
+        **({"ly_shape": dict(row(bool(shape[0]), "code (package.ly_shape, L-y)"), why=list(shape[1]))}
+           if shape is not None else {}),
     }

@@ -1,0 +1,362 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8fc44ff910dc1c41203bb0321ec2e7df673875a656e9c58aa5389dcaeb62c090",
+ "result": {
+  "text": "The concept applies to both, like I think Bitcoin will outperform like US equities as a whole, and I think it'll likely outperform individual companies within US equities. In a way, I think of Bitcoin being like this global productivity index similar to the S&P 500 is to individual stocks. Like I believe I've seen like",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 19.36,
+    "text": "The concept applies to both, like I think Bitcoin will outperform like US equities as a whole, and I think it'll likely outperform individual companies within US equities. In a way, I think of Bitcoin being like this global productivity index similar to the S&P 500 is to individual stocks. Like I believe I've seen like"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concept",
+    "start": 0.12,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "applies",
+    "start": 0.56,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.98,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "both,",
+    "start": 1.1,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.4,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.58,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.66,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.84,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 2.18,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 2.3,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 3.86,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 4.08,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities",
+    "start": 4.32,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 4.76,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.9,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole,",
+    "start": 5.0,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.76,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.92,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 5.98,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it'll",
+    "start": 6.12,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "likely",
+    "start": 6.36,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 6.64,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "individual",
+    "start": 7.12,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 7.62,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "within",
+    "start": 8.1,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 8.62,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities.",
+    "start": 8.84,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 9.72,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.82,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way,",
+    "start": 9.92,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.2,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.3,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.48,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.6,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 11.18,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 11.44,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 11.72,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "global",
+    "start": 12.64,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "productivity",
+    "start": 13.12,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index",
+    "start": 13.76,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "similar",
+    "start": 14.66,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.08,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.22,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P",
+    "start": 15.42,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "500",
+    "start": 15.86,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.4,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.72,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "individual",
+    "start": 16.94,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks.",
+    "start": 17.5,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 18.32,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 18.46,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 18.54,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 18.82,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 19.0,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 19.24,
+    "end": 19.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.39
+ },
+ "usd": 0.003878,
+ "seconds": 4.25,
+ "recorded_at": "2026-11-13T02:21:21Z"
+}

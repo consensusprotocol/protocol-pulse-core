@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2535f19b074c8e274e2553a5210eb11b4abf178f80064cc611bdf89b4bf47bdc",
+ "result": {
+  "text": "anybody, and anybody can enter it, and the cost of mining a Bitcoin is roughly equal to the, uh, cost of a Bitcoin. So nobody can make Bitcoin for free. Bitcoin doesn't have",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 8.14,
+    "text": "anybody, and anybody can enter it, and the cost of mining a Bitcoin is roughly equal to the, uh, cost of a Bitcoin. So nobody can make Bitcoin for free. Bitcoin doesn't have"
+   }
+  ],
+  "words": [
+   {
+    "text": "anybody,",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.56,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anybody",
+    "start": 0.68,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 0.96,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enter",
+    "start": 1.1,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 1.3,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.4,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cost",
+    "start": 1.62,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.88,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 2.0,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.24,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.32,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.64,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "roughly",
+    "start": 2.82,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equal",
+    "start": 3.18,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.48,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 3.72,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.5,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cost",
+    "start": 4.8,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.14,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.24,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 5.32,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 5.72,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nobody",
+    "start": 5.92,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 6.24,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 6.38,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.6,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 6.9,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "free.",
+    "start": 7.02,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.26,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 7.58,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 7.9,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 8.66
+ },
+ "usd": 0.001732,
+ "seconds": 2.41,
+ "recorded_at": "2026-11-13T02:19:45Z"
+}

@@ -1,0 +1,278 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ef19e5fee453ff0a85d9252f1ac07904e34329755dcb7b84945aacf3441e9d34",
+ "result": {
+  "text": "an exaggeration. I mean, like, it's-- This whole concept of digital credit was pioneered with Bitcoin basically at all-time highs, and it went straight down after that. Like this, we haven't even really seen this in a Bitcoin bull market, and this",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.5,
+    "end": 15.96,
+    "text": "an exaggeration. I mean, like, it's-- This whole concept of digital credit was pioneered with Bitcoin basically at all-time highs, and it went straight down after that. Like this, we haven't even really seen this in a Bitcoin bull market, and this"
+   }
+  ],
+  "words": [
+   {
+    "text": "an",
+    "start": 0.5,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exaggeration.",
+    "start": 0.62,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.6,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 1.66,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 1.8,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's--",
+    "start": 2.62,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 3.22,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 3.46,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concept",
+    "start": 3.72,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.12,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 4.24,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit",
+    "start": 4.6,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 4.92,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pioneered",
+    "start": 5.16,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 6.38,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.58,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 7.0,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 7.92,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all-time",
+    "start": 8.06,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "highs,",
+    "start": 8.44,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.2,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.36,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went",
+    "start": 9.72,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "straight",
+    "start": 9.9,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 10.16,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after",
+    "start": 10.44,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 10.74,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 11.24,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 11.42,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 11.74,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "haven't",
+    "start": 11.9,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 12.12,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 12.26,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 12.58,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 12.92,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 13.32,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.48,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.74,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 14.28,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 14.52,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 15.54,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 15.74,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.41
+ },
+ "usd": 0.003282,
+ "seconds": 2.33,
+ "recorded_at": "2026-11-13T02:19:18Z"
+}

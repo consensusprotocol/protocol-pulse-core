@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Bitcoin's escape, low read, and systemic weight need a legal bridge\nCAPTION: Its role as an alternative to state money made it a market outlier, but systemic importance means legal adoption now depends on Congress.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"But in our modern world, we have no choice. Well, until Bitcoin came around, we had no choice. You had to sign up to the government's money.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"So you think about attacks on Bitcoin. Would have catastrophic implications, you know, for the economy because it's now a part of the economy.\"\nVOICE-OVER: The real story is a contradiction: an alternative money can only become useful at scale if the very institutions it was meant to bypass eventually accept it.\nVOICE-OVER: Clips today from Saifedean Ammous, Stephan Livera, and What Bitcoin Did. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\n  \"through_line\": \"Bitcoin offers an alternative to state money but its systemic economic importance creates a contradiction requiring legal and institutional acceptance to achieve scale.\",\n  \"clips\": {\n    \"hook\": 4,\n    \"clip_01\": 3,\n    \"clip_02\": 5\n  },\n  \"vo_point\": 4\n}",
+ "usage": {
+  "in": 647,
+  "out": 2604,
+  "usd_reported": 0.00718435
+ },
+ "usd": 0.068335,
+ "seconds": 22.31,
+ "recorded_at": "2026-11-13T02:39:19Z"
+}

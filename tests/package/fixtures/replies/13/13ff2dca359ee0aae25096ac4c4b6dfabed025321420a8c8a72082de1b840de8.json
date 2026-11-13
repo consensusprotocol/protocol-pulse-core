@@ -1,0 +1,19 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Bitcoin ran from 16K to 126K. That move comes out to about an 8x.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over ATTRIBUTES to that speaker (\"X: Y\" or \"X says Y\" tells you that X asserts Y). The voice-over's own opinion,\nframing, question or takeaway, attributed to nobody, is the host's, not the speaker's. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: hook, clip_01, clip_02. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"Bitcoin ran from 16K to 126K, about an 8x move.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"Bitcoin is by far the most undervalued asset in the global financial system with gold parity around $1.4-1.5 million.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"Bitcoin's success is not dependent on who's in the White House or controlling Congress and it tends to do well when persecuted.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 789,
+  "out": 2988,
+  "usd_reported": 0.00832185
+ },
+ "usd": 0.078645,
+ "seconds": 54.72,
+ "recorded_at": "2026-11-13T02:10:21Z"
+}

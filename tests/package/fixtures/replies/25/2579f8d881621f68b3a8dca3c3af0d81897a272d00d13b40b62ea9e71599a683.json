@@ -1,0 +1,170 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5e1a138bbac9065f524666516ed86ebbece7800704f3434262805ce7573ebdee",
+ "result": {
+  "text": "Then what happened? Bitcoin ran from 16K to 126K. That move comes out to about an 8X, so let's take a look at today",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 9.06,
+    "text": "Then what happened? Bitcoin ran from 16K to 126K. That move comes out to about an 8X, so let's take a look at today"
+   }
+  ],
+  "words": [
+   {
+    "text": "Then",
+    "start": 0.06,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 0.32,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happened?",
+    "start": 0.56,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.48,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ran",
+    "start": 1.98,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 2.28,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "16K",
+    "start": 2.48,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.3,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "126K.",
+    "start": 3.48,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 5.08,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "move",
+    "start": 5.36,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 5.76,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 6.1,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.3,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 6.5,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 6.82,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "8X,",
+    "start": 7.28,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.7,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 7.86,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 8.08,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.26,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 8.34,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 8.54,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 8.72,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.1
+ },
+ "usd": 0.00182,
+ "seconds": 1.4,
+ "recorded_at": "2026-11-13T02:07:15Z"
+}

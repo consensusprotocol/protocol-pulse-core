@@ -1,0 +1,167 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin has performed well despite bad news, outflows, and political pressure.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin's success is not tied to Washington or market setbacks.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is not a security, so it can thrive even when it's in the crosshairs.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "27bf8bffdcdc5f785bb8": "hard exclusion (L-u): ['third_party_media']",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return', 'third_party_media']",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0e55596721a0f5def287": "23.61 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "98148a8112d2b2a996d6": "hard exclusion (L-u): ['third_party_media']",
+  "4cfbe7d62b15e6fa0825": "hard exclusion (L-u): ['single_source_breaking']",
+  "43a7d3ec8936ca00c313": "hard exclusion (L-u): ['single_source_breaking']",
+  "db58b1d6896609b862a4": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "f03f906c88ea8280f9d2": "not eligible on screen: hook: opener; clip: opener",
+  "1dbd4849fda93f42298f": "25.52 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 13,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 13,
+  "cleared": 8,
+  "failed": {
+   "7605290f4214546e1fd0": [
+    "REFERENT_OUTSIDE"
+   ],
+   "7a17f3252d14fe2ed7aa": [
+    "REFERENT_OUTSIDE"
+   ],
+   "4931432a6157accb80d7": [
+    "REFERENT_OUTSIDE"
+   ],
+   "a746ada209ac1c17a521": [
+    "REFERENT_OUTSIDE"
+   ],
+   "ac48048d07c26b36e347": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "c38aec1a984e418619d5": "L-v 2 FAIL",
+   "57671945c6879045237c": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "93a72a73ccc6c44ed897": "L-v 2 FAIL",
+   "4f9d38e1d86556b36d9c": "PASS",
+   "a5836cd284a9185c2350": "PASS",
+   "fa8873536a79d37e65f6": "not cuttable at an edge (ruling C / 7)",
+   "4be7bf773bbcbb896e0c": "PASS"
+  },
+  "cuttable": 4
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin has performed well despite bad news, outflows, and political pressure.",
+   "moments": [
+    "57671945c6879045237c",
+    "a5836cd284a9185c2350",
+    "4f9d38e1d86556b36d9c",
+    "4be7bf773bbcbb896e0c"
+   ],
+   "hook": "57671945c6879045237c"
+  },
+  {
+   "angle": "Bitcoin's success is not tied to Washington or market setbacks.",
+   "moments": [
+    "4f9d38e1d86556b36d9c",
+    "4be7bf773bbcbb896e0c",
+    "57671945c6879045237c",
+    "a5836cd284a9185c2350"
+   ],
+   "hook": "4f9d38e1d86556b36d9c"
+  },
+  {
+   "angle": "Bitcoin is not a security, so it can thrive even when it's in the crosshairs.",
+   "moments": [
+    "4be7bf773bbcbb896e0c",
+    "4f9d38e1d86556b36d9c",
+    "57671945c6879045237c",
+    "a5836cd284a9185c2350"
+   ],
+   "hook": "4be7bf773bbcbb896e0c"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "seconds": 0.3,
+ "usd": 0.0,
+ "run": "fresh_20261110_093150",
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:37 EST",
+ "as_of": "2026-11-10T09:31:52.394260+00:00",
+ "full": {
+  "est": 0.1648,
+  "best": 0.0225,
+  "model_s": 218.29,
+  "calls": 9
+ }
+}

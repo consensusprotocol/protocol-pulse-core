@@ -1,0 +1,380 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b793d8e5aac2aea10736614a41c432cda1a752d7d2fea866f647e5a00331f7fa",
+ "result": {
+  "text": "Yeah. I- i- if you look at your Constitution, and the way that the Constitution was, its individual rights and freedoms, the founding principles of what created one of the greatest nations in the world are the same founding principles of Bitcoin. Yeah. And so while that exists in us, this is unstoppable. What almost sounds",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.8,
+    "end": 13.22,
+    "text": "Yeah. I- i- if you look at your Constitution, and the way that the Constitution was, its individual rights and freedoms, the founding principles of what created one of the greatest nations in the world are the same founding principles of Bitcoin."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.52,
+    "end": 13.84,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 13.86,
+    "end": 17.1,
+    "text": "And so while that exists in us, this is unstoppable."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 17.94,
+    "end": 18.56,
+    "text": "What almost sounds"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yeah.",
+    "start": 0.8,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I-",
+    "start": 1.16,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "i-",
+    "start": 1.82,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 1.88,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.0,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 2.12,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 2.28,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 2.38,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Constitution,",
+    "start": 2.54,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.6,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.72,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 3.88,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.1,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.22,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Constitution",
+    "start": 4.32,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was,",
+    "start": 5.06,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 5.8,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "individual",
+    "start": 6.24,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rights",
+    "start": 6.84,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.08,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freedoms,",
+    "start": 7.24,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.98,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "founding",
+    "start": 8.119,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "principles",
+    "start": 8.56,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.28,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 9.42,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "created",
+    "start": 9.64,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 10.04,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.12,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.2,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "greatest",
+    "start": 10.3,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nations",
+    "start": 10.64,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 11.04,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.14,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 11.22,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 11.48,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.62,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 11.74,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "founding",
+    "start": 11.96,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "principles",
+    "start": 12.3,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.78,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.86,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 13.52,
+    "end": 13.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And",
+    "start": 13.86,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 14.0,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while",
+    "start": 14.18,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.42,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exists",
+    "start": 14.6,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.1,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us,",
+    "start": 15.28,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 16.239,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.44,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unstoppable.",
+    "start": 16.58,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 17.94,
+    "end": 18.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "almost",
+    "start": 18.12,
+    "end": 18.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "sounds",
+    "start": 18.48,
+    "end": 18.56,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.58
+ },
+ "usd": 0.003716,
+ "seconds": 1.09,
+ "recorded_at": "2026-11-13T02:39:23Z"
+}

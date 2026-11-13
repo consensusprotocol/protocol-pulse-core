@@ -1,0 +1,402 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin frees people from having to accept government money.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "4f9d38e1d86556b36d9c",
+    "8055c5252b61b9639cbe"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 65.32,
+     "bridge": {
+      "after": "clip_01",
+      "after_clip": 1,
+      "join": "clip_01 -> clip_02",
+      "text": "Next, Natalie Brunell's show on Bitcoin and a new internet.",
+      "why": "Without a cue, the shift from political independence and price to a new internet built on Bitcoin feels like a non sequitur.",
+      "confirmed_by": {
+       "join": "clip_01 -> clip_02",
+       "why": "abrupt shift from political resilience and price to unrelated new Bitcoin internet vision",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      25,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "bridge_1",
+       "text": "Next, Natalie Brunell's show on Bitcoin and a new internet.",
+       "cites": [
+        "8055c5252b61b9639cbe"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "The medley suggests that opting out of state-issued money is not just a political win; it is a starting point for a freer, more abundant digital future.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin as an exit from state-issued money",
+       "cites": [
+        "863cc95ab7c5e0c11482"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "A medley on why Bitcoin matters beyond politics: it offers a way out of state-issued money and toward a new digital world.",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "8055c5252b61b9639cbe"
+       ]
+      }
+     ],
+     "violations": [
+      {
+       "slot": "takeaway",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'The medley suggests that opting out of state-issued money is not just a political win; it is a start' fails speaker_view"
+      }
+     ],
+     "verdict_classes": {
+      "bridge_1": [
+       "production"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "attribution"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    },
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 62.92,
+     "bridge": {
+      "after": "clip_01",
+      "after_clip": 1,
+      "join": "clip_01 -> clip_02",
+      "text": "Next, Natalie Brunell on Bitcoin's role in a different online vision.",
+      "why": "Without it, the shift from political independence and price to a different online vision feels like an unrelated topic.",
+      "confirmed_by": {
+       "join": "clip_01 -> clip_02",
+       "why": "abrupt shift from political resilience and price to unrelated new Bitcoin internet vision",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      18,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "bridge_1",
+       "text": "Next, Natalie Brunell on Bitcoin's role in a different online vision.",
+       "cites": [
+        "8055c5252b61b9639cbe"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "To me, the throughline is that escape from a default system matters more than any temporary political or market victory.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin as an exit from government money",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "4f9d38e1d86556b36d9c",
+        "8055c5252b61b9639cbe"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "A medley about Bitcoin as an escape from a default currency and a different online future.",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "4f9d38e1d86556b36d9c",
+        "8055c5252b61b9639cbe"
+       ]
+      }
+     ],
+     "violations": [
+      {
+       "slot": "bridge_1",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "Next, Natalie Brunell on Bitcoin's role in a different online vision."
+      },
+      {
+       "slot": "takeaway",
+       "rule": "COMMENTARY",
+       "detail": "host commentary 'To me, the throughline is that escape from a default system matters more than any temporary politica' fails speaker_view"
+      },
+      {
+       "segment": "clip_02",
+       "rule": "NOT_ENTAILED",
+       "detail": "the video's words \"Next, Natalie Brunell on Bitcoin's role in a different online vision.\" attribute to this speaker more than they asserted in context"
+      }
+     ],
+     "verdict_classes": {
+      "bridge_1": [
+       "production"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "attribution"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin frees people from government monetary control and political dependence while enabling a new internet of abundance.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both address Bitcoin as independent from government monetary and political control"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt shift from political resilience and price to unrelated new Bitcoin internet vision"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true
+  }
+ ],
+ "unusable": {
+  "b0b787f8a62d97d81dbb": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "aff2e3571d56180a9e06": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1e31dd4b7ddb686a18d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7a5f734f844bbfd67c1f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b67215ae008c60a827bd": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "bb4e1ce55c244ad108e1": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "1b82abcee7fb3034a40d": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "a3a5a50ffc1f5bed0174": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1d4382d292f18207ea2": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c6d4845f9d7643e6a1c": "20.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6c26e6ba3e9362d33c6e": "30.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "fb5522673f5af6c7d405": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a093672188a95f92324f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6645c9ad4109de35828": "25.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "1a4a93dd82cd9db5344d": "40.05 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "5fcaee37108031034f78": "24.08 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener",
+  "6b433dc4537c8400b784": "time-sensitive words from a source older than 24.0 h (L-v 3)"
+ },
+ "usable": 31,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 19,
+  "failed": {
+   "c0db3cbbdd5d08a64e85": [
+    "REFERENT_OUTSIDE"
+   ],
+   "60174b6059b1d67c34bd": [
+    "REFERENT_OUTSIDE"
+   ],
+   "d556b5ea8171285790e8": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "1531debcfe526065d13c": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "3b3050f4afd6f3c011e7": "PASS",
+   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
+   "40ffa6e345a223d30429": "PASS",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "f216541bd2f9e5eb672d": "PASS",
+   "4f9d38e1d86556b36d9c": "PASS",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "01154f025a00f40132a7": "PASS",
+   "5d5e163125435e85061a": "PASS",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS",
+   "5314289c424298d950c4": "PASS",
+   "0c751a33022013fb3086": "PASS",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "8055c5252b61b9639cbe": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "c6cdbadebbac52e4e623": "L-v 2 FAIL"
+  },
+  "cuttable": 10
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin frees people from having to accept government money.",
+   "moments": [
+    "863cc95ab7c5e0c11482",
+    "4f9d38e1d86556b36d9c",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "863cc95ab7c5e0c11482"
+  },
+  {
+   "angle": "Bitcoin builds its own economic system that no government can control.",
+   "moments": [
+    "40ffa6e345a223d30429",
+    "8055c5252b61b9639cbe",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "hook": "40ffa6e345a223d30429"
+  },
+  {
+   "angle": "No one controls Bitcoin's value; it is set by free individual choice and open market forces.",
+   "moments": [
+    "3b3050f4afd6f3c011e7",
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7"
+   ],
+   "hook": "3b3050f4afd6f3c011e7"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "The medley suggests that opting out of state-issued money is not just a political win; it is a starting point for a freer, more abundant digital future.",
+   "words": 27,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [
+    "COMMENTARY"
+   ],
+   "passed": false,
+   "context_framing": []
+  },
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 2,
+   "text": "To me, the throughline is that escape from a default system matters more than any temporary political or market victory.",
+   "words": 20,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [
+    "COMMENTARY"
+   ],
+   "passed": false,
+   "context_framing": [
+    "NOT_ENTAILED"
+   ]
+  }
+ ],
+ "package": null,
+ "why_none": "stopped after angle 1 of 3: 1135 s of the 720 s / $2.63 of the $3.00 (estimate) per-package budget (05:25 item 5, twice)",
+ "budget_stop": {
+  "seconds": 1135.4,
+  "usd_estimate": 2.6306,
+  "angles_tried": 1,
+  "angles": 3
+ },
+ "seconds": 1135.4,
+ "usd": 2.6306,
+ "run": "fresh_20261112_050611",
+ "usd_estimate": 2.6306,
+ "usd_best_known": 0.2425,
+ "code": "cf0dcaf5+eb79e9262e3a",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 21:55:15 EST",
+ "as_of": "2026-11-13T02:36:20.397772+00:00",
+ "full": {
+  "est": 2.5672,
+  "best": 0.3062,
+  "model_s": 990.76,
+  "calls": 37
+ }
+}

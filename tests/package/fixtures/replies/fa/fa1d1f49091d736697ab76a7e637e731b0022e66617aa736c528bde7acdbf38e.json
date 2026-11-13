@@ -1,0 +1,434 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1221e3464d4306fa9c42bcb4344a8df06b6598bc419e8b4a5b4962f464101993",
+ "result": {
+  "text": "It makes perfect sense. But if the board or the executives, you know, kind of lose faith in the strategy, like they don't have the long-term conviction on Bitcoin, well, they're gonna pivot like at the worst possible time because they're gonna be like, \"Oh, I thought this was working. It's not working 12 months later. We need to do something else.\" Or the miners, like the min-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 19.2,
+    "text": "It makes perfect sense. But if the board or the executives, you know, kind of lose faith in the strategy, like they don't have the long-term conviction on Bitcoin, well, they're gonna pivot like at the worst possible time because they're gonna be like, \"Oh, I thought this was working. It's not working 12 months later. We need to do something else.\" Or the miners, like the min-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 0.08,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perfect",
+    "start": 0.3,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense.",
+    "start": 0.62,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.48,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 2.4,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.54,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "board",
+    "start": 2.66,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 3.4,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.5,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "executives,",
+    "start": 3.56,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.38,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.42,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 4.7,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.84,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lose",
+    "start": 4.96,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "faith",
+    "start": 5.28,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.62,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.7,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "strategy,",
+    "start": 5.82,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 6.8,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 6.94,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 7.04,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 7.22,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.44,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-term",
+    "start": 7.54,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conviction",
+    "start": 8.02,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.48,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 8.64,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 9.74,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 9.88,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 10.02,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pivot",
+    "start": 10.24,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.6,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 10.78,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.9,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worst",
+    "start": 11.02,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "possible",
+    "start": 11.3,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 11.76,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 12.14,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 12.88,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 12.96,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 13.02,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.06,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh,",
+    "start": 13.16,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.36,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thought",
+    "start": 13.44,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 13.56,
+    "end": 13.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 13.76,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "working.",
+    "start": 13.9,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 14.7,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 14.78,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "working",
+    "start": 14.98,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "12",
+    "start": 15.28,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 15.54,
+    "end": 15.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "later.",
+    "start": 15.78,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 16.58,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 16.68,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.82,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 17.0,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 17.14,
+    "end": 17.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else.\"",
+    "start": 17.46,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Or",
+    "start": 18.1,
+    "end": 18.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.22,
+    "end": 18.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners,",
+    "start": 18.32,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 18.8,
+    "end": 19.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.08,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "min-",
+    "start": 19.16,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.23
+ },
+ "usd": 0.003846,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-13T02:29:47Z"
+}

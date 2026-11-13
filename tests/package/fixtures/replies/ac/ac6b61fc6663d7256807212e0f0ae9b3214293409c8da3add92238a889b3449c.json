@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: A market no authority can own remains mispriced\nCAPTION: Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\nVOICE-OVER: What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.\nVOICE-OVER: Clips today from Natalie Brunell, Stephan Livera, and What Bitcoin Did. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin creates a global free market no authority can control or own, allowing its worth to be discovered by anyone anywhere rather than rulers, which is why it remains undervalued.\", \"clips\": {\"hook\": 5, \"clip_01\": 4, \"clip_02\": 4}, \"vo_point\": 4}",
+ "usage": {
+  "in": 655,
+  "out": 1311,
+  "usd_reported": 0.00396185
+ },
+ "usd": 0.03605,
+ "seconds": 39.65,
+ "recorded_at": "2026-11-13T02:37:46Z"
+}

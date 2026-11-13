@@ -1,0 +1,1605 @@
+{
+ "shape": "medley",
+ "packages": [
+  {
+   "schema": "pp.package/1",
+   "type": "moments",
+   "angle": "Bitcoin is undervalued because it is a global free market outside political control and coercive authority.",
+   "vo_kind": "medley (L-y), written, attempt 1",
+   "style": "medley",
+   "segments": [
+    {
+     "label": "hook",
+     "moment_id": "f216541bd2f9e5eb672d",
+     "video_id": "wdk5JZ9hPzs",
+     "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+     "channel": "Natalie Brunell",
+     "k0": 715,
+     "k1": 715,
+     "words": [
+      8742,
+      8752
+     ],
+     "start": 3218.14,
+     "end": 3221.64,
+     "duration_s": 3.5,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "published_at": "2026-11-10T13:45:51+00:00",
+     "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+     "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+    },
+    {
+     "label": "clip_01",
+     "moment_id": "b0b787f8a62d97d81dbb",
+     "video_id": "Sjb6lUiL0m4",
+     "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+     "channel": "Stephan Livera",
+     "k0": 331,
+     "k1": 333,
+     "words": [
+      5401,
+      5443
+     ],
+     "start": 1826.54,
+     "end": 1843.48,
+     "duration_s": 16.94,
+     "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+     "published_at": "2026-11-11T18:03:23+00:00",
+     "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+     "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+    },
+    {
+     "label": "clip_02",
+     "moment_id": "4f9d38e1d86556b36d9c",
+     "video_id": "c1JGheQBPH4",
+     "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+     "channel": "What Bitcoin Did",
+     "k0": 464,
+     "k1": 464,
+     "words": [
+      7325,
+      7386
+     ],
+     "start": 2403.23,
+     "end": 2422.07,
+     "duration_s": 18.84,
+     "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+     "published_at": "2026-11-09T17:00:09+00:00",
+     "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+     "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+    }
+   ],
+   "vo": {
+    "intro": null,
+    "bridges": [
+     "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class."
+    ],
+    "bridges_after_clip": [
+     2
+    ],
+    "signoff": "Clips today from Natalie Brunell, Stephan Livera, and What Bitcoin Did. Go follow them for more. Links are below."
+   },
+   "title": "A market no authority can own remains mispriced",
+   "caption": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+   "hook_first_words": "Bitcoin imposes a global free market for the",
+   "lines": [
+    {
+     "text": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+     "cites": [],
+     "slot": "takeaway"
+    },
+    {
+     "text": "A market no authority can own remains mispriced",
+     "cites": [
+      "f216541bd2f9e5eb672d",
+      "b0b787f8a62d97d81dbb",
+      "4f9d38e1d86556b36d9c"
+     ],
+     "slot": "title"
+    },
+    {
+     "text": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+     "cites": [
+      "f216541bd2f9e5eb672d",
+      "b0b787f8a62d97d81dbb",
+      "4f9d38e1d86556b36d9c"
+     ],
+     "slot": "caption"
+    }
+   ],
+   "runtime_s_estimate": 63.38,
+   "runtime_note": "segments 39.28 s (word timing) + VO 22 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+   "shape": "medley",
+   "bridge": null,
+   "supply_exception": null,
+   "medley": {
+    "through_line": "Bitcoin establishes a global free market, is highly undervalued, and succeeds independently of U.S. political control.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Subject stays on Bitcoin's global importance"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Continues positive Bitcoin attributes after value mention"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "gates": {
+    "vo_fidelity_deterministic": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.check_deterministic)",
+     "replayed": false,
+     "n": 1
+    },
+    "vo_fidelity_verdict": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "duplicate": {
+     "status": "PASS",
+     "by": "code (package.duplicates)",
+     "replayed": false,
+     "n": 1
+    },
+    "price_now": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.price_now)",
+     "replayed": false,
+     "n": 1
+    },
+    "runtime": {
+     "status": "PASS",
+     "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+     "replayed": false,
+     "n": 1
+    },
+    "r4": {
+     "status": "PASS",
+     "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+     "replayed": false,
+     "n": 1
+    },
+    "context_a": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "context_b": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "context_c": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "exclusion": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "second_pass": {
+     "status": "PASS",
+     "by": [
+      "elevenlabs_stt:scribe_v1"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "cuttable": {
+     "status": "PASS",
+     "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+     "replayed": false,
+     "n": 3
+    },
+    "coherence": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "medley": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1,
+     "flagged": []
+    },
+    "ly_shape": {
+     "status": "PASS",
+     "by": "code (package.ly_shape, L-y)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    }
+   },
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   },
+   "checks": {
+    "fidelity": {
+     "deterministic": {
+      "ok": true,
+      "violations": [],
+      "price_now_measured": true
+     },
+     "verdict": {
+      "ok": true,
+      "claims": [
+       {
+        "line": "takeaway",
+        "words": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+        "class": "commentary",
+        "claim": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "A market no authority can own remains mispriced",
+        "class": "commentary",
+        "claim": "A market no authority can own remains mispriced",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+        "class": "commentary",
+        "claim": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       }
+      ],
+      "violations": [],
+      "classes": {
+       "takeaway": [
+        "commentary"
+       ],
+       "title": [
+        "commentary"
+       ],
+       "caption": [
+        "commentary"
+       ]
+      }
+     },
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false,
+     "seed": 7,
+     "violations": [],
+     "ok": true
+    },
+    "context": {
+     "segments": {
+      "hook": {
+       "A": {
+        "label": "f216541bd2f9e5eb672d",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "So if it's four months, I can have an open source model on my computer that runs locally on my computer. And these other models take tens of billions of dollars.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "hook",
+        "asserts": "Bitcoin imposes a global free market for the first time ever.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "hook",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        685,
+        725
+       ]
+      },
+      "clip_01": {
+       "A": {
+        "label": "b0b787f8a62d97d81dbb",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "It",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "no"
+         },
+         {
+          "word": "right now",
+          "refers_to": "time of speaking",
+          "inside": true,
+          "changes_assertion": "no"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin is by far the most undervalued asset in the global financial system right now, with Bitcoin-gold parity around $1.4-1.5 million making it very undervalued.",
+        "certainty": "speculative",
+        "speaker_is": "guest",
+        "speaker_evidence": "I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_01",
+        "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with Bitcoin gold parity around $1.5 million per Bitcoin; it's very, very undervalued.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_01",
+        "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now. Bitcoin gold parity is around $1.5 million per Bitcoin. It's very, very undervalued.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_01",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "yes",
+        "raising_words": ""
+       },
+       "window": [
+        316,
+        349
+       ]
+      },
+      "clip_02": {
+       "A": {
+        "label": "4f9d38e1d86556b36d9c",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "its",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin's success is not dependent upon who controls the White House, Senate or House, and it tends to perform well price-wise when persecuted.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "I can tell you the president's interested in it.",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_02",
+        "asserts": "The good news about Bitcoin is its success is not dependent upon who's in the White House or controlling the Senate or House; price-wise, when persecuted and in the crosshairs it tends to do pretty well.",
+        "certainty": "likely",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_02",
+        "asserts": "The good news about Bitcoin is its success is not dependent upon who's in the White House or controlling the Senate or House. It tends to do pretty well when persecuted and in the crosshairs.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_02",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        446,
+        473
+       ]
+      }
+     },
+     "relations": [
+      {
+       "labels": [
+        "hook",
+        "clip_01"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_02"
+       ],
+       "relation": "none"
+      }
+     ],
+     "violations": [],
+     "backends": {
+      "A": {
+       "hook": "xai:grok-4.20-0309-reasoning",
+       "clip_01": "xai:grok-4.20-0309-reasoning",
+       "clip_02": "xai:grok-4.20-0309-reasoning"
+      },
+      "B0": "xai:grok-4.20-0309-reasoning",
+      "B": "xai:grok-4.20-0309-reasoning",
+      "C": "xai:grok-4.20-0309-reasoning"
+     },
+     "measured": true,
+     "replayed": false,
+     "notes": [
+      "clip_01: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+     ],
+     "judged": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "ok": true
+    },
+    "coherence": {
+     "through_line": "Bitcoin creates a global free market no authority can control or own, allowing its worth to be discovered by anyone anywhere rather than rulers, which is why it remains undervalued.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    },
+    "medley": {
+     "through_line": "Bitcoin establishes a global free market, is highly undervalued, and succeeds independently of U.S. political control.",
+     "clips": {
+      "hook": 4,
+      "clip_01": 5,
+      "clip_02": 4
+     },
+     "joins": {
+      "hook -> clip_01": {
+       "followable": true,
+       "why": "Subject stays on Bitcoin's global importance"
+      },
+      "clip_01 -> clip_02": {
+       "followable": true,
+       "why": "Continues positive Bitcoin attributes after value mention"
+      }
+     },
+     "flagged": [],
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    }
+   },
+   "seconds": 0.4,
+   "usd": 0.0,
+   "usd_best_known": 0.0
+  }
+ ],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is undervalued because it is a global free market outside political control and coercive authority.",
+   "lineup": [
+    "f216541bd2f9e5eb672d",
+    "b0b787f8a62d97d81dbb",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 63.38,
+     "bridge": null,
+     "takeaway_budget": [
+      18,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "takeaway",
+       "text": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "A market no authority can own remains mispriced",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "b0b787f8a62d97d81dbb",
+        "4f9d38e1d86556b36d9c"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+       "cites": [
+        "f216541bd2f9e5eb672d",
+        "b0b787f8a62d97d81dbb",
+        "4f9d38e1d86556b36d9c"
+       ]
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "f216541bd2f9e5eb672d": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Direct claim about Bitcoin creating a global free market",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "b0b787f8a62d97d81dbb": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "speaker opinion on BTC undervalued vs gold, no risks apply",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "4f9d38e1d86556b36d9c": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker states Bitcoin success independent of US politics and does well when persecuted.",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "f216541bd2f9e5eb672d": {
+       "video_id": "wdk5JZ9hPzs",
+       "start": 3218.14,
+       "end": 3221.64,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "bitcoin imposes a global free market for the first time ever.",
+       "self_repair": "Bit-",
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "wdk5JZ9hPzs_3216640_3223140.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "bitcoin",
+         "before": "path.",
+         "why": "a sentence ends before the clip; the speaker's false start 'Bit-' opens the sentence (ruling 8: a self-repair, part of the sentence)",
+         "self_repair": "Bit-"
+        },
+        "out": {
+         "ok": true,
+         "word": "ever.",
+         "after": "Okay,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "b0b787f8a62d97d81dbb": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 1826.54,
+       "end": 1843.48,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around, like, $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "1.5",
+         "1400000"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_1825040_1844980.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "However,",
+         "before": "tomorrow.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "undervalued.",
+         "after": "Like,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "4f9d38e1d86556b36d9c": {
+       "video_id": "c1JGheQBPH4",
+       "start": 2403.23,
+       "end": 2422.07,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "I mean, the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "not",
+         "not"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "c1JGheQBPH4_2401730_2423570.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "I",
+         "before": "Mm-hmm.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "well.",
+         "after": "Um,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Bitcoin creates a global free market no authority can control or own, allowing its worth to be discovered by anyone anywhere rather than rulers, which is why it remains undervalued.",
+      "clips": {
+       "hook": 5,
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin establishes a global free market, is highly undervalued, and succeeds independently of U.S. political control.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Subject stays on Bitcoin's global importance"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Continues positive Bitcoin attributes after value mention"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "result": "PACKAGE"
+  }
+ ],
+ "unusable": {
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "56a13b0215ba11d6ab77": "not eligible on screen: hook: opener; clip: opener",
+  "d1d4382d292f18207ea2": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "f61f981eb89a4fe99e9f": "20.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c6d4845f9d7643e6a1c": "20.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "10b716601d89b49f1450": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "0979e051fc69ff925d73": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3bd07ebe92cf2d20492b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "d27f06243f46f09b9328": "35.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f7c51cc3aee285db890f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "1dbd4849fda93f42298f": "25.52 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "34eac7a2d177046c6bae": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener",
+  "536503b5e8b97f2e0ebd": "20.41 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 35,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 14,
+  "failed": {
+   "c49cd35dfd86efb624e0": [
+    "NOT_OWN_SINCERE"
+   ],
+   "d066389057a79ca76bad": [
+    "NOT_OWN_SINCERE"
+   ],
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "d1e31dd4b7ddb686a18d": [
+    "REFERENT_OUTSIDE"
+   ],
+   "43e6d312e1a1e6a4e33c": [
+    "NOT_OWN_SINCERE"
+   ],
+   "81f9b98d79dddabc360a": [
+    "CONDITION_OUTSIDE"
+   ],
+   "128b99b7a2487f58d3ba": [
+    "REFERENT_OUTSIDE"
+   ],
+   "1df196cbd1858b330e38": [
+    "REFERENT_OUTSIDE",
+    "STALE_TIME"
+   ],
+   "537ed78ee35ff78b4ebb": [
+    "REFERENT_OUTSIDE"
+   ],
+   "56bd09518d61a1bd4b82": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "b0b787f8a62d97d81dbb": "PASS",
+   "3b3050f4afd6f3c011e7": "PASS",
+   "f216541bd2f9e5eb672d": "PASS",
+   "91ca972a48f7ce95d11b": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "4f9d38e1d86556b36d9c": "PASS",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "84699cf1156096cda287": "not cuttable at an edge (ruling C / 7)",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "1dd835fcfbdcc4cba847": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS"
+  },
+  "cuttable": 6
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is undervalued because it is a global free market outside political control and coercive authority.",
+   "moments": [
+    "f216541bd2f9e5eb672d",
+    "b0b787f8a62d97d81dbb",
+    "3b3050f4afd6f3c011e7",
+    "4f9d38e1d86556b36d9c"
+   ],
+   "hook": "f216541bd2f9e5eb672d"
+  },
+  {
+   "angle": "Bitcoin's price is driven by crowd sentiment, not political control, because it is a free market with no authority over wealth.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "4f9d38e1d86556b36d9c",
+    "f216541bd2f9e5eb672d",
+    "3b3050f4afd6f3c011e7"
+   ],
+   "hook": "0c751a33022013fb3086"
+  },
+  {
+   "angle": "Bitcoin's price is driven by sentiment, but its value comes from being a free-market alternative to government money.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "4f9d38e1d86556b36d9c",
+    "863cc95ab7c5e0c11482",
+    "f216541bd2f9e5eb672d"
+   ],
+   "hook": "0c751a33022013fb3086"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+   "words": 22,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": {
+  "schema": "pp.package/1",
+  "type": "moments",
+  "angle": "Bitcoin is undervalued because it is a global free market outside political control and coercive authority.",
+  "vo_kind": "medley (L-y), written, attempt 1",
+  "style": "medley",
+  "segments": [
+   {
+    "label": "hook",
+    "moment_id": "f216541bd2f9e5eb672d",
+    "video_id": "wdk5JZ9hPzs",
+    "channel_id": "UCru3nlhzHrbgK21x0MdB_eg",
+    "channel": "Natalie Brunell",
+    "k0": 715,
+    "k1": 715,
+    "words": [
+     8742,
+     8752
+    ],
+    "start": 3218.14,
+    "end": 3221.64,
+    "duration_s": 3.5,
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "transcript_sha256": "54cbdbcc01f5aa76db27ae0f37ec157df9fbb44decf27339949f795b9efb503b",
+    "url_30s_before": "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+   },
+   {
+    "label": "clip_01",
+    "moment_id": "b0b787f8a62d97d81dbb",
+    "video_id": "Sjb6lUiL0m4",
+    "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+    "channel": "Stephan Livera",
+    "k0": 331,
+    "k1": 333,
+    "words": [
+     5401,
+     5443
+    ],
+    "start": 1826.54,
+    "end": 1843.48,
+    "duration_s": 16.94,
+    "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+    "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+   },
+   {
+    "label": "clip_02",
+    "moment_id": "4f9d38e1d86556b36d9c",
+    "video_id": "c1JGheQBPH4",
+    "channel_id": "UCtvg5cXLY_tHDJeBoRySBtg",
+    "channel": "What Bitcoin Did",
+    "k0": 464,
+    "k1": 464,
+    "words": [
+     7325,
+     7386
+    ],
+    "start": 2403.23,
+    "end": 2422.07,
+    "duration_s": 18.84,
+    "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+    "published_at": "2026-11-09T17:00:09+00:00",
+    "transcript_sha256": "06533e014811c8e26537930de1cd44662bb60e1987f31cf6ab56dd35ba8a8356",
+    "url_30s_before": "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s"
+   }
+  ],
+  "vo": {
+   "intro": null,
+   "bridges": [
+    "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class."
+   ],
+   "bridges_after_clip": [
+    2
+   ],
+   "signoff": "Clips today from Natalie Brunell, Stephan Livera, and What Bitcoin Did. Go follow them for more. Links are below."
+  },
+  "title": "A market no authority can own remains mispriced",
+  "caption": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+  "hook_first_words": "Bitcoin imposes a global free market for the",
+  "lines": [
+   {
+    "text": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+    "cites": [],
+    "slot": "takeaway"
+   },
+   {
+    "text": "A market no authority can own remains mispriced",
+    "cites": [
+     "f216541bd2f9e5eb672d",
+     "b0b787f8a62d97d81dbb",
+     "4f9d38e1d86556b36d9c"
+    ],
+    "slot": "title"
+   },
+   {
+    "text": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+    "cites": [
+     "f216541bd2f9e5eb672d",
+     "b0b787f8a62d97d81dbb",
+     "4f9d38e1d86556b36d9c"
+    ],
+    "slot": "caption"
+   }
+  ],
+  "runtime_s_estimate": 63.38,
+  "runtime_note": "segments 39.28 s (word timing) + VO 22 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "medley": {
+   "through_line": "Bitcoin establishes a global free market, is highly undervalued, and succeeds independently of U.S. political control.",
+   "clips": {
+    "hook": 4,
+    "clip_01": 5,
+    "clip_02": 4
+   },
+   "joins": {
+    "hook -> clip_01": {
+     "followable": true,
+     "why": "Subject stays on Bitcoin's global importance"
+    },
+    "clip_01 -> clip_02": {
+     "followable": true,
+     "why": "Continues positive Bitcoin attributes after value mention"
+    }
+   },
+   "flagged": [],
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   }
+  },
+  "models": {
+   "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+   "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+   "medley": "xai:grok-4.20-0309-reasoning",
+   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+   "context": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "coherence": "xai:grok-4.20-0309-reasoning"
+  },
+  "checks": {
+   "fidelity": {
+    "deterministic": {
+     "ok": true,
+     "violations": [],
+     "price_now_measured": true
+    },
+    "verdict": {
+     "ok": true,
+     "claims": [
+      {
+       "line": "takeaway",
+       "words": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+       "class": "commentary",
+       "claim": "What emerges is a monetary network whose worth is set by anyone, anywhere, rather than by the permission of any ruling class.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "A market no authority can own remains mispriced",
+       "class": "commentary",
+       "claim": "A market no authority can own remains mispriced",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+       "class": "commentary",
+       "claim": "Its worth is discovered by anyone, anywhere, not granted by rulers; that is why the crowd's estimate still trails its potential.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      }
+     ],
+     "violations": [],
+     "classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    },
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false,
+    "seed": 7,
+    "violations": [],
+    "ok": true
+   },
+   "context": {
+    "segments": {
+     "hook": {
+      "A": {
+       "label": "f216541bd2f9e5eb672d",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "So if it's four months, I can have an open source model on my computer that runs locally on my computer. And these other models take tens of billions of dollars.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "hook",
+       "asserts": "Bitcoin imposes a global free market for the first time ever.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "hook",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       685,
+       725
+      ]
+     },
+     "clip_01": {
+      "A": {
+       "label": "b0b787f8a62d97d81dbb",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "It",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "no"
+        },
+        {
+         "word": "right now",
+         "refers_to": "time of speaking",
+         "inside": true,
+         "changes_assertion": "no"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin is by far the most undervalued asset in the global financial system right now, with Bitcoin-gold parity around $1.4-1.5 million making it very undervalued.",
+       "certainty": "speculative",
+       "speaker_is": "guest",
+       "speaker_evidence": "I don't know. I mean, I think with Bitcoin, my perspective, My base case is the power law. So don't get me wrong. I don't think that we're breaking the power law tomorrow.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_01",
+       "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now, with Bitcoin gold parity around $1.5 million per Bitcoin; it's very, very undervalued.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_01",
+       "asserts": "Bitcoin is by far the most undervalued asset in the entire global financial system right now. Bitcoin gold parity is around $1.5 million per Bitcoin. It's very, very undervalued.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_01",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "yes",
+       "raising_words": ""
+      },
+      "window": [
+       316,
+       349
+      ]
+     },
+     "clip_02": {
+      "A": {
+       "label": "4f9d38e1d86556b36d9c",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "its",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin's success is not dependent upon who controls the White House, Senate or House, and it tends to perform well price-wise when persecuted.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "I can tell you the president's interested in it.",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_02",
+       "asserts": "The good news about Bitcoin is its success is not dependent upon who's in the White House or controlling the Senate or House; price-wise, when persecuted and in the crosshairs it tends to do pretty well.",
+       "certainty": "likely",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_02",
+       "asserts": "The good news about Bitcoin is its success is not dependent upon who's in the White House or controlling the Senate or House. It tends to do pretty well when persecuted and in the crosshairs.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_02",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       446,
+       473
+      ]
+     }
+    },
+    "relations": [
+     {
+      "labels": [
+       "hook",
+       "clip_01"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_02"
+      ],
+      "relation": "none"
+     }
+    ],
+    "violations": [],
+    "backends": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "measured": true,
+    "replayed": false,
+    "notes": [
+     "clip_01: step C reads the viewer's takeaway as firmer than the speaker in context (speculative -> certain) but cites no words of the video that raise it: a NOTE, not STRONGER (orchestrator 06:00 ruling 3: a STRONGER failure cites the exact VO / title words that raise the certainty; an attribution verb firmer than the clip's hedge is vo_fidelity's HEDGE rule)"
+    ],
+    "judged": [
+     "hook",
+     "clip_01",
+     "clip_02"
+    ],
+    "ok": true
+   },
+   "coherence": {
+    "through_line": "Bitcoin creates a global free market no authority can control or own, allowing its worth to be discovered by anyone anywhere rather than rulers, which is why it remains undervalued.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "vo_point": 4,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley": {
+    "through_line": "Bitcoin establishes a global free market, is highly undervalued, and succeeds independently of U.S. political control.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Subject stays on Bitcoin's global importance"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Continues positive Bitcoin attributes after value mention"
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   }
+  },
+  "seconds": 0.4,
+  "usd": 0.0,
+  "usd_best_known": 0.0
+ },
+ "seconds": 0.4,
+ "usd": 0.0,
+ "run": "fresh_20261112_001448",
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:17 EST",
+ "as_of": "2026-11-12T00:14:49.809564+00:00",
+ "full": {
+  "est": 0.9396,
+  "best": 0.1372,
+  "model_s": 563.64,
+  "calls": 25
+ },
+ "pin": {
+  "path": "tests/package/proof/fresh_20261112_001448/MOMENTS_PIN_LY.json",
+  "story_id": "moments-fresh_20261112_001448-1a0fccf7",
+  "package_sha256": "1a0fccf725f4aac26cd1cd1b400494d64eabe7f464211ff97e434bc226e41f26"
+ }
+}

@@ -1,0 +1,38 @@
+=== 21:14:03 EST L-y medley build, code cf0dcaf5+802db97a7419, chains {"mine": ["heimdall:qwen/qwen3.8-27b"], "angle_write": ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"], "fidelity_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "context_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "viewer_takeaway": ["xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"], "trend_brief": ["xai_search:grok-4.7"], "story": ["heimdall:qwen/qwen3.8-27b"], "check": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "exclusion_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "coherence_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "transcribe": ["elevenlabs_stt:scribe_v1"]}
+  35 usable, 14 cleared step A (189 s)
+=== 21:29:31 EST L-y medley build, code cf0dcaf5+d7d248686f82, chains {"mine": ["heimdall:qwen/qwen3.8-27b"], "angle_write": ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"], "fidelity_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "context_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "viewer_takeaway": ["xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"], "trend_brief": ["xai_search:grok-4.7"], "story": ["heimdall:qwen/qwen3.8-27b"], "check": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "exclusion_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "coherence_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "transcribe": ["elevenlabs_stt:scribe_v1"]}
+  35 usable, 14 cleared step A (0 s)
+  6 of them pass the second recognition pass and CUTTABLE (18 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (249 s)
+  angle 1 line-up 1 (3 clips, 39.3 s): clips alone PASS {'hook': 4, 'clip_01': 5, 'clip_02': 4} flagged [] (269 s)
+  angle 1 line-up 1 write 1 (heimdall:deepseek/deepseek-v4.1-flash, takeaway 22 words, 63.38 s): cheap PASS (345 s)
+    fidelity PASS (takeaway PASS), context PASS (452 s)
+    coherence with the takeaway PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} vo 4 (492 s)
+fresh_20261112_001448: PACKAGE (491.7 s, $0.843 estimate, $0.0763 best known) pin /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_001448/MOMENTS_PIN_LY.json
+=== 21:57:36 EST L-y medley build, code cf0dcaf5+eb79e9262e3a, chains {"mine": ["heimdall:qwen/qwen3.8-27b"], "angle_write": ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"], "fidelity_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "context_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "viewer_takeaway": ["xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"], "trend_brief": ["xai_search:grok-4.7"], "story": ["heimdall:qwen/qwen3.8-27b"], "check": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "exclusion_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "coherence_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "transcribe": ["elevenlabs_stt:scribe_v1"]}
+  35 usable, 14 cleared step A (0 s)
+  6 of them pass the second recognition pass and CUTTABLE (0 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (0 s)
+  angle 1 line-up 1 (3 clips, 39.3 s): clips alone PASS {'hook': 4, 'clip_01': 5, 'clip_02': 4} flagged [] (0 s)
+  angle 1 line-up 1 write 1 (heimdall:deepseek/deepseek-v4.1-flash, takeaway 22 words, 63.38 s): cheap PASS (0 s)
+    fidelity PASS (takeaway PASS), context PASS (0 s)
+    coherence with the takeaway PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} vo 4 (0 s)
+fresh_20261112_001448: PACKAGE (0.5 s, $0.0 estimate, $0.0 best known) pin /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_001448/MOMENTS_PIN_LY.json
+=== 21:59:19 EST L-y medley build, code cf0dcaf5+947069a315d4, chains {"mine": ["heimdall:qwen/qwen3.8-27b"], "angle_write": ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"], "fidelity_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "context_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "viewer_takeaway": ["xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"], "trend_brief": ["xai_search:grok-4.7"], "story": ["heimdall:qwen/qwen3.8-27b"], "check": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "exclusion_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "coherence_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "transcribe": ["elevenlabs_stt:scribe_v1"]}
+  35 usable, 14 cleared step A (0 s)
+  6 of them pass the second recognition pass and CUTTABLE (0 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (0 s)
+  angle 1 line-up 1 (3 clips, 39.3 s): clips alone PASS {'hook': 4, 'clip_01': 5, 'clip_02': 4} flagged [] (0 s)
+  angle 1 line-up 1 write 1 (heimdall:deepseek/deepseek-v4.1-flash, takeaway 22 words, 63.38 s): cheap PASS (0 s)
+    fidelity PASS (takeaway PASS), context PASS (0 s)
+    coherence with the takeaway PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} vo 4 (0 s)
+fresh_20261112_001448: PACKAGE (0.4 s, $0.0 estimate, $0.0 best known) pin /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_001448/MOMENTS_PIN_LY.json
+=== 22:01:13 EST L-y medley build, code cf0dcaf5+f4c7b6eb89bf, chains {"mine": ["heimdall:qwen/qwen3.8-27b"], "angle_write": ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b"], "fidelity_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "context_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "viewer_takeaway": ["xai:grok-4.20-0309-reasoning", "heimdall:qwen/qwen3.8-27b"], "trend_brief": ["xai_search:grok-4.7"], "story": ["heimdall:qwen/qwen3.8-27b"], "check": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "exclusion_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "coherence_verdict": ["xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash"], "transcribe": ["elevenlabs_stt:scribe_v1"]}
+  35 usable, 14 cleared step A (0 s)
+  6 of them pass the second recognition pass and CUTTABLE (0 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (0 s)
+  angle 1 line-up 1 (3 clips, 39.3 s): clips alone PASS {'hook': 4, 'clip_01': 5, 'clip_02': 4} flagged [] (0 s)
+  angle 1 line-up 1 write 1 (heimdall:deepseek/deepseek-v4.1-flash, takeaway 22 words, 63.38 s): cheap PASS (0 s)
+    fidelity PASS (takeaway PASS), context PASS (0 s)
+    coherence with the takeaway PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} vo 4 (0 s)
+fresh_20261112_001448: PACKAGE (0.4 s, $0.0 estimate, $0.0 best known) pin /home/ultron/worktrees/pp-selectid/tests/package/proof/fresh_20261112_001448/MOMENTS_PIN_LY.json

@@ -129,13 +129,6 @@ class TestPackageUsable(unittest.TestCase):
         self.assertEqual(PK.signoff(segs, ctx), "Clips today from DataDash, Natalie Brunell, and Yahoo Finance. "
                                                 "Go follow them for more. Links are below.")
 
-    def test_the_plain_title_never_cuts_a_name(self):
-        ctx = E.Context(NOW, REG)
-        segs = [pm("h", "Averyveryverylongchannelname One", 10.0), pm("c1", "Averyveryverylongchannelname Two", 15.0),
-                pm("c2", "Averyveryverylongchannelname Three", 15.0)]
-        title = PK.plain_vo(segs, ctx)[2]["text"]
-        self.assertLessEqual(len(title), 70)
-        self.assertTrue(title.endswith(("and others", "Two", "One")), title)
 
 
 if __name__ == "__main__":

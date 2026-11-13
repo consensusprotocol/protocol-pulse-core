@@ -1,0 +1,158 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "96d8801d662a2602636e7c61e0d2909e4cceb17747efcf6a18a399ad3266bd7a",
+ "result": {
+  "text": "5,000 by the weekend. US Bitcoin ETFs had about 1.3 billion in net outflows just last week. And Bitcoin really hasn't participated",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 7.54,
+    "text": "5,000 by the weekend. US Bitcoin ETFs had about 1.3 billion in net outflows just last week. And Bitcoin really hasn't participated"
+   }
+  ],
+  "words": [
+   {
+    "text": "5,000",
+    "start": 0.14,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 0.56,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.72,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weekend.",
+    "start": 0.84,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 1.5,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.76,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 2.08,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 2.62,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.76,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "1.3",
+    "start": 3.26,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 3.84,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.28,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "net",
+    "start": 4.42,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outflows",
+    "start": 4.68,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.26,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 5.48,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week.",
+    "start": 5.76,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 6.18,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.34,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 6.68,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hasn't",
+    "start": 6.9,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "participated",
+    "start": 7.18,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.56
+ },
+ "usd": 0.001512,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-13T02:50:04Z"
+}

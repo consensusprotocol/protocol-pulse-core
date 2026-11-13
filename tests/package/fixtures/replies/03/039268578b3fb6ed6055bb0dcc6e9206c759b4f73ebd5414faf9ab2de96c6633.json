@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "cd833218757d9e007ea7975fc5d9ea4fe52671b3733b719ca2290197b446e464",
+ "result": {
+  "text": "It is slavery. If I own a form of money, but you have the ability to print more of that money, you're essentially stealing my purchasing power. Until Bitcoin came around, we had no choice Money",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 10.18,
+    "text": "It is slavery. If I own a form of money, but you have the ability to print more of that money, you're essentially stealing my purchasing power. Until Bitcoin came around, we had no choice"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 10.82,
+    "end": 11.0,
+    "text": "Money"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.06,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.2,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slavery.",
+    "start": 0.52,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 1.42,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.82,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 2.0,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.16,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "form",
+    "start": 2.28,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.48,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 2.62,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 3.1,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 3.38,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 3.54,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.68,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ability",
+    "start": 3.78,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.26,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "print",
+    "start": 4.56,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 4.9,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.06,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.18,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 5.36,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 5.86,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "essentially",
+    "start": 6.0,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stealing",
+    "start": 6.56,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 7.04,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 7.26,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power.",
+    "start": 7.7,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Until",
+    "start": 8.5,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.68,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 9.04,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around,",
+    "start": 9.2,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 9.46,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 9.6,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 9.82,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "choice",
+    "start": 10.0,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Money",
+    "start": 10.82,
+    "end": 11.0,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.72
+ },
+ "usd": 0.002344,
+ "seconds": 3.45,
+ "recorded_at": "2026-11-13T02:01:56Z"
+}

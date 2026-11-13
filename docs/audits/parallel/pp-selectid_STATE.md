@@ -1,4 +1,179 @@
+READY TO RENDER (22:05 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json.
+- An L-y MEDLEY: story moments-fresh_20261112_050611-41f29b1f, seal 41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70.
+- All 15 gates are exactly PASS (the 13 plus "medley" and "ly_shape"), measured live.
+- The deployed factory at main 3426c6f6 accepts it: validate_schema, build_edl, R4 (66.12 s, VO 19 %) and R11 (0
+  bridges, 1 takeaway).
+- It supersedes the 08:44 pin (37c5b5f5). That pin was rendered as 165629 and sent for review; PBX's verdict on it is
+  law L-y.
+- Read the RISK below before rendering: clip_02's "right now".
+
+
+## 22:05 ET: L-y (orchestrator 20:30), the medley is the packager's default. The measurement
+
+**Packages per universe** (tests/package/proof_ly.py; the full table is docs/audits/parallel/pp-selectid_LY_RERUN.md):
+
+| universe | package | bridges | takeaway passed / judged / written | live wall time | $ estimate / $ vendor-reported |
+|---|---|---|---|---|---|
+| fresh_20261112_050611 (tonight's, the newest) | YES, the READY pin | 0 | 1 / 1 / 1 | about 8.6 min | $0.98 / $0.150 |
+| fresh_20261112_013452 | no: clips alone failed twice; the line-up that passed failed coherence with the takeaway | - | 1 / 1 / 1 | 11.1 min | $1.22 / $0.158 |
+| fresh_20261112_001448 | YES | 0 | 1 / 1 / 1 | 8.2 min | $0.94 / $0.137 |
+| fresh_20261111_213954 | YES | 0 | 1 / 2 / 2 | 9.0 min | $1.56 / $0.231 |
+| fresh_20261111_192645 | YES | 0 | 2 / 2 / 2 | 17.9 min (step A fresh) | $1.66 / $0.210 |
+| fresh_20261111_190259 | YES (see the footnote) | 0 | 1 / 2 / 2 | 9.4 min | $0.96 / $0.133 |
+| fresh_20261110_093150 | no: 4 moments pass CUTTABLE, and no hook + 2-4 clips fit the medley's seconds | - | 0 / 0 / 0 | - | $0.16 / $0.022 |
+| fresh_20261107_080503 | no: supply (1 moment clears step A) | - | - | - | $0 |
+| fresh_20261107_065702 | no: supply (3 moments pass CUTTABLE, from fewer than 3 channels) | - | - | - | $0.01 |
+| fresh_20261106_213852 | no: supply (5 moments clear step A, from fewer than 3 channels) | - | - | - | $0 |
+
+Footnote, fresh_20261111_190259: its first live build was stopped by the per-package budget (05:25 item 5, at twice
+the budget) after angle 1, at 869 s; Heimdall's angle call alone took 847 s. A second live build (angle call 279 s)
+found the package. Both records are kept: package_ly_budget_stop.json and package_ly.json.
+
+- **Packages:** 5 of 10 universes.
+- **Bridges:** 5 needed none, 0 needed one. 10 line-ups were judged on the clips alone first. In the packages, no
+  passing line-up had a join a viewer could not follow. The bridge path ran once, in the as-of-now attempt below
+  (one join flagged, the bridge offered), and no package came of it.
+- **The single takeaway line** (L-y 6, "measure it"):
+  - It passed its own gates (VO fidelity's deterministic rules + DUPLICATE + the classifying verdict) in 7 of 9
+    judged writes (78 %), 4 of 6 on the first write.
+  - Context-integrity failures caused by the VO's framing: 0.
+  - The 2 failures were COMMENTARY: an advice- or prediction-like line.
+  - Title and caption failures (NAME, NEEDS_SOURCE, COMMENTARY) were the other rejections.
+- **Time per package:**
+  - Live wall time 8-18 min, mean about 10.8 min, for the 5 packages.
+  - The binding cost is the Heimdall writer's angle call: 2.6-14 min (deepseek-v4.1-flash; one call failed over to
+    qwen after 11 min).
+  - Model-call time summed over every reply a build used: 716 s mean.
+- **Dollars per package:** $1.22 by the price-table estimate, $0.17 by the vendors' own figures (xAI ticks, Heimdall
+  usage.cost; STT as an estimate). Step A (a once-per-moment screen, about $0.08 real per universe) is not included.
+- **What decides the yield:**
+  - CUTTABLE (ruling C / 7): of the cleared moments only 3-11 per universe pass the second pass and CUTTABLE. They are
+    now measured once per moment before the angle call.
+  - Supply: 3 of the 5 misses are older, smaller universes (Nov 6-7).
+- **This order's spend:**
+  - No budget was stated at 20:30. I capped this order's own ledger (tests/package/proof/SPEND_LY.json) at $40 by
+    the estimate.
+  - Used: $22.92 by the estimate, which is $2.07 vendor-reported + $0.13 STT estimate. That includes the runs
+    restarted after the fixes below.
+  - The 4 audit cycles add about $3.0, at upper-bound prices.
+
+**The READY pin** (fresh_20261112_050611, angle "Bitcoin is the most undervalued asset because it is a global free
+market outside government control"):
+- **hook:** Natalie Brunell, wdk5JZ9hPzs 3218.14-3221.64 (3.5 s): "Bitcoin imposes a global free market for the first
+  time ever." The IN keeps ruling 8's self-repair, as in the 08:44 pin.
+- **clip_01:** What Bitcoin Did, c1JGheQBPH4 2403.23-2422.07 (18.84 s): "I mean, the good news about Bitcoin is it's
+  not, you know, its success is not dependent upon who's in the White House ... in the U.S. You know, price -wise, some
+  people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+- **clip_02:** Stephan Livera, Sjb6lUiL0m4 1826.54-1843.48 (16.94 s): "However, I think Bitcoin is by far the most
+  undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around
+  like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+- **THE ONE VO LINE, the takeaway** (29 words, after clip_02): "What stands out is how rare it is for any asset to be
+  priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant."
+- **sign-off** (the renderer speaks its own, ruling 15): "Clips today from Natalie Brunell, What Bitcoin Did, and
+  Stephan Livera. ..."
+- **TITLE:** "Bitcoin's overlooked value comes from a market no government owns"
+- **CAPTION:** "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is
+  the point this medley builds toward."
+- **No intro, no bridge** (edl_vo {"intro": null, "bridges": [the takeaway after clip 2]}).
+- **Runtime estimate:** 66.18 s, with 39.28 s of clips. At the voice's measured 2.91 w/s the final should land about
+  1.6 s shorter, still inside 60-70.
+- **Gates and judges:**
+  - The clips alone (grok, blind): through-line "Bitcoin creates a global free market independent of political control
+    and is significantly undervalued", clips 5 / 4 / 4, both joins followable.
+  - VO fidelity: takeaway, title and caption each class D commentary, every test "no".
+  - Context A / B / C: PASS.
+  - Exclusion: keep x3. Second pass and CUTTABLE (scribe_v1): PASS x3.
+  - Coherence with the takeaway: 5 / 4 / 4, VO point 5.
+  - Writer: Heimdall deepseek-v4.1-flash. Every verdict: xai grok-4.20-0309-reasoning.
+- **RISK, for the orchestrator before rendering (L-v 3):**
+  - clip_02 is flagged time_sensitive ("right now", a $1.4M gold-parity figure). Its source was published Nov 11
+    18:03 UTC: 16 h old at the universe's time (inside L-v 3's 24 h, so packaging allowed it). At a render tonight it
+    is about 33 h old.
+  - Nothing in the deployed render path re-checks recency.
+  - I built the alternative with L-v 3 checked against tonight's clock (--as-of-now, package_ly_now.json): no package.
+    The budget stopped it after angle 1 (the angle call failed over to qwen after 11 min, and the 2 takeaway writes
+    failed COMMENTARY).
+  - Your call: render this pin, or have me re-run the as-of-now build with the budget lifted.
+- **NOTE (context step C, by ruling 3 a note, not STRONGER):** a viewer may take clip_02 as firmer than Livera's
+  speculative tone in context. No words of the video raise it, and the clip alone already reads as certain.
+
+**Decisions for you:**
+- When the writer declines a bridge at a join the blind check flagged, I drop the clip after that join and re-pick
+  (L-y 2: both must agree; L-y 3: a join a viewer cannot follow does not ship). The reviewers split three ways; it is
+  pinned by a test either way.
+- The per-package budget (05:25 item 5: 360 s / $1.50, stopped at twice that) was set for a fast frontier writer.
+  With Heimdall writing, one angle call can take 14 min.
+- L-w 2's plain fallback has no L-y form: the old one built an intro and bridges.
+
+**Still open:**
+- Ruling 15's request: seal the renderer's own sign-off text.
+- Ruling 12's "for next time": budget with the measured VO durations. With one line the gap is about 1-2 s.
+
+**Legs** (20:30: "local/Heimdall/xAI legs; Anthropic and OpenAI credit status: probe once, use if back"):
+- **Probe at 20:32 ET:** Anthropic answered HTTP 400 "Your credit balance is too low", OpenAI HTTP 429
+  credit_balance_exhausted. Both stay out.
+- **Local gemma3:27b:** not used. It runs on GPU0, and this builder never touches a GPU (L-r; the session's standing
+  order).
+- **Writer (angle, takeaway, title, caption):** Heimdall deepseek-v4.1-flash, with qwen3.8-27b as failover. This is
+  the config's own angle_write order once the frozen vendors drop out.
+- **Every verdict:** never the writer's vendor (L-x), so xAI grok-4.20-0309-reasoning. That covers step A, the
+  clips-alone medley verdict, fidelity, context B / C, exclusion and coherence.
+- **Second recogniser:** ElevenLabs scribe_v1.
+
+**The ingest ledger** (20:30: "use the ingest ledger if its adapter is ready"). The adapter is ready as an interface:
+pp-ingest's pipeline.ingest.ledger.best_unused_moments, tested. It does not supply this order:
+- The live ledger held 2,063 moments from 228 videos at 20:28 ET. All have caption timing (yt_auto 1,883, yt_manual
+  180), and 0 are on-screen eligible: eligibility "not_sentence_ready", law L-e needs a Whisper word record.
+- That word pass runs on GPU0, which this builder does not use.
+- The main store has no Whisper word record newer than 05:06 ET.
+- So the newest universe that can be packaged is fresh_20261112_050611, tonight's.
+
+**Code** (pipeline/package.py, package_pin.py, providers.py; tests/package/test_medley.py, proof_ly.py,
+pin_and_verify.py):
+- **build() is the medley** (L-y 1-6).
+- **Before the angle call:**
+  - L-v 2's second pass and CUTTABLE run once per cleared moment;
+  - the angle proposer sees only moments that pass both;
+  - it lists them in play order.
+- **Clips alone first:** each line-up gets the blind clips-alone verdict before anything is written. It returns the
+  through-line, the clip ratings and, for each join, whether a viewer can follow it.
+- **The one bridge:** only at the join that verdict flagged, and only when the writer also judges it necessary.
+  - Its record (text, why, confirmed_by) is what the factory's R11 reads.
+  - Two flagged joins mean the line-up is wrong, and it is re-picked.
+  - When no bridge length fits, it is re-picked with no write paid.
+- **The takeaway's budget** lands the factory's own runtime estimate, with or without the bridge.
+- **New gates:** "medley" (clips alone) and "ly_shape" (code) join the 13, required for a medley pin.
+- **Ledger:** it now records the vendors' own cost (xAI cost_in_usd_ticks, Heimdall usage.cost) beside the estimate.
+- **Removed:**
+  - write_v3, its two styles, budgets() and plain_vo(): intro + bridges shapes, contrary to L-y 1. plain_vo's title
+    test went with it.
+  - So L-w 2's "plain factual VO" fallback has no L-y form yet (open).
+- **Found by the live run and fixed:**
+  - build() accepted a package with CUTTABLE FAIL (an old gap; the pin refused it, fail closed);
+  - the driver's per-package spend stop read the shared ledger, so parallel workers were charged for each other's
+    calls.
+
+**Tests:** 146 pass, 34 of them in test_medley.py. Every L-y rule has a must-fail case; the build loop has stub
+tests. regression_test.sh: 26 PASS / 0 FAIL / 5 WARN.
+
+**Audit:** AUDIT-FIRST, two rounds of two cycles on the actual diff, docs/audits/parallel/pp-selectid_audit_2030/.
+Reviewers: grok-4.20-0309-reasoning (xAI), and qwen3.8-27b and glm-5.3-flash via Heimdall at effort none.
+- Round 1 (cycles 1-2) ended with all three at "yes with conditions".
+- Round 2 (cycles 3-4, on the final diff) ended with all three at "yes with conditions" and no P0.
+- Consensus implemented: K1-K8. Refutations, with evidence: C1_CONSENSUS.md, C2_DISPOSITIONS.md, C3_CONSENSUS.md,
+  C4_DISPOSITIONS.md.
+- Audit spend: about $3.0 at upper-bound prices, direct HTTP, not on the ledger.
+
+**The integrator:**
+- Messages exchanged at about 21:00. Its R11 (main d44645dc) takes this shape exactly. My ly_shape now refuses what R11
+  refuses: a bridge record whose text is not the line, one without confirmed_by, a record without a line.
+- The pin passes the deployed R11.
+
+
+## Superseded at 22:05 ET by the L-y pin above (the 08:44 line, as it stood)
+
 READY TO RENDER (08:44 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json. Story moments-fresh_20261112_050611-37c5b5f5, seal 37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f. All 13 gates are exactly PASS, measured live, on the first run (no majority needed). The deployed factory accepts it: validate_schema, build_edl, and rule_r4 at 45 % with the takeaway cap of 30.
+
 
 
 ## 08:53 ET: ruling 10's question, the builder's ONE list (deployed render path, read-only; agrees with the integrator's 08:42 / 08:49 list)

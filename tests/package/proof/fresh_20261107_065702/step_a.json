@@ -1,0 +1,213 @@
+{
+ "8e71e37db05ccbcdb34c:9d43580c729b": {
+  "label": "8e71e37db05ccbcdb34c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Self-custodied Bitcoin cannot be turned off via any app, so holding your own keys ensures nobody can switch your money off.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Walking my wife through my old multi -sig setup kept me up at night because I needed to know she could get access to her Bitcoin when I wasn't around.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "033495d91cea48bd3a5d:9d43580c729b": {
+  "label": "033495d91cea48bd3a5d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "AI",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin sells with stocks for cash or de-risking needs, leverage worsened its drop via over a billion in long crypto derivatives liquidations, and AI can still succeed yet inflict large losses on buildout investors.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Corey Clifston, founder of Swan Bitcoin, and this is outside money.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d38e1b1466c78339f19d:9d43580c729b": {
+  "label": "d38e1b1466c78339f19d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "the short term holder cost basis being precisely where Bitcoin is trading",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Everyone who bought Bitcoin in the past six months has a cost basis exactly at the current price, and this level constitutes support.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I think we're going to see Bitcoin closed 2026 above 90,000",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "102d49fd12436f88a600:9d43580c729b": {
+  "label": "102d49fd12436f88a600",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "investing in Bitcoin without needing to pick AI winners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Uncertainty about AI forms a major part of the speaker's personal reason for investing in Bitcoin since it lets one bet on Bitcoin without predicting which AI companies will win.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Corey Clifston, founder of Swan Bitcoin, and this is outside money.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "173710b2b1821c4450e5:9d43580c729b": {
+  "label": "173710b2b1821c4450e5",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Washington going the route of capital controls and seizing assets",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that's",
+    "refers_to": "the scenario of capital controls and seizing assets",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Washington ever goes the route of capital controls and seizing assets",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Capital controls and asset seizures by Washington would hurt prices of nearly everything including Bitcoin, yet that is precisely when holding your own keys would matter most.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "I think Schiff is right. Bigger deficits and more inflation are the whole reason to own money that nobody can print.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "23f4ea495716f8288cc8:9d43580c729b": {
+  "label": "23f4ea495716f8288cc8",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin supply not moving despite price drops, hacks, and opportunity costs from other assets hitting highs",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the observed consolidation of Bitcoin supply",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The current Bitcoin supply dynamics exemplify the fundamental principle of finite Bitcoin supply entering an environment of infinitely debasing currency.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I think we're going to see Bitcoin closed 2026 above 90,000",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "71a70788e75b17f227d8:9d43580c729b": {
+  "label": "71a70788e75b17f227d8",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "here",
+    "refers_to": "the short term holder cost basis level",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if it can hold the line here at the short term holder cost basis",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin holds the short-term holder cost basis, it will close 2026 above $90,000 near where the year began.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "I think we're going to see Bitcoin closed 2026 above 90,000",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "f27e21eaf3ba9ee6636d:9d43580c729b": {
+  "label": "f27e21eaf3ba9ee6636d",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin doing very well if Washington moves towards socialism due to accelerated institutional distrust",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "He",
+    "refers_to": "Jeff Park",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Jeff Park argued in February that Bitcoin thrives as Washington shifts toward socialism because wealth taxes, unrealized gains taxes, and money movement limits hasten loss of trust in institutions, boiling down to a thesis of institutional rejection.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I think Schiff is right.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

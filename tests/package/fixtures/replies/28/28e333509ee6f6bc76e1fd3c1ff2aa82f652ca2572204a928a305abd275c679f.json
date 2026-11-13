@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.\"\nCLIP label=\"clip_03\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin is a secure, decentralized free market system that functions as a global productivity index without any authority to seize others' wealth.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 4,\n    \"clip_02\": 4,\n    \"clip_03\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"both emphasize Bitcoin's security\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"continues on Bitcoin's unique positive properties\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": true,\n      \"why\": \"extends free market theme to lack of coercive authority\"\n    }\n  }\n}",
+ "usage": {
+  "in": 651,
+  "out": 2690,
+  "usd_reported": 0.00740435
+ },
+ "usd": 0.070505,
+ "seconds": 18.98,
+ "recorded_at": "2026-11-13T02:17:58Z"
+}

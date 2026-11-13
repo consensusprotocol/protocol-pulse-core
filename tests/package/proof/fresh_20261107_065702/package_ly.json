@@ -1,0 +1,100 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "f3c63dbbcf82798343da": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "85c9dd12f0493e273688": "20.06 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "82c60337eefd1af6dab6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "24ffaeb71216967b3046": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 8,
+ "current_levels": [
+  76000.0
+ ],
+ "prescreen": {
+  "screened": 8,
+  "cleared": 4,
+  "failed": {
+   "173710b2b1821c4450e5": [
+    "NOT_OWN_SINCERE"
+   ],
+   "23f4ea495716f8288cc8": [
+    "REFERENT_OUTSIDE"
+   ],
+   "71a70788e75b17f227d8": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "f27e21eaf3ba9ee6636d": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "second_pass": {
+   "8e71e37db05ccbcdb34c": "not cuttable at an edge (ruling C / 7)",
+   "d38e1b1466c78339f19d": "PASS",
+   "033495d91cea48bd3a5d": "PASS",
+   "102d49fd12436f88a600": "PASS"
+  },
+  "cuttable": 3
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "3 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels",
+ "run": "fresh_20261107_065702",
+ "seconds": 0.1,
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:46 EST",
+ "as_of": "2026-11-07T06:57:03.895513+00:00",
+ "full": {
+  "est": 0.0113,
+  "best": 0.0113,
+  "model_s": 4.09,
+  "calls": 4
+ }
+}

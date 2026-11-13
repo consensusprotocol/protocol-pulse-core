@@ -1,0 +1,520 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is undervalued because it offers a choice to escape government money and no authority can take your wealth, though legal adoption still depends on Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "b0b787f8a62d97d81dbb",
+    "5d5e163125435e85061a"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin offers an alternative to government money, is highly undervalued, and involves legal considerations with Congress.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both discuss Bitcoin after government money mention"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt jump from valuation to legal Congress approval"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['5d5e163125435e85061a'], re-lined"
+  },
+  {
+   "angle": 1,
+   "text": "Bitcoin is undervalued because it offers a choice to escape government money and no authority can take your wealth, though legal adoption still depends on Congress.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin is undervalued, but the market still thinks in dollars and legal adoption depends on Congress, even as it becomes systemically important.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is undervalued because it offers an escape from government money, but it is now systemically important and legal adoption depends on Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "b0b787f8a62d97d81dbb",
+    "5d5e163125435e85061a"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin offers an alternative to government money, is highly undervalued compared to gold, yet requires Congress for legal purchase confidence.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 3
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "ends on Bitcoin vs gov money, next builds on Bitcoin's value"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "jumps from valuation to unrelated legal/Congress authorization"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['5d5e163125435e85061a'], re-lined"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is undervalued because it offers an escape from government money, but it is now systemically important and legal adoption depends on Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "b0b787f8a62d97d81dbb",
+    "cfd41bf59cd3712473e5"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "runtime": 62.02,
+     "bridge": null,
+     "takeaway_budget": [
+      26,
+      30
+     ],
+     "lines": [
+      {
+       "slot": "takeaway",
+       "text": "The real story is a contradiction: an alternative money can only become useful at scale if the very institutions it was meant to bypass eventually accept it.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin's escape, low read, and systemic weight need a legal bridge",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "b0b787f8a62d97d81dbb",
+        "cfd41bf59cd3712473e5"
+       ]
+      },
+      {
+       "slot": "caption",
+       "text": "Its role as an alternative to state money made it a market outlier, but systemic importance means legal adoption now depends on Congress.",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "b0b787f8a62d97d81dbb",
+        "cfd41bf59cd3712473e5"
+       ]
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "863cc95ab7c5e0c11482": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Moment presents Bitcoin as the alternative to having no choice but government money",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "b0b787f8a62d97d81dbb": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "speaker opinion on BTC undervalued vs gold, no risks apply",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "cfd41bf59cd3712473e5": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker views attacks on Bitcoin as economically catastrophic since it is now integrated infrastructure.",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "863cc95ab7c5e0c11482": {
+       "video_id": "vgsSZ4mAHfQ",
+       "start": 829.42,
+       "end": 836.2,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "But in our modern world, we have no choice. We, well, until Bitcoin came around, we had no choice. You had to sign up to the government's money.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "no",
+         "no"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "vgsSZ4mAHfQ_827920_837700.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "But",
+         "before": "idiot.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "money.",
+         "after": "You",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "b0b787f8a62d97d81dbb": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 1826.54,
+       "end": 1843.48,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "However, I think Bitcoin is by far the most undervalued asset in, like, the entire global financial system right now. So, you know, Bitcoin gold parity is around, like, $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "1.5",
+         "1400000"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_1825040_1844980.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "However,",
+         "before": "tomorrow.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "undervalued.",
+         "after": "Like,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "cfd41bf59cd3712473e5": {
+       "video_id": "c1JGheQBPH4",
+       "start": 1496.38,
+       "end": 1508.58,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "So you think about attacks on, uh, Bitcoin, um, would have catastrophic, um, of, uh, uh, implications, you know, for the economy because it's now a part of the, the economy. It's",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "c1JGheQBPH4_1494880_1510080.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "So",
+         "before": "system.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "economy.",
+         "after": "It's",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Bitcoin offers an alternative to state money but its systemic economic importance creates a contradiction requiring legal and institutional acceptance to achieve scale.",
+      "clips": {
+       "hook": 4,
+       "clip_01": 3,
+       "clip_02": 5
+      },
+      "vo_point": 4,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin offers an alternative to government money, is extremely undervalued, and is now so integral to the economy that attacks on it would have catastrophic effects.",
+    "clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Hook ends on Bitcoin as alternative to gov money; next builds directly on Bitcoin's financial merits."
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "Both discuss Bitcoin's role and importance in the financial system."
+     }
+    },
+    "flagged": [],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "why": "coherence with the takeaway below 4 or no through-line: dropped ['b0b787f8a62d97d81dbb'], re-lined"
+  }
+ ],
+ "unusable": {
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6c26e6ba3e9362d33c6e": "30.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f7c51cc3aee285db890f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "03af1b00d15a5fed799b": "28.15 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "93fd61f90b4c4e603a97": "hard exclusion (L-u): ['guaranteed_return']",
+  "6ad350843b54d1f48f05": "not eligible on screen: hook: not_statement, opener; clip: not_statement"
+ },
+ "usable": 39,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 21,
+  "failed": {
+   "aff2e3571d56180a9e06": [
+    "NOT_OWN_SINCERE"
+   ],
+   "7a5f734f844bbfd67c1f": [
+    "NOT_OWN_SINCERE"
+   ],
+   "81f9b98d79dddabc360a": [
+    "NOT_OWN_SINCERE",
+    "CONDITION_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "b0b787f8a62d97d81dbb": "PASS",
+   "4567ce82296f9cfad744": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "e8c3738e3d7aff4ba06e": "PASS",
+   "5d5e163125435e85061a": "PASS",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "d1e31dd4b7ddb686a18d": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "c356a9fc110380aca230": "not cuttable at an edge (ruling C / 7)",
+   "91ca972a48f7ce95d11b": "not cuttable at an edge (ruling C / 7)",
+   "f56505eda00b45f4675e": "PASS",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "cfd41bf59cd3712473e5": "PASS",
+   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS",
+   "e1c898006676591f9180": "L-v 2 FAIL"
+  },
+  "cuttable": 8
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is undervalued because it offers a choice to escape government money and no authority can take your wealth, though legal adoption still depends on Congress.",
+   "moments": [
+    "863cc95ab7c5e0c11482",
+    "f56505eda00b45f4675e",
+    "b0b787f8a62d97d81dbb",
+    "5d5e163125435e85061a"
+   ],
+   "hook": "863cc95ab7c5e0c11482"
+  },
+  {
+   "angle": "Bitcoin is undervalued, but the market still thinks in dollars and legal adoption depends on Congress, even as it becomes systemically important.",
+   "moments": [
+    "4567ce82296f9cfad744",
+    "b0b787f8a62d97d81dbb",
+    "5d5e163125435e85061a",
+    "cfd41bf59cd3712473e5"
+   ],
+   "hook": "4567ce82296f9cfad744"
+  },
+  {
+   "angle": "Bitcoin is undervalued because it offers an escape from government money, but it is now systemically important and legal adoption depends on Congress.",
+   "moments": [
+    "863cc95ab7c5e0c11482",
+    "b0b787f8a62d97d81dbb",
+    "5d5e163125435e85061a",
+    "cfd41bf59cd3712473e5"
+   ],
+   "hook": "863cc95ab7c5e0c11482"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 3,
+   "lineup": 2,
+   "write": 1,
+   "text": "The real story is a contradiction: an alternative money can only become useful at scale if the very institutions it was meant to bypass eventually accept it.",
+   "words": 27,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": null,
+ "seconds": 0.6,
+ "usd": 0.0,
+ "run": "fresh_20261112_013452",
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "cf0dcaf5+f4c7b6eb89bf",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-12 22:01:13 EST",
+ "as_of": "2026-11-12T01:34:53.766719+00:00",
+ "full": {
+  "est": 1.221,
+  "best": 0.1583,
+  "model_s": 775.23,
+  "calls": 34
+ }
+}

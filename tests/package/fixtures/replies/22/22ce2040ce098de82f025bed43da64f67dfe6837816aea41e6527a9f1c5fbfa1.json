@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Early Upside, Not Political Permission\nCAPTION: The market may wait for approval, but the network's growth story is still early and far from fully priced.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Bitcoin ran from 16K to 126K. That move comes out to about an 8x.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\nVOICE-OVER: The opportunity is not waiting for permission; it is watching an early network compound while the world catches up.\nVOICE-OVER: Clips today from Simply Bitcoin, Stephan Livera, and What Bitcoin Did. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin has substantial early upside and is undervalued independent of needing political permission.\", \"clips\": {\"hook\": 4, \"clip_01\": 5, \"clip_02\": 5}, \"vo_point\": 5}",
+ "usage": {
+  "in": 653,
+  "out": 1711,
+  "usd_reported": 0.00495935
+ },
+ "usd": 0.04604,
+ "seconds": 14.06,
+ "recorded_at": "2026-11-13T02:12:19Z"
+}

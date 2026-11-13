@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.\"\nCLIP label=\"clip_02\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nCLIP label=\"clip_03\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"The clips highlight Bitcoin's role in creating a global free market based on productivity, voluntary choice, and independence from political authority.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 4,\n    \"clip_02\": 4,\n    \"clip_03\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"both describe positive global economic aspects of Bitcoin\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"links productivity measure to merit-based voluntary wealth accumulation\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": true,\n      \"why\": \"connects lack of coercive authority to independence from politics\"\n    }\n  }\n}",
+ "usage": {
+  "in": 673,
+  "out": 2531,
+  "usd_reported": 0.00703435
+ },
+ "usd": 0.06664,
+ "seconds": 17.25,
+ "recorded_at": "2026-11-13T02:42:19Z"
+}

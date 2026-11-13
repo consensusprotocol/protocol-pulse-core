@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "01848d58ee5b9c3f09382e469d8770c75ccd924a8eebd9129f07572573a08b61",
+ "result": {
+  "text": "Remember, outside of the bubble, you could already live in the future if you're in Bitcoin. You're already living in a, in a world that's getting better and better at a phenomenal rate. And, and-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.64,
+    "text": "Remember, outside of the bubble, you could already live in the future if you're in Bitcoin. You're already living in a, in a world that's getting better and better at a phenomenal rate. And, and-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Remember,",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outside",
+    "start": 1.52,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.94,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.02,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bubble,",
+    "start": 2.12,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 3.1,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 3.26,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 3.42,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "live",
+    "start": 3.68,
+    "end": 3.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.82,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.94,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "future",
+    "start": 4.04,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.22,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 5.32,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.44,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 5.54,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You're",
+    "start": 6.02,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 6.22,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "living",
+    "start": 6.54,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.28,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 7.4,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.72,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.84,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 7.94,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 8.24,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "getting",
+    "start": 8.4,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 8.7,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.08,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 9.22,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 9.6,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.72,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "phenomenal",
+    "start": 10.02,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate.",
+    "start": 10.86,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 12.18,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and-",
+    "start": 12.64,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.66
+ },
+ "usd": 0.002532,
+ "seconds": 2.1,
+ "recorded_at": "2026-11-13T02:19:03Z"
+}

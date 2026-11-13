@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4a4f3cf26f03ce8f5707c1e2499216af1e36ded6b360434c0200652d3c0d6abb",
+ "result": {
+  "text": "itself. The, one of the major concerns with Bitcoin is it's extremely volatile. I mean, like, as people are pointing out, people are saying, like, over the last five years, Bitcoin has done nothing. It's about, about a 0% CAGR. Like, that's, that's not a-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.24,
+    "text": "itself. The, one of the major concerns with Bitcoin is it's extremely volatile. I mean, like, as people are pointing out, people are saying, like, over the last five years, Bitcoin has done nothing. It's about, about a 0% CAGR. Like, that's, that's not a-"
+   }
+  ],
+  "words": [
+   {
+    "text": "itself.",
+    "start": 0.0,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The,",
+    "start": 1.72,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 1.98,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.08,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.16,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "major",
+    "start": 2.3,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concerns",
+    "start": 2.72,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 3.18,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.28,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.94,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 4.08,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "extremely",
+    "start": 4.46,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatile.",
+    "start": 5.36,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.22,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 6.28,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 6.44,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.2,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 7.34,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.5,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pointing",
+    "start": 7.6,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 7.82,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 7.96,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 8.119,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying,",
+    "start": 8.24,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 8.42,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 8.96,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.06,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 9.14,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 9.38,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 9.64,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.44,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 10.72,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "done",
+    "start": 10.84,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nothing.",
+    "start": 11.3,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 11.82,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 11.98,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 12.26,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.48,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "0%",
+    "start": 12.96,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CAGR.",
+    "start": 13.44,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 14.2,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's,",
+    "start": 14.56,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 14.92,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 15.08,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a-",
+    "start": 15.22,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.32
+ },
+ "usd": 0.003064,
+ "seconds": 1.28,
+ "recorded_at": "2026-11-13T02:58:04Z"
+}

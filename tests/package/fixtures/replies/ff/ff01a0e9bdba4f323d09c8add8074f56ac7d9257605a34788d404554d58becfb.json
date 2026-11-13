@@ -1,0 +1,434 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "74428af3969c942dba1c8388dc5c8a298620e2594a12c8408744f1feb3ef540d",
+ "result": {
+  "text": "Could go higher, and if the price of Bitcoin goes higher, it becomes better collateral, where you could issue more dollar credit. And, you know, the reason that it could be sustainable is because Bitcoin is a perfectly scarce asset, and the dollar is not a perfectly scarce asset. We're creating more and more dollars in the financial system all the time by design. It could just reach",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 21.66,
+    "text": "Could go higher, and if the price of Bitcoin goes higher, it becomes better collateral, where you could issue more dollar credit. And, you know, the reason that it could be sustainable is because Bitcoin is a perfectly scarce asset, and the dollar is not a perfectly scarce asset. We're creating more and more dollars in the financial system all the time by design. It could just reach"
+   }
+  ],
+  "words": [
+   {
+    "text": "Could",
+    "start": 0.0,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 0.24,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher,",
+    "start": 0.48,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.48,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 1.6,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 1.78,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.96,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.02,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 2.32,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher,",
+    "start": 2.5,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.86,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "becomes",
+    "start": 2.88,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 3.34,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "collateral,",
+    "start": 3.62,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 4.48,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.62,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 4.68,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issue",
+    "start": 4.86,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 5.14,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollar",
+    "start": 5.34,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit.",
+    "start": 5.68,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 6.56,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.08,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 7.14,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.76,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 7.9,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.26,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.38,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 8.58,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 8.86,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sustainable",
+    "start": 9.08,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.32,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 10.48,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.1,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.46,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.54,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perfectly",
+    "start": 11.62,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarce",
+    "start": 12.02,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset,",
+    "start": 12.36,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.74,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.84,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollar",
+    "start": 12.94,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.22,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 13.34,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.48,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perfectly",
+    "start": 13.56,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarce",
+    "start": 13.96,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 14.28,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 14.62,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "creating",
+    "start": 14.88,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 15.78,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 16.0,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 16.14,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 16.42,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 16.92,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.02,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 17.14,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system",
+    "start": 17.54,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 18.36,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.56,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 18.72,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 19.64,
+    "end": 19.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "design.",
+    "start": 19.88,
+    "end": 20.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 20.9,
+    "end": 20.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 21.0,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 21.16,
+    "end": 21.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reach",
+    "start": 21.42,
+    "end": 21.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.84
+ },
+ "usd": 0.004368,
+ "seconds": 2.02,
+ "recorded_at": "2026-11-13T02:19:20Z"
+}

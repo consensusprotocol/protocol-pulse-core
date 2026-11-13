@@ -1,0 +1,392 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "46d9c8dac26d6fa4eb9f66fda1f83a9107c4536a2662bd4f09218464374772fa",
+ "result": {
+  "text": "Easier to use and faster and u- So you can u- now use Bitcoin privately, completely privately on top of Bitcoin, pegged in one-to-one Bitcoin, be in a e-cash really easily, and have private money and private communications. Most of the world doesn't know that, uh, it already exists. Just like it went, in the dawn of the internet- Mm-hmm",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 19.0,
+    "text": "Easier to use and faster and u- So you can u- now use Bitcoin privately, completely privately on top of Bitcoin, pegged in one-to-one Bitcoin, be in a e-cash really easily, and have private money and private communications. Most of the world doesn't know that, uh, it already exists. Just like it went, in the dawn of the internet-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 19.74,
+    "end": 19.92,
+    "text": "Mm-hmm"
+   }
+  ],
+  "words": [
+   {
+    "text": "Easier",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.24,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 0.44,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.62,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "faster",
+    "start": 0.8,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.2,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "u-",
+    "start": 1.36,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 1.54,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.7,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 1.82,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "u-",
+    "start": 1.98,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 2.18,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 2.48,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.68,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "privately,",
+    "start": 3.6,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 4.36,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "privately",
+    "start": 5.04,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.82,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 5.96,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.16,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.24,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pegged",
+    "start": 6.68,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.96,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one-to-one",
+    "start": 7.14,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 7.52,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 8.02,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.14,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.32,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "e-cash",
+    "start": 8.48,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 9.26,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easily,",
+    "start": 9.64,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.64,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 10.74,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "private",
+    "start": 10.96,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 11.34,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.56,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "private",
+    "start": 11.72,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "communications.",
+    "start": 12.04,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Most",
+    "start": 13.86,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.2,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.32,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 14.44,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 14.98,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 15.3,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 15.48,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 15.64,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 15.78,
+    "end": 15.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 15.86,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exists.",
+    "start": 16.16,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Just",
+    "start": 16.9,
+    "end": 17.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 17.1,
+    "end": 17.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 17.42,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went,",
+    "start": 17.54,
+    "end": 17.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 17.76,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.92,
+    "end": 18.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dawn",
+    "start": 18.08,
+    "end": 18.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.32,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.44,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet-",
+    "start": 18.56,
+    "end": 19.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm",
+    "start": 19.74,
+    "end": 19.92,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.51
+ },
+ "usd": 0.004102,
+ "seconds": 3.86,
+ "recorded_at": "2026-11-13T02:19:54Z"
+}

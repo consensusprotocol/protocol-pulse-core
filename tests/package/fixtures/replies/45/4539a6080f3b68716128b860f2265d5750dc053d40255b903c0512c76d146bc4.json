@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f9b70a004ff3a4a2477ef19349e01ead5a43bd418801d8754de48633b60bbfdd",
+ "result": {
+  "text": "Very, very fundamental. Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to buy Bitcoin in 2020. You didn't",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 13.68,
+    "text": "Very, very fundamental. Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that. Your friends chose to buy Bitcoin in 2020. You didn't"
+   }
+  ],
+  "words": [
+   {
+    "text": "Very,",
+    "start": 0.04,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 0.3,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fundamental.",
+    "start": 0.56,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.5,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 1.86,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 2.0,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.18,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 2.68,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "authority",
+    "start": 2.94,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.4,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "allows",
+    "start": 3.52,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 3.84,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 4.28,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.72,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wealth",
+    "start": 4.84,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.26,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "others.",
+    "start": 5.48,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 6.18,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 6.3,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 6.5,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "end",
+    "start": 6.8,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.98,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 7.1,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 7.32,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 7.56,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 8.0,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 8.22,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 8.58,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chose",
+    "start": 9.08,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.44,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 9.56,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 9.74,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Your",
+    "start": 10.24,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "friends",
+    "start": 10.44,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chose",
+    "start": 10.9,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.26,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 11.46,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.76,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.1,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2020.",
+    "start": 12.28,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 13.24,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 13.36,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.06
+ },
+ "usd": 0.002812,
+ "seconds": 2.42,
+ "recorded_at": "2026-11-13T02:19:39Z"
+}

@@ -7,7 +7,9 @@ Checks on the REAL pin: package_pin.to_pin authorises it (every required gate ex
 equal the VO / title / caption); pinned.validate_schema accepts it; pinned.build_edl (moments_vo) carries the VO
 (a line after every clip, the last included), the ONE title and caption and the seal; edl_rules.rule_r4 (R4 for
 moments) passes on the pin's own segment durations.
-Usage: python3 tests/package/pin_and_verify.py PACKAGE.json RUN_NAME OUT_DIR [MAIN_TREE]"""
+Where the factory copy has edl_rules.rule_r11 (law L-y's VO shape), it runs too.
+Usage: python3 tests/package/pin_and_verify.py PACKAGE.json RUN_NAME OUT_DIR [MAIN_TREE]
+(MAIN_TREE: any directory holding pipeline/{pinned,edl_rules,config}.py, e.g. a `git show` export of a branch)"""
 import json
 import os
 import shutil
@@ -48,7 +50,13 @@ def main(argv=None):
                                               "edge_words_from": "verify", "approved_text_similarity": 1.0}
         pinned.L.make_lock = lambda *a, **k: {"verify": True}
         pinned.L.sha256_file = lambda p: "0" * 64
-        edl, _, _ = pinned.build_edl(pin, fake_acq(pin))
+        if hasattr(pinned, "adjudicate_lock"):          # ruling 17 (main e492ec60): the second recogniser adjudicates
+            pinned.adjudicate_lock = lambda lock, *a, **k: lock   # the lock on the acquired AUDIO, at render; offline
+                                                                  # here there is no audio, as with make_lock above
+        acq = fake_acq(pin)
+        for v in acq.values():                          # the acquired media's path (read by ruling 17's adjudication,
+            v.setdefault("path", None)                  # faked above): offline there is none
+        edl, _, _ = pinned.build_edl(pin, acq)
         mp = pin["moments_package"]
         assert edl["vo"]["intro"] == pk["vo"]["intro"], edl["vo"]
         assert [b["text"] for b in edl["vo"]["bridges"]] == list(pk["vo"]["bridges"]), edl["vo"]
@@ -61,7 +69,11 @@ def main(argv=None):
         ok, why = edl_rules.rule_r4(edl)
         print(f"PIN {path}\n  story_id {pin['story_id']} seal {mp['package_sha256']}")
         print(f"  pinned.validate_schema: OK; build_edl (moments_vo): VO, title, caption, seal carried")
-        print(f"  edl_rules.rule_r4 (deployed): {'PASS' if ok else 'FAIL'}: {why}")
+        print(f"  edl_rules.rule_r4 ({main_tree}): {'PASS' if ok else 'FAIL'}: {why}")
+        if hasattr(edl_rules, "rule_r11"):                  # law L-y's VO shape, where that factory has it
+            ok11, why11 = edl_rules.rule_r11(edl)
+            print(f"  edl_rules.rule_r11 ({main_tree}): {'PASS' if ok11 else 'FAIL'}: {why11}")
+            ok = ok and ok11
         return 0 if ok else 1
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

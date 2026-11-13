@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b2ef0de6ec72ebe48139d2dc6c486e020d87d424b5331977798474557f476f28",
+ "result": {
+  "text": "already existing currencies. You don't, uh, simply just disappear the mo- the current monetary system. And even if you have, uh, Bitcoin as a standard, you will not s- uh, prevent the speculators issuing liabilities de- denominated in Bitcoin, right? The, the problem is that there will always be somebody issuing some kind of loan, and it's not the government. You know-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 19.82,
+    "text": "already existing currencies. You don't, uh, simply just disappear the mo- the current monetary system. And even if you have, uh, Bitcoin as a standard, you will not s- uh, prevent the speculators issuing liabilities de- denominated in Bitcoin, right? The, the problem is that there will always be somebody issuing some kind of loan, and it's not the government. You know-"
+   }
+  ],
+  "words": [
+   {
+    "text": "already",
+    "start": 0.18,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existing",
+    "start": 0.48,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currencies.",
+    "start": 0.9,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.42,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't,",
+    "start": 1.58,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.4,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simply",
+    "start": 2.84,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 3.2,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "disappear",
+    "start": 3.4,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.96,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mo-",
+    "start": 4.08,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.26,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "current",
+    "start": 4.38,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "monetary",
+    "start": 4.66,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 5.12,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 5.68,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 5.82,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 6.04,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.14,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have,",
+    "start": 6.26,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 6.7,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.86,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.44,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.6,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standard,",
+    "start": 7.78,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.74,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 8.82,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 8.98,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "s-",
+    "start": 9.62,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 9.7,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prevent",
+    "start": 9.88,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.62,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "speculators",
+    "start": 11.14,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issuing",
+    "start": 11.9,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liabilities",
+    "start": 12.3,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "de-",
+    "start": 13.1,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "denominated",
+    "start": 13.34,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.04,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 14.2,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 14.74,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The,",
+    "start": 15.24,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.4,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem",
+    "start": 15.54,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 15.92,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.0,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 16.14,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 16.28,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 16.48,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 16.7,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "somebody",
+    "start": 16.82,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issuing",
+    "start": 17.32,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 17.74,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 17.92,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.1,
+    "end": 18.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "loan,",
+    "start": 18.26,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.56,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 18.64,
+    "end": 18.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 18.76,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.9,
+    "end": 19.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "government.",
+    "start": 19.06,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 19.7,
+    "end": 19.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know-",
+    "start": 19.76,
+    "end": 19.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.95
+ },
+ "usd": 0.00399,
+ "seconds": 1.15,
+ "recorded_at": "2026-11-13T02:39:47Z"
+}

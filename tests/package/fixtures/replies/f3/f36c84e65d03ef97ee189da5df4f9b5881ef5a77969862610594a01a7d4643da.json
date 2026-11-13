@@ -1,0 +1,170 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "48284b37669fedf201954f926f826854ad271a20613f6a282812d7ac1345bded",
+ "result": {
+  "text": "Not a unit of account. You don't, nobody denominates their transaction in Bitcoin. They denominate them in dollars, Bitcoins worth of dollars. So the-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 8.78,
+    "text": "Not a unit of account. You don't, nobody denominates their transaction in Bitcoin. They denominate them in dollars, Bitcoins worth of dollars. So the-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Not",
+    "start": 0.0,
+    "end": 0.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.1,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unit",
+    "start": 0.24,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.48,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account.",
+    "start": 0.6,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.42,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't,",
+    "start": 1.88,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nobody",
+    "start": 2.2,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "denominates",
+    "start": 2.56,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 3.1,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transaction",
+    "start": 3.26,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.92,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 4.08,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 4.46,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "denominate",
+    "start": 4.58,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 5.0,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.24,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars,",
+    "start": 5.48,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoins",
+    "start": 6.3,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 6.82,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.14,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars.",
+    "start": 7.36,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 8.16,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the-",
+    "start": 8.6,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.16
+ },
+ "usd": 0.001832,
+ "seconds": 1.64,
+ "recorded_at": "2026-11-13T02:19:16Z"
+}

@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5afe3f7515153b0bf1c746d702364f554842006d9627bb3e43093f8973db0e4d",
+ "result": {
+  "text": "And US equities. In a way, I think of Bitcoin being like this global productivity index, similar to the S&P 500 is to individual stocks. Like, I believe I've seen, like",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.06,
+    "text": "And US equities. In a way, I think of Bitcoin being like this global productivity index, similar to the S&P 500 is to individual stocks. Like, I believe I've seen, like"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 0.32,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities.",
+    "start": 0.54,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 1.42,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.54,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way,",
+    "start": 1.64,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.98,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.02,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.2,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.32,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 2.88,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 3.16,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 3.42,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "global",
+    "start": 4.34,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "productivity",
+    "start": 4.82,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index,",
+    "start": 5.46,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "similar",
+    "start": 6.36,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.78,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.92,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P",
+    "start": 7.08,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "500",
+    "start": 7.56,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.119,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.44,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "individual",
+    "start": 8.64,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks.",
+    "start": 9.22,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 10.04,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.16,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 10.24,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 10.52,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen,",
+    "start": 10.7,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.96,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.1
+ },
+ "usd": 0.00222,
+ "seconds": 0.77,
+ "recorded_at": "2026-11-13T02:39:35Z"
+}

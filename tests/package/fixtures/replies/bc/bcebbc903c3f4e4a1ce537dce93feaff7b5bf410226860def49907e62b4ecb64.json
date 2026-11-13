@@ -1,0 +1,494 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "db2607ebbb3bc83e79ff13315c98f5aa072b33b8778b5383f49be6a0f3cb1c4a",
+ "result": {
+  "text": "Over the last couple of years or so. So the size of the Bitcoin economy grows far more than the size of the Bitcoin supply, which again is another, uh, nail in the coffin of the idea that we need to increase the money supply in order to increase economic activity. Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 21.3,
+    "text": "Over the last couple of years or so. So the size of the Bitcoin economy grows far more than the size of the Bitcoin supply, which again is another, uh, nail in the coffin of the idea that we need to increase the money supply in order to increase economic activity. Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Over",
+    "start": 0.18,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.32,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 0.4,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "couple",
+    "start": 0.58,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.76,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 0.86,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 1.04,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so.",
+    "start": 1.18,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 1.72,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.9,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "size",
+    "start": 2.2,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.44,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.5,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.58,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy",
+    "start": 2.88,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "grows",
+    "start": 3.24,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "far",
+    "start": 3.64,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 4.14,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 4.52,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.64,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "size",
+    "start": 4.78,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.06,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.12,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.22,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply,",
+    "start": 5.56,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 6.44,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again",
+    "start": 6.68,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.94,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another,",
+    "start": 7.06,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 7.74,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nail",
+    "start": 8.18,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.46,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.56,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coffin",
+    "start": 8.68,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.54,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.7,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idea",
+    "start": 9.9,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.22,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 10.36,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 10.46,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.66,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increase",
+    "start": 10.9,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.34,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 11.44,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply",
+    "start": 11.6,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 11.86,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "order",
+    "start": 11.94,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.12,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increase",
+    "start": 12.24,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economic",
+    "start": 12.66,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "activity.",
+    "start": 13.12,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.16,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shows",
+    "start": 14.56,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.84,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.94,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 15.08,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 15.14,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 15.28,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increase",
+    "start": 15.48,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.8,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 15.92,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power.",
+    "start": 16.32,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.78,
+    "end": 16.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.92,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 17.06,
+    "end": 17.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.38,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 17.5,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 17.82,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 18.04,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "without",
+    "start": 18.18,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.44,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply",
+    "start": 18.54,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.86,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 18.98,
+    "end": 19.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 19.34,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 19.66,
+    "end": 19.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 20.72,
+    "end": 20.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the-",
+    "start": 21.26,
+    "end": 21.3,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.35
+ },
+ "usd": 0.00427,
+ "seconds": 1.26,
+ "recorded_at": "2026-11-13T02:29:52Z"
+}
