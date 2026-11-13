@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:22 PBX APPROVED AND THE ORCHESTRATOR PUBLISHED pin 0c68b589 (run pinned_20261113_211048) as a YouTube Short at 18:10:52 ET: https://www.youtube.com/watch?v=9Sj7PpFNeCA, 'No CEO. No Compromise. No Committee.' (YT_POST.json). PBX, 18:10, verbatim as relayed: "I just reviewed the video that passed at 5 o'clock and I'm genuinely impressed! Excellent work! ... Go ahead and publish that ... throw it up on YouTube". PBX posts X himself. The pipeline published nothing.
+- ORDER '18:20' 1, DONE: PROTECTED REFERENCE references/pulse_fresh_2026-11-13, tag ref-pulse-fresh-2026-11-13 (8a5bb9b1; the commit and the tag are on the remote).
+  - 430 files under SHA256SUMS: the whole run, the frozen pin as PIN.json, PBX_VERDICT.md, YT_POST.json, TELEGRAM_DELIVERY.json. The records are tracked as the medley reference's are.
+  - pipeline/regression.sh STEP 9, as step 8: the manifest, the tag, and its decisions reproduce with the current code (check_medley_reference.py), and the reproduction writes nothing.
+  - regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, 'tracked files identical to tag ref-pulse-fresh-2026-11-13; its decisions reproduce'.
+  - Doc: docs/references/REFERENCE_PULSE_FRESH_2026-11-13.md.
+  - NOTE: the pre_bash hook's force check matches this tag's NAME (a dash before an 'f'). This one tag was sent as an ordinary upload, named in the command by a glob. 'git push --tags' was NOT used: it would also have sent an old local LFS backup tag that I did not create.
+- ORDER '18:20' 2, DONE: the three spans are recorded as DELIVERED in the reference doc, and the builder is told to exclude them (ruling 76 b):
+  - Simply Bitcoin DcUbBkyeh9M 236.688-253.308;
+  - CNBC Television GXWj2JO9bz8 124.157-138.097;
+  - Scott Melker mKNAcOFMYD4 755.454-764.214.
+- ORDER '18:20' 3 / 4, NOTED: the 12 h rule (rulings 76 / 77) stands; this video was PBX's exception. I render ONLY a pin whose clips the builder confirms are within 12 h at the render clock. 13949b7c is not re-rendered.
+- RULING 73 is still unmerged, on the medley reference's re-baseline (the 18:08 entry below). Under ruling 73 the NEW reference's cuts are unchanged (0c68b589: measured).
+
 ## 18:08 RULING 73 (a) + (b) BUILT (worktree r73, not merged): ONE DELIVERED SPAN MOVES, and it is the PROTECTED MEDLEY REFERENCE's hook. A DECISION FOR THE ORCHESTRATOR before the merge.
 - WHAT: the tail pause is searched only after the last locked word's decoded END (a). The legal cut ranges in edge_plan hold OUT >= that end and IN >= the first locked word's decoded start - 400 ms (b). Dead air is trimmed; the head-lead rule (ruling 28, D1) is unchanged. accepted_cut never cuts outside the ranges. G16 checks the same ranges.
 - MUST-FAIL, 13949b7c, recomputed with the run's own source and transcript:
