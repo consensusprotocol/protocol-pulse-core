@@ -1,0 +1,393 @@
+diff --git a/pipeline/ledger_build.py b/pipeline/ledger_build.py
+new file mode 100644
+index 00000000..dc7356c6
+--- /dev/null
++++ b/pipeline/ledger_build.py
+@@ -0,0 +1,154 @@
++#!/usr/bin/env python3
++"""pipeline/ledger_build.py — ORCHESTRATOR 22:40 ruling 2: the medley built from the INGEST LEDGER, the path to the first
++FRESH medley. Read-only on the ledger and on the stores; no GPU; no model call here (package.build makes those).
++
++- rows(): pp-ingest's own adapter, pipeline.ingest.ledger.best_unused_moments, with its exclusions applied: delivered,
++  opted out, hard flags, altcoin or not about Bitcoin, a speaker change, re-uploads. It runs read-only in its own
++  interpreter, from the pp-ingest worktree, until the integrator merges it.
++- READY: a row is packageable only on a sentence-ready WORD record (law L-e). Today that is the store's full-video slot
++  (transcripts/<vid>/transcript.whisper_words*.json, punctuated first, its segments sha checked). Window records from
++  the word-pass worker (the integrator's contract: transcripts/<vid>/windows/<w0>-<w1>.whisper_words_punct.json,
++  youtube clock, listed in moments/word_pass.jsonl) need their L-s context from the CAPTION record. That is not wired
++  yet: such rows are counted in the report and not used.
++- RE-ANCHOR: sentence_law.anchor, the sentence law's own text locator, finds the row's TEXT in the word record. The
++  row's caption-clock times only narrow the search. The span then snaps to that record's WHOLE sentences when at most
++  SNAP_WORDS words lie outside the anchored text at either edge; otherwise the row is dropped, and why is recorded.
++  The moment's text becomes the word record's own words, verbatim, the words the render locks on.
++- RECORD: the miner's own moments.judge() and moments.record(): eligibility on word timing (on_screen_ok). The ledger
++  row's scores, risks, topics, reason and mining provenance are kept (mined.ledger_moment_id).
++-> build_inputs(...) = (moments, sources, report).
++"""
++import glob
++import json
++import os
++import sys
++
++import eligibility as E
++import moments as M
++import select_by_id as S
++import sentence_law as SL
++import transcript_store as ts
++
++SNAP_WORDS = 3            # words of a word-record sentence the anchored text may leave out at either edge
++SEARCH_PAD_S = 30.0       # the row's caption times narrow the anchor's search to [start - pad, end + pad]
++INGEST_ROOT = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest")
++MAIN = os.environ.get("PP_MAIN_TREE", "/home/ultron/protocol_pulse")
++STORE = os.path.join(MAIN, "data", "editorial")
++
++
++_ROWS = """
++import json, sys
++from datetime import datetime
++sys.path.insert(0, sys.argv[1])
++from pipeline.ingest import ledger as IL
++a = json.loads(sys.stdin.read())
++rows, rep = IL.best_unused_moments(a["path"], datetime.fromisoformat(a["since"]), datetime.fromisoformat(a["now"]),
++                                   a["delivered"], store_root=a["store_root"], horizon_h=a["horizon_h"])
++sys.stdout.write(json.dumps({"rows": rows, "report": rep}, default=str))
++"""
++
++
++def rows(since, now, delivered_ids=(), ingest_root=INGEST_ROOT, horizon_h=72, timeout=300):
++    """pp-ingest's adapter, best_unused_moments, run read-only in its OWN interpreter, from its worktree until the
++    integrator merges it. Its store guard refuses a process in which another transcript_store was imported first, so
++    the two never share modules. -> (rows, report). Raises RuntimeError when the adapter refuses or fails (fail
++    closed: no rows is never read as a quiet ledger)."""
++    import subprocess
++    args = {"path": os.path.join(ingest_root, "data", "editorial", "moments", "moment_ledger.jsonl"),
++            "since": since.isoformat(), "now": now.isoformat(), "delivered": list(delivered_ids),
++            "store_root": os.path.join(ingest_root, "data", "editorial"), "horizon_h": horizon_h}
++    env = dict(os.environ, PP_SELECTID_PIPELINE=os.path.dirname(os.path.abspath(__file__)))
++    p = subprocess.run([sys.executable, "-c", _ROWS, ingest_root], input=json.dumps(args), capture_output=True,
++                       text=True, cwd=ingest_root, env=env, timeout=timeout)
++    if p.returncode != 0:
++        raise RuntimeError(f"the ledger adapter failed: {p.stderr.strip()[-400:]}")
++    out = json.loads(p.stdout)
++    if (out["report"] or {}).get("contract"):
++        raise RuntimeError(f"the ledger adapter refused: {out['report']['contract']}")
++    return out["rows"], out["report"]
++
++
++def word_source(row, ctx, store=STORE):
++    """The video's sentence-ready word record from the store's full-video slot (punctuated first, its segments sha
++    checked), as an eligibility Source with the row's identity, or None."""
++    vid = row["video_id"]
++    paths = sorted(glob.glob(os.path.join(store, "transcripts", vid, "transcript.whisper_words*.json")),
++                   key=lambda p: "punct" not in p)
++    reg = ctx.channel(row.get("channel_id")) or {}
++    for p in paths:
++        try:
++            rec = json.load(open(p))
++        except (OSError, ValueError):
++            continue
++        if rec.get("transcript_sha256") != ts.segments_sha256(rec.get("segments") or []):
++            continue
++        timing, toks = S.tokens_from_record(rec)
++        src = E.Source(vid, row.get("channel_id"), reg.get("display_name") or row.get("channel_name"),
++                       row.get("published_at"), rec.get("transcript_sha256"), rec.get("transcript_method"), toks,
++                       timing=timing, title=row.get("title") or "", file_head=True, vod=True)
++        if E.sentence_ready(src):
++            return src, p
++    return None, None
++
++
++def reanchor(row, src):
++    """The row's TEXT located in the word record and snapped to its whole sentences -> (E.Span, info) or (None, why)."""
++    t0 = row.get("start")
++    t1 = row.get("end")
++    hit = SL.anchor(src.tokens, row.get("text") or "",
++                    t0=(float(t0) - SEARCH_PAD_S) if t0 is not None else None,
++                    t1=(float(t1) + SEARCH_PAD_S) if t1 is not None else None)
++    if hit is None:
++        return None, "the row's text does not anchor in the word record (sentence_law.anchor)"
++    i0, i1, ratio = hit
++    k0 = next((k for k, (a, b) in enumerate(src.sentences) if a <= i0 <= b), None)
++    k1 = next((k for k, (a, b) in enumerate(src.sentences) if a <= i1 <= b), None)
++    if k0 is None or k1 is None:
++        return None, "the anchored words fall outside the record's sentences"
++    left, right = i0 - src.sentences[k0][0], src.sentences[k1][1] - i1
++    if left > SNAP_WORDS or right > SNAP_WORDS:
++        return None, (f"the anchored text is not whole sentences of the word record ({left} word(s) before it and "
++                      f"{right} after it inside its edge sentences; at most {SNAP_WORDS})")
++    sp = E.Span(src, k0, k1)
++    return sp, {"anchor_ratio": round(ratio, 3), "snapped_words": [left, right], "sentences": [k0, k1]}
++
++
++def build_inputs(rows, ctx, store=STORE, log=print):
++    """Ledger rows -> (moments in the packager's form, {video_id: Source}, report). Rows on a video with no sentence-
++    ready word record, rows whose text does not re-anchor on whole sentences, and duplicates of one span are dropped,
++    each counted with why."""
++    report = {"rows": len(rows), "no_word_record": 0, "not_anchored": {}, "duplicates": 0, "moments": 0,
++              "videos": 0, "word_records": {}}
++    by_vid = {}
++    for r in rows:
++        by_vid.setdefault(r["video_id"], []).append(r)
++    moments, sources, seen = [], {}, set()
++    for vid, rs in by_vid.items():
++        src, path = word_source(rs[0], ctx, store)
++        if src is None:
++            report["no_word_record"] += len(rs)
++            continue
++        report["word_records"][vid] = os.path.relpath(path, store)
++        for r in rs:
++            sp, info = reanchor(r, src)
++            if sp is None:
++                report["not_anchored"][r["moment_id"]] = info
++                continue
++            if (vid, sp.k0, sp.k1) in seen:
++                report["duplicates"] += 1
++                continue
++            seen.add((vid, sp.k0, sp.k1))
++            m = {"scores": r["scores"], "names_person": r.get("names_person", False), "risk": list(r.get("risk") or []),
++                 "topics": list(r.get("topics") or []), "reason": r.get("reason") or ""}
++            mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
++                         ledger_text=r.get("text"))
++            rec = M.record(sp, m, ctx, M.judge(sp, ctx), mined)
++            rec["rank_score"] = M.rank_score(rec)
++            moments.append(rec)
++            sources[vid] = src
++    report["moments"], report["videos"] = len(moments), len(sources)
++    log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} word records; "
++        f"{report['no_word_record']} rows wait for a word record, {len(report['not_anchored'])} do not re-anchor, "
++        f"{report['duplicates']} duplicates")
++    moments.sort(key=lambda m: (-m["rank_score"], m["moment_id"]))
++    return moments, sources, report
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+new file mode 100644
+index 00000000..10e7eaaf
+--- /dev/null
++++ b/tests/package/proof_ledger.py
+@@ -0,0 +1,100 @@
++#!/usr/bin/env python3
++"""ORCHESTRATOR 22:40 ruling 2: build the medley from the INGEST LEDGER and seal a pin.
++
++- The rows are pp-ingest's adapter (best_unused_moments), read-only.
++- Only rows on a sentence-ready WORD record are used, each re-anchored by its text (pipeline/ledger_build.py).
++- "now" is the RENDER clock (ruling 1): L-v 3 and currency are judged against tonight, not against a universe snapshot.
++- Novelty (L-p): every clip span of the pins already delivered (the 37c5b5f5 review, run 165629; the 41f29b1f medley)
++  is passed to package.usable as delivered, so an overlapping moment is out.
++- The same legs, ledger and meters as proof_ly.py: Heimdall writes, xAI judges, scribe_v1 is the second recogniser.
++  Writer calls have ruling 5's deadline; the budget is ruling 5's.
++Writes tests/package/proof/ledger_<UTC stamp>/: inputs.json, package.json, package.log, step_a.json and, on a
++package, MOMENTS_PIN_LEDGER.json.
++
++Usage: python3 tests/package/proof_ledger.py [--hours 72]
++"""
++import argparse
++import json
++import os
++import sys
++import time
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "select_by_id"))
++sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
++sys.path.insert(0, HERE)
++import eligibility as E  # noqa: E402
++import ledger_build as LB  # noqa: E402
++import moments as M  # noqa: E402
++import package as PK  # noqa: E402
++import package_pin  # noqa: E402
++import proof_ly as PL  # noqa: E402
++import proof_saved_runs as PS  # noqa: E402
++import providers as P  # noqa: E402
++
++DELIVERED_PINS = (os.path.join(HERE, "proof", "fresh_20261112_050611", "MOMENTS_PIN.json"),       # 37c5b5f5 (165629)
++                  os.path.join(HERE, "proof", "fresh_20261112_050611", "MOMENTS_PIN_LY.json"))    # 41f29b1f
++
++
++def delivered_spans(paths=DELIVERED_PINS):
++    """Every clip span of the pins already delivered: {video_id, start, end} (package.usable reads overlaps)."""
++    out = []
++    for p in paths:
++        pin = json.load(open(p))
++        out += [{"video_id": s["video_id"], "start": s["start"], "end": s["end"], "pin": pin["story_id"]}
++                for s in pin["segments"]]
++    return out
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--hours", type=float, default=72.0, help="the adapter's horizon (and 'since' = now - hours)")
++    ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
++    a = ap.parse_args(argv)
++    now = datetime.now(timezone.utc)
++    out_dir = os.path.join(HERE, "proof", f"ledger_{now.strftime('%Y%m%d_%H%M')}")
++    os.makedirs(out_dir, exist_ok=True)
++    logf = open(os.path.join(out_dir, "package.log"), "a")
++    say = lambda s: (print(s, flush=True), logf.write(s + "\n"), logf.flush())
++    ctx = E.Context(now, PS.REG, ledger=PS.ledger_entries())
++    say(f"=== {time.strftime('%H:%M:%S %Z')} LEDGER medley build, code {PL.code_sha()}, now (render clock) "
++        f"{now.isoformat(timespec='seconds')}")
++    rows, rep = LB.rows(now - timedelta(hours=a.hours), now, horizon_h=int(a.hours))
++    say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
++    moments, sources, inputs = LB.build_inputs(rows, ctx, log=say)
++    delivered = delivered_spans()
++    json.dump({"adapter_report": rep, "inputs": inputs, "delivered": delivered,
++               "moments": moments}, open(os.path.join(out_dir, "inputs.json"), "w"), indent=1, default=str)
++    router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
++                      chains=PL.chains())
++    own, used = PL.meter(router), PL.reply_meter(router)
++    t0 = time.time()
++    res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
++                   work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
++                   spend=lambda: (own["est"], own["best"]))
++    res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
++               full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
++               chains=router.chains, inputs=inputs)
++    if res["package"]:
++        try:
++            path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M')}", out_dir,
++                                              name="MOMENTS_PIN_LEDGER.json")
++            res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
++                          "package_sha256": pin["moments_package"]["package_sha256"]}
++            say(f"PACKAGE ({res['seconds']} s, ${res['usd_estimate']} estimate, ${res['usd_best_known']} best known) "
++                f"pin {path}")
++        except package_pin.PinRefused as e:
++            res["pin_refused"] = str(e)
++            say(f"PIN REFUSED: {e}")
++    else:
++        say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
++    json.dump(res, open(os.path.join(out_dir, "package.json"), "w"), indent=1, default=str)
++    logf.close()
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+new file mode 100644
+index 00000000..71be2338
+--- /dev/null
++++ b/tests/package/test_ledger_build.py
+@@ -0,0 +1,121 @@
++#!/usr/bin/env python3
++"""pipeline/ledger_build.py (ORCHESTRATOR 22:40 ruling 2): the medley built from the ingest ledger. Offline:
++- re-anchoring a ledger row's TEXT in a word record and snapping it to that record's whole sentences;
++- reading the store's word record (its sha checked, sentence-ready only);
++- turning rows into the packager's moments (counted drops, no duplicate spans);
++- the adapter's failures are raised, never read as an empty ledger."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "eligibility"))
++import eligibility as E  # noqa: E402
++import ledger_build as LB  # noqa: E402
++import transcript_store as ts  # noqa: E402
++from test_eligibility import NOW, REG, source  # noqa: E402
++
++SENTS = ["Bitcoin is a global free market.", "Nobody can stop Bitcoin from settling a payment.",
++         "That is the whole design and it works every day.", "Bitcoin does not ask for permission."]
++
++
++def row(text, start=None, end=None, mid="L1", vid="vidA"):
++    return {"moment_id": mid, "video_id": vid, "channel_id": "UCdd", "channel_name": "DataDash", "text": text,
++            "start": start, "end": end, "published_at": NOW.isoformat(), "title": "t",
++            "scores": {"contempt_outrage": 0, "hook_first_2s": 3, "quotable": 3, "stakes": 3, "stance": 3,
++                       "stands_alone": 4, "surprising_fact": 2},
++            "risk": [], "topics": [], "reason": "r", "names_person": False,
++            "mined": {"by": "qwen/qwen3.8-27b@heimdall_qwen27b", "at": NOW.isoformat()}}
++
++
++class TestReanchor(unittest.TestCase):
++    def setUp(self):
++        self.src = source(SENTS)
++
++    def test_whole_sentences_anchor_exactly(self):
++        sp, info = LB.reanchor(row(SENTS[1] + " " + SENTS[2]), self.src)
++        self.assertEqual((sp.k0, sp.k1), (1, 2))
++        self.assertEqual(info["snapped_words"], [0, 0])
++        self.assertEqual(sp.text, E.spoken(self.src.tokens[sp.w0:sp.w1 + 1]))     # the word record's own words
++
++    def test_a_caption_text_snaps_to_the_records_whole_sentences_within_the_limit(self):
++        sp, info = LB.reanchor(row("can stop Bitcoin from settling a payment."), self.src)   # 1 word short: snaps
++        self.assertEqual((sp.k0, sp.k1), (1, 1))
++        self.assertEqual(info["snapped_words"], [1, 0])
++
++    def test_text_that_is_not_whole_sentences_or_not_there_is_dropped_with_why(self):
++        sp, why = LB.reanchor(row("from settling a payment. That is the whole design"), self.src)  # 4 + 5 words cut
++        self.assertIsNone(sp)
++        self.assertIn("not whole sentences", why)
++        sp, why = LB.reanchor(row("Ethereum is a world computer for everyone."), self.src)
++        self.assertIsNone(sp)
++        self.assertIn("does not anchor", why)
++
++
++class TestWordSourceAndInputs(unittest.TestCase):
++    def store_with(self, d, vid, sentences, break_sha=False):
++        src = source(sentences, vid=vid)
++        segs = [{"start": src.tokens[a]["start"], "end": src.tokens[b]["end"],
++                 "text": E.spoken(src.tokens[a:b + 1]),
++                 "words": [{"word": t["word"], "start": t["start"], "end": t["end"]} for t in src.tokens[a:b + 1]]}
++                for a, b in src.sentences]
++        rec = {"segments": segs, "transcript_method": "whisper_words_punct", "video_id": vid,     # the store's word
++               "words": [{"word": t["word"], "start": t["start"], "end": t["end"]} for t in src.tokens]}  # record shape
++        rec["transcript_sha256"] = "x" * 64 if break_sha else ts.segments_sha256(segs)
++        os.makedirs(os.path.join(d, "transcripts", vid), exist_ok=True)
++        json.dump(rec, open(os.path.join(d, "transcripts", vid, "transcript.whisper_words_punct.json"), "w"))
++        return src
++
++    def test_a_record_whose_sha_does_not_match_its_segments_is_never_read(self):
++        ctx = E.Context(NOW, REG)
++        with tempfile.TemporaryDirectory() as d:
++            self.store_with(d, "vidA", SENTS, break_sha=True)
++            self.assertEqual(LB.word_source(row(SENTS[0]), ctx, d), (None, None))
++            self.store_with(d, "vidA", SENTS)
++            src, path = LB.word_source(row(SENTS[0]), ctx, d)
++            self.assertIsNotNone(src)
++            self.assertEqual(src.timing, "word")
++
++    def test_rows_become_the_packagers_moments_with_every_drop_counted(self):
++        ctx = E.Context(NOW, REG)
++        with tempfile.TemporaryDirectory() as d:
++            self.store_with(d, "vidA", SENTS)
++            rows = [row(SENTS[0], mid="L1"), row(SENTS[0], mid="L2"),               # the same span twice
++                    row("Ethereum is a world computer for everyone.", mid="L3"),  # does not anchor
++                    row(SENTS[0], mid="L4", vid="vidZ")]                            # no word record for vidZ
++            ms, srcs, rep = LB.build_inputs(rows, ctx, d, log=lambda s: None)
++            self.assertEqual((rep["moments"], rep["duplicates"], rep["no_word_record"]), (1, 1, 1))
++            self.assertEqual(list(rep["not_anchored"]), ["L3"])
++            m = ms[0]
++            self.assertEqual(m["mined"]["ledger_moment_id"], "L1")
++            self.assertEqual(m["text"], SENTS[0])
++            self.assertEqual(m["timing"], "word")
++            self.assertIn("rank_score", m)
++            self.assertEqual(set(srcs), {"vidA"})
++
++
++class TestAdapter(unittest.TestCase):
++    def test_a_failing_or_refusing_adapter_raises_never_an_empty_ledger(self):
++        from datetime import timedelta
++        fail = mock.Mock(returncode=1, stderr="Traceback ... boom", stdout="")
++        with mock.patch("subprocess.run", return_value=fail):
++            with self.assertRaises(RuntimeError):
++                LB.rows(NOW - timedelta(hours=72), NOW)
++        refused = mock.Mock(returncode=0, stderr="", stdout=json.dumps(
++            {"rows": [], "report": {"contract": "unavailable: StoreGuard"}}))
++        with mock.patch("subprocess.run", return_value=refused):
++            with self.assertRaises(RuntimeError) as cm:
++                LB.rows(NOW - timedelta(hours=72), NOW)
++            self.assertIn("refused", str(cm.exception))
++        ok = mock.Mock(returncode=0, stderr="", stdout=json.dumps({"rows": [{"moment_id": "x"}], "report": {}}))
++        with mock.patch("subprocess.run", return_value=ok):
++            self.assertEqual(LB.rows(NOW - timedelta(hours=72), NOW)[0], [{"moment_id": "x"}])
++
++
++if __name__ == "__main__":
++    unittest.main()

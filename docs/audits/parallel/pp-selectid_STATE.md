@@ -1,6 +1,54 @@
 DELIVERING, not a new READY (ruling 1 (a), 22:40): the integrator delivers the 41f29b1f medley REVIEW ONLY, as it is; you tell PBX that clip_02 was 33 h old at delivery. The NEXT READY pin will be the first FRESH medley, built from the ingest ledger once the integrator's word-pass worker (GPU1) marks moments sentence-ready (ruling 2). Every pin from this commit on seals per-segment recency facts (ruling 1).
 
 
+## 23:22 ET: ruling 2's builder path is BUILT and proven end to end; no package from tonight's ready rows (not fresh anyway)
+
+- **pipeline/ledger_build.py** (audit docs/audits/parallel/pp-selectid_audit_2315/: 4 cycles in 2 rounds, recorded in
+  C1_CONSENSUS, C2_DISPOSITIONS, C3_CONSENSUS and C4_DISPOSITIONS; no P0 in any cycle):
+  - pp-ingest's own adapter (best_unused_moments, its exclusions applied) runs read-only in its own interpreter. A
+    failure, a refusal, a timeout or an unreadable answer raises; it is never read as an empty ledger.
+  - The word record is the store's two slots, read by name: punctuated first, then verbatim.
+    - Its segments sha is checked, and its WORDS must spell those segments exactly, with segment edges at word edges
+      to the ms. The sha covers the segments only, but the clip is cut from the words.
+    - A record that names a channel other than the ledger row's is passed over. A corrupt record is a named why,
+      never a crash.
+    - Every record passed over is named with why.
+  - Each row is re-anchored by its TEXT (sentence_law.anchor). The span snaps to whole sentences with at most 3 words
+    at an edge, never adding a negation, a near-negation ("hardly" ... "seldom") or a number.
+  - The miner's own judge() / record() give eligibility on word timing. Every drop is counted, never a crash:
+    malformed rows, rows on a video that names two channels, and duplicates (each named with the moment that kept
+    the span).
+  - **tests/package/proof_ledger.py:**
+    - It builds the medley with the RENDER clock as "now".
+    - --delivered PIN ... is required. Every delivered pin's clip spans are out: package.usable drops any overlap,
+      whatever the pin's age (L-p).
+    - "since" defaults to the newest delivered pin's approved_at. That is ruling 2's "since the last delivered video";
+      it was now - 72 h before the audit.
+- **For the integrator (store, not this branch):** transcript_sha256 = segments_sha256 covers each segment's [start,
+  end, text] only. The words a clip is cut from (rec["words"]) are outside it, in the store's own reader too.
+  - ledger_build now ties the words to the sha-checked segments: the text, and each segment's first and last word
+    times. All 66 records agree to the ms; none is refused.
+  - Word times inside a segment are still outside any hash. The full fix is putting the words in the hash.
+- **Live, 23:05 ET** (tests/package/proof/ledger_20261113_0405/; code 88397a53+bd093f16571d, before audit cycle 2's
+  fixes; since = now - 72 h):
+  - The adapter returned 1,340 rows. 1,127 wait for a word record (caption timing only). 162 re-anchored on 11
+    full-video records, and 48 are eligible on screen as a clip.
+  - 29 are usable on the render clock. Out: 10 time-sensitive clips from a source over 24 h old, 7 over 20 s per
+    source video, and 2 that overlap a delivered moment.
+  - Step A cleared 10 moments; 7 passed L-v 2 and CUTTABLE.
+  - Of 3 angles, one line-up (angle 2) passed the clips-alone check, with one flagged join after the hook. The writer
+    gave that bridge as the intro ("Next, Simply Bitcoin on fiat money and inflation.", the join confirmed by grok),
+    and fidelity and context passed. Coherence with the takeaway then rated clip_01 at 3, so it was dropped. The
+    re-picked line-up and angle 3's line-up failed the clips-alone check, as angle 1's had.
+  - NO PACKAGE: 652 s, $1.80 by the estimate, $0.20 best known. The 11 videos were published Nov 9-11 (UTC), so they
+    are not fresh anyway.
+- **What the first FRESH medley waits on:** the integrator's word-pass worker writing window records for NEW videos.
+  - Its contract (their proposal, accepted): windows under transcripts/<vid>/windows/, readiness in
+    moments/word_pass.jsonl, L-s context from the caption record.
+  - ledger_build does not read window records yet: a row whose video has only one counts as waiting for a word
+    record. That wiring needs the worker's real files; none exist yet (no windows/ dir, no word_pass.jsonl).
+
+
 ## 23:00 ET: the 22:40 rulings, builder items (code audited 2 cycles; 181 tests; regression 0 FAIL)
 
 - **Ruling 1, recency on the RENDER clock: DONE.**

@@ -1,0 +1,63 @@
+You are auditing a small diff on branch pp-selectid (Protocol Pulse, moments-first packaging under law L-y, the
+MEDLEY). ROUND 2: this is the FINAL diff after two audit cycles. Check that every fix below is right and complete, and
+look for anything new. Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+The task (orchestrator ruling 2, 22:40 ET Nov 12): "when [ingest ledger] rows turn sentence-ready, build from the
+ledger (best_unused_moments since the last delivered video) and seal a pin; that is the first FRESH medley".
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass;
+- clips are verbatim WHOLE sentences of the sentence-locked word transcript (L-o 1);
+- a moment is on screen only on a word-timed, sentence-ready record (L-e);
+- time-sensitive words only from a source <= 24 h old, judged on the RENDER clock (L-v 3, ruling 1);
+- no clip span already delivered is used again (L-p).
+
+The contract agreed with the integrator, who owns the word-pass worker:
+- word records: the store's full-video slot (transcripts/<vid>/transcript.whisper_words*.json, write-once, full-video
+  clock), or LATER window records the worker lists in moments/word_pass.jsonl (not wired yet; counted, unused).
+- the ingest adapter, best_unused_moments(path, since, now, delivered_ids, ...), returns "lines mined at or after
+  `since` or published inside the 72 h window", minus its own exclusions. Ledger rows carry the CAPTION clock.
+
+The files:
+1. pipeline/ledger_build.py:
+   - rows(): the adapter in its own interpreter, read-only.
+   - word_source(): the punctuated record first, sha-checked, sentence-ready only.
+   - reanchor(): sentence_law.anchor plus a snap of at most 3 words per edge, guarded against an added negation or
+     number.
+   - build_inputs(): the miner's own judge/record; every drop is counted.
+2. tests/package/proof_ledger.py: the driver (render clock, delivered spans out, the medley build, the pin).
+3. tests/package/test_ledger_build.py.
+
+Fixed after cycle 1 (C1_CONSENSUS):
+- the snap may not add a negation or a digit (SNAP_GUARD);
+- the delivered pins became an argument;
+- malformed rows are counted;
+- the drop reason is recorded;
+- the horizon is a float;
+- tests: punctuated-first, a segment edited after its sha.
+
+Fixed after cycle 2 (C2_DISPOSITIONS):
+- K4: word_source returns (Source, path, passed_over). Every record read and not used is named with why, in reading
+  order; a fallback from the punctuated record is listed in report.fallbacks.
+- K5: a video whose rows name more than one channel_id is dropped whole and counted (report.channel_conflict).
+- K6: --delivered is REQUIRED (no hard-coded default). The pins are read before anything is written; a pin that
+  cannot be read, has no clip or no zoned approved_at refuses the run (exit 2).
+- rows(): a timeout or an unreadable answer raises RuntimeError.
+- SNAP_GUARD reads a typographic apostrophe (U+2019 and others) as '.
+- tested: a record with no sha; SEARCH_PAD_S's reason is documented.
+- NOT a reviewer finding (check it against ruling 2's words): `since` now defaults to the newest delivered pin's
+  approved_at, overridable with --since. Before, it was now - 72 h; --hours is now the publish window only.
+
+Check, concretely:
+(a) Can a non-whole-sentence clip, a non-word-timed moment, a moment from an unverified record, or a delivered span
+    get through?
+(b) Is any drop silent?
+(c) Does the `since` default match "best_unused_moments since the last delivered video", and can it read too few or
+    too many lines?
+(d) Is each cycle-2 fix complete?
+(e) Do the tests fail on the defect each one names?
+
+Output:
+- Findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+- Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+- End with a verdict line: "SHIP: yes | yes with conditions | no".

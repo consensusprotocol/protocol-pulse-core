@@ -1,0 +1,13 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 198 s finish=stop usage in 17328 / out 627 usd~0.102 (upper-bound price)
+
+**Findings (verifiable from diff only):**
+
+P2: tests/package/proof_ledger.py:322  
+Call `LB.rows(since, now, horizon_h=a.hours)` supplies no `delivered_ids` (defaults to `()`), even though `delivered_pins()` read the full list at line 303, `rows()` forwards it to the adapter's `best_unused_moments(..., a["delivered"], ...)`, and the driver docstring cites L-p novelty. Concrete failure: supply two overlapping pins as `--delivered`, a ledger row mined after the newest `approved_at` but overlapping an earlier pin's span → adapter returns the row (no `delivered_ids` filter), `build_inputs` accepts it (only intra-run duplicate check on `(vid, k0, k1)`), `PK.build(..., delivered=delivered)` receives it. (Uncertain whether `package.usable` perfectly blocks; only this diff visible.)
+
+P2: pipeline/ledger_build.py:176  
+`channels = sorted({str(r.get("channel_id")) for r in rs}); if len(channels) > 1: report["channel_conflict"]...; continue` drops the video but only after `by_vid` grouping. Concrete failure: two rows for same `video_id`, one with `channel_id=123` (int), one with `"123"` (str) → treated as conflict even though identical after `str()`. Test at line 528-531 only exercises distinct strings.
+
+No P0/P1. All cycle-2 fixes (K4 `passed_over` + fallbacks reporting, K5 channel_conflict, K6 required `--delivered` + pre-write refusal + exit 2, apostrophe normalization in SNAP_GUARD, no-sha test, SEARCH_PAD_S doc) are present and exercised by the added tests. (a) Non-whole-sentence clips refused by `reanchor` (SNAP_WORDS guard + `Span(k0,k1)` on `src.sentences`, lines 150-153); non-sentence-ready / sha-broken records refused by `word_source` + `E.sentence_ready` (lines 124, 117) with explicit counts; delivered spans at least reach `PK.build(delivered=...)`. (b) No silent drops—every case (`no_word_record_why`, `not_anchored`, `malformed`, `duplicates`, `channel_conflict`, `fallbacks`) recorded. (c) `since` defaults to newest pin `approved_at` (lines 304, 318) and is passed to adapter; empty ledger allowed with report (test lines 580-584). (d-e) All listed cycle-2 items and named defect tests (negation snap, bad sha, driver refusal before mkdir, punctuated-first ordering, malformed exception→count) match the code and would fail their asserts if the defect were reintroduced.
+
+**SHIP: yes with conditions** (the delivered_ids omission must be confirmed harmless by the unmodified `package.build` / ingest adapter).

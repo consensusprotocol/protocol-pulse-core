@@ -1,0 +1,793 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is a scarce monetary alternative to fiat and a new internet foundation, not a fix for real-world shocks.",
+   "lineup": [
+    "35b7b52533b4220b2672",
+    "5307d23dced4f444919a",
+    "082a1f3f1050222bed1d",
+    "8055c5252b61b9639cbe"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin cannot solve real problems like energy and oil shocks but counters fiat inflation due to its perfect scarcity and will enable a new internet providing abundance for 8 billion people.",
+    "clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt shift from oil/energy crises Bitcoin can't fix to fiat inflation and buying Bitcoin"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "explains why Bitcoin is sustainable after mentioning buying it"
+     },
+     "clip_02 -> clip_03": {
+      "followable": true,
+      "why": "builds on Bitcoin vs dollar to its role enabling future abundance"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone have no through-line a viewer can state (or it was not measured)"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin is a benchmark to outperform and a new internet foundation, not a fix for real-world shocks.",
+   "lineup": [
+    "35b7b52533b4220b2672",
+    "5307d23dced4f444919a",
+    "f03d79cf73eb188924ee"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 64.18,
+     "bridge": {
+      "after": "hook",
+      "after_clip": 0,
+      "join": "hook -> clip_01",
+      "text": "Next, Simply Bitcoin on fiat money and inflation.",
+      "why": "The hook is about oil and energy shocks, so the shift to fiat money and inflation needs a cue.",
+      "confirmed_by": {
+       "join": "hook -> clip_01",
+       "why": "abrupt jump from oil/energy shocks to fiat inflation hedge",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      17,
+      20
+     ],
+     "lines": [
+      {
+       "slot": "intro",
+       "text": "Next, Simply Bitcoin on fiat money and inflation.",
+       "cites": [
+        "5307d23dced4f444919a"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "Bitcoin is a yardstick and a base layer, not a rescue for every crisis. It sets a standard.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Bitcoin as benchmark and foundation, not shock fix",
+       "cites": []
+      },
+      {
+       "slot": "caption",
+       "text": "bitcoin is a benchmark to beat and a new internet foundation. it is not a fix for real world shocks.",
+       "cites": []
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "intro": [
+       "production"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "35b7b52533b4220b2672": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Highlights Bitcoin's limits on real-world supply shocks like oil embargoes",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "5307d23dced4f444919a": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Describes buying BTC as hedge against fiat inflation",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "f03d79cf73eb188924ee": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Speaker discusses Bitcoin treasury stocks aiming to outperform BTC as amplified exposure.",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "35b7b52533b4220b2672": {
+       "video_id": "vgsSZ4mAHfQ",
+       "start": 7528.51,
+       "end": 7538.87,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Bitcoin is not going to help you with the Strait of Hormuz. It's not going to help you with energy and oil shocks or oil embargoes. It is not going to solve what is essentially a real problem.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "not",
+         "not",
+         "not"
+        ],
+        "names": [
+         "Hormuz"
+        ]
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "vgsSZ4mAHfQ_7527010_7540370.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Bitcoin",
+         "before": "policy.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "problem.",
+         "after": "China,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "5307d23dced4f444919a": {
+       "video_id": "Noq6txZU91c",
+       "start": 11.0,
+       "end": 20.2,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Our purchasing power was getting destroyed by Fiat at a minimum 5% annually. So what did we do? We bought Bitcoin.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [
+         "5"
+        ],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Noq6txZU91c_9500_21700.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Our",
+         "before": "November.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "Bitcoin.",
+         "after": "Now",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "f03d79cf73eb188924ee": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 2221.32,
+       "end": 2239.24,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "I mean, with the concept of amplified Bitcoin, so like the common stock and whether that's, you know, ASST at Strive or MSTR or, or other ones as well, you know, our objective is to outperform the hurdle rate of Bitcoin. We want to outperform Bitcoin.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": [
+         "MSTR"
+        ]
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_2219820_2240740.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "I",
+         "before": "question.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "Bitcoin.",
+         "after": "And",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Bitcoin is a benchmark to beat and a new internet foundation, not a fix for real world shocks.",
+      "clips": {
+       "hook": 5,
+       "clip_01": 3,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin won't solve real problems like oil shocks but protects from fiat inflation and can be amplified via stocks to outperform it.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt jump from oil/energy shocks to fiat inflation hedge"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "both discuss Bitcoin investments, flows to outperforming it"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "why": "coherence with the takeaway below 4 or no through-line: dropped ['5307d23dced4f444919a'], re-lined"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin is a benchmark to outperform and a new internet foundation, not a fix for real-world shocks.",
+   "lineup": [
+    "35b7b52533b4220b2672",
+    "f03d79cf73eb188924ee",
+    "8055c5252b61b9639cbe"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "none",
+    "clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt jump from energy crises Bitcoin can't solve to outperforming Bitcoin via stocks"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "unconnected shift from financial outperformance to new Bitcoin-bound internet for abundance"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['8055c5252b61b9639cbe', 'f03d79cf73eb188924ee'], re-lined"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is a monetary and internet revolution, but its price is driven by sentiment and it won't solve real-world shocks.",
+   "lineup": [
+    "35b7b52533b4220b2672",
+    "5307d23dced4f444919a",
+    "0c751a33022013fb3086"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "none",
+    "clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt shift from Bitcoin not solving oil/energy crises to buying it over fiat inflation"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "jumps from buying Bitcoin to unrelated bull/bear market psychology and sentiment"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['0c751a33022013fb3086', '5307d23dced4f444919a'], re-lined"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is a monetary and internet revolution, but its price is driven by sentiment and it won't solve real-world shocks.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "5fcaee37108031034f78": "24.08 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "d066389057a79ca76bad": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "270182d0395fb15e69df": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "e040fee1a1c940c921df": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "3c966bca3e7446de70ff": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "57400f1049d570f6c6d4": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "5797fe7a621b600b37cf": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "c91713227b0a37abc639": "not eligible on screen: hook: start_case, too_many_sentences, hook_lead; clip: start_case, too_many_sentences",
+  "2219e1d65d5638b3fcee": "not eligible on screen: hook: not_current, layout_ineligible, opener; clip: not_current, layout_ineligible",
+  "2cafe6d52397b19fddc8": "not eligible on screen: hook: not_current, layout_ineligible, opener, no_bitcoin; clip: not_current, layout_ineligible, no_bitcoin",
+  "520c7f59cda0e1167e54": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "8740d9915cda43ae5293": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "a151c78117fc6d11516d": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "ccce1d042e93ba307cd8": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "db58b1d6896609b862a4": "not eligible on screen: hook: not_current, layout_ineligible; clip: not_current, layout_ineligible",
+  "05966529c45d215a7a7b": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "08039211dc8b8d2543e2": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "39ecdc5827bd9d07a447": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "4f9d38e1d86556b36d9c": "not eligible on screen: hook: not_current, opener; clip: not_current",
+  "53dc5ff1f9df5f2ed82a": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "5bd743441d5fbc64b376": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "7a95dab0a2ef30c7bd59": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "a2d33e6017bd3eb2b7d6": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "e84b9e7288463b5c4ed0": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "eea0e94ae15a43d5eee7": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "0bda4d123bc657f0c6d6": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "0e30db5cf6c9c811ea06": "not eligible on screen: hook: no_bitcoin, hook_lead; clip: no_bitcoin",
+  "0e54858dd6fe44cc9019": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "1e3249a7409d8255b69f": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "237eab2cf7a49eab2455": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "2b2e625a3aaa01d9e58b": "not eligible on screen: hook: start_case, opener, hook_lead; clip: start_case, opener",
+  "4bf370dd5a91adf2188c": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, too_many_sentences",
+  "6e287966e9030e026ea8": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "73ebc2cea1f69735f6ed": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: not_current, layout_ineligible; clip: not_current, layout_ineligible",
+  "881a74a9716250bc6c96": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "8ff7fbfb103dd2985053": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "98e7d51b65c2e4f995cd": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "b310ecb17d38fd7a07e6": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "bb5df0c0b5d9b834d9b4": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "bbaab6a460141e534bcd": "not eligible on screen: hook: not_current, layout_ineligible; clip: not_current, layout_ineligible",
+  "c24c355514a8f2dbd0e6": "not eligible on screen: hook: not_current, layout_ineligible, opener, no_bitcoin; clip: not_current, layout_ineligible, no_bitcoin",
+  "cc72a523d6fd0132400d": "not eligible on screen: hook: opener; clip: opener",
+  "d8db8f04279f4701a1a0": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "e84ededc3b815943f1dc": "not eligible on screen: hook: opener, too_many_sentences; clip: opener, too_many_sentences",
+  "04581c54c9f30ef1a822": "not eligible on screen: hook: not_current, too_many_sentences; clip: not_current, too_many_sentences",
+  "2db4015fcdee15090558": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "34b26313915f0c36c6f9": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "49f7c2f7a4f4c5f72e6c": "not eligible on screen: hook: not_current, too_many_sentences; clip: not_current, too_many_sentences",
+  "5621643044fc16c0f7fd": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "62b9c14506a83533b9f1": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, too_many_sentences",
+  "73d00d9d2665d37555a2": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "741970fb8fb87c2985ad": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "77bf682c66bad1434989": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7d21519227b2db4a772f": "not eligible on screen: hook: opener; clip: opener",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener",
+  "9bf5bc2802bb6a7bb38f": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "a61b73f45306a92d67c4": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "c0db3cbbdd5d08a64e85": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "c17bb5d72f37c2f7c447": "not eligible on screen: hook: opener, too_many_sentences; clip: opener, too_many_sentences",
+  "de896fcc81b8511a7842": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "ed756791579f7c896657": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "eed4b700d9e147bb865a": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6419a0ead7dcc535929": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "35c40ce2a20d4797b7c4": "not eligible on screen: hook: not_current, layout_ineligible, no_bitcoin; clip: not_current, layout_ineligible, no_bitcoin",
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4d053eecf2ee4335a857": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "4f4996633385a1aa71a0": "23.92 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "628e44aad293c8dc6cca": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: opener, too_many_sentences, no_bitcoin",
+  "62bfcbcde154c653ea1a": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "652266e7790cdd6fa408": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, opener, too_many_sentences",
+  "79f5958267dfe9044869": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "80c3f3ea239818c97186": "not eligible on screen: hook: not_current, opener; clip: not_current",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: not_current, opener; clip: not_current, opener",
+  "8eb10a2dfdde5d7ad23f": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "8fe32927cd1afd449e1b": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "914bebd1811493bb4d0f": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "a33a027c4648c94ba70d": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "bd383102022f5af70c41": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "caeaf5705af32f7b21a4": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "cfec081b8b129b2a9a45": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "fc0fca1ceb0e6f6778f3": "25.54 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "10b716601d89b49f1450": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "1ab6b06969b50896a4b8": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "6eafd1aa49a0fc3a7be3": "not eligible on screen: hook: not_current, layout_ineligible; clip: not_current, layout_ineligible",
+  "8753711e8d84bae432cc": "not eligible on screen: hook: not_current, layout_ineligible, opener, too_many_sentences, no_bitcoin; clip: not_current, layout_ineligible, too_many_sentences, no_bitcoin",
+  "96bdd2039a7038d6604a": "27.93 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a8d1b2e77197b5c2a7e5": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "c04bf5795b677a986036": "20.18 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ce3d417ffb0c92e8c161": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "ecbfbaae54415f9e4d8f": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, opener, too_many_sentences",
+  "f5b1cf747a7d36cafef0": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "4b1615c994a84b584818": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "5aff0e3e1971bc7f0622": "not eligible on screen: hook: not_current, too_many_sentences, no_bitcoin; clip: not_current, too_many_sentences, no_bitcoin",
+  "67cb8ecb3c8846440112": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "a3774ddd280c32c17510": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "b1c9a0959d7bbe9306e4": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "df7e715b7a35d54c4108": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "ed263ab3ce762e131c44": "not eligible on screen: hook: start_case, hook_lead; clip: start_case",
+  "f78ae20623390632760c": "not eligible on screen: hook: not_current; clip: not_current",
+  "07c5a489261bd9d2bbfb": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "0b3ecc8871d66ad16617": "not eligible on screen: hook: not_current, opener; clip: not_current",
+  "265770bf34ac524510d0": "not eligible on screen: hook: not_current, too_many_sentences, no_bitcoin; clip: not_current, too_many_sentences, no_bitcoin",
+  "3836d3e0b20e16507e28": "not eligible on screen: hook: opener, too_many_sentences; clip: too_many_sentences",
+  "6c9a096f15ddd0532101": "23.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6f5e9694d6947b3374cf": "not eligible on screen: hook: not_current, not_statement, opener, too_many_sentences; clip: not_current, not_statement, too_many_sentences",
+  "830bfe286c41e5046682": "not eligible on screen: hook: not_current, too_many_sentences; clip: not_current, too_many_sentences",
+  "8f84b9c993743ec6bce4": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "e65fbbe52d6fe9b73f0b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "ea5c2faaac37bb5031cd": "not eligible on screen: hook: not_current, too_many_sentences; clip: not_current, too_many_sentences",
+  "4030853b1ec23c8f14ff": "not eligible on screen: hook: too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "57145e84df42a4d29525": "not eligible on screen: hook: not_current; clip: not_current",
+  "9ff949cfe693f8e41cb9": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "c5e19d7b354aa884ca21": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "cf0de323a5a1e0d6ea11": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "fc855d89068802178fbd": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "205ba55a9e2e9ff14166": "not eligible on screen: hook: not_current, opener, too_many_sentences, no_bitcoin; clip: not_current, opener, too_many_sentences, no_bitcoin",
+  "758e039dffd744d8c7d2": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "b21736b072e15143f7e8": "not eligible on screen: hook: not_current, layout_ineligible, too_short, opener, no_bitcoin; clip: not_current, layout_ineligible, too_short, no_bitcoin",
+  "b4cbf2e5718d6c5e5ec0": "not eligible on screen: hook: too_many_sentences, hook_lead; clip: too_many_sentences",
+  "d34ee3e9a520e9991ec1": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "ec0f2c2dc5aca1d6c709": "not eligible on screen: hook: opener, too_many_sentences, no_bitcoin; clip: too_many_sentences, no_bitcoin",
+  "ff9c4928df73e49123ac": "not eligible on screen: hook: not_current, opener, too_many_sentences, no_bitcoin; clip: not_current, too_many_sentences, no_bitcoin",
+  "5ea5454350394c1d32fd": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "82bf5d0180fab210c1fe": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, too_many_sentences",
+  "872d84e4598219a4088c": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "d8efb96ff990ccd13184": "not eligible on screen: hook: too_many_sentences; clip: too_many_sentences",
+  "f39b687415e2b0baf870": "not eligible on screen: hook: not_current, opener, too_many_sentences; clip: not_current, too_many_sentences",
+  "4ef0ce34e12ad19ce89e": "not eligible on screen: hook: not_statement, opener, too_many_sentences, no_bitcoin; clip: not_statement, too_many_sentences, no_bitcoin"
+ },
+ "usable": 29,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 10,
+  "failed": {
+   "bcb9349c6cc040bc309f": [
+    "REFERENT_OUTSIDE"
+   ],
+   "36a495fd9f0d9b367149": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "e96018d733a4443e1467": [
+    "REFERENT_OUTSIDE"
+   ],
+   "7a5f734f844bbfd67c1f": [
+    "NOT_OWN_SINCERE"
+   ],
+   "ca33c7c7064d6870fc17": [
+    "REFERENT_OUTSIDE"
+   ],
+   "3c2018635aaee62fb2dc": [
+    "NOT_OWN_SINCERE"
+   ],
+   "5ed74534aaf43ada4547": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8f8b2d388974f1689fe9": [
+    "NOT_OWN_SINCERE"
+   ],
+   "8072c7bcdc1dfe503b69": [
+    "CONDITION_OUTSIDE"
+   ],
+   "a68fd9fae23dc07f4eea": [
+    "SPEAKER_CHANGE",
+    "NOT_OWN_SINCERE"
+   ],
+   "2b01f21fad799cbb0e2e": [
+    "REFERENT_OUTSIDE"
+   ],
+   "c3f44dbddf9f6d8d9cdf": [
+    "SPEAKER_CHANGE",
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "UNCERTAIN"
+   ],
+   "2d8a2050417e286fc2eb": [
+    "REFERENT_OUTSIDE"
+   ],
+   "837731ebe9e38aa0c791": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "c8827879545a98fdec4e": "PASS",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "8055c5252b61b9639cbe": "PASS",
+   "5307d23dced4f444919a": "PASS",
+   "35b7b52533b4220b2672": "PASS",
+   "c637f7357eea5cec6991": "not cuttable at an edge (ruling C / 7)",
+   "082a1f3f1050222bed1d": "PASS",
+   "f03d79cf73eb188924ee": "PASS"
+  },
+  "cuttable": 7
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is a scarce monetary alternative to fiat and a new internet foundation, not a fix for real-world shocks.",
+   "moments": [
+    "5307d23dced4f444919a",
+    "082a1f3f1050222bed1d",
+    "35b7b52533b4220b2672",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "5307d23dced4f444919a"
+  },
+  {
+   "angle": "Bitcoin is a benchmark to outperform and a new internet foundation, not a fix for real-world shocks.",
+   "moments": [
+    "5307d23dced4f444919a",
+    "f03d79cf73eb188924ee",
+    "35b7b52533b4220b2672",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "5307d23dced4f444919a"
+  },
+  {
+   "angle": "Bitcoin is a monetary and internet revolution, but its price is driven by sentiment and it won't solve real-world shocks.",
+   "moments": [
+    "5307d23dced4f444919a",
+    "0c751a33022013fb3086",
+    "35b7b52533b4220b2672",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "5307d23dced4f444919a"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 2,
+   "lineup": 1,
+   "write": 1,
+   "text": "Bitcoin is a yardstick and a base layer, not a rescue for every crisis. It sets a standard.",
+   "words": 18,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 652.5,
+ "usd": 1.8037,
+ "usd_estimate": 1.8037,
+ "usd_best_known": 0.1966,
+ "full": {
+  "est": 1.8189,
+  "best": 0.2118,
+  "model_s": 712.34,
+  "calls": 27
+ },
+ "code": "88397a53+bd093f16571d",
+ "now": "2026-11-13T04:05:51.736402+00:00",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 1340,
+  "no_word_record": 1127,
+  "not_anchored": {
+   "982bcd84b1c94ae081e7": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "de330a738f81cf5e29a5": "the anchored text is not whole sentences of the word record (8 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "8f30b6aa1f3b3f0c86a3": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "26acebc8f83321a10c29": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "59ebbf5f2760f21a5312": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "93e9c31f49155203b2ed": "the anchored text is not whole sentences of the word record (56 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "b5c8ffccce7fa607ef67": "the anchored text is not whole sentences of the word record (21 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "84b29ac2388f340a6a3b": "the anchored text is not whole sentences of the word record (8 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "5ba47c84b9792986aad6": "the anchored text is not whole sentences of the word record (0 word(s) before it and 10 after it inside its edge sentences; at most 3)",
+   "68f9e713dd3ff31ca069": "the anchored text is not whole sentences of the word record (0 word(s) before it and 21 after it inside its edge sentences; at most 3)",
+   "195ee4e964ddde6e6e81": "the anchored text is not whole sentences of the word record (4 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "e5ad62fbfbf1fd8476b3": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "7e19fcd73a62645912e3": "the anchored text is not whole sentences of the word record (4 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "2946dbdbeee74fdf13cf": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "c128564d425b7e03b599": "the anchored text is not whole sentences of the word record (16 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "9b8584cb28029e90e61e": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "e4c786a14add84d021e0": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "ef8445ded2468e31a9eb": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "e9cb5b40403ffb3de2b5": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "862c455485d84d39233a": "the anchored text is not whole sentences of the word record (0 word(s) before it and 8 after it inside its edge sentences; at most 3)",
+   "39c23f680c7f925d2e86": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "1cc5d54172d9513a904c": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "b553e1f1f893a1dd8666": "the anchored text is not whole sentences of the word record (7 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "00ba67a49cff70655450": "the anchored text is not whole sentences of the word record (0 word(s) before it and 19 after it inside its edge sentences; at most 3)",
+   "0a822beac963e81caa42": "the anchored text is not whole sentences of the word record (17 word(s) before it and 10 after it inside its edge sentences; at most 3)",
+   "7a28201815d135199d7e": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "c74eab34fa341c3489a8": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "30c6ff102b3f78acfc44": "the anchored text is not whole sentences of the word record (70 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "447e5d7d9e0b0b3066eb": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "a44c0a4448b021ab0b91": "the anchored text is not whole sentences of the word record (10 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "4935f46c89d3cbbbc169": "the anchored text is not whole sentences of the word record (11 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "e5ffe431bbca62e778de": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "3ef1845420e4b15c5160": "the anchored text is not whole sentences of the word record (0 word(s) before it and 20 after it inside its edge sentences; at most 3)",
+   "c3a99318bb3598f85a71": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "5031b6c28b88f8b147bc": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "be98e1f0b8b6d5127f78": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "f14e88ec503b49bfd75c": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "f206473152562eca027d": "the anchored text is not whole sentences of the word record (18 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "faf56597256062dfffb3": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "37199a6b974da7adbee2": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "802b7fe4e5be7f2f81a1": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "b9bdcdcde2109dd430f7": "the anchored text is not whole sentences of the word record (0 word(s) before it and 4 after it inside its edge sentences; at most 3)",
+   "e4d3b4fd6a7ff729a064": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "1392ed527de845d09660": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "1bf9182d8df0ed6aa3bb": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "973727caebdd54531563": "the anchored text is not whole sentences of the word record (0 word(s) before it and 16 after it inside its edge sentences; at most 3)",
+   "a65a89a607e2e76eda35": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "ded29632c031b1a67e18": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "2db8a0c9524adc661fe5": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "60671dcd3c480bd3ec19": "the row's text does not anchor in the word record (sentence_law.anchor)",
+   "beae75621697f47f3792": "the row's text does not anchor in the word record (sentence_law.anchor)"
+  },
+  "duplicates": 0,
+  "moments": 162,
+  "videos": 11,
+  "word_records": {
+   "Sjb6lUiL0m4": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+   "Noq6txZU91c": "transcripts/Noq6txZU91c/transcript.whisper_words_punct.json",
+   "vgsSZ4mAHfQ": "transcripts/vgsSZ4mAHfQ/transcript.whisper_words_punct.json",
+   "jbDqdLytkNM": "transcripts/jbDqdLytkNM/transcript.whisper_words.json",
+   "Irt0jKj7ISw": "transcripts/Irt0jKj7ISw/transcript.whisper_words_punct.json",
+   "KBhHlc83Bag": "transcripts/KBhHlc83Bag/transcript.whisper_words_punct.json",
+   "wdk5JZ9hPzs": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+   "c1JGheQBPH4": "transcripts/c1JGheQBPH4/transcript.whisper_words_punct.json",
+   "UJFQBaMh3yg": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+   "lusJ1m-J0Mc": "transcripts/lusJ1m-J0Mc/transcript.whisper_words.json",
+   "zzUEnuqJaeg": "transcripts/zzUEnuqJaeg/transcript.whisper_words_punct.json",
+   "lS1NSGYFYZE": "transcripts/lS1NSGYFYZE/transcript.whisper_words_punct.json"
+  }
+ }
+}

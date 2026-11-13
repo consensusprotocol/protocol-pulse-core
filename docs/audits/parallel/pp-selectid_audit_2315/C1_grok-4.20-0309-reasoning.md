@@ -1,0 +1,13 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 77 s finish=stop usage in 12007 / out 618 usd~0.075 (upper-bound price)
+
+**P0: pipeline/ledger_build.py:69**
+Adapter success with zero rows is treated quietly. Concrete inputs: ledger containing only already-delivered moments or only non-Bitcoin/opted-out rows → `best_unused_moments` returns `{"rows": [], "report": {"excluded": {"delivered": 12, "horizon": 5}}}` (no `"contract"` key, returncode=0) → `rows()` returns `([], report)` instead of raising → `build_inputs` produces 0 moments → `package.build` can emit a pin with `why_none` that downstream treats as a valid (empty) medley. Violates explicit docstring contract ("no rows is never read as a quiet ledger"), M12 FAIL CLOSED, and L-j release authorisation (missing data must reject).
+
+**P1: pipeline/ledger_build.py:139 (reanchor call inside build_inputs)**
+Snap logic silently enlarges the selected span. Concrete inputs: ledger row with `text="Bitcoin is sound money"` that `sentence_law.anchor` matches to tokens[7:11] inside a 10-word sentence (left overhang=3 words: "Despite critics claiming otherwise,") with `SNAP_WORDS=3` → `sp = E.Span(..., k0=0, k1=0)` → `M.record` and `M.judge` run on the full sentence, `rec["text"]` becomes the word-record full sentence, `mined["ledger_text"]` retains the original shorter string → moment passed downstream with words that were never in the mined ledger row. Violates SELECTION LOCK (words must be fixed at selection time) and "the moment's text becomes the word record's own words" claim when the snap materially changes semantic content. (Test at test_ledger_build.py:319 only exercises a 1-word snap; 3-word case untested.)
+
+**P2: tests/package/test_ledger_build.py:378**
+Test suite does not exercise the empty-rows path that the production code accepts. Concrete inputs: mocked adapter returning `{"rows": [], "report": {"excluded": {...}}}` (no `"contract"`) → only the `returncode!=0` and `"contract"` branches are asserted; the quiet-empty case that reaches `build_inputs` and `package.json` with `usable=0` is untested. Therefore the P0 behaviour above is not regression-protected. (Also, `proof_ledger.py:234` passes `delivered_spans()` but never asserts that an overlapping ledger row is dropped per the novelty comment.)
+
+**Verdict:** SHIP: yes with conditions  
+(The empty-ledger raise must be added and tested; snap acceptance must either tighten to ratio >=0.9 or document why altering the mined text is legal under SELECTION LOCK / L-o. All other laws (L-e punctuated records, sha check, fail-closed adapter, counted drops, render-clock `now`, whole-sentence enforcement) are satisfied by the diff.)

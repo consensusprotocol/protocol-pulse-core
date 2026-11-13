@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Bitcoin as benchmark and foundation, not shock fix\nCAPTION: bitcoin is a benchmark to beat and a new internet foundation. it is not a fix for real world shocks.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin is not going to help you. with the Strait of Hormuz. It's not going to help you with energy and oil shocks or oil embargoes, it is not going to solve what is essentially a real problem.\"\nVOICE-OVER: Next, Simply Bitcoin on fiat money and inflation.\nCLIP label=\"clip_01\" (on screen: Simply Bitcoin): \"Our purchasing power was getting destroyed by Fiat at a minimum 5 % annually. So what did we do? We bought Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"I mean, with the concept of amplified Bitcoin, so like the common stock and whether that's, you know, ASST at Strive or MSTR or other ones as well. You know, our objective is to outperform the hurdle rate of Bitcoin. We want to outperform Bitcoin.\"\nVOICE-OVER: Bitcoin is a yardstick and a base layer, not a rescue for every crisis. It sets a standard.\nVOICE-OVER: Clips today from Saifedean Ammous, Simply Bitcoin, and Stephan Livera. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\n  \"through_line\": \"Bitcoin is a benchmark to beat and a new internet foundation, not a fix for real world shocks.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 3,\n    \"clip_02\": 4\n  },\n  \"vo_point\": 4\n}",
+ "usage": {
+  "in": 653,
+  "out": 2144,
+  "usd_reported": 0.00604185
+ },
+ "usd": 0.056865,
+ "seconds": 13.73,
+ "recorded_at": "2026-11-13T04:16:05Z"
+}

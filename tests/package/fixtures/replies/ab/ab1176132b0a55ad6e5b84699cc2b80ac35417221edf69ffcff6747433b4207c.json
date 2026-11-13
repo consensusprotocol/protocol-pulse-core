@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a2b1e125226c3c29c749f4df06e4201a0625b79134306a5562d965015dd2c093",
+ "result": {
+  "text": "But there are no moats. And then Saylor, you know, kind of has mentioned like, \"Well, Bitcoin is the moat.\" And I completely agree with that. And like that's, that's bas-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.38,
+    "text": "But there are no moats. And then Saylor, you know, kind of has mentioned like, \"Well, Bitcoin is the moat.\" And I completely agree with that. And like that's, that's bas-"
+   }
+  ],
+  "words": [
+   {
+    "text": "But",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 0.18,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 0.3,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 0.46,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moats.",
+    "start": 0.64,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 1.42,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 1.52,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Saylor,",
+    "start": 1.7,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.44,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.5,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 2.68,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.82,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 2.92,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mentioned",
+    "start": 3.08,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 3.34,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Well,",
+    "start": 3.48,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.68,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.24,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moat.\"",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.82,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.92,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 5.0,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agree",
+    "start": 5.4,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 5.64,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 5.76,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 5.9,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 6.02,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's,",
+    "start": 6.2,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 6.96,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bas-",
+    "start": 7.24,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.4
+ },
+ "usd": 0.00148,
+ "seconds": 0.75,
+ "recorded_at": "2026-11-13T04:08:26Z"
+}

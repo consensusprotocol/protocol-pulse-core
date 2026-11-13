@@ -1,0 +1,368 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "737729a10bacff7ada194368feb07fdd34d281ff7cf6b66b362ecfe1c22a60b3",
+ "result": {
+  "text": "It's a, it's an interesting question. I mean, with the concept of amplified Bitcoin, so like the common stock and whether that's, you know, ASST at Strive or MSTR or, or other ones as well, you know, our objective is to outperform the hurdle rate of Bitcoin. We want to outperform Bitcoin. And so in a way",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.88,
+    "text": "It's a, it's an interesting question. I mean, with the concept of amplified Bitcoin, so like the common stock and whether that's, you know, ASST at Strive or MSTR or, or other ones as well, you know, our objective is to outperform the hurdle rate of Bitcoin. We want to outperform Bitcoin. And so in a way"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 0.12,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 0.46,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 0.54,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting",
+    "start": 0.62,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question.",
+    "start": 1.1,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.58,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 1.64,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 2.22,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.7,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "concept",
+    "start": 2.82,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.26,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amplified",
+    "start": 3.48,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 4.0,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 4.46,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.6,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.0,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "common",
+    "start": 5.14,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 5.64,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.34,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whether",
+    "start": 6.66,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's,",
+    "start": 6.92,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.36,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 7.42,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ASST",
+    "start": 8.22,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 9.08,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strive",
+    "start": 9.26,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.72,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSTR",
+    "start": 9.94,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or,",
+    "start": 10.76,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 10.84,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 11.06,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ones",
+    "start": 11.3,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.58,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 11.8,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.74,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.8,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 12.96,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "objective",
+    "start": 13.12,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.46,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.78,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 16.16,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.68,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hurdle",
+    "start": 16.78,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate",
+    "start": 17.02,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.12,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 17.22,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 17.9,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 18.12,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.42,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 18.72,
+    "end": 19.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 19.22,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 20.12,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 20.26,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.44,
+    "end": 20.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 20.54,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 20.68,
+    "end": 20.88,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.92
+ },
+ "usd": 0.004184,
+ "seconds": 0.93,
+ "recorded_at": "2026-11-13T04:08:34Z"
+}

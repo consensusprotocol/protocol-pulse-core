@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>Five years after Bitcoin peaked at 69,000, Bitcoin is up 6%. Welcome to November.</before>\n<moment>Our purchasing power was getting destroyed by Fiat at a minimum 5 % annually. So what did we do? We bought Bitcoin.</moment>\n<after>Now we're losing 15 % a month instead. I know how you feel. Look at this monkey. Look at the complete despair, the pain. That monkey is you. Don't lie to me. I know you relate. You're tired of winning. Please, please. It's too much winning. We can't take it anymore. You think 58K is on the horizon? You need some hopium, and you came to the right place. Because by the end of this video, you're going to understand why this six -week... Bloodbath, down to the 200 -day moving average, massive minor capitulation, and raging inflation with a 50 basis point hike on the table, are all bullish for Bitcoin. And I may have made a very interesting discovery by accident the other day involving Satoshi, maybe nothing, maybe everything. Smash the like, subscribe if you're new, and now... Let's get to Saifadeen explaining the evils of central banking and why it needs to be abolished.</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Describes buying BTC as hedge against fiat inflation\"}",
+ "usage": {
+  "in": 744,
+  "out": 794,
+  "usd_reported": 0.0027806
+ },
+ "usd": 0.02357,
+ "seconds": 5.2,
+ "recorded_at": "2026-11-13T04:13:25Z"
+}
