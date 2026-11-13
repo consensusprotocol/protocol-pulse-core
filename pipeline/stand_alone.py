@@ -37,6 +37,33 @@ def _words(text):
     return canon.canon_tokens(text, heads=True)
 
 
+def affirmed(score, fault):
+    """The clip scorer's affirmation, the ONE threshold (CLIP_MIN_SCORE, no starts_mid_thought fault): opener,
+    trimmed_opener and the pin-stage scorer (stand_alone_scorer.py, order '09:58' item 56) all read it here."""
+    return score is not None and score >= CLIP_MIN_SCORE and fault != "starts_mid_thought"
+
+
+def clip_scorer(event, llm=None):
+    """The clip scorer stage_validate asks: rate(passages) -> {pid: (score, reason, fault)} by
+    story_semantics.rate_passages on the GPU0 LocalLLM (gemma3:27b, temperature 0), with {"underlying_event": event}.
+    ONE code path for the render's validate and the pin-stage scorer (order '09:58' item 56). Without `llm` it starts
+    the model and stops it after the call (validate's way); with one, the caller owns its life. An unparseable reply
+    raises (no verdict, never invented)."""
+    def rate(passages):
+        import story_semantics as sm
+        own = llm is None
+        m = sm.LocalLLM().start() if own else llm
+        try:
+            ratings, err = sm.rate_passages(m, {"underlying_event": event}, passages)
+        finally:
+            if own:
+                m.stop()
+        if err:
+            raise RuntimeError(f"clip scorer reply unparseable: {err}")
+        return ratings
+    return rate
+
+
 def opener(kind, text, score=None, fault=None):
     """(ok, reason) for the first word of a hook or a clip."""
     ws = _words(text)
@@ -51,7 +78,7 @@ def opener(kind, text, score=None, fault=None):
     if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
         if score is None:
             return False, f"clip opens on {w!r} and no clip-scorer verdict is available (fail closed)"
-        if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
+        if affirmed(score, fault):
             return True, f"clip opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault})"
         return False, f"clip opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
     return True, f"opens on {w!r}"
@@ -123,7 +150,7 @@ def trimmed_opener(word, score, fault):
     when the clip scorer affirms the TRIMMED text stands alone at the unchanged threshold, whatever its first word."""
     if score is None:
         return False, f"{word!r} trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)"
-    if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
+    if affirmed(score, fault):
         return True, f"{word!r} trimmed; the clip scorer affirms the trimmed text stands alone ({score}, fault {fault})"
     return False, f"{word!r} trimmed; the clip scorer does not affirm the trimmed text stands alone ({score}, fault {fault})"
 

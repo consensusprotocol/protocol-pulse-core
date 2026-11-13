@@ -466,18 +466,7 @@ def stage_validate(run):
     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
     import stand_alone
-
-    def rate(passages):
-        import story_semantics as sm
-        llm = sm.LocalLLM().start()
-        try:
-            ratings, err = sm.rate_passages(llm, {"underlying_event": edl.get("angle") or edl.get("topic", "")},
-                                            passages)
-        finally:
-            llm.stop()
-        if err:
-            raise RuntimeError(f"clip scorer reply unparseable: {err}")
-        return ratings
+    rate = stand_alone.clip_scorer(edl.get("angle") or edl.get("topic", ""))   # one code path with the pin stage
     story = {}
     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
         with open(os.path.join(run.dir, "passages.json")) as f:
