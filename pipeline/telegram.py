@@ -325,9 +325,11 @@ def publish_kit(run_dir, snap=None):
             vids.setdefault(seg["channel"], [])
             if seg["video_id"] not in vids[seg["channel"]]:
                 vids[seg["channel"]].append(seg["video_id"])
-    headline = (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")
+    title = (edl.get("title") or "").strip()        # law L-t: a moments pin's ONE sealed title and caption (17:12: the
+    headline = title or (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")   # kit said 'bitcoin')
+    lead = ((edl.get("caption") or "").strip() if title else "") or f"{headline}."
     lines = [f"SUGGESTED TITLE: {headline} | Pulse Check", "", "DESCRIPTION:",
-             f"{headline}. Every clip in this Pulse Check is a creator's own words; go follow them:"]
+             f"{lead} Every clip in this Pulse Check is a creator's own words; go follow them:"]
     missing = [ch for ch in credited if not (reg.get(ch, {}).get("yt_handle") and reg.get(ch, {}).get("url")
                                              and vids.get(ch))]
     if not credited or missing:                      # Claude-gates X4: never a bare name or an empty link

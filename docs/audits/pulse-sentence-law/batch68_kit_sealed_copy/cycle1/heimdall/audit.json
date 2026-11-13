@@ -1,0 +1,69 @@
+{
+ "question": "Batch 68 = the publishing kit and law L-t. Law L-t (orchestrator 2026-11-12): a moments package's ONE title and caption travel in the EDL, sealed and gated, and all audience-facing text is in the integrity class. Measured (2026-11-13 17:12, pin 0c68b589, the first full pass): the kit delivered as Telegram 67848 suggested the title 'bitcoin | Pulse Check' and opened its description with 'bitcoin.'. telegram.publish_kit took edl['headline'] or edl['topic'] ('bitcoin'). The EDL carried title 'No single owner controls the bitcoin network' and the sealed caption, which the kit never read. The videos and their captions were not affected.\nThe change (pipeline/telegram.py, publish_kit only): title = edl['title'] when present (moments pins). The suggested title is that title + ' | Pulse Check' (the kit's existing format), and the description's lead is the sealed caption. When there is no title (story pins), headline / topic exactly as before. If a title is present and the caption is empty, the lead falls back to '<title>.'.\nTests: test_telegram_delivery.test_a_moments_kit_carries_the_sealed_title_and_caption. It FAILS on the old telegram.py ('SUGGESTED TITLE: bitcoin | Pulse Check') and passes on the fix. test_telegram_delivery + test_review_drop: 41 passed (the story-pin kit test unchanged).\nFIND: a moments kit that can still carry a title or caption other than the sealed ones; a change to a story pin's kit; any other audience-facing text in the kit that is not sealed; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 2.2,
+   "cost": 8.8753e-05,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 9.5,
+   "cost": 6.9192e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 13.2,
+   "cost": 0.0003370785,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 6.1,
+   "cost": 6.2248e-05,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 328,
+   "issue": "Story-pin kit behavior changed: headline no longer has trailing period stripped when title absent? No\u2014when title absent, headline path is unchanged, but the description lead now uses f\"{headline}.\" where the old code stripped the trailing period before re-adding it; if headline/topic already ends with '.', old code stripped it, new code also strips then re-adds, so unchanged. However when title is present, headline = title.strip() without .rstrip('.') \u2014 if the sealed title ends with '.', the suggested title shows 'X. | Pulse Check' (double spacing), a cosmetic deviation from the kit's existing format.",
+   "evidence": "headline = title or (edl.get(\"headline\") or edl.get(\"topic\") or \"\").strip().rstrip(\".\")",
+   "fix": "Apply .rstrip('.') to the title branch too, or accept it as sealed text. Note: the test's title has no trailing period, so this is untested.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0005572715,
+ "out_dir": "/home/ultron/worktrees/kit/docs/audits/pulse-sentence-law/batch68_kit_sealed_copy/cycle1/heimdall"
+}

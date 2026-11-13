@@ -1,0 +1,43 @@
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index e34efbba..a1cc9c23 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -325,9 +325,11 @@ def publish_kit(run_dir, snap=None):
+             vids.setdefault(seg["channel"], [])
+             if seg["video_id"] not in vids[seg["channel"]]:
+                 vids[seg["channel"]].append(seg["video_id"])
+-    headline = (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")
++    title = (edl.get("title") or "").strip()        # law L-t: a moments pin's ONE sealed title and caption (17:12: the
++    headline = title or (edl.get("headline") or edl.get("topic") or "").strip().rstrip(".")   # kit said 'bitcoin')
++    lead = ((edl.get("caption") or "").strip() if title else "") or f"{headline}."
+     lines = [f"SUGGESTED TITLE: {headline} | Pulse Check", "", "DESCRIPTION:",
+-             f"{headline}. Every clip in this Pulse Check is a creator's own words; go follow them:"]
++             f"{lead} Every clip in this Pulse Check is a creator's own words; go follow them:"]
+     missing = [ch for ch in credited if not (reg.get(ch, {}).get("yt_handle") and reg.get(ch, {}).get("url")
+                                              and vids.get(ch))]
+     if not credited or missing:                      # Claude-gates X4: never a bare name or an empty link
+diff --git a/pipeline/test_telegram_delivery.py b/pipeline/test_telegram_delivery.py
+index dab0d979..301738e8 100644
+--- a/pipeline/test_telegram_delivery.py
++++ b/pipeline/test_telegram_delivery.py
+@@ -97,6 +97,20 @@ class TestAuthorisedDrop(Base):
+         self.assertTrue(kit.endswith("credits: @YahooFinance @nataliebrunell\n\U0001F9E1"), kit[-80:])
+ 
+ 
++    def test_a_moments_kit_carries_the_sealed_title_and_caption(self):
++        # 17:12 (pin 0c68b589, Telegram 67848): the kit suggested 'bitcoin | Pulse Check' from the EDL's topic, not
++        # the ONE sealed title and caption the moments EDL carries (law L-t)
++        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
++        edl.update(topic="bitcoin", headline=None, title="No single owner controls the bitcoin network",
++                   caption="bitcoin is not a partisan issue. no ceo or committee keeps its rules.")
++        _, sent = self.deliver(make_run(self.tmp, edl=edl))
++        kit = sent[-1][2]["text"]
++        self.assertIn("SUGGESTED TITLE: No single owner controls the bitcoin network | Pulse Check", kit)
++        self.assertIn("DESCRIPTION:\nbitcoin is not a partisan issue. no ceo or committee keeps its rules. Every clip",
++                      kit)
++        self.assertNotIn("SUGGESTED TITLE: bitcoin", kit)
++
++
+ class TestNothingIsSentUnlessAuthorised(Base):
+     def refused(self, rd, label, needle):
+         """Nothing sent, for THIS reason (cycle 2 F8: any RuntimeError is not enough)."""
