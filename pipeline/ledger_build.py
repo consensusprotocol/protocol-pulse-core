@@ -17,15 +17,16 @@ FRESH medley. Read-only on the ledger and on the stores; no GPU; no model call h
   - word_pass_index() reads that list. window_source() checks every claim before use: the file's sha256 is the row's
     record_sha256, the segments sha, words_sha256, the words spell the segments, the YouTube clock, nothing still
     unpunctuated, and the ledger row's span inside the window.
-  - One window per video: the best-ranked row whose window record passes every check (a row whose own record fails
-    is passed over with why). The video's other rows re-anchor in it, or are counted out.
+  - One window per MOMENT (audit 0208): each row re-anchors in its own window record when that record passes every
+    check (a row whose record fails is counted with why); the same speech in two windows is one moment.
   - L-s context comes from the caption record the ledger mined the moment from (caption_source(): its segments sha
     is the row's transcript_sha256), cut by time (context_integrity.caption_parts). Without one, the context is
     unavailable and L-s fails closed.
 - RE-ANCHOR: sentence_law.anchor, the sentence law's own text locator, finds the row's TEXT in the word record. The
-  row's caption-clock times only narrow the search. The span then snaps to that record's WHOLE sentences when at most
-  SNAP_WORDS words lie outside the anchored text at either edge; otherwise the row is dropped, and why is recorded.
-  The moment's text becomes the word record's own words, verbatim, the words the render locks on.
+  row's caption-clock times only narrow the search. The span then snaps OUTWARD to that record's WHOLE sentences
+  (ruling 32), when the snapped span is at most SNAP_MAX_S long and holds no caption speaker marker. Otherwise the row
+  is dropped, and why is recorded; a row whose text does not anchor at all stays out. The moment's text becomes the
+  word record's own words, verbatim, the words the render locks on.
 - RECORD: the miner's own moments.judge() and moments.record(): eligibility on word timing (on_screen_ok). The ledger
   row's scores, risks, topics, reason and mining provenance are kept (mined.ledger_moment_id).
 -> build_inputs(...) = (moments, sources, report).
@@ -40,16 +41,19 @@ import moments as M
 import select_by_id as S
 import sentence_law as SL
 import transcript_store as ts
+import vo_fidelity as VF          # snap_risk's price mentions (pure Python; at module level: audit 0332 C2, grok + qwen)
 
-SNAP_WORDS = 3            # words of a word-record sentence the anchored text may leave out at either edge
-SNAP_GUARD = __import__("re").compile(r"^(not|no|never|none|nobody|nothing|neither|nor|cannot|can't|won't|don't|"
-                                      r"hardly|scarcely|barely|rarely|seldom|"
-                                      r"doesn't|didn't|isn't|aren't|wasn't|weren't|shouldn't|wouldn't|couldn't|"
-                                      r"\w+n't)$|\d", __import__("re").I)
-                          # a word the snap would ADD may not be a negation or carry a digit: it could flip or add a
-                          # claim the ledger's scores and risks never saw (audit 2315 C1: grok P1, glm P1-1; the
-                          # near-negations "hardly" ... "seldom": qwen C3)
-APOSTROPHES = {"\u2019": "'", "\u2018": "'", "\u02bc": "'"}   # a typographic apostrophe is read as ' by the guard
+SNAP_MAX_S = 20.0         # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
+                          # is SNAPPED OUTWARD to the word record's whole sentences, instead of dropped, when the
+                          # snapped span stays inside the clip length limit (= package.SEG_MAX_S, L-u) and shows no
+                          # speaker change. The added words are the speaker's own, so nothing is changed by omission;
+                          # the snapped span is judged as usual: step A (L-s), the exclusion verdict (every L-u risk),
+                          # L-v 2 (every number and negation both ways, exactly one speaker measured) and usable() (time
+                          # words). It replaces SNAP_WORDS = 3 and SNAP_GUARD (audit 2315 C1), whose concern was words
+                          # the ledger never judged: those gates judge them. Its price predictions: snap_risk().
+SPEAKER_MARKERS = (">>", "&gt;&gt;")   # a caption speaker change (pp-ingest contract.SPEAKER_MARKERS)
+MARKER_EDGE_S = 1.0       # caption token times may be interpolated across a cue: a marker this close to a snapped edge
+                          # is not placed inside it here, and L-v 2 measures the speaker on the audio
 SEARCH_PAD_S = 30.0       # the row's caption times narrow the anchor's search to [start - pad, end + pad]. Captions
                           # and word records share the full-video clock, and a caption cue starts or ends a few
                           # seconds off the words; the window only keeps a phrase said again elsewhere in the video
@@ -343,8 +347,34 @@ def word_source(row, ctx, store=STORE):
     return None, None, passed_over
 
 
-def reanchor(row, src):
-    """The row's TEXT located in the word record and snapped to its whole sentences -> (E.Span, info) or (None, why)."""
+def marker_inside(cap, a, b):
+    """The time of a caption speaker marker ('>>', stored '&gt;&gt;') more than MARKER_EDGE_S inside [a, b] (seconds on
+    the media clock): a MEASURED speaker change. None otherwise: no marker, or no caption record, is not a measurement
+    (L-m), and L-v 2 measures the speaker on the audio before the moment can be used."""
+    for t in (getattr(cap, "tokens", None) or []):
+        if str(t.get("word") or "").lstrip().startswith(SPEAKER_MARKERS):
+            s = t.get("start")
+            if isinstance(s, (int, float)) and a + MARKER_EDGE_S < float(s) < b - MARKER_EDGE_S:
+                return float(s)
+    return None
+
+
+def snap_risk(text, info, risk):
+    """Ruling 32: the miner flagged price predictions on the ROW's text, so a SNAPPED moment's are counted on its
+    snapped text (a future price per vo_fidelity.price_mentions), for the per-video cap (L-u). -> a new risk list."""
+    if risk is not None and not isinstance(risk, list):        # never mangled by list() (audit 0332 C1, glm P1-1);
+        raise TypeError(f"the row's risk is a {type(risk).__name__}, not a list")   # make() counts it as malformed
+    out = list(risk or [])
+    if any((info or {}).get("snapped_words") or []) and "price_prediction" not in out and \
+            any(kind == "future" for _, kind in VF.price_mentions(text or "")):
+        out.append("price_prediction")
+    return out
+
+
+def reanchor(row, src, cap=None):
+    """The row's TEXT located in the word record and SNAPPED OUTWARD to its whole sentences (ruling 32) -> (E.Span,
+    info) or (None, why). cap: the caption record the row was mined from, read for its speaker markers (default: a
+    window Source's context_source)."""
     def num(x):
         try:
             return float(x)
@@ -363,18 +393,21 @@ def reanchor(row, src):
     k1 = next((k for k, (a, b) in enumerate(src.sentences) if a <= i1 <= b), None)
     if k0 is None or k1 is None:
         return None, "the anchored words fall outside the record's sentences"
-    left, right = i0 - src.sentences[k0][0], src.sentences[k1][1] - i1
-    if left > SNAP_WORDS or right > SNAP_WORDS:
-        return None, (f"the anchored text is not whole sentences of the word record ({left} word(s) before it and "
-                      f"{right} after it inside its edge sentences; at most {SNAP_WORDS})")
-    added = ["".join(APOSTROPHES.get(c, c) for c in t["word"]).strip(".,!?;:\"'()\u201c\u201d\u2014\u2026")
-             for t in list(src.tokens[src.sentences[k0][0]:i0]) + list(src.tokens[i1 + 1:src.sentences[k1][1] + 1])]
-    # a typographic apostrophe reads as ' here (glm C2 N-3; none of the store's 66 word records holds one today)
-    risky = [w for w in added if SNAP_GUARD.search(w)]
-    if risky:
-        return None, f"snapping to whole sentences would add {risky}: a negation or a number the ledger never judged"
-    sp = E.Span(src, k0, k1)
+    (s0, _), (_, s1) = src.sentences[k0], src.sentences[k1]
+    left, right = i0 - s0, s1 - i1
     info = {"anchor_ratio": round(ratio, 3), "snapped_words": [left, right], "sentences": [k0, k1]}
+    if left or right:
+        snap = f"snapped outward to whole sentences ({left} word(s) before the anchored text, {right} after)"
+        a, b = num(src.tokens[s0].get("start")), num(src.tokens[s1].get("end"))
+        if a is None or b is None:
+            return None, f"{snap}, its length is not measured (a word time is missing)"
+        if b - a > SNAP_MAX_S:
+            return None, f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32: the clip length limit)"
+        t = marker_inside(cap if cap is not None else getattr(src, "context_source", None), a, b)
+        if t is not None:
+            return None, f"{snap} it holds a caption speaker marker at {t:.2f} s: a measured speaker change (ruling 32)"
+        info["added"] = {"before": E.spoken(src.tokens[s0:i0]), "after": E.spoken(src.tokens[i1 + 1:s1 + 1])}
+    sp = E.Span(src, k0, k1)
     a, b = num(src.tokens[i0].get("start")), num(src.tokens[i1].get("end"))
     # the hit against the row's own caption times: a phrase said twice inside the window shows here (glm C3 P1-3);
     # when it cannot be measured, it says so (glm C4 P2-8)
@@ -413,7 +446,7 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
     def make(i, r, sp, info, src):
         try:
             m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
-                 "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
+                 "risk": snap_risk(sp.text, info, r.get("risk")), "topics": list(r.get("topics") or []),
                  "reason": r.get("reason") or ""}
             mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
                          ledger_text=r.get("text"))
@@ -445,8 +478,12 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
             if passed_over:
                 report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
             report["word_records"][vid] = os.path.relpath(path, store)    # read; whether a moment came of it: moments
-            for i, r in irs:
-                sp, info = reanchor(r, src)
+            caps_v = {}                              # the caption record a row was mined from, once per sha: its
+            for i, r in irs:                         # speaker markers for a snapped span (ruling 32)
+                sha = r.get("transcript_sha256")
+                if sha not in caps_v:
+                    caps_v[sha] = caption_source(r, ctx, store, ledger_store)[0]
+                sp, info = reanchor(r, src, cap=caps_v[sha])
                 if sp is None:
                     report["not_anchored"][r["moment_id"]] = info
                     continue

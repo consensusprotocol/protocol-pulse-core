@@ -1,0 +1,15 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 20 s finish=stop usage in 17038 / out 720 usd~0.103 (upper-bound price)
+
+**P0: None verifiable from diff.**  
+**P1: ledger_build.py:114 (reanchor):** `b - a > SNAP_MAX_S` (20.0) rejects with explicit ruling-32 message; `a`/`b` taken from sentence token `start`/`end` only after `k0`/`k1` sentence lookup succeeds. Matches "at most 20 s per clip (L-u)" and "nothing measured is never a pass (L-m)".  
+**P1: ledger_build.py:115-117 (`marker_inside` call):** Only a token whose `start` satisfies `a + 1.0 < s < b - 1.0` and `startswith` one of `SPEAKER_MARKERS` triggers rejection; edge/no-marker/no-cap cases explicitly fall through to L-v2 audio measurement (comment at 62). Exact per ruling.  
+**P1: ledger_build.py:78 (`snap_risk`):** `out = list(risk or [])`; only *appends* `"price_prediction"` when `info["snapped_words"]` non-empty *and* `vo_fidelity.price_mentions` sees a future price on the *full* `sp.text`. Cannot remove any flag; satisfies L-u per-video cap and "snap_risk cannot remove a flag".  
+**P1: ledger_build.py:144-146 (`build_inputs`):** Non-anchoring rows (`sp is None`) still recorded under `report["not_anchored"]` and skipped; `reanchor` early return at 92-93 when `k0`/`k1` missing. Preserves "a row whose text does not anchor at all stays out".  
+**P1: ledger_build.py:118-119:** `sp = E.Span(src, k0, k1)` *after* snap checks; `info["added"]` records spoken before/after only on actual snap. Later tests (test_ledger_build.py:478,552) confirm `sp.text == E.spoken(src.tokens[sp.w0:sp.w1+1])` — verbatim word-record sentences.  
+**P2: ledger_build.py:31-50:** SNAP_WORDS/SNAP_GUARD/APOSTROPHES removed; replaced by SNAP_MAX_S/MARKER_EDGE_S logic exactly as described in orchestrator ruling restated at top of diff. No other behavioral change to window path, deduplication-by-time-overlap, or usable() call sites visible.  
+**P2: tests/package/test_ledger_build.py:480-529:** Old SNAP_GUARD tests rewritten to assert snaps *now succeed*, added words are recorded, 20 s limit fires, caption-marker-inside vs edge vs absent cases match L-v2 deferral, and `snap_risk` only augments. New tests stay inside the diff; no core pipeline dependence.  
+**P2: funnel*.py:** Pure offline read-only analysis tools (recorded Router replay=True, no network, no mutation). Do not alter ledger_build, selection lock, or any gate.
+
+All observable changes stay inside Ruling 32 bounds, preserve verbatim whole-sentence word-record clips, selection lock on recorded text, fail-closed behavior, downstream L-s / exclusion / L-v2 / usable() judgment of the full snapped span, and "never change what a check accepts merely to make a render pass" (the ruling itself is the change). No violation of listed governing laws detectable in the supplied diff.
+
+**SHIP: yes**

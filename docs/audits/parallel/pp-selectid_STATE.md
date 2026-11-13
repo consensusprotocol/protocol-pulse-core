@@ -13,7 +13,7 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 | 37: a question ending allowed in the HOOK role only | NOT STARTED (a no-op until the render changes). | BLOCKED: their edl_rules R1 NO_QUESTION_HOOK refuses a hook that ends on "?", the exact opposite. The integrator needs your order. |
 | 38: IN edge, a 4 s pad before; a sentence end OR a measured pause >= 700 ms; a file-head start counts | DONE (audit 0338, 2 cycles). The pause is measured on the independent recogniser's word timing, as the ruling words it; the acoustic check of the cut stays the render's (check_cut_acoustics / G16). Want an acoustic confirmation at the pin stage too? Say so. | none (mine) |
 | 39: OUT edge, the L-v 2 number canonicaliser | DONE (audit 0338). Both edges also read the occurrence nearest the clip's own time, not an earlier or later same word. That closes a fail-open the audit's test exposed. | none (mine) |
-| 32: snap outward to whole sentences, <= 20 s, one speaker | after 38 and 39 | none (mine) |
+| 32: snap outward to whole sentences, <= 20 s, one speaker | DONE (audit 0332, 2 cycles). SNAP_GUARD retired: the exclusion verdict, step A and L-v 2 judge the added words. A snapped moment's price prediction is counted. A caption speaker marker inside the span keeps it out. Measured on today's 510 rows: 12 come back (4 eligible on screen), 23 stay out over 20 s, 1 for a marker, 35 do not anchor. | none (mine) |
 | 40: the miner's "imperative" label | yours to pp-ingest | - |
 
 - **Order.** You ordered 33, 34, 35, then a rebuild. 33's trim and 34 cannot produce a renderable pin until the

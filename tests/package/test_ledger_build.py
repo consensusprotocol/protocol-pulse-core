@@ -46,31 +46,73 @@ class TestReanchor(unittest.TestCase):
         self.assertEqual(info["snapped_words"], [0, 0])
         self.assertEqual(sp.text, E.spoken(self.src.tokens[sp.w0:sp.w1 + 1]))     # the word record's own words
 
-    def test_a_caption_text_snaps_to_the_records_whole_sentences_within_the_limit(self):
-        sp, info = LB.reanchor(row("is a global free market."), self.src)              # 1 word short: snaps
+    def test_a_caption_text_snaps_outward_to_the_records_whole_sentences(self):
+        """Ruling 32 (02:45 ET Nov 13): any number of the speaker's own words is added, within 20 s, no speaker
+        change; the added words are recorded."""
+        sp, info = LB.reanchor(row("is a global free market."), self.src)              # 1 word short
         self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((0, 0), [1, 0]))
-        sp, info = LB.reanchor(row("whole design and it works every day."), self.src)  # exactly 3 words: snaps
-        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((2, 2), [3, 0]))
-        sp, why = LB.reanchor(row("design and it works every day."), self.src)         # 4 words: refused
-        self.assertIsNone(sp)
-        self.assertIn("not whole sentences", why)
+        self.assertEqual(info["added"], {"before": "Bitcoin", "after": ""})
+        sp, info = LB.reanchor(row("design and it works every day."), self.src)         # 4 words: refused before 32
+        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((2, 2), [4, 0]))
+        self.assertEqual(info["added"]["before"], "That is the whole")
+        self.assertEqual(sp.text, E.spoken(self.src.tokens[sp.w0:sp.w1 + 1]))     # the word record's own words
 
-    def test_a_snap_never_adds_a_negation_or_a_number(self):
-        """Audit 2315 C1 (grok P1, glm P1-1): 'can stop Bitcoin' snapped to 'Nobody can stop Bitcoin' flips the
-        claim the ledger scored; '... started as a quiet experiment' snapped to 'In 2009 ...' adds a number."""
-        for text, word in (("can stop Bitcoin from settling a payment.", "Nobody"),
-                           ("Bitcoin started as a quiet experiment.", "2009")):
-            sp, why = LB.reanchor(row(text), self.src)
-            self.assertIsNone(sp, text)
-            self.assertIn(word, why)
-
-    def test_a_snap_never_adds_a_near_negation(self):
-        """qwen C3: 'Hardly anyone can stop Bitcoin' flips 'anyone can stop Bitcoin'."""
-        for word in ("Hardly", "Scarcely", "Barely", "Rarely", "Seldom"):
+    def test_a_snap_adds_the_speakers_own_negation_or_number_and_records_it(self):
+        """Ruling 32 retires SNAP_GUARD (audit 2315 C1): 'can stop Bitcoin' snapped to 'Nobody can stop Bitcoin'
+        restores what the speaker said. Step A, the exclusion verdict and L-v 2 judge the snapped span; the added
+        words are on the record."""
+        for text, before in (("can stop Bitcoin from settling a payment.", "Nobody"),
+                             ("Bitcoin started as a quiet experiment.", "In 2009")):
+            sp, info = LB.reanchor(row(text), self.src)
+            self.assertIsNotNone(sp, text)
+            self.assertEqual(info["added"]["before"], before)
+        for word in ("Hardly", "Don\u2019t"):
             src = source([f"{word} anyone can stop Bitcoin from settling a payment.", "That is the plan."])
-            sp, why = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
-            self.assertIsNone(sp, word)
-            self.assertIn(word, why)
+            sp, info = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
+            self.assertEqual(info["added"]["before"], word)
+
+    def test_the_snap_limit_is_the_packagers_clip_limit(self):                 # audit 0332 C1, qwen P2-1
+        import package as PK
+        self.assertEqual(LB.SNAP_MAX_S, PK.SEG_MAX_S)
+
+    def test_a_snap_longer_than_20_s_stays_out(self):
+        long_ = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."             # 75 words, 0.3 s each
+        src = source([long_, "That is the plan."])
+        a, b = src.sentences[0]
+        self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], LB.SNAP_MAX_S)
+        sp, why = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
+        self.assertIsNone(sp)
+        self.assertIn("> 20 s (ruling 32", why)
+        sp, info = LB.reanchor(row(long_), src)                       # whole sentences: no snap, usable() measures it
+        self.assertEqual(info["snapped_words"], [0, 0])
+
+    def test_a_caption_speaker_marker_inside_the_snapped_span_keeps_the_row_out(self):
+        a = self.src.tokens[self.src.sentences[1][0]]["start"]
+        b = self.src.tokens[self.src.sentences[1][1]]["end"]
+        cap = lambda *ts: type("Cap", (), {"tokens": [{"word": "&gt;&gt;", "start": x} for x in ts]})()
+        text = "can stop Bitcoin from settling a payment."
+        sp, why = LB.reanchor(row(text), self.src, cap=cap((a + b) / 2))
+        self.assertIsNone(sp)
+        self.assertIn("caption speaker marker", why)
+        self.assertIsNone(LB.reanchor(row(text), self.src, cap=type("C", (), {"tokens": [
+            {"word": ">>", "start": (a + b) / 2}]})())[0])                                # the raw form too
+        for c in (cap(a + 0.5), cap(b - 0.5), None, cap()):        # at an edge, no record, no marker: L-v 2 decides
+            self.assertIsNotNone(LB.reanchor(row(text), self.src, cap=c)[0])
+        self.assertIsNotNone(LB.reanchor(row(SENTS[1]), self.src, cap=cap((a + b) / 2))[0])   # no snap: no read
+        for x in (a + LB.MARKER_EDGE_S, b - LB.MARKER_EDGE_S):        # exactly 1.0 s from an edge: not inside (the
+            self.assertIsNone(LB.marker_inside(cap(x), a, b))           # strict convention, audit 0332 C2 glm N1)
+        self.assertEqual(LB.marker_inside(cap(a + LB.MARKER_EDGE_S + 0.01), a, b), a + LB.MARKER_EDGE_S + 0.01)
+
+    def test_a_snapped_moment_counts_its_own_price_prediction(self):
+        info = {"snapped_words": [4, 0]}
+        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030. It is coming.", info, []),
+                         ["price_prediction"])
+        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030.", {"snapped_words": [0, 0]}, []), [])
+        self.assertEqual(LB.snap_risk("Bitcoin is at 70,000 today.", info, ["time_sensitive"]), ["time_sensitive"])
+        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030.", info, ["price_prediction"]),
+                         ["price_prediction"])
+        with self.assertRaises(TypeError):                                     # a malformed row, never mangled
+            LB.snap_risk("Bitcoin will hit 250,000 by 2030.", info, "price_prediction")
 
     def test_the_hit_is_measured_against_the_rows_own_caption_times(self):
         """glm C3 P1-3: a phrase said twice inside the search window would anchor on the earliest longest match; the
@@ -82,18 +124,10 @@ class TestReanchor(unittest.TestCase):
         self.assertEqual(LB.reanchor(row(SENTS[1]), self.src)[1]["offset_s"],      # glm C4 P2-8: said, not absent
                          "unmeasured: the row has no readable caption times")
 
-    def test_a_typographic_apostrophe_does_not_hide_a_negation(self):
-        """glm C2 N-3: 'Don\u2019t' (U+2019) is the negation 'Don't' to the guard."""
-        for apostrophe in ("\u2019", "'"):
-            src = source([f"Don{apostrophe}t sell your Bitcoin to anyone today.", "That is the plan."])
-            sp, why = LB.reanchor(row("sell your Bitcoin to anyone today."), src)
-            self.assertIsNone(sp, apostrophe)
-            self.assertIn("negation", why)
-
-    def test_text_that_is_not_whole_sentences_or_not_there_is_dropped_with_why(self):
-        sp, why = LB.reanchor(row("from settling a payment. That is the whole design"), self.src)  # 4 + 5 words cut
-        self.assertIsNone(sp)
-        self.assertIn("not whole sentences", why)
+    def test_text_cut_at_both_edges_snaps_and_text_that_is_not_there_is_dropped_with_why(self):
+        sp, info = LB.reanchor(row("from settling a payment. That is the whole design"), self.src)  # 4 + 5 words cut
+        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((1, 2), [4, 5]))
+        self.assertEqual(info["added"], {"before": "Nobody can stop Bitcoin", "after": "and it works every day."})
         sp, why = LB.reanchor(row("Ethereum is a world computer for everyone."), self.src)
         self.assertIsNone(sp)
         self.assertIn("does not anchor", why)
@@ -114,6 +148,19 @@ class TestWordSourceAndInputs(unittest.TestCase):
         with open(os.path.join(d, "transcripts", vid, f"transcript.{method}.json"), "w") as f:
             json.dump(rec, f)
         return src
+
+    def test_a_snapped_moment_carries_its_price_prediction_into_the_moment(self):     # audit 0332 C2, glm N2
+        ctx = E.Context(NOW, REG)
+        sents = ["Bitcoin is a global free market.", "Bitcoin will hit 250,000 by 2030 and it will happen fast.",
+                 "That is the whole design and it works every day."]
+        with tempfile.TemporaryDirectory() as d:
+            self.store_with(d, "vidA", sents)
+            ms, _, rep = LB.build_inputs([row("and it will happen fast.")], ctx, d, log=lambda s: None)
+            self.assertEqual(len(ms), 1, rep["not_anchored"])
+            self.assertEqual(ms[0]["mined"]["reanchored"]["snapped_words"], [6, 0])
+            self.assertIn("price_prediction", ms[0]["risk"])                 # counted by the per-video cap (L-u)
+            ms, _, _ = LB.build_inputs([row(sents[1])], ctx, d, log=lambda s: None)
+            self.assertEqual(ms[0]["risk"], [])                               # not snapped: the miner's own flags
 
     def test_a_record_whose_sha_does_not_match_its_segments_is_never_read(self):
         ctx = E.Context(NOW, REG)

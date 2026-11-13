@@ -1,0 +1,568 @@
+diff --git a/pipeline/ledger_build.py b/pipeline/ledger_build.py
+index 1b97ff09..374cb227 100644
+--- a/pipeline/ledger_build.py
++++ b/pipeline/ledger_build.py
+@@ -17,15 +17,16 @@ FRESH medley. Read-only on the ledger and on the stores; no GPU; no model call h
+   - word_pass_index() reads that list. window_source() checks every claim before use: the file's sha256 is the row's
+     record_sha256, the segments sha, words_sha256, the words spell the segments, the YouTube clock, nothing still
+     unpunctuated, and the ledger row's span inside the window.
+-  - One window per video: the best-ranked row whose window record passes every check (a row whose own record fails
+-    is passed over with why). The video's other rows re-anchor in it, or are counted out.
++  - One window per MOMENT (audit 0208): each row re-anchors in its own window record when that record passes every
++    check (a row whose record fails is counted with why); the same speech in two windows is one moment.
+   - L-s context comes from the caption record the ledger mined the moment from (caption_source(): its segments sha
+     is the row's transcript_sha256), cut by time (context_integrity.caption_parts). Without one, the context is
+     unavailable and L-s fails closed.
+ - RE-ANCHOR: sentence_law.anchor, the sentence law's own text locator, finds the row's TEXT in the word record. The
+-  row's caption-clock times only narrow the search. The span then snaps to that record's WHOLE sentences when at most
+-  SNAP_WORDS words lie outside the anchored text at either edge; otherwise the row is dropped, and why is recorded.
+-  The moment's text becomes the word record's own words, verbatim, the words the render locks on.
++  row's caption-clock times only narrow the search. The span then snaps OUTWARD to that record's WHOLE sentences
++  (ruling 32), when the snapped span is at most SNAP_MAX_S long and holds no caption speaker marker. Otherwise the row
++  is dropped, and why is recorded; a row whose text does not anchor at all stays out. The moment's text becomes the
++  word record's own words, verbatim, the words the render locks on.
+ - RECORD: the miner's own moments.judge() and moments.record(): eligibility on word timing (on_screen_ok). The ledger
+   row's scores, risks, topics, reason and mining provenance are kept (mined.ledger_moment_id).
+ -> build_inputs(...) = (moments, sources, report).
+@@ -41,15 +42,17 @@ import select_by_id as S
+ import sentence_law as SL
+ import transcript_store as ts
+ 
+-SNAP_WORDS = 3            # words of a word-record sentence the anchored text may leave out at either edge
+-SNAP_GUARD = __import__("re").compile(r"^(not|no|never|none|nobody|nothing|neither|nor|cannot|can't|won't|don't|"
+-                                      r"hardly|scarcely|barely|rarely|seldom|"
+-                                      r"doesn't|didn't|isn't|aren't|wasn't|weren't|shouldn't|wouldn't|couldn't|"
+-                                      r"\w+n't)$|\d", __import__("re").I)
+-                          # a word the snap would ADD may not be a negation or carry a digit: it could flip or add a
+-                          # claim the ledger's scores and risks never saw (audit 2315 C1: grok P1, glm P1-1; the
+-                          # near-negations "hardly" ... "seldom": qwen C3)
+-APOSTROPHES = {"\u2019": "'", "\u2018": "'", "\u02bc": "'"}   # a typographic apostrophe is read as ' by the guard
++SNAP_MAX_S = 20.0         # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
++                          # is SNAPPED OUTWARD to the word record's whole sentences, instead of dropped, when the
++                          # snapped span stays inside the clip length limit (= package.SEG_MAX_S, L-u) and shows no
++                          # speaker change. The added words are the speaker's own, so nothing is changed by omission;
++                          # the snapped span is judged as usual: step A (L-s), the exclusion verdict (every L-u risk),
++                          # L-v 2 (every number and negation both ways, exactly one speaker measured) and usable() (time
++                          # words). It replaces SNAP_WORDS = 3 and SNAP_GUARD (audit 2315 C1), whose concern was words
++                          # the ledger never judged: those gates judge them. Its price predictions: snap_risk().
++SPEAKER_MARKERS = (">>", "&gt;&gt;")   # a caption speaker change (pp-ingest contract.SPEAKER_MARKERS)
++MARKER_EDGE_S = 1.0       # caption token times may be interpolated across a cue: a marker this close to a snapped edge
++                          # is not placed inside it here, and L-v 2 measures the speaker on the audio
+ SEARCH_PAD_S = 30.0       # the row's caption times narrow the anchor's search to [start - pad, end + pad]. Captions
+                           # and word records share the full-video clock, and a caption cue starts or ends a few
+                           # seconds off the words; the window only keeps a phrase said again elsewhere in the video
+@@ -343,8 +346,35 @@ def word_source(row, ctx, store=STORE):
+     return None, None, passed_over
+ 
+ 
+-def reanchor(row, src):
+-    """The row's TEXT located in the word record and snapped to its whole sentences -> (E.Span, info) or (None, why)."""
++def marker_inside(cap, a, b):
++    """The time of a caption speaker marker ('>>', stored '&gt;&gt;') more than MARKER_EDGE_S inside [a, b] (seconds on
++    the media clock): a MEASURED speaker change. None otherwise: no marker, or no caption record, is not a measurement
++    (L-m), and L-v 2 measures the speaker on the audio before the moment can be used."""
++    for t in (getattr(cap, "tokens", None) or []):
++        if str(t.get("word") or "").lstrip().startswith(SPEAKER_MARKERS):
++            s = t.get("start")
++            if isinstance(s, (int, float)) and a + MARKER_EDGE_S < float(s) < b - MARKER_EDGE_S:
++                return float(s)
++    return None
++
++
++def snap_risk(text, info, risk):
++    """Ruling 32: the miner flagged price predictions on the ROW's text, so a SNAPPED moment's are counted on its
++    snapped text (a future price per vo_fidelity.price_mentions), for the per-video cap (L-u). -> a new risk list."""
++    import vo_fidelity as VF
++    if risk is not None and not isinstance(risk, list):        # never mangled by list() (audit 0332 C1, glm P1-1);
++        raise TypeError(f"the row's risk is a {type(risk).__name__}, not a list")   # make() counts it as malformed
++    out = list(risk or [])
++    if any((info or {}).get("snapped_words") or []) and "price_prediction" not in out and \
++            any(kind == "future" for _, kind in VF.price_mentions(text or "")):
++        out.append("price_prediction")
++    return out
++
++
++def reanchor(row, src, cap=None):
++    """The row's TEXT located in the word record and SNAPPED OUTWARD to its whole sentences (ruling 32) -> (E.Span,
++    info) or (None, why). cap: the caption record the row was mined from, read for its speaker markers (default: a
++    window Source's context_source)."""
+     def num(x):
+         try:
+             return float(x)
+@@ -363,18 +393,21 @@ def reanchor(row, src):
+     k1 = next((k for k, (a, b) in enumerate(src.sentences) if a <= i1 <= b), None)
+     if k0 is None or k1 is None:
+         return None, "the anchored words fall outside the record's sentences"
+-    left, right = i0 - src.sentences[k0][0], src.sentences[k1][1] - i1
+-    if left > SNAP_WORDS or right > SNAP_WORDS:
+-        return None, (f"the anchored text is not whole sentences of the word record ({left} word(s) before it and "
+-                      f"{right} after it inside its edge sentences; at most {SNAP_WORDS})")
+-    added = ["".join(APOSTROPHES.get(c, c) for c in t["word"]).strip(".,!?;:\"'()\u201c\u201d\u2014\u2026")
+-             for t in list(src.tokens[src.sentences[k0][0]:i0]) + list(src.tokens[i1 + 1:src.sentences[k1][1] + 1])]
+-    # a typographic apostrophe reads as ' here (glm C2 N-3; none of the store's 66 word records holds one today)
+-    risky = [w for w in added if SNAP_GUARD.search(w)]
+-    if risky:
+-        return None, f"snapping to whole sentences would add {risky}: a negation or a number the ledger never judged"
+-    sp = E.Span(src, k0, k1)
++    (s0, _), (_, s1) = src.sentences[k0], src.sentences[k1]
++    left, right = i0 - s0, s1 - i1
+     info = {"anchor_ratio": round(ratio, 3), "snapped_words": [left, right], "sentences": [k0, k1]}
++    if left or right:
++        snap = f"snapped outward to whole sentences ({left} word(s) before the anchored text, {right} after)"
++        a, b = num(src.tokens[s0].get("start")), num(src.tokens[s1].get("end"))
++        if a is None or b is None:
++            return None, f"{snap}, its length is not measured (a word time is missing)"
++        if b - a > SNAP_MAX_S:
++            return None, f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32: the clip length limit)"
++        t = marker_inside(cap if cap is not None else getattr(src, "context_source", None), a, b)
++        if t is not None:
++            return None, f"{snap} it holds a caption speaker marker at {t:.2f} s: a measured speaker change (ruling 32)"
++        info["added"] = {"before": E.spoken(src.tokens[s0:i0]), "after": E.spoken(src.tokens[i1 + 1:s1 + 1])}
++    sp = E.Span(src, k0, k1)
+     a, b = num(src.tokens[i0].get("start")), num(src.tokens[i1].get("end"))
+     # the hit against the row's own caption times: a phrase said twice inside the window shows here (glm C3 P1-3);
+     # when it cannot be measured, it says so (glm C4 P2-8)
+@@ -413,7 +446,7 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+     def make(i, r, sp, info, src):
+         try:
+             m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
+-                 "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
++                 "risk": snap_risk(sp.text, info, r.get("risk")), "topics": list(r.get("topics") or []),
+                  "reason": r.get("reason") or ""}
+             mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
+                          ledger_text=r.get("text"))
+@@ -445,8 +478,12 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+             if passed_over:
+                 report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
+             report["word_records"][vid] = os.path.relpath(path, store)    # read; whether a moment came of it: moments
+-            for i, r in irs:
+-                sp, info = reanchor(r, src)
++            caps_v = {}                              # the caption record a row was mined from, once per sha: its
++            for i, r in irs:                         # speaker markers for a snapped span (ruling 32)
++                sha = r.get("transcript_sha256")
++                if sha not in caps_v:
++                    caps_v[sha] = caption_source(r, ctx, store, ledger_store)[0]
++                sp, info = reanchor(r, src, cap=caps_v[sha])
+                 if sp is None:
+                     report["not_anchored"][r["moment_id"]] = info
+                     continue
+diff --git a/tests/package/funnel.py b/tests/package/funnel.py
+new file mode 100644
+index 00000000..45ccfe8c
+--- /dev/null
++++ b/tests/package/funnel.py
+@@ -0,0 +1,250 @@
++#!/usr/bin/env python3
++"""The FUNNEL TABLE of one ledger build record (orchestrator 02:45 item 1): per stage, the moments lost per exact
++reason, with one example moment text per reason. No vendor call: it reads the record (inputs.json, package.json,
++step_a.json, package.log), the ledger for row texts, and recomputes the CUTTABLE edges from the RECORDED scribe replies
++(Router replay=True: a reply not recorded raises, it is never fetched).
++usage: tests/package/funnel.py <build dir>"""
++import collections
++import json
++import os
++import re
++import sys
++
++D = sys.argv[1]
++REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "package"))
++import ledger_build as LB  # noqa: E402  (the build's own roots: PP_INGEST_ROOT, audit 0332 C1 qwen P2-2)
++import proof_ly as PL  # noqa: E402
++LEDGER = os.path.join(LB.INGEST_ROOT, "data", "editorial", "moments", "moment_ledger.jsonl")
++REPLIES = os.path.join(REPO, "tests", "package", "fixtures", "replies")
++LV2 = os.path.join(PL.SCRATCH, "lv2")                 # the build's default L-v 2 work dir (proof_ledger --work-dir)
++inp = json.load(open(os.path.join(D, "inputs.json")))
++pk = json.load(open(os.path.join(D, "package.json")))
++sa = json.load(open(os.path.join(D, "step_a.json"))) if os.path.exists(os.path.join(D, "step_a.json")) else {}
++rep, moments = inp["inputs"], inp["moments"]
++by = {m["moment_id"]: m for m in moments}
++texts = {}
++for line in open(LEDGER):
++    try:
++        r = json.loads(line)
++    except ValueError:
++        continue
++    if isinstance(r, dict) and r.get("moment_id"):
++        texts[r["moment_id"]] = r.get("text") or ""
++
++
++def q(t, n=140):
++    t = " ".join(str(t or "").split()).replace("|", "/")
++    return t if len(t) <= n else t[:n - 1] + "…"
++
++
++def tx(mid):
++    return by.get(mid, {}).get("text") or texts.get(mid) or ""
++
++
++def emit(title, rows, head=("lost", "exact reason", "one example (moment text)")):
++    print(f"\n**{title}**\n")
++    print("| " + " | ".join(head) + " |")
++    print("|" + "---|" * len(head))
++    for r in rows:
++        print("| " + " | ".join(str(c) for c in r) + " |")
++
++
++def grouped(items):
++    """items: [(reason, mid)] -> rows [count, reason, example] by count, the example the first moment of the reason."""
++    g = collections.OrderedDict()
++    for why, mid in items:
++        g.setdefault(why, []).append(mid)
++    return [[len(ms), why, f'"{q(tx(ms[0]))}"' if ms[0] else "n/a"] for why, ms in
++            sorted(g.items(), key=lambda kv: -len(kv[1]))]
++
++
++def flags_rows(per_moment, describe, example_note=None):
++    """per_moment: {mid: [flag, ...]} -> rows [moments carrying it, of them it ALONE keeps out, flag, example]."""
++    carry, alone = collections.Counter(), collections.Counter()
++    ex = {}
++    for mid, fl in per_moment.items():
++        for f in fl:
++            carry[f] += 1
++            ex.setdefault(f, mid)
++            if len(set(fl)) == 1:
++                alone[f] += 1
++                ex[f] = ex[f] if len(set(per_moment[ex[f]])) == 1 else mid      # prefer an example it alone rejects
++    rows = []
++    for f, n in carry.most_common():
++        note = (example_note(ex[f], f) if example_note else "")
++        rows.append([n, alone[f], f"`{f}`: {describe(f)}", f'"{q(tx(ex[f]))}"' + (f" ({note})" if note else "")])
++    return rows
++
++
++print(f"Build `{os.path.basename(D)}`: code {pk.get('code')}, render clock {pk.get('now')}.")
++ar = inp.get("adapter_report") or {}
++print(f"Adapter (pp-ingest, before the ledger rows): excluded {json.dumps(ar.get('excluded'))}.")
++
++# ---- stage 0: ledger rows -> moments
++s0 = []
++for why, n in (rep.get("no_word_record_why") or {}).items():
++    s0 += [(f"SUPPLY: no word record yet ({why})", None)] * int(n)
++s0 += [("SUPPLY: waits for its OWN window record (the word-pass worker has not reached the row)", None)] * \
++    int(rep.get("window_waiting") or 0)
++s0 += [("its window record failed a check", None)] * int(rep.get("window_failed") or 0)
++na = rep.get("not_anchored") or {}
++ws_rows = {}
++for mid, why in na.items():
++    m = re.search(r"\((\d+) word\(s\) before (?:it|the anchored text),? and (\d+) after", why)
++    if m:
++        ws_rows[mid] = (int(m.group(1)), int(m.group(2)), why)
++    s0.append(("does not re-anchor: " + re.sub(r"\d+(\.\d+)?", "N", re.sub(r"searched [\d.]+-[\d.]+ s",
++                                                                       "searched around the row's time", why)), mid))
++s0 += [("duplicate: the same speech as a kept moment (time overlap in the same video)", mid)
++       for mid in (rep.get("duplicates_of") or {})]
++s0 += [(f"malformed: {why}", mid) for mid, why in (rep.get("malformed") or {}).items()]
++s0 += [("its video's rows name two channels", None) for _ in (rep.get("channel_conflict") or {})]
++emit(f"Stage 0: {rep.get('rows')} ledger rows -> {len(moments)} moments ({len(s0)} not moments)", grouped(s0))
++if ws_rows:
++    print("\nThe rows that are not whole sentences of the word record, exactly (words of the edge sentences outside "
++          "the anchored text, before / after, and why each stays out):")
++    for mid, (l, r, why) in sorted(ws_rows.items(), key=lambda kv: kv[1][0] + kv[1][1]):
++        print(f"- {l} before / {r} after: \"{q(texts.get(mid), 90)}\" (why: {q(why, 140)})")
++
++# ---- stage 1: moments -> usable
++DESC = {"opener": "opens on a pronoun or reply word that needs what came before (stand_alone.opener)",
++        "no_bitcoin": "does not name Bitcoin: regex `\\b(bitcoins?|btcs?)\\b` (T11, the old story selector's subject "
++                      "screen; 'Bitcoiners', 'sats', 'Satoshi' do not count)",
++        "too_many_sentences": "more than 3 sentences (T9, the old selector's MAX_WINDOW_SENTENCES = 3)",
++        "layout_ineligible": "the channel has a burned-in chyron (registry has_chyron, DEC-12d)",
++        "not_statement": "ends on a question",
++        "hook_lead": "hook only: transcript gap before the first word < 80 ms",
++        "start_case": "starts lower-case", "fragment": "not a sentence start / end", "too_short": "< 5 words",
++        "no_content": "interjections only", "unpunctuated": "boundary in an unpunctuated stretch",
++        "duration": "no word timestamps", "not_sentence_ready": "no sentence-ready word record"}
++un = pk.get("unusable") or {}
++clipflags, other = {}, []
++for mid, why in un.items():
++    m = re.match(r"not eligible on screen: (.*)$", why)
++    if m:
++        roles = dict(p.split(": ", 1) for p in m.group(1).split("; ") if ": " in p)
++        clipflags[mid] = [f.strip() for f in roles.get("clip", "").split(",") if f.strip()]
++    else:
++        other.append((re.sub(r"^[\d.]+ s:", "N s:", why), mid))
++print(f"\n**Stage 1: {len(moments)} moments -> {pk.get('usable')} usable** (package.usable; {len(un)} lost)")
++print("\nA moment is out on screen only when it fails BOTH as hook and as clip, so the CLIP role's flags are the "
++      "binding reasons. 'alone' = the moments that flag alone keeps out (lifting only it would bring them back).")
++emit(f"Stage 1a: not eligible on screen ({len(clipflags)} moments)",
++     flags_rows(clipflags, lambda f: DESC.get(f, f)), head=("moments", "alone", "exact reason (clip role)",
++                                                             "one example"))
++if other:
++    emit(f"Stage 1b: the other usable() reasons ({len(other)} moments)", grouped(other))
++
++# ---- stage 2: usable -> cleared step A
++pre = pk.get("prescreen") or {}
++failed = pre.get("failed") or {}
++sa_by = {}
++for k, v in sa.items():
++    if isinstance(v, dict):
++        sa_by[k.split(":")[0]] = v
++
++
++def a_note(mid, rule):
++    a = next((v for lb, v in sa_by.items() if mid.startswith(lb)), None)
++    if not a:
++        return ""
++    if rule == "REFERENT_OUTSIDE":
++        rs = [r for r in a.get("referents") or [] if isinstance(r, dict) and r.get("inside") is not True]
++        return "; ".join(f"'{r.get('word')}' -> '{q(r.get('refers_to'), 50)}', changes the assertion: "
++                         f"{r.get('changes_assertion')}" for r in rs[:2])
++    if rule == "NOT_OWN_SINCERE":
++        return f"view: {a.get('view')}"
++    if rule == "STALE_TIME":
++        return f"time_ok: {a.get('time_ok')}"
++    if rule == "CONDITION_OUTSIDE":
++        return "; ".join(f"'{q((c or {}).get('text'), 60)}'" for c in a.get("conditions") or [])
++    if rule == "SPEAKER_CHANGE":
++        return f"speaker_changes_inside: {a.get('speaker_changes_inside')}"
++    if rule == "UNCERTAIN":
++        return f"certainty: {a.get('certainty')}"
++    if rule == "RETRACTION":
++        return f"retraction: {q(a.get('retraction'), 60)}"
++    return ""
++
++
++SDESC = {"REFERENT_OUTSIDE": "a word refers to something outside the clip AND resolving it could change the assertion "
++                             "(anything but an explicit 'no' fails, L-m)",
++         "NOT_OWN_SINCERE": "not the speaker's own sincere view (quoting, hypothetical, sarcasm, a read, ...)",
++         "STALE_TIME": "time words stale on the show date (L-v 3)", "CONDITION_OUTSIDE": "a condition outside the clip",
++         "SPEAKER_CHANGE": "a speaker change inside", "RETRACTION": "retracted or corrected later",
++         "UNCERTAIN": "the judge is not certain", "CONTEXT_UNAVAILABLE": "no source context to judge"}
++print(f"\n**Stage 2: {pk.get('usable')} usable -> {pre.get('cleared')} cleared step A** (L-s on the moment's own "
++      f"context; {pre.get('screened')} screened, {len(failed)} failed)")
++emit(f"Stage 2: step A rules ({len(failed)} moments)",
++     flags_rows(failed, lambda f: SDESC.get(f, f), a_note), head=("moments", "alone", "exact reason", "one example"))
++
++# ---- stage 3: cleared -> L-v 2 + CUTTABLE (edges recomputed from the recorded scribe replies, offline)
++sp = pre.get("second_pass") or {}
++lost3 = [mid for mid, v in sp.items() if v != "PASS"]
++detail = {}
++try:
++    import providers as P
++    import transcript_truth as TT
++    rt = P.Router(record_dir=REPLIES, replay=True)
++    for mid in lost3:
++        m = by[mid]
++        try:
++            t = TT.verify_segment(rt, m["video_id"], float(m["start"]), float(m["end"]), m["text"], LV2)
++            e = t.get("edges") or {}
++            if not t.get("ok"):
++                bits = []
++                if not t.get("transcript_ok"):
++                    bits.append(f"the two recognisers disagree on {json.dumps(t.get('disagree'))[:160]}")
++                if t["speakers"].get("turn_change_inside") is not False:
++                    bits.append(f"speakers measured inside: {t['speakers'].get('labels')}")
++                detail[mid] = ("L-v 2 FAIL", "; ".join(bits))
++            else:
++                bad = [f"{k.upper()}: {e[k].get('why')}" for k in ("in", "out") if not (e.get(k) or {}).get("ok")]
++                detail[mid] = ("not CUTTABLE: " + " + ".join(b.split(":")[0] for b in bad) + " edge", "; ".join(bad))
++        except Exception as ex:                              # noqa: BLE001
++            detail[mid] = (sp[mid], f"(edge detail not recomputed offline: {type(ex).__name__}: {str(ex)[:120]})")
++except Exception as ex:                                      # noqa: BLE001
++    print(f"(stage-3 detail not recomputed: {type(ex).__name__}: {ex})")
++rows3 = []
++g3 = collections.OrderedDict()
++for mid in lost3:
++    k = detail.get(mid, (sp[mid], ""))[0]
++    g3.setdefault(k, []).append(mid)
++for k, ms in sorted(g3.items(), key=lambda kv: -len(kv[1])):
++    rows3.append([len(ms), k, f'"{q(tx(ms[0]))}" ({q(detail.get(ms[0], ("", ""))[1], 200)})'])
++emit(f"Stage 3: {pre.get('cleared')} cleared -> {pre.get('cuttable')} pass L-v 2 + CUTTABLE ({len(lost3)} lost)", rows3)
++if len(lost3) > 1:
++    print("\nEvery stage-3 loss, exactly:")
++    for mid in lost3:
++        k, d = detail.get(mid, (sp[mid], ""))
++        print(f"- {by[mid].get('channel_name')}: {k}: {q(d, 260)}")
++
++# ---- stage 4: cuttable -> can open
++ho = pre.get("hook_onset") or {}
++lost4 = [(v, mid) for mid, v in ho.items() if v != "PASS"]
++emit(f"Stage 4: {pre.get('cuttable')} cuttable -> {sum(v == 'PASS' for v in ho.values())} can open a medley (G17a; "
++     f"the others stay in play as non-hook clips)", grouped(lost4) or [[0, "-", "-"]])
++
++# ---- stage 5: -> angle -> line-ups
++print(f"\n**Stage 5: the angle step and the line-ups.** why_none: {pk.get('why_none')!r}; angles: "
++      f"{len(pk.get('angles') or [])} from {pk.get('angle_backend')}")
++cl = [mid for mid, v in sp.items() if v == "PASS"]
++print("\nThe moments offered to the angle step:")
++for mid in cl:
++    m = by.get(mid, {})
++    print(f"- {m.get('channel_name')} ({m.get('video_id')}), {m.get('duration_s')} s, can open: "
++          f"{ho.get(mid) == 'PASS'}: \"{q(m.get('text'), 150)}\"")
++print(f"\nTogether {round(sum(float(by[m]['duration_s']) for m in cl if m in by), 2)} s from "
++      f"{len({by[m]['channel_id'] for m in cl if m in by})} channels.")
++for a in pk.get("angles") or []:
++    print(f"- angle: \"{q(a.get('angle'), 200)}\" moments {len(a.get('moments') or [])}")
++log = open(os.path.join(D, "package.log")).read().splitlines()
++k = next((i for i, l in enumerate(log) if re.search(r"angles? from|no readable angles|readable angle", l)), None)
++if k is not None:
++    print("\nThe build's own log from the angle step on:")
++    print("```")
++    for l in log[k:]:
++        print(l.rstrip()[:240])
++    print("```")
+diff --git a/tests/package/funnel_pre_edge.py b/tests/package/funnel_pre_edge.py
+new file mode 100644
+index 00000000..bf4e5806
+--- /dev/null
++++ b/tests/package/funnel_pre_edge.py
+@@ -0,0 +1,37 @@
++"""For each stage-3 'no word before it' loss in a build: what is in the audio before the clip? Offline (recorded scribe
++replies, replay=True) + the cached L-v 2 WAV, CPU only. usage: tests/package/funnel_pre_edge.py <build dir>"""
++import json, os, sys, wave
++import numpy as np
++REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import providers as P, transcript_truth as TT
++D = sys.argv[1]
++sys.path.insert(0, os.path.join(REPO, "tests", "package"))
++import proof_ly as PL  # noqa: E402
++LV2 = os.path.join(PL.SCRATCH, "lv2")                 # the build's default L-v 2 work dir (proof_ledger --work-dir)
++inp = json.load(open(os.path.join(D, "inputs.json"))); pk = json.load(open(os.path.join(D, "package.json")))
++by = {m["moment_id"]: m for m in inp["moments"]}
++rt = P.Router(record_dir=os.path.join(REPO, "tests/package/fixtures/replies"), replay=True)
++for mid, v in (pk["prescreen"].get("second_pass") or {}).items():
++    if v == "PASS":
++        continue
++    m = by[mid]; s, e = float(m["start"]), float(m["end"])
++    wav, a = TT.audio_window(m["video_id"], s, e, LV2)
++    sec, _ = TT.second_pass(rt, wav)
++    edg = TT.edges(sec, a, s, e, m["text"])
++    w = wave.open(wav); n = w.getnframes(); sr = w.getframerate()
++    x = np.frombuffer(w.readframes(n), dtype=np.int16).astype(np.float32) / 32768.0
++    off = s - a
++    fr = int(0.05 * sr)
++    def db(seg):
++        r = float(np.sqrt(np.mean(seg ** 2))) if len(seg) else 0.0
++        return -120.0 if r <= 0 else 20 * np.log10(r)
++    pre = [round(db(x[i:i + fr]), 1) for i in range(0, int(off * sr), fr)]
++    words = [(round(float(w_["start"]), 2), w_.get("text"), w_.get("speaker")) for w_ in sec.get("words") or []
++             if w_.get("start") is not None][:6]
++    print(f"\n{m['channel_name']} {m['video_id']} clip {s:.2f}-{e:.2f}, window from {a:.2f} (pad {off:.2f} s); "
++          f"IN: {edg['in'].get('why')} | OUT: {edg['out'].get('why')}")
++    print("  recogniser's first words (s into the window, text, speaker):", words)
++    print("  pre-clip RMS dBFS per 50 ms:", pre)
++    print("  clip's first 0.5 s RMS dBFS per 50 ms:", [round(db(x[i:i + fr]), 1) for i in range(int(off * sr), int((off + 0.5) * sr), fr)])
++    print("  primary (store) text starts:", repr(m["text"][:70]))
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index b99d2ddc..c18f81e6 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -46,31 +46,70 @@ class TestReanchor(unittest.TestCase):
+         self.assertEqual(info["snapped_words"], [0, 0])
+         self.assertEqual(sp.text, E.spoken(self.src.tokens[sp.w0:sp.w1 + 1]))     # the word record's own words
+ 
+-    def test_a_caption_text_snaps_to_the_records_whole_sentences_within_the_limit(self):
+-        sp, info = LB.reanchor(row("is a global free market."), self.src)              # 1 word short: snaps
++    def test_a_caption_text_snaps_outward_to_the_records_whole_sentences(self):
++        """Ruling 32 (02:45 ET Nov 13): any number of the speaker's own words is added, within 20 s, no speaker
++        change; the added words are recorded."""
++        sp, info = LB.reanchor(row("is a global free market."), self.src)              # 1 word short
+         self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((0, 0), [1, 0]))
+-        sp, info = LB.reanchor(row("whole design and it works every day."), self.src)  # exactly 3 words: snaps
+-        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((2, 2), [3, 0]))
+-        sp, why = LB.reanchor(row("design and it works every day."), self.src)         # 4 words: refused
+-        self.assertIsNone(sp)
+-        self.assertIn("not whole sentences", why)
+-
+-    def test_a_snap_never_adds_a_negation_or_a_number(self):
+-        """Audit 2315 C1 (grok P1, glm P1-1): 'can stop Bitcoin' snapped to 'Nobody can stop Bitcoin' flips the
+-        claim the ledger scored; '... started as a quiet experiment' snapped to 'In 2009 ...' adds a number."""
+-        for text, word in (("can stop Bitcoin from settling a payment.", "Nobody"),
+-                           ("Bitcoin started as a quiet experiment.", "2009")):
+-            sp, why = LB.reanchor(row(text), self.src)
+-            self.assertIsNone(sp, text)
+-            self.assertIn(word, why)
+-
+-    def test_a_snap_never_adds_a_near_negation(self):
+-        """qwen C3: 'Hardly anyone can stop Bitcoin' flips 'anyone can stop Bitcoin'."""
+-        for word in ("Hardly", "Scarcely", "Barely", "Rarely", "Seldom"):
++        self.assertEqual(info["added"], {"before": "Bitcoin", "after": ""})
++        sp, info = LB.reanchor(row("design and it works every day."), self.src)         # 4 words: refused before 32
++        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((2, 2), [4, 0]))
++        self.assertEqual(info["added"]["before"], "That is the whole")
++        self.assertEqual(sp.text, E.spoken(self.src.tokens[sp.w0:sp.w1 + 1]))     # the word record's own words
++
++    def test_a_snap_adds_the_speakers_own_negation_or_number_and_records_it(self):
++        """Ruling 32 retires SNAP_GUARD (audit 2315 C1): 'can stop Bitcoin' snapped to 'Nobody can stop Bitcoin'
++        restores what the speaker said. Step A, the exclusion verdict and L-v 2 judge the snapped span; the added
++        words are on the record."""
++        for text, before in (("can stop Bitcoin from settling a payment.", "Nobody"),
++                             ("Bitcoin started as a quiet experiment.", "In 2009")):
++            sp, info = LB.reanchor(row(text), self.src)
++            self.assertIsNotNone(sp, text)
++            self.assertEqual(info["added"]["before"], before)
++        for word in ("Hardly", "Don\u2019t"):
+             src = source([f"{word} anyone can stop Bitcoin from settling a payment.", "That is the plan."])
+-            sp, why = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
+-            self.assertIsNone(sp, word)
+-            self.assertIn(word, why)
++            sp, info = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
++            self.assertEqual(info["added"]["before"], word)
++
++    def test_the_snap_limit_is_the_packagers_clip_limit(self):                 # audit 0332 C1, qwen P2-1
++        import package as PK
++        self.assertEqual(LB.SNAP_MAX_S, PK.SEG_MAX_S)
++
++    def test_a_snap_longer_than_20_s_stays_out(self):
++        long_ = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."             # 75 words, 0.3 s each
++        src = source([long_, "That is the plan."])
++        a, b = src.sentences[0]
++        self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], LB.SNAP_MAX_S)
++        sp, why = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
++        self.assertIsNone(sp)
++        self.assertIn("> 20 s (ruling 32", why)
++        sp, info = LB.reanchor(row(long_), src)                       # whole sentences: no snap, usable() measures it
++        self.assertEqual(info["snapped_words"], [0, 0])
++
++    def test_a_caption_speaker_marker_inside_the_snapped_span_keeps_the_row_out(self):
++        a = self.src.tokens[self.src.sentences[1][0]]["start"]
++        b = self.src.tokens[self.src.sentences[1][1]]["end"]
++        cap = lambda *ts: type("Cap", (), {"tokens": [{"word": "&gt;&gt;", "start": x} for x in ts]})()
++        text = "can stop Bitcoin from settling a payment."
++        sp, why = LB.reanchor(row(text), self.src, cap=cap((a + b) / 2))
++        self.assertIsNone(sp)
++        self.assertIn("caption speaker marker", why)
++        self.assertIsNone(LB.reanchor(row(text), self.src, cap=type("C", (), {"tokens": [
++            {"word": ">>", "start": (a + b) / 2}]})())[0])                                # the raw form too
++        for c in (cap(a + 0.5), cap(b - 0.5), None, cap()):        # at an edge, no record, no marker: L-v 2 decides
++            self.assertIsNotNone(LB.reanchor(row(text), self.src, cap=c)[0])
++        self.assertIsNotNone(LB.reanchor(row(SENTS[1]), self.src, cap=cap((a + b) / 2))[0])   # no snap: no read
++
++    def test_a_snapped_moment_counts_its_own_price_prediction(self):
++        info = {"snapped_words": [4, 0]}
++        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030. It is coming.", info, []),
++                         ["price_prediction"])
++        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030.", {"snapped_words": [0, 0]}, []), [])
++        self.assertEqual(LB.snap_risk("Bitcoin is at 70,000 today.", info, ["time_sensitive"]), ["time_sensitive"])
++        self.assertEqual(LB.snap_risk("Bitcoin will hit 250,000 by 2030.", info, ["price_prediction"]),
++                         ["price_prediction"])
++        with self.assertRaises(TypeError):                                     # a malformed row, never mangled
++            LB.snap_risk("Bitcoin will hit 250,000 by 2030.", info, "price_prediction")
+ 
+     def test_the_hit_is_measured_against_the_rows_own_caption_times(self):
+         """glm C3 P1-3: a phrase said twice inside the search window would anchor on the earliest longest match; the
+@@ -82,18 +121,10 @@ class TestReanchor(unittest.TestCase):
+         self.assertEqual(LB.reanchor(row(SENTS[1]), self.src)[1]["offset_s"],      # glm C4 P2-8: said, not absent
+                          "unmeasured: the row has no readable caption times")
+ 
+-    def test_a_typographic_apostrophe_does_not_hide_a_negation(self):
+-        """glm C2 N-3: 'Don\u2019t' (U+2019) is the negation 'Don't' to the guard."""
+-        for apostrophe in ("\u2019", "'"):
+-            src = source([f"Don{apostrophe}t sell your Bitcoin to anyone today.", "That is the plan."])
+-            sp, why = LB.reanchor(row("sell your Bitcoin to anyone today."), src)
+-            self.assertIsNone(sp, apostrophe)
+-            self.assertIn("negation", why)
+-
+-    def test_text_that_is_not_whole_sentences_or_not_there_is_dropped_with_why(self):
+-        sp, why = LB.reanchor(row("from settling a payment. That is the whole design"), self.src)  # 4 + 5 words cut
+-        self.assertIsNone(sp)
+-        self.assertIn("not whole sentences", why)
++    def test_text_cut_at_both_edges_snaps_and_text_that_is_not_there_is_dropped_with_why(self):
++        sp, info = LB.reanchor(row("from settling a payment. That is the whole design"), self.src)  # 4 + 5 words cut
++        self.assertEqual(((sp.k0, sp.k1), info["snapped_words"]), ((1, 2), [4, 5]))
++        self.assertEqual(info["added"], {"before": "Nobody can stop Bitcoin", "after": "and it works every day."})
+         sp, why = LB.reanchor(row("Ethereum is a world computer for everyone."), self.src)
+         self.assertIsNone(sp)
+         self.assertIn("does not anchor", why)

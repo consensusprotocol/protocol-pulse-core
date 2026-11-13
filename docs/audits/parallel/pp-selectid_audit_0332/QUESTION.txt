@@ -1,0 +1,73 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+pipeline/ledger_build.py turns the moment LEDGER's rows into moments:
+- a row is a moment the miner found in a caption record: its text, its caption times, its risk flags, its scores;
+- the row's TEXT is located (re-anchored) in a sentence-ready, word-timed WORD record of the same video;
+- the moment becomes that record's own whole sentences, verbatim.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: ORCHESTRATOR RULING 32 (02:45 ET Nov 13, restated at 03:12: "32 stands as written; the 20 s limit decides the
+long snaps"): "a moment whose anchored text is not whole sentences is SNAPPED OUTWARD to the whole sentences of the
+word record instead of dropped, when the snapped span is still inside the clip length limits and the same single
+speaker. ... Snapping outward adds the speaker's own words, so it cannot change meaning by omission; step A / L-s
+then judge the snapped span as usual. Rows where the text does not anchor at all stay out."
+- Before: up to SNAP_WORDS = 3 words could be added at either edge, and SNAP_GUARD refused a snap that ADDED a negation
+  or a digit (audit 2315 C1: "it could flip or add a claim the ledger's scores and risks never saw").
+- The 02:37 build lost 12 rows this way (0/6, 0/9, 9/0, 0/11, 0/11, 2/12, 16/0, 0/32, 0/39, 0/47, 0/47, 0/57 words
+  before / after).
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass. This change is the orchestrator's own ruling;
+  check that it does exactly that and no more;
+- clips are verbatim whole sentences of a word-timed record;
+- at most 20 s per clip (L-u, package.SEG_MAX_S);
+- at most one price prediction per video (L-u), counted from the moment's risk flags.
+
+What judges a snapped span downstream (unchanged, outside this diff):
+- package.usable(): the 20 s limit, and time-sensitive words in the moment's text;
+- step A (L-s, context_integrity): the moment's own view, its referents and conditions, a speaker change inside;
+- the exclusion verdict (moments.exclusion_verdict, a hard gate in every pin): it screens the MOMENT TEXT for every
+  L-u hard risk (accusation, partner_attack, imperative, guaranteed_return, single_source_breaking, ad_read,
+  third_party_media) and for about-Bitcoin;
+- L-v 2 (transcript_truth.verify_segment): every number and negation both ways against an independent recogniser, and
+  exactly one speaker measured inside.
+
+The change:
+1. pipeline/ledger_build.py:
+   - SNAP_WORDS, SNAP_GUARD and APOSTROPHES are removed. SNAP_MAX_S = 20.0.
+   - reanchor(row, src, cap=None): a hit that is not whole sentences snaps outward to sentences k0..k1. It stays out
+     when:
+     (a) a word time at the snapped span's edges is missing (its length is not measured);
+     (b) the snapped span runs more than 20 s;
+     (c) marker_inside(cap, a, b) finds a caption speaker marker (">>" or "&gt;&gt;") on a caption token whose time is
+         more than MARKER_EDGE_S = 1.0 s inside the span. cap is the caption record the row was mined from (default:
+         the window Source's context_source).
+     A marker within 1.0 s of an edge, no marker, or no caption record is not a measurement at this stage; L-v 2
+     decides on the audio. The added words are recorded in info["added"].
+   - snap_risk(text, info, risk): for a SNAPPED moment, "price_prediction" is added to its risk when its text holds a
+     future price (vo_fidelity.price_mentions), because the miner flagged only the row's text.
+   - build_inputs: the full-video path now looks up the row's caption record (caption_source, once per sha) and passes
+     it to reanchor. The window path already attached it.
+   - The docstrings are updated, including a stale "one window per video" line (it is one per moment since audit
+     0208).
+2. tests/package/test_ledger_build.py:
+   - the old SNAP_GUARD tests now assert that the snap restores the speaker's own words and records them;
+   - new: the 20 s limit; a caption marker inside the span vs at an edge vs none vs no record; snap_risk.
+3. tests/package/funnel.py and tests/package/funnel_pre_edge.py: the offline funnel tools behind the 02:45 FUNNEL
+   TABLE.
+   - They read a build record.
+   - They recompute the edges from RECORDED recogniser replies (Router replay=True: a miss raises and nothing is
+     fetched).
+   - Stage 0 groups reasons with their numbers taken out.
+   - No pipeline code depends on them.
+
+Check in particular:
+- whether removing SNAP_GUARD leaves any risk that NO downstream gate judges, for words the ledger never saw;
+- the edge times a / b and the marker window;
+- that a row whose text does not anchor still stays out;
+- that a snapped moment's text, start, end and words come from the word record;
+- that the dedup and the window path are unchanged;
+- that snap_risk cannot remove a flag.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".
