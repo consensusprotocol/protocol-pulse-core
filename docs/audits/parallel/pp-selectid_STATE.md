@@ -1,68 +1,5 @@
 BLOCKED ON SPEND (since 06:31 ET; 06:56 ET now): every build fails step A with SpendLimit on the builder's own cap ($40 by the price-table estimate = $3.46 vendor-reported). YOUR RULING: a running total (section below). COMMITTED and ready for the next build: 45 + 44 (audit 0640) and item 42's cut fix (audit 0710), both audited 2 cycles. Item 42 still needs your yes/no from 05:44: may a trimmed clip be sealed with the clip scorer's verdict pending at the render? Until then no trimmed clip can be sealed.
 
-## 06:56 ET: item 42's cut fix is committed (audit 0710, 2 cycles); one trimmed clip now passes (a)
-
-- **What changed:**
-  - The pin stage now plans a trimmed clip's IN cut the way the render does: after the trimmed word, inside its
-    measured pause. It then applies the render's own onset rule to the audio as cut, with one extra 10 ms frame.
-  - The functions are copied verbatim from the integrator's sentence_law.py at c6605895: trimmed_boundary,
-    trimmed_onset, edge_plan(trimmed=...) and three helpers. Untrimmed moments are judged exactly as before.
-  - A trimmed moment is out at any place when its trimmed cut fails (ruling 33 (a)). Its hook lead decides only
-    whether it may OPEN the medley.
-- **Measured on the 05:48 build's two cleared trims:**
-  - "So MSCI didn't force any Bitcoin selling this week..." (Coin Bureau) passes (a): cut in the pause after "So",
-    83 ms fade, first onset 130 ms. It could also open the medley.
-  - "So if you look at the average income..." (What Bitcoin Did) stays out: "So" runs into "if".
-- **What still blocks a trimmed clip:** (b). The pin stage keeps the clip scorer's verdict strict, because the scorer
-  runs only on GPU0. Your yes/no from 05:44 decides.
-- The funnel table now names the trimmed variants (FUNNEL.md: "[So trimmed] ...") and lists the moments actually
-  offered to the angle step.
-
-
-## 06:50 ET: ORDER 06:22 items 45 and 44 are committed (audit 0640, 2 cycles)
-
-- **45:** after L-v 2 + CUTTABLE and before the angle step, every cuttable clip is screened by step A on the second
-  vendor too (the batches run in parallel: about 3 min on Heimdall). A clip that fails either vendor, gets no verdict,
-  or gets one from the first's vendor is out before any angle, with its reason (package.json:
-  prescreen.second_vendor). After the angle call, each clip's verdict is the one off the writer's vendor. In the
-  05:48 situation (Grok writes), the Heimdall verdicts already exist, so there is no re-screen after the write.
-- **44 (the safety net):** a re-screen after a write that fails a clip, or gives no verdict, removes only that clip,
-  for good, with its reason (prescreen.rescreen_failed). Ruling 41's swap puts the next-best cuttable clip in its
-  place, the clips-alone verdict re-judges, and the build goes on to the writer. With the two configured vendors this
-  path cannot trigger: every write stays on the angle's vendor.
-- **Fixed on the way (K2, flagged by me, confirmed by the audit):** the old re-screen kept a clip's STALE verdict
-  from the writer's vendor when the re-screen call returned nothing for it. No verdict is now never a pass.
-- **The trade-off, your order's own design:** when Heimdall's step A disagrees with xai's, or Heimdall is down at
-  that moment, a clip leaves BEFORE the angle step. The angle writer sees fewer clips, and a Heimdall step-A outage
-  ends the build early.
-- **Item 46, one option (yours to rule, nothing changed):** deepseek writes 9-13k reasoning tokens per angle call at
-  about 42 tokens/s, so it lands at 219-293 s or misses 300 s. A lower reasoning effort on the angle call would keep
-  the angles on Heimdall in time.
-
-
-## 06:36 ET: BLOCKED ON SPEND: the 06:31 build failed step A on the builder's own cap; your ruling is needed
-
-- **What happened:** the 06:31 build (ledger_20261113_113101, code 1d928276) screened 24 moments at step A. 16 got
-  "STEP_A_UNAVAILABLE: SpendLimit" and 4 failed REFERENT_OUTSIDE. 4 cleared; 2 of them passed L-v 2 + CUTTABLE, from
-  fewer than 3 channels: no package.
-- **The guard:** tests/package/proof_ly.py LY_LIMIT_USD = 40.0, by the price-table ESTIMATE (an upper bound). I set
-  it at 20:30 Nov 12 because no budget was stated (STATE said so then). Every paid call also reserves its upper bound
-  while in flight.
-- **This order's ledger (tests/package/proof/SPEND_LY.json), by back-end:**
-  | back-end | calls | estimate | vendor-reported |
-  |---|---|---|---|
-  | xai grok-4.20 | 228 | $30.11 | $3.34 |
-  | heimdall deepseek | 70 | $7.87 | $0.09 |
-  | heimdall qwen | 6 | $1.23 | $0.03 |
-  | elevenlabs scribe (STT) | 98 | $0.29 | none (estimate only) |
-  | **total** | 402 | **$39.49** | **$3.46** (+ $0.29 STT estimate) |
-- **Your budgets since then are per build and per package, in vendor-reported dollars:** ruling 41, $3.00 reported
-  per build ($10 estimate ceiling); ruling 5, $1.50 per package ($5 estimate). build() enforces both. No running total
-  was ever ordered; mine is the only one, and it binds now.
-- **Proposal (yours to rule):** raise this order's cap to $60 by the estimate (about $2 more vendor-reported, at the
-  measured ratio of about 1/11), or name a running total in vendor-reported dollars and I re-base the guard on it.
-  Until you rule, no build can pass step A, and I change nothing about the cap.
-
 
 ## 06:25 ET: order 06:22: the answers owed (42, 43, 46) and the plan for 45 / 44
 
@@ -173,6 +110,66 @@ Record: tests/package/proof/ledger_20261113_104817 (05:48, code 1d928276). The 0
 - A small defect, flagged (K2) and not yet changed: the same line-up was judged twice, because "dropped" is kept per
   angle. A cache keyed on the exact line-up saves that call (about $0.01).
 
+## 06:36 ET: BLOCKED ON SPEND: the 06:31 build failed step A on the builder's own cap; your ruling is needed
+
+- **What happened:** the 06:31 build (ledger_20261113_113101, code 1d928276) screened 24 moments at step A. 16 got
+  "STEP_A_UNAVAILABLE: SpendLimit" and 4 failed REFERENT_OUTSIDE. 4 cleared; 2 of them passed L-v 2 + CUTTABLE, from
+  fewer than 3 channels: no package.
+- **The guard:** tests/package/proof_ly.py LY_LIMIT_USD = 40.0, by the price-table ESTIMATE (an upper bound). I set
+  it at 20:30 Nov 12 because no budget was stated (STATE said so then). Every paid call also reserves its upper bound
+  while in flight.
+- **This order's ledger (tests/package/proof/SPEND_LY.json), by back-end:**
+  | back-end | calls | estimate | vendor-reported |
+  |---|---|---|---|
+  | xai grok-4.20 | 228 | $30.11 | $3.34 |
+  | heimdall deepseek | 70 | $7.87 | $0.09 |
+  | heimdall qwen | 6 | $1.23 | $0.03 |
+  | elevenlabs scribe (STT) | 98 | $0.29 | none (estimate only) |
+  | **total** | 402 | **$39.49** | **$3.46** (+ $0.29 STT estimate) |
+- **Your budgets since then are per build and per package, in vendor-reported dollars:** ruling 41, $3.00 reported
+  per build ($10 estimate ceiling); ruling 5, $1.50 per package ($5 estimate). build() enforces both. No running total
+  was ever ordered; mine is the only one, and it binds now.
+- **Proposal (yours to rule):** raise this order's cap to $60 by the estimate (about $2 more vendor-reported, at the
+  measured ratio of about 1/11), or name a running total in vendor-reported dollars and I re-base the guard on it.
+  Until you rule, no build can pass step A, and I change nothing about the cap.
+
+## 06:56 ET: item 42's cut fix is committed (audit 0710, 2 cycles); one trimmed clip now passes (a)
+
+- **What changed:**
+  - The pin stage now plans a trimmed clip's IN cut the way the render does: after the trimmed word, inside its
+    measured pause. It then applies the render's own onset rule to the audio as cut, with one extra 10 ms frame.
+  - The functions are copied verbatim from the integrator's sentence_law.py at c6605895: trimmed_boundary,
+    trimmed_onset, edge_plan(trimmed=...) and three helpers. Untrimmed moments are judged exactly as before.
+  - A trimmed moment is out at any place when its trimmed cut fails (ruling 33 (a)). Its hook lead decides only
+    whether it may OPEN the medley.
+- **Measured on the 05:48 build's two cleared trims:**
+  - "So MSCI didn't force any Bitcoin selling this week..." (Coin Bureau) passes (a): cut in the pause after "So",
+    83 ms fade, first onset 130 ms. It could also open the medley.
+  - "So if you look at the average income..." (What Bitcoin Did) stays out: "So" runs into "if".
+- **What still blocks a trimmed clip:** (b). The pin stage keeps the clip scorer's verdict strict, because the scorer
+  runs only on GPU0. Your yes/no from 05:44 decides.
+- The funnel table now names the trimmed variants (FUNNEL.md: "[So trimmed] ...") and lists the moments actually
+  offered to the angle step.
+
+## 06:50 ET: ORDER 06:22 items 45 and 44 are committed (audit 0640, 2 cycles)
+
+- **45:** after L-v 2 + CUTTABLE and before the angle step, every cuttable clip is screened by step A on the second
+  vendor too (the batches run in parallel: about 3 min on Heimdall). A clip that fails either vendor, gets no verdict,
+  or gets one from the first's vendor is out before any angle, with its reason (package.json:
+  prescreen.second_vendor). After the angle call, each clip's verdict is the one off the writer's vendor. In the
+  05:48 situation (Grok writes), the Heimdall verdicts already exist, so there is no re-screen after the write.
+- **44 (the safety net):** a re-screen after a write that fails a clip, or gives no verdict, removes only that clip,
+  for good, with its reason (prescreen.rescreen_failed). Ruling 41's swap puts the next-best cuttable clip in its
+  place, the clips-alone verdict re-judges, and the build goes on to the writer. With the two configured vendors this
+  path cannot trigger: every write stays on the angle's vendor.
+- **Fixed on the way (K2, flagged by me, confirmed by the audit):** the old re-screen kept a clip's STALE verdict
+  from the writer's vendor when the re-screen call returned nothing for it. No verdict is now never a pass.
+- **The trade-off, your order's own design:** when Heimdall's step A disagrees with xai's, or Heimdall is down at
+  that moment, a clip leaves BEFORE the angle step. The angle writer sees fewer clips, and a Heimdall step-A outage
+  ends the build early.
+- **Item 46, one option (yours to rule, nothing changed):** deepseek writes 9-13k reasoning tokens per angle call at
+  about 42 tokens/s, so it lands at 219-293 s or misses 300 s. A lower reasoning effort on the angle call would keep
+  the angles on Heimdall in time.
 
 ## 03:16 ET: the 03:12 rulings, status (one audited change each; the integrator's render must change for 33, 34 and 37)
 
@@ -333,7 +330,6 @@ The 03:39 build has every effective ruling (A, 35, 38, 39, 32).
 
 (The status line before this was "FRESH PIN READY: d2657bbe", 02:54-03:00 ET.)
 
-
 ## 02:56 ET: FUNNEL TABLE (orchestrator 02:45 item 1)
 
 **Record.** The table is taken from the 02:37 build, tests/package/proof/ledger_20261113_073738 (code 2cc6c0a3, render
@@ -447,7 +443,6 @@ stay hard, and nothing below is changed without a ruling.
 - "does not anchor" 7, duplicates 15 (L-p), over 20 s 3 (L-u);
 - the upstream caption-marker speaker changes 22.
 
-
 ## 02:56 ET: THE ANGLE STEP (orchestrator 02:45 item 3)
 
 **What it demands.** These come from ANGLE_PROMPT (pipeline/package.py:429) and check_angles (:531):
@@ -486,7 +481,6 @@ turns before liquidity, so even institutions keep allocations small." Its first 
 - MEDLEY_PROMPT would rate each clip on whether the takeaway is true of it, and on whether the viewer can follow the
   join, not on how much it "advances a through-line".
 
-
 ## 02:56 ET: RULING 32 (orchestrator 02:45 item 2): in progress
 
 The plan:
@@ -509,7 +503,6 @@ The facts that shape it:
     measured inside"), together with step A's speaker_changes_inside. Both are hard on the snapped span.
 
 (The status line before this was "NO PIN READY", 02:28-02:53 ET.)
-
 
 ## 02:28 ET: FRESH, the 24 h window (in scope: the integrator's reading of the 01:55 order, item 2)
 
@@ -649,7 +642,6 @@ estimate).
 
 **Earlier line 1 (ruling 1 (a), 22:40):** DELIVERING, not a new READY (ruling 1 (a), 22:40): the integrator delivers the 41f29b1f medley REVIEW ONLY, as it is; you tell PBX that clip_02 was 33 h old at delivery. The NEXT READY pin will be the first FRESH medley, built from the ingest ledger once the integrator's word-pass worker (GPU1) marks moments sentence-ready (ruling 2). Every pin from this commit on seals per-segment recency facts (ruling 1).
 
-
 ## 23:22 ET: ruling 2's builder path is BUILT and proven end to end; no package from tonight's ready rows (not fresh anyway)
 
 - **pipeline/ledger_build.py** (audit docs/audits/parallel/pp-selectid_audit_2315/: 4 cycles in 2 rounds, recorded in
@@ -696,7 +688,6 @@ estimate).
     moments/word_pass.jsonl, L-s context from the caption record.
   - ledger_build does not read window records yet: a row whose video has only one counts as waiting for a word
     record. That wiring needs the worker's real files; none exist yet (no windows/ dir, no word_pass.jsonl).
-
 
 ## 23:00 ET: the 22:40 rulings, builder items (code audited 2 cycles; 181 tests; regression 0 FAIL)
 
@@ -756,7 +747,6 @@ estimate).
   cycle-2 conditions met. House style was built by a fork of this session as a new module (pipeline/house_style.py)
   and integrated here.
 
-
 ## Superseded at 23:00 ET (the 22:05 READY line, as it stood; delivered per ruling 1 (a))
 
 READY TO RENDER (22:05 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json.
@@ -767,7 +757,6 @@ READY TO RENDER (22:05 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PI
 - It supersedes the 08:44 pin (37c5b5f5). That pin was rendered as 165629 and sent for review; PBX's verdict on it is
   law L-y.
 - Read the RISK below before rendering: clip_02's "right now".
-
 
 ## 22:05 ET: L-y (orchestrator 20:30), the medley is the packager's default. The measurement
 
@@ -941,12 +930,9 @@ Reviewers: grok-4.20-0309-reasoning (xAI), and qwen3.8-27b and glm-5.3-flash via
   refuses: a bridge record whose text is not the line, one without confirmed_by, a record without a line.
 - The pin passes the deployed R11.
 
-
 ## Superseded at 22:05 ET by the L-y pin above (the 08:44 line, as it stood)
 
 READY TO RENDER (08:44 ET): tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json. Story moments-fresh_20261112_050611-37c5b5f5, seal 37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f. All 13 gates are exactly PASS, measured live, on the first run (no majority needed). The deployed factory accepts it: validate_schema, build_edl, and rule_r4 at 45 % with the takeaway cap of 30.
-
-
 
 ## 08:53 ET: ruling 10's question, the builder's ONE list (deployed render path, read-only; agrees with the integrator's 08:42 / 08:49 list)
 
@@ -1053,7 +1039,6 @@ say SHIP "yes with conditions", and the conditions are met.
 - The two audit cycles by direct HTTP: $0.77, estimated at upper-bound prices.
 - Total about $3.04 of the $6.00.
 
-
 ## ORCHESTRATOR RULING 10, 08:40 ET: recorded in substance (builder + integrator)
 
 - The VO line after the LAST clip is the TAKEAWAY. It is a new slot that did not exist when BRIDGE_WORD_CAP = 20 was
@@ -1071,7 +1056,6 @@ say SHIP "yes with conditions", and the conditions are met.
   deployed render path would refuse this exact package, and report them all in ONE list, not one per round. The ruling
   names: intro cap, total VO words, clip count, min clip seconds, per-channel floor, shout-out timing, the credits card
   with 3 channels, and vertical layout approval for all three channels.
-
 
 ## 08:32 ET: rulings 8 / 9 encoded; a word-cap blocker in the VO (five lines)
 
@@ -1097,7 +1081,6 @@ say SHIP "yes with conditions", and the conditions are met.
 5. **Your text or your cap.** Nothing has run beyond the cached pre-checks: $0 since 08:20 (ledger $57.11).
    - The code audit is being re-run: the Heimdall cycle-1 replies came back empty (reasoning effort not passed).
    - Evidence: tests/package/proof/fresh_20261112_050611/precheck_v0700_0829.json / .log.
-
 
 ## ORCHESTRATOR RULINGS 08:29 ET: recorded in substance (builder + integrator)
 
@@ -1143,7 +1126,6 @@ window decides: **f216541b STAYS.**
 - If the package fails only on split model votes, with every deterministic gate passing: the vote table goes to the top
   of STATE, and no loop.
 
-
 ## 08:20 ET: the 08:18 pre-checks on f216541b (item 3, five lines)
 
 1. **Step A (grok-4.20, 34 s): PASS.** The guest's own assertion; nothing conditional dropped. The speaker is "guest",
@@ -1168,7 +1150,6 @@ window decides: **f216541b STAYS.**
    - Spend $0.11 (step A; Scribe $0.003). Ledger $57.11.
    - The 07:42 / 08:18 budget has $4.54 left, before the Heimdall audit cycle now running.
    - Evidence: tests/package/proof/fresh_20261112_050611/precheck_v0700_0818.json / .log.
-
 
 ## ORCHESTRATOR DECISION 08:18 ET: recorded in substance (builder + integrator)
 
@@ -1203,7 +1184,6 @@ The analysis of "existed." is accepted: it drops the guest's own condition. Opti
      table at the top of STATE, and the orchestrator decides within minutes.
 5. If f216541b fails step A or the geometry, the second candidate is NOT 9d3621a7 (its next sentence continues it).
    Report it, and the orchestrator picks from other channels with a new VO 2.
-
 
 ## 07:58 ET: the 07:42 package, measured (attempt 0742)
 
@@ -1310,7 +1290,6 @@ geometry.
 Tests: 50 pass across test_angles, test_gates, test_moments and test_providers (the new majority test included). regression_test.sh: 26 PASS / 0 FAIL / 5 WARN. The two-cycle audit runs
 next, on xAI and Heimdall reviewers.
 
-
 ## ORCHESTRATOR RULING 07:42 ET: recorded verbatim in substance (builder + integrator)
 
 1. **clip_02 = the FIRST SENTENCE ONLY, ending "existed."** (YouTube wdk5JZ9hPzs from 529.05 to the integrator's
@@ -1336,7 +1315,6 @@ next, on xAI and Heimdall reviewers.
    - INTEGRATOR: render the re-sealed pin the moment it lands, every gate live, Telegram REVIEW ONLY.
    - "This is the last clip decision I expect to make tonight"; if prepare fails again on any edge, swap nothing and
      report the measured cause at the top of the DoD.
-
 
 ## 07:26 ET (header corrected 07:58 from '07:58', a wrong time; the commit fe0ca679 is 07:26:41): the 07:25 re-gate (attempt 0725: tests/package/proof/fresh_20261112_050611/given_v0700_0725.json / .log; 189 s, $0.89)
 
@@ -1381,7 +1359,6 @@ judge shares its vendor.
   2 fixes left; the title has 2.
 - Either costs one more gate run, about $0.40. $1.11 of the $2 is left.
 - The renderer's geometry at "does." already holds, so after this line the pin can be sealed at once.
-
 
 ## 07:31 ET: the 06:45 package, re-sealed. Every one of 13 gates exactly PASS (attempt 0700c: 140 s, $0.56)
 
@@ -1429,7 +1406,6 @@ add8c732 (the integrator's cut HOLD was right on both clips). The renderer's ord
 **Ruling 7 for the integrator's caption** (condition 5): no edge needs it. Every IN and OUT has the independent
 recogniser's terminal punctuation, and the pin carries the words as `moments_package.cut_evidence`. If the acquired
 primary decode is unpunctuated at an edge, ruling 7 condition (1) reads that evidence: REQUESTS R10.
-
 
 ## (superseded 07:31) 07:16 ET: the 06:45 re-cut (attempt 0700b, tests/package/proof/fresh_20261112_050611/given_v0700_0700b.json / .log)
 
@@ -1562,7 +1538,6 @@ missed, 0 errors (tests/package/exam/ci_mustfail_*.json; claude-opus-5-5, grok f
   (attempt 9 re-decided attempt 8's recorded replies under the corrected rule). Each full gate run: 76-144 s wall and
   $0.25-0.59, so every attempt was inside the 05:25 budgets ($1.50, 6 minutes).
 - The 7 must-fail checks: **$5.78** ($1.35 of it wasted on the step-B label bug, now fixed).
-
 
 ## SPEND SO FAR (phase-2 ledger tests/moments/proof/SPEND.json, upper-bound prices; updated after every attempt)
 
@@ -1705,7 +1680,6 @@ missed, 0 errors (tests/package/exam/ci_mustfail_*.json; claude-opus-5-5, grok f
 - **Audit.** Phase 2 cycle 1 is DONE (5 reviewers per chunk: fable, opus, sonnet, grok answered; the gpt-4o leg failed
   on OpenAI's credit). Next: dispositions, the fixes, cycle 2, commit and push (not DONE).
 
-
 ## SUPERSEDED (orchestrator review 03:40: passes the safety gates, fails the product; NOT for render): the first moments-first package (03:25 ET Nov 12)
 
 Files: `tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json` (sha256 1c3f0e783059c2f1..., PINNED decision for run_fresh.py `--pinned`; needs REQUESTS R7 item 1
@@ -1753,7 +1727,6 @@ FLAGS (named, not hidden):
 - (d) The clip_01 opener 'However, ...' is a discourse marker. Context integrity judged the clip to stand on its
   own. Downstream stand_alone (R6 item 2) may still ask the clip scorer.
 - (e) REVIEW ONLY (law L-q): selection and VO by the new path, not yet merged or audited.
-
 
 ## MOMENTS / PACKAGE INPUT CONTRACT v0 (published 02:36 ET Nov 12 for pipeline_pp_ingest; fields may be ADDED, never renamed or removed)
 
@@ -1806,6 +1779,7 @@ Rules the packager applies on reading; the ingest session may pre-apply them, ne
   runtime); the model per artefact; dollars. Detailed with phase 2 in docs/audits/MOMENTS_FIRST_DESIGN.md.
 
 ## LIVE STATE (newest first; ET; times corrected 01:46 from file times: four entries had been stamped
+
 ## from an elapsed-time estimate, 30-110 min late)
 
 - 04:20 Nov 12 TONIGHT'S ANGLE-FIRST REBUILD, attempt 3 (no package yet).
