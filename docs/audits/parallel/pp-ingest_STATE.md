@@ -40,7 +40,8 @@ moment 12 h after publish, which removes most of what P1 would have released (th
     refuses a moment whose expiry has passed BEFORE any other rule ("expired (rulings 76 + 77 ...)"), using the
     EARLIER of the field and publish + 12 h, so the 2,000+ rows mined before the field expire the same way and a
     later field never extends a life (fail closed). Expired rows stay in the ledger file (A18). The adapter's horizon
-    default is 12 h. On the live ledger now: see the first pass below.
+    default is 12 h. On the live ledger at 18:24 (rows mined in 24 h or published in 12 h): 172 refused as expired,
+    304 returned, every one under 12 h old; new rows carry the field from the next video mined.
   - 2 DELETE THE CONTENT (pipeline/ingest/purge.py, scope pipeline/ingest/purge.json): media files of videos
     published more than 12 h ago, from three targets only: the runs' acquired sections (`runs/*/sources/`), the lock
     precheck's (`data/lock_precheck/work/*/sources/`), and a dead word-pass cycle's temporary audio / window WAVs
@@ -51,8 +52,10 @@ moment 12 h after publish, which removes most of what P1 would have released (th
     Telegram deliveries, 3 review drops, 5 runs of pins the stand-alone scorer records as delivered: 1b4a63d0,
     41f29b1f, 37c5b5f5) and 4 references with delivery evidence (not references/editorial_failures nor the test pins):
     15 videos.
-    DRY RUN on the real tree (18:40): would free 0.09 GB, 6 files: the sources of three never-delivered runs
-    (pinned_20261112_064032, pinned_20261113_075638, recut_sources_20261111b; videos 25-105 h old). KEPT: 154 files,
+    DRY RUN on the real tree (18:15): would free 0.09 GB, 6 files: the sources of three never-delivered runs
+    (pinned_20261112_064032, pinned_20261113_075638, recut_sources_20261111b; videos 25-105 h old). FIRST REAL PASS
+    (the watcher, 18:23 ET, restarted on this code): DELETED EXACTLY THOSE 6 FILES, 91.8 MB (each a line in
+    data/editorial/ingest/purge/deleted.jsonl; checked gone), nothing else; 0.86 s. KEPT: 154 files,
     7.27 GB, every one a copy of one of the 15 delivered videos (118 of them, 6.84 GB, in runs that are not deliveries:
     re-renders and replays; A19); 51 symlinks to segment_v2/sources (the v2f reference's sources); 1 unnamed file; 1
     run in use; 1 file not yet expired.
@@ -70,6 +73,8 @@ moment 12 h after publish, which removes most of what P1 would have released (th
     publish time, newest first; 3 videos mine at once). Videos older than 12 h are still mined, last: their rows are
     the receipts the ruling keeps, about $0.001 each (A21). The word-pass worker's tiers (last 6 h, then 6-12 h,
     nothing older) are the integrator's: REQUESTS R11. The adapter it reads already returns nothing older than 12 h.
+  - AUDIT: cycle 1 running on Heimdall-served reviewers (qwen, glm, muse; frozen vendors skipped), package
+    pp-ingest_audit/r77/ (CONTEXT.md: the ruling verbatim and four questions on what the purge could wrongly delete).
   - TESTS: tests/ingest 204 passed (new: tests/ingest/test_purge.py 9; expiry 3 in test_ledger_coverage / test_mine;
     the purge loop 1 in test_service). py_compile clean.
   - LIVE (18:20 ET; 24 h): 129 videos mined, 0 partial, 0 waiting on an outage; 613 moments; publish -> mined p50 16.1

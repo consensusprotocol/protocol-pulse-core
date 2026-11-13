@@ -172,6 +172,15 @@ def delivered(spec):
     return vids, runs, problems
 
 
+def _latest(t, source):
+    """A time with no recorded source at exactly midnight may be a bare upload DATE: the video may have been published
+    as late as the end of that day, so that is the time used (the purge never deletes early; 4 such metas in the main
+    store, 2026-11-13)."""
+    if t is not None and not source and (t.hour, t.minute, t.second, t.microsecond) == (0, 0, 0, 0):
+        return t + timedelta(days=1)
+    return t
+
+
 def published(vid, q, spec, cache):
     """The video's measured publish time (aware), or None: the pp-ingest queue, else the main store's meta.json."""
     if vid in cache:
@@ -180,11 +189,12 @@ def published(vid, q, spec, cache):
     if q is not None:
         row = q.video(vid)
         if row:
-            t = config.aware(row.get("published_at"))
+            t = _latest(config.aware(row.get("published_at")), row.get("published_source"))
     if t is None:
         try:
             with open(spec["publish_time"]["main_store_meta"].format(video_id=vid)) as f:
-                t = config.aware(json.load(f).get("published_at"))
+                m = json.load(f)
+            t = _latest(config.aware(m.get("published_at")), m.get("published_at_source") or m.get("published_source"))
         except (OSError, ValueError, AttributeError, KeyError):
             t = None
     cache[vid] = t

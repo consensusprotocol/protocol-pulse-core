@@ -230,3 +230,16 @@ def test_only_videos_cut_into_a_delivery_are_protected_not_every_video_a_record_
     assert V["A"] not in vids and V["B"] not in vids and not problems
     rep = _run(tree)
     assert not _exists(tree, f"runs/pinned_old/sources/{V['A']}.mp4")
+
+
+def test_a_bare_upload_date_is_read_as_the_end_of_that_day_so_nothing_is_deleted_early(tree):
+    """A meta time at exactly midnight with no recorded source may be a date: the video is kept until 12 h after the
+    END of that day."""
+    V, main = VIDS, tree["main"]
+    day = (NOW - timedelta(hours=20)).replace(hour=0, minute=0, second=0)
+    _touch(str(main / "data" / "editorial" / "transcripts" / V["C"] / "meta.json"),
+           data=json.dumps({"published_at": day.isoformat()}).encode())
+    rep = _run(tree)
+    late = day + timedelta(days=1) + timedelta(hours=12) > NOW
+    assert _exists(tree, f"runs/pinned_old/sources/{V['C']}.mp4") == late
+    assert purge._latest(day, "youtube_rss") == day and purge._latest(day, None) == day + timedelta(days=1)
