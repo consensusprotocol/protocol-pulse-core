@@ -1,0 +1,83 @@
+diff --git a/pipeline/test_v1_local_route.py b/pipeline/test_v1_local_route.py
+index c24e42ef..2f8ed1b0 100644
+--- a/pipeline/test_v1_local_route.py
++++ b/pipeline/test_v1_local_route.py
+@@ -17,19 +17,22 @@ import visual_check as VC  # noqa: E402
+ class TestLocalRoute(unittest.TestCase):
+     def setUp(self):
+         self.calls = []
+-        self.saved = (VC._call_local, VC._call, VC._request)
++        self.saved = (VC._call_local, VC._call, VC._request, VC._call_xai)
+         VC._call_local = lambda p, t, m, timeout: self.calls.append(("local", m)) or ('{"answers": {}}', {})
++        VC._call_xai = lambda p, t, m, timeout: self.calls.append(("xai", m)) or ('{"answers": {}}', {})
+         VC._request = lambda p, t, m: ("req", m)
+         VC._call = lambda req, timeout: self.calls.append(("heimdall", req[1])) or ('{"answers": {}}', {})
+ 
+     def tearDown(self):
+-        VC._call_local, VC._call, VC._request = self.saved
++        VC._call_local, VC._call, VC._request, VC._call_xai = self.saved
+ 
+-    def test_ollama_names_go_local_and_every_other_name_to_heimdall(self):
++    def test_ollama_names_go_local_xai_names_to_xai_and_every_other_name_to_heimdall(self):
+         VC._call_any("x.jpg", "q", VC.LOCAL_VISION, 5)
++        VC._call_any("x.jpg", "q", "xai:grok-4.3", 5)
+         for m in VC.VISION_MODELS:
+             VC._call_any("x.jpg", "q", m, 5)
+-        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b")] + [("heimdall", m) for m in VC.VISION_MODELS])
++        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b"), ("xai", "xai:grok-4.3")]
++                         + [("heimdall", m) for m in VC.VISION_MODELS])
+ 
+     def test_the_default_panel_is_unchanged(self):
+         self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
+diff --git a/pipeline/visual_check.py b/pipeline/visual_check.py
+index 29834207..e96efa76 100644
+--- a/pipeline/visual_check.py
++++ b/pipeline/visual_check.py
+@@ -25,6 +25,7 @@ VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdal
+ VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
+ LOCAL_VISION = "ollama:gemma3:27b"   # law L-x: V1's second back-end, the local model on Ultron's GPU0 (L-r: lease + swap_to)
+ OLLAMA_URL = "http://localhost:11434"
++XAI_BASE = "https://api.x.ai/v1"     # law L-x: a second VENDOR for V1's vision ('xai:<model>'); measured before it is seated
+ 
+ CHECKLIST = [
+     ("credits_round_and_match", "On the credits card (full-resolution panel) every channel avatar is the channel's "
+@@ -212,11 +213,37 @@ def _call_local(image_path, text, model, timeout):
+     return (raw.get("message") or {}).get("content") or "", raw
+ 
+ 
++def _xai_key():
++    env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
++    try:
++        with open(env) as f:
++            return next(l.split("=", 1)[1].strip().strip('"\'') for l in f if l.startswith("XAI_API_KEY"))
++    except (OSError, StopIteration):
++        raise RuntimeError("xAI vision route not configured: XAI_API_KEY not found in the repo .env") from None
++
++
++def _call_xai(image_path, text, model, timeout):
++    """(content, raw) of one xAI vision call (law L-x: a second vendor for V1). Raises on a route error."""
++    import urllib.request
++    with open(image_path, "rb") as f:
++        img = base64.b64encode(f.read()).decode()
++    body = {"model": model.split(":", 1)[1], "temperature": 0, "max_tokens": 4000,
++            "messages": [{"role": "user", "content": [{"type": "text", "text": text},
++                                                      {"type": "image_url",
++                                                       "image_url": {"url": f"data:image/jpeg;base64,{img}"}}]}]}
++    req = urllib.request.Request(f"{XAI_BASE}/chat/completions", data=json.dumps(body).encode(),
++                                 headers={"Authorization": f"Bearer {_xai_key()}", "Content-Type": "application/json"})
++    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++    return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
++
++
+ def _call_any(image_path, text, model, timeout):
+-    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end (law L-x), any other name the
+-    Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
++    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end, 'xai:<name>' the xAI vendor
++    (law L-x), any other name the Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
+     if model.startswith("ollama:"):
+         return _call_local(image_path, text, model, timeout)
++    if model.startswith("xai:"):
++        return _call_xai(image_path, text, model, timeout)
+     return _call(_request(image_path, text, model), timeout)
+ 
+ 
