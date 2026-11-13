@@ -1,0 +1,65 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index bd24d36..278b93a 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1000,18 +1000,25 @@ def scorer_verdicts(path, code_sha):
+     (stand_alone.affirmed(score, fault, moments=True): the score alone) is no verdict."""
+     import stand_alone as SA
+     num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
++    stage, sc = "open", None
+     try:
+         with open(path) as f:
++            stage = "parse"
+             d = json.load(f)
+-        sc, vs = d["scorer"], d["verdicts"]
++        stage = "shape"
++        sc = d["scorer"]
++        vs = d["verdicts"]
+         why = ("a kind other than 'moments' (ruling 60)" if sc.get("kind") != SCORER_KIND else
+                "an event (ruling 60: a moments verdict carries none)" if sc.get("event", "absent") is not None else
+                "the render's scorer code could not be read" if not code_sha else
+                "a scorer_sha that is not the render's scorer code now" if sc.get("scorer_sha") != code_sha else
+                "another threshold" if not num(sc.get("threshold")) or sc["threshold"] != SA.CLIP_MIN_SCORE else
+                "no verdicts" if not isinstance(vs, dict) else None)
+-    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:
+-        return {}, {"read": False, "why": f"{type(e).__name__}: {str(e)[:160]}"}
++    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:   # audit 1138 C2 (qwen, glm): the
++        return {}, {"read": False, "why": f"{stage}: {type(e).__name__}: {str(e)[:160]}", "path": path,   # record
++                    "render_scorer_sha": code_sha,                  # says what failed, where, and what it read
++                    **({k: sc.get(k) for k in ("kind", "event", "scorer_sha", "threshold")}
++                       if isinstance(sc, dict) else {})}
+     if why:
+         return {}, {"read": False, "why": why, "kind": sc.get("kind"), "event": sc.get("event"),
+                     "scorer_sha": sc.get("scorer_sha"), "render_scorer_sha": code_sha, "threshold": sc.get("threshold")}
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 4b5f5f7..2e1ffc5 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -1325,7 +1325,15 @@ class TestRuling56Scorer(unittest.TestCase):
+         idx, rec = PK.scorer_verdicts(self.file({"f": fv("x", 4.0, "starts_mid_thought")}), "s" * 64)
+         self.assertTrue(idx["f"]["affirmed"])                           # ruling 60: the score alone
+         idx, rec = PK.scorer_verdicts("/nonexistent/latest.json", "s" * 64)
+-        self.assertEqual((idx, rec["read"]), ({}, False))
++        self.assertEqual((idx, rec["read"], rec["path"], rec["render_scorer_sha"]),
++                         ({}, False, "/nonexistent/latest.json", "s" * 64))
++        self.assertTrue(rec["why"].startswith("open: FileNotFoundError"))   # audit 1138 C2: what failed, and where
++        odd_shape = self.file()
++        with open(odd_shape, "w") as f:
++            json.dump({"scorer": {"kind": "moments", "event": None, "scorer_sha": "s" * 64, "threshold": 3.5}}, f)
++        idx, rec = PK.scorer_verdicts(odd_shape, "s" * 64)                # no "verdicts" key
++        self.assertEqual((idx, rec["kind"], rec["scorer_sha"]), ({}, "moments", "s" * 64))
++        self.assertTrue(rec["why"].startswith("shape: KeyError"))
+         bad = self.file()
+         with open(bad, "w") as f:
+             f.write("{not json")
+@@ -1486,6 +1494,10 @@ class TestRuling56Scorer(unittest.TestCase):
+             segs[i]["scorer_verdict"] = sv(t, 4.0)
+         self.assertEqual(package_pin.scorer_problems(segs), [])
+         self.assertEqual(package_pin.scorer_problems([{"approved_text": self.OPENER}]), [])   # a hook: the gate's
++        import hashlib
++        t = "And Bitcoin\u2019s caf\u00e9 \u2014 na\u00efve \u201choldlers\u201d win \U0001F680"   # audit 1138 C2 (glm
++        self.assertTrue(package_pin.affirmed_verdict({"approved_text": t, "scorer_verdict": sv(t, 4.0)}))   # P2-2):
++        self.assertEqual(PK.text_sha(t), hashlib.sha256(t.encode("utf-8")).hexdigest())   # one sha, build and pin
+ 
+ 
+ class TestOrder0622StepAFromBothVendors(unittest.TestCase):

@@ -1,0 +1,21 @@
+You are auditing a SMALL INCREMENT on branch pp-selectid, made after the second review cycle of a larger change
+(audit 1138: the builder reads the integrator's clip-scorer verdicts, fail closed). Only state what you can verify from
+the diff provided. If uncertain, say so; do not guess.
+
+Background: scorer_verdicts(path, code_sha) reads the integrator's verdicts file (read only) and returns ({pid: verdict},
+a record of the read). Every failure uses NOTHING from the file (fail closed): a missing, unreadable or malformed file
+(the except branch), a wrong kind / event / sha / threshold (the "why" chain). The record is written into the build's
+output so the integrator and the orchestrator can see why no verdict was used.
+
+The two cycle-2 reviewers agreed on ONE P1 (qwen P1-NEW-1, glm P1-1): the except branch returned only
+{"read": False, "why": "<exception>"}, losing the diagnostics the "why"-chain path records. This increment:
+1. records the stage that failed ("open" / "parse" / "shape"), the path, the render's recomputed sha (code_sha), and,
+   when the "scorer" object was already read as a dict, its kind / event / scorer_sha / threshold. To keep "scorer"
+   available when "verdicts" is missing, the two reads are split into two statements.
+2. tests: the missing-file record (stage, path, sha) and a file whose "verdicts" key is missing (stage "shape", the
+   scorer fields kept); and (glm P2-2) one test that the build's text_sha and the pin's inline sha256 agree on a
+   non-ASCII text (curly quotes, accents, an em dash, an emoji), with the pin's affirmed_verdict accepting it.
+
+Check: that nothing here can make a verdict usable on any failure path (the except branch still returns {} first);
+that no exception can escape the except branch (e.g. sc.get on a non-dict); the record's keys; the tests.
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

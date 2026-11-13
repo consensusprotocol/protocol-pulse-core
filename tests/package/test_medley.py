@@ -70,6 +70,21 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
 
 
 
+def sv(text, score, fault="none"):
+    """A clip-scorer verdict on exactly `text` as build() attaches it (package.scorer_verdicts' shape, ruling 56; ruling
+    60: kind "moments", no event, the affirmation is the score alone)."""
+    return {"score": score, "reason": "r", "fault": fault, "affirmed": score >= 3.5, "text_sha256": PK.text_sha(text),
+            "prompt_sha256": "p" * 64, "model": "gemma3:27b", "kind": "moments", "event": None,
+            "rubric": "ruling 60: stand-alone only", "rule": "stand_alone.affirmed(moments=True): score >= threshold",
+            "scorer_sha": "s" * 64, "threshold": 3.5, "rated_at": "2026-11-13T15:35:10Z"}
+
+
+def fv(text, score, fault="none"):
+    """One verdict as the integrator's verdicts file holds it (their contract, ruling 56), on exactly `text`."""
+    return {"text_sha256": PK.text_sha(text), "score": score, "reason": "r", "fault": fault,
+            "affirmed": score >= 3.5, "prompt_sha256": "p" * 64}            # ruling 60: the score alone
+
+
 def spk(pk):
     """speakers.attribute's record on every segment, as the real flow attaches it before the pin is sealed (the
     00:05 ET Nov 13 order, item 3): an unknown speaker, measured, no person named."""
@@ -505,12 +520,13 @@ class Rig:
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
-                 trim_fail=(), hooks=None, hook_err=None):
+                 trim_fail=(), hooks=None, hook_err=None, verdicts=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
         self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
+        self.verdicts = verdicts                           # ruling 56: {pid: verdict} in the integrator's file shape
         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
@@ -623,15 +639,28 @@ class Rig:
                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
                                                              "replayed": False}),
         }
+        kw, path = {}, None
+        if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
+            import tempfile
+            fd, path = tempfile.mkstemp(suffix=".json")
+            with os.fdopen(fd, "w") as f:
+                json.dump({"rated_at": "2026-11-13T15:35:10Z", "build": "test", "scorer": {
+                    "model": "gemma3:27b", "kind": "moments", "threshold": 3.5, "event": None,
+                    "scorer_sha": "s" * 64},
+                    "verdicts": self.verdicts}, f)
+            kw["scorer_verdicts_path"] = path
+            stubs["render_scorer_sha"] = lambda *a, **k: "s" * 64       # the render's scorer code, as it is now
         saved = {k: getattr(PK, k) for k in stubs}
         try:
             for k, v in stubs.items():
                 setattr(PK, k, v)
             return PK.build(self.router, self.moments, {}, ctx(), log=lambda s: None, work_dir="/nonexistent",
-                            spend=self.spend)
+                            spend=self.spend, **kw)
         finally:
             for k, v in saved.items():
                 setattr(PK, k, v)
+            if path:
+                os.remove(path)
 
 
 class TestBuildLoop(unittest.TestCase):
@@ -881,7 +910,8 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
     """Ruling 33 part 2 (render merged 11e361cc), used per the 04:58 order's item 42: a moment opening on ONE of
     but/and/so/well/now/yeah, left out by the render's STAND_ALONE opener rule, may be cut one word in. The variant is
     judged like any moment (step A, L-v 2 with the trimmed word heard, the acoustic onset rule at the trimmed cut); the
-    clip scorer's verdict is pending at the render; the pin seals trimmed_leading and untrimmed_start."""
+    clip scorer must affirm the trimmed text (ruling 56: the integrator's pin-stage verdicts; ruling 49 a's pending form
+    is retired); the pin seals trimmed_leading, untrimmed_start and the affirmation."""
 
     def moment(self, sentence, mid="t"):
         src = source([sentence], vid="vT")
@@ -913,24 +943,27 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         m, srcs = self.moment("But Bitcoin wins now.")                    # 3 kept words: no statement (glm P0-2)
         self.assertIsNone(PK.trim_variant(m, srcs))
 
-    def test_pending_at_the_render_by_ruling_49_and_strict_on_the_switch(self):
+    def test_ruling_56_a_trimmed_clip_passes_only_with_the_scorers_affirmation(self):
         m, srcs = self.moment("But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
         v = PK.trim_variant(m, srcs)
-        line = [{"text": "Bitcoin is the hardest money ever made."}, v, {"text": "Bitcoin wins."}]
-        self.assertTrue(PK.TRIM_SCORER_PENDING)                       # ruling 49 (07:02): YES
-        r = PK.stand_alone_check(line)
-        self.assertTrue(r["ok"], r["rows"])
-        self.assertEqual(r["scorer_pending"], ["clip_01"])
-        self.assertIn("PENDING AT THE RENDER", r["rows"][1]["opener"]["why"])      # stated in the sealed row
-        saved = PK.TRIM_SCORER_PENDING
-        try:                                                          # the strict switch: the render's check with
-            PK.TRIM_SCORER_PENDING = False                            # no scorer fails closed, never sealed
-            r = PK.stand_alone_check(line)
-        finally:
-            PK.TRIM_SCORER_PENDING = saved
+        hook, last = {"text": "Bitcoin is the hardest money ever made."}, {"text": "Bitcoin wins."}
+        self.assertFalse(hasattr(PK, "TRIM_SCORER_PENDING"))          # ruling 49 (a)'s pending form is retired
+        r = PK.stand_alone_check([hook, v, last])                     # no verdict: fails closed, as at validate
         self.assertFalse(r["ok"])
         self.assertIn("no clip-scorer verdict on the trimmed text", r["rows"][1]["opener"]["why"])
-        self.assertEqual(r["scorer_pending"], [])
+        self.assertNotIn("scorer_pending", r)
+        r = PK.stand_alone_check([hook, dict(v, scorer_verdict=sv(v["text"], 4.0)), last])
+        self.assertTrue(r["ok"], r["rows"])
+        self.assertIn("the clip scorer affirms the trimmed text", r["rows"][1]["opener"]["why"])
+        self.assertEqual(r["rows"][1]["scorer"]["score"], 4.0)        # the verdict used is in the sealed row
+        for bad in (sv(v["text"], 3.0, "ends_mid_thought"), sv(v["text"], 3.4),
+                    sv(m["text"], 4.0)):                              # the untrimmed text's verdict is not its own
+            self.assertFalse(PK.stand_alone_check([hook, dict(v, scorer_verdict=bad), last])["ok"], bad)
+        self.assertTrue(PK.stand_alone_check([hook, dict(v, scorer_verdict=sv(v["text"], 4.0, "starts_mid_thought")),
+                                              last])["ok"])           # ruling 60: the score alone, as validate
+        self.assertIn("no clip-scorer verdict on the trimmed text yet", PK.trim_refused(v))
+        self.assertIsNone(PK.trim_refused(dict(v, scorer_verdict=sv(v["text"], 4.0))))
+        self.assertIn("does not affirm", PK.trim_refused(dict(v, scorer_verdict=sv(v["text"], 3.0, "other"))))
 
     def test_ruling_49_one_trimmed_clip_per_line_up_and_per_pin(self):
         self.assertEqual(PK.TRIMMED_PER_LINEUP_MAX, package_pin.TRIMMED_PER_PIN_MAX)
@@ -946,10 +979,12 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
                {"trimmed_leading": "So", "untrimmed_start": 0.0, "start": 1.0, "scorer_pending": True}]
         self.assertIn("2 trimmed clips", package_pin.trim_problems(two)[0])
 
-    def test_the_pin_seals_the_trim_and_refuses_a_malformed_one(self):
+    def test_the_pin_seals_the_trim_with_its_affirmation_and_refuses_a_malformed_one(self):
+        import copy
+        x_text = "Bitcoin keeps every promise it ever made to me."
         segs = [dict(pm("h", "A", 12.0), text="Bitcoin is the hardest money ever made."),
-                dict(pm("x", "B", 14.0), text="Bitcoin keeps every promise it ever made to me.",
-                     trimmed_leading="But", untrimmed_start=0.0, start=0.3),
+                dict(pm("x", "B", 14.0), text=x_text, trimmed_leading="But", untrimmed_start=0.0, start=0.3,
+                     scorer_verdict=sv(x_text, 4.0)),
                 dict(pm("y", "C", 13.0), text="Bitcoin wins in the end, every single time.")]
         by = {m["moment_id"]: m for m in segs}
         fields = {"takeaway": {"text": "No ruler, just rules nobody gets to bend.", "cites": []}, "bridge": None,
@@ -958,32 +993,42 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
         self.assertEqual((pk["segments"][1]["trimmed_leading"], pk["segments"][1]["untrimmed_start"]), ("But", 0.0))
         pk["gates"] = TestMedleyPackageAndPin().gates(pk)
-        pin = package_pin.to_pin(spk(pk), "test")
+        pin = package_pin.to_pin(copy.deepcopy(spk(pk)), "test")
         s1 = pin["segments"][1]
-        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"], s1["scorer_pending"]), ("But", 0.0, True))
-        self.assertNotIn("trimmed_leading", pin["segments"][0])                   # untrimmed segments: unchanged
-        self.assertNotIn("scorer_pending", pin["segments"][0])                    # ruling 49 (a): per trimmed clip
+        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"]), ("But", 0.0))
+        self.assertTrue(package_pin.affirmed_verdict(s1))                         # ruling 56: sealed, on its text
+        self.assertNotIn("scorer_pending", s1)
+        for k in ("trimmed_leading", "scorer_verdict", "scorer_pending"):         # untrimmed segments: unchanged
+            self.assertNotIn(k, pin["segments"][0])
         mp = pin["moments_package"]
         args = (mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"], mp["btc_screen"])
         self.assertEqual(package_pin.seal(pin["segments"], *args), mp["package_sha256"])
-        other = [dict(x) for x in pin["segments"]]
+        other = copy.deepcopy(pin["segments"])
         other[1]["trimmed_leading"] = "And"                                       # the trim is inside the seal
         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
-        other[1]["trimmed_leading"], other[1]["scorer_pending"] = "But", False      # and so is scorer_pending
+        other = copy.deepcopy(pin["segments"])
+        other[1]["scorer_verdict"]["score"] = 5.0                                 # and so is the affirmation
         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
         for bad in ({"trimmed_leading": "Because"}, {"trimmed_leading": "But so"}, {"trimmed_leading": "and/or"},
                     {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
-                    {"scorer_pending": False}):                                       # ruling 49 (a) in plain words
-            p = spk(pk)
+                    {"scorer_pending": True},                                     # ruling 56: never sealed
+                    {"scorer_verdict": sv(x_text, 3.0, "ends_mid_thought")},      # a refusal
+                    {"scorer_verdict": sv("But " + x_text, 4.0)},                 # another text's verdict
+                    {"scorer_verdict": dict(sv(x_text, 4.0), kind="story")}):     # not the moments judgment
+            p = copy.deepcopy(spk(pk))                                            # each case on its own
             p["segments"][1] = dict(p["segments"][1], **bad)
-            with self.assertRaises(package_pin.PinRefused):
+            with self.assertRaises(package_pin.PinRefused, msg=str(bad)):
                 package_pin.to_pin(p, "test")
-        p = spk(pk)
-        p["segments"][0] = dict(p["segments"][0], scorer_pending=True)                # only on a trimmed clip
+        p = copy.deepcopy(spk(pk))
+        p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "scorer_verdict"}   # no affirmation
+        with self.assertRaises(package_pin.PinRefused):
+            package_pin.to_pin(p, "test")
+        p = copy.deepcopy(spk(pk))
+        p["segments"][0] = dict(p["segments"][0], scorer_pending=True)                # not on any segment
         with self.assertRaises(package_pin.PinRefused):
             package_pin.to_pin(p, "test")
         self.assertTrue(package_pin.trim_problems([{"trimmed_leading": "But", "untrimmed_start": 0.0, "start": None}]))
-        p = spk(pk)                                                       # ^ refused, never raised (glm P0-8)
+        p = copy.deepcopy(spk(pk))                                        # ^ refused, never raised (glm P0-8)
         p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "untrimmed_start"}
         with self.assertRaises(package_pin.PinRefused):                          # both keys or neither
             package_pin.to_pin(p, "test")
@@ -995,9 +1040,10 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         saved = PK.trim_variant
         try:
             PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
-            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"})
+            ok = {"b~trim": fv("Bitcoin x.", 4.0)}                  # ruling 56: the scorer affirms the trimmed text
+            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], trim_fail={"b~trim"}, verdicts=ok)
             out = rig.run()
-            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
+            rig2 = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"}, verdicts=ok)
             out2 = rig2.run()
         finally:
             PK.trim_variant = saved
@@ -1236,6 +1282,227 @@ class TestRuling59HookFirst(unittest.TestCase):
         self.assertIn("is not one of THE HOOKS", out["why_none"])           # the first reply, rejected
         self.assertEqual((len(rig.router.rejected), sum(r == "angle_write" for r, _ in rig.prompts)), (1, 2))
         self.assertEqual(rig.medley_calls, [])
+
+
+class TestRuling56Scorer(unittest.TestCase):
+    """RULING 56 (09:59): the render's own STAND_ALONE clip scorer, asked at the pin stage by the integrator's service
+    about every moment left out as an opener it would have to affirm, untrimmed and trimmed; only what it affirms is
+    sealed. Their verdicts file is read only and fail closed."""
+
+    OPENER = "And Bitcoin is the hardest money ever made, which is why it wins."
+
+    def file(self, verdicts=None, drop=(), **scorer):
+        import tempfile
+        fd, path = tempfile.mkstemp(suffix=".json")
+        sc = {k: x for k, x in dict({"model": "gemma3:27b", "kind": "moments", "rubric": "ruling 60: stand-alone only",
+                                     "threshold": 3.5, "event": None, "scorer_sha": "s" * 64}, **scorer).items()
+              if k not in drop}
+        with os.fdopen(fd, "w") as f:
+            json.dump({"rated_at": "2026-11-13T15:35:10Z", "build": "b", "candidates_generated_at": "g",
+                       "scorer": sc, "verdicts": verdicts or {}}, f)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def test_the_verdicts_file_is_used_only_when_every_check_holds(self):
+        good = {"a": fv(self.OPENER, 4.0), "b": fv("Bitcoin b.", 3.0, "ends_mid_thought")}
+        idx, rec = PK.scorer_verdicts(self.file(good), "s" * 64)
+        self.assertEqual(sorted(idx), ["a", "b"])
+        self.assertEqual((rec["read"], rec["verdicts"], rec["affirmed"]), (True, 2, 1))
+        self.assertEqual((idx["a"]["affirmed"], idx["b"]["affirmed"]), (True, False))
+        self.assertEqual((idx["a"]["kind"], idx["a"]["event"], idx["a"]["scorer_sha"], idx["a"]["threshold"]),
+                         ("moments", None, "s" * 64, 3.5))
+        for scorer, code, why in (({"kind": "story"}, "s" * 64, "a kind other than 'moments' (ruling 60)"),
+                                  ({"event": "Pinned: bitcoin"}, "s" * 64,
+                                   "an event (ruling 60: a moments verdict carries none)"),
+                                  ({}, "t" * 64, "a scorer_sha that is not the render's scorer code now"),
+                                  ({}, None, "the render's scorer code could not be read"),
+                                  ({"threshold": 3.0}, "s" * 64, "another threshold"),
+                                  ({"threshold": True}, "s" * 64, "another threshold")):
+            idx, rec = PK.scorer_verdicts(self.file(good, **scorer), code)
+            self.assertEqual((idx, rec["read"], rec["why"]), ({}, False, why))
+        idx, rec = PK.scorer_verdicts(self.file(good, drop=("event",)), "s" * 64)   # "event": null, never absent
+        self.assertEqual((idx, rec["why"]), ({}, "an event (ruling 60: a moments verdict carries none)"))
+        idx, rec = PK.scorer_verdicts(self.file({"f": fv("x", 4.0, "starts_mid_thought")}), "s" * 64)
+        self.assertTrue(idx["f"]["affirmed"])                           # ruling 60: the score alone
+        idx, rec = PK.scorer_verdicts("/nonexistent/latest.json", "s" * 64)
+        self.assertEqual((idx, rec["read"], rec["path"], rec["render_scorer_sha"]),
+                         ({}, False, "/nonexistent/latest.json", "s" * 64))
+        self.assertTrue(rec["why"].startswith("open: FileNotFoundError"))   # audit 1138 C2: what failed, and where
+        odd_shape = self.file()
+        with open(odd_shape, "w") as f:
+            json.dump({"scorer": {"kind": "moments", "event": None, "scorer_sha": "s" * 64, "threshold": 3.5}}, f)
+        idx, rec = PK.scorer_verdicts(odd_shape, "s" * 64)                # no "verdicts" key
+        self.assertEqual((idx, rec["kind"], rec["scorer_sha"]), ({}, "moments", "s" * 64))
+        self.assertTrue(rec["why"].startswith("shape: KeyError"))
+        with open(odd_shape, "w") as f:                                  # audit 1138b C1 (qwen, glm): a "scorer"
+            json.dump({"scorer": ["moments"], "verdicts": {}}, f)        # that is not an object
+        idx, rec = PK.scorer_verdicts(odd_shape, "s" * 64)
+        self.assertEqual((idx, rec["read"], "kind" in rec), ({}, False, False))
+        self.assertTrue(rec["why"].startswith("shape: AttributeError"))
+        bad = self.file()
+        with open(bad, "w") as f:
+            f.write("{not json")
+        self.assertEqual(PK.scorer_verdicts(bad, "s" * 64)[0], {})
+        odd = {"e": dict(fv("x", 4.0), error="not rated"), "n": dict(fv("x", 4.0), score=None),
+               "t": dict(fv("x", 4.0), score=True), "d": dict(fv("x", 3.0), affirmed=True),
+               "s": dict(fv("x", 4.0), text_sha256=None)}
+        idx, rec = PK.scorer_verdicts(self.file(odd), "s" * 64)
+        self.assertEqual(idx, {})                                       # none of them is a verdict
+        self.assertEqual(rec["disagree_with_the_rule"], ["d"])          # "affirmed" against the render's own rule
+
+    def test_the_scorer_sha_is_recomputed_from_the_renders_code(self):
+        import hashlib
+        import tempfile
+        self.assertEqual(PK.RENDER_SCORER_CODE, ("/home/ultron/protocol_pulse/pipeline/stand_alone.py",
+                                                 "/home/ultron/protocol_pulse/pipeline/story_semantics.py"))
+        with tempfile.TemporaryDirectory() as d:
+            a, b = os.path.join(d, "a.py"), os.path.join(d, "b.py")
+            for path, data in ((a, b"one"), (b, b"two")):
+                with open(path, "wb") as f:
+                    f.write(data)
+            self.assertEqual(PK.render_scorer_sha((a, b)), hashlib.sha256(b"onetwo").hexdigest())
+            self.assertIsNone(PK.render_scorer_sha((a, os.path.join(d, "missing.py"))))
+
+    def test_a_verdict_attaches_only_to_its_own_text(self):
+        m = dict(pm("a", "A", 12.0), text=self.OPENER)
+        got = PK.with_verdict(m, {"a": sv(self.OPENER, 4.0)})
+        self.assertIs(PK.verdict_of(got), got["scorer_verdict"])
+        self.assertNotIn("scorer_verdict", PK.with_verdict(m, {"a": sv("Another text.", 4.0)}))
+        self.assertNotIn("scorer_verdict", PK.with_verdict(m, {"b": sv(self.OPENER, 4.0)}))
+        trimmed = dict(got, moment_id="a~trim", text=self.OPENER[len("And "):])   # carries the key, not the verdict
+        self.assertIsNone(PK.verdict_of(trimmed))
+        self.assertNotIn("scorer_verdict", PK.with_verdict(trimmed, {"a": sv(self.OPENER, 4.0)}))
+
+    def test_an_affirmed_opener_plays_as_a_clip_never_as_the_hook(self):
+        m = dict(pm("a", "A", 12.0), text=self.OPENER, hook_onset={"pass": True})
+        self.assertIn("with no clip scorer", PK.no_role_on_screen(m))
+        ok = dict(m, scorer_verdict=sv(self.OPENER, 4.0))
+        self.assertIsNone(PK.no_role_on_screen(ok))
+        why = PK.no_role_on_screen(dict(m, scorer_verdict=sv(self.OPENER, 3.0, "ends_mid_thought")))
+        self.assertIn("with the clip scorer's verdict", why)
+        self.assertIn("does not affirm", why)
+        self.assertIsNone(PK.no_role_on_screen(dict(m, scorer_verdict=sv(self.OPENER, 4.0, "starts_mid_thought"))))
+        self.assertTrue(ok["eligibility"]["hook"]["ok"])               # hook-eligible (L-o: a conjunction is a target)
+        self.assertEqual(PK.placement(ok), " | cannot open (never the hook)")   # but the render's hook rule refuses
+        self.assertEqual(PK.placement(dict(ok, duration_s=6.0)), " | under 8 s: only the LAST clip")
+        hook, x = dict(pm("h", "B", 12.0), hook_onset={"pass": True}), dict(pm("x", "C", 13.0), hook_onset={"pass": True})
+        r = PK.stand_alone_check([hook, ok, x])
+        self.assertTrue(r["ok"], r["rows"])
+        self.assertIn("the clip scorer affirms it stands alone", r["rows"][1]["opener"]["why"])
+        self.assertFalse(PK.stand_alone_check([ok, hook, x])["ok"])    # never the hook
+        by = {y["moment_id"]: y for y in (ok, hook, x, dict(pm("y", "D", 13.0), hook_onset={"pass": True}))}
+        segs = PK.lineup_for(angle(["a", "h", "x", "y"], "a"), by, need_onset=True, need_stand_alone=True)
+        self.assertNotEqual(segs[0]["moment_id"], "a")                  # the proposer's hook gives way ...
+        self.assertIn("a", [y["moment_id"] for y in segs])             # ... and it plays as a clip
+
+    def test_the_build_admits_only_what_the_scorer_affirms(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), dict(pm("b", "E", 13.0), text=self.OPENER)]
+        rig = Rig(ms, ["h", "b", "x", "y"], [(True, [], None, Rig.LINE)], [None], verdicts={"b": fv(self.OPENER, 4.0)})
+        out = rig.run()
+        self.assertNotIn("b", out["no_role"])
+        self.assertEqual((out["scorer"]["read"], out["scorer"]["admitted"]), (True, ["b"]))
+        self.assertIn("id=b | E | 13.0 s | cannot open (never the hook) | ",
+                      next(p for r, p in rig.prompts if r == "angle_write"))
+        seg = next(s for s in out["package"]["segments"] if s["moment_id"] == "b")      # it plays, as a clip,
+        self.assertTrue(package_pin.affirmed_verdict(seg))                                # its affirmation sealed
+        self.assertNotEqual(out["package"]["segments"][0]["moment_id"], "b")
+        refused = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None],
+                      verdicts={"b": fv(self.OPENER, 3.0, "ends_mid_thought")}).run()
+        self.assertIn("with the clip scorer's verdict", refused["no_role"]["b"])
+        self.assertEqual(refused["scorer"]["admitted"], [])
+        none = Rig(ms, ["h", "x", "y"], [(True, [], None, Rig.LINE)], [None]).run()     # no verdicts: as before 56
+        self.assertIn("with no clip scorer", none["no_role"]["b"])
+        self.assertEqual(none["scorer"]["why"], "no verdicts file given")
+
+    def test_a_trimmed_variant_needs_the_affirmation_before_any_vendor_call(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              dict(pm("b", "E", 13.0), text="But Bitcoin x.")]
+        v = dict(ms[4], moment_id="b~trim", text="Bitcoin x.", trimmed_leading="But", untrimmed_start=0.0)
+        saved, outs = PK.trim_variant, {}
+        try:
+            PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
+            for k, vs in (("none", None), ("refused", {"b~trim": fv("Bitcoin x.", 3.0, "ends_mid_thought")}),
+                          ("affirmed", {"b~trim": fv("Bitcoin x.", 4.0)})):
+                rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], verdicts=vs)
+                outs[k] = (rig, rig.run())
+        finally:
+            PK.trim_variant = saved
+        for k in ("none", "refused"):
+            rig, out = outs[k]
+            self.assertEqual(out["trimmed"], {}, k)
+            self.assertFalse(any("b~trim" in ids for _, ids in rig.screens), k)     # never sent to step A
+        self.assertIn("no clip-scorer verdict on the trimmed text yet", outs["none"][1]["scorer"]["trims_out"]["b"])
+        self.assertIn("does not affirm", outs["refused"][1]["scorer"]["trims_out"]["b"])
+        rig, out = outs["affirmed"]
+        self.assertEqual((out["trimmed"], out["scorer"]["trims_affirmed"]), ({"b": "b~trim"}, ["b"]))
+        self.assertTrue(any("b~trim" in ids for _, ids in rig.screens))
+
+    def test_the_candidates_file_asks_about_every_opener_left_out_and_changes_only_with_its_set(self):
+        import tempfile
+        but, srcs = TestRuling33TrimAtThePinStage().moment(
+            "But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
+        opener = dict(pm("o", "B", 12.0), text=self.OPENER)
+        gold = dict(pm("g", "C", 12.0), text="And gold is the hardest money ever made, which is why it wins.")
+        plain = pm("p", "D", 12.0)
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "candidates.json")
+
+            def load():
+                with open(path) as f:
+                    return json.load(f)
+            r = PK.scorer_pass([but, opener, gold, plain], srcs, ctx(), None, path, "ledger_test")
+            self.assertEqual((r["index"], r["record"]["read"], r["record"]["candidates_written"]), ({}, False, True))
+            doc = load()
+            self.assertEqual((doc["build"], doc["kind"]), ("ledger_test", "moments"))   # ruling 60: no event
+            got = {c["pid"]: c for c in doc["candidates"]}
+            self.assertEqual(sorted(got), ["o", "t", "t~trim"])           # gold fails the topic rule: never asked
+            for pid, c in got.items():
+                self.assertEqual(c["text_sha256"], PK.text_sha(c["text"]), pid)
+                self.assertEqual(set(c), {"pid", "video_id", "channel", "duration", "text", "text_sha256",
+                                          "trimmed_leading"})
+            self.assertEqual((got["t~trim"]["trimmed_leading"], got["o"]["trimmed_leading"]), ("But", None))
+            self.assertTrue(got["t~trim"]["text"].startswith("Bitcoin has rarely"))
+            gen = doc["generated_at"]
+            r = PK.scorer_pass([but, dict(opener, scorer_verdict=sv(self.OPENER, 4.0)), gold, plain], srcs, ctx(),
+                               None, path, "ledger_test2")                # a verdict attached changes nothing asked
+            self.assertFalse(r["record"]["candidates_written"])
+            self.assertEqual(load()["generated_at"], gen)
+            r = PK.scorer_pass([but, plain], srcs, ctx(), None, path, "ledger_test3")
+            self.assertTrue(r["record"]["candidates_written"])
+            self.assertEqual(sorted(c["pid"] for c in load()["candidates"]), ["t", "t~trim"])
+            self.assertFalse(os.path.exists(path + ".tmp"))
+        self.assertTrue(PK.SCORER_CANDIDATES.endswith("docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json"))
+
+    def test_the_pin_holds_the_affirmation_to_its_text(self):
+        import stand_alone as SA
+        self.assertEqual(package_pin.SCORER_MIN, SA.CLIP_MIN_SCORE)
+        s = {"approved_text": self.OPENER, "scorer_verdict": sv(self.OPENER, 4.0)}
+        self.assertTrue(package_pin.affirmed_verdict(s))
+        self.assertTrue(package_pin.affirmed_verdict({"text": self.OPENER, "scorer_verdict": sv(self.OPENER, 4.0)}))
+        for bad in (dict(sv(self.OPENER, 4.0), affirmed=False), sv(self.OPENER, 3.0),
+                    dict(sv(self.OPENER, 4.0), kind="story"), dict(sv(self.OPENER, 4.0), threshold=3.0),
+                    dict(sv(self.OPENER, 4.0), score="4"), dict(sv(self.OPENER, 4.0), scorer_sha=""),
+                    dict(sv(self.OPENER, 4.0), event="Pinned: bitcoin"),
+                    {k: x for k, x in sv(self.OPENER, 4.0).items() if k != "event"},
+                    sv(self.OPENER + " ", 4.0), None, "affirmed"):
+            self.assertFalse(package_pin.affirmed_verdict(dict(s, scorer_verdict=bad)), bad)
+        self.assertTrue(package_pin.affirmed_verdict(dict(s, scorer_verdict=sv(self.OPENER, 4.0, "starts_mid_thought"))))
+        self.assertTrue(SA.affirmed(4.0, "starts_mid_thought", moments=True))        # the render's own module,
+        self.assertFalse(SA.affirmed(4.0, "starts_mid_thought"))                     # ruling 60's moments rule;
+        self.assertFalse(SA.affirmed(3.4, "none", moments=True))                     # the story path unchanged
+        segs = [{"approved_text": "Bitcoin is money."}, {"approved_text": self.OPENER},
+                {"approved_text": "Yeah, Bitcoin is money."},
+                {"approved_text": "Bitcoin x.", "scorer_verdict": sv("Bitcoin y.", 4.0)}]
+        self.assertEqual([x.split(":")[0] for x in package_pin.scorer_problems(segs)],
+                         ["segment 1", "segment 2", "segment 3"])
+        for i, t in ((1, self.OPENER), (2, "Yeah, Bitcoin is money."), (3, "Bitcoin x.")):
+            segs[i]["scorer_verdict"] = sv(t, 4.0)
+        self.assertEqual(package_pin.scorer_problems(segs), [])
+        self.assertEqual(package_pin.scorer_problems([{"approved_text": self.OPENER}]), [])   # a hook: the gate's
+        import hashlib
+        t = "And Bitcoin\u2019s caf\u00e9 \u2014 na\u00efve \u201choldlers\u201d win \U0001F680"   # audit 1138 C2 (glm
+        self.assertTrue(package_pin.affirmed_verdict({"approved_text": t, "scorer_verdict": sv(t, 4.0)}))   # P2-2):
+        self.assertEqual(PK.text_sha(t), hashlib.sha256(t.encode("utf-8")).hexdigest())   # one sha, build and pin
 
 
 class TestOrder0622StepAFromBothVendors(unittest.TestCase):

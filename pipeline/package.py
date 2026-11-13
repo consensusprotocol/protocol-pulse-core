@@ -89,11 +89,20 @@ SEARCH_USD_ESTIMATE = 10.00        # ruling 5's $1.50 / 15 min is per PACKAGE de
                                    # ceiling keeps ruling 5's ratio ($5.00 : $1.50) for calls whose vendor reports no cost
 SEARCH_WALL_S = 2400.0             # the build ends cleanly before its driver's timeout (a killed build writes no record)
 TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: the ONE leading word a cut may trim
-TRIM_SCORER_PENDING = True         # ruling 33 (b): the render's clip scorer (gemma3:27b on Ultron's GPU0, which the
-                                   # pin stage may not use) must affirm every trimmed segment. RULING 49 (07:02 Nov 13):
-                                   # YES, a trimmed clip is sealed with that verdict PENDING AT THE RENDER (stage_validate
-                                   # runs before any render; a refusal there costs no GPU), stated in the sealed row and
-                                   # per clip in the pin (scorer_pending: true). False: the render's check with no scorer
+# Ruling 33 (b): the render's clip scorer (gemma3:27b on Ultron's GPU0, which the pin stage may not use itself) must
+# affirm every trimmed segment. RULING 49 (07:02 Nov 13) let a trimmed clip be sealed with that verdict pending at the
+# render, and said "If you can call the same scorer ... do that instead". RULING 56 (09:59): the integrator's pin-stage
+# service asks that same scorer; "seal only what it affirms". The pending form is retired: a trimmed clip is sealed
+# only with the scorer's affirmation of its trimmed text, and package_pin refuses scorer_pending. RULING 60 (11:01): for
+# a moments pin the scorer judges stand-alone only, and the affirmation is the score alone (stand_alone.affirmed with
+# moments=True), as the render's validate reads it.
+SCORER_VERDICTS = "/home/ultron/protocol_pulse/data/stand_alone_scorer/verdicts/latest.json"   # ruling 56: the
+SCORER_KIND = "moments"            # integrator's verdicts (read only); ruling 60: kind "moments", no event
+RENDER_SCORER_CODE = tuple(f"/home/ultron/protocol_pulse/pipeline/{f}" for f in ("stand_alone.py", "story_semantics.py"))
+                                   # ^ read only: the render's scorer code; the integrator's scorer_sha is a sha256 over
+                                   # these two files in this order, so a verdict under other code is not the render's now
+SCORER_CANDIDATES = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "audits",
+                                 "parallel", "pp-selectid_SCORER_CANDIDATES.json")   # ruling 56: what I ask it next
 TRIMMED_PER_LINEUP_MAX = 1         # ruling 49 (b): at most ONE trimmed clip per line-up until the first trimmed clip has
                                    # been affirmed at validate once (the integrator says when): one refusal cannot sink a
                                    # line-up twice. package_pin.TRIMMED_PER_PIN_MAX holds the pin to the same number
@@ -318,10 +327,10 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "time_sensitive": bool(time_sensitive(m)),          # ruling 1 (22:40): L-v 3 on the render
                         "source_published_at": utc_z(m.get("published_at")),  # clock, both sealed in the pin
                         "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
-                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"],
-                            "scorer_pending": bool(TRIM_SCORER_PENDING)}   # ruling 49 (a): the clip scorer's verdict
-                           if m.get("trimmed_leading") else {})}   # on the trimmed text is pending at the render
-                                                                   # (strict: False, which the pin refuses)
+                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
+                           if m.get("trimmed_leading") else {}),
+                        **({"scorer_verdict": verdict_of(m)}  # ruling 56: "seal only what it affirms" (the pin
+                           if (verdict_of(m) or {}).get("affirmed") is True else {})}   # refuses any other)
                        for lb, m in zip(labels(len(segs)), segs)],
           "vo": dict(vo, signoff=signoff(segs, ctx)),
           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
@@ -773,30 +782,32 @@ def check_angles(obj, by_id, k=MAX_ANGLES, hooks=None):
 def stand_alone_check(segs):
     """The render's STAND_ALONE (main run_fresh.stage_validate -> stand_alone.check_edl) on one line-up, at the pin stage
     (the integrator held pin d2657bbe on it, 03:00 ET Nov 13): the hook, then the clips in play order (clip_01, ...), the
-    subject Bitcoin (run_fresh.stand_alone_subject for a pinned moments package labelled 'bitcoin'), and NO clip scorer.
-    The render's scorer is a local model on GPU0, which this stage may not use, so a clip that opens on a conjunction or
-    a reply fragment fails closed here, as check_edl does without one: never sealed for the scorer to rescue.
-    check_edl's verdict reads only each segment's text, the subject and rate (channel and duration feed only the
-    scorer's passages, unused with rate=None; the labels come from the order). The subject is fixed because
-    package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen P1-1).
+    subject Bitcoin (run_fresh.stand_alone_subject for a pinned moments package labelled 'bitcoin'), and as the clip
+    scorer the verdicts the integrator's pin-stage service gave on each segment's CURRENT text (ruling 56: the render's
+    own scorer, on GPU0, which this stage may not use itself), read with the render's moments rule (ruling 60:
+    check_edl(moments=True), the score alone). A clip that opens on a conjunction or a reply fragment, and a trimmed
+    segment (its lock's marker, as the render sets it), pass only with an affirming verdict and fail closed without one,
+    as check_edl does. check_edl's verdict reads only each segment's text, the subject and rate (channel and duration
+    feed only the scorer's passages, which rate answers from the sealed verdicts; the labels come from the order). The
+    subject is fixed because package_pin.to_pin labels every moments pin 'bitcoin' (audit 0310 C1, glm P1-1 / qwen
+    P1-1).
     RULING 34 (the render's side merged at 55315124): the topic test is the miner's about-Bitcoin screen that every
     moments pin seals (eligibility.BTC_SCREEN, moments_package.btc_screen), and the MEDLEY must name Bitcoin in at
     least one segment (out["medley_names_bitcoin"], part of out["ok"]): check_edl(..., screen=...), as the render."""
     import stand_alone as SA
     def seg(m, extra):
-        lock = {} if TRIM_SCORER_PENDING or not m.get("trimmed_leading") else \
+        lock = {} if not m.get("trimmed_leading") else \
             {"selection_lock": {"trimmed_leading": {"word": m["trimmed_leading"]}}}    # the render's own marker
         return dict(extra, text=m["text"], channel=m.get("channel_name"), **lock)
-    edl = {"hook": seg(segs[0], {}),
+    by_label = dict(zip(labels(len(segs)), segs))
+
+    def rate(passages):                      # ruling 56: the render's own clip scorer, as its verdicts on each
+        return {p["pid"]: (v["score"], v["reason"], v["fault"]) for p in passages     # segment's current text; a
+                for v in [verdict_of(by_label.get(p["pid"]))] if v}                     # segment without one fails
+    edl = {"hook": seg(segs[0], {}),                                                    # closed, as check_edl does
            "clips": [seg(m, {"index": i, "duration": m.get("duration_s")}) for i, m in enumerate(segs[1:], 1)]}
-    r = SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
-    r["scorer_pending"] = [lb for lb, m in zip(labels(len(segs)), segs)
-                           if m.get("trimmed_leading") and TRIM_SCORER_PENDING]            # ruling 33 (b), item 42
-    for row in r["rows"]:              # the sealed row STATES the divergence, not only the labels (audit 0530 C2, glm)
-        if row["segment"] in r["scorer_pending"]:
-            row["opener"]["why"] += ("; the clip scorer's verdict on the trimmed text is PENDING AT THE RENDER (GPU0; "
-                                     "ruling 33 part 2)")
-    return r
+    return SA.check_edl(edl, rate=rate, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN,
+                        moments=True)                # ruling 60: a moments pin, as the render's validate reads it
 
 
 def ad_read_out(ms, sources):
@@ -826,7 +837,8 @@ def trim_variant(m, sources):
     place under the render's STAND_ALONE as trimmed (no_role_on_screen and no_topic both None on the trimmed text).
     Then it is judged like any moment: step A on the trimmed span (ruling 33 c), L-v 2 with the trimmed word heard right
     before the clip (transcript_truth.edges), and the acoustic onset rule on the trimmed cut (ruling 33 a, build()).
-    The clip scorer's verdict (ruling 33 b) is the render's, on GPU0: pending at the render (stand_alone_check). -> the
+    The clip scorer's verdict on the trimmed text (ruling 33 b) is the render's own scorer's, given at the pin stage
+    by the integrator's service (ruling 56): build() keeps the variant only with its affirmation (trim_refused). -> the
     variant, or None."""
     import canon
     try:
@@ -966,6 +978,139 @@ def reposted_once(ms, sources):
     return out, dup
 
 
+def render_scorer_sha(paths=RENDER_SCORER_CODE):
+    """RULING 56: the integrator's scorer_sha recomputed from the render's scorer code as it is NOW (read only): a
+    sha256 over the files' bytes, in order. None when one cannot be read (then no verdict is used)."""
+    h = hashlib.sha256()
+    try:
+        for p in paths:
+            with open(p, "rb") as f:
+                h.update(f.read())
+    except OSError:
+        return None
+    return h.hexdigest()
+
+
+def scorer_verdicts(path, code_sha):
+    """RULING 56 under RULING 60: the integrator's pin-stage verdicts of the render's own clip scorer (read only). ->
+    ({pid: verdict}, the record of the read). Fail closed, nothing used: a missing, unreadable or malformed file; a kind
+    other than "moments"; an event at all (a moments verdict carries "event": null); a scorer_sha other than code_sha
+    (the render's scorer code now, render_scorer_sha); another threshold than stand_alone.CLIP_MIN_SCORE. A verdict
+    without a numeric score, with an error, or whose "affirmed" disagrees with the render's own moments rule
+    (stand_alone.affirmed(score, fault, moments=True): the score alone) is no verdict."""
+    import stand_alone as SA
+    num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
+    stage, sc = "open", None
+    try:
+        with open(path) as f:
+            stage = "parse"
+            d = json.load(f)
+        stage = "shape"
+        sc = d["scorer"]
+        vs = d["verdicts"]
+        why = ("a kind other than 'moments' (ruling 60)" if sc.get("kind") != SCORER_KIND else
+               "an event (ruling 60: a moments verdict carries none)" if sc.get("event", "absent") is not None else
+               "the render's scorer code could not be read" if not code_sha else
+               "a scorer_sha that is not the render's scorer code now" if sc.get("scorer_sha") != code_sha else
+               "another threshold" if not num(sc.get("threshold")) or sc["threshold"] != SA.CLIP_MIN_SCORE else
+               "no verdicts" if not isinstance(vs, dict) else None)
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as e:   # audit 1138 C2 (qwen, glm): the
+        return {}, {"read": False, "why": f"{stage}: {type(e).__name__}: {str(e)[:160]}", "path": path,   # record
+                    "render_scorer_sha": code_sha,                  # says what failed, where, and what it read
+                    **({k: sc.get(k) for k in ("kind", "event", "scorer_sha", "threshold")}
+                       if isinstance(sc, dict) else {})}
+    if why:
+        return {}, {"read": False, "why": why, "kind": sc.get("kind"), "event": sc.get("event"),
+                    "scorer_sha": sc.get("scorer_sha"), "render_scorer_sha": code_sha, "threshold": sc.get("threshold")}
+    out, disagree = {}, []
+    for pid, v in vs.items():
+        if not (isinstance(v, dict) and isinstance(v.get("text_sha256"), str) and num(v.get("score")) and
+                not v.get("error")):
+            continue
+        rule = SA.affirmed(v["score"], v.get("fault"), moments=True)
+        if (v.get("affirmed") is True) != rule:
+            disagree.append(pid)
+            continue
+        out[str(pid)] = {"score": v["score"], "reason": v.get("reason"), "fault": v.get("fault"), "affirmed": rule,
+                         "text_sha256": v["text_sha256"], "prompt_sha256": v.get("prompt_sha256"),
+                         "model": sc.get("model"), "kind": sc["kind"], "event": None, "rubric": sc.get("rubric"),
+                         "rule": sc.get("rule"), "scorer_sha": sc["scorer_sha"], "threshold": sc["threshold"],
+                         "rated_at": d.get("rated_at")}
+    return out, {"read": True, "rated_at": d.get("rated_at"), "build": d.get("build"),
+                 "candidates_generated_at": d.get("candidates_generated_at"), "model": sc.get("model"),
+                 "kind": sc["kind"], "rubric": sc.get("rubric"), "scorer_sha": sc["scorer_sha"],
+                 "threshold": sc["threshold"], "verdicts": len(out), "affirmed": sum(v["affirmed"] for v in out.values()),
+                 "disagree_with_the_rule": disagree}
+
+
+def verdict_of(m):
+    """RULING 56: the clip scorer's verdict attached to a moment when it is for the moment's CURRENT text, else None."""
+    v = (m or {}).get("scorer_verdict")
+    return v if isinstance(v, dict) and v.get("text_sha256") == text_sha((m or {}).get("text")) else None
+
+
+def with_verdict(m, index):
+    """The moment with the scorer's verdict for its id attached when that verdict is for its current text (ruling 56);
+    any other verdict it carries is dropped (a trimmed variant never inherits its original's)."""
+    m = {k: x for k, x in m.items() if k != "scorer_verdict"}
+    v = index.get(m["moment_id"])
+    return dict(m, scorer_verdict=v) if v and v["text_sha256"] == text_sha(m.get("text")) else m
+
+
+def trim_refused(v):
+    """RULING 56: why a trimmed variant is left out before any vendor call, else None: no clip-scorer verdict on its
+    trimmed text, or one that does not affirm it ("seal only what it affirms"; ruling 60: the score alone)."""
+    s = verdict_of(v)
+    if s is None:
+        return (f"{v.get('trimmed_leading')!r} trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: "
+                f"sealed only when the scorer affirms it)")
+    if not s["affirmed"]:
+        return (f"{v.get('trimmed_leading')!r} trimmed; the clip scorer does not affirm the trimmed text stands alone "
+                f"({s['score']}, under {s['threshold']})")
+    return None
+
+
+def write_candidates(path, ms, ctx, build_name):
+    """RULING 56: the next pass's request in the integrator's contract ({generated_at, build, kind, candidates: [{pid,
+    video_id, channel, duration, text, text_sha256, trimmed_leading}]}; ruling 60: kind "moments", no event), written
+    atomically (.tmp, then rename), and only when its set of (pid, text_sha256) differs from the file's: a new
+    generated_at starts a pass, and rated texts are reused there. -> True when written."""
+    from datetime import datetime, timezone
+    cands = [{"pid": m["moment_id"], "video_id": m["video_id"], "channel": _name(m, ctx), "duration": m["duration_s"],
+              "text": m["text"], "text_sha256": text_sha(m["text"]), "trimmed_leading": m.get("trimmed_leading")}
+             for m in ms]
+    try:
+        with open(path) as f:
+            old = {(c["pid"], c["text_sha256"]) for c in json.load(f)["candidates"]}
+    except (OSError, ValueError, KeyError, TypeError):
+        old = None
+    if old == {(c["pid"], c["text_sha256"]) for c in cands}:
+        return False
+    doc = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "build": build_name,
+           "kind": SCORER_KIND, "candidates": cands}
+    with open(path + ".tmp", "w") as f:
+        json.dump(doc, f, indent=1)
+    os.replace(path + ".tmp", path)
+    return True
+
+
+def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name):
+    """RULING 56, once per build, before any verdict is attached. (1) The integrator's verdicts (scorer_verdicts, fail
+    closed). (2) The next pass's candidates (write_candidates): every moment the render's STAND_ALONE leaves out as an
+    opener the clip scorer would have to affirm (no_role_on_screen fires, the topic rule does not: no verdict could
+    give a moment that fails the topic rule a place), and the trimmed variant of every moment left out (ruling 33 part
+    2), each with its text exactly as it would be locked. -> {"index": {pid: verdict}, "record": {...}}."""
+    index, rec = scorer_verdicts(verdicts_path, render_scorer_sha()) if verdicts_path else \
+        ({}, {"read": False, "why": "no verdicts file given"})
+    if candidates_path:
+        left = [(m, no_role_on_screen(m), no_topic(m)) for m in
+                ({k: x for k, x in m.items() if k != "scorer_verdict"} for m in ms)]
+        ask = [m for m, o, t in left if o and not t] + \
+            [v for m, o, t in left if o or t for v in [trim_variant(m, sources)] if v]
+        rec = dict(rec, candidates=len(ask), candidates_written=write_candidates(candidates_path, ask, ctx, build_name))
+    return {"index": index, "record": rec}
+
+
 def no_topic(m):
     """Why a moment can take NO place under the render's topic rule with the pin's screen (ruling 34), else None: it
     fails the miner's about-Bitcoin screen, and could not complete a previous claim even right after a segment that
@@ -977,13 +1122,18 @@ def no_topic(m):
 
 
 def no_role_on_screen(m):
-    """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
-    opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
-    it), else None. build() leaves such moments out before any vendor call."""
+    """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule (it opens on a conjunction
+    or a reply fragment: the clip role fails closed without an affirming clip-scorer verdict, the hook role fails on
+    it), else None. RULING 56: the clip role reads the render's own scorer's verdict on the moment's CURRENT text when
+    one is attached (verdict_of), by the render's moments rule (ruling 60: the score alone); the hook role never does.
+    build() leaves such moments out before any vendor call."""
     import stand_alone as SA
-    c_ok, c_why = SA.opener("clip", m["text"])          # a moment without text fails fast (audit 0310 C2, qwen)
+    v = verdict_of(m)
+    c_ok, c_why = SA.opener("clip", m["text"], v["score"] if v else None, v["fault"] if v else None,
+                            moments=True)                # a moment without text fails fast (audit 0310 C2, qwen)
     h_ok, h_why = SA.opener("hook", m["text"])
-    return None if (c_ok or h_ok) else f"the render's STAND_ALONE with no clip scorer at the pin stage: {c_why}; {h_why}"
+    return None if (c_ok or h_ok) else ("the render's STAND_ALONE " + ("with the clip scorer's verdict" if v else
+                                        "with no clip scorer at the pin stage") + f": {c_why}; {h_why}")
 
 
 def can_open(m):
@@ -1599,7 +1749,7 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
 
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
-          hook_cache=None):
+          hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name=""):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -1607,6 +1757,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
     spend: a callable returning the ledger's USD (dollars per package).
     step_a_cache / hook_cache (rulings 58 / 59): the verdict caches every build shares (None: this build's only).
+    scorer_verdicts_path / scorer_candidates_path / build_name (ruling 56, scorer_pass): the integrator's verdicts of the
+    render's clip scorer to read, and where to write the next pass's candidates (None: neither).
     RULING 59, HOOK FIRST: once the pool is screened, every cleared, cuttable moment that can open is rated on the hook's
     own job in one batched call (hook_ratings); only a hook rated >= HOOK_MIN opens; with none, the build stops there
     ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
@@ -1618,9 +1770,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
+    scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name)   # ruling 56
+    ms = [with_verdict(m, scorer["index"]) for m in ms]
     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
-    trims = {m["moment_id"]: v for m in ms if m["moment_id"] in no_role for v in [trim_variant(m, sources)] if v}
+    admitted = sorted(m["moment_id"] for m in ms if verdict_of(m) and m["moment_id"] not in no_role)   # ruling 56
+    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms if m["moment_id"] in no_role
+             for v in [trim_variant(m, sources)] if v}
+    trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
+    trims = {k: v for k, v in trims.items() if k not in trim_out}
     ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42)
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
@@ -1632,6 +1790,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
            "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
            "reposted": reposted,
+           "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
@@ -1640,6 +1799,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         f"would have to affirm, or no place under the topic rule with the pin's screen; {len(trims)} of them back as "
         f"variants with ONE leading word trimmed, ruling 33 part 2), {len(ad_read)} on an ad-read "
         f"marker (the exclusion screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+    sc = out["scorer"]
+    log(f"  the clip scorer's verdicts (ruling 56, ruling 60): " + (
+        f"{sc['verdicts']} read, {sc['affirmed']} affirmed (rated {sc['rated_at']}, scorer {str(sc['scorer_sha'])[:12]})"
+        if sc.get("read") else f"none used ({sc.get('why')})") +
+        f"; {len(admitted)} opener(s) admitted as clips, {len(trims)} trimmed variant(s) affirmed, {len(trim_out)} left "
+        f"out without an affirmation" + (f"; candidates {sc['candidates']} ("
+                                         f"{'written' if sc['candidates_written'] else 'unchanged'})"
+                                         if "candidates" in sc else ""))
     if len({m["channel_id"] for m in cleared.values()}) < 3:
         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
         return out
@@ -2234,10 +2401,11 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                lead_ms=hook.get("lead_ms"), cut_in=hook.get("cut_in"), why=hook.get("why"))}
            if hook is not None else {}),
         **({"stand_alone": dict(row(stand.get("ok") is True, "stand_alone.check_edl (the render's STAND_ALONE at the pin "
-                                    "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
+                                    "stage, moments=True: the render's clip scorer's verdicts as the integrator's "
+                                    "service gave them, stand-alone only, the score alone (rulings 56, 60); without an "
+                                    "affirming one a conjunction, reply-fragment or trimmed opener fails closed)"),
                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
                                       f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
-                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"),
-                                scorer_pending=stand.get("scorer_pending") or [])}
+                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
            if stand is not None else {}),
     }

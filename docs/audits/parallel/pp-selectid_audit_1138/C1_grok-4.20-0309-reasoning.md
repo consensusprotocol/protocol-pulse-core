@@ -1,0 +1,7 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 28 s finish=stop usage in 28817 / out 282 usd~0.151 (upper-bound price)
+
+**P0: None.**  
+**P1: None.** (All fail-closed paths for kind, event!=null, scorer_sha mismatch, threshold mismatch, text_sha256 mismatch on current text, missing numeric score, error present, "affirmed" flag disagreeing with re-derived stand_alone.affirmed(moments=True), malformed JSON, unreadable file, or absent file are exercised in scorer_verdicts(), affirmed_verdict(), verdict_of(), with_verdict(), trim_refused(), scorer_problems(), trim_problems(), and the 8 new TestRuling56Scorer cases. No path produces a pass or admission without a matching affirmation from the render's own scorer code.)  
+**P2: None verifiable from diff.** (stand_alone.py defaults preserve story path when moments=False; TRIM_SCORER_PENDING and scorer_pending reads are removed or refused; atomic .tmp+os.replace write only on changed (pid,text_sha256) set; admitted openers never become hook (ruling 59 can_open/placement still applies); pin recomputes old pins via SEALED_LATER; no touch to sentence law, credits, L-a–L-l, selection_lock, onset/tail, or release_auth bytes; copied stand_alone.py matches K5; all described evidence numbers (145/9/3/68/153) are consistent with the reader logic.)
+
+SHIP: yes

@@ -68,12 +68,15 @@ def recency_problems(segments):
 SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): the render clock checks L-v 3 on these
                 "speaker",                                 # the 00:05 ET Nov 13 order, item 3
                 "trimmed_leading", "untrimmed_start",      # ruling 33 part 2 (render merged 11e361cc): only when a word
-                "scorer_pending")                          # is trimmed, so every other pin seals as before (ruling 49 a)
+                "scorer_pending",                          # is trimmed, so every other pin seals as before (ruling 49 a;
+                                                           # retired by ruling 56: kept so its pins still recompute)
+                "scorer_verdict")                          # ruling 56: the clip scorer's affirmation, only when sealed
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which
                                                            # must never pull package.py into that process
 TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE leading word a cut may trim
+SCORER_MIN = 3.5                                           # = stand_alone.CLIP_MIN_SCORE (a test holds them equal)
 
 
 def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
@@ -100,12 +103,45 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
+def affirmed_verdict(s):
+    """RULING 56 under RULING 60: True when the segment carries the render's own clip scorer's AFFIRMATION of exactly its
+    text (approved_text in a pin, text in a package): scorer_verdict with affirmed true, kind "moments" and no event
+    (the stand-alone judgment), threshold SCORER_MIN and a numeric score at or over it (the score alone,
+    stand_alone.affirmed(moments=True)), a scorer_sha, and text_sha256 = the sha256 of the text's UTF-8 bytes."""
+    v = s.get("scorer_verdict")
+    num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
+    text = s["approved_text"] if "approved_text" in s else s.get("text")
+    return isinstance(v, dict) and v.get("affirmed") is True and v.get("kind") == "moments" and "event" in v and \
+        v["event"] is None and num(v.get("score")) and v.get("threshold") == SCORER_MIN and v["score"] >= SCORER_MIN \
+        and bool(v.get("scorer_sha")) and isinstance(text, str) and \
+        v.get("text_sha256") == hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def scorer_problems(segments):
+    """[why] for segments that need the clip scorer and do not carry its affirmation (ruling 56: "seal only what it
+    affirms"): every clip after the hook whose first word is a conjunction or a reply fragment (the render's
+    stand_alone.check_edl asks its scorer for exactly these), and any segment carrying a scorer_verdict that is not an
+    affirmation of exactly its text. A trimmed clip's affirmation is trim_problems'."""
+    import stand_alone as SA
+    out = []
+    for i, s in enumerate(segments):
+        text = s["approved_text"] if "approved_text" in s else s.get("text")
+        w = SA._words(text)[:1]
+        needs = i > 0 and bool(w) and (w[0] in SA.CONJUNCTIONS or w[0] in SA.REPLY_FRAGMENTS)
+        if needs and not affirmed_verdict(s):
+            out.append(f"segment {i}: opens on {w[0]!r}: the clip scorer's affirmation of its text must be sealed "
+                       f"(ruling 56)")
+        elif "scorer_verdict" in s and not affirmed_verdict(s):
+            out.append(f"segment {i}: carries a clip-scorer verdict that does not affirm exactly its text (ruling 56)")
+    return out
+
+
 def trim_problems(segments):
     """[why] for segments whose trim does not match the render's contract (ruling 33 part 2; pinned.validate_schema
     refuses anything else): "trimmed_leading" and "untrimmed_start" both present or both absent; the trimmed word's
-    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start. RULING 49: (a) every trimmed clip says
-    scorer_pending: true (the clip scorer's verdict is pending at the render) and no other clip carries the key;
-    (b) at most TRIMMED_PER_PIN_MAX trimmed clips."""
+    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start. RULING 49 (b): at most TRIMMED_PER_PIN_MAX
+    trimmed clips. RULING 56 ("seal only what it affirms", retiring 49 a's pending form): every trimmed clip carries
+    the clip scorer's affirmation of its trimmed text (affirmed_verdict), and no segment carries scorer_pending."""
     import canon
     out = []
     n = sum("trimmed_leading" in s or "untrimmed_start" in s for s in segments)
@@ -114,13 +150,14 @@ def trim_problems(segments):
                    f"(ruling 49 b)")
     for i, s in enumerate(segments):
         has_w, has_s = "trimmed_leading" in s, "untrimmed_start" in s
+        if "scorer_pending" in s:
+            out.append(f"segment {i}: scorer_pending is no longer sealed (ruling 56: seal only what the scorer "
+                       f"affirms)")
         if not has_w and not has_s:
-            if "scorer_pending" in s:
-                out.append(f"segment {i}: scorer_pending belongs to a trimmed clip only (ruling 49 a)")
             continue
-        if s.get("scorer_pending") is not True:
-            out.append(f"segment {i}: a trimmed clip must say scorer_pending: true (ruling 49 a: the clip scorer's "
-                       f"verdict on the trimmed text is pending at the render)")
+        if not affirmed_verdict(s):
+            out.append(f"segment {i}: a trimmed clip must carry the clip scorer's affirmation of its trimmed text "
+                       f"(ruling 56)")
         if has_w != has_s:
             out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
             continue
@@ -231,7 +268,7 @@ def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
                                                                      for x in line_problems(pk)] + \
         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
-        screen_problems(pk) + trim_problems(pk.get("segments") or [])
+        screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or [])
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -241,7 +278,7 @@ def to_pin(pk, run_name):
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_pending") if k in s},
+                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict") if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}

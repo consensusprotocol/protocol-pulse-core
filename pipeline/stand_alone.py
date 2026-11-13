@@ -37,7 +37,41 @@ def _words(text):
     return canon.canon_tokens(text, heads=True)
 
 
-def opener(kind, text, score=None, fault=None):
+def affirmed(score, fault, moments=False):
+    """The clip scorer's affirmation, the ONE threshold: opener, trimmed_opener and the pin-stage scorer
+    (stand_alone_scorer.py, order '09:58' item 56) all read it here. The story path: score >= CLIP_MIN_SCORE and no
+    starts_mid_thought fault. A MOMENTS pin (ruling 60, '11:01': "bar 3.5, no fixed score for an opener word: the
+    model judges the clip as spoken"): the score alone. Measured 2026-11-13: the model labels an opening "I mean" /
+    "However" starts_mid_thought while scoring the clip 4 ("understood alone"), and every REFERENT_OUTSIDE clip it
+    refuses scores <= 3, so the label added only an opener penalty."""
+    if moments:
+        return score is not None and score >= CLIP_MIN_SCORE
+    return score is not None and score >= CLIP_MIN_SCORE and fault != "starts_mid_thought"
+
+
+def clip_scorer(event, llm=None, moments=False):
+    """The clip scorer stage_validate asks: rate(passages) -> {pid: (score, reason, fault)} on the GPU0 LocalLLM
+    (gemma3:27b, temperature 0). The story path: story_semantics.rate_passages with {"underlying_event": event}. A
+    MOMENTS pin (ruling 60): story_semantics.rate_alone, stand-alone only, no event. ONE code path for the render's
+    validate and the pin-stage scorer (order '09:58' item 56). Without `llm` it starts the model and stops it after
+    the call (validate's way); with one, the caller owns its life. An unparseable reply raises (never invented)."""
+    def rate(passages):
+        import story_semantics as sm
+        own = llm is None
+        m = sm.LocalLLM().start() if own else llm
+        try:
+            ratings, err = sm.rate_alone(m, passages) if moments else \
+                sm.rate_passages(m, {"underlying_event": event}, passages)
+        finally:
+            if own:
+                m.stop()
+        if err:
+            raise RuntimeError(f"clip scorer reply unparseable: {err}")
+        return ratings
+    return rate
+
+
+def opener(kind, text, score=None, fault=None, moments=False):
     """(ok, reason) for the first word of a hook or a clip."""
     ws = _words(text)
     if not ws:
@@ -51,7 +85,7 @@ def opener(kind, text, score=None, fault=None):
     if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
         if score is None:
             return False, f"clip opens on {w!r} and no clip-scorer verdict is available (fail closed)"
-        if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
+        if affirmed(score, fault, moments):
             return True, f"clip opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault})"
         return False, f"clip opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
     return True, f"opens on {w!r}"
@@ -118,23 +152,24 @@ def trimmed_word(seg):
     return str(t.get("word") or "?") if isinstance(t, dict) else None
 
 
-def trimmed_opener(word, score, fault):
+def trimmed_opener(word, score, fault, moments=False):
     """Ruling 33 part 2 (orchestrator 2026-11-13 '03:42'): a segment locked with ONE leading word trimmed passes only
     when the clip scorer affirms the TRIMMED text stands alone at the unchanged threshold, whatever its first word."""
     if score is None:
         return False, f"{word!r} trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)"
-    if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
+    if affirmed(score, fault, moments):
         return True, f"{word!r} trimmed; the clip scorer affirms the trimmed text stands alone ({score}, fault {fault})"
     return False, f"{word!r} trimmed; the clip scorer does not affirm the trimmed text stands alone ({score}, fault {fault})"
 
 
-def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
+def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None, moments=False):
     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
     clips opening on a conjunction / reply fragment (the clip scorer) and for every segment whose lock trims a leading
     word (ruling 33 part 2, the hook included); without it they fail closed.
     screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
     and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
-    speaker's own words. screen None: every segment names the subject, as before (the story path)."""
+    speaker's own words. screen None: every segment names the subject, as before (the story path).
+    moments (ruling 60, a moments pin): the scorer's verdict is read with affirmed(..., moments=True), the score alone."""
     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
     need = [(label, s) for label, kind, s in segs if trimmed_word(s) or (kind == "clip" and _words(s.get("text"))[:1]
             and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS))]
@@ -149,9 +184,9 @@ def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None):
     for label, kind, s in segs:
         sc = scores.get(label)
         score, fault = (sc[0], sc[2]) if sc else (None, None)
-        o_ok, o_why = opener(kind, s.get("text"), score, fault)
+        o_ok, o_why = opener(kind, s.get("text"), score, fault, moments)
         if o_ok and trimmed_word(s):                                   # ruling 33 part 2
-            o_ok, o_why = trimmed_opener(trimmed_word(s), score, fault)
+            o_ok, o_why = trimmed_opener(trimmed_word(s), score, fault, moments)
         t_ok, t_why = topical_screen(kind, s.get("text"), prev, screen) if screen is not None else \
             topical(kind, s.get("text"), prev, subject)
         rows.append({"segment": label, "channel": s.get("channel"), "first_words": " ".join((s.get("text") or "").split()[:6]),
