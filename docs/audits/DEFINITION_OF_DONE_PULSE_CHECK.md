@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 03:16 ORDER '02:46' (b) MEASURED: the faster worker's first cycle (02:58:35-03:13:56, word_pass_cycles.jsonl).
+
+| Cycle | Picked | Written | Ready | Failed | Minutes | Peak GPU1 | Batches |
+|---|---|---|---|---|---|---|---|
+| first fast cycle | 120 (all 24 h, 13 channels) | 120 | 105 | 0 | 15.33 | 5178 MiB | 8 |
+
+WHERE THE TIME GOES:
+- gpu_s 872.0, the time holding the GPU1 lease, of which foreign_wait_s 310.2: the media-sync's PCAF wait-out (PCAF on GPU1 from 03:01:48, caught by the watcher; the worker log gives the 310.2 s, without a clock time). So about 562 s of decoding for 120 moments, 4.7 s per moment;
+- fetch_s 371.5, summed over the 4 fetch threads and overlapped with the GPU;
+- lease_wait_s 3.5.
+So about 10 min per 120 without the foreign wait. Before: 40 moments took 4.5-22 min, sequential downloads plus two model swaps per moment.
+THE BACKLOG: at 03:16 the adapter's 24 h eligible set is 510 rows. 253 still wait (332 at 02:46), and of the 10 h set 3 of 30 (new ledger lines arrived: 2072 lines, 1343 adapter rows). The 03:13:56 cycle takes 120, and the next one the rest. The 24 h backlog clears about 03:45-03:50, unless a media-sync wait (each */30) adds about 5 min.
+Of the raw ledger moments of the last 24 h, 257 have a word-pass row and 225 are sentence-ready. The rest are the adapter's exclusions and the backlog.
+
 ## 03:08 ORDER '02:46' (c) ANSWERED, AND RULING 30 MERGED (c87fe34e).
 (c) WHAT THE MEDIA-SYNC CRON LOADS ON GPU1, caught live by a read-only watcher on its 03:00 run:
 - At 03:01:48 PID 1225446 (scripts/sync_media_feeds.py) held 388 MiB on GPU1 (uuid GPU-408ad2ea = index 1).
