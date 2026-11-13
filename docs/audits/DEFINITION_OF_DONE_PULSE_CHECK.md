@@ -6,6 +6,32 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 04:52 RULING 33 PART 2 MERGED (11e361cc, audits batch 58 x2, pushed 0a1ad85f): a clip may be locked with ONE leading word trimmed (but / and / so / well / now / yeah).
+- THE PIN (sent to the builder):
+  - a segment may carry "trimmed_leading", the one word as spoken; its canonical token must be one of the six.
+  - with it, "untrimmed_start": a number on the segment's own clock, the start of the untrimmed sentence, 0 <= it < start.
+  - machine_cuts pins only.
+  - approved_text is the TRIMMED text; start / end bound the kept words.
+- THE LOCK (pinned.trimmed_lock): the run's own transcript must hold that word right before the lock (by text, never by time), or the pin is refused. The lock records {rule, word, word_index, untrimmed_start} inside its sha256, and it survives ruling 17's adjudication. Its text, which G18 compares against, is the trimmed text: G18's code is unchanged.
+- THE IN EDGE (sentence_law.trimmed_boundary; write_lock_cut_table and G16 both use it):
+  - the word before the lock is the trimmed word;
+  - the untrimmed sentence starts a sentence: the word before it ends one, or it is the transcript's first word;
+  - a quiet run lies between the trimmed word and the first kept word, with a heard gap. Otherwise the clip HOLDS: "the trimmed word 'X' cannot be cut cleanly: no measured pause between it and 'Y' (co-articulated)".
+  - the cut range is narrowed to that quiet run: the cut SITS in the pause.
+  - the onset rule on the audio as cut (trimmed_onset): ruling 28's measure, head_tail with the clip's fade-in, finds quiet before the first onset. Otherwise HOLD, and the gate text names the trimmed word.
+  - a trimmed hook also keeps ruling 28's 80 ms. The OUT edge code is untouched. A lock without trimmed_leading takes exactly the old path.
+- STAND_ALONE: every trimmed segment, the hook included, is put to the clip scorer. It passes only when the scorer affirms the TRIMMED text at the unchanged threshold (>= 3.5, not starts_mid_thought). It fails closed without a verdict. The hook keeps its deterministic opener rule on the trimmed text.
+- THE BUILDER'S CONFLICT (their message, 04:25), raised by them with the orchestrator:
+  - their pin stage has no scorer (GPU0 is not theirs);
+  - so check_edl(rate=None) fails every trimmed segment closed, and under "no pin is sealed that validate would refuse" no trimmed pin can be sealed until that is ruled.
+  - The render side is built as ruled; nothing here routes around it.
+- Verification:
+  - test_trimmed_leading 18 (16 subtests): synthetic sources with a clean pause, a co-articulated word, a non-terminal word before it, wrong words, the cut table + G16 end to end, a cut outside the quiet run but inside the old range, the onset rule, the pin fields, the digest, the retry candidates, the scorer;
+  - the affected suites: 143 passed;
+  - regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (MEDLEY REFERENCE REPRODUCED).
+- NOTE (environment, not code): test_edge_words' Natalie-tail test fails when run without CUDA_VISIBLE_DEVICES=0 (its NVENC encode exits 1). Its docstring states that variable, and with it the test passes 8/8.
+- NEXT: ruling 37.
+
 ## 04:14 RULING 34 MERGED (7b23f7f9, audits batch 57 x2, pushed 55315124): a MOMENTS pin's per-segment topical test is the miner's about-Bitcoin screen carried on the pin; the MEDLEY must name Bitcoin.
 - Per segment (stand_alone.topical_screen): a segment passes when the pin's btc_screen matches its text. The hook must match it. Any other segment that misses may still pass by completing the previous claim: topical()'s existing rule, not widened.
 - The medley (check_edl -> medley_names_bitcoin): the hook or at least one clip says Bitcoin / BTC (`\b(bitcoin|btc)\b`, re.I) in the speaker's own words (the lock text). Otherwise validate HOLDS with "medley: no segment names Bitcoin in the speaker's own words (ruling 34)".
