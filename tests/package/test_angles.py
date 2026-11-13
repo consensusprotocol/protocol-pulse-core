@@ -399,6 +399,31 @@ class TestEdgesRulings38And39(unittest.TestCase):
         self.assertTrue(e["in"]["ok"], e["in"])
         self.assertEqual((e["in"]["self_repair"], e["in"]["pause_ms"]), ("Bit-", 800))
 
+    def test_a_trimmed_leading_word_must_be_heard_and_the_in_rule_reads_before_it(self):    # ruling 33 part 2
+        e = self.edges([{"text": "path.", "start": 0.20, "end": 0.60}, {"text": "But", "start": 1.10, "end": 1.30}],
+                       1.40)                                                     # 'But' heard right before the clip
+        self.assertFalse(e["in"]["ok"])                       # without the trim: 'But' runs on into the clip
+        ws, end = self.ws([{"text": "path.", "start": 0.20, "end": 0.60}, {"text": "But", "start": 1.10, "end": 1.30}],
+                          1.40)
+        e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, self.TEXT, trimmed="But")
+        self.assertTrue(e["in"]["ok"], e["in"])
+        self.assertEqual((e["in"]["before"], e["in"]["trimmed"]), ("path.", "But"))
+        self.assertIn("before the trimmed word 'But'", e["in"]["why"])
+        ws, end = self.ws([{"text": "and", "start": 0.20, "end": 0.50}, {"text": "But", "start": 1.30, "end": 1.38}],
+                          1.40)
+        e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, self.TEXT, trimmed="But")
+        self.assertTrue(e["in"]["ok"], e["in"])                                  # 800 ms before 'But': a pause
+        self.assertEqual(e["in"]["pause_ms"], 800)
+        ws, end = self.ws([{"text": "path.", "start": 0.20, "end": 0.60}, {"text": "And", "start": 1.10, "end": 1.30}],
+                          1.40)
+        e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, self.TEXT, trimmed="But")
+        self.assertFalse(e["in"]["ok"])                                          # another word was heard
+        self.assertIn("does not hear the trimmed word 'But'", e["in"]["why"])
+        for bad in ("", "..."):                                                  # no canonical word: fail closed
+            e = TT.edges({"words": ws}, 2.0, 3.4, 2.0 + end, self.TEXT, trimmed=bad)
+            self.assertFalse(e["in"]["ok"], bad)
+            self.assertIn("has no canonical token", e["in"]["why"])
+
     def test_the_window_reaches_4_s_before_the_clip_and_stops_at_the_file_head(self):
         import tempfile
         self.assertEqual((TT.PAD_BEFORE_S, TT.PAD_S, TT.PAUSE_MIN_S), (4.0, 1.5, 0.7))

@@ -79,6 +79,12 @@ SEARCH_USD_REPORTED = 3.00         # ruling 41: a build may spend $3 (vendor-rep
 SEARCH_USD_ESTIMATE = 10.00        # ruling 5's $1.50 / 15 min is per PACKAGE delivered (its own line-up). The estimate
                                    # ceiling keeps ruling 5's ratio ($5.00 : $1.50) for calls whose vendor reports no cost
 SEARCH_WALL_S = 2400.0             # the build ends cleanly before its driver's timeout (a killed build writes no record)
+TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33 part 2: the ONE leading word a cut may trim
+TRIM_SCORER_PENDING = False        # ruling 33 (b): the render's clip scorer must affirm every trimmed segment; it runs on
+                                   # GPU0, which the pin stage may not use. False (the default): the pin stage judges a
+                                   # trimmed segment as the render does with no scorer, so it fails closed and is never
+                                   # sealed. True ONLY on the orchestrator's explicit yes: it is sealed with the verdict
+                                   # pending at the render, stated in the sealed row (audit 0530: the reviewers split on L-m)
 SWAP_TOP = 10                      # candidates read per swapped place, best by score first, after the place's own
                                    # rules (a short clip only at the last place): audit 0510 C1, glm P1-3
 NO_VOICE_AFTER = 2                 # ruling 3 (22:40): the takeaway failing its gates this many times ships no VO line
@@ -299,7 +305,9 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
                         "published_at": m["published_at"], "transcript_sha256": m["transcript_sha256"],
                         "time_sensitive": bool(time_sensitive(m)),          # ruling 1 (22:40): L-v 3 on the render
                         "source_published_at": utc_z(m.get("published_at")),  # clock, both sealed in the pin
-                        "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s"}
+                        "url_30s_before": f"https://www.youtube.com/watch?v={m['video_id']}&t={max(0, int(m['start']) - 30)}s",
+                        **({"trimmed_leading": m["trimmed_leading"], "untrimmed_start": m["untrimmed_start"]}
+                           if m.get("trimmed_leading") else {})}                      # ruling 33 part 2, sealed
                        for lb, m in zip(labels(len(segs)), segs)],
           "vo": dict(vo, signoff=signoff(segs, ctx)),
           "title": fields["title"]["text"], "caption": fields["caption"]["text"],
@@ -576,10 +584,20 @@ def stand_alone_check(segs):
     moments pin seals (eligibility.BTC_SCREEN, moments_package.btc_screen), and the MEDLEY must name Bitcoin in at
     least one segment (out["medley_names_bitcoin"], part of out["ok"]): check_edl(..., screen=...), as the render."""
     import stand_alone as SA
-    edl = {"hook": {"text": segs[0]["text"], "channel": segs[0].get("channel_name")},
-           "clips": [{"index": i, "text": m["text"], "channel": m.get("channel_name"), "duration": m.get("duration_s")}
-                     for i, m in enumerate(segs[1:], 1)]}
-    return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
+    def seg(m, extra):
+        lock = {} if TRIM_SCORER_PENDING or not m.get("trimmed_leading") else \
+            {"selection_lock": {"trimmed_leading": {"word": m["trimmed_leading"]}}}    # the render's own marker
+        return dict(extra, text=m["text"], channel=m.get("channel_name"), **lock)
+    edl = {"hook": seg(segs[0], {}),
+           "clips": [seg(m, {"index": i, "duration": m.get("duration_s")}) for i, m in enumerate(segs[1:], 1)]}
+    r = SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"), screen=E.BTC_SCREEN)
+    r["scorer_pending"] = [lb for lb, m in zip(labels(len(segs)), segs)
+                           if m.get("trimmed_leading") and TRIM_SCORER_PENDING]            # ruling 33 (b), item 42
+    for row in r["rows"]:              # the sealed row STATES the divergence, not only the labels (audit 0530 C2, glm)
+        if row["segment"] in r["scorer_pending"]:
+            row["opener"]["why"] += ("; the clip scorer's verdict on the trimmed text is PENDING AT THE RENDER (GPU0; "
+                                     "ruling 33 part 2)")
+    return r
 
 
 def ad_read_out(ms, sources):
@@ -599,6 +617,41 @@ def ad_read_out(ms, sources):
         if why:
             out[m["moment_id"]] = why
     return out
+
+
+def trim_variant(m, sources):
+    """RULING 33 PART 2 (the render merged it at 11e361cc; the orchestrator's 04:58 item 42, "use it now"). A moment
+    whose first word is ONE of TRIM_WORDS, left out by the render's STAND_ALONE opener rule, may be cut one word in.
+    The variant's text, start and words begin at the next word of its word record (start/end bound the KEPT words),
+    and it carries trimmed_leading (the word as spoken) and untrimmed_start (the trimmed word's start). It must take a
+    place under the render's STAND_ALONE as trimmed (no_role_on_screen and no_topic both None on the trimmed text).
+    Then it is judged like any moment: step A on the trimmed span (ruling 33 c), L-v 2 with the trimmed word heard right
+    before the clip (transcript_truth.edges), and the acoustic onset rule on the trimmed cut (ruling 33 a, build()).
+    The clip scorer's verdict (ruling 33 b) is the render's, on GPU0: pending at the render (stand_alone_check). -> the
+    variant, or None."""
+    import canon
+    try:
+        src = src_of(m, sources)
+        w0, w1 = m["words"]
+        toks = src.tokens
+        word, nxt = toks[w0].get("word") or "", toks[w0 + 1]
+    except (KeyError, IndexError, TypeError, ValueError):
+        return None
+    tok = canon.canon_tokens(word)[:1]
+    if w1 <= w0 or not tok or tok[0] not in TRIM_WORDS:
+        return None
+    if len(canon.canon_tokens(E.spoken(toks[w0 + 1:w1 + 1]))) < E.MIN_STATEMENT_TOKENS:
+        return None                          # the kept words still make a statement (audit 0530 C1, glm P0-2)
+    a = nxt.get("start")
+    if not isinstance(a, (int, float)) or isinstance(a, bool) or not float(m["start"]) <= float(a) < float(m["end"]):
+        return None
+    v = dict(m, moment_id=f"{m['moment_id']}~trim", text=E.spoken(toks[w0 + 1:w1 + 1]), start=float(a),
+             duration_s=round(float(m["end"]) - float(a), 2), words=[w0 + 1, w1],
+             trimmed_leading=word.strip().strip(".,!?;:\"'()\u201c\u201d\u2014\u2026"),
+             untrimmed_start=float(m["start"]), trimmed_from=m["moment_id"])
+    if no_role_on_screen(v) or no_topic(v):
+        return None
+    return v
 
 
 def no_topic(m):
@@ -1070,7 +1123,7 @@ def truth_for(router, m, work_dir, cache):
         import transcript_truth as TT
         try:
             cache[m["moment_id"]] = TT.verify_segment(router, m["video_id"], float(m["start"]), float(m["end"]),
-                                                      m["text"], work_dir)
+                                                      m["text"], work_dir, trimmed=m.get("trimmed_leading"))
         except Exception as e:                         # not measured: never a pass (law L-m)
             cache[m["moment_id"]] = {"ok": False, "error": f"{type(e).__name__}: {str(e)[:200]}"}
     return cache[m["moment_id"]]
@@ -1149,7 +1202,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
-    ms = [m for m in ms if m["moment_id"] not in no_role]
+    trims = {m["moment_id"]: v for m in ms if m["moment_id"] in no_role for v in [trim_variant(m, sources)] if v}
+    ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42)
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)
@@ -1157,7 +1211,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
-           "no_role": no_role, "ad_read": ad_read,
+           "no_role": no_role, "ad_read": ad_read, "trimmed": {k: v["moment_id"] for k, v in trims.items()},
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
@@ -1191,6 +1245,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["prescreen"]["hook_onset"] = {mid: "PASS" if m["hook_onset"].get("pass") is True else
                                       ("NOT MEASURED: " if not m["hook_onset"].get("measured") else "FAIL: ") +
                                       str(m["hook_onset"].get("why")) for mid, m in cleared.items()}
+    trim_cut = {mid: out["prescreen"]["hook_onset"][mid] for mid, m in cleared.items()     # ruling 33 (a): the
+                if m.get("trimmed_leading") and m["hook_onset"].get("pass") is not True}    # acoustic onset rule on the
+    cleared = {mid: m for mid, m in cleared.items() if mid not in trim_cut}                 # trimmed cut, any place
+    out["prescreen"]["trim_cut"] = trim_cut
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
@@ -1660,6 +1718,7 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
                                     "stage; no clip scorer, so a conjunction or reply-fragment opener fails closed)"),
                                 rows=[f"{r['segment']}: {'PASS' if r['pass'] else 'FAIL'} opener: {r['opener']['why']} | "
                                       f"topic: {r['topic']['why']}" for r in stand.get("rows") or []],
-                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"))}
+                                medley_names_bitcoin=stand.get("medley_names_bitcoin"), screen=stand.get("screen"),
+                                scorer_pending=stand.get("scorer_pending") or [])}
            if stand is not None else {}),
     }

@@ -1,0 +1,78 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+This branch builds sealed pins; the integrator renders them. The pin stage must never seal what the render would
+refuse, EXCEPT where the orchestrator has ruled otherwise. One such case is stated below.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why:
+- ORCHESTRATOR RULING 33 (03:12 ET Nov 13): "A clip that opens on a discourse conjunction or reply word (but, and,
+  so, well, now, yeah) may have that ONE leading word trimmed at the cut when (a) the acoustic onset rule is met on
+  the trimmed cut, and (b) the pipeline's STAND_ALONE scorer affirms the trimmed clip at its unchanged threshold, and
+  (c) L-s step A is re-judged on the trimmed span. The locked text is the trimmed text. If any of the three fails, the
+  clip is out."
+- ORDER 04:58, item 42: "USE RULING 33 PART 2 NOW (merged on main 11e361cc) ... Rebuild with trimmed_leading as soon
+  as your side is audited; report how many of the 113 come back."
+- The render's contract (main c6605895): on a segment, only when a word is trimmed:
+  - "trimmed_leading", the ONE word as spoken, whose canonical token is one of but/and/so/well/now/yeah;
+  - "untrimmed_start", 0 <= untrimmed_start < start;
+  - approved_text is the trimmed text, and start/end bound the kept words.
+  The render checks:
+  - the trimmed word sits right before the lock in its own transcript, with a sentence end (or the file's first word)
+    before it;
+  - a quiet run between the trimmed word and the first kept word;
+  - the cut opens in quiet;
+  - STAND_ALONE: its clip scorer (a local model on GPU0) must affirm EVERY trimmed segment.
+- THE STATED ASSUMPTION: this session may not use any GPU, so the scorer cannot run at the pin stage. The render's
+  check_edl with rate=None fails a trimmed segment closed. Per item 42 ("use it now"), the scorer's verdict is
+  PENDING AT THE RENDER: the pin stage records it, and the render holds a trimmed pin its scorer refuses, at validate,
+  before any cut (the integrator: "That costs a run slot, not a bad video"). (a) and (c) ARE judged at the pin stage.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass (the trim is the orchestrator's own ruling).
+
+The change:
+1. pipeline/stand_alone.py: synced byte-identical to main's c6605895 (the render's trimmed_word / trimmed_opener in
+   check_edl).
+2. pipeline/transcript_truth.py, edges(..., trimmed=None) and verify_segment(..., trimmed=None):
+   - with a trimmed word, the recogniser's word right before the clip's first kept word must be that word (by its
+     canonical token), else IN fails;
+   - the IN rule (a sentence end, a measured pause >= 700 ms, or the file head) then reads before the trimmed word;
+   - without one, the IN rule is unchanged.
+3. pipeline/package.py:
+   - TRIM_WORDS.
+   - trim_variant(m, sources): for a moment whose first word is one of TRIM_WORDS, the variant takes text, start and
+     words from the next word of its word record, with duration_s = end - new start, trimmed_leading (the word as
+     spoken), untrimmed_start (the original start) and moment_id "<id>~trim". It must pass no_role_on_screen and
+     no_topic on the trimmed text, else None.
+   - build(): the variants of the moments the opener rule left out join the usable moments (before the ad-read screen
+     and step A, which judges the trimmed span: ruling 33 c). out["trimmed"] records them.
+   - truth_for passes trimmed=m.get("trimmed_leading").
+   - After the hook-onset measure, a trimmed moment that does not pass it (the acoustic onset at its trimmed cut:
+     ruling 33 a) is left out at ANY place, recorded in out["prescreen"]["trim_cut"].
+   - stand_alone_check records r["scorer_pending"] = the labels of trimmed segments. Its EDL carries no
+     selection_lock, so check_edl judges the trimmed text's own opener; the sealed stand_alone row carries
+     scorer_pending.
+   - _package's segment rows carry trimmed_leading and untrimmed_start when present.
+4. pipeline/package_pin.py:
+   - SEALED_LATER gains trimmed_leading and untrimmed_start, so they enter the seal only when present and older pins
+     recompute;
+   - TRIM_WORDS;
+   - to_pin copies both keys onto the pin segment;
+   - trim_problems refuses a pin unless: both keys or neither; the canonical token is one of TRIM_WORDS;
+     0 <= untrimmed_start < start.
+5. Tests:
+   - the edge rule with and without the trim, another word heard, and the pause before the trimmed word;
+   - trim_variant ("But" trimmed; "But then" and "Because" and no opener give None);
+   - the pending scorer;
+   - the pin sealing the trim, and the malformed refusals;
+   - a trimmed moment without a clean cut left out.
+
+Check in particular:
+- that (a) and (c) are really judged at the pin stage, and that a trimmed moment that fails either is out;
+- that the scorer's pending status is visible in the sealed record and nothing pretends it was affirmed;
+- that the pin's fields match the render's contract exactly;
+- that untrimmed segments, old pins and the rest of the IN rule are unchanged;
+- whether "pending at the render" is a defensible reading of the item-42 order. Say so if you think it is not.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

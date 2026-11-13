@@ -25,7 +25,7 @@ import eligibility as E  # noqa: E402
 import package as PK  # noqa: E402
 import package_pin  # noqa: E402
 from config import BRIDGE_WORD_CAP  # noqa: E402
-from test_eligibility import NOW, REG  # noqa: E402
+from test_eligibility import NOW, REG, source  # noqa: E402
 from test_gates import Canned  # noqa: E402
 from test_moments import pm  # noqa: E402
 import house_style as HS  # noqa: E402
@@ -732,6 +732,109 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
         gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
         gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+
+
+class TestRuling33TrimAtThePinStage(unittest.TestCase):
+    """Ruling 33 part 2 (render merged 11e361cc), used per the 04:58 order's item 42: a moment opening on ONE of
+    but/and/so/well/now/yeah, left out by the render's STAND_ALONE opener rule, may be cut one word in. The variant is
+    judged like any moment (step A, L-v 2 with the trimmed word heard, the acoustic onset rule at the trimmed cut); the
+    clip scorer's verdict is pending at the render; the pin seals trimmed_leading and untrimmed_start."""
+
+    def moment(self, sentence, mid="t"):
+        src = source([sentence], vid="vT")
+        a, b = src.sentences[0]
+        m = dict(pm(mid, "T", 0.0, vid="vT"), text=E.spoken(src.tokens[a:b + 1]), words=[a, b],
+                 start=float(src.tokens[a]["start"]), end=float(src.tokens[b]["end"]))
+        m["duration_s"] = round(m["end"] - m["start"], 2)
+        return m, {"vT": src}
+
+    def test_one_leading_word_is_trimmed_and_the_variant_carries_it(self):
+        m, srcs = self.moment("But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
+        self.assertIn("clip opens on 'but'", PK.no_role_on_screen(m))
+        v = PK.trim_variant(m, srcs)
+        self.assertEqual((v["moment_id"], v["trimmed_leading"], v["untrimmed_start"]), ("t~trim", "But", m["start"]))
+        self.assertTrue(v["text"].startswith("Bitcoin has rarely"))
+        self.assertEqual(v["words"], [m["words"][0] + 1, m["words"][1]])
+        self.assertGreater(v["start"], m["start"])
+        self.assertAlmostEqual(v["duration_s"], round(m["end"] - v["start"], 2))
+        self.assertIsNone(PK.no_role_on_screen(v))
+
+    def test_only_one_word_and_only_the_ruled_words(self):
+        for sentence in ("But then Bitcoin had six negative weeks back to back in its whole history.",    # 'then'
+                         "Because Bitcoin had six negative weeks back to back in its whole history.",      # not ruled
+                         "Bitcoin had six negative weeks back to back in its whole history."):             # no opener
+            m, srcs = self.moment(sentence)
+            self.assertIsNone(PK.trim_variant(m, srcs), sentence)
+        self.assertEqual(PK.TRIM_WORDS, package_pin.TRIM_WORDS)
+        m, srcs = self.moment("But Bitcoin wins now.")                    # 3 kept words: no statement (glm P0-2)
+        self.assertIsNone(PK.trim_variant(m, srcs))
+
+    def test_strict_by_default_and_pending_at_the_render_only_on_the_switch(self):
+        m, srcs = self.moment("But Bitcoin has rarely seen six negative weeks back to back in its whole history.")
+        v = PK.trim_variant(m, srcs)
+        line = [{"text": "Bitcoin is the hardest money ever made."}, v, {"text": "Bitcoin wins."}]
+        self.assertFalse(PK.TRIM_SCORER_PENDING)                      # the default: the render's check, no scorer
+        r = PK.stand_alone_check(line)
+        self.assertFalse(r["ok"])                                     # a trimmed segment fails closed, never sealed
+        self.assertIn("no clip-scorer verdict on the trimmed text", r["rows"][1]["opener"]["why"])
+        self.assertEqual(r["scorer_pending"], [])
+        saved = PK.TRIM_SCORER_PENDING
+        try:                                                          # the orchestrator's explicit yes only
+            PK.TRIM_SCORER_PENDING = True
+            r = PK.stand_alone_check(line)
+        finally:
+            PK.TRIM_SCORER_PENDING = saved
+        self.assertTrue(r["ok"], r["rows"])
+        self.assertEqual(r["scorer_pending"], ["clip_01"])
+        self.assertIn("PENDING AT THE RENDER", r["rows"][1]["opener"]["why"])      # stated in the sealed row
+
+    def test_the_pin_seals_the_trim_and_refuses_a_malformed_one(self):
+        segs = [dict(pm("h", "A", 12.0), text="Bitcoin is the hardest money ever made."),
+                dict(pm("x", "B", 14.0), text="Bitcoin keeps every promise it ever made to me.",
+                     trimmed_leading="But", untrimmed_start=0.0, start=0.3),
+                dict(pm("y", "C", 13.0), text="Bitcoin wins in the end, every single time.")]
+        by = {m["moment_id"]: m for m in segs}
+        fields = {"takeaway": {"text": "No ruler, just rules nobody gets to bend.", "cites": []}, "bridge": None,
+                  "bridge_after": None, "title": {"text": "No ruler.", "cites": []},
+                  "caption": {"text": "three clips", "cites": []}}
+        pk = PK.assemble_medley(["h", "x", "y"], by, fields, ctx(), "medley (L-y)")
+        self.assertEqual((pk["segments"][1]["trimmed_leading"], pk["segments"][1]["untrimmed_start"]), ("But", 0.0))
+        pk["gates"] = TestMedleyPackageAndPin().gates(pk)
+        pin = package_pin.to_pin(spk(pk), "test")
+        s1 = pin["segments"][1]
+        self.assertEqual((s1["trimmed_leading"], s1["untrimmed_start"]), ("But", 0.0))
+        self.assertNotIn("trimmed_leading", pin["segments"][0])                   # untrimmed segments: unchanged
+        mp = pin["moments_package"]
+        args = (mp["edl_vo"], mp.get("signoff_expected"), mp["title"], mp["caption"], mp["gates"], mp["btc_screen"])
+        self.assertEqual(package_pin.seal(pin["segments"], *args), mp["package_sha256"])
+        other = [dict(x) for x in pin["segments"]]
+        other[1]["trimmed_leading"] = "And"                                       # the trim is inside the seal
+        self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+        for bad in ({"trimmed_leading": "Because"}, {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0}):
+            p = spk(pk)
+            p["segments"][1] = dict(p["segments"][1], **bad)
+            with self.assertRaises(package_pin.PinRefused):
+                package_pin.to_pin(p, "test")
+        self.assertTrue(package_pin.trim_problems([{"trimmed_leading": "But", "untrimmed_start": 0.0, "start": None}]))
+        p = spk(pk)                                                       # ^ refused, never raised (glm P0-8)
+        p["segments"][1] = {k: v for k, v in p["segments"][1].items() if k != "untrimmed_start"}
+        with self.assertRaises(package_pin.PinRefused):                          # both keys or neither
+            package_pin.to_pin(p, "test")
+
+    def test_a_trimmed_moment_that_cannot_be_cut_cleanly_is_left_out(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              dict(pm("b", "E", 13.0), text="But Bitcoin x.")]
+        v = dict(ms[4], moment_id="b~trim", text="Bitcoin x.", trimmed_leading="But", untrimmed_start=0.0)
+        saved = PK.trim_variant
+        try:
+            PK.trim_variant = lambda m, sources: v if m["moment_id"] == "b" else None
+            rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"b~trim"})
+            out = rig.run()
+        finally:
+            PK.trim_variant = saved
+        self.assertEqual(out["trimmed"], {"b": "b~trim"})
+        self.assertIn("b~trim", out["prescreen"]["trim_cut"])                     # ruling 33 (a): out, any place
+        self.assertIsNotNone(out["package"])
 
 
 class TestRuling41Search(unittest.TestCase):

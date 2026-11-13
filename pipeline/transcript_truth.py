@@ -157,7 +157,7 @@ def _canon_to(ws, i):
     return c[-1] if c else None
 
 
-def edges(second, wav_start, start, end, text):
+def edges(second, wav_start, start, end, text, trimmed=None):
     """CUTTABLE (orchestrator 06:45 ruling C, ruling 7 (1)): the INDEPENDENT recogniser's own sentence boundaries at
     the segment's edges, from its word timing on the SOURCE audio. The clip's first / last word is found by its first
     four letters OR by the L-v 2 canonicaliser on a short run of the recogniser's words (ruling 39: 'sixty-eight
@@ -166,7 +166,9 @@ def edges(second, wav_start, start, end, text):
     clip's opening word (a measured pause), or the window reaches the FILE HEAD and holds no word before the clip (the
     clip opens on the file's first spoken word). OUT: the recogniser's word at the clip's last word (within 0.8 s) ends
     in terminal punctuation, and the recogniser heard a next word (it did not stop at the window's edge). Store or
-    caption punctuation is never evidence. -> {"cuttable", "in", "out"}."""
+    caption punctuation is never evidence. trimmed (ruling 33 part 2: ONE leading word trimmed at the cut): the word
+    the recogniser hears right before the clip's first kept word must be that word, and the IN rule reads before IT,
+    where the sentence opens. -> {"cuttable", "in", "out"}."""
     # the recogniser's words in its own (time) order: all 99 recorded transcriptions are time-ordered (audit 0338 C1)
     ws = [w for w in second.get("words") or [] if w.get("start") is not None]
     toks = re.findall(r"[\w'’$%.,-]+", re.sub(r"\s+\.(?=\w)", ".", text or ""))     # 'U .S.' is one word 'U.S.' 
@@ -187,7 +189,11 @@ def edges(second, wav_start, start, end, text):
     if ci:                                      # the occurrence NEAREST the clip's start, never an earlier one of the
         i = min(ci, key=lambda k: abs(float(ws[k]["start"]) - t_in))    # same word (audit 0338: grok C2, glm C1 P2-2)
         j, repair = i - 1, None
-        if self_repair(ws, j, first):           # ruling 8: the speaker's false start opens the sentence
+        tw = canon.canon_tokens(trimmed or "")[:1]
+        heard = (canon.canon_tokens(ws[j]["text"])[:1] if j >= 0 else []) if tw else None
+        if tw and heard == tw:                  # ruling 33 part 2: the trimmed word opens the sentence
+            j -= 1
+        elif not tw and self_repair(ws, j, first):     # ruling 8: the speaker's false start opens the sentence
             repair, j = ws[j]["text"], j - 1
         prev = ws[j]["text"] if j >= 0 else None
         t_open = float(ws[j + 1]["start"])      # the clip's opening word (its self-repair, when there is one)
@@ -209,6 +215,16 @@ def edges(second, wav_start, start, end, text):
         if repair:
             out["in"].update(self_repair=repair, why=out["in"]["why"] + f"; the speaker's false start '{repair}' "
                              "opens the sentence (ruling 8: a self-repair, part of the sentence)")
+        if trimmed is not None and not tw:      # a trim with no canonical word is no trim at all: fail closed
+            out["in"] = {"ok": False, "word": ws[i]["text"], "trimmed": trimmed,
+                         "why": f"the trimmed word {trimmed!r} has no canonical token (ruling 33 part 2; audit 0530 C1)"}
+        elif tw and heard != tw:                # the trimmed word is not what the recogniser heard: no IN
+            out["in"] = {"ok": False, "word": ws[i]["text"], "before": ws[i - 1]["text"] if i > 0 else None,
+                         "trimmed": trimmed, "why": f"the recogniser does not hear the trimmed word {trimmed!r} right "
+                                                    f"before the clip (ruling 33 part 2)"}
+        elif tw:
+            out["in"].update(trimmed=trimmed, why=out["in"]["why"] + f" (before the trimmed word {trimmed!r}, which "
+                                                                      f"opens the sentence: ruling 33 part 2)")
     else:
         out["in"] = {"ok": False, "why": f"the recogniser has no '{first}' within 0.6 s of the clip's start"}
     if co:                                      # the occurrence nearest the clip's end (audit 0338, as at the IN)
@@ -224,7 +240,7 @@ def edges(second, wav_start, start, end, text):
     return dict(out, cuttable=out["in"]["ok"] and out["out"]["ok"])
 
 
-def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_start=None):
+def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_start=None, trimmed=None):
     """Both checks for one selected segment -> a record (the second pass's text kept as evidence). ok only when the
     critical tokens agree in both directions AND exactly one speaker was measured inside."""
     if wav is None:
@@ -243,5 +259,5 @@ def verify_segment(router, video_id, start, end, text, work_dir, wav=None, wav_s
             "second_pass_text": span, "self_repair": repair, "transcript_ok": cmp_["ok"], "disagree": cmp_["disagree"],
             "critical": cmp_["critical"], "speakers": turns, "audio": os.path.basename(wav),
             "edges": edges(sec, wav_start if wav_start is not None else max(0.0, start - PAD_BEFORE_S), start, end,
-                           text),
+                           text, trimmed),
             "ok": cmp_["ok"] and turns["turn_change_inside"] is False}

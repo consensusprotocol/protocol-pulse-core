@@ -226,6 +226,8 @@ class TestPinCarriesTheSpeaker(unittest.TestCase):
         pin = package_pin.to_pin(self.pk(unknown), "r")
         mp = pin["moments_package"]
         for k in package_pin.SEALED_LATER:
+            if not any(k in sg for sg in pin["segments"]):      # a conditional field (the trim, ruling 33 part 2): its
+                continue                                          # sealing is tested where a segment carries it
             segs = [{x: v for x, v in sg.items() if x != k} for sg in pin["segments"]]
             self.assertNotEqual(package_pin.seal(segs, mp["edl_vo"], mp["signoff_expected"], mp["title"],
                                                  mp["caption"], mp["gates"]), mp["package_sha256"], k)

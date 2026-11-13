@@ -1,0 +1,17 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 49 s finish=stop usage in 15568 / out 803 usd~0.098 (upper-bound price)
+
+**P0: pipeline/stand_alone.py:201-205 (trimmed_opener) + tests/package/test_medley.py:386 (test_the_scorer_verdict_is_pending...)**  
+When rate=None (exactly as called from package.stand_alone_check:29 and used at pin stage), score=None reaches trimmed_opener for any trimmed segment. It returns (False, "...no clip-scorer verdict... (fail closed, ruling 33 part 2)"). The test nevertheless asserts r["ok"] is True and scorer_pending=["clip_01"]. These cannot both be true from the diffed code; the gate cannot be both fail-closed and ok=True. Violates L-j / L-m / LAW 20 on missing measurement and never changing what a check accepts.
+
+**P1: pipeline/package.py:106-108 (trim_cut) + 88 (trims added before step A) + transcript_truth.py:262-280 (edges trimmed handling)**  
+(a) is enforced at pin: trimmed moments failing hook_onset are removed from cleared and recorded in prescreen["trim_cut"]; such a moment is out at any place. (c) is enforced at pin: trim_variant:66 returns None if no_role_on_screen(v) or no_topic(v) on the trimmed text, so no variant reaches usable moments. (b) remains pending (scorer_pending list). Untrimmed paths, old pins (SEALED_LATER), and non-trimmed IN logic are byte-identical to prior code; tests/package/test_angles.py:308-327 and test_medley.py:375-380 verify this.
+
+**P1: pipeline/package_pin.py:142-161 (trim_problems), 172 (called), 180 (to_pin copy), 132 (SEALED_LATER), package.py:19+64+98 (fields in rows / out["trimmed"])**  
+Pin fields match the render contract exactly when present (both keys or neither; canonical token in TRIM_WORDS; 0 <= untrimmed_start < start; approved_text/start/end bound kept words). Malformed pins are refused (PinRefused). When absent the pin is unchanged. Seal hash changes only when the trim fields are present. scorer_pending is carried in the stand_alone gate row (package.py:30, package_pin.py:118) and is visible; nothing in the diff pretends the scorer affirmed it.
+
+**P2: pipeline/package.py:57-67 (trim_variant), 89 (added to ms before ad-read / step A), transcript_truth.py:289 (verify_segment passes trimmed)**  
+trim_variant only emits a variant for the exact one leading TRIM_WORDS token, adjusts text/start/words/duration_s/untrimmed_start, and rejects if the trimmed text itself would fail no_role/no_topic. edges() with trimmed=None is unchanged; with trimmed it requires the recogniser heard exactly that word immediately before the kept span and moves the IN sentence boundary before the trimmed word (or fails IN). All covered by the added tests; no other call sites altered.
+
+"pending at the render" is not a defensible reading of item-42 from the diff. The order says "USE RULING 33 PART 2 NOW (merged on main 11e361cc)" and "Rebuild with trimmed_leading as soon as your side is audited". The diff implements the pin-side fields and the fail-closed scorer path, yet the test expects overall ok=True while the orchestrator comment and trimmed_opener both acknowledge the render will see a refused scorer. This collides with L-j (missing data rejects), L-m (nothing measured is never a pass), and the governing rule that the pin must never seal what the render would refuse except where the orchestrator explicitly carved out an exception. The diff does not contain such a carve-out that reconciles the test and the fail-closed logic.
+
+**SHIP: no**

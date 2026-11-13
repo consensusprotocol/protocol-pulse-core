@@ -66,7 +66,10 @@ def recency_problems(segments):
 
 
 SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): the render clock checks L-v 3 on these
-                "speaker")                                 # the 00:05 ET Nov 13 order, item 3
+                "speaker",                                 # the 00:05 ET Nov 13 order, item 3
+                "trimmed_leading", "untrimmed_start")      # ruling 33 part 2 (render merged 11e361cc): only when a word
+                                                           # is trimmed, so every other pin seals as before
+TRIM_WORDS = ("but", "and", "so", "well", "now", "yeah")   # ruling 33: the ONE leading word a cut may trim
 
 
 def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
@@ -91,6 +94,29 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
     if btc_screen is not None:
         body["btc_screen"] = btc_screen
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def trim_problems(segments):
+    """[why] for segments whose trim does not match the render's contract (ruling 33 part 2; pinned.validate_schema
+    refuses anything else): "trimmed_leading" and "untrimmed_start" both present or both absent; the trimmed word's
+    canonical token one of TRIM_WORDS; 0 <= untrimmed_start < start."""
+    import canon
+    out = []
+    for i, s in enumerate(segments):
+        has_w, has_s = "trimmed_leading" in s, "untrimmed_start" in s
+        if not has_w and not has_s:
+            continue
+        if has_w != has_s:
+            out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
+            continue
+        w, u, st = s["trimmed_leading"], s["untrimmed_start"], s.get("start")
+        tok = canon.canon_tokens(w)[:1] if isinstance(w, str) else []
+        if not tok or tok[0] not in TRIM_WORDS:
+            out.append(f"segment {i}: trimmed_leading {w!r} is not one of {'/'.join(TRIM_WORDS)}")
+        num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
+        if not num(u) or not num(st) or not 0 <= float(u) < float(st):   # never raises (audit 0530 C1, glm P0-8)
+            out.append(f"segment {i}: untrimmed_start {u!r} must be a number with 0 <= it < start {st!r}")
+    return out
 
 
 def screen_problems(pk):
@@ -190,7 +216,7 @@ def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
                                                                      for x in line_problems(pk)] + \
         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
-        screen_problems(pk)
+        screen_problems(pk) + trim_problems(pk.get("segments") or [])
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -200,6 +226,7 @@ def to_pin(pk, run_name):
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
+                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start") if k in s},   # ruling 33 part 2
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
