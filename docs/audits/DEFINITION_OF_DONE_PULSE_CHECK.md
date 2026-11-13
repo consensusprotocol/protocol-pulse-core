@@ -6,6 +6,12 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:35 RULING 60 RE-RATING: 9 OF 145 AFFIRMED (was 0 under the old story test). Untrimmed 4 / 93, trimmed 5 / 52. 6 of the 94 moments have at least one affirmed variant; trimming rescued 2 that were refused untrimmed. 0 errors. Rated 11:16-11:34 ET, scorer_sha ae7f410162d3, kind moments, event null, rule score >= 3.5. verdicts/latest.json (= verdicts_20261113T1516070000.json).
+- Scores: 1.0 x 23, 2.0 x 94, 3.0 x 19, 4.0 x 9. The model now uses the whole scale.
+- The reasons name the clip's own dependence ("the 'it' refers to something unsaid", "we don't know what letters"), never a headline.
+- Every fault label reads starts_mid_thought. For moments it is recorded, not ruling: the score decides (ruling 60).
+- WHAT THE SUPPLY MEANS: these are the moments the builder's own check left out for opening on a conjunction or reply word. Judged stand-alone, most really do depend on words before them (2.0). 9 variants of 6 moments now stand alone and can enter line-ups as clips (never as the hook: the builder's rule). The builder admits nothing until its ruling-60 admission change is audited; it was ordered after rulings 58 + 59.
+
 ## 11:16 RULING 60 MERGED (cc9e424f, audits batch 63 x2: no consensus findings in either cycle; pushed 2959cfd9). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (MEDLEY REFERENCE REPRODUCED); the affected suites 77 passed. The pin-stage scorer restarted on it (scorer_sha ae7f410162d3) and is RE-RATING the builder's 145 as kind 'moments' (queued 11:16:20). The builder gets the count and the contract change when the verdicts are written.
 
 ## 11:09 ORDER '11:01' B, RULING 60 BUILT (worktree r60, now in audit), PROVED BEFORE IT COUNTS: the 9 delivered spans PASS 9 / 9; tonight's step-A REFERENT_OUTSIDE clips FAIL 27 / 29 (93 %, bar 80 %).

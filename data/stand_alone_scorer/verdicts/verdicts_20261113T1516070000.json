@@ -1,1177 +1,1179 @@
 {
- "rated_at": "2026-11-13T15:35:10Z",
+ "rated_at": "2026-11-13T16:34:31Z",
  "build": "ledger_20261113_145246",
  "candidates_file": "/home/ultron/worktrees/pp-selectid/docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json",
  "candidates_generated_at": "2026-11-13T15:16:07+00:00",
  "scorer": {
   "model": "gemma3:27b",
-  "prompt": "story_semantics.CLIP_PROMPT via stand_alone.clip_scorer",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "prompt": "story_semantics.ALONE_PROMPT via stand_alone.clip_scorer(moments=True)",
   "threshold": 3.5,
-  "rule": "stand_alone.affirmed: score >= threshold and fault != starts_mid_thought",
-  "event": "Pinned: bitcoin",
-  "scorer_sha": "f19aab6cc5cc7f9e19be8d52b73d7c7eba1360a3963a26367fea4f0e492fdf77"
+  "rule": "stand_alone.affirmed(moments=True): score >= threshold",
+  "event": null,
+  "scorer_sha": "ae7f410162d38e3b96b08bb363b14b34e94095a4ae9d9f2c5efbbd757f6739c1"
  },
- "affirmed": 0,
+ "affirmed": 9,
  "verdicts": {
   "16df0954cc411a943bbc": {
    "text_sha256": "8b9f785e0bbb40b8348dd6dfd9098d472418698fb7a8f5aaaa14bf1f912a9b53",
-   "score": 3.0,
-   "reason": "Mentions Bitcoin but the statement about being willing to underwrite a price drop feels incomplete without knowing the context of *why*.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'four-year cycles' are mentioned without context; 'those' refers to something previously stated.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "dd0dc519a186f3de46c373c54cf0111f1251d1acfed583637368be85db6a92a0"
+   "prompt_sha256": "20c4b4ab9e1e33ea1bf29392d27abde8a8f5d00a5ea8aa6075319c2a3600150f"
   },
   "cfdd07a397920dd30607": {
    "text_sha256": "8cb2b236339fe3396933c14093e9b554f899f2e6dede579ad57a9cee1bb2ae03",
-   "score": 1.0,
-   "reason": "Discusses volatility in relation to Venezuela's currency, not specifically a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts in the middle of a conversation; 'they' and 'it' refer to prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "29e3426cb5b327758aed7c402598e0b85cd9817b9707d66e5ed23048091c5963"
+   "prompt_sha256": "f8f13f48495118d46f07f1dc468f5d7f7866ffc97c9ac3e0c675e90ad48821e6"
   },
   "5217250daaec7267e57d": {
    "text_sha256": "fcee51cff9511e1ada3e159e757b00cc04647f3bff17fde2ff6646cedb3b5362",
-   "score": 1.0,
-   "reason": "Discusses social engineering as a general attack vector, not specifically related to Bitcoin or a pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts mid-sentence and refers to an unstated 'anything' being attacked.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "5f7306c8266a885ced6d65e5e0f673070c51d683c9af0febb19f9ae11151e0c8"
+   "prompt_sha256": "4840e71b14e78aa060da7ac5cbe16e1dc06881ef78825dad1d1acea3e63401b0"
   },
   "b6391ff95cb1ef5a2063": {
    "text_sha256": "9630fbbc3a34c3dc24b742a11ab28294acd4eebbe5be5a9ff6db561a170bdd54",
-   "score": 1.0,
-   "reason": "Discusses macroeconomics and various markets, but doesn't mention Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The claim depends on understanding what 'all of that' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "1f15eebc75e2b5e1b129236839509e589344ec08065202ff04bd739e6692019b"
+   "prompt_sha256": "7a30e72f792d45c1cc9db1733dd318350f9eeafc8cc46aed59ea4c587d9dcbd9"
   },
   "e040fee1a1c940c921df": {
    "text_sha256": "d125172b66205e9b50103e9838906f45fddb840c45130979c57cc897698e6464",
-   "score": 3.0,
-   "reason": "Indirectly relates to Bitcoin as a store of value ('moat'), but doesn't explicitly mention the event.",
-   "fault": "other",
+   "score": 2.0,
+   "reason": "The clip begins with a conditional 'if' implying a prior discussion about 'moats' and where to invest money.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6a457b9f9fd883505ce42889977fa35d54dafc7ff22b0e422072f5c1afa8d100"
+   "prompt_sha256": "de6fb3e8d1b06276c0600c182c00d597ffaac0a106e53e50c66b4248350cf146"
   },
   "5797fe7a621b600b37cf": {
    "text_sha256": "fe5ed9dcbff15b621b0cf2acf34275dacb8a135939d6c27c590813dc67b7da7e",
-   "score": 1.0,
-   "reason": "Discusses government debt, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'But I guess...', implying a response to a previous statement or question about bringing things to a certain timeframe.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "42536a56f17cb28b49680b13e144200d241e5d072cd8fd0fbdc6205068677519"
+   "prompt_sha256": "d42f2f71dd6edb17b3ad103e9fbc0dae3772cc9d3df6596be6d2b9b833ca9d94"
   },
   "6f6d6f54de605b086ab3": {
    "text_sha256": "0a59da225f7f5630014b4987605c695da37e90ae0fde11820fac3cd58eba668a",
    "score": 1.0,
-   "reason": "Compares Bitcoin to asteroid gold, not about a specific Bitcoin event.",
-   "fault": "off_topic",
+   "reason": "Starts with 'But', implying a previous statement or question about asteroid gold and Bitcoin.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "354cb1d2c996b695376a76df9f618759689c7af0c1c84571f5b9a337159448e1"
+   "prompt_sha256": "53045a2f78148c58b8dffed884ffa58112328da2cca4c84c32021ec9e7412cc3"
   },
   "fa73f6c3fe91a4e78d18": {
    "text_sha256": "a5b28c2b400eb423258642b086cd98f5d4e67a691530e56dffc04c3d891f8690",
-   "score": 3.0,
-   "reason": "Mentions Bitcoin as a diversification tool, but doesn't specifically address a recent event. It's a general statement about Bitcoin's properties.",
-   "fault": "other",
-   "affirmed": false,
-   "prompt_sha256": "20bdf75b919c132c87b49a4fb2315eddefe161971d0b1e504c114dbfc7230429"
+   "score": 4.0,
+   "reason": "Starts with 'And', implying a previous statement about Wall Street's approach.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "c26311d3e5fe11f24e19f89519d95844e49c9ee0ee01d74e12c592f6bbc8b093"
   },
   "00dc5e6b2347d9c0e922": {
    "text_sha256": "8a8000c4f9226c27f71e161a18bb1f82ea34b762aff3401e5e7915afcf457d79",
    "score": 3.0,
-   "reason": "Starts mid-sentence, referencing a previous point. While relevant to Bitcoin's philosophy, it lacks immediate context about a specific event.",
+   "reason": "Starts with 'But this was not...', referencing something previously stated.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e7f6f278f18e08f3d993af09675d5c13bdc94a7415e1985ce3e9207851da8d94"
+   "prompt_sha256": "8309a3aa2b3d297a7a0beb28e2852136052f9461524d51d70956db3878403f34"
   },
   "0d4d772b8d54fe42950f": {
    "text_sha256": "ae48ec55de9a740e3001027edbbb8822e21c14d140c8af60c1f99e44bd8e529b",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin's resilience, but ends abruptly without fully explaining 'this fight'.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'fight' and 'they' are not defined within the clip.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4b80ab819f040519a111d6e44c78e1c533312e5bf3ef205e8ab6627eed96b784"
+   "prompt_sha256": "00bb08de4ddb2600611643faa9198b89a81cd7da1ced30027e86eedd0055eee3"
   },
   "0f50515021b30ddfbec6": {
    "text_sha256": "26a90fa2a457d17c62e499fcd4a3709137d44049daf1841ae6220d5c2f9e9e38",
-   "score": 1.0,
-   "reason": "Discusses income and Bitcoin mining costs, not the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Relies on prior context about '400 boxed by a node' and 'it' to understand the comparison.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4991e5c854933cd2c6ccb52554b24acc4d6a71ff8911d096dc2454ddb5a59fbc"
+   "prompt_sha256": "34a67020e673b53513092e8939f3bfeef7c4556f0aff2c82e371e9b85489d67e"
   },
   "91b5fe9d749569e7cdf8": {
    "text_sha256": "8b4e508af954375852a3ce654c1386294b64b41c317c78a689e9accd030bdcbe",
-   "score": 3.0,
-   "reason": "Describes Bitcoin's core feature (fixed supply) but doesn't directly address a specific event.",
-   "fault": "other",
-   "affirmed": false,
-   "prompt_sha256": "351587a271385840e6ca2cc2ccd71e4b0a3cb2e743dba348a951760a56973926"
+   "score": 4.0,
+   "reason": "The 'it' at the beginning refers to something previously mentioned.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "420705ca3b0731da7dedc75472537fbdcca8395ae4a4bd11d040e2362cacb4d7"
   },
   "eba522c41880b45a3bd6": {
    "text_sha256": "76c85c2e8d0fd9c54018026152411202d45ff5f9f71000f534708db46a0dea19",
-   "score": 1.0,
-   "reason": "Discusses security generally, not specifically related to the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'But', implying a previous statement. 'You' and 'your' refer to something unstated.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "43f70a4af265d603c600cc5502b965376430e300843d17dc3f2891d2a9e543f8"
+   "prompt_sha256": "43855c7ece1c2561995473031cb9828dd6f8ea5b35bf4e9d34915cba05a2ec90"
   },
   "0700afb3b61ffb4cbbe3": {
    "text_sha256": "6d44587a6d3161a6de98b1048ceb0647d3a2863949db4435aa17501d39f9d638",
    "score": 3.0,
-   "reason": "Relevant to Bitcoin's long-term viability but ends abruptly, implying a continuation of thought about fiat failure.",
-   "fault": "ends_mid_thought",
+   "reason": "The 'it' refers to something unsaid, and the claim about Bitcoin's price depends on understanding the context of that 'it'.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "1489b1ec5214e48b0f4e3439c55d9452539aa809f62539279802bd4a819768f4"
+   "prompt_sha256": "f26f89456e754bc8308781bda6e6670c99ccc78a165cd76c40ff4c887a177908"
   },
   "1d7ec816c85be89ce6a9": {
    "text_sha256": "13d01477059e8bf8aa4b27e3ee505972e9c21ffcb4445e3a26cb673a31dc47c3",
-   "score": 3.0,
-   "reason": "Starts mid-thought, referencing a previous discussion about optimism and firms working on Bitcoin strategies. Not a complete statement.",
+   "score": 2.0,
+   "reason": "Starts with 'And maybe that's...', referencing a previous idea. 'They' refers to entities mentioned before.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "2cf7d51b7132bfd448f5932edc33b5992f8cba19f5b919127f726fa27881a0ad"
+   "prompt_sha256": "94cedcb87d01a4a9deca17bf1e0ab0aadc077f0dc411b20138059278cf1bf3b4"
   },
   "47d3d30968a793a6f9a8": {
    "text_sha256": "15711bde3548b8d360a0cdaf1ea0b5258da889bb91c55a9439abd62609681346",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin exchanges generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'So all...' implying a previous statement or context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "50094f3b7ecc09eadc2e02a9038d5f60f74cb7c53d115dcb3274f35287ab1e40"
+   "prompt_sha256": "198e39e5c1da035c9309135771a32de21610eaea3f675bc0b01c8a0179db4dd6"
   },
   "511a7cdc2ce798c78a5f": {
    "text_sha256": "44d22af3bf11962355f06c4eaf4afa8dd864e930c823360cda22d7d42113c145",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin dominance, not a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'Because normally...', implying a previous statement about dominance.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "dc29233e57912d8916d264234c6fd67f1c07871335175ed3e9c126255c5f0aef"
+   "prompt_sha256": "53716d83cb82140f8b69dcb98e985674e7aa7afed83ce88a84a4d7005f6576de"
   },
   "544fc6c48aae0042e64d": {
    "text_sha256": "793f1e40f8de8903cc31647fbdb45e467d5289ea4a23c0ca9196c9fb053af5fd",
-   "score": 1.0,
-   "reason": "Discusses price as a market indicator generally, not specifically about a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins with 'So Jamie and I', implying a prior conversation or setup.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "9e342fc6155aa8a2efe4bcdc31df95ac76d7f99791dd05849fd08d8dd00ce565"
+   "prompt_sha256": "1128c238bcd53022668e0ea54c796263c64f0b82e1a6be3d334d94b124aa953d"
   },
   "61f82aa067b14ed0595f": {
    "text_sha256": "6533405730e08a075b54394bb6ed58057eb66c431c30c30bb07caf5e54740468",
-   "score": 1.0,
-   "reason": "Discusses asset correlation generally, not specifically about pinned Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "\u201cThat leap\u201d and \u201cthese assets\u201d are not defined within the clip.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "35c903d13adfe659ac090f9f69f9495f299e4570cd1d00fac5a5ce4332b21115"
+   "prompt_sha256": "b75e781814529334f8a215be97a264b86faee128e000ad8ff34a8d845dd91951"
   },
   "ca33c7c7064d6870fc17": {
    "text_sha256": "d3e046ecca0b983df3f34f7ec6e89c128bbafa8126a74ae1d1080c969b7a07c6",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, discussing prior context of a company's Bitcoin holdings and dividend potential.",
+   "score": 2.0,
+   "reason": "Starts with 'But then', implying a previous statement or question about something that survived a drawdown.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "149cef027875f3c7ef72d43b4e97b3df6de1e8e98d304c4729dea60f14983da3"
+   "prompt_sha256": "d452aff8194c755ee8de6034b07d5143d37c19cd4bf57754dbacf94d2027ab0b"
   },
   "d12132f5312be0dfe3f8": {
    "text_sha256": "2d32a87a2b761da57c56c0eefe87d8c4a0eb08025f52f9a9b2e401fc1b9b6175",
-   "score": 1.0,
-   "reason": "Discusses wealth preservation generally, not specifically about pinned Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Begins with 'And so', implying a previous statement or question. 'It' refers to something previously mentioned.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "d8ef0e9b47fb66cee2d909a7d1a474bebd93b95e11cd0ce3308695ccab8c4f42"
+   "prompt_sha256": "a7b7c130058f2db9c20448260ca2d809a9672a4ff03b6aa7aae813dcb9676676"
   },
   "e8116beba556497dd08c": {
    "text_sha256": "2ef0befd80bd61c31a31f71fffaf77c966929823af4893ee796b19ee9298dc4c",
    "score": 3.0,
-   "reason": "Relevant to Bitcoin's future, but ends abruptly without a clear conclusion.",
-   "fault": "ends_mid_thought",
+   "reason": "Unclear what prompted this honesty or what timeframe 'a long time' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "d95e0dd286eb79a3a60e45a053e0be0ae61a2195950c80f0b7e72ebdffa42159"
+   "prompt_sha256": "356c4c78d139f1431b0622a286872e3a73f54c5e07ec1a5e1b88b441028d7fdd"
   },
   "12b74e9893af988262c6": {
    "text_sha256": "0686ea1b22914f2901a097b8d961ab1c92648d5e09ae73dbfd951fcafcf98e4a",
    "score": 1.0,
-   "reason": "Discusses dollar strength and fear, not Bitcoin specifically.",
-   "fault": "off_topic",
+   "reason": "The clip begins with 'And that's...', implying a previous statement or context is needed to understand what 'that' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "18d48d53396dd89a5feaeaedd70a64fc7f3e3d23fae2362df683dac9fc1f3b44"
+   "prompt_sha256": "e2000f936ce3d0ccb898941069e28d9ff35e02623978fe2f8f39070e16ae6ac9"
   },
   "1b78d5158d770af6f09c": {
    "text_sha256": "f809f5dab3bf820cc4fa1f4d2c662def3816a7e8448545629078e62cead8c15e",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, referencing existing 'fear-mongering' without initial context.",
+   "score": 2.0,
+   "reason": "The clip begins responding to a claim about 'single-sig Bitcoin wallets' without stating what that claim is.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "58160f8d418abcaad90e31a35270f57292ecb24277e35afb13967a4b20e48d65"
+   "prompt_sha256": "0e162d8d44cd90179aa3dc426f7117a98f7e68a5754056b7d194fad5e7708661"
   },
   "223740003495702b53ec": {
    "text_sha256": "7b812eb583df25fcf3211109c79c2222d3f69aed70380aa06852de8b7858516c",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, context of 'lugano' is needed for full understanding.",
+   "score": 2.0,
+   "reason": "Starts with 'Because', implying a previous statement explaining the context of Lugano.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "f78e7fd0ea4952372aa8b49aff90bbce9eee1008626e61b23a0dfbd524f49042"
+   "prompt_sha256": "8a83fb65c52b0c98042565c694e0840c12c3d9ecf61e0a6613aed6f193a4baf8"
   },
   "5ed74534aaf43ada4547": {
    "text_sha256": "d2c36a207b746199080c3171bbb65afb507e8ae775194053c3296cef86a3ae85",
-   "score": 1.0,
-   "reason": "Describes a trading strategy, not the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts discussing 'someone' and 'we' without establishing who they are or the context of the trade.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "f96adc6b52ca32b712300cfa97aa152c14ddc81cac7868c14a763af78635ea1e"
+   "prompt_sha256": "ea73c6d94f1d46d4a9362a075c6613c45d60e53a557f74a646a2f5ce12ecf785"
   },
   "6c48bc05926df28de924": {
    "text_sha256": "78ec15812f0d65d5ae4557e54d5e4da009101176d8c71727c0710e84dcefb6a4",
-   "score": 1.0,
-   "reason": "Discusses MSCI categorization, not directly related to a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins with 'So', implying a previous statement or context about MSCI and a 'category'. The viewer doesn't know what 'this' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6d5082ff5454f47d549d498ebab8824a84c6f9745a017daa6c06b99f3a6cf5c2"
+   "prompt_sha256": "98201319e3062de06c76ee489b7b2336eaf1049ebd5d4b290a34ae0073f64d4d"
   },
   "96f4b068851935d576c2": {
    "text_sha256": "f51902a05c4c314f93afa8b6cbeecbbbc3baf2a71b22acda320364182bcc75af",
-   "score": 1.0,
-   "reason": "Discusses scams and creating worthless things, not specifically about pinned Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'So if there's...', implying a previous statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "f41f2e76aa92bf778605eae0ab426e5ac96d2dcd49d31a1b7968349108b856eb"
+   "prompt_sha256": "8678a897e55932ec20839f704abc96d8ff316550f92ba6c967e04ea0a7f8659a"
   },
   "a39690d7f3681352c031": {
    "text_sha256": "28750e8c9bb3da8762257399b8f92e0e5d7010d4bdf444d3a4d05cf5913c532e",
-   "score": 1.0,
-   "reason": "Discusses global Bitcoin adoption but doesn't mention a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'But for the people...', implying a previous statement about a different group.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "00351dc038743c026abfc2672385c32a371c0695941588c58db875e88922f61f"
+   "prompt_sha256": "10722d155d315aaed9c7cff14908795585d5cc3e435f495d114e2dba103bf31d"
   },
   "a9f63d41611cc368ca69": {
    "text_sha256": "c6598ba5359e1394b8f7023b8cb52b9258cae73179b288fb433920dffec34326",
    "score": 1.0,
-   "reason": "General anxiety about Bitcoin security, not a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought; 'that' and 'it' have no clear referents.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "bef9a2383755bae54df222740c529ab505e37158915b9f01221e3d29b523dec9"
+   "prompt_sha256": "32f298d54b822a4af3d62011abef9079017b045cb7d5e23d70ccf079f72bafe4"
   },
   "c637f7357eea5cec6991": {
    "text_sha256": "ed1b3544426205852c86c8a723c4e4035e9e5835bd1490bba6303b72ed0832d7",
-   "score": 3.0,
-   "reason": "Refers to Saylor's prior statement about Bitcoin being a 'moat' without explaining what that means or the context.",
+   "score": 2.0,
+   "reason": "Relies on knowing who 'Saylor' is and what 'the moat' refers to in this context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ae19250c507515ba29c34b95b599fd05ed80026274c5d87b1d285459683956b9"
+   "prompt_sha256": "f841995ad9b8ca85e3f56550917b9b5402f48d0d3420ad19d9a783fb1c85bb99"
   },
   "c7a080d2ebb203e81d2a": {
    "text_sha256": "3d20ae1640a86f8c3fa2c81c031d2095eebdf4e5fb1e307a0e5b002a28735bdd",
-   "score": 1.0,
-   "reason": "Discusses LLMs and their math abilities, not the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts by referencing 'these LLMs' and 'their math ability' without establishing the context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "165c89854a0088a851902fee3b05ab19d7ec42321e7c1e3306d66649ba7aab95"
+   "prompt_sha256": "9875ae78eb211d20c2bf7ba038e4dab04aa100330342c7ac640e46244de133b0"
   },
   "eb5ef19bc37fa4ee9ad5": {
    "text_sha256": "a588581b0150be7ee8ed0830f4c2fb1b80eeaaa41bbb56547b0c0aa8000120f2",
-   "score": 1.0,
-   "reason": "Discusses portfolio allocation with Bitcoin and cash, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'it' and 'you' refer to something previously discussed, making the claim unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "11494bd643c35d1328a3218177c6db92bae5db26a74d9d1f553e6e602d9df2ca"
+   "prompt_sha256": "5d4fa88ffa4923c3d018a237eb1ce47b56e72ea0af2609056edc2ef59900f154"
   },
   "fec8d4cca387ac1e0bc4": {
    "text_sha256": "01da47564bd9e95781cbb82e081e84856358564ea1b13d762b62575943744349",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin price impact but ends abruptly, leaving the thought incomplete.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The clip begins with 'But', implying a previous statement or context about a strategy and a company.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "2e9f56be5d3958f120cfc8fdec89e1f3e5f4c310ccedf4257d291a082d70fa59"
+   "prompt_sha256": "0ca69baa45c92bd3e33f360544ef499d29dfa23591c79435a0b52933c0cddc4c"
   },
   "007be1f3547a3bcee53e": {
    "text_sha256": "422444cbac25dd854e3afcccaf875988e41390e0ca5a0def2615f5b359cfd140",
    "score": 1.0,
-   "reason": "Analogy about responsibility; does not mention Bitcoin.",
-   "fault": "off_topic",
+   "reason": "The clip begins in the middle of a metaphor about being 'dumped in the throne' and crowned, making it unclear what the initial situation is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "5b054ee5e1ed38b18e65fa8891ed847e4c9efc9e295fedd72ee54c81ace764c9"
+   "prompt_sha256": "634979e26a53f6bb633a2c1ef940a93e723460fd139373acca30ccc343c14b50"
   },
   "3763843e90b435db8624": {
    "text_sha256": "8b8b536a6c28a4add8094386bd3af10988c77e8d883da81a849b4e06b20a4a55",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, discussing Bitcoin's goal but lacks initial context.",
+   "score": 2.0,
+   "reason": "Starts with 'But if we're looking at...' implying a previous statement or question.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "9260a73b6059edc6cb7cfd5d363e4e8679154fb19331d8fbf3d730550ed20284"
+   "prompt_sha256": "e9f2553087806126db575c747939cb50b6a73dc2f5ef2154a890eacbbf162e09"
   },
   "56a8084fc8be3f4c3761": {
    "text_sha256": "6f76dbb6be45b74317ba7cbb863685eff32645b3f196c65c1be4bc271bdb50fa",
-   "score": 1.0,
-   "reason": "Discusses AI trading, not Bitcoin or the pinned event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "Starts with 'So, I mean, first thing...' implying a prior setup or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "270db72adb3ab234086c59c73d2a069b77d26d64843605f7a46a0d7d448b22ca"
+   "prompt_sha256": "59ac71485c59ac2191c282c2742ddc032946ceeb85f368be82e66584e710956e"
   },
   "7d168cc55471e026c817": {
    "text_sha256": "3c73986981821a00f79d7ff587ff8392f55e7342be87fdc3da9ba21214781daa",
-   "score": 1.0,
-   "reason": "Mentions a moving average, unrelated to a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins assuming the viewer knows what 'it' refers to and what 'cratered' means in this context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "a6012ba773a30e67f715df0ab86a07521eebb58e87285b5670cc1b04e61c7c03"
+   "prompt_sha256": "3bc5c0a97f311b773ca618a094662bbe28d674e520e0cba2b3af2c75bd30e09e"
   },
   "8072c7bcdc1dfe503b69": {
    "text_sha256": "3519bc50936ccea739d0c4b5f8d6fd06245de8f7e49d40c65f361d1233486e38",
    "score": 3.0,
-   "reason": "Discusses Bitcoin trading dynamics but doesn't specifically mention a pinned event.",
-   "fault": "other",
+   "reason": "Starts with 'And again, I think,' implying a previous statement or context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "05a8f64ee7bbea6fb3d44b682104fe0d90d4dc76285ec77e515e628e0af2cb08"
+   "prompt_sha256": "4c2ed77ec3ff4a607b5b1be208b8fd3459d83395be12f0be747b6e0aabc9e02f"
   },
   "904b25c5d5e37d19913e": {
    "text_sha256": "adf7f7dcebdbd4e2fd213ecfb643fac35984501a85e47f3b16231dd4069dfc8c",
    "score": 1.0,
-   "reason": "Poses questions about Bitcoin's role in global liquidity, but doesn't mention the pinned event.",
-   "fault": "off_topic",
+   "reason": "Starts with 'So that begs the question' - the question is not self-contained.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "7b036d578755b5e9c58363b621bfb05f89629bb7b3dd5b6ec2ec7168cb0fbfb6"
+   "prompt_sha256": "f2e434093a0adea179157c70c864dfaae3b299d82859a35ae37f5723d8f9c297"
   },
   "b8912911083cd0d98c5f": {
    "text_sha256": "8b085b701b576179da02923212d3b2e84982bea8601906b836aaff19f985589d",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, unclear what 'this' refers to without context, but mentions Bitcoin being 'already there'.",
+   "score": 2.0,
+   "reason": "The 'this' and 'most of the things' refer to something previously discussed.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "dab2af8bdd873d7f4bc34bffb218675ddbbc0fbc62230be16df03efba7847952"
+   "prompt_sha256": "965b2f79c5837bed6be7a5d1d797dff8cd68cdbc07930dd53d726561f25b4d35"
   },
   "c054e374f09df259f8f5": {
    "text_sha256": "55d226007b03514d342cb0a41f32c24613854a3c323de50e2506e7a4b5c16ceb",
-   "score": 3.0,
-   "reason": "Discusses Bitcoin's potential for growth but cuts off before completing the thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a prior claim about Bitcoin's future.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "bc59bb01d1b47dd2f142b99b5780b45e6179b806d43156d0a3a44823e995bba8"
+   "prompt_sha256": "8eee638189114dac73b7368ab75aa3087fccd40747d1c94ca2fca8801006162c"
   },
   "efb6ad794d8ade618870": {
    "text_sha256": "d390e419d3168bdad35d220a3a5786d9008b64bbcb303a79941171ed60e85c18",
-   "score": 3.0,
-   "reason": "Mentions Binance hack and Bitcoin's price action, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Refers to a previous event ('last week', 'two weeks ago') and 'Binance' without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "a03000e11ed54792f487b3258b2e5fd3520d44f3a8a850a257e21fa39f267551"
+   "prompt_sha256": "51a8eb1599a004401dd4bcdbaf0171bec42e5997bf1150ce7617b01b405cda6f"
   },
   "f159818401398182a256": {
    "text_sha256": "05f731f77a4851fc704f9896f6064a6670495b1e3fef3f2d20c654adb9ff2847",
-   "score": 1.0,
-   "reason": "Discusses economic conditions generally, not specifically about Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins with 'And our belief is...' implying a prior statement or context about what 'our' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "54d3cf6885e81a59894dacf127e9325e0a0c758a4707657557cb4dd50497d21b"
+   "prompt_sha256": "43abbe3cb7a6469c06d903f395d96626a99ecf65bbe33e094ecddb358ea53c90"
   },
   "082a1f3f1050222bed1d": {
    "text_sha256": "e9f7d3efdbd71d038e4fbd000ebb3611a6a571be24e483fa8f3818dafe841b2d",
-   "score": 1.0,
-   "reason": "Discusses scarcity of Bitcoin vs. the dollar, but doesn't mention the specific 'pinned' event.",
-   "fault": "off_topic",
-   "affirmed": false,
-   "prompt_sha256": "7ecc0ca3dfd6c1027ce432af7cf2f27a0d0914f10b6e70b55ac5095d8919f6f8"
+   "score": 4.0,
+   "reason": "Starts with 'And', implying a response to a previous statement or question about sustainability.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "f8d72aa16380bd56b1bd1dbad799f8e5aceb015299f01b2c85f5e6dbc21bea2f"
   },
   "200a76f4b8c47098ed10": {
    "text_sha256": "5d0245747ed96a300fba228adf6330eb74db8407b1007b4f014adaa813e4b58f",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin as savings and salary, not a specific pinned event.",
-   "fault": "off_topic",
-   "affirmed": false,
-   "prompt_sha256": "8731efbd57e9debfa5e47d0d532262b72de3d299b4c5a484cc3f387249d13111"
+   "score": 4.0,
+   "reason": "The 'but' implies a previous statement about Bitcoin's benefits, and 'that' refers to the changing value.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "2bfae65bea116da8d9966454630a4db3ee5ac6a26ded371118f065e268aca768"
   },
   "2128c2a13781d829e372": {
    "text_sha256": "c8f9b6d53c9d685eab56ef3b1410221447e05a43de843e60297cac5546d13421",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin's perceived value, but cuts off mid-sentence about transaction usage.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a prior claim about what Bitcoin is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6a8c5eeada110e58d21626b2972900fc723b2deafd4e05afad6c401e471c0746"
+   "prompt_sha256": "cbf23c514021e48fd3bae7798349363f3bd6cdc2525c2b01480a2a57a71c9916"
   },
   "2a56cf7819d2557cfffc": {
    "text_sha256": "5126badbf9ce21564898b37f1bae562a57d39cbfb17034f137ff251e66409f33",
-   "score": 3.0,
-   "reason": "States there's no bad news, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The clip begins mid-sentence, responding to an implied question about a problem.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "f23faba7b8964e299092373de7bca910c63b81a6dee04d8f9163fc6da60d264d"
+   "prompt_sha256": "01be49b3d62b2012dfa449701b0b8094c04708f978b2ad19681f8d30fe0ed104"
   },
   "a57cd265a21929a291b1": {
    "text_sha256": "4c505ae4c380f3000774fb1554bdacca66be70421ace6fa8f05f07a11e56860f",
-   "score": 3.0,
-   "reason": "Mentions Bitcoin de-leveraging but the thought isn't completed; focuses more on tech stocks.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts with 'But essentially', implying a previous statement or context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "1b085eb10000369cb8738833f00b70e4da5c6d11c229d508bdef689ac650b957"
+   "prompt_sha256": "bb1419649831611e76fb86ce9721eec9a1309d9001dfe229231456280f65d5fd"
   },
   "a68fd9fae23dc07f4eea": {
    "text_sha256": "63e1c800e84ec0822ff7ef7dc21f22c94a63abd8b98591d9b20650060253555a",
    "score": 1.0,
-   "reason": "Discusses AI and Bitcoin's value, not a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a question; we don't know what 'it' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "163ded86f5650600858d3a125e449d9860ce06d6923deebfad13c0b07232c820"
+   "prompt_sha256": "6bda9909998386a773898a58084ded74c35599776ea575bd89ee2f41193a6920"
   },
   "b41c3cdd84c4f561bc12": {
    "text_sha256": "33975d0a0baad96b053e655d66ff6b504dd4e16b5fb1b69d0483f6dd871eeeef",
-   "score": 1.0,
-   "reason": "Discusses personal ethics around crypto ownership, not a specific event about Bitcoin being pinned.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'And I say that...', implying a prior statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "da6502b4e53be72612c5d0af45dd28c92e6219da765360c048f0cd6a57624aac"
+   "prompt_sha256": "dfc7ef3f56e16f4bf3dd3198d718011ffae7d58fa046da2d6ba73bab5f52fbc3"
   },
   "b5d8448a483803509d87": {
    "text_sha256": "7cb0a68832c4064c7486f26dddb810e53962791a36e165f1d2b9fb56f1d4d7c4",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin as a team project, but doesn't mention a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'And if you're not...', needing prior context to understand what 'that' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "563ed78dcb43010a0761eeefa8d3ccdf34a557f14ab0fa019f3336165891f577"
+   "prompt_sha256": "72c9dd3eceadcd21d95999ce69a75cbabc36b4bec16f9be17abb3a1b27e7758f"
   },
   "c307ee16cc4f5291f784": {
    "text_sha256": "185e0549b6205ca588cf2bee57d92731dca8181cf6a4ee96223e88da13a21a9a",
-   "score": 1.0,
-   "reason": "Discusses AI and sovereignty generally, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'And while', implying a previous statement about AI. 'These sovereign sessions' is unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "967bdc36c49017ca81857c9c6f3a9468afd7f2303447220832ef93589e483405"
+   "prompt_sha256": "20860aed3d1ecd4bdbeeceaaf53779f3fe7c6d95cbe90ff9bc3fee3ab0d68e91"
   },
   "c7c16471fda6db9ce131": {
    "text_sha256": "9334389cab0f0bf48abe96649ebfe545e3fbd1f75f4862eec4a1efe0ee8817e8",
-   "score": 1.0,
-   "reason": "Discusses leverage in the stock market, not Bitcoin.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'thing' is not identified; the clip begins in the middle of a thought.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6f5334b26f1a83ab6a9bf7ee0e4f5e43563517d601c3493753d847083fb10458"
+   "prompt_sha256": "eafc68486a03022e978d3c45590de83359aad81e771bca149fba5d5cf453a6b4"
   },
   "e3feeb07a7ffd068caad": {
    "text_sha256": "6b3578d02317da855ff370b190bdca27c057da7e268a23ed555f1c1073150f17",
    "score": 1.0,
-   "reason": "Personal opinion about holding Bitcoin, not a news event.",
-   "fault": "off_topic",
+   "reason": "Starts with 'And I don't, it's not like...' - unclear what 'it' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ed4b88697b7b9cce368e3e30ac48b5104b3afef447291eec763e6a5025df3f94"
+   "prompt_sha256": "f674a29c4be2d1f12f80458a1cf3e3c6ce794e0c6840d90ad151b427d900232a"
   },
   "ed9df2d7865dddd1a80d": {
    "text_sha256": "a72e1975115ed21f141f845c1612040e3a4789d7146e45152a0ee3cbe62a24f3",
-   "score": 3.0,
-   "reason": "Discusses price predictions but cuts off before completing the thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a claim about Bitcoin reaching $100,000, so we don't know what the original claim was.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "236ebde57f88dc0f2df14af4390ad31acfe65e0f91da73feef1a1f1adc0c3809"
+   "prompt_sha256": "15ee40cb107f67b47f908080590d93573d437086c9c733c7b2ba43468e25024a"
   },
   "28270b40b4cc8b07557b": {
    "text_sha256": "615d1026217d27dd9d4c3e067ba3e32155b1c1960af43445dc79879ab5ab457a",
-   "score": 1.0,
-   "reason": "Starts mid-sentence and lacks context about a specific event.",
+   "score": 2.0,
+   "reason": "Refers to 'that' and 'some of that' without context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "282a734488454f19053586539cf9f664e84aa178e589609b8d953d62a0010f46"
+   "prompt_sha256": "c3869bc1a54d9fcb32cd9108226425d1e9f999bf39f308be86cecf7039205ddb"
   },
   "2f68e5280cc16138df28": {
    "text_sha256": "1c9494a3f689575b57feb02c7c9c37598bdbcffb5de136387e8df400587dff27",
    "score": 1.0,
-   "reason": "Discusses inflation and a country's economic state, not specifically about a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought about realizing something; 'this' and 'we' have no context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "7dbbb18d61f607e4c6d20f1b09e4ef069a7f2bb8b15c4e5d6de87a5eb9f5faa7"
+   "prompt_sha256": "50d0101d8d02d49513f35d5b31abf0fbcd3333f7e8d259f97dcb7681af258647"
   },
   "33eb4d6ce42af8927cd2": {
    "text_sha256": "97186a47d4afd324cb57ba3d365384c62bd99cc777fb0b4416067b5f24e0ae3b",
-   "score": 1.0,
-   "reason": "Speculation about price, not about a pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'we' and 'realized price' are not defined within the clip.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "fcb35c606520c600980c28914d3bac691b567e702ad1ea23c685e0e08c2e3019"
+   "prompt_sha256": "d3b83c1a51f225e53b79a1e358a95b66f00bb1710cdafb1bd17683bec22a19f6"
   },
   "36a956726efa1bdb5bec": {
    "text_sha256": "0a15f3e5178c2d3344e6dd6a291541b280dd6abad936ced0d2b9d287ab3b35ea",
-   "score": 3.0,
-   "reason": "Discusses potential Bitcoin price movement and a bottom in summer, but the explanation of 'real market forces' is cut off.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts with 'So I would...' implying a previous statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "70d15f70e13548f23d408e7457d1cae14ff3788eb53cdc8019fb94f0f22036da"
+   "prompt_sha256": "eaaf9965e1337bee9358611a8b775bab68d5ec7246b67be73e54a21357d92449"
   },
   "9dc526107c16d562a003": {
    "text_sha256": "a7df507e75c07eea0e34150a29581abe4fd7c39c73767740f7167c00986cb5e0",
-   "score": 3.0,
-   "reason": "Discusses potential impact of index providers but cuts off before fully explaining the consequence.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Relies on knowing what 'the line' is and who 'they' are.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "cc23a384754f25c59855262d10c027aea600fa8fba8883a1dc834686acc06554"
+   "prompt_sha256": "9340e40332865c5e15fff3e1e6f99665b7d1797640b6e1dc43dfb58bba06328d"
   },
   "a7bc3f88e13dd58b1c7c": {
    "text_sha256": "8afe98ec6132029719a49495cd394b4b45d7547a57b53b1631d2c30d5ead4b25",
    "score": 1.0,
-   "reason": "Discusses Bitcoin community drama, not a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought about Bitcoin and cancellation; 'it', 'You know', 'that way' all refer to prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "191136b56638fe38cd2c41f97497021b8dac49599c8d172e4efc1a53f3bbf761"
+   "prompt_sha256": "a103f651431bc8d7523f26f28b7beeb30ba9c93ab4a88b8b7f5bd047bc969d59"
   },
   "c8eb0aab13c9782495cd": {
    "text_sha256": "dcea733241572ac479fba8bea5b72c8202d0bb8ac7399749439785ff3cb59572",
-   "score": 3.0,
-   "reason": "Starts mid-thought, referencing a previous discussion about liquidations. While it mentions Bitcoin liquidations, it lacks full context.",
+   "score": 2.0,
+   "reason": "Starts with 'But', implying a previous statement about liquidations; 'Long's' is unclear without context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "8cf4532b36e22cb3985f5f8863d992fc3b2d0788b3357e16c3b4634211f13471"
+   "prompt_sha256": "3038c051df88e6d828b16d3e1aae72dbf290c3556b5293a17d76075c28dc4d65"
   },
   "d1c65df64564079537d5": {
    "text_sha256": "3df4c5386a293cfd521bd5687611ff2c6cb21341c8a1686aa2cdf049826403ac",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin dominance generally, not a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "\u201cThat\u201d refers to something previously discussed, making the claim incomplete without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "491e8379a94de3b2459ba296fbdbbf0e5a01e740da51fcbb2b2215f3d0b38426"
+   "prompt_sha256": "2b89a58807c5c97000177a2e5acf4ffef9e98763d5c299aba0a4e5a10de7a5f3"
   },
   "ff3eb6fb1c228dd9bec3": {
    "text_sha256": "b3f956bc1fc88aa2f138e626eceb29e81fa630cdad6806eb32f96e7141fad829",
-   "score": 1.0,
-   "reason": "Discusses data centers and energy, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'they' and 'that' refer to entities/things not mentioned in the clip.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "96a901e8335849b8d986315927ef8498196ff56cb53e19b33b4eded55ae4e64a"
+   "prompt_sha256": "c6e918c1275dcbd8ae077987e4010f1e42fc9ff7a15d321935940059c042213f"
   },
   "1dad3c54a5fe38e65116": {
    "text_sha256": "185ca1d0903b276b3756dc9b64e5664ca61072577f6dd914c21ea81596d81638",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, lacks full context of what 'it' refers to, and is generally a cautious prediction rather than a definitive statement about a pinned event.",
+   "score": 2.0,
+   "reason": "Relies on prior context to understand 'it' and 'that', and what 'strategy shares' are.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "7fea87647aacfc7c6eaf1548fd310a192599b72cb54cbec0654617c76c423ea1"
+   "prompt_sha256": "f05cb0392e691e2369d45f366220438771b2437f96b3b011ad1452350bbea61d"
   },
   "28fb4e4d24ab818032f0": {
    "text_sha256": "b27e7e960052994511bf8704029bdf9e46bf8b3f6a2ba26d8044e706d94426dc",
-   "score": 1.0,
-   "reason": "Discusses investment themes, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins with 'And so my view is it...', requiring prior context to understand what 'it' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e6869fb76bba0dd734df0bcf44af74dca2870be24d4ae8cf93e1b224ddfd2042"
+   "prompt_sha256": "cb1afca39895f58ca194351b83f9553796f10b25c161e8a435de4b4656967e3f"
   },
   "2d8a2050417e286fc2eb": {
    "text_sha256": "d34dd82afa32681562547c66e5621a918c538c1ec5a1062d76f053b4e5e92b0e",
-   "score": 1.0,
-   "reason": "Discusses outperforming Bitcoin generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip refers to 'it' and 'you' without establishing what they are.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "fd104dfb5b18e99c6a158bccc8ab3cd3e12279df540806b35417c55c71f625ee"
+   "prompt_sha256": "b1d79f291f4cd0279e664b55c0743ad6a76a83c6fa04e2085c3b521b25c27dfa"
   },
   "42aacd14f229f0f2c337": {
    "text_sha256": "d00c3826e42b13d6f911aeb9f09464b829cca92f0dabd977408c2b10cb691dce",
-   "score": 1.0,
-   "reason": "Discusses stock market performance, not the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'And so like, with that perspective,' implying prior context about a perspective being discussed.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "d8ea80681ebaa5de1152320e7659242e19c9b4eadb57e5574aca42c3c32fa85e"
+   "prompt_sha256": "9ea8d0c2d7ac2952367f66020f5bf8998be64b4dd61cd9b9a291a79c657b1414"
   },
   "7d010fbd69e0a447faa4": {
    "text_sha256": "89bc76d4686d63f888f9cfc4bd0ec78c7efcb6309f397e7a22682cca1344b499",
    "score": 1.0,
-   "reason": "Discusses perception of insecurity and merchants in Lugano, but doesn't mention the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "reason": "Starts with 'But I mean' implying a previous statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4da86034f53c3cf66479001d456d12595a9a0c556acd855e449220fe49ea54b4"
+   "prompt_sha256": "459b76a5c75169ba5618670e3b4a382ea14914e1c61f3aa5b683397949508a28"
   },
   "837731ebe9e38aa0c791": {
    "text_sha256": "60b2f3ef870bea5c7e06a0b56b3a57758785152d342c7d70149c9a9624f8393b",
-   "score": 3.0,
-   "reason": "Speculation about Bitcoin's future is relevant, but the clip ends abruptly without a complete thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Relies on knowing what 'that' refers to; the claim about Bitcoin breaking the power law is incomplete without prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6851eac5253e0c7a3b7c5ac88be8d7053dcc95823a1a30d0237a306a65821b6d"
+   "prompt_sha256": "843756fa717e7a35a1a27390ed5e01358320811fa2d5fec8081c8d3ba5b0c3dd"
   },
   "8935a0b351127fe16b1c": {
    "text_sha256": "055c4d1902fa49ffba71c4c8c3166d7a2bcd25c5339ee8efcec94672edd59320",
-   "score": 3.0,
-   "reason": "States a price drop but cuts off before explaining the significance.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'move there' is unexplained; it refers to something previously discussed.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "48bcba78cb20ae5ab2a0cb8f50484adca67287803ec04819314bfa48ae41562e"
+   "prompt_sha256": "4a1ab94485946759955300ad8ba5ce5827fa5c7ed94ff4802b9fce571ad754eb"
   },
   "fd24993c6e0d9a2eca7a": {
    "text_sha256": "b00ee7af3399ee282a6c73a73667edc268247b1413d4e5b3b5e0104e1dcbefc5",
-   "score": 3.0,
-   "reason": "Starts mid-sentence and relies on prior context about 'people' losing money, but hints at a negative impact related to Bitcoin savings.",
+   "score": 1.0,
+   "reason": "Starts in the middle of a thought; 'they' refers to people previously mentioned.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "df8c55f7e2450a559fc5b9c4e9b1bad91db346c9c2e86686925b036752731b78"
+   "prompt_sha256": "ecbba439d37a9e7b3791ffa41cf0ca1cb1cc138dfc90538b8a1291f2328b18d9"
   },
   "11492e7de9030cb225fb": {
    "text_sha256": "a0e01501f4a71ac1c54e56f39a2a29c7e1f44118c18ef4efbc27603a82767a45",
-   "score": 3.0,
-   "reason": "Refers to 'they' and 'when they happened' without initial context. Relevant to a security incident, but unclear what triggered it.",
+   "score": 2.0,
+   "reason": "\u201cThey\u201d and \u201cwhen they happened\u201d require prior context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "d6686bfa9a991bf6678a40383ca3b455782edf93782807292006c69b3ccbbf37"
+   "prompt_sha256": "db5c6367a0f773a395ae329feac48d8aecfe472e8a99dfab5221e2e2ff445c96"
   },
   "351aa1a4a2366745eb2f": {
    "text_sha256": "fb98d61471d50bd07e4a4d87a92c9f588e9646dc8831a0bca2c90779fbba71b3",
-   "score": 1.0,
-   "reason": "Discusses lack of central authority in Bitcoin generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip begins with 'And we let them off the hook', implying a prior discussion about someone or something being held accountable.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "90f8b795aadd07a6345f908fd22aaf8f2b7f2e618b4134409b6d5445661c1c80"
+   "prompt_sha256": "e9d67595e63453e550c3e7f847ae8eb10447cae74c5181a0707783c46d16badb"
   },
   "38bcbba04b4370275cd0": {
    "text_sha256": "cc6574a81a574e07aebc2e926d0a0e4a0da33b516748a6b066a7933b4b7bed25",
-   "score": 1.0,
-   "reason": "General bullish statement about Bitcoin, not specifically about a pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "\u201cThere\u2019s still a lot of runway here\u201d implies a previous discussion about potential growth or investment, making it unclear what 'runway' refers to without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "b66a9f947f67edcd271635b3ad99aefe8a89a17e575fd034328cdc1c1d5080f3"
+   "prompt_sha256": "636725e8ba98dff19b3f7bb4e1bb72db4a60b2f6beef3a2662ec2d50c45c6625"
   },
   "4e3d088f16dcdc0b2032": {
    "text_sha256": "bcb92d5d8cbb4013da5580c6317322545c9c47432f2c62d059c56c84a861b104",
    "score": 3.0,
-   "reason": "Speculates on broader crypto/Bitcoin independence but cuts off before a complete thought.",
-   "fault": "ends_mid_thought",
+   "reason": "Starts with 'So, you know, again', implying a previous statement or context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "0ee8420995376c8609e1f7cb303249478b709b8a45e00e01c05634fd35e4abf2"
+   "prompt_sha256": "0d7a9692809b96c4f4917120d5c9f3dd517f280a6ba6341b8e706210b4f376f8"
   },
   "6cb6ed9c32d8d25a9079": {
    "text_sha256": "e0b7e066adb062c4015c6cbd0a7fdeca7a93814b4ebff09024fec93323a343e7",
    "score": 3.0,
-   "reason": "States Bitcoin is a hedge, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "reason": "The 'that' is unclear without prior context. We know it's a hedge against inflation, but not what 'that' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "7a7133c80f1c036c7e855a2928fe068c68e55026c83861e5ec84623911008627"
+   "prompt_sha256": "05e57440d249975e093717c3693caa719dc56d54bada0a0049c5e64b6e251e24"
   },
   "a330f0d9414af384caeb": {
    "text_sha256": "aa728399eebd6fc36456dd236379bdc2e79dc3219fa9e5e6426ee5f60bcc584a",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, referencing prior context about following the story.",
+   "score": 2.0,
+   "reason": "Relies on prior context about 'falling along' to understand what is interesting.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e686d5a6134772596b6de5bbaf6d002b2f3a0c0585e9af918a2ce18fdf5f2889"
+   "prompt_sha256": "6b8219de9ec2b585f6f087e2770a7dc6717312101d7eabd779c13cd7752083f2"
   },
   "04abb94730f940656581": {
    "text_sha256": "4390daa61e8f6d9b86fe315c89c8358239b5e87720b5e8f92935cdb8ebb630d8",
-   "score": 1.0,
-   "reason": "Speculation about price during a political term is not about the 'Pinned: bitcoin' event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "The 'So' and 'I'll be honest' suggest a response to a previous statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "26c28c65e0fb3d54f49b7211d0e2e2c4e68075a5b8264fd76d7e94fb2926f41c"
+   "prompt_sha256": "aed4e831b5ab8736a83804141d76a4e224ea58fd226d7e53cc01922b14ba5fc4"
   },
   "1d562f5799544d92c6d8": {
    "text_sha256": "c96fb94b6ca2877bb1998a6c4d49511a6602e632d9183d435efec23b0d1c54fd",
-   "score": 3.0,
-   "reason": "Mentions a senator who supports Bitcoin, but the connection to a specific 'pinned' event is missing. Starts mid-explanation of a broader positive trend.",
+   "score": 2.0,
+   "reason": "The 'that' and 'he' refer to things not in the clip.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "966707d741b45a84dc5f01025b2bdc305955d7a610040a3d1dff838f3ca0785d"
+   "prompt_sha256": "09719961a9cfdae0a3a0ba3b16dba06786ac9e71f1b6e4d830e419df65145fd4"
   },
   "9a2443775ada43519e4a": {
    "text_sha256": "8c92d494ba03b1af18bf04782cb70c3c92f5181213d9f7e545c9a2d231ca0563",
-   "score": 1.0,
-   "reason": "Mentions Bitcoin price range but doesn't relate to a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "\u201cWe\u201d and \u201cthis year\u201d refer to something previously discussed.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "2d5bc628aaabac1e48989b8bbfc22ef61ddc6a97619a2d1b93519c2e661599e1"
+   "prompt_sha256": "8ec8647a74f0b168d7763caefe98669a0e4bbcee617571fa990b89f0045793cc"
   },
   "9ef449774f186ff9f6bb": {
    "text_sha256": "ccb2454ce4f8986cf4cd337c24878355e7c6755df69f0a745aee03aeffb5361d",
-   "score": 3.0,
-   "reason": "Starts mid-thought discussing leverage and then pivots to Bitcoin's 200 MA. Needs context.",
+   "score": 2.0,
+   "reason": "Starts with 'So obviously', implying a previous statement or context about leverage and flushes.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "9b6da2c84a19070bf947028efd9b8cb1fd8720cf3d0652c3ee6ea173fb72720b"
+   "prompt_sha256": "afb5c671bcf6f83df0492676a6d00e1fb336351ac32c179575e8736e8224918a"
   },
   "aff7ac8c07ebbe6eac6e": {
    "text_sha256": "395970a761f44d5a3153c02abe2b2dd07e2b88a92ca5adc44bb5c152b109a833",
    "score": 1.0,
-   "reason": "Discusses a PSA and scare tactics, not directly related to a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "reason": "The clip begins with 'But also', indicating a continuation of a previous thought. 'They' and 'this' are also unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "48636e3c397c8f528e43430a5fdb0257c8686665d77dd94cd8e4373107ccee2f"
+   "prompt_sha256": "aabff5a69f14daf5c88008db6281aa5a7254d51b4b345580511cf4b6246b6a2e"
   },
   "04d407cb7609e505c26d": {
    "text_sha256": "09fb95c7c5e9cbf021f43551c5c780e101223311d61b3d40ed4cbd05b31b1194",
-   "score": 1.0,
-   "reason": "Discusses IRS letters about crypto taxes, not a specific 'pinned bitcoin' event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "The clip begins with 'So if you get one of these letters...' - we don't know what letters are being referred to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "02577df83d829d726625690c1fa6a2eae8531ab83aa3983b3d7e1da7de3599d4"
+   "prompt_sha256": "8001dd3a05af637a7081c36fcb0cbc3b916b5e4af9403d81f3169029504fcf79"
   },
   "11c282475f56a475f185": {
    "text_sha256": "6a19f4cacb02f1859069f7bf640d567c8ebe543f295989d80ec515751dc0d0af",
-   "score": 1.0,
-   "reason": "Discusses correlation with stock market, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'Because every...', implying a previous statement or question about why Bitcoin drops.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "9f6258293c622ce9af62d335692ff2f0f63388441351a58a9944bd0d4155c2de"
+   "prompt_sha256": "57bf3292103e914f71d3703549214cf02bc0a0925b7f8bae3c1c18052a6e21e7"
   },
   "47e6772b6dd300cdba48": {
    "text_sha256": "1d0cb0e71673799c42ef8952a2055348773769ca5d07b614882cbd14ec6eb2f9",
-   "score": 3.0,
-   "reason": "Asks a question and gives a partial answer, ending abruptly.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a question about a million dollar idea; 'So many people are pushing...' needs context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "890b3ccfbb0918265f45e9d701171e3ceb52bbbe6334f796301016022024cabc"
+   "prompt_sha256": "b3cd88fe0e03f3fe1b94956f4d78254dce831a0fa1d3d32b385e22127e33f193"
   },
   "fc855d89068802178fbd": {
    "text_sha256": "aca1d2363a85f978a9f89b06c7eec58072e7272991ca7de219d842a8ff42d974",
-   "score": 1.0,
-   "reason": "Discusses digital credit and yield, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "Starts with 'And so', implying a previous statement or question. 'It' is unclear what 'digital credit' refers to without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "b447d06004f42a4bdfe282cb464c5e4c7efbea9b5939473a7ac02e002e16da6f"
+   "prompt_sha256": "b6bcf5d1b6ec0038809c7c71fec2f0be59e3ce6f3a2261f7641d1bf8e34c8d39"
   },
   "13b918f478c2b6257799": {
    "text_sha256": "0fed7cb782a6c1d2ebbaf0abb7302ae0bef0b8a935129aca170f5aec078bc501",
-   "score": 1.0,
-   "reason": "Discusses price action generally, not a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Relies on knowing what 'prices' are and what happened in 'October' and 'September'.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "26fe2a9038e8de1abd3cd63a6412b53a9108ca3d04d69a5bda8c0fefcb204b44"
+   "prompt_sha256": "d125767888cb799c1023a23213ea07584996770b0d908328263d54e5254b7291"
   },
   "a9ef66a12a8090eb3fef": {
    "text_sha256": "12e65c60960daeedb181303de51c4fba8f51e78c900b4a9b755b0ef29c2b9764",
-   "score": 1.0,
-   "reason": "Discusses broader financial infrastructure, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Relies on prior context to understand what 'that' refers to and what 'bigger picture' is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4532ef50e184cec1b3d33703a7d96315adfe5a86717bd5f6364c5fc9226fd7ce"
+   "prompt_sha256": "b4994d3c50caa27e2fbef3ddfbea48a578a8ca1766cb3af25855b535f683df4d"
   },
   "8a6b876be07ba7f27f59": {
    "text_sha256": "c6f54ef9bb2e0b71ce0c5eb4211d11b7fd487c9c17178923f5271c7425ed3a20",
    "score": 1.0,
-   "reason": "Discusses general market psychology, not specifically about pinned Bitcoin.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought about people pretending to feel good about a bet.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "cf30b6c3f394370af6f79d15f2e72fbc0d6d2f7aff47d51606830bbf52705e80"
+   "prompt_sha256": "95896b51330f1f10c3274a913381356994fde72da31a1c94de24e01e68c8b432"
   },
   "079fe82d1bb35ca12e17": {
    "text_sha256": "34ec74aa7393fac7ca8ae77cd8f18c4a033fc146399aea2ce76e944131c4b97f",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, unclear who 'everybody' is or the context of 'cheap Bitcoin'.",
+   "score": 1.0,
+   "reason": "Starts with 'But', referencing a previous statement about Gary Gensler.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "36ee3cb8fd52212237155dde6412084522d44aca05b5a09837eb45ad8b9b8e0a"
+   "prompt_sha256": "d82445d3f2bbbdcce331d504c8816e978461400955f4885e1571f8bf67c4e5c0"
   },
   "5ee2df5ec6860e0617be": {
    "text_sha256": "b9813a81e166e7431bc1c31b6d0fa185eb3fe9131f8da180317bce8e99494620",
-   "score": 3.0,
-   "reason": "Relevant opinion on Bitcoin's reaction, but cuts off mid-sentence/thought.",
-   "fault": "ends_mid_thought",
+   "score": 1.0,
+   "reason": "Starts in the middle of a conversation; 'him' and 'this' are unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e1281852ceae6cd39ffd0e32e9ac1d6ebe6f3e11b9dfbb05f59d7ab89a724a13"
+   "prompt_sha256": "0d43472562b19e5f92063bfa2371e9659766f5eb61959fe6e444f23a91c9da2b"
   },
   "00dc5e6b2347d9c0e922~trim": {
    "text_sha256": "683903dbd8629ca7f6dd18b0f75e462a1c851353b673e09666e5030f90b42307",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, referencing a previous point. While relevant to Bitcoin's philosophy, it lacks immediate context about a specific event.",
+   "score": 4.0,
+   "reason": "Starts referencing a previous statement ('this was not...') and relies on the listener knowing what 'it' refers to.",
    "fault": "starts_mid_thought",
-   "affirmed": false,
-   "prompt_sha256": "ea0e118a81a0a30249dacc45647748346ab5b5258f29296fcf0874ae0c175486"
+   "affirmed": true,
+   "prompt_sha256": "418f2fce115f1e9f63a3c05d28cbf48222d08b6dbd3217c9664ed343867f6c18"
   },
   "04abb94730f940656581~trim": {
    "text_sha256": "21a8e1587c405b93c5fd66123e52d1c36506461a2b490f55b7dcbd1cf01863b4",
-   "score": 1.0,
-   "reason": "Speculation about price during a political term is not about the 'Pinned: bitcoin' event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "The claim depends on knowing what prompted the honesty.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "59bc0462b5e2feace0f8361b7631641dfbdcfd314e9346601c1062313a8f6c82"
+   "prompt_sha256": "2fcd5c700cf6296b78b2c2c8819c4134c8536179b3516783b6c8c93be5d5115b"
   },
   "0700afb3b61ffb4cbbe3~trim": {
    "text_sha256": "e84f8e355efbb6794c0f71ad6329cf1441ab2874414db948c97a86efcbd4ca01",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin's long-term viability but ends abruptly, implying a continuation of thought about fiat failure impacting Bitcoin.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'it' refers to something unstated, and the claim about Bitcoin's price depends on understanding what 'it' is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "50af940b772fa8ce646759dc884d510ae3210f4c8ef9074ec3461e4a9d1a9b7e"
+   "prompt_sha256": "63a7e81d1187810473424f9b02dedf82082d23aa695a9bf32da3abc8fcd40d1a"
   },
   "079fe82d1bb35ca12e17~trim": {
    "text_sha256": "5d8dd248c8685d389f1ec3e8917895842d809a344eefc3c756c92848070fa04d",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, unclear who 'everybody' is or the context of 'cheap Bitcoin'.",
+   "score": 2.0,
+   "reason": "The 'it' and 'as Gary was in there' depend on prior context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "256cb6f6aa3e8bb987b04281d42d4002cb074b9a046c7e5a3d4db59fad7485e0"
+   "prompt_sha256": "24f38ec1ac357dd1860fc0e58f66b48cae323e3ca309fd626db18e37aa647729"
   },
   "082a1f3f1050222bed1d~trim": {
    "text_sha256": "f860d14d06184dee2dc7dabdf3e07209bf937eb63cee4e144d42bb882d9cd911",
-   "score": 1.0,
-   "reason": "Discusses scarcity of Bitcoin vs. the dollar, but doesn't mention the specific 'pinned' event.",
-   "fault": "off_topic",
-   "affirmed": false,
-   "prompt_sha256": "56250126d30c11468a9c11ee229782c44d8cc670cf05ec20c2c8db18445a101f"
+   "score": 4.0,
+   "reason": "Starts with 'you know', implying a previous statement or question about sustainability.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "e373bba1b2605fd18eddf27d700490ac11d6882d3c51bdbf6024ea076e2cc90d"
   },
   "0d4d772b8d54fe42950f~trim": {
    "text_sha256": "ab6844d661a3500527695dd180c37e408925241c5889180c6e059290f3393d0b",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin's resilience, but ends abruptly without fully explaining 'this fight'.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'fight' and 'they' are not defined within the clip.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4d64dd778264c0afd8e6d4bed6aadd4a6d783726c2be3c561350734273a723f6"
+   "prompt_sha256": "ad87d41b1747c20890712cbcc0e01d0a3aed5e8e5643bd8691b89068727dc6f6"
   },
   "0f50515021b30ddfbec6~trim": {
    "text_sha256": "8d6ccaf01b1c14384873da306b37e5b25d610ff7fa59acfc23bb1a2be5d99564",
    "score": 1.0,
-   "reason": "Discusses income and Bitcoin mining costs, not the pinned Bitcoin event itself.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a comparison; 'it', 'that', and 'our world' all refer to previously discussed concepts.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "64551b7cc8b925c2665068b3e32df265c9b129ef9af3130e294d3145d0d31dc1"
+   "prompt_sha256": "2e31ac380ea3443081e83b766892731f5fc4db2878e68b4962679b717b70bdd8"
   },
   "1b78d5158d770af6f09c~trim": {
    "text_sha256": "0604e90cb998d08e93d77737f25a704d4d3cee5af2dcf195eb20d300f08aa391",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, referencing existing fear-mongering. Needs context.",
+   "score": 2.0,
+   "reason": "Refers to 'fear-mongering' and 'single-sig Bitcoin wallets' without defining them within the clip.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ecd84b0a46052ec3e198b5542167d19b148c0168cfbcb0864330e1b37a8fef11"
+   "prompt_sha256": "a9f5cecb936a114a75583546494accf227465c7ed1da5c23d5a2e4611710f275"
   },
   "1d562f5799544d92c6d8~trim": {
    "text_sha256": "b3263d16f1be29e6712f11c69618d78677f50eb8d9a4d118dd221a2e1d047a5d",
-   "score": 3.0,
-   "reason": "Starts mid-thought referencing a previous statement about a 'good sign' and relies on knowing who James Salarico is.",
+   "score": 2.0,
+   "reason": "Starts by referencing 'that' and 'crypto' without establishing what 'that' refers to.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "133ff46854b25210804264c2aff4a486fb42f09cd1a59c99d9edfa7e17d00107"
+   "prompt_sha256": "ca9c6fa766a390d9749afe26bcce891682965bd66f6e53aa397cf40206ae474b"
   },
   "200a76f4b8c47098ed10~trim": {
    "text_sha256": "19a6760de431a9a48c33ca3062d1eb1603f2eed7e13b78e6f9018004bffdfca7",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin as savings and salary, not a specific pinned event.",
-   "fault": "off_topic",
-   "affirmed": false,
-   "prompt_sha256": "601ec65755fbb2c1388af7c196af9a6f5333e31fc2914036a6035daca3aa4a6d"
+   "score": 4.0,
+   "reason": "Starts with 'Bitcoin might be great...', implying a previous statement about Bitcoin's benefits.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "cd1439cba45ec4f5ebdd9c2484cb0bc85e3f0f458c0cb742cb6db710f39ec5c3"
   },
   "2128c2a13781d829e372~trim": {
    "text_sha256": "4f4d1bb8f2cd7ff31799138fd125691af179211f9c3cfef852e769f7dece2390",
-   "score": 3.0,
-   "reason": "States Bitcoin is 'gold 2.0' but the thought about peer-to-peer transactions is incomplete.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a prior claim about what Bitcoin is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "4c5d6686ed1d82b6b70d9f29166f25df0f6c5bd51a1f87a807febc70044d87fa"
+   "prompt_sha256": "b743bf305387139df54d79f4701ccf1624c4ca95761513811c402698b4f9dbba"
   },
   "28270b40b4cc8b07557b~trim": {
    "text_sha256": "95d20bf7b4108839868fef8e628feed58280215e5359ddd6ee062b3271bbea3f",
    "score": 1.0,
-   "reason": "Starts mid-thought and is vague about the 'that' being referred to; not specific to a pinned event.",
+   "reason": "Refers to 'that' and 'some of that' without context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ff92f6a24b54cd4fd7e73cce94b207283a197d52e66c72f784823291d8b89e19"
+   "prompt_sha256": "aceb2006e88f8f99d4dc040f92d39ce2c4a89ad671faf202b7f87aec07349e72"
   },
   "2a56cf7819d2557cfffc~trim": {
    "text_sha256": "22de68399c65c38292b911fa10b1bfdbc185e48fd8aca1347bb27f1995200a74",
    "score": 3.0,
-   "reason": "States there's no bad news, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "reason": "Starts responding to an implied question about bad news; 'this' refers to something previously mentioned.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "9c8af89671509f5b18e37f09bc2999aac6c7e4a48b806b9003ac2f5923a485a0"
+   "prompt_sha256": "d422e19e3c987e3065a75720836b62c6a708b9ca055a973f742ada129be69bdb"
   },
   "2d8a2050417e286fc2eb~trim": {
    "text_sha256": "0fbdf3c2f709e45441b161968b2e83bf0800d5f907d2062a9916489f537bc03b",
-   "score": 1.0,
-   "reason": "Discusses outperforming Bitcoin generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The clip refers to 'it' and 'you' without establishing what they are.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "740be02f5385f6ba3667e9563604990c240c1604de5b703d3bd6fb71077b64bd"
+   "prompt_sha256": "d2f4b83adb45e9bd8faf99e5bc0c79201dd225739060130c3b44cc97f088e9c6"
   },
   "2f68e5280cc16138df28~trim": {
    "text_sha256": "2e4b09d32055f267ace70660881243102c78b9cf13541d50cf94f4861f7d1a76",
    "score": 1.0,
-   "reason": "Discusses inflation and a country's economic state, not specifically about a pinned Bitcoin event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought about what 'we' never realized.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "54e46a1822d9b2e06f875166ff72ed1f632bd701d3afad22519728372f5fd6ca"
+   "prompt_sha256": "dcb2d3fa6f815bae642c1fd225527fa1648af93ea228723fb3d639ba9481f5e1"
   },
   "351aa1a4a2366745eb2f~trim": {
    "text_sha256": "e398046bd744123fcc8adb732bc39a47c7086ce17931eadbb211f7ea51a32b34",
-   "score": 1.0,
-   "reason": "Discusses lack of central authority in Bitcoin generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'them' and 'that' are unclear without prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "a9b32b80019dcc3098d80421815363eae62d1d5ac66cb1374ed4567e84a60828"
+   "prompt_sha256": "59bda16ee184ca79649299fa197328c435b8166dc502586bab51834dcfc647fa"
   },
   "36a956726efa1bdb5bec~trim": {
    "text_sha256": "ad9ca74c3e39f920270e1785eda0c7a1853fe5a03c9c815a7a12f0d9807cb867",
-   "score": 3.0,
-   "reason": "Discusses potential price fluctuations and a bottom in summer, but the explanation of 'real market forces' is cut off.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts mid-sentence and refers to an unspecified 'we' and 'there', making the initial claim unclear.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "1c9217b0b1b9fbd8051e3d3c6161f046b8a9b7cb89e85e11a88371083b402e8f"
+   "prompt_sha256": "66eb114ba965e5e7353fd951de29b1950e01bd92e05c7600fa6e97a70acf824d"
   },
   "3763843e90b435db8624~trim": {
    "text_sha256": "ac091c0063b9feee3ae0c8ad42f8ccfbc389d23bc77c1d27a9d867f0928d037b",
-   "score": 3.0,
-   "reason": "Starts mid-sentence discussing Bitcoin's goal, lacking full context.",
+   "score": 2.0,
+   "reason": "Starts with 'if we're looking at...' implying a previous statement or question about Bitcoin's goal.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e2261072eee2284a4f06f8cfeae8799a5fb7efc88817c632a99252a392727049"
+   "prompt_sha256": "1ff1dbc0c29159381db81151e54b52beffbb7e8f580b94c0165bbe3399175b70"
   },
   "38bcbba04b4370275cd0~trim": {
    "text_sha256": "6334bc19f3b17611f406c952d763aa9a6c0a5044ebcc3b65ffcad6874a9aa600",
-   "score": 1.0,
-   "reason": "General bullish statement about Bitcoin, not specific to any pinned event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "Needs context to know what 'runway' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "7b03a35c26cdd4a784509277a81cd13d1691f5e2005bcf7c4aaf00b95a38cb2e"
+   "prompt_sha256": "134d722bc17ade4b5d5ae1d9b0a0ab70f4cd85bbd383ff1611355d0de0eca1a5"
   },
   "47d3d30968a793a6f9a8~trim": {
    "text_sha256": "81469b199b5a26981acb4e883b82547867daf86e48ea2b5e1aa8719c1360e693",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin exchanges generally, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts mid-thought, referencing 'all' and 'they' without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "5b827a20165ce6977d6d12561d5b954b0a8a9e5634b34de95dd8478becfddcee"
+   "prompt_sha256": "9cd83c6f955f009719dd8f0286b108f88057169f649b16b69c3e54581877d341"
   },
   "47e6772b6dd300cdba48~trim": {
    "text_sha256": "a62daf7eb8519a88b798efe0c4b144ad3413e5c1f004a6e66d41c8e1efc63f3f",
-   "score": 3.0,
-   "reason": "Asks a question and ends abruptly after a partial answer.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a question about a million-dollar Bitcoin idea; 'that million dollar idea' is unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "77d28e503b6131bea948292a885a6b14b4d82bfdbda4bb308156f67feea892df"
+   "prompt_sha256": "e56504b5763db3d4ee4ad84d1acf75013ebf291d68e6cdc731559d4e64be075c"
   },
   "4e3d088f16dcdc0b2032~trim": {
    "text_sha256": "824514f519872e506414a8aa673b0d0c2ff6c352fdc33e666e5bb89eb5fff44b",
    "score": 3.0,
-   "reason": "Relevant to Bitcoin's independence, but begins mid-sentence and lacks a clear framing statement.",
+   "reason": "Starts with 'you know, again', implying a previous statement or context about people being upset.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "c04ed2fbe0f118da029c49ef807d2286ebc25d2872579ce7086d0522b53b6ab5"
+   "prompt_sha256": "41bcea96bd42821443d328b80ef3acc52e26c90927e9441c42213bde6ae7adac"
   },
   "5ee2df5ec6860e0617be~trim": {
    "text_sha256": "d010b9967a9f2ef084ce3a558713a20f60488bef0cc40cba6429aea67c29c31a",
-   "score": 3.0,
-   "reason": "Relevant opinion on the event's impact, but cuts off mid-sentence/thought.",
-   "fault": "ends_mid_thought",
+   "score": 1.0,
+   "reason": "Starts in the middle of a conversation; 'him' and 'this' are unclear.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e841516a2f5b50c867f15af2a667732fb209dd9a080341d9a3c2f7782f8b65f2"
+   "prompt_sha256": "77192601fd8f8ade5f5f5fc06760e6db33b2bc715f7897e054caf240255a2fee"
   },
   "6cb6ed9c32d8d25a9079~trim": {
    "text_sha256": "fc99c380d901f2ad9d7be8e9fafd1faca62f8e17a4fc9072594318609571229c",
    "score": 3.0,
-   "reason": "Relevant to Bitcoin's value proposition, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "reason": "The 'that' is unclear without prior context. We don't know what Bitcoin is *not* being seen as.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "5f3268dfd29fec635aec6cf2c9b118ce6c6868721080d8d675361f505e50d1ef"
+   "prompt_sha256": "c0ea4ad36778871a729377b1a8786f63e4b10808370eec8156c96645819fbe2d"
   },
   "6f6d6f54de605b086ab3~trim": {
    "text_sha256": "5ddf37607388b35349a5d54037e42689eb5aa77ad9b0be85ec4b9681ce999f8e",
-   "score": 1.0,
-   "reason": "Compares Bitcoin to asteroid gold, not about a specific Bitcoin event.",
-   "fault": "off_topic",
-   "affirmed": false,
-   "prompt_sha256": "a4b81a7937a8ccf56dac58b8013ee11bad814975892c498e350063d91bbbc87f"
+   "score": 4.0,
+   "reason": "The 'if you were to find' implies a prior discussion about asteroid mining or gold supply.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "82119a00b5543234e38e70e4dc957867a27b0d52695ee46df0f1f1be65299fdb"
   },
   "8072c7bcdc1dfe503b69~trim": {
    "text_sha256": "a40675fb3080057cd494467f3250079f7fd0c4d033d7ffc75497dfff24025701",
    "score": 3.0,
-   "reason": "Discusses Bitcoin trading dynamics but doesn't specifically mention a pinned event.",
-   "fault": "other",
+   "reason": "Starts with 'again, I think', implying a previous statement or question.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "083f9ebdbffb90b22d8ca14c3050c81aae00b3b5bfc74046c9efee8c4a0d7d04"
+   "prompt_sha256": "736c8c5967523ab0d29898104b7117e521324e451fedf79097629d32d7654274"
   },
   "837731ebe9e38aa0c791~trim": {
    "text_sha256": "84b5357f0e678dec505aea6aaec2819ab3c47b0db1146f93201f0d47b58bbb6a",
-   "score": 3.0,
-   "reason": "Speculation about Bitcoin's future, relevant but incomplete thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Relies on knowing what 'that' refers to; the claim about Bitcoin breaking the power law is presented as a consequence of something previously discussed.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "64ed20351ee2afeeffacd5585b63de4548ad9b8ff1aed287584a98c4afc70400"
+   "prompt_sha256": "4165cc3a215924d9e36496af21398cb71db3309c4fa4eade6de51fe36dc6711d"
   },
   "8935a0b351127fe16b1c~trim": {
    "text_sha256": "fc880928bff911565d5e4895a7c9ff64552615a83cf0dcef456582b291335bee",
-   "score": 3.0,
-   "reason": "States a price drop but cuts off before explaining the significance.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The clip refers to 'the move there down 3.8%' without establishing what 'the move' is.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "5fb4712446498159710483fc2eaf019d07869795f914cbbb8c20bd0f21303e23"
+   "prompt_sha256": "fbe3fa8421e09b9a2068de8dad11bc003aaf1c83bf31492befd0e708662d1e7e"
   },
   "904b25c5d5e37d19913e~trim": {
    "text_sha256": "1d5569bdc39b6b2dae8779e327638df78263507d0f6ee573d62d0ceb04d7260f",
    "score": 1.0,
-   "reason": "Asks a question about Bitcoin's role, not reporting on a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought; 'that' refers to something previously stated.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ddcc3306383921d3cc9552626119c1b123dd355d4ef80950152ddd6cf9a4d256"
+   "prompt_sha256": "e00ce7f3954e624291362bb7b7db4e17b245e9e853abe8ed770d520c03f594aa"
   },
   "98e2a77d521984b28e90~trim": {
    "text_sha256": "f6372157a6c9c0890229fd2e5ce97275861add7bb3b78fe22dd5869ff6c2c42a",
-   "score": 1.0,
-   "reason": "Discusses price targets and chart analysis, not the 'pinned bitcoin' event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Relies on prior context to understand 'this', 'target zone', and the 'region' being referenced.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "76021740d830e12731377c9534b56204f6a54541f5e9e592e948a9eae36173f2"
+   "prompt_sha256": "a7ea19b7a0ba5378376b01838709f43cb36f4b423f2217071bc62ccb38250f8e"
   },
   "9a2443775ada43519e4a~trim": {
    "text_sha256": "01a3caf8e52f9dfb04185d9e9ffc95f8ca34bc50b28f7066dfa0aa388f5b045a",
-   "score": 1.0,
-   "reason": "Discusses price range, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "\u201cWe\u201d and \u201cthis year\u201d require prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "fed83cb05128a2ba08a159584ea977d5bbad59d3292df0add3dbbc75809903a6"
+   "prompt_sha256": "c8883decdbb74e147e865a4c9b1987c7315ac709222a5e50ff8bf67ff93d9524"
   },
   "9dc526107c16d562a003~trim": {
    "text_sha256": "9669f8d79ab7f745bac95502e0b8d74576410b3bbcea133ab41e270454efba30",
-   "score": 3.0,
-   "reason": "Discusses potential impact of index providers but cuts off before fully explaining the consequence.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Relies on knowing what 'the line' is and what companies are being discussed.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "da89684d11219efcd42bc40df8d4e987f52a0f241cd7d16a14a31f95e6000d55"
+   "prompt_sha256": "2f95b98f6fa32ef8d7bb4d1e7951cd290d951923db01074d2058cf2b2280abc3"
   },
   "9ef449774f186ff9f6bb~trim": {
    "text_sha256": "a3b75524439a180b1c6adc277825e07896d060312b450a383ec9de2d5cc00075",
-   "score": 3.0,
-   "reason": "Starts mid-thought discussing leverage and then pivots to Bitcoin's 200 MA. Needs context.",
+   "score": 2.0,
+   "reason": "Starts with 'obviously', referencing a previous statement about leverage and flushes. 'This downside' is also unclear without context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e3496f4d20415f53e84cc41bf623fee32581e7b86af1ab88cfb0aa5da6ece94c"
+   "prompt_sha256": "af2aabee4281e7a7d247e72e56cab232e2b37324a2ef0553192997b81258c03a"
   },
   "a330f0d9414af384caeb~trim": {
    "text_sha256": "76ec06f92d81f63d17efe19bc7fbe9e3537b5994c3ae99fa39583bf0d0dd8423",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, referencing prior context about institutions and ETFs. Relevant to Bitcoin adoption but lacks a clear beginning.",
+   "score": 2.0,
+   "reason": "Relies on prior context about 'falling along' to understand what story is being referred to.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "57bea109a337fa9cdb69d64478a59989a85a7c2699ec508298c9cd36ef5c9b16"
+   "prompt_sha256": "232cb1f5132e57f619008bb057680e9c7b5483a7bbe96ddbee7b3a61c721e9fc"
   },
   "a57cd265a21929a291b1~trim": {
    "text_sha256": "281e649d4fa3db2960634ee45703eabee6529471e4917f07a552297b3f2d48a8",
-   "score": 3.0,
-   "reason": "Mentions Bitcoin de-leveraging but the thought isn't completed; focuses more on tech stocks.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts with 'essentially, I think', implying a previous statement or context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "93648449cade62e5cc213a11a6f0d374a256eeec301c3ce068099494ef0dce73"
+   "prompt_sha256": "4367e74809b34081d99f50a6dbebc847a295d851cc4cad14b4ccced1b7317797"
   },
   "a68fd9fae23dc07f4eea~trim": {
    "text_sha256": "244b18b9b77e80929631132f469aa4604ee1cac929f1727283628b3fa6cd39c1",
    "score": 1.0,
-   "reason": "Discusses AI and Bitcoin's value, not a specific event.",
-   "fault": "off_topic",
+   "reason": "The clip responds to a question not heard by the viewer.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "ee2a71af7e1db6688e48966308426f591e3fdc4399d96684af312c9761f66bd5"
+   "prompt_sha256": "875afc450685e666ff5cf4e441e175aaddcbb6d2483178d7eee9b5ea2c137b3a"
   },
   "a7bc3f88e13dd58b1c7c~trim": {
    "text_sha256": "1ae63e824119f1e8a8c379a560db45976cc5953961d96b1431bd6512c8a68326",
    "score": 1.0,
-   "reason": "Discusses Bitcoin censorship of opinions, not a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts in the middle of a thought about Bitcoin and cancellation; 'it', 'You know', and 'that' all refer to prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "918489bfc6dd8a9523fa635954e0a37e7478b5812f9dd8825e645318e1a4bc16"
+   "prompt_sha256": "40e90656016b2ca42492157f0e7b4e8ef6c295c4b0ccbe2ce1074fd27eb5b9e0"
   },
   "a9ef66a12a8090eb3fef~trim": {
    "text_sha256": "5f11e6a37d276e18c8edfabecca08666f60645cbbe76fa7830ab11b647d916b0",
-   "score": 1.0,
-   "reason": "Discusses broader Bitcoin potential and Stax, not a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'that brings us back', implying a previous topic.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "6bdbfdaf7d9ae456ff12ac73e542330baf0103e766e24f8ee36fa213272f9f14"
+   "prompt_sha256": "2e8424f6d524c4e83aedf4befb46be5783aa41b8f199b76bba7b9f3e0bcfc417"
   },
   "b41c3cdd84c4f561bc12~trim": {
    "text_sha256": "fd2d2a5a8448ca73fc70f944162beb6491b7466f24e51b01160d04758617248b",
-   "score": 1.0,
-   "reason": "Discusses personal ethics regarding crypto ownership while in government, not the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 3.0,
+   "reason": "Starts by referencing a previous statement ('I say that...') and relies on understanding of 'when I was in government'.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "783265070bff2e84b95f083578273a17a3655cca2c16742c66886a18672cdb13"
+   "prompt_sha256": "9ba5ebbf29a4caafc295678dd213610d72136bd221b025cbe3f4ae242bcf186d"
   },
   "b5d8448a483803509d87~trim": {
    "text_sha256": "eeb54a5125b88d23e70472a893cd9930deb07eac258969669c205f619435dac0",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin as a team project, but doesn't mention any specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'if you're not', so it's unclear what 'that' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "c4c5b01a846c3f48965b868d786aabf4682cf4be00b9c85494a9a2cfabea1271"
+   "prompt_sha256": "cc1d287633b62cd5d14e818b30fb09d7e6d025b009c8f85f5ceb985bfe14859f"
   },
   "b8912911083cd0d98c5f~trim": {
    "text_sha256": "0e9d964912ba6cf4439d2f9366d29a3686fdaa211fb3c23c1389e24ef5686536",
-   "score": 3.0,
-   "reason": "Starts mid-sentence, unclear what 'this' refers to without context, but mentions Bitcoin being 'already there'.",
+   "score": 2.0,
+   "reason": "The clip begins mid-sentence and refers to 'this' and 'most of the things in our industry' without context.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "689999b2f894e384f03ea5476a42b742be0d8dc28025e8c7f8211994569eb5f3"
+   "prompt_sha256": "5850f9f1bffba2384ae2ec227088f5bd39d6333b06edb5e64bb154bc5285a705"
   },
   "c054e374f09df259f8f5~trim": {
    "text_sha256": "138e1125085b2a1797ff4b9760252c1607092f39d4d0b0c038ab140fa28b80e5",
-   "score": 3.0,
-   "reason": "Discusses Bitcoin's potential for growth but cuts off before completing the thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a prior claim about Bitcoin's future; 'the idea that...' needs context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "aa75d447bad882009b7fc486c661c1feae234aaed760901c619ab8854f0da74b"
+   "prompt_sha256": "7c1f88ef08b9e03c3c43cc1d2880ee9102d462d96204120faa46d06e53335284"
   },
   "c307ee16cc4f5291f784~trim": {
    "text_sha256": "ffed17fe984fbde5e2314fd208bf6cdafd64fbb21a2a20bc06adc5b5eb5f8b67",
-   "score": 1.0,
-   "reason": "Discusses AI and sovereignty generally, not specifically the pinned Bitcoin event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Starts with 'while AI...', implying a previous statement about AI. 'These sovereign sessions' is unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "b93ffff04791209d710391c1d08a9d456e5930839f8eb3aadd6430a06c1ea4da"
+   "prompt_sha256": "0a31613434dee64c8f1ee243eb16a5dc43ef0ba3759c055fe9c79ef80df4752a"
   },
   "c8eb0aab13c9782495cd~trim": {
    "text_sha256": "6f6fffc4fcdcd2f7673758f988a4b574a2b8d030dcec15bddb73d6eb6441cb65",
    "score": 3.0,
-   "reason": "Starts mid-thought, referencing a previous discussion of liquidations. While it mentions Bitcoin liquidations, it lacks full context.",
+   "reason": "Starts discussing liquidations without context; 'again' implies prior discussion.",
    "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "faa860a3eda1aa8324b9df019a4c954554f052479501eb907e7785e4f56db88a"
+   "prompt_sha256": "dc971df2387a26b4c93ad9e79b85c44a360668eb65bbae2b8ef44eda89aa1509"
   },
   "d1c65df64564079537d5~trim": {
    "text_sha256": "6e7f24c25c6342d18f71a080e8faeb3fee633e777ce528246af0f6c379467e09",
-   "score": 1.0,
-   "reason": "Discusses Bitcoin dominance generally, not a specific pinned event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "Relies on prior mention of 'that' and 'Bitcoin dominance' to establish context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "30787859046c4c5bf7be93b0e3d6798a5b4142372d4d32cd87405a7771207b17"
+   "prompt_sha256": "01c1f7995faa51c50d4177347bde2747052e3d98bdb500116cba6698907def6c"
   },
   "e3feeb07a7ffd068caad~trim": {
    "text_sha256": "fa40f4225734f02f1782f2080b6b72d22571f905fa412ba674f1b7aa8a60d722",
    "score": 1.0,
-   "reason": "Personal opinion about not spending Bitcoin, not about a specific event.",
-   "fault": "off_topic",
+   "reason": "Starts with 'I don't, it's not like...' - unclear what 'it' refers to.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "29583e383e19f79e9d6ea4599e8a0a771dadb77a68c32ed9dd7877411e428bbd"
+   "prompt_sha256": "7e9a9c57eb8e39ba66c019a43f800e741325a521fcfb6f08fcb25cf3848ff0ac"
   },
   "e8116beba556497dd08c~trim": {
    "text_sha256": "8f84dde5faf257ba408a7bd2d29a3ca2a532ae9ac16fafbdd71b9f33e88ed55b",
    "score": 3.0,
-   "reason": "Relevant to Bitcoin's price uncertainty, but ends abruptly without a clear conclusion.",
-   "fault": "ends_mid_thought",
+   "reason": "Unclear what prompted this statement of uncertainty.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "c6d152eee844517cf329a5039055cc78720a8c9bec3f99d782b1fcdff896a78f"
+   "prompt_sha256": "63240d63e089c7de5b519cda147ecaa58fc909e5540e30637bf1c280df3c9e98"
   },
   "eb5ef19bc37fa4ee9ad5~trim": {
    "text_sha256": "a4521ccab67f588eb09e20fda9588b1e2e4f0154342aac7a4f6ee6d36d353f9d",
-   "score": 1.0,
-   "reason": "Discusses portfolio allocation with Bitcoin and cash, not a specific event.",
-   "fault": "off_topic",
+   "score": 2.0,
+   "reason": "The 'it' and 'you' refer to something previously discussed, making the claim unclear without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "53989ad53415bac871431eafa328f5249a75445d9fbf6d0e583b84b7a37ecb9c"
+   "prompt_sha256": "bdf473ae8ba047e4f6d62eaf9de320e63127f2132003a30d46081c38f701cf68"
   },
   "ed9df2d7865dddd1a80d~trim": {
    "text_sha256": "7b7abdc83e256d7ee976889c3c0a474c014326483f1aae7e705b065f5c1be1d0",
-   "score": 3.0,
-   "reason": "Discusses price predictions but cuts off before completing the thought.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Starts responding to a claim about Bitcoin reaching $100,000, so relies on prior context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "553787887039358bf60322cb190ee8334a19f0f423286680611dbc9177d279c9"
+   "prompt_sha256": "72cb2838ae6a51e75e052a3c3679cdfe0869bfb6991a566ccba81a26b2bfb882"
   },
   "efb6ad794d8ade618870~trim": {
    "text_sha256": "b66b8b0f662a93074606d4c0b417ce59084e55f0fac17009068843ad3063482f",
-   "score": 3.0,
-   "reason": "Mentions Binance hack and Bitcoin's moving average, but the thought isn't completed.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "Refers to a 'hack' and 'Binance' without context.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "f5d2b38bc23edb1947d2d81b826d06235aa71d608fae1cd07cbd21c81d2f6720"
+   "prompt_sha256": "b2f7b26b98413a006c33bccff5f942628e722ceed4ec1612ea75f51117c0158f"
   },
   "fa73f6c3fe91a4e78d18~trim": {
    "text_sha256": "5d46864dac379b6e2d6ba80a9deb93e67f2d93cd3135c30abcd31e8417dd524f",
-   "score": 3.0,
-   "reason": "Talks about Bitcoin's benefits generally, but doesn't specifically mention the 'pinned' event.",
-   "fault": "other",
-   "affirmed": false,
-   "prompt_sha256": "e0e375a989f6406400d17ef898365b41b7fa46c6643eb1c46d892c956ff55f78"
+   "score": 4.0,
+   "reason": "Starts by referencing 'Wall Street's answer', implying a previous discussion about risk or investment strategies.",
+   "fault": "starts_mid_thought",
+   "affirmed": true,
+   "prompt_sha256": "ab81200f366d66e9ff93cae51582e3696dccb460897a3434787b6976c5dea40d"
   },
   "fec8d4cca387ac1e0bc4~trim": {
    "text_sha256": "47486f33d546f53a3cfcb93416d185cef6868a8c67c8b7c0e02e38b8cc5f76c7",
-   "score": 3.0,
-   "reason": "Relevant to Bitcoin price impact but ends abruptly, leaving the thought incomplete.",
-   "fault": "ends_mid_thought",
+   "score": 2.0,
+   "reason": "The 'it' refers to something not in the clip, and 'similar strategy' is undefined.",
+   "fault": "starts_mid_thought",
    "affirmed": false,
-   "prompt_sha256": "e890318284f87d9ff620ef34d4ffde659703996e762309594d733d5b34fc509e"
+   "prompt_sha256": "09d9bfe13e3c7d169935a43836a38ab9c5049b8fc43e8df78df19665da0729af"
   }
  }
 }
