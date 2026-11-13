@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 17:17 RULING 72 MERGED (ccee9fee; audits batch 67 x3, every consensus point implemented, the integrator's own fail-open fixed: bible E-FAIL-082). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (both references reproduced); test_lock_precheck 24 passed.
+- WHAT: the pre-check compares the second recogniser with the lock on EVERY span.
+  - The speaker's own immediate repetitions or function words (ruling 67's class, the builder's attest.carry_class) give 'adopt_spoken'. The spoken text is confirmed by the render's OWN validate_range + segment_lock.
+  - Anything else HOLDS before the seal.
+  - One paid reading per acquisition window.
+  - The builder's request directory is read only.
+- The service restarts on it during the next render. Its measurement on tonight's spans runs without the GPU (cached acquisitions).
+- The NEW PIN 13949b7c from the builder renders now.
+
 ## 17:12 PASS: EVERY RELEASE GATE PASSED in both formats, the FIRST FULL PASS. Pin 0c68b589, run runs/pinned_20261113_211048 (stamp 20261113_211009), run_fresh exit 0, verdict 'CANDIDATE FOR HUMAN REVIEW WITH FLAGS | RELEASE STATE: HOLD_FOR_HUMAN_APPROVAL'. DELIVERED ON THE PASS PATH as a candidate for PBX's approval, labelled 'HOLD FOR APPROVAL - all release gates passed, no waivers': Telegram 67844 (16:9 video), 67845 (9:16 video), 67846 / 67847 (contact sheets), 67848 (the publishing kit), status complete at 17:12, authorised (attestation ALL_PASS, 9:16 G14_frame_similarity LIMITED as always).
 - The two holds of 15:18 are gone:
   - G9_tail 9:16: 14.8 against 14.7315. The 9:16 final, vert_hook and the 16:9 are all tagged tv / bt709 (the colour fix).
