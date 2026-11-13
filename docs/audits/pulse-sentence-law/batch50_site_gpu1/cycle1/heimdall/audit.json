@@ -1,0 +1,96 @@
+{
+ "question": "Batch 50 = GPU1 ORDER '22:50' ITEM 3: the website's Ollama fallback moves off GPU0. Law L-r: EVERY GPU HAS ONE OWNER AT A TIME; GPU0 = the renders, GPU1 = everything else, each under its lease.\nBefore: core/services/ai_service.generate_content_ollama posted to OLLAMA_URL, default http://localhost:11434 (GPU0's Ollama), with no lease. The live site sets no OLLAMA_URL. On 2026-11-12 11:47 a fallback load of deepseek-coder-v2:16b (18 GB, kept 5 min) held a render at prepare.\nAfter: the same model, the same options (temperature 0.7, num_predict 2500), the same timeout of 180 s, through services/gpu_lease_client.chat_gpu1. That is pipeline/gpu0.ollama_call(1, ...), already audited in batch 45:\n- the GPU1 lease, with a wait of up to 300 s;\n- a foreign GPU1 user waited out within that bound;\n- the free-memory proof;\n- keep_alive 0, and the unload confirmed before the lease is released.\n\nThe client file is loaded by its ABSOLUTE path under the private module name pp_gpu_lease_client, because the site's own 'services' package is core/services. Empty content raises ValueError. Every failure, Gpu1Unavailable included, is logged and re-raised, so the article chain moves to its next provider exactly as before.\nVerified live 00:57 ET:\n- the call waited for the stage broadcast's lease, then held the GPU1 lease as \"website article fallback (core ai_service)\";\n- deepseek loaded on GPU1 (19.7 GB), answered in 14.4 s total (828 chars), and unloaded: GPU1 back at 503 MiB, nothing resident;\n- GPU0's process list was identical before and after (only the render), and GPU0's Ollama stayed empty.\nFIND:\n- any way the fallback still reaches GPU0;\n- a failure that no longer raises (so the chain stops, or an empty article is stored);\n- a module-name collision or a sys.path change in the site process;\n- the 300 s lease wait blocking something it must not (the call runs inside the waitress process);\n- a lease or model left behind after an exception.\nReply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 2.5,
+   "cost": 0.0002305129,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 4.6,
+   "cost": 6.6154e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 5.1,
+   "cost": 0.0003379806,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 18.9,
+   "cost": 0.000136121,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "core/services/ai_service.py",
+   "line": 0,
+   "issue": "chat_gpu1's 300 s lease wait plus 180 s timeout can exceed waitress's default connection-queue/timeout expectations, but the diff shows the call is inside the existing try/except that re-raises, so the chain still proceeds; no defect proven in the given code.",
+   "evidence": "content = _gpu1_client().chat_gpu1(model, messages, owner=\"website article fallback (core ai_service)\", ... wait_s=300, timeout=180)",
+   "fix": "None required; optionally document the worst-case ~480 s stall for the waitress worker.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "core/services/ai_service.py",
+   "line": 0,
+   "issue": "Module-level _GPU1_CLIENT path is computed at import time from __file__; if the checkout is relocated or the file is edited while the waitress process is warm, the cached pp_gpu_lease_client module (kept in sys.modules forever) serves stale code until restart.",
+   "evidence": "_GPU1_CLIENT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), \"services\", \"gpu_lease_client.py\") plus the _sys.modules.get(\"pp_gpu_lease_client\") cache with no invalidation.",
+   "fix": "Acceptable as-is for a long-running site process; if hot-reload matters, re-exec the module when the file's mtime changes, or document that a restart is required after editing gpu_lease_client.py."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "core/services/ai_service.py",
+   "line": 0,
+   "issue": "If importlib.util.spec_from_file_location returns None (file missing at the computed path), the next line module_from_spec(spec) raises AttributeError, not a clear 'client not found' error; it is still caught by the outer except and re-raised, so the chain proceeds, but the log message ('Ollama API error: ...') obscures the real cause.",
+   "evidence": "spec = importlib.util.spec_from_file_location(\"pp_gpu_lease_client\", _GPU1_CLIENT); m = importlib.util.module_from_spec(spec) \u2014 no None check on spec.",
+   "fix": "Add: if spec is None or spec.loader is None: raise FileNotFoundError(_GPU1_CLIENT) before module_from_spec, so the log names the missing file."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "core/services/ai_service.py",
+   "line": 0,
+   "issue": "The success log line 'Ollama (GPU1, %s) answered under the GPU1 lease' fires only when content is non-empty; an empty-but-200 response logs only the generic error, making it harder to distinguish 'model returned empty' from 'lease/HTTP failure' when triaging the article chain.",
+   "evidence": "if not content: raise ValueError(\"Empty response from Ollama\") precedes logging.info(...), and the except clause logs only 'Ollama API error: %s'.",
+   "fix": "Log the model and owner inside the except (or before the raise) so empty responses are distinguishable from lease/HTTP failures in the site's logs."
+  }
+ ],
+ "total_cost": 0.0007707685,
+ "out_dir": "docs/audits/pulse-sentence-law/batch50_site_gpu1/cycle1/heimdall"
+}
