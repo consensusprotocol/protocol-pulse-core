@@ -16,30 +16,34 @@ PIPELINE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE)
 import word_pass_worker as W  # noqa: E402
 
+import datetime as _dt                                                   # a fixed clock: never the wall clock
+NOW = _dt.datetime(2026, 11, 13, 6, 0, tzinfo=_dt.timezone.utc)
 
-def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-12T10:00:00+00:00"):
+
+def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-10T10:00:00+00:00"):   # > 24 h before NOW: "older"
     return {"moment_id": f"m{i:03d}", "video_id": vid or f"v{ch}", "channel_id": f"UC{ch}", "start": start, "end": end,
             "published_at": pub}
 
 
 class TestPickAndWindow(unittest.TestCase):
     def test_at_most_seven_per_channel_so_forty_span_six_channels(self):
+        self.assertEqual(W.PER_CHANNEL, -(-W.PER_CYCLE // W.MIN_CHANNELS))     # the cap still makes 6 channels
         rows = [row(i, i % 8 if i >= 30 else 0) for i in range(80)]           # the top 30 all from one channel
-        picks, nch = W.pick(rows, set(), full=lambda v: False)
-        self.assertEqual(len(picks), W.PER_CYCLE)
+        picks, nch = W.pick(rows, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
+        self.assertEqual(len(picks), 40)
         self.assertGreaterEqual(nch, W.MIN_CHANNELS)
         per = {}
         for r in picks:
             per[r["channel_id"]] = per.get(r["channel_id"], 0) + 1
-        self.assertLessEqual(max(per.values()), W.PER_CHANNEL)
+        self.assertLessEqual(max(per.values()), 7)
         self.assertEqual(picks[0]["moment_id"], "m000")                       # rank order kept
 
     def test_five_channels_of_ten_give_thirty_five_and_a_sixth_channel_fills_in(self):   # audit batch 51 C1
         five = [row(i, i // 10) for i in range(50)]                            # ranked: ch0 x10, ch1 x10, ... ch4 x10
-        picks, nch = W.pick(five, set(), full=lambda v: False)
+        picks, nch = W.pick(five, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
         self.assertEqual((len(picks), nch), (35, 5))                           # the ledger allows no more channels
         six = five + [row(100 + i, 9) for i in range(3)]                       # three lower-ranked rows of a 6th
-        picks, nch = W.pick(six, set(), full=lambda v: False)
+        picks, nch = W.pick(six, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
         self.assertEqual((len(picks), nch), (38, 6))
         self.assertEqual([r["moment_id"] for r in picks][-3:], ["m100", "m101", "m102"])
 
@@ -65,6 +69,16 @@ class TestPickAndWindow(unittest.TestCase):
         ids = [r["moment_id"] for r in picks]
         self.assertEqual(ids[:10], [f"m{i:03d}" for i in range(10)])          # 7 capped, then the other 3 fresh
         self.assertEqual(ids[10:], ["m100", "m101"])                            # only then older rows
+
+    def test_order_0246_last_10_h_then_last_24_h_then_older(self):
+        import datetime as dt
+        now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
+        older = [row(i, 10 + i, pub="2026-11-11T06:00:00+00:00") for i in range(3)]      # 48 h old, ranked first
+        day = [row(100 + i, 20 + i, pub="2026-11-12T12:00:00+00:00") for i in range(3)]   # 18 h old
+        ten = [row(200 + i, 30 + i, pub="2026-11-13T02:00:00+00:00") for i in range(3)]   # 4 h old, ranked last
+        picks, _ = W.pick(older + day + ten, set(), full=lambda v: False, per_cycle=8, now=now)
+        self.assertEqual([r["moment_id"] for r in picks],
+                         ["m200", "m201", "m202", "m100", "m101", "m102", "m000", "m001"])
 
     def test_passed_moments_and_videos_with_a_full_record_are_skipped(self):
         rows = [row(1, 1), row(2, 2), row(3, 3, vid="vfull")]
@@ -138,7 +152,7 @@ class TestCycle(unittest.TestCase):
 
         def fake_decode(wav):
             if wav.endswith("m003.wav"):
-                raise RuntimeError("decoder crashed")
+                return RuntimeError("decoder crashed")
             w = [{"word": "Bitcoin", "start": 2.0, "end": 2.4}, {"word": "holds.", "start": 2.5, "end": 2.9}]
             return w, w, None
 
@@ -150,7 +164,7 @@ class TestCycle(unittest.TestCase):
                         mock.patch.object(W.ts, "ensure_meta", lambda vid: dict(meta, video_id=vid)),
                         mock.patch.object(W.ts, "download_audio", fake_audio),
                         mock.patch.object(W.ts, "release_whisper", lambda: None),
-                        mock.patch.object(W, "decode", fake_decode),
+                        mock.patch.object(W, "decode_batch", lambda wavs: [fake_decode(w) for w in wavs]),
                         mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "1", "PP_GPU1_LEASE": lease})]
         for p in self.patches:
             p.start()
@@ -183,7 +197,7 @@ class TestCycle(unittest.TestCase):
         W.cycle()
         os.remove(W.ROWS_FILE)                                                 # the rows were lost, the records stay
         calls = []
-        with mock.patch.object(W, "decode", lambda wav: calls.append(wav) or ([], [], None)):
+        with mock.patch.object(W, "decode_batch", lambda wavs: [calls.append(w) or ([], [], None) for w in wavs]):
             W.cycle()
         got = {r["moment_id"]: r for r in self.rows_written()}
         self.assertTrue(got["m001"].get("reused") and got["m001"]["sentence_ready"])
@@ -200,13 +214,80 @@ class TestCycle(unittest.TestCase):
         import gpu0
         seen = []
 
-        def spy(wav):
-            seen.append(gpu0.held() if hasattr(gpu0, "held") else None)
-            return [{"word": "Ok.", "start": 1.0, "end": 1.2}], [{"word": "Ok.", "start": 1.0, "end": 1.2}], None
-        with mock.patch.object(W, "decode", spy):
-            W.cycle()
+        def spy(wavs):
+            seen.append(gpu0.held())
+            w = [{"word": "Ok.", "start": 1.0, "end": 1.2}]
+            return [(w, w, None) for _ in wavs]
+        with mock.patch.object(W, "decode_batch", spy):
+            rep = W.cycle()
+        self.assertEqual(rep["batches"], 1)
+        for k in ("fetch_s", "lease_wait_s", "foreign_wait_s", "gpu_s"):
+            self.assertIsInstance(rep[k], float)
         self.assertTrue(seen and all(seen), seen)
         self.assertFalse(gpu0.held())
+
+
+class TestDecodeBatch(unittest.TestCase):
+    """Order '02:46': ONE load of each model per batch (before: two swaps per moment), the punctuation reference only
+    where the verbatim words need it, and a failed window never stops the others."""
+
+    def test_each_model_is_loaded_once_per_batch_and_the_reference_only_where_needed(self):
+        loads = []
+
+        class Seg:
+            def __init__(self, ws):
+                self.words = ws
+
+        class Word:
+            def __init__(self, w, s, e):
+                self.word, self.start, self.end = w, s, e
+
+        class Model:
+            def transcribe(self, wav, **k):
+                if wav == "bad.wav":
+                    return iter([]), None
+                last = "ends." if wav == "clean.wav" else "ends"
+                return iter([Seg([Word("It", 0.0, 0.2), Word(last, 0.3, 0.6)])]), None
+
+        def whisper():
+            loads.append("verbatim")
+            return Model()
+
+        def reference():
+            loads.append("reference")
+            return Model()
+        import punctuation
+        with mock.patch.object(W.ts, "_whisper", whisper), mock.patch.object(W.ts, "_reference", reference), \
+                mock.patch.object(punctuation, "needs_restoration", lambda words: not words[-1]["word"].endswith(".")), \
+                mock.patch.object(punctuation, "ensure", lambda rec, wav, model, **k: dict(rec, punctuation={"x": 1})):
+            out = W.decode_batch(["clean.wav", "raw1.wav", "bad.wav", "raw2.wav"])
+        self.assertEqual(out[0][2], None)                                     # needed no reference
+        self.assertEqual((out[1][2], out[3][2]), ({"x": 1}, {"x": 1}))
+        self.assertIsInstance(out[2], Exception)                              # one window failed, the others ran
+        # the ORDER is the property (batch 55 C2): no reference call before the last verbatim call, so the model on
+        # the GPU changes ONCE per batch; ts._whisper / ts._reference return the resident model without reloading
+        # (gpu0.whisper -> swap_to loads only a model that is not resident)
+        last_verbatim = max(i for i, c in enumerate(loads) if c == "verbatim")
+        first_reference = loads.index("reference")
+        self.assertLess(last_verbatim, first_reference)
+        self.assertEqual((loads.count("verbatim"), loads.count("reference")), (4, 2))   # bad.wav needs no reference
+
+
+class TestFetchFailure(TestCycle):
+    def test_a_fetch_that_dies_writes_failure_rows_and_the_cycle_goes_on(self):          # batch 55 C1
+        real = W._fetch
+
+        def dying(vid, rows, tmp):
+            if vid == "vB":
+                raise OSError("sha256 read failed")
+            return real(vid, rows, tmp)
+        with mock.patch.object(W, "_fetch", dying):
+            rep = W.cycle()
+        got = {r["moment_id"]: r for r in self.rows_written()}
+        self.assertTrue(got["m001"]["sentence_ready"])
+        self.assertIn("fetch: OSError: sha256 read failed", got["m002"]["error"])
+        self.assertIn("fetch: OSError", got["m003"]["error"])
+        self.assertEqual((rep["written"], rep["failed"]), (1, 2))
 
 
 class TestGpu1Only(unittest.TestCase):
