@@ -96,4 +96,16 @@ if [ "$PREVIEW_RC" -ne 0 ] && [ "$PREVIEW_RC" -ne 2 ]; then      # 2 = reference
 fi
 echo ""
 
+# ── Step 7: third protected reference (orchestrator order 2026-11-12 '20:30' (c)) ──
+echo "--- STEP 7: PROTECTED REFERENCE pulse_moments_2026-11-12 (every file exactly as its SHA256SUMS, none added) ---"
+set +e
+python3 pipeline/check_reference_manifest.py references/pulse_moments_2026-11-12
+MOMENTS_RC=$?
+set -e
+if [ "$MOMENTS_RC" -ne 0 ] && [ "$MOMENTS_RC" -ne 2 ]; then      # 2 = reference not on this machine (SKIP)
+    echo "  FAIL: the protected moments reference changed (docs/references/REFERENCE_PULSE_MOMENTS_2026-11-12.md)"
+    exit 1
+fi
+echo ""
+
 echo "=== REGRESSION COMPLETE ==="
