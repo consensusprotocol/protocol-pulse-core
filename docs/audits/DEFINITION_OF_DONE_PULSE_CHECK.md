@@ -6,6 +6,40 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:33 FACTS FOR THE G19 / G9 RULINGS (order '15:28' 2), run pinned_20261113_191409 (pin 0c68b589). Both are measured on the run's own finals.
+G19_edge_shots 9:16, ONE FRAME:
+- WHICH SHOT: the hook's LAST frame, frame 406 at 16.917 s of the final (24 fps). It is the SOURCE's own punch-in on Simply Bitcoin's host: the same man, cut to a tighter framing.
+  - It comes 57 ms after his last word 'debate' ends (speech_off 16.86 s, prepare's record);
+  - and one frame before the crossfade into clip_01 at 16.958 s (the segment boundary, which G19 allows).
+- WHAT AGAINST WHAT:
+  - The rule: G19 fails a hook frame whose ffmpeg scene score is >= shot_snap.SCENE_CUT 0.3 inside the hook's clean span (0.0-16.958 s) but outside its speech (0.09-16.86 s).
+  - The 9:16 scores frame 406 at 0.3167, so it FAILS. The 16:9 scores the SAME frame 0.2712, under 0.3, so it PASSES. The 9:16 single crop on the host magnifies the change.
+  - prepare's shot_snap measures the 16:9 prepared clip. It found hard cuts at frames 71 / 245 / 306 / 336 and none at 406, so it held nothing (snapped: false).
+- NOT THE B-ROLL:
+  - The hook's 'screen' shot (the source's b-roll as a safe frame: a small landscape picture over blurred fill) runs 10.21-14.00 s, INSIDE the hook's speech, where G19 allows shot changes.
+  - Its cuts (10.208 s, 0.57; 14.0 s, 1.0) are inside the speech.
+  - The orchestrator's '12-18 s' window holds both things: the safe frame to 14.0 s, and the punch-in at 16.917 s, which is the failing frame.
+- Frames 403-407 of both finals: scratchpad g19/v9_403_407.png and v16_403_407.png.
+G9_tail 9:16:
+- WHAT THE FLOOR DERIVES FROM (segment_v1/qa_gates.py 45-51): G9_V2F_LUMA 9:16 = 14.7715, v2f's OWN measured tail luma (DEC-1; the locked outro ends on black). It is minus G9_REENCODE_SPREAD 0.04 (DEC-12a: the same locked outro through the final-encode path, measured 0.0335, rounded up), giving the floor 14.7315.
+- THE MEASURE: three frames in the final's last 1.0 s, extracted by ffmpeg to PNG (YUV to RGB through the FILE'S OWN colour tags), then the OpenCV grayscale mean. So the tags enter the number.
+- MEASURED NOW, exact, with the same gate code:
+  - v2f reference 14.7715 (bt709);
+  - references: preview 14.7435, moments 14.7735 (bt709); the medley reference 13.6357 (UNTAGGED);
+  - delivered 37c5b5f5: 14.7735 (bt709);
+  - HELD: 41f29b1f 13.6357 (untagged), 1b4a63d0 14.4651 (smpte170m), 0c68b589 13.6367 (untagged).
+  - The SAME BYTES re-tagged bt709 (-c copy, no re-encode): 41f29b1f 14.7712, 1b4a63d0 14.7415, 0c68b589 14.7737, the medley reference 14.7712.
+  - The Y plane at the gate's frames is IDENTICAL in all eight: 27.800-27.809.
+- VERDICT ON THE FACTS:
+  - The reference sits ABOVE the floor (14.7715), and every correctly tagged vertical reads 14.7435-14.7735.
+  - The three held verticals fail ONLY through their tags; their pixels are the reference's. The floor is not wrong.
+  - The PBX-approved medley REFERENCE carries the same defect: untagged, 13.6357, because its hook part opened on stack2.
+- THE FIX is the tags, not the floor: batch 65 (branch g9-vert-colour-tags), plus ruling 30's BT.601 conversion at prepare (already merged).
+  - With it, 0c68b589's vertical carries bt709 and reads 14.7737 (measured on the same bytes re-tagged).
+  - check_medley_reference compares decisions (shape, selection, cuts, flow, layout classes), not final bytes or tags, so the fix leaves the reference's reproduction intact.
+- A re-render of 0c68b589 with the fix still HOLDS on G19 unless the orchestrator rules on G19. So no re-render is launched before that ruling.
+- Raw data: scratchpad g9/g9_facts.json and g9/g9_exact.json.
+
 ## 15:20 REVIEW DROP SENT, BOTH FORMATS, 'REVIEW ONLY - NOT A PASS - not for publishing': Telegram 67841 (16:9 video), 67842 (9:16 video), 67843 (the review note), status complete, 15:19:50-15:20:00 ET (order '15:28' 1). Run runs/pinned_20261113_191409, pin 0c68b589, HOLD (run_fresh exit 3 at 15:18:01 ET). No release authorisation was created.
 - NO PER-FORMAT PASS PATH EXISTS, so none was invented. telegram.deliver_run sends only a run that release_auth.authorise passes, and authorise requires the run's ONE attestation to be ALL_PASS, deliverable, and blocker-free in BOTH formats. deliver_run's 'option' is a delivery label, not a format selector.
 - THE REVIEW TEXTS ARE CODE-WRITTEN (telegram.review_texts); the caller cannot edit them. The captions and the note list 'Not passing (required): G19_edge_shots FAIL, G9_tail FAIL'.
