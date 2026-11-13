@@ -660,13 +660,45 @@ def _g20_norm(s):
     return "".join(canon.canon_tokens(s))
 
 
-def spoken_channels(transcript, registry, credited=()):
+def _dm_codes(token):
+    """The Double Metaphone codes (primary, secondary) of one canonical token, empties dropped."""
+    from pp_metaphone import doublemetaphone          # vendored unchanged (pp_metaphone/SOURCE.txt)
+    return {c for c in doublemetaphone(token) if c}
+
+
+def _phonetic_span(name, ttoks):
+    """Ruling 24 (b) (orchestrator 2026-11-12 '23:20'): the character span, in the transcript's tokens joined without
+    spaces, where EVERY token of `name` matches the transcript token at the same place phonetically (a shared Double
+    Metaphone code; a token with no code must be equal), consecutive and in order; None when there is none. A
+    ONE-word name never matches here (audit batch 47 cycle 1: a single short code, 'Casa' = KS, would hear 'case'): it
+    keeps the exact and 0.85-ratio routes only."""
+    import canon
+    ntoks = canon.canon_tokens(name)
+    if len(ntoks) < 2:
+        return None
+    starts, pos = [], 0
+    for tok in ttoks:
+        starts.append(pos)
+        pos += len(tok)
+    for j in range(len(ttoks) - len(ntoks) + 1) if ntoks else ():
+        win = ttoks[j:j + len(ntoks)]
+        if all((_dm_codes(a) & _dm_codes(b)) if _dm_codes(a) else a == b for a, b in zip(ntoks, win)):
+            return starts[j], starts[j + len(ntoks) - 1] + len(win[-1])
+    return None
+
+
+def spoken_channels(transcript, registry, credited=(), how=None, phonetic=False):
     """The registry channels whose display name or an alias is heard in `transcript` (spaces and punctuation
-    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'); any OTHER
-    channel only by an exact match that does not overlap a credited name ('Bitcoin Magazine Pro' is not heard
-    in '... Bitcoin Magazine, go follow ...')."""
+    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'), and, with
+    `phonetic` (G20 on the rendered voice only, ruling 24 (b); never the pre-render script check), phonetically:
+    every token of the name sounds like the transcript's token at that place ('stefan lavera' is 'Stephan Livera';
+    'Steven Lubka' is not). Any OTHER channel only by an exact match that does not overlap a
+    credited name ('Bitcoin Magazine Pro' is not heard in '... Bitcoin Magazine, go follow ...'). `how`, when a dict,
+    gets {display_name: {"name", "route" ('exact' / 'ratio' / 'phonetic'), "heard"}} for each channel heard."""
     from difflib import SequenceMatcher
-    t = _g20_norm(transcript)
+    import canon
+    ttoks = canon.canon_tokens(transcript)
+    t = "".join(ttoks)
     cred = set(credited)
     heard, spans = set(), []
     for e in sorted(registry, key=lambda e: e.get("display_name") not in cred):
@@ -675,18 +707,22 @@ def spoken_channels(transcript, registry, credited=()):
             n = _g20_norm(name)
             if len(n) < 4:
                 continue
-            i, span = t.find(n), None
+            i, span, route = t.find(n), None, "exact"
             if i >= 0:
                 span = (i, i + len(n))
             elif is_cred:
                 best = max(((SequenceMatcher(None, n, t[j:j + len(n)]).ratio(), j)
                             for j in range(0, max(1, len(t) - len(n) + 1))), default=(0, 0))
                 if best[0] >= G20_NAME_RATIO:
-                    span = (best[1], best[1] + len(n))
+                    span, route = (best[1], best[1] + len(n)), "ratio"
+                elif phonetic:
+                    span, route = _phonetic_span(name, ttoks), "phonetic"
             if span is None or (not is_cred and any(span[0] < b and a < span[1] for a, b in spans)):
                 continue
             heard.add(e["display_name"])
             spans.append(span)
+            if isinstance(how, dict):
+                how[e["display_name"]] = {"name": name, "route": route, "heard": t[span[0]:span[1]]}
             break
     return heard
 
@@ -710,10 +746,14 @@ def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
     import qa_gates
     text = qa_gates.whisper_segment(wav, qa_dir)
-    heard = spoken_channels(text, registry, credited)
+    how = {}
+    heard = spoken_channels(text, registry, credited, how=how, phonetic=True)
     want = set(credited)
     ok = bool(text.strip()) and heard == want
     print(f"  transcript: {text.strip()[:160]}")
     print(f"  credited {sorted(want)} | spoken {sorted(heard)} [{'PASS' if ok else 'FAIL'}]")
+    for k, h in sorted(how.items()):
+        if h["route"] != "exact":
+            print(f"  {k}: heard as '{h['heard']}' ({h['route']} match of '{h['name']}')")
     return ok, {"transcript": text.strip(), "credited": sorted(want), "spoken": sorted(heard),
-                "missing": sorted(want - heard), "extra": sorted(heard - want), "pass": ok}
+                "missing": sorted(want - heard), "extra": sorted(heard - want), "how": how, "pass": ok}

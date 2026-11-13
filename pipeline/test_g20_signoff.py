@@ -121,5 +121,69 @@ class TestSignoffGenerator(unittest.TestCase):
         self.assertNotEqual(m1["signoff"]["stem_wav"], m2["signoff"]["stem_wav"])
 
 
+
+MEDLEY = os.path.join(REPO, "references", "pulse_medley_2026-11-12")
+
+
+class TestG20Phonetic(unittest.TestCase):
+    """Ruling 24 (b) (orchestrator 2026-11-12 '23:20'): a credited name is heard when EITHER the 0.85 text ratio holds
+    OR every token of the name matches the transcript phonetically (Double Metaphone); omitted names still fail, the
+    registry aliases remain, and the pre-render SCRIPT check (law L-a) is not phonetic."""
+    reg = json.load(open(os.path.join(PIPELINE, "channels.json")))
+    CRED = ["Natalie Brunell", "What Bitcoin Did", "Stephan Livera"]
+
+    def test_the_decoders_spelling_of_livera_is_heard(self):            # must match
+        how = {}
+        heard = G.spoken_channels("clips today from natalie brunel, whatbitcoindid, and stefan lavera.", self.reg,
+                                  self.CRED, how=how, phonetic=True)
+        self.assertEqual(heard, set(self.CRED))
+        self.assertEqual(how["Stephan Livera"], {"name": "Stephan Livera", "route": "phonetic", "heard": "stefanlavera"})
+
+    def test_another_name_is_not_heard(self):                          # must not match: Steven = STFN, Lubka LPK != LFR
+        heard = G.spoken_channels("clips today from natalie brunell, what bitcoin did, and steven lubka.", self.reg,
+                                  self.CRED, phonetic=True)
+        self.assertNotIn("Stephan Livera", heard)
+
+    def test_every_token_must_match(self):
+        heard = G.spoken_channels("clips today from stefan brunel.", self.reg, ["Stephan Livera"], phonetic=True)
+        self.assertNotIn("Stephan Livera", heard)
+
+    def test_an_omitted_name_still_fails(self):
+        heard = G.spoken_channels("clips today from natalie brunell and what bitcoin did.", self.reg, self.CRED,
+                                  phonetic=True)
+        self.assertEqual(heard, {"Natalie Brunell", "What Bitcoin Did"})
+
+    def test_an_uncredited_channel_is_never_heard_phonetically(self):
+        heard = G.spoken_channels("clips today from natalie brunell and stefan lavera.", self.reg, ["Natalie Brunell"],
+                                  phonetic=True)
+        self.assertEqual(heard, {"Natalie Brunell"})
+
+    def test_a_one_word_name_is_never_heard_phonetically(self):        # 'Casa' = KS = 'case': not evidence of a name
+        self.assertEqual(G._phonetic_span("Casa", ["in", "case", "you", "missed", "it"]), None)
+        heard = G.spoken_channels("clips today from natalie brunell. in case you missed it.", self.reg,
+                                  ["Natalie Brunell", "Casa"], phonetic=True)
+        self.assertEqual(heard, {"Natalie Brunell"})
+
+    def test_the_pre_render_script_check_is_not_phonetic(self):         # law L-a: the script names them exactly
+        heard = G.spoken_channels("Clips today from Natalie Brunell and Stefan Lavera.", self.reg,
+                                  ["Natalie Brunell", "Stephan Livera"])
+        self.assertEqual(heard, {"Natalie Brunell"})
+
+    def test_registry_aliases_remain(self):
+        e = next(x for x in self.reg if x["display_name"] == "Saifedean Ammous")
+        self.assertTrue(e.get("aliases"))
+        heard = G.spoken_channels(f"thanks to {e['aliases'][0]}.", self.reg, ["Saifedean Ammous"], phonetic=True)
+        self.assertEqual(heard, {"Saifedean Ammous"})
+
+    @unittest.skipUnless(os.path.isdir(MEDLEY), "the medley reference is not on this machine")
+    def test_the_medleys_real_decodes_now_name_every_credited_channel(self):   # both formats, as G20 decoded them
+        rep = json.load(open(os.path.join(MEDLEY, "GATE_REPORT.json")))
+        for fmt in ("16x9", "9x16"):
+            d = rep[f"G20_{fmt}"]
+            self.assertEqual(d["missing"], ["Stephan Livera"])                     # what failed at 23:10
+            heard = G.spoken_channels(d["transcript"], self.reg, d["credited"], phonetic=True)
+            self.assertEqual(heard, set(d["credited"]), fmt)
+
+
 if __name__ == "__main__":
     unittest.main()

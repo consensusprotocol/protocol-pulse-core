@@ -409,6 +409,50 @@ REVIEW_NOT_DROPPABLE = ("G16_sentence_boundary", "G17_onset_tail", "G12_credits"
                         "G20_signoff_names_all", "V1_visual_checklist")
 
 
+G20_DROP_RATIO = 0.75   # the review-drop amendment (orchestrator 2026-11-12 '23:20'): the decoder's spelling of a name
+
+
+def _g20_spelling(run_dir, fmt):
+    """The review-drop amendment to G20 (orchestrator 2026-11-12 '23:20'): (droppable, description) for a G20 row that is
+    not PASS. Droppable ONLY when the sign-off SCRIPT names every credited channel (the strict pre-render reading, never
+    phonetic), nothing was heard that is not credited, and each missing name's closest same-length stretch of the
+    decode is at least G20_DROP_RATIO similar to the name or one of its registry aliases: then the only mismatch is the
+    decoder's spelling, and both strings are quoted. A name absent from the script is never droppable."""
+    from difflib import SequenceMatcher
+    import gates as G
+    try:
+        with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+            d = json.load(f)[f"G20_{fmt}"]
+        with open(os.path.join(run_dir, "vo_audio", "VO_MANIFEST.json")) as f:
+            script = json.load(f)["signoff"]["text"]
+        with open(REGISTRY) as f:
+            reg = json.load(f)
+        credited, missing, extra = list(d["credited"]), list(d["missing"]), list(d["extra"])
+        t = G._g20_norm(d["transcript"])
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        return False, f"the G20 evidence is not readable ({type(e).__name__}: {e})"
+    if not credited or not missing or extra or not t:
+        return False, f"credited {credited}, missing {missing}, heard but not credited {extra}"
+    named = G.spoken_channels(script, reg, credited)
+    if named != set(credited):
+        return False, f"the sign-off script does not name {sorted(set(credited) - named)}: never droppable"
+    forms = {e["display_name"]: [e["display_name"]] + list(e.get("aliases") or []) for e in reg}
+    desc = []
+    for name in missing:
+        best = (0.0, "", name)
+        for form in forms.get(name, [name]):
+            n = G._g20_norm(form)
+            for j in range(max(1, len(t) - len(n) + 1)):
+                r = SequenceMatcher(None, n, t[j:j + len(n)]).ratio()
+                if r > best[0]:
+                    best = (r, t[j:j + len(n)], form)
+        if best[0] < G20_DROP_RATIO:
+            return False, (f"'{name}': the decode's closest stretch '{best[1]}' is {best[0]:.2f} similar to "
+                           f"'{best[2]}' (< {G20_DROP_RATIO}): not a spelling")
+        desc.append(f"the script says '{best[2]}', the decoder wrote '{best[1]}' ({best[0]:.2f})")
+    return True, "decoder spelling only: " + "; ".join(desc)
+
+
 def _v1_split(run_dir, fmt, rows):
     """Ruling 23: (droppable, description) for a V1 row that is not PASS, from VERIFY/VERIFICATION.json."""
     try:
@@ -599,14 +643,18 @@ def review_drop(run_dir, send=None):
     nonpass = review_nonpass(run_dir)
     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
         rep_rows = json.load(f).get("rows") or {}
-    v1 = {}
+    v1, g20 = {}, {}
     for i, (fmt, k, v, why) in enumerate(nonpass):              # ruling 23: a V1 split is droppable, quoted
         if k == "V1_visual_checklist":
             v1[fmt] = _v1_split(run_dir, fmt, rep_rows.get(fmt) or {})
             nonpass[i] = (fmt, k, v, v1[fmt][1])
-    blocked = sorted({f"{fmt} {k} {v}" + (f" ({v1[fmt][1]})" if k == "V1_visual_checklist" else "")
+        elif k == "G20_signoff_names_all":                      # amendment '23:20': the decoder's spelling only
+            g20[fmt] = _g20_spelling(run_dir, fmt)
+            nonpass[i] = (fmt, k, v, g20[fmt][1])
+    special = {"V1_visual_checklist": v1, "G20_signoff_names_all": g20}
+    blocked = sorted({f"{fmt} {k} {v}" + (f" ({special[k][fmt][1]})" if k in special else "")
                       for fmt, k, v, _ in nonpass if k in REVIEW_NOT_DROPPABLE
-                      and not (k == "V1_visual_checklist" and v1.get(fmt, (False,))[0])})
+                      and not (k in special and special[k].get(fmt, (False,))[0])})
     if blocked:
         raise RuntimeError("STOP: review drop refused: content-integrity rows not passing: " + ", ".join(blocked))
     rpath = os.path.join(run_dir, "REVIEW_DROP.json")

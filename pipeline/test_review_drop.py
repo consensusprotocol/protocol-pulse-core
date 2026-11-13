@@ -179,6 +179,48 @@ class TestReviewDrop(unittest.TestCase):
                 else:
                     self._refused("not a split")
 
+    MEDLEY_SCRIPT = ("Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more "
+                     "Bitcoin talks. Links below.")
+    MEDLEY_DECODE = ("clips today from natalie brunel, whatbitcoindid, and stefan lavera.  go follow them for more bitcoin "
+                     "talks.  links below.")
+
+    def _g20(self, fmt, transcript, script, missing, extra=()):
+        """The amendment '23:20' fixture: G20 FAIL in `fmt` with the gate's own evidence (GATE_REPORT G20_<fmt>)."""
+        rep = json.loads(json.dumps(self.report))
+        rep["rows"][fmt]["G20_signoff_names_all"] = "FAIL"
+        credited = ["Natalie Brunell", "Stephan Livera", "What Bitcoin Did"]
+        rep[f"G20_{fmt}"] = {"transcript": transcript, "credited": credited, "missing": list(missing),
+                             "extra": list(extra), "spoken": sorted(set(credited) - set(missing)), "pass": False}
+        self._write("GATE_REPORT.json", rep)
+        self._write("vo_audio/VO_MANIFEST.json", {"signoff": {"text": script}})
+
+    def test_amendment_a_g20_decoder_spelling_is_droppable_and_both_strings_quoted(self):
+        self._g20("9x16", self.MEDLEY_DECODE, self.MEDLEY_SCRIPT, ["Stephan Livera"])
+        T.review_drop(self.run, send=self._send)
+        note = self.sent[-1][2]["text"]
+        self.assertIn("9x16 G20_signoff_names_all FAIL: decoder spelling only: the script says 'Stephan Livera', the "
+                      "decoder wrote 'dstefanlavera' (0.77)", note)
+
+    def test_amendment_a_name_absent_from_the_script_is_never_droppable(self):
+        self._g20("16x9", self.MEDLEY_DECODE, "Clips today from Natalie Brunell and What Bitcoin Did. Links below.",
+                  ["Stephan Livera"])
+        self._refused(r"G20_signoff_names_all FAIL \(the sign-off script does not name \['Stephan Livera'\]: never droppable")
+
+    def test_amendment_another_name_in_the_decode_is_not_a_spelling(self):
+        self._g20("16x9", self.MEDLEY_DECODE.replace("stefan lavera", "steven lubka"), self.MEDLEY_SCRIPT,
+                  ["Stephan Livera"])
+        self._refused(r"G20_signoff_names_all FAIL \('Stephan Livera': the decode's closest stretch .* \(< 0.75\): not a spelling")
+
+    def test_amendment_a_name_heard_but_not_credited_is_refused(self):
+        self._g20("16x9", self.MEDLEY_DECODE, self.MEDLEY_SCRIPT, ["Stephan Livera"], extra=["Simply Bitcoin"])
+        self._refused(r"G20_signoff_names_all FAIL \(credited .* heard but not credited \['Simply Bitcoin'\]")
+
+    def test_amendment_unreadable_g20_evidence_is_refused(self):
+        rep = json.loads(json.dumps(self.report))
+        rep["rows"]["16x9"]["G20_signoff_names_all"] = "FAIL"
+        self._write("GATE_REPORT.json", rep)
+        self._refused(r"G20_signoff_names_all FAIL \(the G20 evidence is not readable")
+
     def test_a_review_drop_never_authorises_release_and_is_not_repeated(self):
         T.review_drop(self.run, send=self._send)
         ok, why, _ = release_auth.authorise(self.run)
