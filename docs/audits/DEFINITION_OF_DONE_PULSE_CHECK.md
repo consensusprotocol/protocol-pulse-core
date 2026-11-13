@@ -6,6 +6,27 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:44 ORDER '07:28': (1) LAW L-aa WRITTEN; (2) THE GPU0 LOCAL JUDGE BUILT AND MERGED (dd2feef9, audits batch 61 x2, pushed e1d07f7b), its replay running (clips-alone and angle done, step A until about 08:30); (3) the builder's contract waits for the replay.
+(1) L-aa TIME SAVERS ARE AUTOMATIC (422cf435): PIPELINE_LAWS.md, the gospel, this file's law table and the bible, PBX's words verbatim. LETTER: L-z stays reserved for the hardening branch's drafted law (re-lettered 20:34), so the alphabet continues: L-aa.
+(2) THE MODEL: gemma3:27b on the GPU0 Ollama (num_ctx 16384, temperature 0, JSON).
+- Ultron holds four Ollama models:
+  - gemma3:27b, 17 GB;
+  - qwen3-coder:30b, 18 GB: a coding model, pinned to GPU1;
+  - deepseek-coder-v2:16b, 8.9 GB: a coding model, GPU1's;
+  - llama3.1:70b, 42 GB: does not fit a 24 GB card.
+- gemma3:27b is the strongest general instruction model that fits GPU0. It already has a measured REQUIREMENT_MIB (20600 at this context), and it is the editorial gate's and the clip scorer's model: no new weights.
+- GPU0 DISCIPLINE (pipeline/local_judge.py):
+  - BATCH (8) calls per lease, and gpu0.release_all at every batch end (the model unloaded) before the lease goes;
+  - YIELD_FLAG /tmp/pulse_gpu0.yield is checked before taking the lease, once it is held, and before every call.
+  - A render's lease grab is non-blocking (pulse_check_run.sh exits 75 if held). So the launcher touches the flag, waits for the lease to come free, starts the render, and removes the flag once the render holds it.
+  - Smoke test: GPU0 back to 18 MiB and the lease free after a call.
+- THE REPLAY, the cases: the builder's recorded vendor exchanges since the night's first ledger build (04:00Z), 92 prompts = 48 step A + 27 clips-alone + 17 angle.
+  - Read with the BUILDER'S OWN rules (context_integrity.a_failures; package.medley's contract and ok rule), in a process with only their pipeline on its path. Rules at pp-selectid 60f2eaed.
+- INTERIM RESULTS:
+  - THE CLIPS-ALONE VERDICT, complete (27): the same overall verdict 19/27 (70 %); the same flagged joins 2/27 (7 %); the same followable per join 27/65 (42 %); mean rating difference 1.15 points. Where they differ on a join, the vendor flagged it and the local model did not (the vendor was stricter). Local FAIL / vendor PASS: 7 line-ups the vendor passed would be lost. Local PASS / vendor FAIL: 1.
+  - PRE-FILTER RULES measured for the clips-alone verdict (saved = rejected what the vendor also rejected / lost = rejected what the vendor passed): a local clip rating <= 1: 0 / 0; <= 2: 5 / 2; <= 3: 19 / 7; no local through-line: 0 / 0. NO SAFE RULE: every rule that saves a call also loses a line-up the vendor passed.
+  - THE ANGLE STEP (a writer, measured by overlap), partial (5 compared): only 4 of 12 local angles follow the prompt's own rules (4-8 ids, the hook first, >= 3 channels); mean best moment-set Jaccard 0.45; a shared hook 4/5.
+
 ## 07:19 RULING 49 (relayed by the builder; their commit 6a36025a): a trimmed clip is sealed with the clip scorer's verdict PENDING AT THE RENDER.
 - The pin: every trimmed segment carries "scorer_pending": true, and no other segment may (49 a). At most ONE trimmed clip per pin until the first trimmed clip is affirmed at validate (49 b; raised only on the orchestrator's word).
 - MY INTAKE: check_pin_only now also calls the builder's own package_pin.trim_problems, failing closed.
