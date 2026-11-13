@@ -1,0 +1,452 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b98ac566629709d04adf2d02122557210d4db1374d81ff655e1a574d68c1bbb8",
+ "result": {
+  "text": "Spot Bitcoin ETFs this week, most of it from BlackRock's fund. There is, though, one potential bright spot here. Traders are increasingly betting against Bitcoin, with funding rates in the futures market turning negative for the first time in a month. That kind of pessimism has in the past marked a short-term bottom, raising hopes that the worst of the selling may be over here. John? Uh, question for you",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 21.2,
+    "text": "Spot Bitcoin ETFs this week, most of it from BlackRock's fund. There is, though, one potential bright spot here. Traders are increasingly betting against Bitcoin, with funding rates in the futures market turning negative for the first time in a month. That kind of pessimism has in the past marked a short-term bottom, raising hopes that the worst of the selling may be over here. John?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 21.52,
+    "end": 22.34,
+    "text": "Uh, question for you"
+   }
+  ],
+  "words": [
+   {
+    "text": "Spot",
+    "start": 0.1,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.38,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 0.8,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.32,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 1.58,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 1.84,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.1,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 2.2,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 2.6,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock's",
+    "start": 2.8,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fund.",
+    "start": 3.42,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There",
+    "start": 4.14,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 4.44,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though,",
+    "start": 4.64,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 4.94,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "potential",
+    "start": 5.1,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bright",
+    "start": 5.54,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 5.82,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 6.08,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Traders",
+    "start": 6.5,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 6.9,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increasingly",
+    "start": 7.02,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "betting",
+    "start": 7.68,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 8.16,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 8.8,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 9.22,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funding",
+    "start": 9.38,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rates",
+    "start": 9.7,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.34,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.42,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "futures",
+    "start": 10.54,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 10.96,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turning",
+    "start": 11.42,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "negative",
+    "start": 11.76,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.42,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.54,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 12.7,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 12.98,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 13.32,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.42,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "month.",
+    "start": 13.56,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 13.78,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 13.92,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.06,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pessimism",
+    "start": 14.16,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 15.0,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.22,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.28,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past",
+    "start": 15.42,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "marked",
+    "start": 16.16,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.46,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short-term",
+    "start": 16.64,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom,",
+    "start": 17.22,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "raising",
+    "start": 17.54,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hopes",
+    "start": 17.86,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.14,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.3,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worst",
+    "start": 18.5,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.86,
+    "end": 18.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.96,
+    "end": 19.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 19.08,
+    "end": 19.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 19.8,
+    "end": 19.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 19.98,
+    "end": 20.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 20.18,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 20.42,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "John?",
+    "start": 21.0,
+    "end": 21.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 21.52,
+    "end": 21.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "question",
+    "start": 21.8,
+    "end": 22.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 22.18,
+    "end": 22.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 22.32,
+    "end": 22.34,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.36
+ },
+ "usd": 0.004472,
+ "seconds": 1.04,
+ "recorded_at": "2026-11-13T23:30:42Z"
+}

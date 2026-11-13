@@ -1,0 +1,302 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "94182da9245186936ce35420bdb8761bda2fb2bccba8a6279766b3e32c309b35",
+ "result": {
+  "text": "It's already just a hangout at that point. True. It's already a hangout. And the real hard truth that you need to hear is you can't wait to live your life- Agreed ... for Bitcoin price to hit X. Okay? And if-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 2.08,
+    "text": "It's already just a hangout at that point."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 2.1,
+    "end": 2.14,
+    "text": "True."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 2.14,
+    "end": 11.52,
+    "text": "It's already a hangout. And the real hard truth that you need to hear is you can't wait to live your life-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 11.82,
+    "end": 11.84,
+    "text": "Agreed"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 11.84,
+    "end": 15.26,
+    "text": "... for Bitcoin price to hit X. Okay? And if-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 0.3,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.84,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.04,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hangout",
+    "start": 1.14,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 1.54,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.66,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point.",
+    "start": 1.84,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "True.",
+    "start": 2.1,
+    "end": 2.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "It's",
+    "start": 2.14,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 2.42,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.0,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hangout.",
+    "start": 3.1,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.96,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.4,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 4.84,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hard",
+    "start": 5.7,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "truth",
+    "start": 6.12,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.88,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.18,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 7.36,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.58,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hear",
+    "start": 7.74,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.54,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.28,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 9.6,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wait",
+    "start": 10.06,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.76,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "live",
+    "start": 10.92,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 11.1,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life-",
+    "start": 11.24,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Agreed",
+    "start": 11.82,
+    "end": 11.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 11.84,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 11.88,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.18,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 12.68,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.08,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hit",
+    "start": 13.3,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "X.",
+    "start": 13.94,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Okay?",
+    "start": 14.34,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.04,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if-",
+    "start": 15.18,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.48
+ },
+ "usd": 0.003096,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-13T23:30:52Z"
+}

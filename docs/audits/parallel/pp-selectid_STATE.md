@@ -1,4 +1,4 @@
-18:29 ET: RULING 76 IS COMMITTED (audit 1810: three cycles; no P0 in cycles 2 and 3). (a) A moment is usable only while its source is at most 12 h old on the render clock (usable() checks it first; an unknown age is expired). (b) Delivered spans are never used again, and neither is the same speech anywhere (re-posted in another video, or said again in the same one). (c) The pin stage re-checks on the real clock and refuses any clip over 12 h; expired candidates are closed for good; --hours can never exceed 12. 0c68b589 IS PUBLISHED (YouTube Short, 18:10): its spans are delivered and out. 13949b7c stays withdrawn; it was never delivered, so its 8 h CZ clip may be used again. THE BUILD ON THE 12 H POOL STARTS NOW; (d)'s counts go on this line when it ends. SPEND (ruling 48): $8.08 of $12.00.
+18:31 ET: THE 12 H POOL CANNOT FORM A VIDEO; IT DIES AT THE HOOK STAGE (ruling 59 d: no hook in the pool, before any angle or line-up). RULING 76 (d): 201 MOMENTS INSIDE 12 H, 30 CLEARED, 19 CUTTABLE, 0 HOOKS >= 4. The funnel (build 18:29, ledger_20261113_232949, code 140ebcde): the adapter gave 320 rows (it also drops 57 expired rows itself, as rulings 76 + 77 say) -> 201 moments on 15 videos inside 12 h -> 123 usable -> 47 screened (76 out on the render's STAND_ALONE) -> 30 cleared step A (17 failed) -> 19 cuttable -> 7 can open -> 7 rated -> 0 rated >= 4. The best three are all 3: Simply Bitcoin 'Bitcoin is a life lessens in patience and conviction.' (lacks punch to stop scrolling); Scott Melker 'If you just commit to five years, 10 years...' (a mild opener); Bankless 'Bankless Nation, we're in the second week of November...' (time-specific). The Livera candidate is expired out of the registry for good. Nothing is pinned; nothing is sent. I keep building as new episodes arrive inside the window (each such build costs cents and stops at the hook stage until a hook >= 4 appears). SPEND (ruling 48): $8.10 of $12.00.
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -37,6 +37,10 @@
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
 
+
+## 18:31 ET: ruling 76 committed (line 1 as it stood at 18:29)
+
+> 18:29 ET: RULING 76 IS COMMITTED (audit 1810: three cycles; no P0 in cycles 2 and 3). (a) A moment is usable only while its source is at most 12 h old on the render clock (usable() checks it first; an unknown age is expired). (b) Delivered spans are never used again, and neither is the same speech anywhere (re-posted in another video, or said again in the same one). (c) The pin stage re-checks on the real clock and refuses any clip over 12 h; expired candidates are closed for good; --hours can never exceed 12. 0c68b589 IS PUBLISHED (YouTube Short, 18:10): its spans are delivered and out. 13949b7c stays withdrawn; it was never delivered, so its 8 h CZ clip may be used again. THE BUILD ON THE 12 H POOL STARTS NOW; (d)'s counts go on this line when it ends. SPEND (ruling 48): $8.08 of $12.00.
 
 ## 18:29 ET: ruling 76 received (line 1 as it stood at 18:04)
 

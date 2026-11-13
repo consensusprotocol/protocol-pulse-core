@@ -7302,5 +7302,114 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "28ebdcede4ba375f2607:9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc:607a62d4fe553e6b02be3aeab18ff15a59ff61b03af8b4de501fdd97d533bc71:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "28ebdcede4ba375f2607",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The real hard truth is that you cannot wait to live your life until the Bitcoin price hits some specific target level X.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "the host of Simply Bitcoin tweeted this. ... I'm just a guy, bro.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d7578b88ff8e0129064f:fb829abc0286e340be0c48c3f9f513214d007da4dced2cf0e68d750a05d20628:22c9c0b28c93b9475829392fe898dd0fb8842cd771f91c55f1fb6149396c42a2:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d7578b88ff8e0129064f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "current Bitcoin market downturn",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "That kind of pessimism",
+     "refers_to": "funding rates in the futures market turning negative",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in the past",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Negative Bitcoin futures funding rates reflecting trader pessimism have historically signaled a short-term price bottom, so the current selloff may be nearing its end.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "12facfaf0ffe80f3a804:3ac34eb051cb34cf46cfa1fddca1c636466e1166f9ffa8e6f150fade185d9626:b989012e065660d10d7d9acd355fea3be078d833f6f6a8b70627b98c044521f3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "12facfaf0ffe80f3a804",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "MSCI",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the end of this month",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MSCI will drop MicroStrategy, the largest corporate Bitcoin holder, from its major stock indexes at month-end, forcing benchmark-tracking funds to sell.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d4984b895d67f79a78c7:348ef61881fd76a20991a77f233f7944f4e97193fb4ddccd094af71af3836bd7:df903d4f69f75724e7bab41d80b42e23fd1f213fa863a0c084c405f7b9db1110:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d4984b895d67f79a78c7",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "these two worlds",
+     "refers_to": "the DeFi world and the Tradfai world",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "ETFs bridge and sit in the middle of the merger between the DeFi and TradFi worlds, including Bitcoin as a store of value or tokenization as new financial rails.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "ERIC BALCHUNAS' BOOK AGENT SAID YOU HAVE TO GIVE HIM TIME",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
