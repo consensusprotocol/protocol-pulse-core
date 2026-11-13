@@ -1,0 +1,760 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "16a7c6c3d110c411f759": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "326b88b0592bba35452b": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "df03a41d4042bcc725bb": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "122695e46c698b2a6557": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "a9a7b471d917763f8dbb": "not eligible on screen: hook: layout_ineligible, hook_lead; clip: layout_ineligible",
+  "f7ec06ffcf4dfb600973": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "1e75fe8c36e5f7cd45e9": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "5217250daaec7267e57d": "not eligible on screen: hook: opener, no_bitcoin, hook_lead; clip: no_bitcoin",
+  "b6391ff95cb1ef5a2063": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "bb667f8f01f8d838d88a": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "c58e95e73ab9e1e7f4a3": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "05e5643da9b3c67c371a": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "34b943930289128d51a4": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "5e3daf6741a46dcba548": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "a33d652b96d7020f970a": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "acc0e7982d506384e1d0": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "0f50515021b30ddfbec6": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "1312251c77f9c517fb75": "not eligible on screen: hook: layout_ineligible, not_statement, opener; clip: layout_ineligible, not_statement",
+  "1e2bb73ac82b4d7665ca": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "8df8e19597cb50eb79b4": "26.61 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "91b5fe9d749569e7cdf8": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "b618302f54cdb669520f": "20.2 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c28f29b576c2cd7ef805": "not eligible on screen: hook: not_statement, no_bitcoin; clip: not_statement, no_bitcoin",
+  "f2d0960cfa25d928919b": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "fa3f7586ca347af8ad67": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "fda2c6856295ea156a9d": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "011b7ba0f93ee12b1bf9": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "07b0a0b3115771344240": "not eligible on screen: hook: opener, no_bitcoin; clip: opener, no_bitcoin",
+  "09308b50660961f1be36": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "102c159070b6117b5dfc": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "1d7ec816c85be89ce6a9": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "1e1ab3ddbabb6043095e": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "3916a1e40a07d6deabb2": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "54ae5985c210ffaa1bf3": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "65818c2e9627d2fc90c5": "25.65 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "663676b86c7437d73eb2": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "678ecb20c7c8040f5292": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "7ebbf1be3871ca70c47f": "25.91 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d3e3eb066feb5388ca1": "23.86 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a914c96f6f34284dcde7": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "bbfca3bb64f3128f0307": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "c1112b13bb88daba32ba": "not eligible on screen: hook: layout_ineligible, hook_lead; clip: layout_ineligible",
+  "c5ec097b1ee1d94a331d": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "d12132f5312be0dfe3f8": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "d4bbd5bb4db2171ddc56": "not eligible on screen: hook: not_statement, opener, no_bitcoin; clip: not_statement, no_bitcoin",
+  "ef3f0babc6dc134d9ca6": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "f0fdc43d948c68a97be0": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "f324e006fac6ace68610": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "f77cd1968dae641f405b": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "088d658518f09f6f6145": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "0b8364094974c91f9099": "not eligible on screen: hook: start_case, opener, hook_lead; clip: start_case",
+  "0cb9f203a5a10d6b2f77": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "0d6d0f767cbd6698d32f": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "12b74e9893af988262c6": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "2ef848108ba178ae87c0": "59.9 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "36fe85b3dae986208380": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "4c6a5339e833e18dcfee": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "4c79382302e0a0995af4": "24.29 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "67155549c774bfd25560": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "6a0e8e76504dde0a744f": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "6c48bc05926df28de924": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "6e4f9d1bc927684c6eed": "not eligible on screen: hook: no_bitcoin, hook_lead; clip: no_bitcoin",
+  "71a2858f0a63f2a03b42": "not eligible on screen: hook: opener; clip: opener",
+  "7a03917a806c005987f5": "20.69 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7ba44a040fbd47754b89": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "841214e2bece28f78d92": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "882b23c28a8d9c88535c": "31.78 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "883d1eb0ce13670ea417": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "8f500f30906c64dadf91": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "8ff542f9877c3a1afc36": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "96f4b068851935d576c2": "not eligible on screen: hook: no_bitcoin, hook_lead; clip: no_bitcoin",
+  "a39690d7f3681352c031": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "a9f63d41611cc368ca69": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "c54ae97fc61382e09e77": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "c7a080d2ebb203e81d2a": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "cb19e1725aa2870ce26c": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "cba4c3e578c7997a8c2d": "not eligible on screen: hook: no_bitcoin, hook_lead; clip: no_bitcoin",
+  "d1be1948690d9636695b": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "da6df4e8b39553cf9c20": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "e63f291d730a8f75089c": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "e75e3de5543e371293d3": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "e8b910e6041e1e8033b6": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "007be1f3547a3bcee53e": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "132423f74a0e75d7f024": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "218b4de8cd7789e68b86": "not eligible on screen: hook: layout_ineligible, not_statement, opener, no_bitcoin; clip: layout_ineligible, not_statement, no_bitcoin",
+  "35109ac13c0c5f4ed749": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "56a8084fc8be3f4c3761": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "5874e7f4d48816295191": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "59e1c56539c0bb01e94a": "23.51 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "5b95f3db9ff7367431e3": "not eligible on screen: hook: opener, hook_lead; clip: opener",
+  "60e50876ee7fcbf98527": "23.84 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6ca2fa2312c708ff6145": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "7d168cc55471e026c817": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "7ee12b14d67828a6a4bf": "not eligible on screen: hook: not_statement, opener, no_bitcoin, hook_lead; clip: not_statement, no_bitcoin",
+  "896d7f492e5f77e4da7a": "not eligible on screen: hook: no_bitcoin; clip: no_bitcoin",
+  "8e22ec8fbb08e8379380": "not eligible on screen: hook: opener, no_bitcoin; clip: opener, no_bitcoin",
+  "b2bf0b55140f711795d0": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "b36b3ff54650a043183a": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "c1a80c94bcab9b3272ee": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "c869d7f10b2821d9a1f5": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "d6420fa6ea8a215d0727": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "e0ca4fd48031aea1b296": "23.08 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f159818401398182a256": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "f6f94100294357453b15": "not eligible on screen: hook: layout_ineligible, not_statement; clip: layout_ineligible, not_statement",
+  "f7586d8cfd30ed8adccf": "44.6 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0a7f484be379188f64ef": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "1352a1780564aa877443": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "50988f156707e17d9df3": "not eligible on screen: hook: layout_ineligible, not_statement, opener, hook_lead; clip: layout_ineligible, not_statement",
+  "5ca057b7c750bf0e3cb5": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "810f058d45f2831e0b0b": "20.06 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cebf528e7f0a9b482156": "25.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff84fb3a9eba7f43ab5f": "21.82 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "51e08e417bc63324ee48": "20.03 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "8553e462b366b6878bb3": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, no_bitcoin",
+  "358ecb08f94c6ba7aba6": "not eligible on screen: hook: opener; clip: opener",
+  "49324a44353254567fe7": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "96196a23c87ed724acf0": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, opener, no_bitcoin",
+  "fc6210c28e9d1eaf2dd3": "not eligible on screen: hook: opener, no_bitcoin; clip: no_bitcoin",
+  "1b82dacefeedb64dae9d": "not eligible on screen: hook: not_statement; clip: not_statement",
+  "4cd1e2ff6234a0aea238": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "8071219c5dfba7c99978": "21.95 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 57,
+ "current_levels": [
+  68000.0,
+  71000.0,
+  1000000.0
+ ],
+ "no_role": {
+  "16df0954cc411a943bbc": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "6f6d6f54de605b086ab3": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "00dc5e6b2347d9c0e922": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "0d4d772b8d54fe42950f": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "47d3d30968a793a6f9a8": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "511a7cdc2ce798c78a5f": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'because' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'because': nothing is heard before a hook",
+  "e8116beba556497dd08c": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "1b78d5158d770af6f09c": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "223740003495702b53ec": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'because' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'because': nothing is heard before a hook",
+  "a87c8e407a6aa788f0ef": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "eb5ef19bc37fa4ee9ad5": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "fec8d4cca387ac1e0bc4": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "904b25c5d5e37d19913e": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "b8912911083cd0d98c5f": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "2a56cf7819d2557cfffc": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "9dc526107c16d562a003": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "c8eb0aab13c9782495cd": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "28fb4e4d24ab818032f0": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "8935a0b351127fe16b1c": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook"
+ },
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "b799cf6a63d3a47d7d9d": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8eb7874dda967502eb6b": [
+    "NOT_OWN_SINCERE"
+   ],
+   "bb57e854fd863e0773ef": [
+    "NOT_OWN_SINCERE"
+   ],
+   "049e1a336876642b44af": [
+    "NOT_OWN_SINCERE"
+   ],
+   "955704068d8fb8ebaa22": [
+    "REFERENT_OUTSIDE"
+   ],
+   "bbfffdc554c309412801": [
+    "REFERENT_OUTSIDE"
+   ],
+   "8676a245ceccd17609dc": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "f83f52fc4f432b465030": "L-v 2 FAIL",
+   "a45d26b88cd5b176ae13": "not cuttable at an edge (ruling C / 7)",
+   "95d20143d5e2af5612b1": "not cuttable at an edge (ruling C / 7)",
+   "eb63e8dcd4eb9502451e": "PASS",
+   "3a6cb29a4d904118192c": "not cuttable at an edge (ruling C / 7)",
+   "c7646b4ee91f955cf58f": "PASS",
+   "44216aab8847bd718241": "PASS",
+   "06f73bef2e37ba14bee4": "L-v 2 FAIL",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "180834a8a804c38e8771": "L-v 2 FAIL",
+   "3ef9d4de892af5cca51a": "L-v 2 FAIL",
+   "7e3e7de8b12c647dca24": "PASS",
+   "4178ddd19465e979f8f1": "L-v 2 FAIL",
+   "a4bfff4015e2bc11a4ab": "PASS",
+   "7376e34f2c5978c017bc": "PASS",
+   "a940f5e977ac7b946a09": "not cuttable at an edge (ruling C / 7)",
+   "c3be6f1c71c4397b081a": "PASS"
+  },
+  "cuttable": 8,
+  "hook_onset": {
+   "a4bfff4015e2bc11a4ab": "PASS",
+   "eb63e8dcd4eb9502451e": "PASS",
+   "44216aab8847bd718241": "PASS",
+   "c7646b4ee91f955cf58f": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "7e3e7de8b12c647dca24": "FAIL: 40 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "c3be6f1c71c4397b081a": "PASS",
+   "2e77a0a7af2aab66a3a4": "PASS",
+   "7376e34f2c5978c017bc": "PASS"
+  }
+ },
+ "angles": [
+  {
+   "angle": "We Bitcoin to avoid getting shaken out and selling the scarcest asset at the worst time since everything in the industry bleeds to it despite major ETF outflows.",
+   "moments": [
+    "c3be6f1c71c4397b081a",
+    "eb63e8dcd4eb9502451e",
+    "7e3e7de8b12c647dca24",
+    "c7646b4ee91f955cf58f"
+   ],
+   "hook": "c3be6f1c71c4397b081a"
+  },
+  {
+   "angle": "Bitcoin is not a set-it-and-forget-it asset so take it off exchanges and hold it yourself rather than in a bank since it never changes hands even if stock is sold.",
+   "moments": [
+    "a4bfff4015e2bc11a4ab",
+    "7376e34f2c5978c017bc",
+    "c3be6f1c71c4397b081a",
+    "44216aab8847bd718241"
+   ],
+   "hook": "a4bfff4015e2bc11a4ab"
+  },
+  {
+   "angle": "Days like today shake people out into selling the scarcest asset at the worst time but Bitcoin starts turning before liquidity turns red as an important caveat while everything bleeds to it.",
+   "moments": [
+    "eb63e8dcd4eb9502451e",
+    "2e77a0a7af2aab66a3a4",
+    "7e3e7de8b12c647dca24",
+    "c7646b4ee91f955cf58f"
+   ],
+   "hook": "eb63e8dcd4eb9502451e"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "angle_backend": "xai:grok-4.20-0309-reasoning",
+ "angle_tried": [
+  [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "no answer within 300 s (abandoned at the deadline; its upper bound $0.25 booked as spent)"
+  ],
+  [
+   "heimdall:qwen/qwen3.8-27b",
+   "no answer within 300 s (abandoned at the deadline; its upper bound $0.25 booked as spent)"
+  ]
+ ],
+ "why_none": "stopped in angle 1 of 3: 907 s of 900 s wall / $0.66 of $1.50 reported / $1.56 of the $5.00 estimate ceiling (ruling 5, 22:40)",
+ "budget_stop": {
+  "seconds": 907.1,
+  "usd_reported": 0.6556,
+  "usd_estimate": 1.5621,
+  "angles_tried": 1,
+  "angles": 3
+ },
+ "seconds": 907.1,
+ "usd": 1.5621,
+ "usd_estimate": 1.5621,
+ "usd_best_known": 0.6556,
+ "full": {
+  "est": 1.0706,
+  "best": 0.1641,
+  "model_s": 281.47,
+  "calls": 21
+ },
+ "code": "6175104e+2f0c59402644",
+ "now": "2026-11-13T08:21:57.711773+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 510,
+  "no_word_record": 6,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 6
+  },
+  "no_word_record_videos": {
+   "zZM2ZmHYIGw": {
+    "rows": 2,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "W4PIkmjwGsQ": {
+    "rows": 4,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "acxge3Orsv8": [
+    "transcripts/acxge3Orsv8/windows/1768.035-1863.710.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1585.579-1685.080.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2256.200-2354.670.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/0.000-57.070.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2628.888-2728.816.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1311.882-1416.990.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1323.720-1421.910.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1177.063-1271.317.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1678.279-1784.830.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2400.353-2493.281.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2256.200-2349.370.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/7450.886-7549.707.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2103.177-2203.812.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2365.449-2461.695.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/524.279-618.625.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2223.453-2323.084.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/4925.929-5026.925.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/7990.978-8085.870.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/6994.825-7090.809.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/786.241-894.430.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2097.039-2200.327.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/10.084-105.803.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2332.309-2428.650.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1085.272-1192.986.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/138.412-247.838.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/6598.768-6690.672.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/1491.480-1598.096.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/6329.627-6479.341.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/7992.990-8088.589.whisper_words_punct.json",
+    "transcripts/acxge3Orsv8/windows/2149.270-2245.230.whisper_words_punct.json"
+   ],
+   "BS0XC_tixa8": [
+    "transcripts/BS0XC_tixa8/windows/949.209-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/956.097-1032.000.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-385.970.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/867.891-971.790.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/624.807-735.146.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/535.818-636.487.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/543.979-640.457.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/284.012-387.586.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-89.648.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/0.000-66.585.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/638.631-737.943.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/924.858-1021.856.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/782.600-882.246.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/792.310-891.389.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/505.410-606.137.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/527.640-625.741.whisper_words_punct.json",
+    "transcripts/BS0XC_tixa8/windows/683.959-787.372.whisper_words_punct.json"
+   ],
+   "-6iycj8dTss": [
+    "transcripts/-6iycj8dTss/windows/303.890-409.552.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.000-55.664.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/38.621-145.710.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/0.953-102.481.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/352.840-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/73.717-172.144.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/182.949-298.289.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/222.612-331.651.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/110.756-209.317.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/313.125-422.085.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/381.615-439.000.whisper_words_punct.json",
+    "transcripts/-6iycj8dTss/windows/290.331-393.816.whisper_words_punct.json"
+   ],
+   "4msljdLlmnU": [
+    "transcripts/4msljdLlmnU/windows/2116.472-2237.103.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3530.897-3640.589.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/6052.578-6164.548.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3539.038-3642.606.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/831.718-931.671.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/4448.550-4543.385.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/1460.360-1578.510.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/425.319-533.629.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/7476.031-7572.109.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/7465.725-7558.669.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/384.108-499.150.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/1352.377-1463.630.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/7250.267-7346.518.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/833.949-938.256.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3253.414-3383.966.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/6657.627-6763.229.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/1811.480-1909.063.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/5612.750-5722.867.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/4399.334-4538.492.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/881.866-1024.994.whisper_words_punct.json",
+    "transcripts/4msljdLlmnU/windows/3769.480-3885.710.whisper_words_punct.json"
+   ],
+   "mJviDNOhIyw": [
+    "transcripts/mJviDNOhIyw/windows/226.017-334.510.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/215.816-320.243.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/538.862-638.214.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1115.454-1223.424.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/244.520-346.151.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/734.572-839.025.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/453.918-558.470.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/232.586-340.656.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1087.335-1202.778.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1569.201-1675.315.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/922.388-1035.096.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1604.968-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/356.842-468.780.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/140.264-242.377.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/783.324-894.632.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/766.353-873.270.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1023.490-1139.401.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1136.764-1245.414.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1127.085-1226.669.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1561.675-1667.932.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1608.479-1679.000.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1322.712-1430.124.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1073.621-1170.420.whisper_words_punct.json",
+    "transcripts/mJviDNOhIyw/windows/1235.140-1367.374.whisper_words_punct.json"
+   ],
+   "WTCwyxW-lHk": [
+    "transcripts/WTCwyxW-lHk/windows/4123.607-4241.490.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1641.408-1743.203.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/837.327-954.276.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/3360.701-3463.231.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1584.660-1700.565.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4674.918-4774.524.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/2121.800-2220.991.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/3990.402-4093.218.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1623.320-1718.893.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1837.159-1952.582.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/272.786-375.773.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/2647.960-2747.006.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4516.249-4630.352.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1882.687-1976.961.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/365.560-467.629.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/2496.066-2599.227.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4079.947-4177.159.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/3360.701-3468.847.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/500.519-603.440.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1484.194-1582.439.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4600.399-4713.656.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1051.643-1160.709.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4357.784-4460.305.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/3759.799-3874.794.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1718.690-1823.170.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/679.671-777.708.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/266.732-366.419.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1686.869-1792.984.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/4003.272-4099.613.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1442.320-1543.836.whisper_words_punct.json",
+    "transcripts/WTCwyxW-lHk/windows/1912.298-2029.097.whisper_words_punct.json"
+   ],
+   "5yaK-qNOKqE": [
+    "transcripts/5yaK-qNOKqE/windows/1013.665-1110.150.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/539.732-639.400.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/0.000-71.040.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/970.350-1073.245.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/549.600-646.868.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/1459.433-1570.030.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/1620.697-1715.000.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/583.080-679.686.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/507.600-604.800.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/841.817-942.870.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/271.880-375.160.whisper_words_punct.json",
+    "transcripts/5yaK-qNOKqE/windows/1436.990-1534.752.whisper_words_punct.json"
+   ],
+   "jNp4JtVtvWQ": [
+    "transcripts/jNp4JtVtvWQ/windows/570.668-679.281.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1276.069-1411.547.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1315.393-1435.454.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1174.055-1281.445.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1926.440-2041.003.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/104.367-212.424.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1786.947-1925.521.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/469.511-569.790.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/966.440-1068.738.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1203.662-1305.473.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/407.699-517.715.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1259.523-1373.925.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/897.858-1005.409.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1330.773-1446.548.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/205.475-316.206.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1021.551-1129.681.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1719.941-1830.502.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/935.079-1043.790.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/2132.015-2197.000.whisper_words_punct.json",
+    "transcripts/jNp4JtVtvWQ/windows/1773.829-1876.859.whisper_words_punct.json"
+   ],
+   "GXWj2JO9bz8": [
+    "transcripts/GXWj2JO9bz8/windows/89.767-196.575.whisper_words_punct.json",
+    "transcripts/GXWj2JO9bz8/windows/194.122-294.000.whisper_words_punct.json",
+    "transcripts/GXWj2JO9bz8/windows/120.450-214.521.whisper_words_punct.json"
+   ],
+   "HWuMai_mAug": [
+    "transcripts/HWuMai_mAug/windows/1690.622-1805.272.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/641.847-757.800.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1680.317-1784.285.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/0.000-80.274.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1646.039-1743.117.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1614.027-1716.574.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/306.194-406.684.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/122.689-221.316.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1626.635-1736.004.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/379.751-502.485.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1984.477-2086.203.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/991.602-1101.992.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1292.407-1408.601.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/890.201-999.891.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/1786.510-1893.529.whisper_words_punct.json",
+    "transcripts/HWuMai_mAug/windows/691.352-805.110.whisper_words_punct.json"
+   ],
+   "1vg1cufkadc": [
+    "transcripts/1vg1cufkadc/windows/2731.583-2834.250.whisper_words_punct.json",
+    "transcripts/1vg1cufkadc/windows/3313.416-3448.541.whisper_words_punct.json"
+   ],
+   "QthZS6fDFh0": [
+    "transcripts/QthZS6fDFh0/windows/520.680-628.509.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/610.396-720.750.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/827.560-930.670.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/529.251-634.715.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/780.120-875.551.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/929.422-1036.584.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/501.831-601.630.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/619.823-720.750.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/862.825-962.413.whisper_words_punct.json",
+    "transcripts/QthZS6fDFh0/windows/846.292-948.430.whisper_words_punct.json"
+   ],
+   "ArpmEcnzCCM": [
+    "transcripts/ArpmEcnzCCM/windows/133.959-247.817.whisper_words_punct.json"
+   ],
+   "RTck1cfw3GY": [
+    "transcripts/RTck1cfw3GY/windows/579.079-666.000.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/209.768-309.893.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/0.000-61.436.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/544.333-654.509.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/298.357-403.390.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/309.852-408.792.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/396.541-500.279.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/429.715-526.212.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/273.952-378.077.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/471.320-572.750.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/340.780-439.168.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/0.000-73.383.whisper_words_punct.json",
+    "transcripts/RTck1cfw3GY/windows/446.919-554.350.whisper_words_punct.json"
+   ],
+   "WghTi5Ep4ro": [
+    "transcripts/WghTi5Ep4ro/windows/454.229-557.790.whisper_words_punct.json",
+    "transcripts/WghTi5Ep4ro/windows/1019.959-1117.886.whisper_words_punct.json",
+    "transcripts/WghTi5Ep4ro/windows/421.253-541.229.whisper_words_punct.json",
+    "transcripts/WghTi5Ep4ro/windows/1027.942-1145.921.whisper_words_punct.json",
+    "transcripts/WghTi5Ep4ro/windows/1200.472-1315.947.whisper_words_punct.json",
+    "transcripts/WghTi5Ep4ro/windows/1909.240-2017.448.whisper_words_punct.json"
+   ],
+   "YSF_wkyArYY": [
+    "transcripts/YSF_wkyArYY/windows/953.377-1060.919.whisper_words_punct.json",
+    "transcripts/YSF_wkyArYY/windows/1050.520-1153.448.whisper_words_punct.json",
+    "transcripts/YSF_wkyArYY/windows/1190.773-1325.766.whisper_words_punct.json",
+    "transcripts/YSF_wkyArYY/windows/970.974-1079.173.whisper_words_punct.json"
+   ],
+   "mKNAcOFMYD4": [
+    "transcripts/mKNAcOFMYD4/windows/710.624-809.790.whisper_words_punct.json",
+    "transcripts/mKNAcOFMYD4/windows/0.000-70.241.whisper_words_punct.json",
+    "transcripts/mKNAcOFMYD4/windows/1217.475-1332.535.whisper_words_punct.json",
+    "transcripts/mKNAcOFMYD4/windows/2513.367-2619.870.whisper_words_punct.json",
+    "transcripts/mKNAcOFMYD4/windows/2291.172-2384.349.whisper_words_punct.json"
+   ],
+   "xfLi0cH_VqM": [
+    "transcripts/xfLi0cH_VqM/windows/67.320-171.365.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/170.496-274.509.whisper_words_punct.json",
+    "transcripts/xfLi0cH_VqM/windows/175.177-274.509.whisper_words_punct.json"
+   ],
+   "lYca6Bg0FkM": [
+    "transcripts/lYca6Bg0FkM/windows/113.332-208.418.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/324.574-419.606.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/418.599-523.127.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/15.652-127.219.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/658.742-760.000.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/206.599-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/531.019-646.172.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/318.964-417.444.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/350.985-453.231.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/216.820-316.832.whisper_words_punct.json",
+    "transcripts/lYca6Bg0FkM/windows/0.000-102.670.whisper_words_punct.json"
+   ],
+   "8HRAH-P7I4g": [
+    "transcripts/8HRAH-P7I4g/windows/753.979-865.470.whisper_words_punct.json",
+    "transcripts/8HRAH-P7I4g/windows/831.298-933.663.whisper_words_punct.json",
+    "transcripts/8HRAH-P7I4g/windows/746.863-851.332.whisper_words_punct.json"
+   ],
+   "9xP22C0pHZE": [
+    "transcripts/9xP22C0pHZE/windows/897.841-1007.328.whisper_words_punct.json",
+    "transcripts/9xP22C0pHZE/windows/912.156-1021.608.whisper_words_punct.json",
+    "transcripts/9xP22C0pHZE/windows/940.818-1058.445.whisper_words_punct.json"
+   ],
+   "eHfc3uZPzYc": [
+    "transcripts/eHfc3uZPzYc/windows/223.220-324.710.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 255,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "5d4fc9180ddc36df0d1d": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "7cfbd74d688d624d8141": "the anchored text is not whole sentences of the word record (0 word(s) before it and 8 after it inside its edge sentences; at most 3)",
+   "74c5d85fe19783b9dd78": "the anchored text is not whole sentences of the word record (37 word(s) before it and 17 after it inside its edge sentences; at most 3)",
+   "eb0d03e6ecbd3b493971": "the anchored text is not whole sentences of the word record (27 word(s) before it and 13 after it inside its edge sentences; at most 3)",
+   "8cdc9387e80b6fdd1dbc": "the anchored text is not whole sentences of the word record (0 word(s) before it and 6 after it inside its edge sentences; at most 3)",
+   "700d175431139cef9d04": "the anchored text is not whole sentences of the word record (2 word(s) before it and 12 after it inside its edge sentences; at most 3)",
+   "7fecf1d14bd4e04b6823": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1475-1564 s)",
+   "12e3260914bd177928b1": "the row's text does not anchor in the word record (sentence_law.anchor, searched 849-923 s)",
+   "bba6f38fa521aa7bced8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 5628-5708 s)",
+   "35f403d415d518b14586": "the row's text does not anchor in the word record (sentence_law.anchor, searched 241-320 s)",
+   "7242d436827e66a080c8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 554-623 s)",
+   "92bab9e3c71c9e146acf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1130-1208 s)",
+   "c627679ac7b969fc04f0": "the anchored text is not whole sentences of the word record (0 word(s) before it and 39 after it inside its edge sentences; at most 3)",
+   "d8e41854d328617c1e0c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 469-543 s)",
+   "f26da623f40a82f837eb": "the anchored text is not whole sentences of the word record (9 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "24b980f447493d07af9b": "the anchored text is not whole sentences of the word record (0 word(s) before it and 47 after it inside its edge sentences; at most 3)",
+   "66c931f8324de6e1c613": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1152-1230 s)",
+   "fb2912a0450eb6593999": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1142-1212 s)",
+   "ae77e7982c51d938c130": "the anchored text is not whole sentences of the word record (0 word(s) before it and 32 after it inside its edge sentences; at most 3)",
+   "a876929bc845fa0ed730": "the anchored text is not whole sentences of the word record (0 word(s) before it and 28 after it inside its edge sentences; at most 3)",
+   "f938c0872ffe360abe32": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "473f017dba7432f641ff": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1898-1962 s)",
+   "4762326c5697786cfa31": "the row's text does not anchor in the word record (sentence_law.anchor, searched 381-453 s)",
+   "76a755c1abc23162ad60": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1067-1146 s)",
+   "642131e0cde8d1fc8dad": "the row's text does not anchor in the word record (sentence_law.anchor, searched 282-351 s)",
+   "7bd21c8a83f1b3ca91a7": "the anchored text is not whole sentences of the word record (0 word(s) before it and 9 after it inside its edge sentences; at most 3)",
+   "817caa6ca271af5c5c53": "the anchored text is not whole sentences of the word record (22 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "5f9208f5aeea15918e89": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1927-2014 s)",
+   "f37cd0f1fe18ce93e792": "the row's text does not anchor in the word record (sentence_law.anchor, searched 565-632 s)",
+   "a85d971ae3dba3b01f07": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1636-1720 s)",
+   "27a57a8f569f4b930d10": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1291-1397 s)",
+   "8233de7d0812aa8f81b2": "the anchored text is not whole sentences of the word record (0 word(s) before it and 11 after it inside its edge sentences; at most 3)",
+   "2a4ea58277bc25a1a003": "the anchored text is not whole sentences of the word record (0 word(s) before it and 47 after it inside its edge sentences; at most 3)",
+   "4c6965a7f30cf618997d": "the anchored text is not whole sentences of the word record (0 word(s) before it and 23 after it inside its edge sentences; at most 3)",
+   "507126a0d01b2dc8bd95": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1219-1290 s)",
+   "59557cd46d37dbcefa0f": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1789-1862 s)",
+   "5703fd9c38620e4d2e49": "the anchored text is not whole sentences of the word record (16 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "92e61bcf2c00660cb2bc": "the row's text does not anchor in the word record (sentence_law.anchor, searched -4-65 s)",
+   "26aa5c24028287b385bc": "the anchored text is not whole sentences of the word record (0 word(s) before it and 87 after it inside its edge sentences; at most 3)",
+   "f73d754294b11857a16d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 544-620 s)",
+   "9b837412b411900aed0a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 944-1022 s)",
+   "3e1f9b0b627e62e2b38c": "the anchored text is not whole sentences of the word record (14 word(s) before it and 0 after it inside its edge sentences; at most 3)",
+   "24d7c1b7024bbcff04a4": "the anchored text is not whole sentences of the word record (0 word(s) before it and 11 after it inside its edge sentences; at most 3)",
+   "d40a313608f3e780c7ca": "the anchored text is not whole sentences of the word record (0 word(s) before it and 6 after it inside its edge sentences; at most 3)",
+   "0abca6318a1b56f2ed10": "the row's text does not anchor in the word record (sentence_law.anchor, searched 986-1064 s)",
+   "8f8cc70ff3c5cb410c76": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2306-2369 s)",
+   "fe56662e63c4664c3e41": "the anchored text is not whole sentences of the word record (0 word(s) before it and 57 after it inside its edge sentences; at most 3)",
+   "35651d9791d84ccc68e6": "the row's text does not anchor in the word record (sentence_law.anchor, searched 913-992 s)",
+   "93b056b4344201e76f87": "the row's text does not anchor in the word record (sentence_law.anchor, searched 927-1007 s)",
+   "0847d770d0641a58e9ad": "the row's text does not anchor in the word record (sentence_law.anchor, searched 956-1043 s)"
+  },
+  "malformed": {},
+  "duplicates": 21,
+  "duplicates_of": {
+   "706326f11b5200502315": "63e4ee88367d8faa9bc9",
+   "69091c3f0099b749f466": "6cd19b5db7cfe51ceebc",
+   "f858054a496147e91111": "8e37fa13a1150e5d1d29",
+   "33e1a38c8a2f1fae3d32": "2cbfca353511dc5c92c2",
+   "dfde70043a82e3a6e227": "7b6e62ea0fbe37be7408",
+   "47c34386c4994a945d0b": "d7899e5a37203b45c07a",
+   "98ae27d234079bdaaa69": "a5f5e1f06421da7e8955",
+   "9a2bb7065288ed039953": "40f162dd1c5caa94e1dd",
+   "ca9280e1b53d54caca7b": "55f5e2be2dac6ae33e98",
+   "74aa0d65fe2ce26505b6": "4138df2ee9cfce182dac",
+   "8533bef7d59bfafca173": "dcd2ee89c6490bba3587",
+   "4e12f09e7b5009cfdc7e": "09726516dbd81cec5f0f",
+   "d133c2a9bd5ee68b97a8": "3ebcdbf3d523f897e890",
+   "423f2f92adbc7ca00b8c": "4c926e87649b756e8fae",
+   "b84d83b6b56cf8cd1b75": "21cdf7dc2d46339a1548",
+   "07f2264e6bf14cd795a4": "105a5c4db0b3960f0ef9",
+   "87f6827aa50e79ac4645": "66f8acc01a60262847f7",
+   "272f2a914aa1f0ea6953": "b256bf8d178283dff8df",
+   "832252b379c58c6e485c": "a2eeb075fe7d1420a616",
+   "0fecafbfbaf6b71c38f0": "0032edb1b34015e3895d",
+   "9b09a29377ae3b2addba": "8d50967ff700dfd29e3a"
+  },
+  "moments": 178,
+  "videos": 21,
+  "sources": 178,
+  "word_records": {},
+  "word_pass": {
+   "rows": 352,
+   "unreadable": 0,
+   "ready": 304,
+   "not_ready": 48,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ }
+}

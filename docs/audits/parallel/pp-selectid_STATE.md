@@ -22,6 +22,30 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 03:41 ET: the 03:21 build (change A + ruling 35), and three findings for your ruling
+
+Record: tests/package/proof/ledger_20261113_082157 (code e29a958f). Funnel:
+- 510 rows -> 178 moments -> 57 usable;
+- 19 left out as "But"-type openers (change A);
+- 24 screened at step A -> 17 cleared -> 8 L-v 2 + CUTTABLE (old 1.5 s windows) -> 6 can open -> 3 angles.
+- NO PACKAGE: "stopped in angle 1 of 3: 907 s of 900 s wall" (ruling 5's per-package wall budget).
+
+1. **WRITER LATENCY ATE THE WALL BUDGET (not integrity).**
+   - The angle call went to heimdall:deepseek-v4.1-flash and was abandoned at the 300 s deadline.
+   - Then heimdall:qwen3.8-27b was abandoned at 300 s.
+   - Then xai:grok answered. Step A + L-v 2 had used 204 s, so 907 s were gone before a line-up was tried.
+   - At 03:39 ET a 1-line probe of deepseek answered in 1.8 s, so the gateway is up and the full angle prompt hung.
+   - Options for your ruling (budget policy is yours, ruling 5):
+     - (a) the wall budget counts from the angle step, or excludes calls abandoned at the deadline;
+     - (b) a timed-out writer is skipped for the rest of the run;
+     - (c) a shorter angle deadline. The 02:37 deepseek angle took 164 s, so I would not go below 240 s.
+2. **STEP A SCREENS AT MOST PRESCREEN_N = 24 MOMENTS (not integrity).** 38 moments were eligible and 24 were screened,
+   so 14 usable moments were never judged. Step A costs about $0.01-0.02 per batch of 8. Raise the cap?
+3. **no_bitcoin is now the biggest stage-1 loss: 57 moments, 45 for that reason alone (ruling 34's case).** It stays
+   blocked until the render's STAND_ALONE topical rule changes, because that rule needs every segment to name Bitcoin.
+
+The 03:39 build has every effective ruling (A, 35, 38, 39, 32).
+
 ### Change A (ruling 33 part 1, audit 0310)
 
 - package.stand_alone_check runs check_edl(rate=None) with subject bitcoin/btc on every candidate line-up
