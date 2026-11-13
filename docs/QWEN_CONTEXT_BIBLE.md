@@ -355,6 +355,16 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** a commit that follows a multi-file write is its own command, run only after every write has been checked (git diff --stat names each file the message claims); a failed step is followed by a correction commit that says so (done: the next commit, and the DoD entry, state it).
 **Detection:** a commit message naming a file that `git show --stat` does not list.
 
+### E-FAIL-075: A GPU test session left its Ollama model resident on GPU0 after it ended
+**Evidence:** 2026-11-12 21:32 ET: the integrator's V1 local-model measurement (a pytest GPU session, CUDA_VISIBLE_DEVICES=0) loaded gemma3:27b through gpu0.swap_to; the session ended and released its lease, but gemma3 stayed on GPU0 (18.6 GB) until its 5-minute keep-alive. pipeline/conftest.py released the lease without gpu0.leave(). A run starting in that window would have waited it out as a foreign user (L-r item 4) or held.
+**Fix:** conftest's pytest_unconfigure calls gpu0.leave() (this process's models only, never a foreign one) before the lease goes (branch v1-local 115a6228). Proven live: a GPU session that loaded gemma3 ends with GPU0 at 18 MiB.
+**Detection:** nvidia-smi / ollama ps showing a model after a test session whose lease file names a pytest session.
+
+### E-FAIL-076: A local vision model answered 'yes' to every must-fail V1 case
+**Evidence:** 2026-11-12 21:30-21:32 ET, the labelled V1 cases with gemma3:27b alone as the panel (measurement for law L-x): ruling 20 credits: the registered monogram 'yes' (right), a headline thumbnail 'yes', a wrong monogram 'yes', a squashed ring 'yes'; ruling 23 stacks: the stack 'yes' (right), a face cut by the panel edge 'yes', an off-centre single speaker 'yes'. 2 of 2 must-pass right, 0 of 5 must-fail caught.
+**Fix:** a model sits on the V1 panel only after the labelled must-fail cases are measured on it; gemma3:27b is not seated (the local route stays, unused).
+**Detection:** a candidate whose answers are 'yes' for every case of a labelled set.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 
