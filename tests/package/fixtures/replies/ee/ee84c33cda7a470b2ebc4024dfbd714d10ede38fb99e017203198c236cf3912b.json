@@ -1,0 +1,19 @@
+{
+ "role": "exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>Michael Saylor just had a pretty rough day. Strategy has been officially booted from MSCI's indexes. That means index funds now have to dump billions worth of its shares by a set day, the close of the 30th of November.</moment>\n<after>Meanwhile, Bitcoin is trading right around its 200 day moving average, the line between a normal pullback and a real downtrend. It hasn't had a daily close below it. Not yet. But strategy isn't the only crypto treasury getting removed from MSCI's indexes. Metanet is out. So is Upexi. The biggest names in the crypto treasury trade struck from the indexes that much of the world's passive money is based on. And yet the market barely moved one way or another. So what's going on here and what happens next? Well, in this video, we'll look at what MSCI actually did and why the market shrugged it off. We'll find where you're likely to see the real damage. And we'll see what all of this means for Bitcoin, which is right on that allimportant 200-day moving average. My name is Lewis and you're watching the Coin Bureau. So, what did MSCI actually</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Neutral factual report on MicroStrategy removal from indexes; no flagged risks, relates to BTC via Saylor.\"}",
+ "usage": {
+  "in": 730,
+  "out": 1331,
+  "usd_reported": 0.0041056
+ },
+ "usd": 0.036925,
+ "seconds": 9.98,
+ "recorded_at": "2026-11-13T11:08:31Z"
+}

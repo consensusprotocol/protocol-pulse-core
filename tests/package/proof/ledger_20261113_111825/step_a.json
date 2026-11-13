@@ -1,0 +1,723 @@
+{
+ "3ef9d4de892af5cca51a:9d43580c729b": {
+  "label": "3ef9d4de892af5cca51a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker (meetup organizer)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "Giacomo",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "having to update their node",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "having run a Bitcoin meetup for 10 years and interacted with thousands of Bitcoiners",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The vast majority of Bitcoiners do not want to update their nodes and get anxious when they must do so.",
+  "certainty": "likely",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "95d20143d5e2af5612b1:9d43580c729b": {
+  "label": "95d20143d5e2af5612b1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker (Michael Dunworth)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the listener",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "RSA",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That",
+    "refers_to": "the level of conviction shown by the bets",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 10 years and in 5 years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker bets one Bitcoin that RSA will be broken in 10 years and half a Bitcoin that it breaks in 5 years, showing high conviction.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "You were you were the uh cryptography is going to break guy before it was cool.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b799cf6a63d3a47d7d9d:9d43580c729b": {
+  "label": "b799cf6a63d3a47d7d9d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "manufacturing gold or mining asteroids to increase gold supply",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "a generic person/finder",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is immune to scarcity-invalidating discoveries like those affecting gold because no asteroid contains Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Why Bitcoin CANNOT Reach $1 Million by 2030 | Haseeb Qureshi",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a45d26b88cd5b176ae13:9d43580c729b": {
+  "label": "a45d26b88cd5b176ae13",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the CEO (Phong Le)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "society/industry modernizing finance (not fully generic)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but concern modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people globally.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "US NOW IN AN EXCLUSIVE INTERVIEW, FENG LI, CEO OF STRATEGY.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb63e8dcd4eb9502451e:9d43580c729b": {
+  "label": "eb63e8dcd4eb9502451e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the day of the Nvidia CEO scandal/news",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "on days with unrelated scandals causing dumps",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Days like today shake people out as Bitcoin dumps on unrelated scandals, leading to panic sales of the scarcest asset at the worst time.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Learn more about Bitcoinbacked loans with Ledend at learn.in.io/simply.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "00dc5e6b2347d9c0e922~trim:9d43580c729b": {
+  "label": "00dc5e6b2347d9c0e922~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Saylor adopting Bitcoin culture as a leader/king figure",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In Bitcoin we like to think no one is in charge, no one has influence, there are no kings because they cannot be trusted, and so in the protocol we trust.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4178ddd19465e979f8f1:9d43580c729b": {
+  "label": "4178ddd19465e979f8f1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "the people's (who bought Bitcoin personally)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "I",
+    "refers_to": "the individual PM/investor",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "the fund or institution",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin ETF adoption followed a bottoms-up path where individuals first bought Bitcoin personally then advocated to their investment committees and institutions to allocate.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "When you look at these um offerings, you're talking a lot about retail,",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44216aab8847bd718241:9d43580c729b": {
+  "label": "44216aab8847bd718241",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "The funds",
+    "refers_to": "index funds tracking MSCI",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Strategy's (MicroStrategy's)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The funds are selling Strategy's stock while the Bitcoin never changes hands, and nothing in MSCI's decision forces Strategy to sell its Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c7646b4ee91f955cf58f:9d43580c729b": {
+  "label": "c7646b4ee91f955cf58f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "eventually",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Treasury companies will also bleed to Bitcoin as basically everything in the industry eventually does.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "when I started talking about Bitcoin dominance a lot 5 years ago, I mean, I talked about it since 2019 when I started my channel",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3a6cb29a4d904118192c:9d43580c729b": {
+  "label": "3a6cb29a4d904118192c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but about modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people worldwide.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "What is your message to the new Congress and how might it impact the regulatory framework that you and the entire crypto industry has to deal with every day?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c3be6f1c71c4397b081a:9d43580c729b": {
+  "label": "c3be6f1c71c4397b081a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "the bank",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fear of going to the bank and finding the money gone because the bank owns it",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker's biggest fear is that banks can seize deposited money since they own it, which is why Bitcoin exists as an alternative.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e77a0a7af2aab66a3a4:9d43580c729b": {
+  "label": "2e77a0a7af2aab66a3a4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin starting to turn before liquidity turned red",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "in this analysis of the liquidity index and Bitcoin chart",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin started turning before liquidity turned red, and that is an important caveat.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "we've taken these green and red zones, we've laid them onto the Bitcoin chart so that you can see the behavior",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c307ee16cc4f5291f784~trim:9d43580c729b": {
+  "label": "c307ee16cc4f5291f784~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the trend of centralized AI, data control, and threats to sovereignty",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "us",
+    "refers_to": "the speaker, BTC Sessions community, and Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "While AI is a massive opportunity for us, it ties into BTC Sessions' sovereign sessions work on controlling our own AI, environments, money, keys, and the sovereign individual concept.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "it kind of comes into a lot of what BTC sessions done, these sovereign sessions",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "8935a0b351127fe16b1c~trim:9d43580c729b": {
+  "label": "8935a0b351127fe16b1c~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "there",
+    "refers_to": "Nvidia's ouster and associated market decline",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin cannot ignore the Nvidia-related market move and is down 3.8% to around $71,500.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I'm Charlie.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9a2443775ada43519e4a~trim:9d43580c729b": {
+  "label": "9a2443775ada43519e4a~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "2026",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the $74,700-$77,000 trading range",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "the better part of this year",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has been trading in this $300 window for the better part of this year, which can sometimes seem boring.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8eb7874dda967502eb6b:9d43580c729b": {
+  "label": "8eb7874dda967502eb6b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the world of Bitcoin, security is not merely a feature but the entire foundation.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "And that's where my new sponsor, BitGo, come in.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f83f52fc4f432b465030:9d43580c729b": {
+  "label": "f83f52fc4f432b465030",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People come to Bitcoin out of desperation like being unable to trust the property market, and everyone gets Bitcoin at the price they deserve.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "6f6d6f54de605b086ab3~trim:9d43580c729b": {
+  "label": "6f6d6f54de605b086ab3~trim",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the asteroid",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "doubling the world's gold supply",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you were to find one asteroid that had huge gold deposits in it",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Finding an asteroid with huge gold deposits could double the world's gold supply overnight, but you cannot do that with Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I'm joined by Haseeb Qureshi, managing partner at Dragonfly Capital.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0d4d772b8d54fe42950f~trim:9d43580c729b": {
+  "label": "0d4d772b8d54fe42950f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the removal of the open source AI champion in four days",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this fight",
+    "refers_to": "the fight for open source against closed AI and attacks on Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "attackers of Bitcoin such as banks, regulators or companies",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin matters a lot in the fight against centralized control because despite 17 years of attacks through price, banks, rules and its biggest buyer, it has no CEO, board or person that can be pressured or removed.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I've been reading a book called Against the Machine by Paul Kingsorth",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0f50515021b30ddfbec6~trim:9d43580c729b": {
+  "label": "0f50515021b30ddfbec6~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the $400 cost of a node",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "people in wealthy economies like the speakers'",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "For people in the lowest 20 economies earning about $40 a month, the cost of running a node is equivalent to asking someone in our world how many Bitcoin miners they own, meaning it is prohibitively expensive relative to their income.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bb57e854fd863e0773ef:9d43580c729b": {
+  "label": "bb57e854fd863e0773ef",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if it can be passed down",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is only generational wealth if it can be passed down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "If something happened to me, could my family access my Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ecf5f5b5a4842f10b385~trim:9d43580c729b": {
+  "label": "ecf5f5b5a4842f10b385~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "MSCI booting Strategy from indexes",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "Bitcoin's biggest buyer",
+    "refers_to": "Strategy (MicroStrategy)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MSCI did not force Bitcoin selling this week but has reduced the buying power of its biggest corporate buyer Strategy while other major holders sell, and Strategy's situation is not helping Bitcoin right now.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Lewis signing off.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fda2c6856295ea156a9d:9d43580c729b": {
+  "label": "fda2c6856295ea156a9d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "being booted from MSCI's indexes",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Michael Saylor had a rough day as Strategy has been booted from MSCI indexes, forcing index funds to sell billions of shares by the close of November 30th.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is Lewis and you're watching the Coin Bureau.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "049e1a336876642b44af:9d43580c729b": {
+  "label": "049e1a336876642b44af",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "building your Bitcoin stack",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the hardest asset on planet Earth and it took discipline to build your stack, so the platform used for a Bitcoin-backed loan should have the same discipline.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I woke up, my throat was worse than it's ever been.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

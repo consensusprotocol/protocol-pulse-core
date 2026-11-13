@@ -1,0 +1,13 @@
+=== 05:48:17 EST LEDGER medley build, code 1d928276+333ebccdf612, now (render clock) 2026-11-13T10:48:17+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 510 rows ({"hard exclusion flag (L-u)": 123, "altcoin or not about Bitcoin": 30, "speaker change inside (caption marker)": 22})
+  word pass: {"rows": 1242, "unreadable": 0, "ready": 776, "not_ready": 136, "failed": 218, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 510: 313 moments on 22 videos (313 word records); 0 rows wait for a word record, 78 wait for their own window, 83 do not re-anchor, 0 malformed, 36 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 432 window record(s) used (0 video(s) without a caption record for L-s)
+  176 usable, 115 of them left out by the render's STAND_ALONE (an opener the clip scorer would have to affirm, or no place under the topic rule with the pin's screen), 2 on an ad-read marker (the exclusion screen's deterministic part), 13 cleared step A (265 s)
+  10 of them pass the second recognition pass and CUTTABLE (289 s)
+  6 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  3 angles from xai:grok-4.20-0309-reasoning (1058 s)
+  angle 1 line-up 1 (4 clips, 40.2 s): clips alone FAIL {'hook': 5, 'clip_01': 4, 'clip_02': 4, 'clip_03': 3} flagged [] (1107 s)
+  angle 1 line-up 2 (4 clips, 42.3 s): clips alone PASS {'hook': 5, 'clip_01': 5, 'clip_02': 4, 'clip_03': 4} flagged ['clip_02 -> clip_03'] (1191 s)
+  search: 2 line-up(s) of 8, $0.67 reported / $2.08 estimate (ruling 41: $3.00 reported per build)
+no package (no angle gave a package: angle 1: the clips alone fail (ratings / joins): swapped {'3a6cb29a4d904118192c': 'fda2c6856295ea156a9d'}, re-judged (ruling 41); angle 1: step A, re-screened off the writer's vendor, fails a clip: re-lined; angle 1: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules); usable 176, cleared 13

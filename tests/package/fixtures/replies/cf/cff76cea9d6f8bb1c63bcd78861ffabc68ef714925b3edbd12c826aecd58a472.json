@@ -1,0 +1,500 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "860c407927c1d44b1bfb9b9e6ef6a2678204bca4e3c791697597743b54382d3e",
+ "result": {
+  "text": "And so what that does to the chain now is now there's much more data. So if you look at the average income in the lowest 20 economies, like $40 a month. So when people go, \"Dude, it's like, it's only like 400 bucks to buy a node,\" that's like, l- now that if we translate that to m- to our world, that's like saying w- how many Bitcoin miners do you own? Miners? Yeah. Zero.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.34,
+    "end": 19.74,
+    "text": "And so what that does to the chain now is now there's much more data. So if you look at the average income in the lowest 20 economies, like $40 a month. So when people go, \"Dude, it's like, it's only like 400 bucks to buy a node,\" that's like, l- now that if we translate that to m- to our world, that's like saying w- how many Bitcoin miners do you own?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 20.46,
+    "end": 20.78,
+    "text": "Miners?"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 20.86,
+    "end": 21.0,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 21.52,
+    "end": 21.72,
+    "text": "Zero."
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.34,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 0.52,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.1,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.28,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 1.48,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.8,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chain",
+    "start": 1.94,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 2.24,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.6,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 2.76,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 2.9,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 3.06,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 3.24,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data.",
+    "start": 3.42,
+    "end": 3.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.88,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.14,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 4.34,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.46,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.54,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average",
+    "start": 4.68,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "income",
+    "start": 5.02,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.32,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.4,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lowest",
+    "start": 5.54,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "20",
+    "start": 5.98,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economies,",
+    "start": 6.14,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 7.02,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$40",
+    "start": 7.48,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.08,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "month.",
+    "start": 8.18,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 9.0,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.1,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 9.22,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go,",
+    "start": 9.42,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Dude,",
+    "start": 9.66,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 9.92,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 10.08,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.32,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 10.46,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.64,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "400",
+    "start": 11.02,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bucks",
+    "start": 11.32,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.6,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 11.7,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.9,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "node,\"",
+    "start": 12.02,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 12.8,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 13.02,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "l-",
+    "start": 13.44,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 13.72,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 13.88,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 14.08,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 14.18,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "translate",
+    "start": 14.34,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.88,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.14,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "m-",
+    "start": 15.62,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.88,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 16.16,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world,",
+    "start": 16.42,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 17.24,
+    "end": 17.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 17.46,
+    "end": 17.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying",
+    "start": 17.66,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "w-",
+    "start": 18.24,
+    "end": 18.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 18.44,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 18.54,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 18.7,
+    "end": 19.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners",
+    "start": 19.06,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 19.38,
+    "end": 19.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 19.46,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own?",
+    "start": 19.56,
+    "end": 19.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Miners?",
+    "start": 20.46,
+    "end": 20.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Yeah.",
+    "start": 20.86,
+    "end": 21.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Zero.",
+    "start": 21.52,
+    "end": 21.72,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.74
+ },
+ "usd": 0.004348,
+ "seconds": 1.48,
+ "recorded_at": "2026-11-13T10:53:19Z"
+}

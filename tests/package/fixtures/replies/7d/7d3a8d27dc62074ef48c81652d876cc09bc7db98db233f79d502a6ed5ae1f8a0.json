@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Coin Bureau): \"Michael Saylor just had a pretty rough day. Strategy has been officially booted from MSCI's indexes. That means index funds now have to dump billions worth of its shares by a set day, the close of the 30th of November.\"\nCLIP label=\"clip_01\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_02\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Traditional financial systems create problems like forced asset sales and loss of ownership, making Bitcoin essential for achieving financial freedom and security.\",\n  \"clips\": {\n    \"hook\": 3,\n    \"clip_01\": 5,\n    \"clip_02\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": false,\n      \"why\": \"Abrupt jump from MSCI index removal news to crypto not being partisan, with no clear referent or link.\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"Both address crypto benefits vs traditional systems for freedom and security from institutions.\"\n    }\n  }\n}",
+ "usage": {
+  "in": 622,
+  "out": 3528,
+  "usd_reported": 0.0090599
+ },
+ "usd": 0.09131,
+ "seconds": 24.55,
+ "recorded_at": "2026-11-13T11:23:30Z"
+}

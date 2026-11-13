@@ -1,4 +1,102 @@
-NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), before any render: STAND_ALONE failed clip_01 and clip_02, which both open on "But". The pin stage now runs that exact check (change A, audited, committed with this line; see below). Builds re-run on committed code only.
+NO PIN YET (06:25 ET). The 05:48 and 06:18 builds (code 1d928276) gave no package. The next build gets 45 + 44 (step A from both vendors before the angles; a failed re-screen swaps out one clip) and the item-42 cut fix, each after its 2-cycle audit. The answers owed (42, 43, 46) are directly below.
+
+## 06:25 ET: order 06:22: the answers owed (42, 43, 46) and the plan for 45 / 44
+
+### Item 42 (ruling 33 part 2): 36 of the 115 come back as trimmed variants; 0 reached a line-up, because of a gap on MY side
+
+Record: tests/package/proof/ledger_20261113_104817 (05:48, code 1d928276). The 06:18 build
+(ledger_20261113_111825) gives the same counts.
+- **Why every log still says "115 left out":** the original moments stay out by design. A trimmed variant joins the
+  usable moments as a NEW candidate (id "<id>~trim"), so that log line does not show the comeback. The next audited
+  change adds the count to it.
+- **36 of the 115 come back with trimmed_leading:** 15 "so", 14 "and", 6 "but", 1 "now".
+- **The other 79 cannot:**
+  - 48: left out by the topic rule alone, with no trimmable opener;
+  - 25: an opener AND the topic rule, and the trimmed text still fails the topic rule;
+  - 4: an opener outside the six words ("because" x3, "then" x1);
+  - 2: "And so ...": the trimmed text opens on "so", and the ruling trims ONE word.
+- **Of the 36:**
+  - 8 were among the 24 moments step A screens (PRESCREEN_N, by rank score); the other 28 were never screened;
+  - 6 of the 8 failed step A (5 REFERENT_OUTSIDE, 1 NOT_OWN_SINCERE);
+  - 2 cleared, and both passed L-v 2 with the trimmed word heard before the clip;
+  - **both then failed my trimmed-cut measure: "no cut before the hook: 'So' does not end a sentence".**
+- **That failure is my gap, not the moments'.**
+  - My pin-stage onset measure still plans the IN edge with the old whole-sentence rule.
+  - The render's sentence law (c6605895; unchanged on the integrator's branch since) does two things the pin stage
+    lacks: it plans a trimmed cut at the measured pause after the trimmed word (trimmed_boundary), and it checks the
+    onset on the audio as cut (trimmed_onset).
+  - The fix mirrors those functions verbatim at the pin stage. It is being built now, and no build uses it before its
+    2-cycle audit.
+- **One flag (K2), nothing changed:**
+  - One of the 36 ("Now, this has been the major target zone...") was left out by the TOPIC rule only, not by its
+    opener.
+  - Trimming "Now," lets the render's topical() accept it as completing the previous claim ("this" + a figure).
+  - "now" is one of the six words, so this is inside the ruling's literal terms. Say so if trims should apply only to
+    moments the OPENER rule left out.
+
+### Item 43 (measured on the 04:41 record): angle 2's "no line-up" is NOT a channel shortage (moved up from below)
+
+- **The supply:** the 11 cuttable moments sit on **9 channels**: What Bitcoin Did, CNBC Television, Altcoin Daily,
+  Bitcoin Mechanic, Strategy, Coin Bureau x3, Scott Melker, Simply Bitcoin and The Bitcoin Layer. Together they hold
+  116.9 s. Widening the window is not needed for channels.
+- **Angle 2 offered 4 of them:**
+  - The Bitcoin Layer, 4.8 s (the hook);
+  - Coin Bureau, 19.5 s (cannot open, G17a);
+  - Altcoin Daily, 6.9 s (cannot open);
+  - What Bitcoin Did, 9.5 s.
+- **Why no line-up:** lineup_for keeps the proposer's PLAY ORDER (L-y 3), and a clip under 8 s may play only LAST
+  (SHORT_CLIP_S). In that order, the 6.9 s clip sits mid-line-up; without it, the other clips total 33.8 s (< 36.7 s);
+  with What Bitcoin Did as the hook instead, the clips total 35.9 s (< 36.7 s). The binding rules are the seconds
+  range, the short-clip position and the fixed play order, on only the 4 moments the angle offered. Over every
+  permutation of those 4, 2 orders would fit (a short clip moved last), but neither is the proposer's order.
+- **For 41:** the line-up step only sees each angle's 4 moments, not the 11. The search swaps a below-bar segment for
+  the next by score from the whole cleared pool.
+
+### Item 46: why Grok wrote the angles in the 05:48 build
+
+- **The code already does what you order.** angle_write is Heimdall deepseek, then Heimdall qwen, then xai Grok. The
+  router gives EACH back-end 300 s, Grok included (providers.Router.call applies deadline_s to every back-end).
+- **05:48:** both Heimdall writers missed the deadline, so Grok was used:
+  - deepseek gave no answer within 300 s and was abandoned;
+  - qwen gave no answer within 300 s and was abandoned;
+  - Grok answered in 166 s.
+- **The angle step took about 766 s (300 + 300 + 166), not 1058 s.** The "1058 s" in the log is the build's own
+  clock when the step ended; the step started at about 290 s.
+- **The cause is deepseek's reasoning length.** Its answers on this prompt (reply capped at 3,000 tokens):
+  | build | seconds | output tokens (mostly reasoning) |
+  |---|---|---|
+  | 03:39 | 219 | 9,155 |
+  | 04:41 | 293 | 12,806 |
+  | 05:26 | 285 | 12,229 |
+  | 05:48 | over 300 (abandoned) | not returned |
+  | 06:18 | 240 | 9,462 |
+  - It writes about 42 tokens/s, so any answer over about 12,600 tokens misses 300 s.
+  - In the 06:18 build it answered in time, and the angles came from Heimdall.
+
+### Items 45 and 44: for the next build
+
+- **45 (first):**
+  - After L-v 2 + CUTTABLE and before the angle step, every cuttable clip gets step A from BOTH vendors.
+  - The chains hold only two vendors: step A (context_verdict) is xai Grok, then Heimdall deepseek; angle_write is
+    Heimdall first, Grok last.
+  - A clip that fails either screen is out before any angle, with its reason.
+  - Whichever vendor then writes, every clip already has a passing verdict from the other one.
+  - In the 05:48 build, every verdict came from xai; Grok then wrote, so the only passing line-up had to be
+    re-screened on Heimdall after its write, and one clip failed.
+- **44 (the safety net):**
+  - If a re-screen after a write still fails a clip, only that clip goes, for good and with its reason.
+  - The next-best cuttable clip is swapped into its place (ruling 41's swap).
+  - The clips-alone verdict re-judges the new line-up, then the build goes on to the writer.
+  - A passing line-up is never discarded for one replaceable clip.
+- Each gets its 2-cycle audit, then the chain rebuilds.
+
+### The 06:18 build (code 1d928276): no package
+
+- Same supply as 05:48: 13 cleared step A, 10 cuttable, 6 can open. The angles came from deepseek, in time.
+- Both line-ups judged were the same 3 clips (angles 1 and 3). Both failed on the HOOK, rated 3, with the clips rated
+  5 and 5: item 3 again. After that, no swap and no line-up fit the rules.
+- A small defect, flagged (K2) and not yet changed: the same line-up was judged twice, because "dropped" is kept per
+  angle. A cache keyed on the exact line-up saves that call (about $0.01).
 
 
 ## 03:16 ET: the 03:12 rulings, status (one audited change each; the integrator's render must change for 33, 34 and 37)
@@ -65,24 +163,6 @@ Record: tests/package/proof/ledger_20261113_102658, with FUNNEL.md. Funnel and s
   3 while their clips scored 4-5. The bar is unchanged per your order. Whether the hook should be rated on its own job
   ("grabs attention and sets up the medley") is yours to rule.
 - Next: ruling 42 (the trim) is in audit, then a rebuild. YouTube is clear since 05:25.
-
-### ORDER 04:58, item 43 (measured on the 04:41 record): angle 2's "no line-up" is NOT a channel shortage
-
-- **The supply:** the 11 cuttable moments sit on **9 channels**: What Bitcoin Did, CNBC Television, Altcoin Daily,
-  Bitcoin Mechanic, Strategy, Coin Bureau x3, Scott Melker, Simply Bitcoin and The Bitcoin Layer. Together they hold
-  116.9 s. Widening the window is not needed for channels.
-- **Angle 2 offered 4 of them:**
-  - The Bitcoin Layer, 4.8 s (the hook);
-  - Coin Bureau, 19.5 s (cannot open, G17a);
-  - Altcoin Daily, 6.9 s (cannot open);
-  - What Bitcoin Did, 9.5 s.
-- **Why no line-up:** lineup_for keeps the proposer's PLAY ORDER (L-y 3), and a clip under 8 s may play only LAST
-  (SHORT_CLIP_S). In that order, the 6.9 s clip sits mid-line-up; without it, the other clips total 33.8 s (< 36.7 s);
-  with What Bitcoin Did as the hook instead, the clips total 35.9 s (< 36.7 s). The binding rules are the seconds
-  range, the short-clip position and the fixed play order, on only the 4 moments the angle offered. Over every
-  permutation of those 4, 2 orders would fit (a short clip moved last), but neither is the proposer's order.
-- **For 41:** the line-up step only sees each angle's 4 moments, not the 11. The search swaps a below-bar segment for
-  the next by score from the whole cleared pool.
 
 ### 04:54 ET: the 04:41 build, ruling 34 in: no package; the binding gate is now the clips-alone verdict
 

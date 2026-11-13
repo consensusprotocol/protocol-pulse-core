@@ -1,0 +1,90 @@
+Build `ledger_20261113_104817`: code 1d928276+d41dd09e15ab, render clock 2026-11-13T10:48:17.836244+00:00.
+Adapter (pp-ingest, before the ledger rows): excluded {"hard exclusion flag (L-u)": 123, "altcoin or not about Bitcoin": 30, "speaker change inside (caption marker)": 22}.
+
+**Stage 0: 510 ledger rows -> 313 moments (197 not moments)**
+
+| lost | exact reason | one example (moment text) |
+|---|---|---|
+| 78 | SUPPLY: waits for its OWN window record (the word-pass worker has not reached the row) | n/a |
+| 46 | does not re-anchor: the row's text does not anchor in the word record (sentence_law.anchor, searched around the row's time) | "and they're in that safe and it's like yeah yeah yeah it's like what is that safe made of glass I think I've got a hammer back there let me…" |
+| 36 | duplicate: the same speech as a kept moment (time overlap in the same video) | "The number one way to compromise anything is through social engineering. And so what that means is Bitcoin has the software and Bitcoin has…" |
+| 35 | does not re-anchor: snapped outward to whole sentences (N word(s) before the anchored text, N after) it runs N s > N s (ruling N: the clip length limit) | "Um I find Bitcoin super boring, but I'm always like that's cool because it's boring. Like that was the cool part because it was so boring. …" |
+| 1 | does not re-anchor: snapped outward to whole sentences (N word(s) before the anchored text, N after) it holds a caption speaker marker at N s: a measured speaker change (ruling N) | "BITCOIN IS DOWN MORE THAN 3%, FALLING BELOW THE 72,000 MARK TO ITS LOWEST LEVEL SINCE AUGUST. STRATEGY." |
+| 1 | does not re-anchor: the row's text does not anchor in the word record (sentence_law.anchor, searched -N-N s) | "Um I think that Bitcoin will go lower than 57k during Trump's term, okay? I think it will." |
+
+**Stage 1: 313 moments -> 176 usable** (package.usable; 137 lost)
+
+A moment is out on screen only when it fails BOTH as hook and as clip, so the CLIP role's flags are the binding reasons. 'alone' = the moments that flag alone keeps out (lifting only it would bring them back).
+
+**Stage 1a: not eligible on screen (88 moments)**
+
+| moments | alone | exact reason (clip role) | one example |
+|---|---|---|---|
+| 52 | 36 | `layout_ineligible`: the channel has a burned-in chyron (registry has_chyron, DEC-12d) | "But the headline sounds far, far, far worse than what's actually happening, right? The cycle ran on time and the calendar split it in an aw…" |
+| 28 | 19 | `not_statement`: ends on a question | "We don't have Satoshi over here selling his coins, you know? So I think that's the, and that's the issue too with, you know, treasury compa…" |
+| 22 | 11 | `opener`: opens on a pronoun or reply word that needs what came before (stand_alone.opener) | "No machine can argue with that. It is the heaviest concentration, just like the sun is the heaviest local thing for us." |
+| 3 | 3 | `start_case`: starts lower-case | "it's a it's an i struggle to find the right word to describe it, but bitcoin is not for gambling with. That's not what it's for. it's for p…" |
+| 1 | 1 | `too_short`: < 5 words | "Secure. That's it." |
+
+**Stage 1b: the other usable() reasons (49 moments)**
+
+| lost | exact reason | one example (moment text) |
+|---|---|---|
+| 46 | N s: over the 20.0 s per source video (L-u) or unmeasured | "But in another tweet, you said something super interesting that it was in 2020, if you had $100,000. it could buy you about 25,900 pounds o…" |
+| 3 | delivered in the previous 24 h (or overlaps a delivered moment) | "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And eve…" |
+
+**Stage 2: 176 usable -> 13 cleared step A** (L-s on the moment's own context; 24 screened, 11 failed)
+
+**Stage 2: step A rules (11 moments)**
+
+| moments | alone | exact reason | one example |
+|---|---|---|---|
+| 8 | 8 | `REFERENT_OUTSIDE`: a word refers to something outside the clip AND resolving it could change the assertion (anything but an explicit 'no' fails, L-m) | "Bitcoin is, it's immune to that. There will never be an asteroid that you will find a bunch of Bitcoin on." ('that' -> 'manufacturing gold or mining asteroids to increas…', changes the assertion: yes) |
+| 3 | 3 | `NOT_OWN_SINCERE`: not the speaker's own sincere view (quoting, hypothetical, sarcasm, a read, ...) | "" (view: hypothetical) |
+
+**Stage 3: 13 cleared -> 10 pass L-v 2 + CUTTABLE (3 lost)**
+
+| lost | exact reason | one example (moment text) |
+|---|---|---|
+| 3 | L-v 2 FAIL | "The Bitcoin ETFs, in my opinion, first people became bitcoins individually. And then they would go to their investment committee and say, h…" (the two recognisers disagree on {"numbers": [], "negations": [], "names": ["Bitcoiners"]}) |
+
+Every stage-3 loss, exactly:
+- Anthony Pompliano: L-v 2 FAIL: the two recognisers disagree on {"numbers": [], "negations": [], "names": ["Bitcoiners"]}
+- Guy Swann: L-v 2 FAIL: speakers measured inside: ['speaker_0', 'speaker_1']
+- What Bitcoin Did: L-v 2 FAIL: speakers measured inside: ['speaker_0', 'speaker_1']
+
+**Stage 4: 10 cuttable -> 6 can open a medley (G17a; the others stay in play as non-hook clips)**
+
+| lost | exact reason | one example (moment text) |
+|---|---|---|
+| 2 | FAIL: no cut before the hook: 'So' does not end a sentence | "" |
+| 1 | FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame) | "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin." |
+| 1 | FAIL: 50 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame) | "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets …" |
+
+**Stage 5: the angle step and the line-ups.** why_none: "no angle gave a package: angle 1: the clips alone fail (ratings / joins): swapped {'3a6cb29a4d904118192c': 'fda2c6856295ea156a9d'}, re-judged (ruling 41); angle 1: step A, re-screened off the writer's vendor, fails a clip: re-lined; angle 1: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 2: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules; angle 3: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"; angles: 3 from xai:grok-4.20-0309-reasoning
+
+The moments offered to the angle step:
+- What Bitcoin Did (acxge3Orsv8), 3.68 s, can open: True: "In the world of Bitcoin, security isn't just a feature. It's the entire foundation."
+- Strategy (MicroStrategy) (xfLi0cH_VqM), 13.82 s, can open: False: "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we…"
+- Scott Melker (mKNAcOFMYD4), 8.76 s, can open: True: "My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take i…"
+- The Bitcoin Layer (lYca6Bg0FkM), 4.8 s, can open: True: "Bitcoin started turning though before liquidity turned red. And that's an important caveat here."
+- What Bitcoin Did (acxge3Orsv8), 9.46 s, can open: True: "I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of convi…"
+- CNBC Television (GXWj2JO9bz8), 13.94 s, can open: True: "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we…"
+- Coin Bureau (RTck1cfw3GY), 15.96 s, can open: True: "Michael Saylor just had a pretty rough day. Strategy has been officially booted from MSCI's indexes. That means index funds now have to dump billions…"
+- Altcoin Daily (HWuMai_mAug), 6.93 s, can open: False: "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+- None (None), None s, can open: False: ""
+- None (None), None s, can open: False: ""
+
+Together 77.35 s from 7 channels.
+- angle: "Bitcoin's security foundation enables financial freedom from banks as the industry adopts it beyond partisan politics." moments 5
+- angle: "Bitcoin creates financial freedom for billions by modernizing markets independent of partisan issues as all industry bleeds to it." moments 4
+- angle: "Security is Bitcoin's foundation with high conviction on threats driving adoption for financial freedom from banks." moments 4
+
+The build's own log from the angle step on:
+```
+  3 angles from xai:grok-4.20-0309-reasoning (1058 s)
+  angle 1 line-up 1 (4 clips, 40.2 s): clips alone FAIL {'hook': 5, 'clip_01': 4, 'clip_02': 4, 'clip_03': 3} flagged [] (1107 s)
+  angle 1 line-up 2 (4 clips, 42.3 s): clips alone PASS {'hook': 5, 'clip_01': 5, 'clip_02': 4, 'clip_03': 4} flagged ['clip_02 -> clip_03'] (1191 s)
+  search: 2 line-up(s) of 8, $0.67 reported / $2.08 estimate (ruling 41: $3.00 reported per build)
+no package (no angle gave a package: angle 1: the clips alone fail (ratings / joins): swapped {'3a6cb29a4d904118192c': 'fda2c6856295ea156a9d'}, re-judged (ruling 41); angle 1: step A, re-screened off the writer's vendor, fails a clip: re-li
+```
