@@ -6,6 +6,12 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:48 HOLD AT STAGE PINNED (ruling 17: lock text not adjudicated). The builder's pin ledger_20261113_183302 (seal 61fd55d013b3e190), run runs/pinned_20261113_184605, run_fresh exit 3 at 13:48:33 ET. Not delivered; nothing published.
+- Clip 3, Scott Melker mKNAcOFMYD4 words 32-73: the pin's approved text differs from the run decode at 2 places, and at both the second recogniser reads what the run decoded:
+  - 'punch in my code' (the pin: 'punch you my code');
+  - "and that's why that's why we bitcoin" (the pin: "And that's why we Bitcoin.", which drops the repeated "that's why").
+- The check is right. Two recognisers agree that the pin's text is not what the speaker says. The fix is on the pin side.
+
 ## 13:47 THE BUILDER'S PIN IS RENDERING: ledger_20261113_183302 (seal 61fd55d013b3e190), run runs/pinned_20261113_184605.
 - The render holds the GPU0 lease: pulse_check_run 20261113_184525, PID 3916660, since 13:45:25 ET. Preflight passed every check at HEAD 758bfc99.
 - THE PIN:
