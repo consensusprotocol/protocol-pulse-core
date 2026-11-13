@@ -6,6 +6,17 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 16:09 RULING 71 MERGED (37cd2aa8; audits batch 66 x2, cycle 2's consensus fixed). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (preview + medley references reproduced). The 0c68b589 re-render launches next.
+- WHAT CHANGED: prepare's shot snap now scores BOTH the 16:9 prepared clip and its 9:16 crop, in the head (before the first word) and the tail (after the last). A change is snapped when either scores >= 0.3. The crop is the renderer's own 9:16 picture: render_vertical.auto_graph on vertical_layout.classify's plan, colour included, scored before any encode. G19 and its 0.3 threshold are unchanged.
+- INTERPRETATION, for the orchestrator to correct if it is wrong: 'the clip's out point moves back to the last frame before it' is implemented as prepare's existing VISUAL snap (orchestrator 08:30, 'audio stays on the sentence').
+  - The frames from the change to the out point hold the last frame before it.
+  - So the audio, the frame count, the cut times and G3c / G16 / G17 / G18 are unchanged by construction.
+  - The required quiet is enforced on the speaker's own shot: TAIL_MIN_S after the last word, and HEAD_LEAD_MIN_S (80 ms) before the first for the hook (LEAD_MIN_S otherwise). If a snap cannot keep it, prepare HOLDS naming the reason.
+  - Moving the AUDIO out point as well would be a different change. Say so if that was meant.
+- MUST-FAIL on GPU0, 0c68b589's real prepared hook (run 191409): the OLD code leaves {406: 0.3172} after prepare. The fix leaves no change in either format after the last word, and the frame count stays 407. test_shot_snap: 7/7.
+- COST, measured: the 9:16 scoring adds about 56 s per 17 s clip on CPU (classify 35 s + the filter pass), so about 3 min per render.
+  - PROPOSAL (L-aa, not built): when prepare did not snap a clip, the layout stage classifies the same bytes again. Reusing prepare's plan saves about 35 s per clip.
+
 ## 15:39 RULING 68 LIVE: the service runs in tmux pipeline_pp_lockcheck (GPU0, under the lease, yields to renders), decoder_sha 25cd6f15e6c9. The builder has the contract.
 - The request and result paths, the outcomes, and HOW TO USE IT: send the candidate approved texts before the paid verdicts; on 'hold' adopt the run_decode words and ask again; never use the exact-range decode as a text source.
 - The measured costs, and what it does not catch: 1b4a63d0's G18 class, which is ruling 31's.
