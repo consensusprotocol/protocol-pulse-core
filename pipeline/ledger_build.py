@@ -385,20 +385,47 @@ def reanchor(row, src):
 
 
 def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None):
-    """Ledger rows -> (moments in the packager's form, {video_id: Source}, report). word_pass: word_pass_index()'s
-    {moment_id: row} (None = no window records). Rows on a video with neither a sentence-ready full-video word record
-    nor a sentence-ready window record, rows whose text does not re-anchor on whole sentences, and duplicates of one
-    span are dropped, each counted with why."""
+    """Ledger rows -> (moments in the packager's form, {key: Source}, report). word_pass: word_pass_index()'s
+    {moment_id: row} (None = no window records).
+    - A video with a sentence-ready full-video word record: every row re-anchors in it (key: the video id).
+    - Otherwise ONE WINDOW PER MOMENT, the word-pass worker writing one around each moment. A row with its own
+      sentence-ready window record re-anchors in THAT window, and its moment carries source_key =
+      "<video>@<w0>-<w1>", its Source's key (the packager looks every moment up by source_key, else by video_id). The
+      first FRESH build kept one window per video and lost 63 of 74 rows. Two window moments of one video whose spans
+      overlap in time are one moment: the better-ranked row (rows arrive best first) keeps it. Two moments with the same
+      key share one Source, which is the same record: the worker writes one file per video and window bounds,
+      write-once.
+    Rows with no word record, rows that do not re-anchor on whole sentences, and duplicates are dropped, each counted
+    with why. report: "videos" counts the videos that gave moments and "sources" their records (one per window
+    moment); window_records is {video: [records]} (audit 0208 C2, glm N2 / N4)."""
     word_pass = word_pass or {}
     report = {"rows": len(rows), "no_word_record": 0, "no_word_record_why": {}, "no_word_record_videos": {},
-              "window_records": {}, "window_passed_over": {}, "no_caption_context": {},
+              "window_records": {}, "window_waiting": 0, "window_failed": 0, "window_passed_over": {},
+              "no_caption_context": {},
               "fallbacks": {},
               "channel_conflict": {}, "not_anchored": {}, "malformed": {}, "duplicates": 0, "duplicates_of": {},
-              "moments": 0, "videos": 0,
+              "moments": 0, "videos": 0, "sources": 0,
               "word_records": {}}
     def malformed(i, r, why):                     # counted under a key no other row can take (qwen C3, glm C3 P1-4)
         mid = r.get("moment_id") if isinstance(r, dict) else None
         report["malformed"][mid if isinstance(mid, str) and mid and mid not in report["malformed"] else f"row {i}"] = why
+
+    def make(i, r, sp, info, src):
+        try:
+            m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
+                 "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
+                 "reason": r.get("reason") or ""}
+            mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
+                         ledger_text=r.get("text"))
+            if getattr(src, "window", None) is not None:          # provenance: the window record it was cut from
+                mined["window"] = dict(src.window, context_record=(getattr(src.context_source, "transcript_method",
+                                                                            None)))
+            rec = M.record(sp, m, ctx, M.judge(sp, ctx), mined)
+            rec["rank_score"] = M.rank_score(rec)
+            return rec
+        except (KeyError, TypeError, ValueError) as e:         # counted, never a crash (glm C1 P1-8)
+            malformed(i, r, f"{type(e).__name__}: {str(e)[:120]}")
+            return None
 
     by_vid = {}
     for i, r in enumerate(rows):
@@ -414,67 +441,81 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
             report["channel_conflict"][vid] = {"rows": len(rs), "channel_ids": channels}
             continue
         src, path, passed_over = word_source(rs[0], ctx, store)
-        if src is None:                         # the WINDOW path: the best-ranked row of this video with a
-            wrow, why_w = None, []              # sentence-ready window record (rows arrive best first)
-            for i, r in irs:
-                wp = word_pass.get(r["moment_id"])
-                if wp is None:
-                    continue
-                cand, cpath, why = window_source(r, wp, ctx, store)
-                if cand is not None:
-                    src, path, wrow = cand, cpath, r
-                    break
-                why_w.append(f"{r['moment_id']}: {why}")
-            if why_w:
-                report["window_passed_over"][vid] = why_w
-            if src is None:
-                why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
-                                               ["no sentence-ready window record"]))
-                report["no_word_record"] += len(rs)
-                report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
-                report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
-                continue
-            src.context_source, cwhy = caption_source(wrow, ctx, store, ledger_store)
-            if src.context_source is None:
-                src.context_source = None
-                report["no_caption_context"][vid] = cwhy          # L-s fails closed for this video's clips
-            report["window_records"][vid] = os.path.relpath(path, os.path.realpath(store))
-        elif passed_over:
-            report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
-        if getattr(src, "window", None) is None:
+        if src is not None:                          # the video's full-video word record: every row re-anchors in it
+            if passed_over:
+                report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
             report["word_records"][vid] = os.path.relpath(path, store)    # read; whether a moment came of it: moments
-        for i, r in irs:
-            sp, info = reanchor(r, src)
+            for i, r in irs:
+                sp, info = reanchor(r, src)
+                if sp is None:
+                    report["not_anchored"][r["moment_id"]] = info
+                    continue
+                if (vid, sp.k0, sp.k1) in seen:
+                    report["duplicates"] += 1
+                    report["duplicates_of"][r["moment_id"]] = seen[(vid, sp.k0, sp.k1)]   # named (glm C4 P2-5)
+                    continue
+                rec = make(i, r, sp, info, src)
+                if rec is None:
+                    continue
+                seen[(vid, sp.k0, sp.k1)] = r["moment_id"]
+                moments.append(rec)
+                sources[vid] = src
+            continue
+        caps, why_w, waiting, windows, kept = {}, [], 0, 0, []     # kept: (start, end, moment id) of window moments
+        for i, r in irs:                             # ONE WINDOW PER MOMENT
+            wp = word_pass.get(r["moment_id"])
+            if wp is None:
+                waiting += 1
+                continue
+            wsrc, wpath, why = window_source(r, wp, ctx, store)
+            if wsrc is None:
+                why_w.append(f"{r['moment_id']}: {why}")
+                report["window_failed"] += 1                 # counted, every row in one bucket (audit 0208 C2, glm N4)
+                continue
+            windows += 1
+            sha = r.get("transcript_sha256")
+            if sha not in caps:                      # the caption record the row was mined from, once per sha
+                caps[sha] = caption_source(r, ctx, store, ledger_store)
+            wsrc.context_source, cwhy = caps[sha]
+            if wsrc.context_source is None:
+                report["no_caption_context"][vid] = cwhy               # L-s fails closed for these clips
+            report["window_records"].setdefault(vid, []).append(os.path.relpath(wpath, os.path.realpath(store)))
+            sp, info = reanchor(r, wsrc)
             if sp is None:
                 report["not_anchored"][r["moment_id"]] = info
                 continue
-            if (vid, sp.k0, sp.k1) in seen:
+            dup = next((mid for a, b, mid in kept if a < sp.end and sp.start < b), None)
+            if dup is not None:                      # the same speech, cut from another of the video's windows
                 report["duplicates"] += 1
-                report["duplicates_of"][r["moment_id"]] = seen[(vid, sp.k0, sp.k1)]       # named (glm C4 P2-5)
+                report["duplicates_of"][r["moment_id"]] = dup
                 continue
-            try:
-                m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
-                     "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
-                     "reason": r.get("reason") or ""}
-                mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
-                             ledger_text=r.get("text"))
-                if getattr(src, "window", None) is not None:      # provenance: the window record it was cut from
-                    mined["window"] = dict(src.window, context_record=(getattr(src.context_source, "transcript_method",
-                                                                                None)))
-                rec = M.record(sp, m, ctx, M.judge(sp, ctx), mined)
-                rec["rank_score"] = M.rank_score(rec)
-            except (KeyError, TypeError, ValueError) as e:     # counted, never a crash (glm C1 P1-8)
-                malformed(i, r, f"{type(e).__name__}: {str(e)[:120]}")
+            rec = make(i, r, sp, info, wsrc)
+            if rec is None:
                 continue
-            seen[(vid, sp.k0, sp.k1)] = r["moment_id"]
+            key = f"{vid}@{wsrc.window['start_s']:.3f}-{wsrc.window['end_s']:.3f}"
+            rec["source_key"] = key
+            kept.append((sp.start, sp.end, r["moment_id"]))
             moments.append(rec)
-            sources[vid] = src
-    report["moments"], report["videos"] = len(moments), len(sources)
-    log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} word records; "
-        f"{report['no_word_record']} rows wait for a word record, {len(report['not_anchored'])} do not re-anchor, "
+            sources[key] = wsrc
+        if why_w:
+            report["window_passed_over"][vid] = why_w
+        if not windows:
+            why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
+                                           ["no sentence-ready window record"]))
+            report["no_word_record"] += len(rs)
+            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
+            report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
+        else:
+            report["window_waiting"] += waiting      # rows of a window video with no window record of their own
+    report["moments"], report["sources"] = len(moments), len(sources)
+    report["videos"] = len({m["video_id"] for m in moments})
+    log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} videos "
+        f"({report['sources']} word records); {report['no_word_record']} rows wait for a word record, "
+        f"{report['window_waiting']} wait for their own window, {len(report['not_anchored'])} do not re-anchor, "
         f"{len(report['malformed'])} malformed, {report['duplicates']} duplicates; "
         f"{len(report['channel_conflict'])} video(s) name more than one channel, "
-        f"{len(report['fallbacks'])} read from a fallback record; {len(report['window_records'])} window record(s) "
-        f"used ({len(report['no_caption_context'])} without a caption record for L-s)")
+        f"{len(report['fallbacks'])} read from a fallback record; "
+        f"{sum(len(v) for v in report['window_records'].values())} window record(s) used "
+        f"({len(report['no_caption_context'])} video(s) without a caption record for L-s)")
     moments.sort(key=lambda m: (-m["rank_score"], m["moment_id"]))
     return moments, sources, report

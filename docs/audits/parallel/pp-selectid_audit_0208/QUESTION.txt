@@ -1,0 +1,52 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+It moves the ledger build from ONE window record per video to ONE WINDOW RECORD PER MOMENT.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: the integrator's word-pass worker writes a sentence-ready window record (about +-45 s of words) around EACH
+ledger moment. The FRESH build at 02:01 ET used one window per video (the best-ranked row's). 63 of 74 fresh rows
+therefore could not re-anchor, which left 11 moments and no package.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass;
+- clips are verbatim WHOLE sentences of a sentence-ready, word-timed record (L-o 1, L-e);
+- L-s context (>= 90 s before, 60 s after) for a window clip comes from the caption record the ledger mined, by time;
+- no delivered span is used again (L-p).
+
+The change:
+1. pipeline/ledger_build.py build_inputs():
+   - A video WITH a sentence-ready full-video word record: unchanged. Every row re-anchors in it, with the
+     (vid, k0, k1) dedup, and the Source is keyed by the video id.
+   - Otherwise each row with its OWN sentence-ready window record (window_source(): every claim checked) re-anchors
+     in THAT window. Its moment carries source_key = "<video>@<w0>-<w1>", the key of its Source in the returned
+     sources.
+   - The caption record for L-s is looked up once per mined sha.
+   - Two window moments of one video whose spans overlap in TIME are one moment: the better-ranked row (rows arrive
+     best first) keeps it, and the other is counted in duplicates_of.
+   - Rows of a window video without their own window record are counted in window_waiting.
+   - The report adds sources and videos counts, and window_records becomes {video: [records]}.
+2. pipeline/package.py:
+   - src_of(x, sources) = sources[x.get("source_key") or x["video_id"]], used by prescreen (step A), exclusion_for
+     and hook_onset_for.
+   - _package's segment rows carry source_key when the moment has one.
+3. pipeline/context_integrity.py contexts_from_sources() and pipeline/speakers.py attribute_package(): look the
+   segment's Source up by source_key, else video_id.
+4. tests/package/test_ledger_build.py:
+   - two windows of one video give two moments with two Sources;
+   - the same speech in two windows is one moment;
+   - the gate's context check reads the segment's own window;
+   - the existing window tests use each moment's source_key.
+
+Check, concretely:
+(a) Can any lookup still reach the WRONG window or Source for a moment or segment, e.g. one keyed by video_id when a
+    source_key exists?
+(b) Can the same speech enter two clips through two overlapping windows, or a span cross a window's edge?
+(c) Is anything in the full-video path changed?
+(d) Does anything downstream (pin, render, novelty, dedup, speakers) still assume one Source per video?
+(e) Do the tests fail on the defect each one names?
+
+Output:
+- Findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+- Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+- End with a verdict line: "SHIP: yes | yes with conditions | no".

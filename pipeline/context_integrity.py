@@ -291,11 +291,18 @@ def _strict(raw, top, item_keys):
     return obj
 
 
+def source_for(x, sources):
+    """THE lookup of a moment's (or a package segment's) own Source, in one place (audit 0208 C1: glm, qwen): a WINDOW
+    moment's by its source_key (one window record per moment; ledger_build.build_inputs), every other one's by its video
+    id. A key missing from `sources` raises KeyError: fail closed, never another Source."""
+    return sources[x.get("source_key") or x["video_id"]]
+
+
 def contexts_from_sources(package, sources, now=None):
     """{label: {"text": the window with <selected> marks, "title", "channel", "published", "show_date", "window"}}."""
     out = {}
     for seg in package["segments"]:
-        src = sources[seg["video_id"]]
+        src = source_for(seg, sources)                              # a window segment's own Source (one per moment)
         w = seg.get("words") or (None, None)
         text, win = _window_text(src, seg["k0"], seg["k1"], w[0], w[1])
         if text is None:

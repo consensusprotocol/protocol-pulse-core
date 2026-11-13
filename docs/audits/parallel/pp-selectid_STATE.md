@@ -1,6 +1,25 @@
 BATCH: pin #1 (tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json, 1b4a63d0) was HELD at render 01:39 ET and NOT SENT. G17 hook onset: 30 ms of genuine lead < 80 ms. The packaging root cause is found (below), and the pin-stage pre-check is being built. G5 (-15.2 LUFS) and G9 (BT.601) are render rows.
 
 
+## 02:18 ET: the FRESH medley (ruling 2 + the 01:55 order: the last 10 h first). No package yet; supply is the bottleneck
+
+- **The word-pass worker** (the integrator's, GPU1):
+  - cycle 1 (01:45): 40 windows from 13 channels, 33 sentence-ready;
+  - the 10 h cycle (01:56): 40 windows from 6 channels, 37 ready. Its newest ready source was published 02:57Z.
+  - 33 fresh rows still wait for their own window (the next cycle).
+- **01:56 build:** no package; it exposed two defects of mine. Both are fixed in 307e2ca7, audited:
+  - one window moment without its caption record poisoned its whole step-A batch;
+  - 8 of 16 caption records live only in the ledger's own store (pp-ingest's).
+- **02:01 build:** no package. Only ONE window per video was used, so 63 of 74 rows could not re-anchor.
+- **02:08 build, one window per moment** (in audit 0208): 74 rows gave 32 moments on 6 videos (41 window records,
+  every caption record found).
+  - 11 usable, 5 cleared step A, 4 passed L-v 2 + CUTTABLE, 3 can open (G17a at the pin stage).
+  - The 4 come from 3 channels: Pompliano 16.2 s and 14.1 s (ONE video), Simply Bitcoin 11.6 s, The Bitcoin Layer
+    4.8 s.
+  - The best one-per-channel line-up is 32.6 s, under the medley's 36.7 s content floor, and Pompliano's two cannot
+    pair (the supply exception needs two videos). So there is no line-up, and nothing is paid past the angles.
+- **Next:** re-run after the worker's next cycle (the 33 waiting rows, and any new videos). Every gate stays as it is.
+
 ## After the 01:39 ET render hold: pin #1 HELD; the hook-onset root cause, measured on the source audio
 
 - **The integrator, 01:39 ET:** run pinned_20261113_054035 HELD, not sent.

@@ -440,13 +440,14 @@ class TestWindowRecords(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             rel, wp, r, words = window_fixture(d)
             far = dict(row("Bitcoin started as a quiet experiment.", start=100.0, end=104.0, mid="W2", vid="vidW"),
-                       transcript_sha256=r["transcript_sha256"])               # outside the window: it cannot anchor
+                       transcript_sha256=r["transcript_sha256"])               # no window record of its own
             ms, srcs, rep = LB.build_inputs([r, far], ctx, d, log=lambda s: None, word_pass={"W1": wp})
             self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["W1"])
             self.assertEqual(ms[0]["text"], SENTS_W[2])
-            self.assertEqual(list(rep["not_anchored"]), ["W2"])
-            self.assertEqual(rep["window_records"], {"vidW": rel})
-            src = srcs["vidW"]
+            self.assertEqual((list(rep["not_anchored"]), rep["window_waiting"]), ([], 1))   # it waits for its own
+            self.assertEqual(rep["window_records"], {"vidW": [rel]})
+            self.assertEqual(ms[0]["source_key"], f"vidW@600.000-{wp['window'][1]:.3f}")   # one window per moment
+            src = srcs[ms[0]["source_key"]]
             self.assertEqual(src.context_source.transcript_method, "yt_auto")
             text, win = CI._window_text(src, ms[0]["sentences"][0], ms[0]["sentences"][1], *ms[0]["words"])
             t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
@@ -459,6 +460,44 @@ class TestWindowRecords(unittest.TestCase):
             before, after = CI.context_around(src, ms[0]["sentences"][0], ms[0]["sentences"][1], *ms[0]["words"])
             self.assertIn("caption line", before)
             self.assertIn("caption line", after)
+
+    def test_each_moment_reads_its_own_window_and_the_same_speech_twice_is_one_moment(self):
+        """The 02:01 FRESH build kept ONE window per video and lost 63 of 74 rows. The worker writes a window around
+        every moment, so each moment re-anchors in its OWN window (its source_key); two windows holding the same
+        speech give one moment (the better-ranked row keeps it)."""
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel1, wp1, r1, words1 = window_fixture(d, w0=600.0)               # W1: "Nobody can stop Bitcoin ..."
+            rel2, wp2, r2, words2 = window_fixture(d, w0=640.0)               # W2: the same sentences, 40 s later
+            k = [w["word"] for w in words2].index("That")
+            n = len(SENTS_W[3].split())
+            r2 = dict(row(SENTS_W[3], start=words2[k]["start"], end=words2[k + n - 1]["end"], mid="W2", vid="vidW"),
+                      transcript_sha256=r1["transcript_sha256"])
+            wp2 = dict(wp2, moment_id="W2")
+            r3 = dict(r1, moment_id="W3")                                    # W1's speech again (W1's window record)
+            ms, srcs, rep = LB.build_inputs([r1, r2, r3], ctx, d, log=lambda s: None,
+                                            word_pass={"W1": wp1, "W2": wp2, "W3": dict(wp1, moment_id="W3")})
+            self.assertEqual(sorted(m["mined"]["ledger_moment_id"] for m in ms), ["W1", "W2"])
+            keys = {m["mined"]["ledger_moment_id"]: m["source_key"] for m in ms}
+            self.assertNotEqual(keys["W1"], keys["W2"])                       # two windows, two Sources
+            self.assertEqual(set(srcs), set(keys.values()))
+            self.assertEqual(rep["duplicates_of"], {"W3": "W1"})              # the same speech: one moment
+            self.assertEqual((rep["videos"], rep["sources"]), (1, 2))
+            import context_integrity as CI                                     # the gate reads each segment's own
+            m2 = next(m for m in ms if m["mined"]["ledger_moment_id"] == "W2")  # window (package.src_of's key)
+            seg = {"label": "clip_01", "video_id": "vidW", "source_key": m2["source_key"], "k0": m2["sentences"][0],
+                   "k1": m2["sentences"][1], "words": m2["words"], "channel": "DataDash"}
+            got = CI.contexts_from_sources({"segments": [seg]}, srcs)
+            self.assertIn("<selected>" + SENTS_W[3] + "</selected>", got["clip_01"]["text"])
+            self.assertIn("caption line", got["clip_01"]["text"])
+            lost = dict(seg, source_key="vidW@1.000-2.000")                   # a key that is not in sources: the
+            with self.assertRaises(KeyError):                                 # gate fails closed (one lookup rule,
+                CI.contexts_from_sources({"segments": [lost]}, srcs)         # audit 0208 C1: glm, qwen) ...
+            import speakers as SP                                             # ... and the speaker is "unknown",
+            pk = {"segments": [dict(lost)]}                                   # not measured, with no call made
+            SP.attribute_package(None, pk, srcs, meta_for=lambda v: {"exact_title": "t"}, log=lambda s: None)
+            self.assertEqual((pk["segments"][0]["speaker"]["name"], pk["segments"][0]["speaker"]["measured"]),
+                             ("unknown", False))
 
     def test_the_caption_coverage_is_measured_never_assumed(self):
         """Audit 0123 C1 (qwen, glm): a caption that stops short of 60 s after the clip (and short of the media's end),
@@ -473,7 +512,7 @@ class TestWindowRecords(unittest.TestCase):
                 rel, wp, r, words = window_fixture(d, **kw)
                 ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
                 m = ms[0]
-                text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
+                text, win = CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"])
                 self.assertEqual(text is not None, ok, kw)
 
     def test_a_wordless_stretch_inside_the_window_is_bridged_to_reach_the_marks(self):
@@ -486,7 +525,7 @@ class TestWindowRecords(unittest.TestCase):
             ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
             m = ms[0]
             t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
-            text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
+            text, win = CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"])
             self.assertLessEqual(win[0], t0 - CI.CONTEXT_BEFORE_S)          # it reaches past the gap
             self.assertLess(win[0], 515.0)                                     # a word from before the gap ...
             self.assertTrue(text.startswith("money caption line 585"))        # ... ("money", the last word of line 510)
@@ -585,7 +624,7 @@ class TestWindowRecords(unittest.TestCase):
             self.assertEqual(rep["no_caption_context"], {"vidW": "no record in the store matches the row's "
                                                                   "transcript_sha256"})
             m = ms[0]
-            self.assertEqual(CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"]),
+            self.assertEqual(CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"]),
                              (None, None))                                 # step A: unavailable, never cleared
             ex = PK.exclusion_for(None, m, srcs, {})                       # no model call is made
             self.assertEqual((ex["verdict"], ex["measured"]), ("exclude", False))

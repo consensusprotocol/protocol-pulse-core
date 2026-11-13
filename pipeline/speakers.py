@@ -28,6 +28,7 @@ import json
 import os
 import re
 
+import context_integrity as CI
 import eligibility as E
 
 CONTEXT_BEFORE, CONTEXT_AFTER = 8, 2      # sentences of the word record around the clip, for who speaks it
@@ -182,7 +183,11 @@ def attribute(router, seg, src, meta, seed=7):
 def attribute_package(router, pk, sources, meta_for=store_meta, log=print):
     """Every segment of a package gets its speaker record, in place (before the pin is sealed)."""
     for i, s in enumerate(pk["segments"]):
-        src, meta = sources.get(s["video_id"]), meta_for(s["video_id"])
+        try:
+            src = CI.source_for(s, sources)                   # the one lookup rule (audit 0208 C1: glm, qwen)
+        except KeyError:
+            src = None                                        # -> "unknown", not measured: never a name
+        meta = meta_for(s["video_id"])
         sp = attribute(router, s, src, meta)
         if not sp["measured"] and sp["why"].startswith("not measured"):      # once more, a new sample (C1 K2)
             sp = attribute(router, s, src, meta, seed=8)

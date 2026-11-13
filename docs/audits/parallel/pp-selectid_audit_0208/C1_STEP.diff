@@ -1,0 +1,355 @@
+diff --git a/pipeline/context_integrity.py b/pipeline/context_integrity.py
+index 55202f0b..dd2f7c0c 100644
+--- a/pipeline/context_integrity.py
++++ b/pipeline/context_integrity.py
+@@ -295,7 +295,7 @@ def contexts_from_sources(package, sources, now=None):
+     """{label: {"text": the window with <selected> marks, "title", "channel", "published", "show_date", "window"}}."""
+     out = {}
+     for seg in package["segments"]:
+-        src = sources[seg["video_id"]]
++        src = sources[seg.get("source_key") or seg["video_id"]]     # a window segment's own Source (one per moment)
+         w = seg.get("words") or (None, None)
+         text, win = _window_text(src, seg["k0"], seg["k1"], w[0], w[1])
+         if text is None:
+diff --git a/pipeline/ledger_build.py b/pipeline/ledger_build.py
+index b45f33b5..d3a7ce26 100644
+--- a/pipeline/ledger_build.py
++++ b/pipeline/ledger_build.py
+@@ -385,21 +385,44 @@ def reanchor(row, src):
+ 
+ 
+ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None):
+-    """Ledger rows -> (moments in the packager's form, {video_id: Source}, report). word_pass: word_pass_index()'s
+-    {moment_id: row} (None = no window records). Rows on a video with neither a sentence-ready full-video word record
+-    nor a sentence-ready window record, rows whose text does not re-anchor on whole sentences, and duplicates of one
+-    span are dropped, each counted with why."""
++    """Ledger rows -> (moments in the packager's form, {key: Source}, report). word_pass: word_pass_index()'s
++    {moment_id: row} (None = no window records).
++    - A video with a sentence-ready full-video word record: every row re-anchors in it (key: the video id).
++    - Otherwise ONE WINDOW PER MOMENT, the word-pass worker writing one around each moment. A row with its own
++      sentence-ready window record re-anchors in THAT window, and its moment carries source_key =
++      "<video>@<w0>-<w1>", its Source's key (the packager looks every moment up by source_key, else by video_id). The
++      first FRESH build kept one window per video and lost 63 of 74 rows. Two window moments of one video whose spans
++      overlap in time are one moment: the better-ranked row (rows arrive best first) keeps it.
++    Rows with no word record, rows that do not re-anchor on whole sentences, and duplicates are dropped, each counted
++    with why."""
+     word_pass = word_pass or {}
+     report = {"rows": len(rows), "no_word_record": 0, "no_word_record_why": {}, "no_word_record_videos": {},
+-              "window_records": {}, "window_passed_over": {}, "no_caption_context": {},
++              "window_records": {}, "window_waiting": 0, "window_passed_over": {}, "no_caption_context": {},
+               "fallbacks": {},
+               "channel_conflict": {}, "not_anchored": {}, "malformed": {}, "duplicates": 0, "duplicates_of": {},
+-              "moments": 0, "videos": 0,
++              "moments": 0, "videos": 0, "sources": 0,
+               "word_records": {}}
+     def malformed(i, r, why):                     # counted under a key no other row can take (qwen C3, glm C3 P1-4)
+         mid = r.get("moment_id") if isinstance(r, dict) else None
+         report["malformed"][mid if isinstance(mid, str) and mid and mid not in report["malformed"] else f"row {i}"] = why
+ 
++    def make(i, r, sp, info, src):
++        try:
++            m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
++                 "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
++                 "reason": r.get("reason") or ""}
++            mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
++                         ledger_text=r.get("text"))
++            if getattr(src, "window", None) is not None:          # provenance: the window record it was cut from
++                mined["window"] = dict(src.window, context_record=(getattr(src.context_source, "transcript_method",
++                                                                            None)))
++            rec = M.record(sp, m, ctx, M.judge(sp, ctx), mined)
++            rec["rank_score"] = M.rank_score(rec)
++            return rec
++        except (KeyError, TypeError, ValueError) as e:         # counted, never a crash (glm C1 P1-8)
++            malformed(i, r, f"{type(e).__name__}: {str(e)[:120]}")
++            return None
++
+     by_vid = {}
+     for i, r in enumerate(rows):
+         if not (isinstance(r, dict) and all(isinstance(r.get(k), str) and r.get(k) for k in ("moment_id", "video_id"))):
+@@ -414,67 +437,80 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store
+             report["channel_conflict"][vid] = {"rows": len(rs), "channel_ids": channels}
+             continue
+         src, path, passed_over = word_source(rs[0], ctx, store)
+-        if src is None:                         # the WINDOW path: the best-ranked row of this video with a
+-            wrow, why_w = None, []              # sentence-ready window record (rows arrive best first)
++        if src is not None:                          # the video's full-video word record: every row re-anchors in it
++            if passed_over:
++                report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
++            report["word_records"][vid] = os.path.relpath(path, store)    # read; whether a moment came of it: moments
+             for i, r in irs:
+-                wp = word_pass.get(r["moment_id"])
+-                if wp is None:
++                sp, info = reanchor(r, src)
++                if sp is None:
++                    report["not_anchored"][r["moment_id"]] = info
++                    continue
++                if (vid, sp.k0, sp.k1) in seen:
++                    report["duplicates"] += 1
++                    report["duplicates_of"][r["moment_id"]] = seen[(vid, sp.k0, sp.k1)]   # named (glm C4 P2-5)
++                    continue
++                rec = make(i, r, sp, info, src)
++                if rec is None:
+                     continue
+-                cand, cpath, why = window_source(r, wp, ctx, store)
+-                if cand is not None:
+-                    src, path, wrow = cand, cpath, r
+-                    break
++                seen[(vid, sp.k0, sp.k1)] = r["moment_id"]
++                moments.append(rec)
++                sources[vid] = src
++            continue
++        caps, why_w, waiting, windows, kept = {}, [], 0, 0, []     # kept: (start, end, moment id) of window moments
++        for i, r in irs:                             # ONE WINDOW PER MOMENT
++            wp = word_pass.get(r["moment_id"])
++            if wp is None:
++                waiting += 1
++                continue
++            wsrc, wpath, why = window_source(r, wp, ctx, store)
++            if wsrc is None:
+                 why_w.append(f"{r['moment_id']}: {why}")
+-            if why_w:
+-                report["window_passed_over"][vid] = why_w
+-            if src is None:
+-                why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
+-                                               ["no sentence-ready window record"]))
+-                report["no_word_record"] += len(rs)
+-                report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
+-                report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
+                 continue
+-            src.context_source, cwhy = caption_source(wrow, ctx, store, ledger_store)
+-            if src.context_source is None:
+-                src.context_source = None
+-                report["no_caption_context"][vid] = cwhy          # L-s fails closed for this video's clips
+-            report["window_records"][vid] = os.path.relpath(path, os.path.realpath(store))
+-        elif passed_over:
+-            report["fallbacks"][vid] = {"used": os.path.basename(path), "passed_over": passed_over}
+-        if getattr(src, "window", None) is None:
+-            report["word_records"][vid] = os.path.relpath(path, store)    # read; whether a moment came of it: moments
+-        for i, r in irs:
+-            sp, info = reanchor(r, src)
++            windows += 1
++            sha = r.get("transcript_sha256")
++            if sha not in caps:                      # the caption record the row was mined from, once per sha
++                caps[sha] = caption_source(r, ctx, store, ledger_store)
++            wsrc.context_source, cwhy = caps[sha]
++            if wsrc.context_source is None:
++                report["no_caption_context"][vid] = cwhy               # L-s fails closed for these clips
++            report["window_records"].setdefault(vid, []).append(os.path.relpath(wpath, os.path.realpath(store)))
++            sp, info = reanchor(r, wsrc)
+             if sp is None:
+                 report["not_anchored"][r["moment_id"]] = info
+                 continue
+-            if (vid, sp.k0, sp.k1) in seen:
++            dup = next((mid for a, b, mid in kept if a < sp.end and sp.start < b), None)
++            if dup is not None:                      # the same speech, cut from another of the video's windows
+                 report["duplicates"] += 1
+-                report["duplicates_of"][r["moment_id"]] = seen[(vid, sp.k0, sp.k1)]       # named (glm C4 P2-5)
++                report["duplicates_of"][r["moment_id"]] = dup
+                 continue
+-            try:
+-                m = {"scores": dict(r["scores"]), "names_person": r.get("names_person", False),
+-                     "risk": list(r.get("risk") or []), "topics": list(r.get("topics") or []),
+-                     "reason": r.get("reason") or ""}
+-                mined = dict(r.get("mined") or {}, ledger_moment_id=r["moment_id"], reanchored=info,
+-                             ledger_text=r.get("text"))
+-                if getattr(src, "window", None) is not None:      # provenance: the window record it was cut from
+-                    mined["window"] = dict(src.window, context_record=(getattr(src.context_source, "transcript_method",
+-                                                                                None)))
+-                rec = M.record(sp, m, ctx, M.judge(sp, ctx), mined)
+-                rec["rank_score"] = M.rank_score(rec)
+-            except (KeyError, TypeError, ValueError) as e:     # counted, never a crash (glm C1 P1-8)
+-                malformed(i, r, f"{type(e).__name__}: {str(e)[:120]}")
++            rec = make(i, r, sp, info, wsrc)
++            if rec is None:
+                 continue
+-            seen[(vid, sp.k0, sp.k1)] = r["moment_id"]
++            key = f"{vid}@{wsrc.window['start_s']:.3f}-{wsrc.window['end_s']:.3f}"
++            rec["source_key"] = key
++            kept.append((sp.start, sp.end, r["moment_id"]))
+             moments.append(rec)
+-            sources[vid] = src
+-    report["moments"], report["videos"] = len(moments), len(sources)
+-    log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} word records; "
+-        f"{report['no_word_record']} rows wait for a word record, {len(report['not_anchored'])} do not re-anchor, "
++            sources[key] = wsrc
++        if why_w:
++            report["window_passed_over"][vid] = why_w
++        if not windows:
++            why = "; ".join(passed_over + (["its window records were passed over"] if why_w else
++                                           ["no sentence-ready window record"]))
++            report["no_word_record"] += len(rs)
++            report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
++            report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
++        else:
++            report["window_waiting"] += waiting      # rows of a window video with no window record of their own
++    report["moments"], report["sources"] = len(moments), len(sources)
++    report["videos"] = len({m["video_id"] for m in moments})
++    log(f"  ledger rows {report['rows']}: {report['moments']} moments on {report['videos']} videos "
++        f"({report['sources']} word records); {report['no_word_record']} rows wait for a word record, "
++        f"{report['window_waiting']} wait for their own window, {len(report['not_anchored'])} do not re-anchor, "
+         f"{len(report['malformed'])} malformed, {report['duplicates']} duplicates; "
+         f"{len(report['channel_conflict'])} video(s) name more than one channel, "
+-        f"{len(report['fallbacks'])} read from a fallback record; {len(report['window_records'])} window record(s) "
+-        f"used ({len(report['no_caption_context'])} without a caption record for L-s)")
++        f"{len(report['fallbacks'])} read from a fallback record; "
++        f"{sum(len(v) for v in report['window_records'].values())} window record(s) used "
++        f"({len(report['no_caption_context'])} video(s) without a caption record for L-s)")
+     moments.sort(key=lambda m: (-m["rank_score"], m["moment_id"]))
+     return moments, sources, report
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 8d8ae6a4..30a4b050 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -283,6 +283,7 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
+     pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
+           "vo_kind": vo_kind, "style": fields.get("style"),
+           "segments": [{"label": lb, "moment_id": m["moment_id"],
++                        **({"source_key": m["source_key"]} if m.get("source_key") else {}),   # a window moment's
+                         "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": _name(m, ctx),
+                         "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
+                         "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
+@@ -358,6 +359,12 @@ def _load_store(store):
+         return json.load(f)
+ 
+ 
++def src_of(x, sources):
++    """A moment's (or a package segment's) own Source: a WINDOW moment's by its source_key (one window record per
++    moment, the word-pass worker's; ledger_build.build_inputs), every other one's by its video id."""
++    return sources[x.get("source_key") or x["video_id"]]
++
++
+ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
+               store=None, log=print):
+     """Step A (context only, package-independent by law L-s) on the best n usable moments, distinct channels first:
+@@ -389,11 +396,11 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+         chunk = todo[i:i + batch]
+         contexts = {}
+         for m in chunk:
+-            text, win = CI._window_text(sources[m["video_id"]], m["sentences"][0], m["sentences"][1], *m["words"])
++            text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
+             if text is None:        # no L-s context (a window record without its caption record, short coverage, an
+                 fails[m["moment_id"]] = ["CONTEXT_UNAVAILABLE: no L-s context for this moment (law L-s)"]   # unclocked
+                 continue            # moment): THIS moment is not cleared; it never poisons its batch's call
+-            contexts[m["moment_id"]] = {"text": text, "title": sources[m["video_id"]].title or "",
++            contexts[m["moment_id"]] = {"text": text, "title": src_of(m, sources).title or "",
+                                         "channel": _name(m, ctx), "window": win,
+                                         "published": str(m.get("published_at") or "")[:16],
+                                         "show_date": ctx.now.strftime("%Y-%m-%d")}
+@@ -865,7 +872,7 @@ def exclusion_for(router, m, sources, cache, seed=7):
+     key = m["moment_id"] if seed == 7 else (m["moment_id"], seed)
+     if key not in cache:
+         import moments as M
+-        src = sources[m["video_id"]]
++        src = src_of(m, sources)
+         before, after = CI.context_around(src, m["sentences"][0], m["sentences"][1], *m["words"])
+         if before is None:                                    # no context to judge in (a window record without its
+             cache[key] = {"verdict": "exclude", "why": "no context: the moment's context is unavailable",   # caption
+@@ -922,7 +929,7 @@ def hook_onset_for(m, sources, work_dir, cache):
+     if m["moment_id"] not in cache:
+         import hook_onset as HO
+         try:
+-            cache[m["moment_id"]] = HO.measure(sources[m["video_id"]], m["words"][0], m["words"][1], m["video_id"],
++            cache[m["moment_id"]] = HO.measure(src_of(m, sources), m["words"][0], m["words"][1], m["video_id"],
+                                                float(m["start"]), float(m["end"]), work_dir)
+         except Exception as e:
+             cache[m["moment_id"]] = {"pass": False, "measured": False, "why": f"{type(e).__name__}: {str(e)[:200]}"}
+diff --git a/pipeline/speakers.py b/pipeline/speakers.py
+index 155fd48c..1dcfe9e5 100644
+--- a/pipeline/speakers.py
++++ b/pipeline/speakers.py
+@@ -182,7 +182,7 @@ def attribute(router, seg, src, meta, seed=7):
+ def attribute_package(router, pk, sources, meta_for=store_meta, log=print):
+     """Every segment of a package gets its speaker record, in place (before the pin is sealed)."""
+     for i, s in enumerate(pk["segments"]):
+-        src, meta = sources.get(s["video_id"]), meta_for(s["video_id"])
++        src, meta = sources.get(s.get("source_key") or s["video_id"]), meta_for(s["video_id"])
+         sp = attribute(router, s, src, meta)
+         if not sp["measured"] and sp["why"].startswith("not measured"):      # once more, a new sample (C1 K2)
+             sp = attribute(router, s, src, meta, seed=8)
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 4417ea1e..0350cd47 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -440,13 +440,14 @@ class TestWindowRecords(unittest.TestCase):
+         with tempfile.TemporaryDirectory() as d:
+             rel, wp, r, words = window_fixture(d)
+             far = dict(row("Bitcoin started as a quiet experiment.", start=100.0, end=104.0, mid="W2", vid="vidW"),
+-                       transcript_sha256=r["transcript_sha256"])               # outside the window: it cannot anchor
++                       transcript_sha256=r["transcript_sha256"])               # no window record of its own
+             ms, srcs, rep = LB.build_inputs([r, far], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+             self.assertEqual([m["mined"]["ledger_moment_id"] for m in ms], ["W1"])
+             self.assertEqual(ms[0]["text"], SENTS_W[2])
+-            self.assertEqual(list(rep["not_anchored"]), ["W2"])
+-            self.assertEqual(rep["window_records"], {"vidW": rel})
+-            src = srcs["vidW"]
++            self.assertEqual((list(rep["not_anchored"]), rep["window_waiting"]), ([], 1))   # it waits for its own
++            self.assertEqual(rep["window_records"], {"vidW": [rel]})
++            self.assertEqual(ms[0]["source_key"], f"vidW@600.000-{wp['window'][1]:.3f}")   # one window per moment
++            src = srcs[ms[0]["source_key"]]
+             self.assertEqual(src.context_source.transcript_method, "yt_auto")
+             text, win = CI._window_text(src, ms[0]["sentences"][0], ms[0]["sentences"][1], *ms[0]["words"])
+             t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
+@@ -460,6 +461,36 @@ class TestWindowRecords(unittest.TestCase):
+             self.assertIn("caption line", before)
+             self.assertIn("caption line", after)
+ 
++    def test_each_moment_reads_its_own_window_and_the_same_speech_twice_is_one_moment(self):
++        """The 02:01 FRESH build kept ONE window per video and lost 63 of 74 rows. The worker writes a window around
++        every moment, so each moment re-anchors in its OWN window (its source_key); two windows holding the same
++        speech give one moment (the better-ranked row keeps it)."""
++        ctx = E.Context(NOW, REG)
++        with tempfile.TemporaryDirectory() as d:
++            rel1, wp1, r1, words1 = window_fixture(d, w0=600.0)               # W1: "Nobody can stop Bitcoin ..."
++            rel2, wp2, r2, words2 = window_fixture(d, w0=640.0)               # W2: the same sentences, 40 s later
++            k = [w["word"] for w in words2].index("That")
++            n = len(SENTS_W[3].split())
++            r2 = dict(row(SENTS_W[3], start=words2[k]["start"], end=words2[k + n - 1]["end"], mid="W2", vid="vidW"),
++                      transcript_sha256=r1["transcript_sha256"])
++            wp2 = dict(wp2, moment_id="W2")
++            r3 = dict(r1, moment_id="W3")                                    # W1's speech again (W1's window record)
++            ms, srcs, rep = LB.build_inputs([r1, r2, r3], ctx, d, log=lambda s: None,
++                                            word_pass={"W1": wp1, "W2": wp2, "W3": dict(wp1, moment_id="W3")})
++            self.assertEqual(sorted(m["mined"]["ledger_moment_id"] for m in ms), ["W1", "W2"])
++            keys = {m["mined"]["ledger_moment_id"]: m["source_key"] for m in ms}
++            self.assertNotEqual(keys["W1"], keys["W2"])                       # two windows, two Sources
++            self.assertEqual(set(srcs), set(keys.values()))
++            self.assertEqual(rep["duplicates_of"], {"W3": "W1"})              # the same speech: one moment
++            self.assertEqual((rep["videos"], rep["sources"]), (1, 2))
++            import context_integrity as CI                                     # the gate reads each segment's own
++            m2 = next(m for m in ms if m["mined"]["ledger_moment_id"] == "W2")  # window (package.src_of's key)
++            seg = {"label": "clip_01", "video_id": "vidW", "source_key": m2["source_key"], "k0": m2["sentences"][0],
++                   "k1": m2["sentences"][1], "words": m2["words"], "channel": "DataDash"}
++            got = CI.contexts_from_sources({"segments": [seg]}, srcs)
++            self.assertIn("<selected>" + SENTS_W[3] + "</selected>", got["clip_01"]["text"])
++            self.assertIn("caption line", got["clip_01"]["text"])
++
+     def test_the_caption_coverage_is_measured_never_assumed(self):
+         """Audit 0123 C1 (qwen, glm): a caption that stops short of 60 s after the clip (and short of the media's end),
+         or starts after the 90 s before it (and not near the media's start), leaves the context unavailable."""
+@@ -473,7 +504,7 @@ class TestWindowRecords(unittest.TestCase):
+                 rel, wp, r, words = window_fixture(d, **kw)
+                 ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+                 m = ms[0]
+-                text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
++                text, win = CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"])
+                 self.assertEqual(text is not None, ok, kw)
+ 
+     def test_a_wordless_stretch_inside_the_window_is_bridged_to_reach_the_marks(self):
+@@ -486,7 +517,7 @@ class TestWindowRecords(unittest.TestCase):
+             ms, srcs, rep = LB.build_inputs([r], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+             m = ms[0]
+             t0 = words[[w["word"] for w in words].index("Nobody")]["start"]
+-            text, win = CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"])
++            text, win = CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"])
+             self.assertLessEqual(win[0], t0 - CI.CONTEXT_BEFORE_S)          # it reaches past the gap
+             self.assertLess(win[0], 515.0)                                     # a word from before the gap ...
+             self.assertTrue(text.startswith("money caption line 585"))        # ... ("money", the last word of line 510)
+@@ -585,7 +616,7 @@ class TestWindowRecords(unittest.TestCase):
+             self.assertEqual(rep["no_caption_context"], {"vidW": "no record in the store matches the row's "
+                                                                   "transcript_sha256"})
+             m = ms[0]
+-            self.assertEqual(CI._window_text(srcs["vidW"], m["sentences"][0], m["sentences"][1], *m["words"]),
++            self.assertEqual(CI._window_text(srcs[m["source_key"]], m["sentences"][0], m["sentences"][1], *m["words"]),
+                              (None, None))                                 # step A: unavailable, never cleared
+             ex = PK.exclusion_for(None, m, srcs, {})                       # no model call is made
+             self.assertEqual((ex["verdict"], ex["measured"]), ("exclude", False))

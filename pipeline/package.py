@@ -283,6 +283,7 @@ def _package(segs, ctx, fields, vo_kind, vo, lines):
     pk = {"schema": "pp.package/1", "type": fields.get("type", "moments"), "angle": fields.get("angle", ""),
           "vo_kind": vo_kind, "style": fields.get("style"),
           "segments": [{"label": lb, "moment_id": m["moment_id"],
+                        **({"source_key": m["source_key"]} if m.get("source_key") else {}),   # a window moment's
                         "video_id": m["video_id"], "channel_id": m["channel_id"], "channel": _name(m, ctx),
                         "k0": m["sentences"][0], "k1": m["sentences"][1], "words": m["words"],
                         "start": m["start"], "end": m["end"], "duration_s": m["duration_s"], "text": m["text"],
@@ -358,6 +359,11 @@ def _load_store(store):
         return json.load(f)
 
 
+def src_of(x, sources):
+    """A moment's (or a package segment's) own Source: context_integrity.source_for, the one lookup rule."""
+    return CI.source_for(x, sources)
+
+
 def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
               store=None, log=print):
     """Step A (context only, package-independent by law L-s) on the best n usable moments, distinct channels first:
@@ -389,11 +395,11 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
         chunk = todo[i:i + batch]
         contexts = {}
         for m in chunk:
-            text, win = CI._window_text(sources[m["video_id"]], m["sentences"][0], m["sentences"][1], *m["words"])
+            text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
             if text is None:        # no L-s context (a window record without its caption record, short coverage, an
                 fails[m["moment_id"]] = ["CONTEXT_UNAVAILABLE: no L-s context for this moment (law L-s)"]   # unclocked
                 continue            # moment): THIS moment is not cleared; it never poisons its batch's call
-            contexts[m["moment_id"]] = {"text": text, "title": sources[m["video_id"]].title or "",
+            contexts[m["moment_id"]] = {"text": text, "title": src_of(m, sources).title or "",
                                         "channel": _name(m, ctx), "window": win,
                                         "published": str(m.get("published_at") or "")[:16],
                                         "show_date": ctx.now.strftime("%Y-%m-%d")}
@@ -865,7 +871,7 @@ def exclusion_for(router, m, sources, cache, seed=7):
     key = m["moment_id"] if seed == 7 else (m["moment_id"], seed)
     if key not in cache:
         import moments as M
-        src = sources[m["video_id"]]
+        src = src_of(m, sources)
         before, after = CI.context_around(src, m["sentences"][0], m["sentences"][1], *m["words"])
         if before is None:                                    # no context to judge in (a window record without its
             cache[key] = {"verdict": "exclude", "why": "no context: the moment's context is unavailable",   # caption
@@ -922,7 +928,7 @@ def hook_onset_for(m, sources, work_dir, cache):
     if m["moment_id"] not in cache:
         import hook_onset as HO
         try:
-            cache[m["moment_id"]] = HO.measure(sources[m["video_id"]], m["words"][0], m["words"][1], m["video_id"],
+            cache[m["moment_id"]] = HO.measure(src_of(m, sources), m["words"][0], m["words"][1], m["video_id"],
                                                float(m["start"]), float(m["end"]), work_dir)
         except Exception as e:
             cache[m["moment_id"]] = {"pass": False, "measured": False, "why": f"{type(e).__name__}: {str(e)[:200]}"}
