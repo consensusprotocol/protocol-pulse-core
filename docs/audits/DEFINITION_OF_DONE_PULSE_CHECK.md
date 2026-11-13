@@ -6,6 +6,17 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:18 ITEM 56: THE PIN-STAGE SCORER IS RUNNING (merge d1254c99, audits batch 62 x2, pushed da063525); the builder told at once. tmux pipeline_pp_scorer: stand_alone_scorer.py serve --candidates <the builder's file>; scorer_sha f19aab6cc5cc; event 'Pinned: bitcoin'.
+- ONE CODE PATH: run_fresh.stage_validate now calls stand_alone.clip_scorer (its rate() moved there unchanged). opener / trimmed_opener read stand_alone.affirmed (score >= 3.5, fault != starts_mid_thought). The service calls the same two. A test proves the service's prompt equals validate's for the same passages and event.
+- THE EVENT (the open point, decided): before a line-up there is no headline. The pre-filter uses 'Pinned: bitcoin', validate's own event for a moments pin without a headline (its label is 'bitcoin'). Validate re-asks at render with the real angle, as now. The builder may send an EXACT request per line-up before sealing; byte-identical to validate, it is served from the same reply cache.
+- THE BUILDER'S CONTRACT (their shape, adopted):
+  - their candidates file in (docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json, watched);
+  - data/stand_alone_scorer/verdicts/latest.json out ({scorer: model, threshold, event, scorer_sha; verdicts: pid -> text_sha256, score, reason, fault, affirmed});
+  - per moment: results/<pid>.<text sha16>.<scorer sha12>.json.
+  - They admit only pid + text_sha256 matches with affirmed true and seal that verdict. Validate re-checks.
+- THE FIRST PASS: their 72 h build ledger_20261113_145246, 145 candidates (93 untrimmed openers + 52 trimmed variants), 0 refused, 145 queued at 10:17:48.
+- Smoke test 09:57 (a scratch request): GPU0 loaded and back to 18 MiB, keyed results written.
+
 ## 09:55 ORDER '09:58' ITEM 56, PRIORITY ONE, THE PLAN (written first, as ordered): the render's own STAND_ALONE clip scorer, offered to the builder at the pin stage.
 - THE SCORER, as validate asks it today: run_fresh.stage_validate's nested rate() runs story_semantics.LocalLLM (gemma3:27b on GPU0, temperature 0) and then rate_passages(llm, {"underlying_event": edl angle or topic}, passages).
   - The prompt: CLIP_PROMPT with the event, then one <excerpt id=pid channel seconds=round(duration)> per passage.
