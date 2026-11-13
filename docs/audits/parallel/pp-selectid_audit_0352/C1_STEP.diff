@@ -1,0 +1,160 @@
+diff --git a/pipeline/moments.py b/pipeline/moments.py
+index eb78ab32..5d0130c5 100644
+--- a/pipeline/moments.py
++++ b/pipeline/moments.py
+@@ -355,6 +355,16 @@ naming a company neutrally is not an accusation.
+ Return ONLY this JSON object: {{"risks": [], "about_bitcoin": "yes", "why": "..."}}"""
+ 
+ 
++def ad_read_marker(moment_text, before_text=""):
++    """The exclusion screen's DETERMINISTIC part: an ad-read marker in the moment, or in the sentence right before it
++    (an ad read runs on) -> the reason, else None. exclusion_verdict() and package.build() (before step A) share it."""
++    last_before = re.split(r"(?<=[.!?])\s+", (before_text or "").strip())[-1] if (before_text or "").strip() else ""
++    for where, txt in (("the moment", moment_text or ""), ("the sentence before it", last_before)):
++        if AD_MARKERS.search(txt):
++            return f"ad-read marker '{AD_MARKERS.search(txt).group(0)}' in {where}"
++    return None
++
++
+ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7, avoid_model=None):
+     """-> {"verdict": "keep" | "exclude", "why", "risks", "backend", "measured", "replayed"}: a deterministic ad-read
+     screen (a marker in the moment, or in the sentence right before it: an ad read runs on), then the blind model
+@@ -363,11 +373,10 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
+     is also NOT measured (the exam adapter reports it as such)."""
+     import providers as P
+     from story_semantics import quote_data
+-    last_before = re.split(r"(?<=[.!?])\s+", (before_text or "").strip())[-1] if (before_text or "").strip() else ""
+-    for where, txt in (("the moment", moment_text or ""), ("the sentence before it", last_before)):
+-        if AD_MARKERS.search(txt):
+-            return {"verdict": "exclude", "why": f"ad-read marker '{AD_MARKERS.search(txt).group(0)}' in {where}",
+-                    "risks": ["ad_read"], "backend": "deterministic", "measured": True, "replayed": False}
++    why = ad_read_marker(moment_text, before_text)
++    if why:
++        return {"verdict": "exclude", "why": why, "risks": ["ad_read"], "backend": "deterministic", "measured": True,
++                "replayed": False}
+     r = None
+     try:
+         r = router.call("exclusion_verdict", EXCLUSION_PROMPT.format(before=quote_data(before_text, 3000),
+diff --git a/pipeline/package.py b/pipeline/package.py
+index c18ce11e..156338fd 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -569,6 +569,24 @@ def stand_alone_check(segs):
+     return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"))
+ 
+ 
++def ad_read_out(ms, sources):
++    """{moment id: why} for the moments the exclusion screen's DETERMINISTIC part refuses (moments.ad_read_marker: an
++    ad-read marker in the moment or in the sentence right before it, the same context exclusion_for() reads). The same
++    rule refuses them at the package stage; run first, the angles are never built around them. A moment with no
++    Source or no context is left to the package stage, which refuses it (fail closed)."""
++    import moments as M
++    out = {}
++    for m in ms:
++        try:
++            before, _ = CI.context_around(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
++        except KeyError:
++            continue
++        why = M.ad_read_marker(m["text"], before) if before is not None else None
++        if why:
++            out[m["moment_id"]] = why
++    return out
++
++
+ def no_role_on_screen(m):
+     """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
+     opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
+@@ -1024,17 +1042,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
+     no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m)] if r}
+     ms = [m for m in ms if m["moment_id"] not in no_role]
++    ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
++    ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+     wv, wf = _writers(router)
+     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+-           "no_role": no_role,
++           "no_role": no_role, "ad_read": ad_read,
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+            "package": None}
+     log(f"  {n_usable} usable, {len(no_role)} of them left out (they open on a conjunction or reply fragment, which "
+-        f"the render's STAND_ALONE fails with no clip scorer), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
++        f"the render's STAND_ALONE fails with no clip scorer), {len(ad_read)} on an ad-read marker (the exclusion "
++        f"screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+     if len({m["channel_id"] for m in cleared.values()}) < 3:
+         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
+         return out
+@@ -1402,6 +1423,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             if out["packages"] or out.get("budget_stop") or over_budget(ai):
+                 break
+     out["package"] = out["packages"][0] if out["packages"] else None
++    if out["package"] is None and not out.get("why_none"):       # every angle ended without a package: say why
++        out["why_none"] = ("no angle gave a package: " + "; ".join(f"angle {t.get('angle')}: {t.get('why')}"
++                                                                 for t in out["tried"]))[:900] if out["tried"] else \
++            "no angle gave a line-up to try"
+     out["seconds"] = round(time.time() - t0, 1)
+     out["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+     return out
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index c6316620..b79bf9aa 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -506,6 +506,8 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertIsNone(out["package"])
+         self.assertEqual(rig.write_calls, [])
+         self.assertIn("no through-line", out["tried"][0]["why"])
++        self.assertTrue(out["why_none"].startswith("no angle gave a package: angle 1: the clips alone have no "
++                                                   "through-line"), out["why_none"])     # never None (03:39 build)
+ 
+     def test_a_weak_clip_alone_is_dropped_and_the_line_up_re_picked(self):
+         rig = Rig(self.MS, ["h", "x", "y", "z"], [(False, [], {"clip_02": 2}, Rig.LINE), (True, [], None, Rig.LINE)],
+@@ -723,6 +725,46 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
+         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+ 
+ 
++class TestAdReadBeforeTheAngle(unittest.TestCase):
++    """The exclusion screen's deterministic part (moments.ad_read_marker) runs before step A, so no angle is built
++    around a moment the package stage would refuse. The 03:39 build lost its line-up's hook to it after the write."""
++
++    def test_the_marker_in_the_moment_or_the_sentence_before_it(self):
++        import moments as M
++        self.assertEqual(M.ad_read_marker("Bitcoin is money.", "Use my code at checkout. Link in the description."),
++                         "ad-read marker 'Link in the description' in the sentence before it")
++        self.assertEqual(M.ad_read_marker("This episode is sponsored by a wallet. Bitcoin is money.", ""),
++                         "ad-read marker 'sponsored' in the moment")
++        self.assertIsNone(M.ad_read_marker("Bitcoin is money.", "Link in the description. Bitcoin rose today."))
++        self.assertIsNone(M.ad_read_marker("Bitcoin is money.", None))
++
++    def test_ad_read_out_reads_the_same_context_as_the_exclusion_screen(self):
++        import context_integrity as CI
++        ctxs = {"a": ("Grab it now. Link in the description.", "x"), "b": ("Bitcoin rose today.", "x"),
++                "c": (None, None)}
++        saved = CI.context_around
++        try:
++            CI.context_around = lambda src, *a: ctxs[src]
++            ms = [dict(pm(k, k.upper(), 12.0), sentences=[0, 0], words=[0, 1]) for k in ("a", "b", "c", "d")]
++            got = PK.ad_read_out(ms, {"va": "a", "vb": "b", "vc": "c"})       # d has no Source: left to the package
++        finally:
++            CI.context_around = saved
++        self.assertEqual(got, {"a": "ad-read marker 'Link in the description' in the sentence before it"})
++
++    def test_build_leaves_an_ad_read_moment_out_before_the_angle(self):
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
++        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
++        saved = PK.ad_read_out
++        try:
++            PK.ad_read_out = lambda ms_, sources: {"q": "ad-read marker 'promo code' in the moment"}
++            out = rig.run()
++        finally:
++            PK.ad_read_out = saved
++        self.assertEqual(out["ad_read"], {"q": "ad-read marker 'promo code' in the moment"})
++        self.assertFalse(any("id=q " in p for role, p in rig.prompts if role == "angle_write"))
++        self.assertIsNotNone(out["package"])
++
++
+ class TestNoVoiceRealGates(unittest.TestCase):
+     """Audit 2240 C2 (glm N8): a no-voice package through the REAL VO-fidelity and context-integrity decisions (canned
+     model replies, no stubbed gate): every required row, the medley rows included, exactly PASS, and the pin is

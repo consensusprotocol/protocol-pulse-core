@@ -355,6 +355,17 @@ naming a company neutrally is not an accusation.
 Return ONLY this JSON object: {{"risks": [], "about_bitcoin": "yes", "why": "..."}}"""
 
 
+def ad_read_marker(moment_text, before_text=""):
+    """The exclusion screen's DETERMINISTIC part: an ad-read marker in the moment, or in the sentence right before it
+    (an ad read runs on) -> the reason, else None. exclusion_verdict() and package.build() (before step A) share it."""
+    last_before = re.split(r"(?<=[.!?])\s+", (before_text or "").strip())[-1] if (before_text or "").strip() else ""
+    for where, txt in (("the moment", moment_text or ""), ("the sentence before it", last_before)):
+        hit = AD_MARKERS.search(txt)
+        if hit:
+            return f"ad-read marker '{hit.group(0)}' in {where}"
+    return None
+
+
 def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7, avoid_model=None):
     """-> {"verdict": "keep" | "exclude", "why", "risks", "backend", "measured", "replayed"}: a deterministic ad-read
     screen (a marker in the moment, or in the sentence right before it: an ad read runs on), then the blind model
@@ -363,11 +374,10 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
     is also NOT measured (the exam adapter reports it as such)."""
     import providers as P
     from story_semantics import quote_data
-    last_before = re.split(r"(?<=[.!?])\s+", (before_text or "").strip())[-1] if (before_text or "").strip() else ""
-    for where, txt in (("the moment", moment_text or ""), ("the sentence before it", last_before)):
-        if AD_MARKERS.search(txt):
-            return {"verdict": "exclude", "why": f"ad-read marker '{AD_MARKERS.search(txt).group(0)}' in {where}",
-                    "risks": ["ad_read"], "backend": "deterministic", "measured": True, "replayed": False}
+    why = ad_read_marker(moment_text, before_text)
+    if why:
+        return {"verdict": "exclude", "why": why, "risks": ["ad_read"], "backend": "deterministic", "measured": True,
+                "replayed": False}
     r = None
     try:
         r = router.call("exclusion_verdict", EXCLUSION_PROMPT.format(before=quote_data(before_text, 3000),

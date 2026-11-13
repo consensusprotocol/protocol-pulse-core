@@ -569,6 +569,25 @@ def stand_alone_check(segs):
     return SA.check_edl(edl, rate=None, subject=SA.subject_terms("", "bitcoin"))
 
 
+def ad_read_out(ms, sources):
+    """{moment id: why} for the moments the exclusion screen's DETERMINISTIC part refuses (moments.ad_read_marker: an
+    ad-read marker in the moment or in the sentence right before it, the same context exclusion_for() reads). The same
+    rule refuses them at the package stage; run first, the angles are never built around them. A moment with no
+    Source or no context is left to the package stage, which refuses it (fail closed); so is any moment whose fields
+    the lookup cannot read (a KeyError). out is a census of the moments that survived no_role_on_screen."""
+    import moments as M
+    out = {}
+    for m in ms:
+        try:
+            before, _ = CI.context_around(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
+        except (KeyError, IndexError):                 # no Source, or fields the lookup cannot read: left to the
+            continue                                    # package stage (audit 0352 C2, qwen)
+        why = M.ad_read_marker(m["text"], before) if before is not None else None
+        if why:
+            out[m["moment_id"]] = why
+    return out
+
+
 def no_role_on_screen(m):
     """Why a moment can take NO place in a line-up under the render's STAND_ALONE opener rule with no clip scorer (it
     opens on a conjunction or a reply fragment: the clip role fails closed without the scorer, the hook role fails on
@@ -1024,17 +1043,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     no_role = {m["moment_id"]: r for m in ms for r in [no_role_on_screen(m)] if r}
     ms = [m for m in ms if m["moment_id"] not in no_role]
+    ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+    ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)
     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
-           "no_role": no_role,
+           "no_role": no_role, "ad_read": ad_read,
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
                          "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
            "package": None}
     log(f"  {n_usable} usable, {len(no_role)} of them left out (they open on a conjunction or reply fragment, which "
-        f"the render's STAND_ALONE fails with no clip scorer), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
+        f"the render's STAND_ALONE fails with no clip scorer), {len(ad_read)} on an ad-read marker (the exclusion "
+        f"screen's deterministic part), {len(cleared)} cleared step A ({time.time() - t0:.0f} s)")
     if len({m["channel_id"] for m in cleared.values()}) < 3:
         out["why_none"] = f"{len(cleared)} moments cleared step A from fewer than 3 channels"
         return out
@@ -1402,6 +1424,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             if out["packages"] or out.get("budget_stop") or over_budget(ai):
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
+    if out["package"] is None and not out.get("why_none"):       # every angle ended without a package: say why
+        out["why_none"] = ("no angle gave a package: " + "; ".join(
+            f"angle {t.get('angle')}: {str(t.get('why') or t.get('result') or 'no reason recorded')[:250]}"
+            for t in out["tried"])) if out["tried"] else "no angle gave a line-up to try"
     out["seconds"] = round(time.time() - t0, 1)
     out["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
     return out

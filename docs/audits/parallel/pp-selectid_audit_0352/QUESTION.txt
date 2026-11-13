@@ -1,0 +1,51 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real clips).
+package.build() turns moments into a sealed package, in this order:
+1. usable();
+2. the render's STAND_ALONE opener filter (no_role_on_screen);
+3. step A (L-s context, a paid verdict per batch of 8 moments);
+4. L-v 2 + CUTTABLE (a second recogniser per moment);
+5. the hook onset;
+6. the ANGLE step (one paid writer call proposes up to 3 angles, each a set of moments in play order);
+7. per angle, line-ups, writes, and the per-clip gates. One of those gates is the exclusion screen: package.exclusion_for
+   calls moments.exclusion_verdict on each segment's moment text and the context before it.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: the 03:39 ET build's angle 1, line-up 1 passed the clips-alone verdict, and its takeaway passed the cheap checks.
+Then the exclusion screen's DETERMINISTIC part refused the HOOK ("ad-read marker 'link in the description' in the
+sentence before it"). The angle was re-lined; no angle could form another line-up; the build ended with no package.
+And its record said why_none = None ("no package (None)"), because no code path names the reason when every angle ends
+without a package. Both are flagged defects (law K2: flag, do not silently delete).
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass. This change must refuse exactly what the package
+  stage already refuses, only EARLIER, and must not pass anything new.
+
+The change:
+1. pipeline/moments.py: ad_read_marker(moment_text, before_text) holds exclusion_verdict's deterministic screen (an
+   AD_MARKERS match in the moment, or in the last sentence of the context before it) and returns the reason, else None.
+   exclusion_verdict calls it, with the same return record as before. The model verdict after it is unchanged.
+2. pipeline/package.py:
+   - ad_read_out(ms, sources): for each moment, the SAME context exclusion_for reads (CI.context_around on the
+     moment's Source, by source_key else video_id). A moment ad_read_marker refuses is recorded with its reason.
+   - A moment with no Source (KeyError) or no context (None) is skipped here and left to the package stage, which
+     refuses a moment without context (exclusion_for: "no context" -> exclude).
+   - build() leaves those moments out right after the STAND_ALONE opener filter, before step A. They are recorded in
+     out["ad_read"] and on the log line. out["usable"] is unchanged in meaning.
+   - build(): when no package was made and nothing else set why_none, why_none names every tried angle's own why:
+     "no angle gave a package: angle N: <why>; ...", or "no angle gave a line-up to try".
+3. tests/package/test_medley.py:
+   - the marker in the moment or the sentence before, and no marker earlier in the context;
+   - ad_read_out reads the same context, and skips a moment with no Source or no context;
+   - build() leaves an ad-read moment out of the angle prompt and still packages the rest;
+   - why_none is named when every angle fails.
+
+Check in particular:
+- that ad_read_out refuses exactly what exclusion_verdict's deterministic part would refuse at the package stage, on
+  the same text and the same context, and nothing more;
+- that the exclusion verdict at the package stage is unchanged (its deterministic part and its model verdict);
+- that a moment skipped here (no Source, no context) still cannot pass the package stage;
+- that why_none never hides a reason another path already set.
+
+Answer with P0/P1/P2 findings (file:line, scenario), then "SHIP: yes / no / yes with conditions".

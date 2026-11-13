@@ -506,6 +506,8 @@ class TestBuildLoop(unittest.TestCase):
         self.assertIsNone(out["package"])
         self.assertEqual(rig.write_calls, [])
         self.assertIn("no through-line", out["tried"][0]["why"])
+        self.assertTrue(out["why_none"].startswith("no angle gave a package: angle 1: the clips alone have no "
+                                                   "through-line"), out["why_none"])     # never None (03:39 build)
 
     def test_a_weak_clip_alone_is_dropped_and_the_line_up_re_picked(self):
         rig = Rig(self.MS, ["h", "x", "y", "z"], [(False, [], {"clip_02": 2}, Rig.LINE), (True, [], None, Rig.LINE)],
@@ -721,6 +723,58 @@ class TestStandAloneAtThePinStage(unittest.TestCase):
         gates = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
         gates["stand_alone"] = {"status": "PASS" if r["ok"] else "FAIL", "by": "x", "replayed": False, "n": 1}
         self.assertEqual(package_pin.gate_problems(gates, package_pin.required_gates(pk)), ["stand_alone: FAIL"])
+
+
+class TestAdReadBeforeTheAngle(unittest.TestCase):
+    """The exclusion screen's deterministic part (moments.ad_read_marker) runs before step A, so no angle is built
+    around a moment the package stage would refuse. The 03:39 build lost its line-up's hook to it after the write."""
+
+    def test_the_marker_in_the_moment_or_the_sentence_before_it(self):
+        import moments as M
+        self.assertEqual(M.ad_read_marker("Bitcoin is money.", "Use my code at checkout. Link in the description."),
+                         "ad-read marker 'Link in the description' in the sentence before it")
+        self.assertEqual(M.ad_read_marker("This episode is sponsored by a wallet. Bitcoin is money.", ""),
+                         "ad-read marker 'sponsored' in the moment")
+        self.assertIsNone(M.ad_read_marker("Bitcoin is money.", "Link in the description. Bitcoin rose today."))
+        self.assertIsNone(M.ad_read_marker("Bitcoin is money.", None))
+
+    def test_ad_read_out_reads_the_same_context_as_the_exclusion_screen(self):
+        import context_integrity as CI
+        ctxs = {"a": ("Grab it now. Link in the description.", "x"), "b": ("Bitcoin rose today.", "x"),
+                "c": (None, None)}
+        saved = CI.context_around
+        try:
+            CI.context_around = lambda src, *a: ctxs[src]
+            ms = [dict(pm(k, k.upper(), 12.0), sentences=[0, 0], words=[0, 1]) for k in ("a", "b", "c", "d")]
+            got = PK.ad_read_out(ms, {"va": "a", "vb": "b", "vc": "c"})       # d has no Source: left to the package
+        finally:
+            CI.context_around = saved
+        self.assertEqual(got, {"a": "ad-read marker 'Link in the description' in the sentence before it"})
+        try:                                     # DIFFERENTIAL (audit 0352 C1, glm): the package stage's own screen,
+            CI.context_around = lambda src, *a: ctxs[src]     # exclusion_for, on the same moments and context
+            never = type("R", (), {"call": lambda *a, **k: (_ for _ in ()).throw(AssertionError("no model call"))})()
+            v = PK.exclusion_for(never, ms[0], {"va": "a", "vb": "b"}, {})
+            self.assertEqual((v["verdict"], v["why"], v["backend"]), ("exclude", got["a"], "deterministic"))
+            with self.assertRaisesRegex(AssertionError, "no model call"):      # b: no marker, so the package stage
+                PK.exclusion_for(never, ms[1], {"va": "a", "vb": "b"}, {})      # goes past its deterministic part to
+            self.assertNotIn("b", got)                                          # the model verdict; nor refused here
+            bad = [dict(ms[0], sentences=[0])]                                  # a field the lookup cannot read:
+            self.assertEqual(PK.ad_read_out(bad, {"va": "a"}), {})              # left to the package stage (qwen C2)
+        finally:
+            CI.context_around = saved
+
+    def test_build_leaves_an_ad_read_moment_out_before_the_angle(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("q", "E", 13.0)]
+        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None])
+        saved = PK.ad_read_out
+        try:
+            PK.ad_read_out = lambda ms_, sources: {"q": "ad-read marker 'promo code' in the moment"}
+            out = rig.run()
+        finally:
+            PK.ad_read_out = saved
+        self.assertEqual(out["ad_read"], {"q": "ad-read marker 'promo code' in the moment"})
+        self.assertFalse(any("id=q " in p for role, p in rig.prompts if role == "angle_write"))
+        self.assertIsNotNone(out["package"])
 
 
 class TestNoVoiceRealGates(unittest.TestCase):
