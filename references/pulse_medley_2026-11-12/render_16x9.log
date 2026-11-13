@@ -1,0 +1,46 @@
+=== RENDER 16:9 ===
+
+=== STEP 1: VERIFY VOICE ===
+  voice_id: cbQ4bUP6OYwI7yEUTYaM
+  model: eleven_v4
+
+=== STEP 2: RENDER VO VISUALS ===
+  Rendering R5 VO visual: vo_bridge_01.mp4
+    VO: 9.52s + 1.0s pre-roll = 10.52s (252 frames)
+    Output: 10.52s
+
+  Assembled VO tracks: ['vo_bridge_01']
+
+=== STEP 3: SEGMENT LIST ===
+  hook: 4.67s  (/home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/final_hook.mp4)
+  clip_01: 19.88s  (/home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/final_clip_01.mp4)
+  clip_02: 17.29s  (/home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/final_clip_02.mp4)
+  vo_bridge_01: 10.52s  (/home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/vo_bridge_01.mp4)
+  shoutout: 9.56s  (/home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/shoutout_16x9.mp4)
+  outro: 4.48s  (/home/ultron/protocol_pulse/brand/2026-11/conformed/outro_16x9_7c2cc7ae6efa9b27.mp4)
+
+  Total: 66.4s
+
+=== STEP 4: CONCAT ===
+  Transitions (crossfade): []
+  Concat: 66.33s
+
+=== STEP 5: ALPHA WATERMARK ===
+  Watermark: 0 -> 52.33s
+  Watermarked: 66.33s
+
+=== STEP 6: BGM MIX ===
+  BGM mix: 66.33s
+
+=== STEP 7: LOUDNORM + ALIMITER ===
+  Measured: I=-23.79 TP=-9.77 LRA=7.50
+
+=== STEP 8: CONCAT MANIFEST ===
+  Manifest: /home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/concat_manifest_16x9.json
+  VO assembled tracks: /home/ultron/protocol_pulse/runs/pinned_20261113_031328/qa/vo_assembled_tracks.json
+
+=== 16:9 COMPLETE ===
+  File: /home/ultron/protocol_pulse/runs/pinned_20261113_031328/out/segment.mp4
+  Duration: 66.334s
+  Size: 16,413,266 bytes (15.7 MB)
+  Render time: 436s (7.3min)

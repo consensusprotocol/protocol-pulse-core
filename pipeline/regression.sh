@@ -120,4 +120,34 @@ else
 fi
 echo ""
 
+# ── Step 8: fourth protected reference, the approved L-y medley (orchestrator note 2026-11-12 '23:35') ──
+echo "--- STEP 8: PROTECTED REFERENCE pulse_medley_2026-11-12 (files as SHA256SUMS; shape, flow, layout reproduce) ---"
+REF_Y=references/pulse_medley_2026-11-12
+if git ls-files --error-unmatch "$REF_Y/SHA256SUMS" >/dev/null 2>&1; then   # same rules as step 7
+    if ! python3 pipeline/check_reference_manifest.py "$REF_Y"; then
+        echo "  FAIL: the protected medley reference changed (docs/references/REFERENCE_PULSE_MEDLEY_2026-11-12.md)"
+        exit 1
+    fi
+    if ! git rev-parse -q --verify refs/tags/ref-pulse-medley-2026-11-12 >/dev/null; then
+        echo "  FAIL: tag ref-pulse-medley-2026-11-12 missing from this repository"
+        exit 1
+    fi
+    if ! git diff --quiet ref-pulse-medley-2026-11-12 -- "$REF_Y"; then
+        echo "  FAIL: the reference's tracked files (SHA256SUMS included) differ from tag ref-pulse-medley-2026-11-12"
+        exit 1
+    fi
+    if ! python3 pipeline/check_medley_reference.py "$REF_Y"; then
+        echo "  FAIL: the approved medley's shape / flow / layout no longer reproduce with this code"
+        exit 1
+    fi
+    if ! python3 pipeline/check_reference_manifest.py "$REF_Y" >/dev/null; then   # the reproduction wrote nothing
+        echo "  FAIL: the medley reference changed while its decisions were reproduced"
+        exit 1
+    fi
+    echo "  tracked files identical to tag ref-pulse-medley-2026-11-12; its decisions reproduce"
+else
+    echo "  SKIP: this checkout predates the reference (references/pulse_medley_2026-11-12 not tracked)"
+fi
+echo ""
+
 echo "=== REGRESSION COMPLETE ==="

@@ -1,0 +1,22 @@
+{
+  "style": "crossfade",
+  "lead_tail": {
+    "hook": [
+      0.26,
+      0.31
+    ],
+    "clip_01": [
+      0.01,
+      0.07
+    ],
+    "clip_02": [
+      0.04,
+      0.04
+    ]
+  },
+  "channels": {
+    "hook": "Natalie Brunell",
+    "clip_01": "What Bitcoin Did",
+    "clip_02": "Stephan Livera"
+  }
+}

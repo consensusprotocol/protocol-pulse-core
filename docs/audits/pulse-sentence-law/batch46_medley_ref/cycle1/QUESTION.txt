@@ -1,0 +1,16 @@
+Batch 46 = THE APPROVED L-y MEDLEY AS A PROTECTED REFERENCE AND REGRESSION FIXTURE (orchestrator note 2026-11-12 '23:35'; PBX on the medley: "yooo!!!!! YES!!!!"). The run is copied read-only to references/pulse_medley_2026-11-12/, with SHA256SUMS over every file. check_reference_manifest.py, already audited in batch 41, verifies those bytes. It is a reference for SHAPE (law L-y: hook, then the clips back to back, ONE closing VO line after the last clip, the sign-off; no intro, no bridge), for clip-to-clip FLOW and for LAYOUT. It is NOT a reference for recency, caption, title or takeaway wording.
+New pipeline/check_medley_reference.py, the "re-render to the same shape" fixture in the spirit of Law 22, reproduces the decisions with the CURRENT code on the reference's frozen files, without the renderer:
+- shape: edl_rules.rule_r11 on its EDL; pinned.moments_vo on its PIN gives the same VO slots (intro present or not, each line's after_clip);
+- selection: pinned.validate_range gives i0 / i1;
+- cut: sentence_law.write_lock_cut_table, on a scratch copy of the EDL with linked sources / transcripts, is within 10 ms;
+- flow: head_tail lead-in / tail is within 10 ms of TRANSITIONS.json, and pulse_transitions.plan gives the junctions each render log printed (here [] = hard cuts);
+- layout: vertical_layout.classify gives the classes and boundaries.
+Exit codes: 0 = reproduced, 1 = changed, 2 = missing. pipeline/regression.sh step 8 runs: the manifest check, the tag ref-pulse-medley-2026-11-12, git diff against the tag, then this check; any failure exits 1.
+The tests make a scratch copy (small files copied, media linked) and change one decision each.
+FIND:
+- any way a changed decision passes, e.g. a comparison that is vacuous, compares a value with itself, zips silently, or swallows an exception into a pass;
+- the junction comparison accepting a log line it did not parse;
+- the scratch copy or the temp dir writing into the read-only reference;
+- the shell step not failing when it should;
+- tests that do not test what they claim.
+Reply with the JSON verdict; keep the reasoning short; at most 3 findings.

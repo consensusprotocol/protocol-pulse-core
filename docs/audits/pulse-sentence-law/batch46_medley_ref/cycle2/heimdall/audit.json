@@ -1,0 +1,155 @@
+{
+ "question": "Batch 46 cycle 2 (verification). The cycle-1 consensus is implemented, see CONSENSUS.md: render-log junction line exactly one, with the style word, unparsed = CHANGED; cut table rows equal; PIN segments paired by video_id; flow and layout inputs checked against the EDL's segments (not driven by the reference); tests assert each CHANGED reason.\n\nBatch 46 = THE APPROVED L-y MEDLEY AS A PROTECTED REFERENCE AND REGRESSION FIXTURE (orchestrator note 2026-11-12 '23:35'; PBX on the medley: \"yooo!!!!! YES!!!!\"). The run is copied read-only to references/pulse_medley_2026-11-12/, with SHA256SUMS over every file. check_reference_manifest.py, already audited in batch 41, verifies those bytes. It is a reference for SHAPE (law L-y: hook, then the clips back to back, ONE closing VO line after the last clip, the sign-off; no intro, no bridge), for clip-to-clip FLOW and for LAYOUT. It is NOT a reference for recency, caption, title or takeaway wording.\nNew pipeline/check_medley_reference.py, the \"re-render to the same shape\" fixture in the spirit of Law 22, reproduces the decisions with the CURRENT code on the reference's frozen files, without the renderer:\n- shape: edl_rules.rule_r11 on its EDL; pinned.moments_vo on its PIN gives the same VO slots (intro present or not, each line's after_clip);\n- selection: pinned.validate_range gives i0 / i1;\n- cut: sentence_law.write_lock_cut_table, on a scratch copy of the EDL with linked sources / transcripts, is within 10 ms;\n- flow: head_tail lead-in / tail is within 10 ms of TRANSITIONS.json, and pulse_transitions.plan gives the junctions each render log printed (here [] = hard cuts);\n- layout: vertical_layout.classify gives the classes and boundaries.\nExit codes: 0 = reproduced, 1 = changed, 2 = missing. pipeline/regression.sh step 8 runs: the manifest check, the tag ref-pulse-medley-2026-11-12, git diff against the tag, then this check; any failure exits 1.\nThe tests make a scratch copy (small files copied, media linked) and change one decision each.\nFIND: anything cycle 1 raised that is still open; a new way a changed decision passes; a check that now fails a correct reference (false CHANGED); a test that still does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 13.9,
+   "cost": 0.000880245,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 26.9,
+   "cost": 0.00026412,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 10.8,
+   "cost": 0.000769327,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 39.9,
+   "cost": 0.000370822,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F3",
+   "severity": "medium",
+   "file": "pipeline/test_check_medley_reference.py",
+   "line": 100,
+   "issue": "test_a_moved_cut_fails edits cuts_final.json, but the check recomputes the cut table from the EDL and compares it to cuts_final.json; the test's edit changes the reference side only, so it tests that the comparison notices a reference change, not that a changed decision (a different cut the current code would produce) is caught. It also asserts the wrong direction in the message: the edited value 31.61 is the reference, 31.56 the recomputed one, yet the test's reason string reads 'cut_out 31.56 != reference 31.61', which only matches if the edit is the reference side.",
+   "evidence": "self.edit(d, \"cuts_final.json\", move)\\n        self.assertChanged(d, \"CHANGED: clip_02: cut_out 31.56 != reference 31.61\")",
+   "fix": "Also (or instead) edit the EDL's selection lock / source window so the recomputed cut genuinely differs, and assert the message direction matches which side was edited.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 103,
+   "issue": "The flow check compares the current code's `pulse_transitions.plan` output against the junctions parsed from the frozen `render_*.log` files. This violates the requirement that flow inputs be checked against the EDL's segments and not driven by the reference. If the reference log contains a junction that the current code no longer produces (or vice versa), the check will fail, but more critically, it uses the reference's output as the ground truth for the plan, rather than verifying the plan against the EDL's structural constraints. The spec states: 'flow and layout inputs checked against the EDL's segments (not driven by the reference)'. Here, the *expected* junctions are driven by the reference log.",
+   "evidence": "got = [(j[\"after\"], j[\"frames\"], j[\"kind\"]) for j in plan]\n        with open(os.path.join(ref, f\"render_{fmt}.log\")) as f:\n            lines = re.findall(r\"^\\s*Transitions \\((\\w+)\\): (\\[.*\\])\\s*$\", f.read(), re.M)\n        ...\n        if got != want:\n            bad.append(f\"{fmt}: junctions {got} != the render's {want}\")",
+   "fix": "The flow check should verify that `pulse_transitions.plan` produces junctions consistent with the EDL's segment types and the `TRANSITIONS.json` style, without comparing against the frozen render log's specific junction list. The render log should only be used to verify that the *style* and *presence* of the transitions line match, not the exact junction tuples, unless the junctions are derived purely from the EDL and style in a deterministic way that is independent of the reference's historical output.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 95,
+   "issue": "The cut check uses `sentence_law.write_lock_cut_table` on a scratch copy of the EDL. However, `write_lock_cut_table` likely depends on the `cuts_final.json` or similar reference data to determine the 'lock' or 'hop' boundaries. If the function uses the reference's `cuts_final.json` as input to generate the table, then the check is circular: it compares the output of a function fed by the reference against the reference itself. The spec says 'reproduces the decisions with the CURRENT code on the reference's frozen files'. If `write_lock_cut_table` reads `cuts_final.json` from the scratch dir (which is a copy of the reference), it is not reproducing the decision from the EDL/transcripts alone, but rather validating the reference against itself.",
+   "evidence": "table = L.write_lock_cut_table(tmp)\n    ...\n    for c in table:\n        want = cuts.get(c[\"clip_id\"])\n        ...\n        for k in (\"cut_in\", \"cut_out\"):\n            if k not in c or abs(c[k] - want[k]) > TOL_S:",
+   "fix": "Ensure `write_lock_cut_table` derives the cut points solely from the EDL, transcripts, and PIN data, not from `cuts_final.json`. If it does use `cuts_final.json`, the check is not a regression test for the code's logic but a file integrity check, which is already covered by `check_reference_manifest.py`.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "high",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 60,
+   "issue": "The PIN/EDL segment pairing is by position, not by video_id: the zip pairs segments before the video_id check, so a PIN whose segments are reordered but whose first segment happens to match the EDL's first segment passes the pairing check for that segment while later segments are silently compared against the wrong reference locks. The consensus requires pairing by video_id.",
+   "evidence": "for (label, seg), ps in zip(segs, pin[\"segments\"]):\\n        vid = ps[\"video_id\"]\\n        if vid != seg[\"video_id\"]:",
+   "fix": "Index pin[\"segments\"] by video_id and look up each EDL segment's video_id, reporting any PIN segment whose video_id is not in the EDL (and vice versa) instead of zipping.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "medium",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 96,
+   "issue": "The flow check compares the plan's junctions against the render log, but the plan is built from the reference's own TRANSITIONS.json style and the log's style word is only checked against that same reference value; a changed decision that alters the style in the EDL (and hence what the plan would place) while the reference TRANSITIONS.json still says the old style passes, because the log's style word is compared to the reference, not to what the current code would choose.",
+   "evidence": "if len(lines) != 1 or lines[0][0] != tr[\"style\"]:",
+   "fix": "Derive the expected style from the EDL (or re-derive it with the current code) and require the render log's style word to match that, not the reference TRANSITIONS.json's style.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 88,
+   "issue": "The scratch-copy cut check symlinks the reference's sources/ and transcripts/ into the temp dir, so write_lock_cut_table reads the frozen media through the symlinks; if the function writes anything back (e.g. caches, .lock sidecars) it will follow the symlink and mutate the 'read-only' reference, and the regression.sh step-8 manifest check runs BEFORE the medley check, so any such mutation is caught only on the NEXT run.",
+   "evidence": "os.symlink(os.path.join(ref, d), os.path.join(tmp, d))\n        table = L.write_lock_cut_table(tmp)\n    finally:\n        shutil.rmtree(tmp)",
+   "fix": "Copy the needed source/transcript files into the scratch dir (or pass read-only flags), and/or run check_medley_reference before the manifest check in regression.sh step 8 so a mutated reference fails the same run."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_check_medley_reference.py",
+   "line": 60,
+   "issue": "test_a_changed_or_dropped_layout_fails runs with layout=True but only edits the hook's entry, so the 'dropped' half of its name is never exercised: no test deletes a VERTICAL_LAYOUT.json key and asserts the 'layout reference covers' failure, even though the check implements it.",
+   "evidence": "self.edit(d, \"VERTICAL_LAYOUT.json\", lambda v: {\"hook\": dict(v[\"hook\"], shots=[...])})\n        self.assertChanged(d, \"CHANGED: layout reference covers ['hook']\", ...)",
+   "fix": "Add a case that pops a clip's key from VERTICAL_LAYOUT.json and asserts the 'layout reference covers' reason (and, if classify is too slow, keep it to the hook)."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 146,
+   "issue": "The --no-layout flag is parsed from the full argv but the positional REF_DIR check uses the same filtered list, so 'check_medley_reference.py --no-layout' works, yet a future flag with a value (or a ref dir literally named like a flag) silently mis-parses; more importantly the tests never exercise the --no-layout path, so the documented CLI contract is untested.",
+   "evidence": "args = [a for a in sys.argv[1:] if not a.startswith(\"--\")]\n    sys.exit(main(args[0] if args else REF, layout=\"--no-layout\" not in sys.argv))",
+   "fix": "Add a test invoking main(ref, layout=False) via the CLI (or subprocess) asserting exit 0, or use argparse."
+  }
+ ],
+ "total_cost": 0.002284514,
+ "out_dir": "docs/audits/pulse-sentence-law/batch46_medley_ref/cycle2/heimdall"
+}
