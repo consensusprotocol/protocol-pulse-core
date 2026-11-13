@@ -1,0 +1,217 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 436746ca..384ac133 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -845,6 +845,11 @@ def stage_render(run):
+     with open(os.path.join(run.dir, "render_16x9.log"), "w") as f:
+         f.write(cap16.text())
+     postflight_check(final9, tot9, "9x16", log_output=log9)
++    # ruling 29 (orchestrator '01:55'): the final mix measured and corrected to target BEFORE the gates (two-pass
++    # loudnorm on the 16:9, its exact audio muxed into the 9:16, both re-measured); G5 unchanged
++    import loudness
++    run.prov["loudness"] = loudness.correct_finals(final16, final9)
++    print(f"  loudness: {run.prov['loudness'].get('action')}")
+ 
+     # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence
+     with open(paths["cuts_json"]) as f:
+diff --git a/pipeline/loudness.py b/pipeline/loudness.py
+new file mode 100644
+index 00000000..44eba2a9
+--- /dev/null
++++ b/pipeline/loudness.py
+@@ -0,0 +1,87 @@
++#!/usr/bin/env python3
++"""pipeline/loudness.py: ruling 29 (orchestrator 2026-11-13 '01:55'): "G5 -15.2 LUFS against -14 +- 1: a render
++defect. The final mix must be measured and corrected to target before the gates (two-pass loudness on the final, then
++re-measure). The gate stays."
++
++correct_finals(final16, final9) runs after both renders, before the gates:
++1. pass 1: ffmpeg loudnorm measures the 16:9 final (input_i, input_tp, input_lra, input_thresh, target_offset);
++2. within TOL_LU of the target: nothing is rewritten;
++3. otherwise pass 2: loudnorm with the measured values and linear=true (a plain gain when the true-peak ceiling allows
++   it; ffmpeg reports "dynamic" when it does not, and that is recorded) on the 16:9 audio only. The video stream is
++   copied;
++4. the 9:16 final gets EXACTLY that corrected audio stream, muxed over its own copied video. Law 23: the vertical
++   carries the horizontal's mixed audio, identical by construction;
++5. both are re-measured. They replace the finals only when both re-measure within TOL_LU of the target. Otherwise the
++   rendered finals stay as they are and the reason is recorded: the gate decides on those.
++Returns the record for PROVENANCE ("loudness")."""
++import json
++import os
++import re
++import subprocess
++
++TARGET_I, TARGET_TP, TARGET_LRA = -14.0, -2.0, 11.0     # G5: ebur128 I = -14 +- 1, TP <= -2.0
++TOL_LU = 0.5                                            # tighter than the gate's +- 1: corrected near the target
++
++
++def measure(path):
++    """loudnorm's pass-1 measurement of `path` (ffmpeg's own JSON). Raises RuntimeError when it cannot be read."""
++    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", path, "-af",
++                        f"loudnorm=I={TARGET_I}:TP={TARGET_TP}:LRA={TARGET_LRA}:print_format=json", "-f", "null", "-"],
++                       capture_output=True, text=True, timeout=600)
++    m = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", r.stderr)
++    if r.returncode != 0 or not m:
++        raise RuntimeError(f"loudness not measurable for {path}: {r.stderr.strip()[-200:]}")
++    d = json.loads(m.group(0))
++    return {k: (d[k] if k == "normalization_type" else float(d[k])) for k in d}
++
++
++def _correct16(src, dst, m):
++    af = (f"loudnorm=I={TARGET_I}:TP={TARGET_TP}:LRA={TARGET_LRA}:measured_I={m['input_i']}:"
++          f"measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
++          f"offset={m['target_offset']}:linear=true:print_format=json")
++    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-y", "-i", src, "-map", "0:v:0", "-map", "0:a:0",
++                        "-c:v", "copy", "-af", af, "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
++                        "-movflags", "+faststart", dst], capture_output=True, text=True, timeout=900)
++    m2 = re.search(r"\{[^{}]*\"normalization_type\"[^{}]*\}", r.stderr)
++    if r.returncode != 0 or not os.path.exists(dst):
++        raise RuntimeError(f"pass 2 failed: {r.stderr.strip()[-200:]}")
++    return json.loads(m2.group(0)).get("normalization_type") if m2 else None
++
++
++def _mux9(video9, audio_from16, dst):
++    r = subprocess.run(["ffmpeg", "-hide_banner", "-v", "error", "-y", "-i", video9, "-i", audio_from16,
++                        "-map", "0:v:0", "-map", "1:a:0", "-c", "copy", "-movflags", "+faststart", dst],
++                       capture_output=True, text=True, timeout=600)
++    if r.returncode != 0 or not os.path.exists(dst):
++        raise RuntimeError(f"9:16 mux failed: {r.stderr.strip()[-200:]}")
++
++
++def correct_finals(final16, final9):
++    rec = {"target_i": TARGET_I, "target_tp": TARGET_TP, "tol_lu": TOL_LU}
++    before = measure(final16)
++    rec["before_16x9"] = before
++    if abs(before["input_i"] - TARGET_I) <= TOL_LU and before["input_tp"] <= TARGET_TP:
++        rec["action"] = "none: within tolerance"
++        return rec
++    t16, t9 = final16 + ".loud.mp4", final9 + ".loud.mp4"
++    try:
++        rec["normalization_type"] = _correct16(final16, t16, before)
++        _mux9(final9, t16, t9)
++        a16, a9 = measure(t16), measure(t9)
++        rec["after_16x9"], rec["after_9x16"] = a16, a9
++        bad = [f"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP" for n, a in (("16x9", a16), ("9x16", a9))
++               if abs(a["input_i"] - TARGET_I) > TOL_LU or a["input_tp"] > TARGET_TP]
++        if bad:
++            rec["action"] = f"kept the rendered finals: the corrected files re-measure off target ({'; '.join(bad)})"
++            return rec
++        os.replace(t16, final16)
++        os.replace(t9, final9)
++        rec["action"] = "corrected"
++        return rec
++    except RuntimeError as e:
++        rec["action"] = f"kept the rendered finals: {e}"
++        return rec
++    finally:
++        for t in (t16, t9):
++            if os.path.exists(t):
++                os.unlink(t)
+diff --git a/pipeline/test_loudness.py b/pipeline/test_loudness.py
+new file mode 100644
+index 00000000..c1247026
+--- /dev/null
++++ b/pipeline/test_loudness.py
+@@ -0,0 +1,102 @@
++#!/usr/bin/env python3
++"""Ruling 29 (orchestrator 2026-11-13 '01:55'): the finals' loudness corrected to -14 LUFS before the gates. On
++synthetic finals: a quiet pair is corrected (both within TOL_LU, TP <= -2.0), the video streams are untouched and the
++9:16 carries exactly the 16:9's corrected audio (Law 23); a pair within tolerance is never rewritten; a failing step or
++an off-target re-measure keeps the rendered finals as they were, with no temp file left."""
++import hashlib
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import loudness as LD  # noqa: E402
++
++
++def sha(p):
++    return hashlib.sha256(open(p, "rb").read()).hexdigest()
++
++
++def stream_md5(p, sel):
++    out = subprocess.run(["ffmpeg", "-v", "error", "-i", p, "-map", sel, "-c", "copy", "-f", "framemd5", "-"],
++                         capture_output=True, text=True).stdout
++    return hashlib.md5("\n".join(l.split(",")[-1] for l in out.splitlines() if l and not l.startswith("#")).encode()).hexdigest()
++
++
++def make_pair(d, volume):
++    f16, f9 = os.path.join(d, "segment.mp4"), os.path.join(d, "segment_vertical.mp4")
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=640x360:rate=24:duration=12",
++                    "-f", "lavfi", "-i", "anoisesrc=color=pink:duration=12:seed=7", "-af", f"volume={volume}",
++                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
++                    "-shortest", f16], check=True)
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "testsrc=size=360x640:rate=24:duration=12",
++                    "-i", f16, "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "copy",
++                    "-shortest", f9], check=True)
++    return f16, f9
++
++
++class TestLoudness(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.mkdtemp(prefix="loud_")
++        self.addCleanup(shutil.rmtree, self.d)
++
++    def test_a_quiet_pair_is_corrected_video_untouched_and_the_vertical_gets_the_same_audio(self):
++        f16, f9 = make_pair(self.d, 0.03)
++        before = LD.measure(f16)["input_i"]
++        self.assertLess(before, -20.0)
++        v16, v9 = stream_md5(f16, "0:v"), stream_md5(f9, "0:v")
++        rec = LD.correct_finals(f16, f9)
++        self.assertEqual(rec["action"], "corrected", rec)
++        for p in (f16, f9):
++            m = LD.measure(p)
++            self.assertLessEqual(abs(m["input_i"] - LD.TARGET_I), LD.TOL_LU, m)
++            self.assertLessEqual(m["input_tp"], LD.TARGET_TP, m)
++        self.assertEqual((stream_md5(f16, "0:v"), stream_md5(f9, "0:v")), (v16, v9))      # pictures untouched
++        self.assertEqual(stream_md5(f16, "0:a"), stream_md5(f9, "0:a"))                     # Law 23: one audio
++        self.assertEqual([n for n in os.listdir(self.d) if n.endswith(".loud.mp4")], [])
++
++    def test_a_pair_within_tolerance_is_never_rewritten(self):
++        f16, f9 = make_pair(self.d, 0.03)
++        LD.correct_finals(f16, f9)                                     # now at the target
++        s16, s9 = sha(f16), sha(f9)
++        rec = LD.correct_finals(f16, f9)
++        self.assertEqual(rec["action"], "none: within tolerance")
++        self.assertEqual((sha(f16), sha(f9)), (s16, s9))
++
++    def test_a_failing_step_keeps_the_rendered_finals(self):
++        f16, f9 = make_pair(self.d, 0.03)
++        s16, s9 = sha(f16), sha(f9)
++        with mock.patch.object(LD, "_mux9", side_effect=RuntimeError("9:16 mux failed: disk full")):
++            rec = LD.correct_finals(f16, f9)
++        self.assertTrue(rec["action"].startswith("kept the rendered finals: 9:16 mux failed"), rec)
++        self.assertEqual((sha(f16), sha(f9)), (s16, s9))
++        self.assertEqual([n for n in os.listdir(self.d) if n.endswith(".loud.mp4")], [])
++
++    def test_an_off_target_re_measure_keeps_the_rendered_finals(self):
++        f16, f9 = make_pair(self.d, 0.03)
++        s16, s9 = sha(f16), sha(f9)
++        real = LD.measure
++        calls = []
++
++        def fake(p):
++            calls.append(p)
++            m = real(p)
++            return dict(m, input_i=-16.0) if p.endswith(".loud.mp4") else m
++        with mock.patch.object(LD, "measure", fake):
++            rec = LD.correct_finals(f16, f9)
++        self.assertIn("re-measure off target", rec["action"])
++        self.assertEqual((sha(f16), sha(f9)), (s16, s9))
++
++    def test_an_unmeasurable_file_raises(self):
++        bad = os.path.join(self.d, "x.mp4")
++        open(bad, "wb").write(b"not a video")
++        with self.assertRaises(RuntimeError):
++            LD.measure(bad)
++
++
++if __name__ == "__main__":
++    unittest.main()

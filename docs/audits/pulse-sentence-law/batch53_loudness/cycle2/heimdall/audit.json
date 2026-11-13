@@ -1,0 +1,138 @@
+{
+ "question": "Batch 53 cycle 2 (verification). Cycle 1: no consensus; single votes checked on pin #1's REAL finals (durations / frames / AV sync unchanged); a real defect found by that run and fixed (AAC overshoot: pass 2 aims TP -2.5; result -14.13 LUFS / -2.31 dBTP, dynamic); tests rewritten (see CONSENSUS.md).\n\nBatch 53 = RULING 29 (orchestrator 2026-11-13 '01:55'), verbatim: \"G5 -15.2 LUFS against -14 +- 1: a render defect. The final mix must be measured and corrected to target before the gates (two-pass loudness on the final, then re-measure). The gate stays.\"\nMeasured: pin #1's 16:9 final reads input_i -15.22 LUFS and input_tp -3.29 dBTP (loudnorm pass 1). G5 is ebur128 I = -14 +- 1 and TP <= -2.0. The 9:16 carries the 16:9's mixed audio, identical by construction (Law 23).\nNew pipeline/loudness.correct_finals(final16, final9), called at the end of run_fresh.stage_render after both postflight checks, before the gates:\n- pass 1: ffmpeg loudnorm print_format=json measures the 16:9.\n- Within TOL_LU = 0.5 of -14 with TP <= -2.0: nothing is rewritten.\n- Otherwise pass 2: loudnorm with the measured values, linear=true, on the 16:9 audio only (video stream copied; AAC 192k / 48 kHz / stereo). The normalization type ffmpeg reports is recorded.\n- The 9:16 gets exactly that corrected audio stream, muxed over its own copied video.\n- Both are re-measured. They replace the finals (os.replace) only when both are within TOL_LU and TP <= -2.0. Otherwise the rendered finals are kept and the reason recorded; temp files are always removed.\n- The record goes to PROVENANCE[\"loudness\"]. G5 is unchanged.\nTests (synthetic finals, 5):\n- a quiet pair is corrected: video streams untouched, the 9:16 audio identical to the 16:9's, both on target;\n- an in-tolerance pair is never rewritten;\n- a failing mux or an off-target re-measure keeps the finals byte-identical;\n- an unmeasurable file raises.\nFIND: anything still open; a corrected file that can fail G5; a replaced final that was not re-measured; the 9:16 audio differing; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 48.0,
+   "cost": 0.0032713215,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 22.5,
+   "cost": 0.000231012,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 22.5,
+   "cost": 0.0012463736,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 29.2,
+   "cost": 0.000267313,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/test_loudness.py",
+   "line": 82,
+   "issue": "test_the_correction_keeps_every_frame_count_and_duration crashes with ValueError: int(n) is called on the duration field (e.g. '12.000000'), which is not a valid integer literal. The test does not test what it claims; it fails before calling correct_finals.",
+   "evidence": "return {t: (int(n), float(d)) for t, d, n in (l.split(\",\") for l in out.split())}",
+   "fix": "Swap the conversion: use float(n) for duration and int(d) for nb_frames, i.e. {t: (int(d), float(n)) for t, d, n in ...}.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/loudness.py",
+   "line": 62,
+   "issue": "The 9:16's audio is not verified to be the 16:9's corrected audio before replacement; only its loudness is checked. A mux that silently substitutes/decays audio (e.g. wrong stream mapped, or a container/codec quirk) would still pass the TP/I check and be promoted, violating Law 23 while the record says 'corrected'.",
+   "evidence": "a9 = measure(t9); bad = [f\"{n} {a['input_i']} LUFS / {a['input_tp']} dBTP\" for n, a in ((\"16x9\", a16), (\"9x16\", a9)) if abs(a[\"input_i\"] - TARGET_I) > TOL_LU or a[\"input_tp\"] > TARGET_TP]; if bad: ... os.replace(t16, final16); os.replace(t9, final9)",
+   "fix": "Before os.replace, compare the two temp files' audio streams (e.g. framemd5 of 0:a, as the test does) and record/keep-on-mismatch.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/loudness.py",
+   "line": 79,
+   "issue": "os.replace can raise OSError (e.g. PermissionError, FileNotFoundError), which is not caught by 'except RuntimeError'. If the first os.replace succeeds and the second raises, final16 is replaced with the corrected file while final9 retains the original, leaving an inconsistent pair; the uncaught OSError also crashes the pipeline in run_fresh.stage_render.",
+   "evidence": "os.replace(t16, final16)\n        os.replace(t9, final9)",
+   "fix": "Catch OSError in addition to RuntimeError (e.g. 'except (RuntimeError, OSError) as e'), and if the first replace succeeds but the second fails, restore final16 from a backup or record the partial state explicitly.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/loudness.py",
+   "line": 44,
+   "issue": "Pass-2 success is gated only on returncode and dst existence; the normalization_type JSON is parsed unconditionally afterwards, so a pass 2 that succeeds but prints no JSON yields None silently (recorded, but the 'linear' guarantee of ruling 29 is not enforced \u2014 a dynamic normalization can change duration/frames, which the gates then see).",
+   "evidence": "m2 = re.search(r\"\\{[^{}]*\\\"normalization_type\\\"[^{}]*\\}\", r.stderr); ... return json.loads(m2.group(0)).get(\"normalization_type\") if m2 else None",
+   "fix": "When m2 is None or normalization_type != 'linear', either fail into the keep path or assert duration/frames unchanged before replacing.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/test_loudness.py",
+   "line": 100,
+   "issue": "The off-target re-measure test's fake() also rewrites input_i for the 16:9's pass-1 measurement if the final happened to be named '*.loud.mp4'; more importantly it does not assert the temp files were cleaned up (unlike the mux-failure test), so a leftover .loud.mp4 would go unnoticed.",
+   "evidence": "return dict(m, input_i=-16.0) if p.endswith(\".loud.mp4\") else m ... self.assertIn(\"re-measure off target\", rec[\"action\"]); self.assertEqual((sha(f16), sha(f9)), (s16, s9))",
+   "fix": "Add the same no-.loud.mp4-left assertion as test_a_failing_step_keeps_the_rendered_finals.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/loudness.py",
+   "line": 36,
+   "issue": "Pass-1 tolerance check uses before['input_tp'] <= TARGET_TP, but pass 2 targets TP-0.5 (CODEC_TP_MARGIN) and the re-measure gate compares against TARGET_TP; a final measuring exactly in tolerance (e.g. -14.3 LUFS / -1.9 dBTP) is left uncorrected with TP above the -2.0 gate... wait, -1.9 <= -2.0 is false, so it IS corrected \u2014 the real gap is the reverse: a final at -14.4/-2.0 passes pass 1, but the gate G5 allows TP <= -2.0 inclusive, so this is consistent. Actually the genuine miss: the 'none: within tolerance' path never re-measures the 9:16, so if the 9:16's copied audio differs (e.g. prior mux drift), it is promoted unchecked.",
+   "evidence": "if abs(before[\"input_i\"] - TARGET_I) <= TOL_LU and before[\"input_tp\"] <= TARGET_TP: rec[\"action\"] = \"none: within tolerance\"; return rec",
+   "fix": "Also measure the 9:16 (or at least record its measurement) on the no-rewrite path, since the ruling requires the final mix measured before the gates."
+  }
+ ],
+ "total_cost": 0.0050160201,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch53_loudness/cycle2/heimdall"
+}

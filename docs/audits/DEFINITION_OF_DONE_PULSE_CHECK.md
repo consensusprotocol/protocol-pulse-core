@@ -6,6 +6,32 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 02:21 ORDER '01:55' ITEM 1 REPORT (the fresh batch) + RULING 29 MERGED (fb9813d1).
+THE WORD-PASS WORKER, measured per cycle (data/editorial/moments/word_pass_cycles.jsonl):
+
+| Cycle | Started | Picked | Channels | Ready | Failed | Minutes | Peak GPU1 |
+|---|---|---|---|---|---|---|---|
+| 1, by score, 72 h | 01:45 | 40 | 13 | 33 | 0 | 10.31 | 4785 MiB |
+| 2, the FRESH set | 01:56 | 40 fresh | 6 | 37 | 0 | 4.45 | 4753 MiB |
+| 3 | 02:00 | 30 fresh + 10 older | - | 37 | 0 | 13.93 | 4785 MiB |
+
+Minutes per 40 moments: 4.5-14, set by how many distinct videos must be downloaded. The fresh set (7 videos) is the fastest. GPU1 returns to 503 MiB between batches.
+OF THE LAST 10 HOURS (the window moves with the clock; measured 02:21):
+- 94 raw ledger moments;
+- 74 pass the adapter's L-u / altcoin / speaker-change exclusions before any GPU time;
+- all 74 now have a window record, and 69 are SENTENCE-READY.
+The newest sentence-ready moment was published 2026-11-13T02:57:20Z: 4.4 h old. Cuttable is the builder's measure.
+THE BUILDER'S FRESH BUILD (02:08, on cycle 2's records): 32 moments on 6 videos; 11 usable; 5 cleared step A; 4 passed L-v 2 + CUTTABLE; 3 can open a medley (G17a, >= 90 ms of genuine lead). The best one-per-channel line-up is 32.6 s, under the medley's 36.7 s content floor, so NO PIN yet; nothing paid past the angles. Re-run asked at 02:21 on the complete fresh set.
+RULING 29 DONE AND MERGED: pipeline/loudness.correct_finals runs after both renders, before the gates.
+- loudnorm pass 1 on the 16:9. Within 0.5 LU and TP <= -2.0: untouched.
+- Otherwise pass 2 with the measured values, aiming TP 0.5 dB under the gate, because the AAC encode overshoots: on pin #1 a linear +1.21 dB re-measured -1.64 dBTP. Audio only; the video is copied.
+- The 9:16 gets exactly that audio (Law 23, verified by audio md5).
+- Both are re-measured, then both replaced or neither.
+On pin #1's real finals: -15.22 -> -14.13 LUFS, -2.31 dBTP (ebur128, G5's own measure: I -14.1, peak -2.3); every frame count and duration unchanged; AV sync unchanged (-21.3 ms before and after). G5 is unchanged.
+ROOT CAUSE: render16 normalizes to -14 LUFS / -2.0 dBTP and THEN limits at -3.0 dBFS (-3.5 for machine cuts), which pulls the integrated loudness down after the measurement. The correction lives in run_fresh, because render16 is also the frozen v2f path (Law 22). The protected references measure -14.53 to -14.98 LUFS, inside G5; their fixtures reproduce decisions, not audio, and are unaffected (regression step 8 REPRODUCED). Tests: test_loudness 8. Audits batch 53 x2: one consensus finding implemented, the other rejected with measured evidence.
+RULING 30: the six fresh videos probed are all BT.709 (tv), so the G9 color mechanism cannot reach a fresh medley. The BT.601 -> BT.709 conversion is built next, for pin #1's re-render, with its hook as the fixture.
+RULINGS 28 / 31 (pin #1's re-render), the builder: their pin-stage G17a check now uses the acoustic onset (sealed, required, >= 90 ms). Pin #1's hook measures 20 ms and fails. Ruling 31's answer is in the 01:55 entry: lock the words as spoken.
+
 ## 01:55 ORDER '01:55' (PBX: "are we using heimdall for a brand new batch of clips? top moments in the last 10 hrs?"): THE G8 SPREAD FIRST, then the fresh batch.
 RULING 25, MEASURED (scratchpad g8_spread.json). The medley's prepared clip_01 was reframed to 9:16 five times by the production render_vertical.reframe_auto (NVENC), and each output went through the production final encode (apply_watermark_alpha_vert). G8's own measure was taken twice on every file. Results:
 - every reframe is byte-identical (sha 4da296d1...), and so is every final (a7c0bfdd...);
