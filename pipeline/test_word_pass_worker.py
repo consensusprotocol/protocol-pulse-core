@@ -20,7 +20,7 @@ import datetime as _dt                                                   # a fix
 NOW = _dt.datetime(2026, 11, 13, 6, 0, tzinfo=_dt.timezone.utc)
 
 
-def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-10T10:00:00+00:00"):   # > 24 h before NOW: "older"
+def row(i, ch, vid=None, start=100.0, end=112.0, pub="2026-11-13T03:00:00+00:00"):   # 3 h before NOW: the 6 h tier
     return {"moment_id": f"m{i:03d}", "video_id": vid or f"v{ch}", "channel_id": f"UC{ch}", "start": start, "end": end,
             "published_at": pub}
 
@@ -39,22 +39,28 @@ class TestPickAndWindow(unittest.TestCase):
         self.assertEqual(picks[0]["moment_id"], "m000")                       # rank order kept
 
     def test_five_channels_of_ten_give_thirty_five_and_a_sixth_channel_fills_in(self):   # audit batch 51 C1
+        # ruling 77.4: every row is in a 6 h / 12 h tier, filled capped (7 a channel) and then by the tier's uncapped rest
         five = [row(i, i // 10) for i in range(50)]                            # ranked: ch0 x10, ch1 x10, ... ch4 x10
         picks, nch = W.pick(five, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
-        self.assertEqual((len(picks), nch), (35, 5))                           # the ledger allows no more channels
+        ids = [r["moment_id"] for r in picks]
+        self.assertEqual((len(picks), nch), (40, 5))                           # 35 capped, then 5 of the rest
+        self.assertEqual(ids[35:], ["m007", "m008", "m009", "m017", "m018"])
         six = five + [row(100 + i, 9) for i in range(3)]                       # three lower-ranked rows of a 6th
         picks, nch = W.pick(six, set(), full=lambda v: False, per_cycle=40, per_channel=7, now=NOW)
-        self.assertEqual((len(picks), nch), (38, 6))
-        self.assertEqual([r["moment_id"] for r in picks][-3:], ["m100", "m101", "m102"])
+        ids = [r["moment_id"] for r in picks]
+        self.assertEqual((len(picks), nch), (40, 6))
+        self.assertEqual(ids[35:38], ["m100", "m101", "m102"])                 # the 6th channel before any uncapped row
 
-    def test_order_0155_the_last_ten_hours_come_first_by_score_then_the_rest(self):
+    def test_ruling_77_4_the_last_six_hours_first_then_six_to_twelve_nothing_older(self):
         import datetime as dt
         now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
         old = [row(i, i, pub="2026-11-12T10:00:00+00:00") for i in range(10)]                # ranked first, 20 h old
         fresh = [row(100 + i, 50 + i, pub="2026-11-13T01:00:00+00:00") for i in range(3)]    # ranked last, 5 h old
-        edge = [row(200, 70, pub="2026-11-12T20:00:00+00:00"), row(201, 71, pub="2026-11-12T19:59:59+00:00")]
-        picks, _ = W.pick(old + fresh + edge, set(), full=lambda v: False, per_cycle=5, now=now)
-        self.assertEqual([r["moment_id"] for r in picks], ["m100", "m101", "m102", "m200", "m000"])  # 10 h is inclusive
+        edge = [row(200, 70, pub="2026-11-13T00:00:00+00:00"), row(201, 71, pub="2026-11-12T23:59:59+00:00"),
+                row(202, 72, pub="2026-11-12T18:00:00+00:00"), row(203, 73, pub="2026-11-12T17:59:59+00:00")]
+        picks, _ = W.pick(old + fresh + edge, set(), full=lambda v: False, per_cycle=20, now=now)
+        self.assertEqual([r["moment_id"] for r in picks],                                 # 6 h and 12 h are inclusive
+                         ["m100", "m101", "m102", "m200", "m201", "m202"])               # 12 h + 1 s and 20 h: never
         self.assertFalse(W.is_fresh(row(1, 1, pub="2026-11-13T07:00:00+00:00"), now))        # a future time is not fresh
         self.assertFalse(W.is_fresh(row(1, 1, pub="2026-11-13T01:00:00"), now))              # no offset: not measured
         self.assertTrue(W.is_fresh(row(1, 1, pub="2026-11-13T01:00:00Z"), now))              # 'Z' as the ledger reads it
@@ -64,25 +70,27 @@ class TestPickAndWindow(unittest.TestCase):
         import datetime as dt
         now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
         fresh = [row(i, 1, pub="2026-11-13T02:00:00+00:00") for i in range(10)]            # one channel, 10 fresh
-        older = [row(100 + i, 2 + i, pub="2026-11-12T08:00:00+00:00") for i in range(10)]   # ranked above them
+        older = [row(100 + i, 2 + i, pub="2026-11-12T22:00:00+00:00") for i in range(10)]   # 8 h old, ranked above
         picks, _ = W.pick(older + fresh, set(), full=lambda v: False, per_cycle=12, now=now)
         ids = [r["moment_id"] for r in picks]
         self.assertEqual(ids[:10], [f"m{i:03d}" for i in range(10)])          # 7 capped, then the other 3 fresh
-        self.assertEqual(ids[10:], ["m100", "m101"])                            # only then older rows
+        self.assertEqual(ids[10:], ["m100", "m101"])                            # only then the 6-12 h rows
 
-    def test_order_0246_last_10_h_then_last_24_h_then_older(self):
+    def test_ruling_77_4_six_hours_then_six_to_twelve_and_never_a_day_old(self):
         import datetime as dt
         now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
         older = [row(i, 10 + i, pub="2026-11-11T06:00:00+00:00") for i in range(3)]      # 48 h old, ranked first
         day = [row(100 + i, 20 + i, pub="2026-11-12T12:00:00+00:00") for i in range(3)]   # 18 h old
-        ten = [row(200 + i, 30 + i, pub="2026-11-13T02:00:00+00:00") for i in range(3)]   # 4 h old, ranked last
-        picks, _ = W.pick(older + day + ten, set(), full=lambda v: False, per_cycle=8, now=now)
+        twelve = [row(300 + i, 40 + i, pub="2026-11-12T21:00:00+00:00") for i in range(3)]  # 9 h old
+        six = [row(200 + i, 30 + i, pub="2026-11-13T02:00:00+00:00") for i in range(3)]   # 4 h old, ranked last
+        picks, _ = W.pick(older + day + twelve + six, set(), full=lambda v: False, per_cycle=12, now=now)
         self.assertEqual([r["moment_id"] for r in picks],
-                         ["m200", "m201", "m202", "m100", "m101", "m102", "m000", "m001"])
+                         ["m200", "m201", "m202", "m300", "m301", "m302"])               # nothing over 12 h
+        self.assertEqual((W.FRESH_H, W.DAY_H, W.HORIZON_H), (6, 12, 12))
 
     def test_passed_moments_and_videos_with_a_full_record_are_skipped(self):
         rows = [row(1, 1), row(2, 2), row(3, 3, vid="vfull")]
-        picks, _ = W.pick(rows, {"m001"}, full=lambda v: v == "vfull")
+        picks, _ = W.pick(rows, {"m001"}, full=lambda v: v == "vfull", now=NOW)
         self.assertEqual([r["moment_id"] for r in picks], ["m002"])
 
     def test_the_window_pads_45_s_and_stays_inside_the_video(self):
@@ -144,6 +152,9 @@ class TestCycle(unittest.TestCase):
         meta = dict(TestRecord.META, duration=400)
         self.rows = [row(1, 1, vid="vA", start=100.0, end=110.0), row(2, 2, vid="vB", start=200.0, end=220.0),
                      row(3, 3, vid="vB", start=300.0, end=310.0)]
+        stamp = (_dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(hours=1)).isoformat()   # W.cycle() runs on the
+        for r in self.rows:                                                   # wall clock: an hour old is the 6 h tier
+            r["published_at"] = stamp
 
         def fake_audio(vid):
             p = os.path.join(self.store, f"{vid}.wav")

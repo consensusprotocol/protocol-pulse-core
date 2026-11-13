@@ -53,8 +53,10 @@ INGEST_ROOT = os.environ.get("PP_INGEST_ROOT", "/home/ultron/worktrees/pp-ingest
 STORE = ts.STORE_DIR
 ROWS_FILE = os.path.join(STORE, "moments", "word_pass.jsonl")
 CYCLES_FILE = os.path.join(STORE, "moments", "word_pass_cycles.jsonl")
-PER_CYCLE, MIN_CHANNELS, PAD_S, BATCH, HORIZON_H = 120, 6, 45.0, 16, 72   # order '02:46': bigger cycles
-FRESH_H, DAY_H = 10, 24   # orchestrators '01:55' / '02:46': the last 10 h first, then the last 24 h, then older
+PER_CYCLE, MIN_CHANNELS, PAD_S, BATCH, HORIZON_H = 120, 6, 45.0, 16, 12   # order '02:46': bigger cycles; ruling 77.4:
+#                                                                          the ledger is read 12 h back, nothing older
+FRESH_H, DAY_H = 6, 12    # RULING 77.4 (orchestrator 2026-11-13 '18:40'): the last 6 h first, then 6-12 h, NOTHING older
+#                           (was 10 h, 24 h, then older: a clip is usable only within 12 h of the render clock, 76 / 77)
 FETCH_WORKERS = 4         # order '02:46': audio fetched in parallel, ahead of the GPU step
 PER_CHANNEL = math.ceil(PER_CYCLE / MIN_CHANNELS)
 OWNER = "word-pass worker (integrator, GPU1)"
@@ -153,11 +155,9 @@ def is_fresh(row, now, hours=FRESH_H):
 
 def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL, now=None):
     """The rows to work, up to per_cycle, never one that is done or whose video has a full record. Orders '01:55' /
-    '02:46': the last FRESH_H hours, then the last DAY_H hours, then older. Each tier is filled in the adapter's own
-    rank order (score):
-    - for the 10 h and 24 h tiers, first at most per_channel per channel, then the rest of the tier uncapped, so a
-      capped channel's newer rows still come before any older row;
-    - older rows are capped, the per-channel counts carrying on."""
+    '02:46', ruling 77.4 ('18:40'): the last FRESH_H (6) hours, then FRESH_H-DAY_H (6-12) hours, and NOTHING older.
+    Each tier is filled in the adapter's own rank order (score): first at most per_channel per channel, then the rest of
+    the tier uncapped, so a capped channel's newer rows still come before any row of the next tier."""
     now = now or dt.datetime.now(dt.timezone.utc)
     full, out, per, full_cache, taken = full or has_full_record, [], {}, {}, set()
 
@@ -180,10 +180,9 @@ def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL, no
     t24 = [r for r in rows if not is_fresh(r, now, FRESH_H) and is_fresh(r, now, DAY_H)]
     take(t10, True)
     take(t10, False)
-    take(t24, True)                                   # order '02:46': then the last 24 h, the same two passes
+    take(t24, True)                                   # then 6-12 h, the same two passes (ruling 77.4)
     take(t24, False)
-    take([r for r in rows if not is_fresh(r, now, DAY_H)], True)
-    return out, len(per)
+    return out, len(per)                              # ruling 77.4: a row older than DAY_H (12 h) is never worked
 
 def window(row, duration=None):
     w0 = max(0.0, float(row["start"]) - PAD_S)
