@@ -1,4 +1,24 @@
-BLOCKED ON SPEND (since 06:31 ET; 06:56 ET now): every build fails step A with SpendLimit on the builder's own cap ($40 by the price-table estimate = $3.46 vendor-reported). YOUR RULING: a running total (section below). COMMITTED and ready for the next build: 45 + 44 (audit 0640) and item 42's cut fix (audit 0710), both audited 2 cycles. Item 42 still needs your yes/no from 05:44: may a trimmed clip be sealed with the clip scorer's verdict pending at the render? Until then no trimmed clip can be sealed.
+SPEND (ruling 48): $5.26 of $12.00 vendor-reported (+ the estimate where a vendor reports none; stop at $10), 07:10 ET. NOT BLOCKED ANY MORE: your rulings 48 and 49 are being built and audited, and the next build starts the moment 48's guard is committed. 13 -> 4 at 07:02 was the OLD $40 estimate cap, not cached verdicts.
+
+## 07:10 ET: what dropped step A from 13 to 4 (your 07:12 question): the OLD cap, nothing cached
+
+- **The 07:02 build was not under ruling 48.** It was the old chain's automatic build on the committed code
+  (8355bbd5), whose guard was still the $40 price-table cap. Ruling 48's guard was written and in audit (0707), not
+  committed. I have stopped that chain, so no build runs on the old cap again.
+- **Measured on its record (ledger_20261113_120240):**
+  - 16 of the 24 screened moments: "STEP_A_UNAVAILABLE: SpendLimit". The reservation was refused before any call was
+    made, which is why step A took seconds.
+  - The other 8 were real verdicts (4 cleared, 4 REFERENT_OUTSIDE), from one batch whose identical prompt the reply
+    cache served.
+- **Nothing was cached as a verdict, so there was nothing to purge.**
+  - The record's step_a.json holds exactly those 8 verdicts.
+  - No file in the reply cache carries a failure.
+  - The code stores answers only. providers.Router.call records a reply only after a back-end returned non-empty text.
+    prescreen stores only parsed verdicts (`db[...] = a` for `got`), and an exception lands only in that build's
+    `fails`.
+- **The same 13 -> 4 at 06:31, 06:41 and 06:47:** also 16 SpendLimit each. In addition, the 24 h window moved (176 -> 173
+  usable, 115 -> 113 left out), as its oldest rows aged out.
+
 
 
 ## 06:25 ET: order 06:22: the answers owed (42, 43, 46) and the plan for 45 / 44
