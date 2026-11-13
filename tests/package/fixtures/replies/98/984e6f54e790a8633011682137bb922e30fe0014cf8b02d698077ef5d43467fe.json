@@ -1,0 +1,548 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "b5042243a78515cb9e1937ded2c58161f72a26785d6e3adbb4e01ef7dab8ed2f",
+ "result": {
+  "text": "sessions. Click the link in the description down below or scan the QR code on the screen. The number of people that I talk to that haven't taken Bitcoin off the exchange is honestly quite frightening, and those that do, a lot of them buy one device, get it set up, and never look at it again. Their security ends up becoming a snapshot of whatever the hell they knew that day. Bitcoin is not a set it and forget it asset. HODLing is an act of",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.22,
+    "end": 18.06,
+    "text": "sessions. Click the link in the description down below or scan the QR code on the screen. The number of people that I talk to that haven't taken Bitcoin off the exchange is honestly quite frightening, and those that do, a lot of them buy one device, get it set up, and never look at it again. Their security ends up becoming a snapshot of whatever the hell they knew that day. Bitcoin is not a set it and forget it asset. HODLing is an act of"
+   }
+  ],
+  "words": [
+   {
+    "text": "sessions.",
+    "start": 0.22,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Click",
+    "start": 0.88,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.04,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "link",
+    "start": 1.14,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.28,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.36,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "description",
+    "start": 1.42,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 1.8,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 1.96,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 2.22,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scan",
+    "start": 2.32,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.48,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "QR",
+    "start": 2.64,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 2.8,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 3.08,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.2,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "screen.",
+    "start": 3.28,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 4.3,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 4.4,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.62,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.68,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.84,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.98,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talk",
+    "start": 5.06,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.24,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.36,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "haven't",
+    "start": 5.54,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taken",
+    "start": 5.86,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.1,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "off",
+    "start": 6.36,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.46,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exchange",
+    "start": 6.52,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.84,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honestly",
+    "start": 7.02,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quite",
+    "start": 7.38,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "frightening,",
+    "start": 7.64,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.98,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 8.08,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.34,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do,",
+    "start": 8.58,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.78,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.94,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 9.0,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 9.1,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 9.28,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "device,",
+    "start": 9.4,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 9.72,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.84,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "set",
+    "start": 9.94,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up,",
+    "start": 10.08,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.22,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 10.36,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 10.64,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 10.86,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.96,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again.",
+    "start": 11.06,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Their",
+    "start": 11.58,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "security",
+    "start": 11.7,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ends",
+    "start": 12.02,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 12.14,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "becoming",
+    "start": 12.18,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.48,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "snapshot",
+    "start": 12.62,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.02,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whatever",
+    "start": 13.08,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.3,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hell",
+    "start": 13.38,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 13.5,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knew",
+    "start": 13.66,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 13.94,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day.",
+    "start": 14.14,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.78,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 15.1,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 15.2,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.42,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "set",
+    "start": 15.58,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 15.74,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 15.82,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forget",
+    "start": 15.94,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.219,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset.",
+    "start": 16.5,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "HODLing",
+    "start": 16.9,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 17.26,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 17.36,
+    "end": 17.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "act",
+    "start": 17.68,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.88,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.22
+ },
+ "usd": 0.003644,
+ "seconds": 1.03,
+ "recorded_at": "2026-11-13T08:41:38Z"
+}

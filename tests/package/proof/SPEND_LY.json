@@ -1,47 +1,47 @@
 {
- "usd_estimate": 31.739922,
- "calls": 315,
+ "usd_estimate": 33.936852,
+ "calls": 357,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 194,
-   "in": 402106,
-   "out": 917512,
-   "usd_estimate": 24.94833,
+   "calls": 203,
+   "in": 432249,
+   "out": 968539,
+   "usd_estimate": 26.37472,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 2.7552861,
-   "reported_calls": 194
+   "usd_reported": 2.91932275,
+   "reported_calls": 203
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 55,
-   "in": 59792,
-   "out": 367712,
-   "usd_estimate": 5.945658,
+   "calls": 59,
+   "in": 62713,
+   "out": 379103,
+   "usd_estimate": 6.377721,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.0715599,
-   "reported_calls": 54
+   "usd_reported": 0.07385199,
+   "reported_calls": 57
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 63,
+   "calls": 91,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.181698,
+   "usd_estimate": 0.26774,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 908.49
+   "audio_s": 1338.7
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 3,
+   "calls": 4,
    "in": 3442,
    "out": 43594,
-   "usd_estimate": 0.664236,
+   "usd_estimate": 0.916671,
    "price_usd_per_1m": [
     3,
     15
@@ -52,24 +52,24 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 62,
-   "usd_estimate": 13.142185
+   "calls": 66,
+   "usd_estimate": 14.04965
   },
   "angle_write": {
-   "calls": 58,
-   "usd_estimate": 6.609894
+   "calls": 64,
+   "usd_estimate": 7.659502
   },
   "coherence_verdict": {
-   "calls": 44,
-   "usd_estimate": 2.981235
+   "calls": 45,
+   "usd_estimate": 3.05115
   },
   "exclusion_verdict": {
-   "calls": 23,
-   "usd_estimate": 0.510135
+   "calls": 26,
+   "usd_estimate": 0.594035
   },
   "transcribe": {
-   "calls": 63,
-   "usd_estimate": 0.181698
+   "calls": 91,
+   "usd_estimate": 0.26774
   },
   "viewer_takeaway": {
    "calls": 38,
@@ -85,6 +85,6 @@
   }
  },
  "reserved": {},
- "usd_reported": 2.85808857,
- "usd_unreported_estimate": 0.4323
+ "usd_reported": 3.02441731,
+ "usd_unreported_estimate": 1.023212
 }

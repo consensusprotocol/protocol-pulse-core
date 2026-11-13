@@ -1,0 +1,320 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "667720213fd246a77bfd34d9f221cbc0ac72449b3499da916acec51983f34d7a",
+ "result": {
+  "text": "needs to be in your house. Nobody tells anybody to put a, you know, duffle bag with all their gold or all their cash in their mattress, but for some reason everyone said you gotta put all this Bitcoin in your house on you. And then the alternative is-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 9.62,
+    "text": "needs to be in your house. Nobody tells anybody to put a, you know, duffle bag with all their gold or all their cash in their mattress, but for some reason everyone said you gotta put all this Bitcoin in your house on you. And then the alternative is-"
+   }
+  ],
+  "words": [
+   {
+    "text": "needs",
+    "start": 0.06,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.1,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.22,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.6,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 0.7,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "house.",
+    "start": 0.86,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nobody",
+    "start": 1.48,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tells",
+    "start": 1.72,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anybody",
+    "start": 1.88,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.1,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 2.18,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 2.38,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.68,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.74,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "duffle",
+    "start": 2.98,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bag",
+    "start": 3.22,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 3.38,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 3.52,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 3.62,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 3.78,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 4.08,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 4.18,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 4.28,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cash",
+    "start": 4.44,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.7,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 4.78,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mattress,",
+    "start": 4.92,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 5.24,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.36,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 5.5,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 5.68,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 5.92,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 6.22,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.34,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gotta",
+    "start": 6.4,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 6.56,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 6.68,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 6.78,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.94,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 7.38,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "house",
+    "start": 7.5,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 7.84,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you.",
+    "start": 8.08,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.78,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 8.88,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.0,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "alternative",
+    "start": 9.12,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is-",
+    "start": 9.56,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.7
+ },
+ "usd": 0.00194,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-13T08:25:29Z"
+}

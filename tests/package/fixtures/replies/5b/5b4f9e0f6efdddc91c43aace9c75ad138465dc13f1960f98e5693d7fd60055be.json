@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e242548c95b9ac5ef0370e6fe9bc2a46f3db1f849c91466e9cd42108fb093534",
+ "result": {
+  "text": "The Blake2b chain. Bitcoin on the Blake2b chain is incredible. And I say that not to pump it. Don't buy any if you don't wanna buy any. But it's, it's im-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 10.24,
+    "text": "The Blake2b chain. Bitcoin on the Blake2b chain is incredible. And I say that not to pump it. Don't buy any if you don't wanna buy any. But it's, it's im-"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.04,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Blake2b",
+    "start": 0.28,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chain.",
+    "start": 0.92,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.54,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 1.86,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.94,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Blake2b",
+    "start": 2.04,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chain",
+    "start": 2.6,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.9,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incredible.",
+    "start": 3.12,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 4.74,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.58,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 5.7,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.9,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 6.16,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.4,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pump",
+    "start": 6.54,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 6.8,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Don't",
+    "start": 7.04,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 7.32,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 7.52,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 7.76,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.88,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 7.98,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 8.16,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 8.38,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any.",
+    "start": 8.58,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 9.28,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's,",
+    "start": 9.52,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 9.96,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "im-",
+    "start": 10.2,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.26
+ },
+ "usd": 0.002052,
+ "seconds": 0.66,
+ "recorded_at": "2026-11-13T08:25:16Z"
+}

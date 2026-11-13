@@ -1,0 +1,356 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0671890890b204fc176712993c4d0aa51f49cbea6f5ec19aa4fac6f2dfdebfc9",
+ "result": {
+  "text": "My biggest fear, like of all, no second biggest. My biggest fear is that I go to the bank and I punch in my code and the money's not there, 'cause the bank owns the money and they could just take it from me. And that's why, that's why we Bitcoin. My second biggest fear",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.84,
+    "end": 14.24,
+    "text": "My biggest fear, like of all, no second biggest. My biggest fear is that I go to the bank and I punch in my code and the money's not there, 'cause the bank owns the money and they could just take it from me. And that's why, that's why we Bitcoin. My second biggest fear"
+   }
+  ],
+  "words": [
+   {
+    "text": "My",
+    "start": 0.84,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 1.22,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fear,",
+    "start": 1.68,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 2.12,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.28,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all,",
+    "start": 2.64,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 3.28,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "second",
+    "start": 3.5,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest.",
+    "start": 3.72,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "My",
+    "start": 4.04,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 4.2,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fear",
+    "start": 4.52,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.24,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.36,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.5,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 5.6,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.72,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.8,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bank",
+    "start": 5.9,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.32,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.4,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "punch",
+    "start": 6.52,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.7,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 6.76,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 6.94,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.2,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.3,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money's",
+    "start": 7.38,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 7.66,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there,",
+    "start": 7.8,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "'cause",
+    "start": 7.94,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.18,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bank",
+    "start": 8.4,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owns",
+    "start": 8.76,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.02,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 9.12,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.42,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 9.6,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 9.74,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 9.9,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 10.06,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.24,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 10.36,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me.",
+    "start": 10.52,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 11.16,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 11.24,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why,",
+    "start": 11.38,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 11.96,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 12.12,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 12.32,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.44,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "My",
+    "start": 13.38,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "second",
+    "start": 13.56,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 13.84,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fear",
+    "start": 14.14,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.26
+ },
+ "usd": 0.002852,
+ "seconds": 0.85,
+ "recorded_at": "2026-11-13T08:41:36Z"
+}

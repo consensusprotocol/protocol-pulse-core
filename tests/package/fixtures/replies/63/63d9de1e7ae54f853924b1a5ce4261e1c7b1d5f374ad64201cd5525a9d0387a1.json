@@ -1,0 +1,524 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "43dbc3f6be122cac53757deea9149ae3c2126d816230f94cedbb9b2a1a73a9d4",
+ "result": {
+  "text": "It's a mix for sure. But I think you have two different cultures. Like, you know, I've run a Bitcoin meetup for, for 10 years now, and I've interacted with thousands of Bitcoiners, as I'm sure you have, Giacomo. And I would say, like, the vast majority of Bitcoiners do not wanna update their node. You know? It, it, it... Like, their balls are in their stomach when they have to update their node. Yep. They never want to do that.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.4,
+    "end": 23.54,
+    "text": "It's a mix for sure. But I think you have two different cultures. Like, you know, I've run a Bitcoin meetup for, for 10 years now, and I've interacted with thousands of Bitcoiners, as I'm sure you have, Giacomo. And I would say, like, the vast majority of Bitcoiners do not wanna update their node. You know? It, it, it... Like, their balls are in their stomach when they have to update their node."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 23.54,
+    "end": 23.54,
+    "text": "Yep."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 23.56,
+    "end": 24.7,
+    "text": "They never want to do that."
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.4,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.56,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mix",
+    "start": 0.64,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 0.92,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sure.",
+    "start": 1.12,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 2.06,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.24,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.32,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.5,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.6,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 2.8,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "different",
+    "start": 2.92,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cultures.",
+    "start": 3.24,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 3.84,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.1,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.18,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 4.44,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "run",
+    "start": 4.6,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.76,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.84,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meetup",
+    "start": 5.2,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for,",
+    "start": 5.52,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.94,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10",
+    "start": 6.12,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 6.38,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 6.68,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.04,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 7.42,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interacted",
+    "start": 8.02,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.6,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thousands",
+    "start": 8.8,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.38,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners,",
+    "start": 9.64,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 10.22,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 10.34,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sure",
+    "start": 10.5,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.72,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have,",
+    "start": 10.88,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Giacomo.",
+    "start": 11.26,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 11.94,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.14,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 12.2,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 12.44,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 12.72,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.7,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vast",
+    "start": 14.02,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "majority",
+    "start": 14.44,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.18,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners",
+    "start": 15.32,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 16.02,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 16.219,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 16.44,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "update",
+    "start": 16.72,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 17.06,
+    "end": 17.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "node.",
+    "start": 17.24,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 18.62,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know?",
+    "start": 18.7,
+    "end": 18.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It,",
+    "start": 18.9,
+    "end": 18.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 19.08,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it...",
+    "start": 19.38,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 19.6,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 19.98,
+    "end": 20.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "balls",
+    "start": 20.22,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 20.62,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.78,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 20.92,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stomach",
+    "start": 21.18,
+    "end": 21.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 21.7,
+    "end": 21.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 22.02,
+    "end": 22.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 22.2,
+    "end": 22.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 22.42,
+    "end": 22.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "update",
+    "start": 22.64,
+    "end": 23.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 23.14,
+    "end": 23.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "node.",
+    "start": 23.3,
+    "end": 23.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yep.",
+    "start": 23.54,
+    "end": 23.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "They",
+    "start": 23.56,
+    "end": 23.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 23.74,
+    "end": 24.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 24.04,
+    "end": 24.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 24.22,
+    "end": 24.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 24.36,
+    "end": 24.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 24.54,
+    "end": 24.7,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.96
+ },
+ "usd": 0.004992,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-13T08:41:14Z"
+}

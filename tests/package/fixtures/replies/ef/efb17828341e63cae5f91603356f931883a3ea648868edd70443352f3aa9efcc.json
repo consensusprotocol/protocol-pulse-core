@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f9fe35008fea6648570670783ea29f33a966d55ff3833ebb4dc0d2795f110d7d",
+ "result": {
+  "text": "And it also unfortunately includes treasury companies, right? I think treasury companies will also bleed to Bitcoin. I mean, basically everything in the industry eventually bleeds to Bitcoin. That's the reality. And, and I think-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.4,
+    "text": "And it also unfortunately includes treasury companies, right? I think treasury companies will also bleed to Bitcoin. I mean, basically everything in the industry eventually bleeds to Bitcoin. That's the reality. And, and I think-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.26,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 0.4,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unfortunately",
+    "start": 1.6,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "includes",
+    "start": 2.52,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "treasury",
+    "start": 3.02,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies,",
+    "start": 3.34,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.8,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.0,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "treasury",
+    "start": 4.16,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 4.5,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 4.84,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 5.08,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bleed",
+    "start": 5.46,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.14,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 6.22,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.6,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 6.66,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 6.82,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything",
+    "start": 7.94,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.4,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.48,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry",
+    "start": 8.6,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eventually",
+    "start": 10.0,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bleeds",
+    "start": 10.36,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.56,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.66,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 11.14,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.36,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reality.",
+    "start": 11.46,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 12.02,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.22,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.32,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think-",
+    "start": 12.36,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.43
+ },
+ "usd": 0.002486,
+ "seconds": 0.79,
+ "recorded_at": "2026-11-13T08:41:26Z"
+}

@@ -1,0 +1,194 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "76f533644e7c1ebd4526552243018bde05cd32aadbf15e6b6186ce6fbd3cf5b8",
+ "result": {
+  "text": "Actually being sold. The funds are selling Strategy's stock. The Bitcoin never changes hands. Nothing in MSCI's decision forces Strategy to sell its Bitcoin. So to be clear",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.68,
+    "text": "Actually being sold. The funds are selling Strategy's stock. The Bitcoin never changes hands. Nothing in MSCI's decision forces Strategy to sell its Bitcoin. So to be clear"
+   }
+  ],
+  "words": [
+   {
+    "text": "Actually",
+    "start": 0.0,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 0.3,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold.",
+    "start": 0.58,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funds",
+    "start": 1.62,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.12,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 2.32,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy's",
+    "start": 2.7,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock.",
+    "start": 3.6,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 4.52,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.64,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 5.44,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changes",
+    "start": 5.82,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hands.",
+    "start": 6.16,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nothing",
+    "start": 7.14,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.66,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSCI's",
+    "start": 7.9,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decision",
+    "start": 8.58,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forces",
+    "start": 9.18,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 9.6,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 10.34,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 10.62,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 10.82,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 11.86,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.36,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.5,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clear",
+    "start": 12.64,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.7
+ },
+ "usd": 0.00254,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-13T08:25:15Z"
+}

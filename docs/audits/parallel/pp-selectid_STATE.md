@@ -22,6 +22,30 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 03:49 ET: the 03:39 build, every effective ruling (A, 35, 38, 39, 32): no package; the bottleneck moved
+
+Record: tests/package/proof/ledger_20261113_083956 (code 2564f64e), with FUNNEL.md. Funnel:
+- 510 rows -> 262 moments (13 of them snapped by ruling 32) -> 76 usable;
+- 32 "But"-type openers left out (change A);
+- 24 screened at step A (PRESCREEN_N) -> 17 cleared -> **12 pass L-v 2 + CUTTABLE** (8 before 38/39; the 5 lost are 4
+  two-speaker L-v 2 fails and 1 yt-dlp fetch error, NOT MEASURED) -> 9 can open;
+- 3 angles from heimdall deepseek (in time).
+
+What happened next:
+1. Angle 1, line-up 1 (4 clips, 37.6 s) passed the clips-alone verdict, and write 1 passed the cheap checks.
+2. The exclusion screen then refused its hook. The deterministic ad-read screen found "link in the description" in
+   the sentence right before the hook.
+3. The angle was re-lined, and none of the 3 angles could form a line-up inside the medley's seconds and channel rules.
+   No package.
+
+Two defects found, flagged (K2) and not yet changed:
+- **Reporting:** when every angle ends with "no line-up", build() leaves why_none = None (the log reads "no package
+  (None)"). It should name the reason. A small change; it goes in the next audited change.
+- **Order:** the deterministic ad-read screen (free, no vendor call) runs only at the package stage, after the angle was
+  built around the moment. Running it with step A would keep doomed moments out of the angles.
+
+The chain was restarted at 03:47 ET: it builds after each worker cycle, on committed code only.
+
 ### 03:41 ET: the 03:21 build (change A + ruling 35), and three findings for your ruling
 
 Record: tests/package/proof/ledger_20261113_082157 (code e29a958f). Funnel:

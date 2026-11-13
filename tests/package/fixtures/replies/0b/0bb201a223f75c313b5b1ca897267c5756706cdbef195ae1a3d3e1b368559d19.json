@@ -1,0 +1,404 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "97d07aede1ee32201b5b2dfd203d80825f4c27617f6a96a0dc2e073e5da0daf8",
+ "result": {
+  "text": "We're taking advantage of people's sort of desperation, right? Bitcoin is a, like a place where you come... Like, you know that Bitcoin, everyone gets Bitcoin at the price they deserve- Mm ... because you find Bitcoin out of almost desperation. \"Fuck, I c- I cannot trust the property market. I don't know what they're gonna do with rates. I don-\"",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.28,
+    "end": 8.72,
+    "text": "We're taking advantage of people's sort of desperation, right? Bitcoin is a, like a place where you come... Like, you know that Bitcoin, everyone gets Bitcoin at the price they deserve-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 8.92,
+    "end": 8.94,
+    "text": "Mm"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 8.96,
+    "end": 15.16,
+    "text": "... because you find Bitcoin out of almost desperation. \"Fuck, I c- I cannot trust the property market. I don't know what they're gonna do with rates. I don-\""
+   }
+  ],
+  "words": [
+   {
+    "text": "We're",
+    "start": 0.28,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 0.46,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "advantage",
+    "start": 0.76,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.26,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people's",
+    "start": 1.4,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sort",
+    "start": 2.4,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.58,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "desperation,",
+    "start": 2.96,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.66,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.88,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.32,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 4.5,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.76,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.94,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "place",
+    "start": 5.04,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 5.32,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.46,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come...",
+    "start": 5.62,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 6.24,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.54,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 6.6,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.7,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.96,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 7.3,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 7.5,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.68,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 7.9,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.96,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 8.06,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 8.3,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deserve-",
+    "start": 8.42,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm",
+    "start": 8.92,
+    "end": 8.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 8.96,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 9.06,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.38,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "find",
+    "start": 9.64,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.0,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 10.38,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.5,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 10.64,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "desperation.",
+    "start": 10.94,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Fuck,",
+    "start": 11.76,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.06,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "c-",
+    "start": 12.5,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.56,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cannot",
+    "start": 12.7,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trust",
+    "start": 13.02,
+    "end": 13.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.2,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "property",
+    "start": 13.3,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 13.54,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.88,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 13.9,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 14.0,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 14.08,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 14.16,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 14.26,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 14.44,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 14.54,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rates.",
+    "start": 14.7,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.0,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don-\"",
+    "start": 15.12,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.18
+ },
+ "usd": 0.003036,
+ "seconds": 0.97,
+ "recorded_at": "2026-11-13T08:41:14Z"
+}

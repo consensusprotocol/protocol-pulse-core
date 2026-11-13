@@ -1,0 +1,380 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0e01bfaca81f85bf59dd12ce7899c9f16a614fe97a6166cf22e0cafee5e92628",
+ "result": {
+  "text": "Coming from the ETFs. In the first week of November, about $1.28 billion left the spot Bitcoin ETFs, the most since late June. And more went out on the following Monday and Tuesday after. In that same week, Strategy bought about $82 million worth of Bitcoin. So the ETF let go of roughly 15 times that. Strategy's buying is-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.32,
+    "text": "Coming from the ETFs. In the first week of November, about $1.28 billion left the spot Bitcoin ETFs, the most since late June. And more went out on the following Monday and Tuesday after. In that same week, Strategy bought about $82 million worth of Bitcoin. So the ETF let go of roughly 15 times that. Strategy's buying is-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Coming",
+    "start": 0.0,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 0.38,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.54,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs.",
+    "start": 0.64,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 1.5,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.58,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "first",
+    "start": 1.68,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week",
+    "start": 1.94,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.08,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November,",
+    "start": 2.18,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.92,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$1.28",
+    "start": 3.14,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 4.1,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "left",
+    "start": 4.86,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.04,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 5.24,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.52,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs,",
+    "start": 5.88,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.84,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 6.96,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 7.38,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "late",
+    "start": 7.64,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "June.",
+    "start": 7.88,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.9,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 9.14,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "went",
+    "start": 9.44,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 9.62,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.86,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.96,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "following",
+    "start": 10.12,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Monday",
+    "start": 10.52,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.04,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Tuesday",
+    "start": 11.4,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "after.",
+    "start": 11.92,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "In",
+    "start": 13.1,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 13.2,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 13.38,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 13.62,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 14.04,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 14.64,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 14.88,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$82",
+    "start": 15.1,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 15.66,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 16.4,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 16.56,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 16.66,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 17.66,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.14,
+    "end": 18.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETF",
+    "start": 18.26,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 18.94,
+    "end": 19.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 19.12,
+    "end": 19.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 19.28,
+    "end": 19.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "roughly",
+    "start": 19.42,
+    "end": 19.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "15",
+    "start": 19.84,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "times",
+    "start": 20.36,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 20.74,
+    "end": 20.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy's",
+    "start": 21.34,
+    "end": 21.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 21.86,
+    "end": 22.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is-",
+    "start": 22.22,
+    "end": 22.32,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.53
+ },
+ "usd": 0.004506,
+ "seconds": 0.89,
+ "recorded_at": "2026-11-13T08:25:23Z"
+}

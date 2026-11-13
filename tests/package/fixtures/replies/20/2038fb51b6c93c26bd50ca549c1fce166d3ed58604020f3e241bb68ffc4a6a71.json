@@ -1,0 +1,212 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "05ece88492dfd50f7e0af9d2baee6ac2ba0a40961597d37a45be32d8d083f163",
+ "result": {
+  "text": "Includes treasury companies, right? I think treasury companies will also bleed to Bitcoin. I mean, basically everything in the industry eventually bleeds to Bitcoin. That's the reality and, and I think-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 9.9,
+    "text": "Includes treasury companies, right? I think treasury companies will also bleed to Bitcoin. I mean, basically everything in the industry eventually bleeds to Bitcoin. That's the reality and, and I think-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Includes",
+    "start": 0.0,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "treasury",
+    "start": 0.52,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies,",
+    "start": 0.84,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 1.3,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.46,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.5,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "treasury",
+    "start": 1.66,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 2.0,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 2.34,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 2.58,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bleed",
+    "start": 2.96,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.64,
+    "end": 3.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 3.72,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.1,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 4.16,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basically",
+    "start": 4.32,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything",
+    "start": 5.44,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.9,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.98,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "industry",
+    "start": 6.1,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eventually",
+    "start": 7.5,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bleeds",
+    "start": 7.86,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.06,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 8.16,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 8.64,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.86,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reality",
+    "start": 8.98,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 9.52,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.72,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 9.82,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think-",
+    "start": 9.88,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.93
+ },
+ "usd": 0.001986,
+ "seconds": 0.61,
+ "recorded_at": "2026-11-13T08:25:14Z"
+}

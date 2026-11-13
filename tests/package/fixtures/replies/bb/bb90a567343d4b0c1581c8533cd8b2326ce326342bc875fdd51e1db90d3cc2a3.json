@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "091d796fe636cd47c34d58c65d0a09362cc0a1ac3ee3988584dae24b9a8dc582",
+ "result": {
+  "text": "Steamrolling places to create data centers. Like, look, that's the number one thing in the world right now. Mm-hmm. Like Core Scientific, they're not even Bitcoin mining anymore. They said, \"Nah, we're gonna be data centers.\" Yeah. Your boys, Iron-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 3.64,
+    "text": "Steamrolling places to create data centers. Like, look, that's the number one thing in the world right now."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.8,
+    "end": 3.88,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 3.9,
+    "end": 8.0,
+    "text": "Like Core Scientific, they're not even Bitcoin mining anymore. They said, \"Nah, we're gonna be data centers.\""
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 8.039,
+    "end": 8.18,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 8.2,
+    "end": 9.2,
+    "text": "Your boys, Iron-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Steamrolling",
+    "start": 0.0,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "places",
+    "start": 0.36,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.74,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 0.86,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data",
+    "start": 1.2,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "centers.",
+    "start": 1.48,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 1.82,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look,",
+    "start": 2.0,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.22,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.38,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 2.48,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.7,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 2.84,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.98,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.06,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 3.14,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 3.34,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 3.48,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 3.8,
+    "end": 3.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Like",
+    "start": 3.9,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Core",
+    "start": 4.1,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Scientific,",
+    "start": 4.34,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 4.94,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.04,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 5.18,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.36,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 5.68,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anymore.",
+    "start": 5.94,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 6.22,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said,",
+    "start": 6.34,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Nah,",
+    "start": 6.5,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 7.0,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 7.1,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 7.26,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "data",
+    "start": 7.38,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "centers.\"",
+    "start": 7.66,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 8.039,
+    "end": 8.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Your",
+    "start": 8.2,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "boys,",
+    "start": 8.34,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Iron-",
+    "start": 8.9,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.42
+ },
+ "usd": 0.001884,
+ "seconds": 2.02,
+ "recorded_at": "2026-11-13T08:41:16Z"
+}

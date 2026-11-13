@@ -1,0 +1,176 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d8a617fed869717ca6c4f1cda2f9abf177a674c06cb2c791960a9b1eb9bece43",
+ "result": {
+  "text": "This 2017 period, green liquidity, Bitcoin did well. Bitcoin started turning though before liquidity turned red, and that's an important caveat here. We're not trying",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 10.26,
+    "text": "This 2017 period, green liquidity, Bitcoin did well. Bitcoin started turning though before liquidity turned red, and that's an important caveat here. We're not trying"
+   }
+  ],
+  "words": [
+   {
+    "text": "This",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2017",
+    "start": 0.32,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "period,",
+    "start": 1.16,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "green",
+    "start": 1.82,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity,",
+    "start": 2.1,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.78,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 3.2,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well.",
+    "start": 3.42,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.16,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "started",
+    "start": 4.6,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turning",
+    "start": 4.96,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though",
+    "start": 5.26,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 5.46,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity",
+    "start": 5.86,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turned",
+    "start": 6.48,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "red,",
+    "start": 6.78,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.22,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 7.34,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 7.56,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important",
+    "start": 7.66,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "caveat",
+    "start": 8.119,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 8.64,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 9.44,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 9.68,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 9.98,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.3
+ },
+ "usd": 0.00206,
+ "seconds": 0.63,
+ "recorded_at": "2026-11-13T08:41:27Z"
+}

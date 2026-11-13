@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e5b3312e6a3650c5577a721691ab176b1cdeecc753dababda2c4fdc997cdfdd2",
+ "result": {
+  "text": "All it took was a board vote and a story big enough to justify it. Days like today are when people get shaken out. Bitcoin dumps on a scandal that has nothing to do with it. You panic, or a bill comes due, and suddenly you're selling the scarcest asset on Earth at the worst possible time. That's where Ledn comes in",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.72,
+    "text": "All it took was a board vote and a story big enough to justify it. Days like today are when people get shaken out. Bitcoin dumps on a scandal that has nothing to do with it. You panic, or a bill comes due, and suddenly you're selling the scarcest asset on Earth at the worst possible time. That's where Ledn comes in"
+   }
+  ],
+  "words": [
+   {
+    "text": "All",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "took",
+    "start": 0.04,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 0.22,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.36,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "board",
+    "start": 0.48,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vote",
+    "start": 0.76,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.5,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.62,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "story",
+    "start": 1.78,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 2.18,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough",
+    "start": 2.32,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.6,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "justify",
+    "start": 2.8,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 3.32,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Days",
+    "start": 4.04,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.28,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 4.42,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.7,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.8,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.94,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 5.16,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shaken",
+    "start": 5.34,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out.",
+    "start": 5.7,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.48,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dumps",
+    "start": 6.8,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 7.0,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.1,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scandal",
+    "start": 7.22,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.54,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 7.66,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nothing",
+    "start": 7.8,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.06,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 8.22,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.34,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 8.5,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 9.08,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "panic,",
+    "start": 9.26,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.84,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.96,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bill",
+    "start": 10.02,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 10.24,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "due,",
+    "start": 10.5,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.16,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "suddenly",
+    "start": 11.3,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 11.62,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 11.78,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.04,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarcest",
+    "start": 12.22,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 12.78,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 13.1,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Earth",
+    "start": 13.34,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 13.8,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.92,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worst",
+    "start": 14.1,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "possible",
+    "start": 14.48,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time.",
+    "start": 14.94,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 15.72,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 16.04,
+    "end": 16.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ledn",
+    "start": 16.239,
+    "end": 16.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 16.54,
+    "end": 16.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 16.72,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.75
+ },
+ "usd": 0.00335,
+ "seconds": 1.05,
+ "recorded_at": "2026-11-13T08:41:20Z"
+}
