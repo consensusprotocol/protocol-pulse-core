@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 01:55 ORDER '01:55' (PBX: "are we using heimdall for a brand new batch of clips? top moments in the last 10 hrs?"): THE G8 SPREAD FIRST, then the fresh batch.
+RULING 25, MEASURED (scratchpad g8_spread.json). The medley's prepared clip_01 was reframed to 9:16 five times by the production render_vertical.reframe_auto (NVENC), and each output went through the production final encode (apply_watermark_alpha_vert). G8's own measure was taken twice on every file. Results:
+- every reframe is byte-identical (sha 4da296d1...), and so is every final (a7c0bfdd...);
+- the spread is 0.0, and the decode jitter is 0.0;
+- so the floor by the ruling is 10.84 - 0 = 10.84, UNCHANGED (not lowered).
+A FACT FOR THE ORCHESTRATOR: this standalone path measures 12.85 on clip_01, while the same clip inside the medley's full 9:16 final measured 10.8. The 9:16 softness comes from the full assembly's extra encode generation (the concat re-encode before the watermark), not from jitter.
+ITEM 3: the worker's tmux session was renamed wordpass -> pipeline_pp_wordpass (tmux rename-session; no restart).
+ITEM 1, THE WORKER TAKES THE LAST 10 HOURS FIRST (audit batch 52 in progress): is_fresh reads published_at exactly as the ledger's own _aware does. The pick fills in three passes, each by score:
+(1) fresh rows, at most 7 per channel;
+(2) the rest of the fresh rows, uncapped, so nothing older comes first;
+(3) older rows.
+The L-u exclusions are the adapter's, before any GPU time: measured now, 1340 rows after exclusions, 78 of them published in the last 10 h, from 7 videos (Pompliano 27, Simply Bitcoin 19, Bitcoin Magazine 12, The Bitcoin Layer 12, CNBC 4, Strategy 3, Bloomberg 1). The orchestrator's 101 is the raw count; the adapter's hard-flag, altcoin and speaker-change exclusions take the rest. A cycle now picks 40 fresh from 7 channels, so the 78 take two cycles. The running first cycle (started 01:45:42, 40 picked from 13 channels by score over 72 h) finishes first, as ordered. The worker then restarts on this code, so the next cycle is the fresh set.
+RULING 31, ANSWERED: THE SPEAKER SAYS THE REPEATS. The second recogniser (scribe_v1) on the SOURCE span of pin #1's hook (Sjb6lUiL0m4 file 14.61-34.25 s) hears: 'When, when Bitcoin and, and an asset is going up ... And like that's, that's why the bull-- that's why the price got high ... everyone hated it and, and didn't want exposure ...'. The locked text (Whisper's reading) dropped them. So the lock is incomplete: the fix is to lock the words as spoken (L-v), and G18 then passes on truth.
+G4 MONITORING, clip_01#1 (16:9 faces [0,1,0,0,1,0]): all six sampled frames show ONE seated speaker in a dark suit at a microphone, in SIDE PROFILE facing frame right, against the Doha Debates backdrop. No b-roll, no slide, no wide shot. The detector misses a profile face (one in 2 of 6). The builder's record gives the speaker as unknown.
+RULINGS 28 / 29 / 30 and 31's fix are second priority, behind the fresh batch, as ordered.
+
 ## 01:39 RESULT: BATCH PIN #1, run pinned_20261113_054035 (seal 1b4a63d0), exited 3 = HOLD at 01:39:21. NOT SENT: G17_onset_tail is a content-integrity row the review drop refuses (L-j (a)). Every stage ran; render 7.6 + 9.0 min.
 REQUIRED ROWS NOT PASS, measured:
 (1) G17_onset_tail, both formats. The PREPARED hook (Stephan Livera's Sjb6lUiL0m4) has 30 ms of quiet lead before its first word. The hook rule (D1, sentence_law.HEAD_LEAD_MIN_S) wants 80 ms or a declared pad. Its cut_in, 14.61 s, sits at the very start of a 230 ms pause, with no pad. The finals' own head and tail checks pass.

@@ -1,0 +1,94 @@
+{
+ "question": "Batch 52 cycle 2 (verification). Cycle 1 C1 implemented: is_fresh mirrors the ledger's _aware ('Z' = UTC, no offset = not measured, TypeError caught); tests added.\n\nBatch 52 = ORCHESTRATOR ORDER '01:55' item 1, on the word-pass worker (pipeline/word_pass_worker.py, merged in batch 51). The order, verbatim: \"Make the word-pass worker take rows by published_at newest first inside a 10 hour window before anything older (ranked by score inside that window, L-u exclusions applied before spending GPU time).\"\nThe change:\n- is_fresh(row, now) is true when published_at is an ISO time with an offset inside [now - 10 h, now].\n- pick() fills up to 40 in three passes, each in the adapter's rank order (score):\n  (1) fresh rows, at most 7 per channel;\n  (2) the remaining fresh rows, uncapped, so a capped channel's fresh rows still come before any older row;\n  (3) older rows, capped.\n- Done moments and videos with a full-video record are skipped in every pass.\n- The cycle report adds fresh_h, fresh_rows, fresh_picked and fresh_channels.\n- The L-u exclusions are the adapter's own (best_unused_moments drops hard flags, altcoin and speaker changes before the worker sees a row, so before any GPU time).\nMeasured now: the adapter returns 1340 rows, 78 of them fresh (10 h) from 7 videos. A cycle now picks 40 fresh from 7 channels.\nFIND: anything still open; an older row before a fresh one; a wrong fresh / stale call; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.9,
+   "cost": 0.0004153163,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 7.6,
+   "cost": 0.000125767,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.7,
+   "cost": 0.0005882498,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 15.6,
+   "cost": 0.000141546,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 0,
+   "issue": "Pass 2 (uncapped fresh) can starve other channels: if one channel has \u2265 per_cycle fresh rows, they fill the whole cycle and pass 3 never runs, so older rows from other channels are skipped entirely that cycle \u2014 arguably intended by the order, but it also means the per_channel cap in pass 1 is pointless when a single channel floods fresh rows.",
+   "evidence": "take(fresh, True); take(fresh, False); take([r for r in rows if not is_fresh(r, now)], True)",
+   "fix": "None needed if intended; otherwise cap pass 2 too or reserve slots per channel.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 0,
+   "issue": "is_fresh treats a published_at exactly equal to now as fresh (inclusive), and a future published_at within the window check is excluded only by pub <= now \u2014 consistent with the test, so this is just noting the inclusive boundary is asserted, not a defect. No wrong fresh/stale call found; the no-offset\u2192not-fresh and 'Z'\u2192UTC cases are both tested against the ledger's _aware semantics.",
+   "evidence": "return pub.tzinfo is not None and now - dt.timedelta(hours=hours) <= pub <= now",
+   "fix": "None.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_word_pass_worker.py",
+   "line": 46,
+   "issue": "Test 1's fresh rows are ranked LAST by score yet are picked FIRST, but the test never exercises the per-channel cap in pass 1: all 3 fresh rows come from different implied channels, so pass 1's cap (7/channel) is never hit and the pass-1/pass-2 split is untested for the multi-channel case.",
+   "evidence": "fresh = [row(100 + i, 50 + i, pub=...) for i in range(3)] \u2014 3 rows, 3 channels; the cap-then-uncap two-pass structure only matters when a channel exceeds the cap, which test 2 covers with one channel but no second channel's fresh rows interleaved by score.",
+   "fix": "Add a case with two channels, one exceeding the cap, and assert the other channel's fresh rows (pass 1) precede the flooded channel's excess (pass 2) despite lower score."
+  }
+ ],
+ "total_cost": 0.0012708791,
+ "out_dir": "docs/audits/pulse-sentence-law/batch52_fresh_first/cycle2/heimdall"
+}

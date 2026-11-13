@@ -43,6 +43,29 @@ class TestPickAndWindow(unittest.TestCase):
         self.assertEqual((len(picks), nch), (38, 6))
         self.assertEqual([r["moment_id"] for r in picks][-3:], ["m100", "m101", "m102"])
 
+    def test_order_0155_the_last_ten_hours_come_first_by_score_then_the_rest(self):
+        import datetime as dt
+        now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
+        old = [row(i, i, pub="2026-11-12T10:00:00+00:00") for i in range(10)]                # ranked first, 20 h old
+        fresh = [row(100 + i, 50 + i, pub="2026-11-13T01:00:00+00:00") for i in range(3)]    # ranked last, 5 h old
+        edge = [row(200, 70, pub="2026-11-12T20:00:00+00:00"), row(201, 71, pub="2026-11-12T19:59:59+00:00")]
+        picks, _ = W.pick(old + fresh + edge, set(), full=lambda v: False, per_cycle=5, now=now)
+        self.assertEqual([r["moment_id"] for r in picks], ["m100", "m101", "m102", "m200", "m000"])  # 10 h is inclusive
+        self.assertFalse(W.is_fresh(row(1, 1, pub="2026-11-13T07:00:00+00:00"), now))        # a future time is not fresh
+        self.assertFalse(W.is_fresh(row(1, 1, pub="2026-11-13T01:00:00"), now))              # no offset: not measured
+        self.assertTrue(W.is_fresh(row(1, 1, pub="2026-11-13T01:00:00Z"), now))              # 'Z' as the ledger reads it
+        self.assertFalse(W.is_fresh(row(1, 1, pub=None), now))
+
+    def test_order_0155_a_capped_channels_fresh_rows_still_come_before_older_rows(self):
+        import datetime as dt
+        now = dt.datetime(2026, 11, 13, 6, 0, tzinfo=dt.timezone.utc)
+        fresh = [row(i, 1, pub="2026-11-13T02:00:00+00:00") for i in range(10)]            # one channel, 10 fresh
+        older = [row(100 + i, 2 + i, pub="2026-11-12T08:00:00+00:00") for i in range(10)]   # ranked above them
+        picks, _ = W.pick(older + fresh, set(), full=lambda v: False, per_cycle=12, now=now)
+        ids = [r["moment_id"] for r in picks]
+        self.assertEqual(ids[:10], [f"m{i:03d}" for i in range(10)])          # 7 capped, then the other 3 fresh
+        self.assertEqual(ids[10:], ["m100", "m101"])                            # only then older rows
+
     def test_passed_moments_and_videos_with_a_full_record_are_skipped(self):
         rows = [row(1, 1), row(2, 2), row(3, 3, vid="vfull")]
         picks, _ = W.pick(rows, {"m001"}, full=lambda v: v == "vfull")

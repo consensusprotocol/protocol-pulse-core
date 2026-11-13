@@ -45,6 +45,7 @@ STORE = ts.STORE_DIR
 ROWS_FILE = os.path.join(STORE, "moments", "word_pass.jsonl")
 CYCLES_FILE = os.path.join(STORE, "moments", "word_pass_cycles.jsonl")
 PER_CYCLE, MIN_CHANNELS, PAD_S, BATCH, HORIZON_H = 40, 6, 45.0, 8, 72
+FRESH_H = 10              # orchestrator '01:55': the moments published in the last 10 h first (by score inside it)
 PER_CHANNEL = math.ceil(PER_CYCLE / MIN_CHANNELS)
 OWNER = "word-pass worker (integrator, GPU1)"
 LEASE_WAIT_S = 1800
@@ -111,23 +112,46 @@ def has_full_record(video_id):
         return False
 
 
-def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL):
-    """The ranked rows to work: not done, no full record, at most per_channel per channel, up to per_cycle."""
-    full, out, per, full_cache = full or has_full_record, [], {}, {}
-    for r in rows:
-        if len(out) >= per_cycle:
-            break
-        if r["moment_id"] in done:
-            continue
-        v = r["video_id"]
-        if v not in full_cache:
-            full_cache[v] = full(v)
-        if full_cache[v] or per.get(r["channel_id"], 0) >= per_channel:
-            continue
-        per[r["channel_id"]] = per.get(r["channel_id"], 0) + 1
-        out.append(r)
-    return out, len(per)
+def is_fresh(row, now, hours=FRESH_H):
+    """published_at read exactly as the ledger's own _aware reads it ('Z' = UTC; a time without an offset is not
+    measured, so never fresh: the adapter drops such rows anyway), inside [now - hours, now]."""
+    try:
+        pub = dt.datetime.fromisoformat(str(row.get("published_at")).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return False
+    return pub.tzinfo is not None and now - dt.timedelta(hours=hours) <= pub <= now
 
+
+def pick(rows, done, full=None, per_cycle=PER_CYCLE, per_channel=PER_CHANNEL, now=None):
+    """The rows to work, up to per_cycle, never one that is done or whose video has a full record. Order '01:55': the
+    rows published in the last FRESH_H hours come before anything older. Filled in three passes, each in the
+    adapter's own rank order (score):
+    (1) fresh rows, at most per_channel per channel;
+    (2) the remaining fresh rows, no cap, so a capped channel's fresh rows still come before older rows;
+    (3) older rows, the cap counting on."""
+    now = now or dt.datetime.now(dt.timezone.utc)
+    full, out, per, full_cache, taken = full or has_full_record, [], {}, {}, set()
+
+    def take(seq, cap):
+        for r in seq:
+            if len(out) >= per_cycle:
+                return
+            if r["moment_id"] in done or r["moment_id"] in taken:
+                continue
+            v = r["video_id"]
+            if v not in full_cache:
+                full_cache[v] = full(v)
+            if full_cache[v] or (cap and per.get(r["channel_id"], 0) >= per_channel):
+                continue
+            per[r["channel_id"]] = per.get(r["channel_id"], 0) + 1
+            taken.add(r["moment_id"])
+            out.append(r)
+
+    fresh = [r for r in rows if is_fresh(r, now)]
+    take(fresh, True)
+    take(fresh, False)
+    take([r for r in rows if not is_fresh(r, now)], True)
+    return out, len(per)
 
 def window(row, duration=None):
     w0 = max(0.0, float(row["start"]) - PAD_S)
@@ -219,11 +243,15 @@ def cycle(now=None, limit=PER_CYCLE):
     import gpu0
     t0, now = time.time(), now or dt.datetime.now(dt.timezone.utc)
     rows, rep = ledger_rows(now)
-    picks, nch = pick(rows, passed_ids(), per_cycle=limit)
+    picks, nch = pick(rows, passed_ids(), per_cycle=limit, now=now)
+    fresh = [r for r in rows if is_fresh(r, now)]
     report = {"at": now.isoformat(), "ledger_rows": len(rows), "ledger_excluded": rep.get("excluded"),
+              "fresh_h": FRESH_H, "fresh_rows": len(fresh), "fresh_picked": sum(is_fresh(r, now) for r in picks),
+              "fresh_channels": len({r["channel_id"] for r in fresh}),
               "picked": len(picks), "channels": nch, "written": 0, "sentence_ready": 0, "failed": 0, "peak_gpu1_mib": 0,
               "newest_ready_published_at": None, "_ready_channels": set()}
-    log(f"cycle: {len(rows)} ledger rows, {len(picks)} picked from {nch} channels")
+    log(f"cycle: {len(rows)} ledger rows ({len(fresh)} published in the last {FRESH_H} h), {len(picks)} picked "
+        f"({report['fresh_picked']} of them fresh) from {nch} channels")
     jobs, tmp = [], tempfile.mkdtemp(prefix="word_pass_")
     try:
         for vid in dict.fromkeys(r["video_id"] for r in picks):           # each video's audio once, outside the lease

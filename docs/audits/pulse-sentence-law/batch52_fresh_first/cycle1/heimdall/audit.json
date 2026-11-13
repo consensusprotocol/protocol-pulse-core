@@ -1,0 +1,78 @@
+{
+ "question": "Batch 52 = ORCHESTRATOR ORDER '01:55' item 1, on the word-pass worker (pipeline/word_pass_worker.py, merged in batch 51). The order, verbatim: \"Make the word-pass worker take rows by published_at newest first inside a 10 hour window before anything older (ranked by score inside that window, L-u exclusions applied before spending GPU time).\"\nThe change:\n- is_fresh(row, now) is true when published_at is an ISO time with an offset inside [now - 10 h, now].\n- pick() fills up to 40 in three passes, each in the adapter's rank order (score):\n  (1) fresh rows, at most 7 per channel;\n  (2) the remaining fresh rows, uncapped, so a capped channel's fresh rows still come before any older row;\n  (3) older rows, capped.\n- Done moments and videos with a full-video record are skipped in every pass.\n- The cycle report adds fresh_h, fresh_rows, fresh_picked and fresh_channels.\n- The L-u exclusions are the adapter's own (best_unused_moments drops hard flags, altcoin and speaker changes before the worker sees a row, so before any GPU time).\nMeasured now: the adapter returns 1340 rows, 78 of them fresh (10 h) from 7 videos. A cycle now picks 40 fresh from 7 channels.\nFIND:\n- an older row picked while a fresh row remains;\n- a fresh row skipped or picked twice;\n- a time-zone or parse error making a row fresh or stale wrongly (no offset, future times);\n- the report counts wrong;\n- tests that do not test what they claim.\nReply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 3.7,
+   "cost": 0.00039587,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 14.3,
+   "cost": 0.000118668,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 10.1,
+   "cost": 0.000280922,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 10.7,
+   "cost": 0.000133889,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 118,
+   "issue": "is_fresh treats a naive published_at as stale even when it is the store's default ISO format, so rows written without an offset are never fresh and lose the 10 h priority; the test only asserts the behavior, it does not catch a wrong classification",
+   "evidence": "return pub.tzinfo is not None and now - dt.timedelta(hours=hours) <= pub <= now",
+   "fix": "If the ledger can emit naive timestamps, assume UTC (pub = pub.replace(tzinfo=dt.timezone.utc)) or document the invariant; otherwise keep as is.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 118,
+   "issue": "is_fresh catches only ValueError, not TypeError; if published_at is None, str(None)='None' raises ValueError (ok), but if row.get returns a non-ISO type the fromisoformat may raise other errors in some Python versions \u2014 minor. More concrete: the second test's fresh rows all share one channel, so pass 1 caps at 7 and pass 2 adds 3; but pass 2 (uncapped) also increments per, so pass 3's cap counting is consistent \u2014 no bug. However the first test's expected picks include 'm000' (older) while fresh rows remain? No: only 3 fresh + edge fresh m200 = 4 fresh, per_cycle=5, so 5th pick is older m000 \u2014 correct. Real missed item: fresh_picked counts picks that are fresh, but pass 3 could pick a row whose published_at equals now boundary... none. Actual missed: report's fresh_rows/fresh_channels computed from all rows, not from non-done/non-full rows, so counts include rows that will never be picked \u2014 report slightly overstated.",
+   "evidence": "fresh = [r for r in rows if is_fresh(r, now)] before done/full filtering in cycle()",
+   "fix": "Compute fresh counts over the picked-eligible rows, or document that fresh_rows counts ledger rows regardless of done/full status."
+  }
+ ],
+ "total_cost": 0.000929349,
+ "out_dir": "docs/audits/pulse-sentence-law/batch52_fresh_first/cycle1/heimdall"
+}
