@@ -22,7 +22,7 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
-### 03:49 ET: the 03:39 build, every effective ruling (A, 35, 38, 39, 32): no package; the bottleneck moved
+### 03:48 ET: the 03:39 build, every effective ruling (A, 35, 38, 39, 32): no package; the bottleneck moved
 
 Record: tests/package/proof/ledger_20261113_083956 (code 2564f64e), with FUNNEL.md. Funnel:
 - 510 rows -> 262 moments (13 of them snapped by ruling 32) -> 76 usable;
