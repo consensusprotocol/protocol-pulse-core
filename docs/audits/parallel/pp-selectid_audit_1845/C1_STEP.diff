@@ -1,0 +1,76 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index a389742..0cc5e96 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -12,7 +12,8 @@ and answers each name and content once.
+ Results: read only, in /home/ultron/protocol_pulse/data/lock_precheck/results/
+ <video_id>.<start %.3f>-<end %.3f>.<decoder[:12]>.json. Each file is a list. The answer is the newest entry (by "at")
+ that meets all of these:
+-- rules == "ruling 17 + ruling 72";
++- rules == RULES ("ruling 17 + ruling 72 + ruling 73" since 18:43 Nov 13; an answer under any other rules string,
++  or in a file named for another decoder, is not valid for the render's code and is never read);
+ - its window is the segment's [start, end];
+ - its role, approved_text, trimmed_leading and untrimmed_start equal the request's.
+ Entries without "rules" are ruling 68's, from before, and are never read.
+@@ -37,8 +38,10 @@ from datetime import datetime, timezone
+ 
+ import attest as AT
+ 
+-RULES = "ruling 17 + ruling 72"
+-DECODER = "25cd6f15e6c9"                      # the integrator's decoder_sha[:12] (unchanged by ruling 72)
++RULES = "ruling 17 + ruling 72 + ruling 73"   # RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
++DECODER = "8a101f222598"                      # side): the render's own cut placement joins the pre-check, so its
++#   decoder_sha changed (8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7); a passing entry carries
++#   "cut", and a span the render cannot cut holds ("ruling 73: the render cannot cut this span: ...")
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index b7c4f3b..022f381 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -58,7 +58,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
++                         "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")             # ruling 73's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -82,6 +82,8 @@ class TestAnswer(Dirs):
+                  dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), window=[216.0, 228.674]),
+                  dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), role="clip"))
+         self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")
++        self.put(s, dict(entry(s, "adopted", at="2026-11-14T01:00:00Z"), rules="ruling 17 + ruling 72"))   # before
++        self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")              # ruling 73: never read
+         self.put(s, entry(s, "hold", at="2026-11-13T22:05:00Z", rid="r2"))                 # same time: the later one
+         self.assertEqual(LP.answer(s, self.res)["outcome"], "hold")
+         self.assertEqual(LP.answer(s, self.res, request_id="r1")["outcome"], "no_difference")
+@@ -141,7 +143,7 @@ class TestCheck(Dirs):
+             self.put(s, entry(s))
+         rep, sleeps = self.run_check([HOOK, CLIP])
+         self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
+-        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
++        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")
+ 
+     def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -163,6 +165,17 @@ class TestCheck(Dirs):
+         self.assertIn("no answer from the render's lock in time", rep["error"])
+         self.assertEqual(sleeps, [10.0, 10.0, 10.0])
+ 
++    def test_ruling_73_holds_a_span_the_render_cannot_cut(self):
++        segs = LP.segments_of([HOOK, CLIP])
++        self.put(segs[0], entry(segs[0], "hold", reason="ruling 73: the render cannot cut this span: OUT before the "
++                                                        "last locked word's end"))
++        self.put(segs[1], entry(segs[1], cut={"cut_in": 937.5, "cut_out": 957.4, "cut_duration": 19.9,
++                                              "lead_in_pad_s": 0.47, "error": None}))
++        rep, _ = self.run_check([HOOK, CLIP])
++        self.assertEqual((rep["ok"], rep["segments"][0]["verdict"], rep["segments"][1]["verdict"]),
++                         (False, "hold", "pass"))
++        self.assertIn("ruling 73: the render cannot cut this span", rep["segments"][0]["why"])
++
+     def test_a_hold_is_not_ok_and_is_not_an_error(self):
+         segs = LP.segments_of([HOOK, CLIP])
+         self.put(segs[0], entry(segs[0], "hold", reason="PinError: edge"))

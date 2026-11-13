@@ -58,7 +58,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
+                         "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")             # ruling 73's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -82,6 +82,8 @@ class TestAnswer(Dirs):
                  dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), window=[216.0, 228.674]),
                  dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), role="clip"))
         self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")
+        self.put(s, dict(entry(s, "adopted", at="2026-11-14T01:00:00Z"), rules="ruling 17 + ruling 72"))   # before
+        self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")              # ruling 73: never read
         self.put(s, entry(s, "hold", at="2026-11-13T22:05:00Z", rid="r2"))                 # same time: the later one
         self.assertEqual(LP.answer(s, self.res)["outcome"], "hold")
         self.assertEqual(LP.answer(s, self.res, request_id="r1")["outcome"], "no_difference")
@@ -141,7 +143,7 @@ class TestCheck(Dirs):
             self.put(s, entry(s))
         rep, sleeps = self.run_check([HOOK, CLIP])
         self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
-        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
+        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")
 
     def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -162,6 +164,27 @@ class TestCheck(Dirs):
         self.assertFalse(rep["ok"])
         self.assertIn("no answer from the render's lock in time", rep["error"])
         self.assertEqual(sleeps, [10.0, 10.0, 10.0])
+
+    def test_an_answer_in_the_old_decoders_file_is_never_read(self):
+        """Audit 1845 C2 (glm): ruling 73 changed the decoder; a file named for 25cd6f15e6c9 is never opened, even with a
+        matching, newer entry under the current rules."""
+        s = LP.segments_of([HOOK])[0]
+        old = LP.result_file(s, self.res, decoder="25cd6f15e6c9")
+        with open(old, "w") as f:
+            json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
+        self.assertTrue(old.endswith(".25cd6f15e6c9.json"))
+        self.assertIsNone(LP.answer(s, self.res))                                         # only 8a101f222598's file
+
+    def test_ruling_73_holds_a_span_the_render_cannot_cut(self):
+        segs = LP.segments_of([HOOK, CLIP])
+        self.put(segs[0], entry(segs[0], "hold", reason="ruling 73: the render cannot cut this span: OUT before the "
+                                                        "last locked word's end"))
+        self.put(segs[1], entry(segs[1], cut={"cut_in": 937.5, "cut_out": 957.4, "cut_duration": 19.9,
+                                              "lead_in_pad_s": 0.47, "error": None}))
+        rep, _ = self.run_check([HOOK, CLIP])
+        self.assertEqual((rep["ok"], rep["segments"][0]["verdict"], rep["segments"][1]["verdict"]),
+                         (False, "hold", "pass"))
+        self.assertIn("ruling 73: the render cannot cut this span", rep["segments"][0]["why"])
 
     def test_a_hold_is_not_ok_and_is_not_an_error(self):
         segs = LP.segments_of([HOOK, CLIP])

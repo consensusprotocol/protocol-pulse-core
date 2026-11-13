@@ -12,7 +12,8 @@ and answers each name and content once.
 Results: read only, in /home/ultron/protocol_pulse/data/lock_precheck/results/
 <video_id>.<start %.3f>-<end %.3f>.<decoder[:12]>.json. Each file is a list. The answer is the newest entry (by "at")
 that meets all of these:
-- rules == "ruling 17 + ruling 72";
+- rules == RULES ("ruling 17 + ruling 72 + ruling 73" since 18:43 Nov 13; an answer under any other rules string,
+  or in a file named for another decoder, is not valid for the render's code and is never read);
 - its window is the segment's [start, end];
 - its role, approved_text, trimmed_leading and untrimmed_start equal the request's.
 Entries without "rules" are ruling 68's, from before, and are never read.
@@ -37,8 +38,10 @@ from datetime import datetime, timezone
 
 import attest as AT
 
-RULES = "ruling 17 + ruling 72"
-DECODER = "25cd6f15e6c9"                      # the integrator's decoder_sha[:12] (unchanged by ruling 72)
+RULES = "ruling 17 + ruling 72 + ruling 73"   # RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+DECODER = "8a101f222598"                      # side): the render's own cut placement joins the pre-check, so its
+#   decoder_sha changed (8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7); a passing entry carries
+#   "cut", and a span the render cannot cut holds ("ruling 73: the render cannot cut this span: ...")
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it

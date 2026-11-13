@@ -1,0 +1,28 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins). Only state
+what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static): pipeline/lock_precheck.py asks the integrator's service for the render's own ruling-17 lock of
+each clip before a line-up is written (rulings 68 / 72). Answers are read from result files named
+<video_id>.<start %.3f>-<end %.3f>.<decoder_sha[:12]>.json. The answer used is the newest entry whose "rules" string
+equals RULES and whose window, role, approved_text and trim fields equal the request's. Anything else is never read;
+no answer is never a pass.
+
+The integrator's notice (18:43 Nov 13, ruling 73 live, merged 585b6da5): "SWITCH BOTH:
+- decoder_sha: 8a101f222598 (full 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). Result files are
+  now .../results/<video_id>.<start %.3f>-<end %.3f>.8a101f222598.json.
+- rules: 'ruling 17 + ruling 72 + ruling 73'.
+- Answers under 25cd6f15e6c9 or the old rules are NOT valid for the new code. Re-ask."
+Ruling 73 adds the render's own cut placement to the pre-check. A span the render cannot cut holds with "ruling 73:
+the render cannot cut this span: ...", and a passing entry carries "cut": {cut_in, cut_out, cut_duration,
+lead_in_pad_s, error}.
+
+The change:
+- RULES and DECODER take the new values, and the docstring says why.
+- Tests:
+  - the file names use the new decoder;
+  - an entry under the old rules string, even a newer one, is never read;
+  - a ruling-73 "cannot cut" hold is a hold (not ok, not an error), and a passing entry with a "cut" field passes.
+- All 15 suites OK.
+
+Check: that no answer under the old decoder or rules can be read; that a ruling-73 hold can never pass; that nothing
+else changes. Answer with P0/P1/P2 findings, then "SHIP: yes / no / yes with conditions".
