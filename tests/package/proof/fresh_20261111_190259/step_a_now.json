@@ -617,5 +617,98 @@
   "backend": "xai:grok-4.20-0309-reasoning",
   "replayed": false,
   "speaker_verified": false
+ },
+ "1dd835fcfbdcc4cba847:9d43580c729b": {
+  "label": "1dd835fcfbdcc4cba847",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "the board or the executives",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they're",
+    "refers_to": "the board or the executives",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "I",
+    "refers_to": "a hypothetical board member or executive",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "We",
+    "refers_to": "the board/company in the hypothetical",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the Bitcoin strategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the Bitcoin strategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the board or the executives lose faith in the strategy (don't have long-term conviction on Bitcoin)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If the board or executives lose faith in the Bitcoin strategy from lack of long-term conviction, they will pivot away at the worst possible time by deciding after 12 months that it is not working and that they need to do something else.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So talk to us a bit about this idea from your perspective. Yeah, it's a, it's a really great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3c2018635aaee62fb2dc:9d43580c729b": {
+  "label": "3c2018635aaee62fb2dc",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Eric Simler",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the statement that zombie companies should be the ones that buy Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Eric Simler, chairman of similar scientific, famously said that the zombie companies should be the ones that buy Bitcoin, and the speaker completely agrees with that.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So talk to us a bit about this idea from your perspective. Yeah, it's a, it's a really great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
  }
 }

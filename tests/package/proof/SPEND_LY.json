@@ -1,30 +1,30 @@
 {
- "usd_estimate": 25.067904,
- "calls": 257,
+ "usd_estimate": 27.575464,
+ "calls": 273,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 160,
-   "in": 323419,
-   "out": 723919,
-   "usd_estimate": 19.71507,
+   "calls": 170,
+   "in": 339159,
+   "out": 784093,
+   "usd_estimate": 21.29812,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 2.18329365,
-   "reported_calls": 160
+   "usd_reported": 2.35179085,
+   "reported_calls": 170
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 44,
-   "in": 49107,
-   "out": 309093,
-   "usd_estimate": 4.783716,
+   "calls": 49,
+   "in": 53752,
+   "out": 336900,
+   "usd_estimate": 5.465358,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.06008714,
-   "reported_calls": 44
+   "usd_reported": 0.06551628,
+   "reported_calls": 48
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 51,
@@ -38,30 +38,30 @@
    "audio_s": 738.75
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 2,
-   "in": 2486,
-   "out": 27594,
-   "usd_estimate": 0.421368,
+   "calls": 3,
+   "in": 3442,
+   "out": 43594,
+   "usd_estimate": 0.664236,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01979012,
-   "reported_calls": 2
+   "usd_reported": 0.03124257,
+   "reported_calls": 3
   }
  },
  "by_role": {
   "context_verdict": {
-   "calls": 48,
-   "usd_estimate": 10.13377
+   "calls": 51,
+   "usd_estimate": 10.7948
   },
   "angle_write": {
-   "calls": 46,
-   "usd_estimate": 5.205084
+   "calls": 52,
+   "usd_estimate": 6.129594
   },
   "coherence_verdict": {
-   "calls": 39,
-   "usd_estimate": 2.64622
+   "calls": 42,
+   "usd_estimate": 2.845525
   },
   "exclusion_verdict": {
    "calls": 20,
@@ -72,15 +72,15 @@
    "usd_estimate": 0.14775
   },
   "viewer_takeaway": {
-   "calls": 33,
-   "usd_estimate": 2.651115
+   "calls": 35,
+   "usd_estimate": 2.861095
   },
   "fidelity_verdict": {
-   "calls": 20,
-   "usd_estimate": 3.836135
+   "calls": 22,
+   "usd_estimate": 4.34887
   }
  },
  "reserved": {},
- "usd_reported": 2.26317091,
- "usd_unreported_estimate": 0.14775
+ "usd_reported": 2.4485497,
+ "usd_unreported_estimate": 0.398352
 }

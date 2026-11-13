@@ -1,0 +1,276 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is now part of the economy, so attacks on it would be catastrophic, but it still isn't the unit of account even though it may be the best money ever discovered.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin is the best money humanity has discovered and an escape from government money, but it is now so economically important that attacks on it would be catastrophic, even as people still denominate in dollars.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is the best money and an escape from government money, but people still denominate in dollars and attacks on it would now be catastrophic.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7a5f734f844bbfd67c1f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "aff2e3571d56180a9e06": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6c26e6ba3e9362d33c6e": "30.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c751a33022013fb3086": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f56505eda00b45f4675e": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "8080233bfd15bcca9575": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f7c51cc3aee285db890f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "03af1b00d15a5fed799b": "28.15 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6121da64aa97a0569f44": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6d91c6af0e23f79c946e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "93fd61f90b4c4e603a97": "hard exclusion (L-u): ['guaranteed_return']",
+  "6ad350843b54d1f48f05": "not eligible on screen: hook: not_statement, opener; clip: not_statement"
+ },
+ "usable": 29,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 14,
+  "failed": {
+   "81f9b98d79dddabc360a": [
+    "NOT_OWN_SINCERE",
+    "CONDITION_OUTSIDE"
+   ],
+   "5d5e163125435e85061a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "6353ef6c32236e89f0cc": [
+    "NOT_OWN_SINCERE"
+   ],
+   "e8c3738e3d7aff4ba06e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE",
+    "RETRACTION"
+   ],
+   "1dd835fcfbdcc4cba847": [
+    "NOT_OWN_SINCERE"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ],
+   "d556b5ea8171285790e8": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "fcb6ed4188ad22d15f09": [
+    "STALE_TIME"
+   ]
+  },
+  "second_pass": {
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "c356a9fc110380aca230": "not cuttable at an edge (ruling C / 7)",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS",
+   "d1e31dd4b7ddb686a18d": "not cuttable at an edge (ruling C / 7)",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)",
+   "cfd41bf59cd3712473e5": "PASS",
+   "69cd6a94f00b24cc1818": "PASS",
+   "e1c898006676591f9180": "L-v 2 FAIL",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "4567ce82296f9cfad744": "PASS",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 4
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is now part of the economy, so attacks on it would be catastrophic, but it still isn't the unit of account even though it may be the best money ever discovered.",
+   "moments": [
+    "cfd41bf59cd3712473e5",
+    "4567ce82296f9cfad744",
+    "69cd6a94f00b24cc1818",
+    "863cc95ab7c5e0c11482"
+   ],
+   "hook": "cfd41bf59cd3712473e5"
+  },
+  {
+   "angle": "Bitcoin is the best money humanity has discovered and an escape from government money, but it is now so economically important that attacks on it would be catastrophic, even as people still denominate in dollars.",
+   "moments": [
+    "69cd6a94f00b24cc1818",
+    "863cc95ab7c5e0c11482",
+    "cfd41bf59cd3712473e5",
+    "4567ce82296f9cfad744"
+   ],
+   "hook": "69cd6a94f00b24cc1818"
+  },
+  {
+   "angle": "Bitcoin is the best money and an escape from government money, but people still denominate in dollars and attacks on it would now be catastrophic.",
+   "moments": [
+    "69cd6a94f00b24cc1818",
+    "863cc95ab7c5e0c11482",
+    "4567ce82296f9cfad744",
+    "cfd41bf59cd3712473e5"
+   ],
+   "hook": "69cd6a94f00b24cc1818"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 366.7,
+ "usd": 0.8682,
+ "run": "fresh_20261112_013452",
+ "tag": "b3",
+ "usd_estimate": 0.8682,
+ "usd_best_known": 0.0907,
+ "code": "5ecd5500+d5d653042837",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:28:53 EST",
+ "as_of": "2026-11-13T05:22:46.584396+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "batch:fresh_20261111_213954"
+  }
+ ],
+ "full": {
+  "est": 0.9043,
+  "best": 0.1269,
+  "model_s": 400.97,
+  "calls": 18
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 18,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"But in our modern world, we have no choice. Well, until Bitcoin came around, we had no choice. You had to sign up to the government's money.\"\nCLIP label=\"clip_01\" (on screen: Natalie Brunell): \"But we are going to have a new internet. And the new internet is going to be bound by Bitcoin. And it is going to provide abundance, 8 billion people.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"Bitcoin priced in gold also peaked in late 2024. So you can make arguments that like similar to 2021, Maybe the real peak was like spring of 2021. Maybe the real Bitcoin peak was like December 2024, measured in like another hard money.\"\nCLIP label=\"clip_03\" (on screen: What Bitcoin Did): \"And certainly, if you want to have confidence that any purchases of Bitcoin are going to be legal, then, yeah, you would need authorization from Congress.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin as an alternative to government money enabling a new abundant future but with market cycles and legal considerations.\",\n  \"clips\": {\n    \"hook\": 5,\n    \"clip_01\": 4,\n    \"clip_02\": 2,\n    \"clip_03\": 3\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"Both address Bitcoin as positive alternative; 'but' creates contrast to gov money\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": false,\n      \"why\": \"Abrupt shift from future abundance to unrelated price peak analysis\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": false,\n      \"why\": \"No clear link from hard money peaks to needing Congress for legal purchases\"\n    }\n  }\n}",
+ "usage": {
+  "in": 682,
+  "out": 3891,
+  "usd_reported": 0.0103112
+ },
+ "usd": 0.100685,
+ "seconds": 47.86,
+ "recorded_at": "2026-11-13T05:27:06Z"
+}

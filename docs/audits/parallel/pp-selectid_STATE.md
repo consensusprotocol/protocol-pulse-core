@@ -1,6 +1,33 @@
 BATCH READY: tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json
 
 
+## 00:53 ET: the batch is ONE pin. No second medley passes every gate from the remaining supply
+
+- **Pin #1 is RENDERING** at the integrator: run pinned_20261113_054035, started 00:40:35 ET from main HEAD
+  0a645ab4, the pin frozen as data/moments_pins/MOMENTS_PIN_BATCH_B1.json (file sha256 53cb1eff, = ours).
+- **Pins #2 / #3: none.** The rebuilds after pin #1 pass every delivered span AND pin #1's spans as delivered, on the
+  render clock:
+  - fresh_20261112_050611 (b3): 6 pass L-v 2 + CUTTABLE; both line-ups FAIL the clips-alone verdict (a clip rated 2;
+    all rated 1).
+  - fresh_20261111_190259 (b3): 4 pass; all three line-ups FAIL clips-alone.
+  - fresh_20261112_013452 (b3): 4 pass; no line-up fits the medley's seconds and the channel rules.
+  - The ingest ledger, run twice (tests/package/proof/ledger_20261113_052637 and _054549; since now - 72 h; the
+    three pins as delivered): 6 pass.
+    - Line-up 2 (Saifedean Ammous debate, Simply Bitcoin Noq6txZU91c, Stephan Livera) passes clips-alone (5/5/4).
+    - First run: the write fails fidelity (COMMENTARY on takeaway, title and caption: "fails speaker_view"), then
+      ruling 5's wall budget stops the build (1060 s of 900 s; the angle step alone took 724 s, with one re-ask).
+    - Second run: replayed step A and the second pass. The new write passes fidelity and context, then FAILS
+      coherence with the takeaway (clip_01 rated 3), as in the 23:05 build. The re-picked line-ups fail clips-alone.
+  - The four oldest universes are not built: on their own clocks they already failed on supply (< 3 channels), and
+    on the render clock they hold 4-6 usable moments on 2-3 videos.
+- **Why:** after novelty (both delivered pins and pin #1) and render-clock recency, every universe keeps 4-7 moments
+  that pass L-v 2 + CUTTABLE, from the same few videos, and their line-ups do not hold together. More supply means
+  new videos: the integrator's word-pass worker, then the ledger path (ruling 2).
+- **Spend:** $1.55 best known of the order's $6 vendor-reported. That is SPEND_BATCH.json $1.113 (estimate $8.67) plus
+  the two ledger builds, $0.355 and $0.081 (SPEND_LY.json).
+- **Noted, not fixed tonight:** build() leaves why_none empty when every tried line-up fails (192645 b1, the second
+  ledger run). The log and the tried list say why; a code change waits for its own audit.
+
 ## 00:21 ET: the 00:05 batch (PBX: "new batch!"): pin #1 SEALED and sent to the integrator; #2 and #3 building
 
 **Why every package is a rebuild.** The four named L-y packages reuse delivered moments, so the order's item 2 ("no

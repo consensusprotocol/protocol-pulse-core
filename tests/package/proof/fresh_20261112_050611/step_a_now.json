@@ -627,5 +627,158 @@
   "backend": "xai:grok-4.20-0309-reasoning",
   "replayed": false,
   "speaker_verified": false
+ },
+ "1df196cbd1858b330e38:9d43580c729b": {
+  "label": "1df196cbd1858b330e38",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "now",
+    "refers_to": "time of the debate or speaking",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if I go and buy Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "no",
+  "proposition": "The speaker did not buy Bitcoin a couple years ago during COVID when their friends did and now feels they would be at a disadvantage buying it because those friends would be far wealthier.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "How do you see that problem?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d2edb1d68968426ad68e:9d43580c729b": {
+  "label": "d2edb1d68968426ad68e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if that very scarce resource is somehow the only thing we use to pay for things",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Wars will not stop due to Bitcoin and far more exploitation will occur if Bitcoin is the only scarce resource used for payments.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "I just want to bring in Pavlina first.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "39cb7d2a1a661ba699e2:9d43580c729b": {
+  "label": "39cb7d2a1a661ba699e2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "the people in charge of the money printer or central bankers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin or Bitcoin taking away the ability to loot",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin removes from central bankers the ability to loot people through inflation and that is why Bitcoin matters.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "No, it is not a political question, because let me ask you a hypothetical question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "030becff03b4f1f0555e:9d43580c729b": {
+  "label": "030becff03b4f1f0555e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "long time horizon for Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when evaluating companies or thinking about getting Bitcoin exposure",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When evaluating companies or considering Bitcoin exposure, one must use a long time horizon and ensure those managing the capital also have it.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, I think situation has changed.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "805a9282d37c5a2aff3e:9d43580c729b": {
+  "label": "805a9282d37c5a2aff3e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "the dollar and other fiat monies",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the dollar and other fiat monies ultimately failing",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when that happens (fiat currencies fail)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The dollar and other fiat monies will ultimately fail because they are inferior to Bitcoin, and when that occurs Bitcoin could sustainably break above the power law.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, absolutely. I mean, over the years, like the Bitcoin community has been interested in various models, right?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
  }
 }

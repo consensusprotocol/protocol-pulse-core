@@ -1,0 +1,667 @@
+{
+ "bcb9349c6cc040bc309f:9d43580c729b": {
+  "label": "bcb9349c6cc040bc309f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "measuring wealth in a better form of money than the dollar",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "the speaker and their podcast team",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the hurdle rate podcast",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "long-term money",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the hurdle rate as a better form of long-term money, meaning one should not lose any Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, it's a great question. I think, you know, a lot of people today.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "128b99b7a2487f58d3ba:9d43580c729b": {
+  "label": "128b99b7a2487f58d3ba",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "a form of money",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Until Bitcoin came around",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Printing more of the money someone owns steals their purchasing power, and before Bitcoin people had no choice but to use it.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "The Bitcoin Standard podcast is sponsored by BitGo.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "36a495fd9f0d9b367149:9d43580c729b": {
+  "label": "36a495fd9f0d9b367149",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 2017-2022 Bitcoin run from 16K to 126K",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the 8x multiplier from that run",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin went on that same run... this cycle",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Repeating the prior cycle's run could send Bitcoin to nearly 500K this cycle or 240K at half the multiplier under diminishing returns.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "This episode is sponsored by Bitkey.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8055c5252b61b9639cbe:9d43580c729b": {
+  "label": "8055c5252b61b9639cbe",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "A new internet bound by Bitcoin will emerge to provide abundance for all 8 billion people.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "What would make you question your thesis?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e96018d733a4443e1467:9d43580c729b": {
+  "label": "e96018d733a4443e1467",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the 200-day simple moving average",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The 200-day moving average has proven reliable as Bitcoin quickly reclaimed it after briefly closing below in August and held again after the recent November test.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "the Coin Bureau Telegram Group is the place to be",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7a5f734f844bbfd67c1f:9d43580c729b": {
+  "label": "7a5f734f844bbfd67c1f",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "zero percent return over the last five years",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People point out that Bitcoin has returned about zero percent over the last five years and call that not a great return.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I mean, like, as people are pointing out, people are saying",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ca33c7c7064d6870fc17:9d43580c729b": {
+  "label": "ca33c7c7064d6870fc17",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the digital credit yield or strategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in a bear market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The digital credit strategy survived a 50% Bitcoin drawdown in a bear market backed by USD cash reserves and decades of dividend coverage from Bitcoin holdings.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "I think digital credit is probably going to keep exploding",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3c2018635aaee62fb2dc:9d43580c729b": {
+  "label": "3c2018635aaee62fb2dc",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "Eric Simler",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the statement that zombie companies should buy Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Eric Simler famously said zombie companies should be the ones that buy Bitcoin, and the speaker agrees.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "You know, Eric Simler, who is, you know, chairman of similar scientific",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5307d23dced4f444919a:9d43580c729b": {
+  "label": "5307d23dced4f444919a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Our",
+    "refers_to": "speaker and Bitcoin community",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and Bitcoin community",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "We",
+    "refers_to": "speaker and Bitcoin community",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Fiat was destroying the speaker and community's purchasing power at least 5% per year, so they bought Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Welcome to November. Smash the like, subscribe if you're new, and now... Let's get to Saifadeen explaining the evils of central banking",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5ed74534aaf43ada4547:9d43580c729b": {
+  "label": "5ed74534aaf43ada4547",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "the speaker's company Strive",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the share sale immediately followed by buying Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When someone bought a share that the company was selling, the company immediately used the dollars to buy Bitcoin, making the transaction delta neutral.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, it's an interesting question. I mean, with the concept of amplified Bitcoin",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8f8b2d388974f1689fe9:9d43580c729b": {
+  "label": "8f8b2d388974f1689fe9",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the share purchase and company buying Bitcoin process",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "strategy's trading partner",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Buying shares in Strategy is like buying Bitcoin on one exchange and selling on another, as Strategy sells shares and buys Bitcoin, making it delta neutral.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, it's an interesting question. I mean, with the concept of amplified Bitcoin",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c637f7357eea5cec6991:9d43580c729b": {
+  "label": "c637f7357eea5cec6991",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin being the moat",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Saylor mentioned that Bitcoin is the moat and the speaker completely agrees with that idea.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, yeah, I think that's a good way to frame it",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c8827879545a98fdec4e:9d43580c729b": {
+  "label": "c8827879545a98fdec4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin will outperform US equities as a whole and individual companies within them, as Bitcoin functions like a global productivity index similar to how the S&P 500 relates to individual stocks.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, it's a really interesting question. Yeah, I mean, that's probably an endless rabbit hold",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8072c7bcdc1dfe503b69:9d43580c729b": {
+  "label": "8072c7bcdc1dfe503b69",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in a Bitcoin bull market",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The amplified Bitcoin side and the high USD yield side create a win-win transaction that acts as a marketplace where both parties get what they want.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, yeah, I think that's a good way to frame it",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9c14612153405f8983e4:9d43580c729b": {
+  "label": "9c14612153405f8983e4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin will outperform US equities as a whole and individual companies within them, functioning as a global productivity index akin to the S&P 500 for stocks.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, it's a really interesting question. Yeah, I mean, that's probably an endless rabbit hold",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "082a1f3f1050222bed1d:9d43580c729b": {
+  "label": "082a1f3f1050222bed1d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "creating more dollar credit against Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "because Bitcoin is a perfectly scarce asset, and the dollar is not",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Creating more dollar credit to acquire Bitcoin could be sustainable because Bitcoin is perfectly scarce while the dollar is not and more dollars are created by design.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Or like, what do you, what do you, is there a specific like point of why you think that would happen?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a68fd9fae23dc07f4eea:9d43580c729b": {
+  "label": "a68fd9fae23dc07f4eea",
+  "speaker_changes_inside": "yes",
+  "view": "question",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the question of whether AI makes Bitcoin more valuable or less necessary",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Whether AI makes Bitcoin more valuable or less necessary is a great question worth considering in the current economic environment.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2b01f21fad799cbb0e2e:9d43580c729b": {
+  "label": "2b01f21fad799cbb0e2e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the increasing quantity/supply of the dollar",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the dollar increasing in quantity and related inflation dynamics",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "switching to Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "people who are intelligent and can understand this",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The dollar is increasing in quantity and intelligent people who understand this have already switched to Bitcoin and benefited from doing so.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "You brought up the idea of theft. And I want to bring in Jason because I want to know what you have to say.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c3f44dbddf9f6d8d9cdf:9d43580c729b": {
+  "label": "c3f44dbddf9f6d8d9cdf",
+  "speaker_changes_inside": "yes",
+  "view": "question",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "AI stocks continuing to be the fastest horse or best investment",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It remains to be seen whether investing in AI stocks will continue to be the best play going forward or whether Bitcoin will be better.",
+  "certainty": "uncertain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2d8a2050417e286fc2eb:9d43580c729b": {
+  "label": "2d8a2050417e286fc2eb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "correctly identifying where value accrues in the AI stack or which AI investments to make",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you don't pick correctly",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If you incorrectly pick which AI investments to make, you are unlikely to outpace Bitcoin.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "35b7b52533b4220b2672:9d43580c729b": {
+  "label": "35b7b52533b4220b2672",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is not going to help with the Strait of Hormuz or solve energy and oil shocks or embargoes as these are real problems unrelated to the choice of money.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Jason suggested a few other ones.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "837731ebe9e38aa0c791:9d43580c729b": {
+  "label": "837731ebe9e38aa0c791",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the dollar and other fiat monies ultimately failing",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when fiat currencies fail",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When fiat currencies fail, Bitcoin could break above the power law sustainably and become the global money and capital asset used for long-term savings and even day-to-day transactions.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, absolutely. I mean, over the years, like the Bitcoin community has been interested in various models, right? We had the stock to flow model, which was quite popular.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f03d79cf73eb188924ee:9d43580c729b": {
+  "label": "f03d79cf73eb188924ee",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "our",
+    "refers_to": "Strive (the speaker's company) and similar Bitcoin treasury companies",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "We",
+    "refers_to": "Strive (the speaker's company) and similar Bitcoin treasury companies",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "With the concept of amplified Bitcoin via common stocks such as ASST at Strive or MSTR, the objective is to outperform Bitcoin as the hurdle rate.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "obviously you're at Strive",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9db2d89351f8cfb90c46:9d43580c729b": {
+  "label": "9db2d89351f8cfb90c46",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "what helps answer questions about managing economic affairs and directing the public purse",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the current system of economic organization, power, or problems with fiat",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Polity, deliberation, and how production is organized are what help answer questions about economic affairs rather than simply changing from paper currency to Bitcoin, which the speaker thinks will make it worse.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "can i just say first of all i do believe in a thing called society i know that it exists i just think that the way that fiat promoters use the term is simply to just, it's a euphemism for our banker bosses.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

@@ -1,18 +1,18 @@
 {
- "usd_estimate": 6.676032,
- "calls": 54,
+ "usd_estimate": 8.669071,
+ "calls": 67,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 31,
-   "in": 110638,
-   "out": 201815,
-   "usd_estimate": 5.598565,
+   "calls": 40,
+   "in": 138952,
+   "out": 248349,
+   "usd_estimate": 6.903485,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 0.6379966,
-   "reported_calls": 31
+   "usd_reported": 0.7879769,
+   "reported_calls": 40
   },
   "elevenlabs_stt:scribe_v1": {
    "calls": 16,
@@ -26,46 +26,46 @@
    "audio_s": 213.01
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 6,
-   "in": 7398,
-   "out": 55335,
-   "usd_estimate": 0.852219,
+   "calls": 9,
+   "in": 8926,
+   "out": 70416,
+   "usd_estimate": 1.333908,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.01074325,
-   "reported_calls": 6
+   "usd_reported": 0.01362757,
+   "reported_calls": 8
   },
   "heimdall:qwen/qwen3.8-27b": {
-   "calls": 1,
-   "in": 1007,
-   "out": 11975,
-   "usd_estimate": 0.182646,
+   "calls": 2,
+   "in": 1977,
+   "out": 25543,
+   "usd_estimate": 0.389076,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.008585,
-   "reported_calls": 1
+   "usd_reported": 0.01830409,
+   "reported_calls": 2
   }
  },
  "by_role": {
   "context_verdict": {
-   "calls": 16,
-   "usd_estimate": 4.018685
+   "calls": 20,
+   "usd_estimate": 4.920705
   },
   "transcribe": {
    "calls": 16,
    "usd_estimate": 0.042602
   },
   "angle_write": {
-   "calls": 7,
-   "usd_estimate": 1.034865
+   "calls": 11,
+   "usd_estimate": 1.722984
   },
   "coherence_verdict": {
-   "calls": 3,
-   "usd_estimate": 0.202875
+   "calls": 8,
+   "usd_estimate": 0.605775
   },
   "exclusion_verdict": {
    "calls": 1,
@@ -84,9 +84,7 @@
    "usd_estimate": 0.28408
   }
  },
- "reserved": {
-  "138471:3d0127d6d2": 0.25089
- },
- "usd_reported": 0.65732485,
- "usd_unreported_estimate": 0.042602
+ "reserved": {},
+ "usd_reported": 0.81990856,
+ "usd_unreported_estimate": 0.293492
 }

@@ -1,0 +1,415 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is the hard-money escape from government money that could power a new internet, but legal adoption still needs Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "984b91dd88d5f86e3158",
+    "8055c5252b61b9639cbe",
+    "43e6d312e1a1e6a4e33c"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "none",
+    "clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "jumps from gov money choice to 2024 BTC price peak in gold"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "shifts from hard money price peaks to new BTC-bound internet with no link"
+     },
+     "clip_02 -> clip_03": {
+      "followable": false,
+      "why": "moves from abundance for 8B people to needing Congress for legal BTC buys"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['43e6d312e1a1e6a4e33c', '8055c5252b61b9639cbe', '984b91dd88d5f86e3158'], re-lined"
+  },
+  {
+   "angle": 1,
+   "text": "Bitcoin is the hard-money escape from government money that could power a new internet, but legal adoption still needs Congress.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin's future is a new internet and hard-money standard, but it still needs legal authorization to be fully adopted.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "8055c5252b61b9639cbe",
+    "984b91dd88d5f86e3158",
+    "43e6d312e1a1e6a4e33c"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin as an alternative to government money enabling a new abundant future but with market cycles and legal considerations.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 2,
+     "clip_03": 3
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "Both address Bitcoin as positive alternative; 'but' creates contrast to gov money"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "Abrupt shift from future abundance to unrelated price peak analysis"
+     },
+     "clip_02 -> clip_03": {
+      "followable": false,
+      "why": "No clear link from hard money peaks to needing Congress for legal purchases"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['43e6d312e1a1e6a4e33c', '984b91dd88d5f86e3158'], re-lined"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin's future is a new internet and hard-money standard, but it still needs legal authorization to be fully adopted.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is moving from an alternative to government money toward a hard-money system that could underpin the next internet, though legal confidence still depends on Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "43e6d312e1a1e6a4e33c",
+    "984b91dd88d5f86e3158",
+    "8055c5252b61b9639cbe"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "none",
+    "clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "both discuss Bitcoin relative to government money and legality"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt jump from regulation to unrelated price peaks"
+     },
+     "clip_02 -> clip_03": {
+      "followable": false,
+      "why": "shifts suddenly from market analysis to futuristic vision"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone fail (ratings / joins): dropped ['43e6d312e1a1e6a4e33c', '8055c5252b61b9639cbe', '984b91dd88d5f86e3158'], re-lined"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin is moving from an alternative to government money toward a hard-money system that could underpin the next internet, though legal confidence still depends on Congress.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2d2ee640cf1d2adab655": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6d91c6af0e23f79c946e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c751a33022013fb3086": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "219465c7c3b73c49143a": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "2952b07ede23dd542a69": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f56505eda00b45f4675e": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "01154f025a00f40132a7": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "82a9946883d124030934": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "c6e1e853c2ae8ea88ddb": "40.39 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "9eb4b93bfebabd2c853c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "cc661d19abea81e5b9b7": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "a51d8398638df74b3f4a": "20.48 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6ad350843b54d1f48f05": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 31,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 14,
+  "failed": {
+   "55722e7365cc43558d7e": [
+    "CONDITION_OUTSIDE"
+   ],
+   "7a17f3252d14fe2ed7aa": [
+    "REFERENT_OUTSIDE"
+   ],
+   "04a149678014424229d3": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "c6cdbadebbac52e4e623": [
+    "REFERENT_OUTSIDE"
+   ],
+   "128b99b7a2487f58d3ba": [
+    "REFERENT_OUTSIDE"
+   ],
+   "14daf2da53fd3fe0b104": [
+    "REFERENT_OUTSIDE"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ],
+   "1dd835fcfbdcc4cba847": [
+    "NOT_OWN_SINCERE"
+   ],
+   "3c2018635aaee62fb2dc": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "second_pass": {
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "8055c5252b61b9639cbe": "PASS",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "9a9ed680fa64a4ae7305": "not cuttable at an edge (ruling C / 7)",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "863cc95ab7c5e0c11482": "PASS",
+   "43e6d312e1a1e6a4e33c": "PASS",
+   "885875fc8337379c0e77": "L-v 2 FAIL",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "984b91dd88d5f86e3158": "PASS",
+   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 4
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is the hard-money escape from government money that could power a new internet, but legal adoption still needs Congress.",
+   "moments": [
+    "863cc95ab7c5e0c11482",
+    "984b91dd88d5f86e3158",
+    "8055c5252b61b9639cbe",
+    "43e6d312e1a1e6a4e33c"
+   ],
+   "hook": "863cc95ab7c5e0c11482"
+  },
+  {
+   "angle": "Bitcoin's future is a new internet and hard-money standard, but it still needs legal authorization to be fully adopted.",
+   "moments": [
+    "8055c5252b61b9639cbe",
+    "863cc95ab7c5e0c11482",
+    "984b91dd88d5f86e3158",
+    "43e6d312e1a1e6a4e33c"
+   ],
+   "hook": "8055c5252b61b9639cbe"
+  },
+  {
+   "angle": "Bitcoin is moving from an alternative to government money toward a hard-money system that could underpin the next internet, though legal confidence still depends on Congress.",
+   "moments": [
+    "43e6d312e1a1e6a4e33c",
+    "863cc95ab7c5e0c11482",
+    "984b91dd88d5f86e3158",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "43e6d312e1a1e6a4e33c"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 275.5,
+ "usd": 0.5333,
+ "run": "fresh_20261111_190259",
+ "tag": "b3",
+ "usd_estimate": 0.5333,
+ "usd_best_known": 0.048,
+ "code": "5ecd5500+e5ba1a258e64",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:27:26 EST",
+ "as_of": "2026-11-13T05:22:51.305054+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "batch:fresh_20261111_213954"
+  }
+ ],
+ "full": {
+  "est": 0.5716,
+  "best": 0.0863,
+  "model_s": 308.65,
+  "calls": 19
+ }
+}

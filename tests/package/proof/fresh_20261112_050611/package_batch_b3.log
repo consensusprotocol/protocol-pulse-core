@@ -1,0 +1,8 @@
+=== 00:17:07 EST BATCH medley build b3, code 0453f171+afbea8f7b750, delivered ['moments-fresh_20261112_050611-37c5b5f5', 'moments-fresh_20261112_050611-41f29b1f'], kept ['tests/package/proof/fresh_20261111_213954/package_batch_b1.json'], avoid []
+  62 moments, 0 on avoided videos out; 9 delivered or kept spans out; now (render clock) 2026-11-13T05:17:11+00:00
+  26 usable, 17 cleared step A (45 s)
+  6 of them pass the second recognition pass and CUTTABLE (75 s)
+  3 angles from heimdall:qwen/qwen3.8-27b (513 s)
+  angle 1 line-up 1 (4 clips, 42.5 s): clips alone FAIL {'hook': 5, 'clip_01': 2, 'clip_02': 4, 'clip_03': 4} flagged ['clip_01 -> clip_02', 'clip_02 -> clip_03'] (530 s)
+  angle 3 line-up 1 (3 clips, 40.4 s): clips alone FAIL {'hook': 1, 'clip_01': 1, 'clip_02': 1} flagged ['hook -> clip_01', 'clip_01 -> clip_02'] (544 s)
+no package (None); usable 26, cleared 17
