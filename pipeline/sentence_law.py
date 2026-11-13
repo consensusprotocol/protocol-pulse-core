@@ -65,9 +65,11 @@ VALLEY_MARGIN_S = 0.010     # (a TIGHTENING) with no quiet run, the minimum is s
 SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
                                          # only the METHOD, never legality) is cut at its envelope minimum
 LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
-IN_LEAD_MAX_S = 0.400       # RULING 73 (b) (orchestrator 2026-11-13 '18:00'): the in point is never more than 400 ms
-                            # before the first locked word's onset (its decoded start); dead air before it is trimmed
-                            # to LEAD_TARGET_S. (pin 13949b7c clip_01 opened 3.47 s before 'I', on non-speech)
+IN_LEAD_MAX_S = 0.600       # RULING 73 (b) (orchestrator 2026-11-13 '18:00', AMENDED '18:40': 600 ms, not 400; the
+                            # PBX-approved medley reference's hook opens 0.56 s before its first word, and it is the
+                            # evidence): the in point is never more than this before the first locked word's onset
+                            # (its decoded start); dead air before it is trimmed to LEAD_TARGET_S. (pin 13949b7c
+                            # clip_01 opened 3.47 s before 'I', on non-speech)
 TAIL_TARGET_S = 0.300       # M19: cut_out = min(offset + 0.30, onset - 0.06)
 LEAD_PAD_S = 0.250          # D1 room-tone pad (6 frames at 24 fps)
 QUIET_BELOW_SPEECH_DB = 25.0
@@ -372,8 +374,9 @@ def _ruling73(bin_, bout, words, i0, i1):
     """RULING 73 (orchestrator 2026-11-13 '18:00'), THE CUT FOLLOWS THE LOCK'S WORDS, on the legal cut ranges (so the cut
     table, accepted_cut, hook_lead and G16 all hold to it):
     (a) OUT never before the decoded END of the last locked word;
-    (b) IN never more than IN_LEAD_MAX_S before the first locked word's decoded start. Dead air before it is trimmed to
-        LEAD_TARGET_S; the head-lead rule (80 ms for the hook, ruling 28's hook_lead; the D1 pad) is unchanged."""
+    (b) IN never more than IN_LEAD_MAX_S (600 ms, amended '18:40') before the first locked word's decoded start. Dead
+        air before it is trimmed to LEAD_TARGET_S; the head-lead rule (80 ms for the hook, ruling 28's hook_lead; the
+        D1 pad) is unchanged."""
     if bin_.get("valid") and "cut_lo" in bin_:
         bound = round(words[i0]["start"] - IN_LEAD_MAX_S, 3)
         if bin_["cut_lo"] < bound - 1e-9:
@@ -384,7 +387,7 @@ def _ruling73(bin_, bout, words, i0, i1):
             bin_.update(cut_lo=bound, cut_hi=round(hi, 3), cut=round(min(max(target, bound), hi), 3),
                         cuttable=bool(bin_.get("cuttable")) and ok,
                         reason=bin_.get("reason") if ok else
-                        f"no cut within {int(IN_LEAD_MAX_S * 1000)} ms before the first locked word (ruling 73 b)")
+                        f"no cut within {int(round(IN_LEAD_MAX_S * 1000))} ms before the first locked word (ruling 73 b)")
     if bout.get("valid") and "cut_lo" in bout:
         end = round(words[i1]["end"], 3)
         if bout["cut_lo"] < end - 1e-9:

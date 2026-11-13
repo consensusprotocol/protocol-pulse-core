@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """RULING 73 (orchestrator 2026-11-13 '18:00'), THE CUT FOLLOWS THE LOCK'S WORDS. (a) OUT is never before the decoded
 end of the last locked word: the tail pause is searched only after it. (b) IN is never more than 400 ms before the first
-locked word's decoded start; dead air is trimmed. The head-lead rule is unchanged.
+locked word's decoded start (AMENDED '18:40': 600 ms, not 400: the PBX-approved medley reference's hook opens
+0.56 s before its first word, and the reference is the evidence); dead air is trimmed. The head-lead rule is unchanged.
 MUST-FAIL on pin 13949b7c's real spans (run pinned_20261113_221758), held at prepare 17:23:
 - the hook's cut fell in 'or [130 ms] reissued.' inside the decoded last word (27.09 < 27.54);
-- clip_01 opened 3.47 s before 'I' (10.97 < 14.44 - 0.40).
-Both fail on the old sentence_law and pass on the fix. The delivered pins' cuts stay put, except ONE span measured and
-named (the medley reference's hook, 'Bitcoin ... ever.', which opened 0.56 s before its first word).
+- clip_01 opened 3.47 s before 'I' (10.97 < 14.44 - 0.60).
+Both fail on the old sentence_law and pass on the fix. The delivered pins' cuts stay put, the medley reference's
+included (measured '18:40': with 600 ms nothing moves).
 Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES= python3 -m pytest -q pipeline/test_ruling73.py"""
 import json
 import os
@@ -39,30 +40,33 @@ class TestTheRangesFollowTheLock(unittest.TestCase):
         SL._ruling73({}, ok, words_at(("x", 31.0, 31.2), ("undervalued.", 31.2, 31.48)), 0, 1)
         self.assertEqual((ok["cut_lo"], ok["cut"], ok["cuttable"]), (31.48, 31.56, True))
 
-    def test_b_in_never_more_than_400_ms_before_the_first_word(self):
+    def test_b_in_never_more_than_600_ms_before_the_first_word(self):
         w = words_at(("I", 14.44, 15.04), ("think,", 15.04, 15.52))
         bin_ = {"valid": True, "cut_lo": 10.79, "cut_hi": 15.05, "cut": 10.96, "cuttable": True}
         SL._ruling73(bin_, {}, w, 0, 1)
-        self.assertEqual((bin_["cut_lo"], bin_["cut"], bin_["cuttable"]), (14.04, 14.19, True))   # dead air trimmed
+        self.assertEqual((bin_["cut_lo"], bin_["cut"], bin_["cuttable"]), (13.84, 14.19, True))   # dead air trimmed
         near = {"valid": True, "cut_lo": 14.16, "cut_hi": 14.3, "cut": 14.3, "cuttable": True}  # 37c5b5f5 clip_01
+        ref = {"valid": True, "cut_lo": 14.32, "cut_hi": 14.99, "cut": 14.38, "cuttable": True}   # the medley hook
+        SL._ruling73(ref, {}, words_at(("Bitcoin", 14.94, 15.3)), 0, 0)                        # 0.56 s lead
+        self.assertEqual((ref["cut_lo"], ref["cut"], "ruling73_in" in ref), (14.34, 14.38, True))   # cut kept
         SL._ruling73(near, {}, words_at(("I", 14.36, 14.5)), 0, 0)
         self.assertEqual((near["cut_lo"], near["cut"], "ruling73_in" in near), (14.16, 14.3, False))
         none = {"valid": True, "cut_lo": 10.0, "cut_hi": 10.5, "cut": 10.2, "cuttable": True}     # no room at all
         SL._ruling73(none, {}, words_at(("I", 14.44, 15.0)), 0, 0)
-        self.assertEqual((none["cut_lo"], none["cuttable"]), (14.04, False))
+        self.assertEqual((none["cut_lo"], none["cuttable"]), (13.84, False))
         self.assertIn("(ruling 73 b)", none["reason"])
 
     def test_b_an_emptied_range_is_not_cuttable(self):
-        # batch 69 c2's example (cut_lo 10.0, cut_hi 13.0, first word at 14.0): the range empties and says so
+        # batch 69 c2's example (cut_lo 10.0, cut_hi 13.0, first word at 14.0): the range empties and says so (600 ms)
         b = {"valid": True, "cut_lo": 10.0, "cut_hi": 13.0, "cut": 12.0, "cuttable": True}
         SL._ruling73(b, {}, words_at(("X", 14.0, 14.4)), 0, 0)
-        self.assertEqual((b["cut_lo"], b["cut_hi"], b["cuttable"]), (13.6, 13.0, False))
+        self.assertEqual((b["cut_lo"], b["cut_hi"], b["cuttable"]), (13.4, 13.0, False))
         self.assertIn("(ruling 73 b)", b["reason"])
 
     def test_b_a_file_head_keeps_its_quiet_up_to_the_bound(self):
         head = {"valid": True, "file_head": True, "cut_lo": 0.0, "cut_hi": 13.0, "cut": 13.0, "cuttable": True}
         SL._ruling73(head, {}, words_at(("Bitcoin", 14.0, 14.5)), 0, 0)
-        self.assertEqual((head["cut_lo"], head["cut_hi"], head["cut"], head["cuttable"]), (13.6, 13.6, 13.6, True))
+        self.assertEqual((head["cut_lo"], head["cut_hi"], head["cut"], head["cuttable"]), (13.4, 13.4, 13.4, True))
 
 
 def _recut(run):
@@ -99,7 +103,7 @@ class TestMustFail13949b7c(unittest.TestCase):
         self.assertTrue(self.cuts["hook"]["verified"], self.cuts["hook"].get("error"))
         self.assertGreaterEqual(self.cuts["hook"]["cut_out"], end - 1e-9)          # old code: 27.09
 
-    def test_b_clip_01_opens_within_400_ms_of_i(self):
+    def test_b_clip_01_opens_within_600_ms_of_i(self):
         seg = self.edl["clips"][0]
         start = self._words(seg["video_id"])[seg["selection_lock"]["i0"]]["start"]   # 'I' 14.44
         self.assertTrue(self.cuts["clip_01"]["verified"], self.cuts["clip_01"].get("error"))
@@ -108,14 +112,14 @@ class TestMustFail13949b7c(unittest.TestCase):
 
 
 HOP = 0.0101
-MOVED = {("pinned_20261113_031328", "hook"): 14.57, ("pinned_20261112_165629", "clip_02"): 14.69}
+MOVED = {}                   # ruling 73 as amended '18:40' (600 ms): no delivered cut moves
 
 
 @unittest.skipUnless(all(_have(r) for r in ("pinned_20261113_211048", "pinned_20261113_031328",
                                             "pinned_20261112_165629")), "the delivered pins' runs")
 class TestTheDeliveredCuts(unittest.TestCase):
-    """0c68b589, 41f29b1f, 37c5b5f5: every cut as recorded (one 10 ms hop), except the one span that opened 0.56 s
-    before 'Bitcoin' (its IN moves to the ruling-73 bound: 41f29b1f's hook, 37c5b5f5's clip_02)."""
+    """0c68b589, 41f29b1f (the medley reference's run), 37c5b5f5: every cut as recorded (one 10 ms hop), and every cut
+    meets ruling 73 as amended '18:40'."""
 
     def test_unchanged_but_the_named_span(self):
         for name in ("pinned_20261113_211048", "pinned_20261113_031328", "pinned_20261112_165629"):
