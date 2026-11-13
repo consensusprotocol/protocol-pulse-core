@@ -466,14 +466,16 @@ def stage_validate(run):
     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
     import stand_alone
-    rate = stand_alone.clip_scorer(edl.get("angle") or edl.get("topic", ""))   # one code path with the pin stage
+    rate = stand_alone.clip_scorer(edl.get("angle") or edl.get("topic", ""),   # one code path with the pin stage;
+                                   moments="moments_package_sha256" in edl)    # ruling 60: a moments pin, alone only
     story = {}
     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
         with open(os.path.join(run.dir, "passages.json")) as f:
             story = json.load(f).get("story") or {}
     subject = stand_alone_subject(edl, story)
     screen, screen_why = moments_screen(edl)                            # ruling 34: moments packages only
-    sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen)
+    sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen,
+                               moments="moments_package_sha256" in edl)    # ruling 60: the score alone
     sa["screen_why"] = screen_why
     run.prov["stand_alone"] = sa
     for r in sa["rows"]:

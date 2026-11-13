@@ -49,13 +49,37 @@ class TestOneCodePath(unittest.TestCase):
         src = inspect.getsource(rf.stage_validate)
         self.assertIn("stand_alone.clip_scorer(", src)
         self.assertNotIn("rate_passages(", src)                       # nothing of its own left in validate
+        self.assertIn('moments="moments_package_sha256" in edl', src)   # ruling 60: a moments pin, alone only
         for f in (SA.opener, SA.trimmed_opener):
-            self.assertIn("affirmed(score, fault)", inspect.getsource(f))
+            self.assertIn("affirmed(score, fault, moments)", inspect.getsource(f))
 
     def test_the_threshold(self):
-        self.assertEqual([SA.affirmed(s, f) for s, f in ((3.5, "none"), (3.4, "none"), (5, "starts_mid_thought"),
-                                                         (None, None), (4.0, "unspecified"))],
-                         [True, False, False, False, True])
+        cases = ((3.5, "none"), (3.4, "none"), (5, "starts_mid_thought"), (None, None), (4.0, "unspecified"))
+        self.assertEqual([SA.affirmed(s, f) for s, f in cases], [True, False, False, False, True])        # story
+        self.assertEqual([SA.affirmed(s, f, moments=True) for s, f in cases], [True, False, True, False, True])
+
+    def test_ruling_60_the_moments_prompt_judges_standing_alone_only_and_the_story_prompt_is_unchanged(self):
+        import story_semantics as sm
+        self.assertNotIn("{event}", sm.ALONE_PROMPT)
+        self.assertNotIn("off_topic", sm.ALONE_PROMPT)
+        self.assertIn("does a viewer who hears only this clip understand what is being claimed", sm.ALONE_PROMPT)
+        self.assertIn("is never this fault", sm.ALONE_PROMPT)                 # no fixed penalty for an opener word
+        self.assertTrue(sm.CLIP_PROMPT.startswith("You pick clips for a short Bitcoin news video about this event:"))
+        self.assertIn("{event}", sm.CLIP_PROMPT)
+        ps = [{"pid": "clip_01", "channel": "A", "duration": 9.0, "text": "But we hold."}]
+        m, st = FakeLLM({"clip_01": (4.0, "starts_mid_thought")}), FakeLLM({"clip_01": (4.0, "none")})
+        SA.clip_scorer("Pinned: X", llm=m, moments=True)(ps)
+        SA.clip_scorer("Pinned: X", llm=st)(ps)
+        self.assertNotIn("EVENT:", m.prompts[0])
+        self.assertIn("EVENT: Pinned: X", st.prompts[0])
+        chk = SA.check_edl({"hook": {"text": "Bitcoin is money.", "channel": "H"},
+                            "clips": [{"index": 1, "text": "But we hold bitcoin.", "channel": "A"}]},
+                           rate=lambda p: {"clip_01": (4.0, "x", "starts_mid_thought")}, moments=True)
+        self.assertTrue(chk["rows"][1]["opener"]["pass"], chk)              # the score decides for a moments pin
+        chk = SA.check_edl({"hook": {"text": "Bitcoin is money.", "channel": "H"},
+                            "clips": [{"index": 1, "text": "But we hold bitcoin.", "channel": "A"}]},
+                           rate=lambda p: {"clip_01": (4.0, "x", "starts_mid_thought")})
+        self.assertFalse(chk["rows"][1]["opener"]["pass"], chk)             # the story path keeps its rule
 
     def test_the_service_asks_the_byte_identical_prompt_validate_asks(self):
         r = req()
@@ -115,7 +139,8 @@ class TestService(unittest.TestCase):
                (req(event=""), "event"), (req(passages=[]), "passages"),
                (req(passages=[dict(req()["passages"][0], duration="9")]), "duration"),
                (req(passages=[req()["passages"][0], req()["passages"][0]]), "pids must be distinct"),
-               (req(passages=[dict(req()["passages"][0], moment_id="a/b")]), "moment_id")]
+               (req(passages=[dict(req()["passages"][0], moment_id="a/b")]), "moment_id"),
+               (dict(req(), kind="moments"), "carries no event"), (dict(req(), kind="x"), "kind must be")]
         llm = FakeLLM()
         for i, (r, why) in enumerate(bad):
             with self.subTest(why=why):
@@ -148,16 +173,16 @@ class TestCandidates(unittest.TestCase):
         with open(self.path, "w") as f:
             json.dump(self.c, f)
 
-    def test_one_request_per_candidate_with_the_pre_filter_event_a_bad_sha_refused_a_rated_one_reused(self):
+    def test_one_moments_request_per_candidate_no_event_a_bad_sha_refused_a_rated_one_reused(self):
         prior = SS.result_path("m3", self.texts["m3"], "ab" * 32)
         os.makedirs(os.path.dirname(prior))
         with open(prior, "w") as f:
-            json.dump([{"event": SS.PRE_FILTER_EVENT, "score": 4.5, "fault": "none", "affirmed": True}], f)
+            json.dump([{"kind": "moments", "event": None, "score": 4.5, "fault": "none", "affirmed": True}], f)
         c, refused = SS.enqueue_candidates(self.path, "ab" * 32)
         self.assertEqual(refused, {"m2": "text_sha256 is not the sha256 of text"})
         reqs = {json.load(open(p))["passages"][0]["moment_id"]: json.load(open(p)) for p in SS.pending()}
         self.assertEqual(sorted(reqs), ["m1", "m1~trim"])                 # m3 rated before: reused
-        self.assertEqual({r["event"] for r in reqs.values()}, {"Pinned: bitcoin"})
+        self.assertEqual({(r["kind"], r.get("event")) for r in reqs.values()}, {("moments", None)})
         self.assertEqual(reqs["m1~trim"]["passages"][0]["pid"], "clip_01")
         self.assertEqual(SS.problems(reqs["m1~trim"]), [])
 
@@ -172,7 +197,8 @@ class TestCandidates(unittest.TestCase):
         self.assertEqual((v["m1"]["affirmed"], v["m1"]["score"], v["m1~trim"]["affirmed"]), (True, 4.0, True))
         self.assertEqual((v["m2"]["affirmed"], v["m2"]["error"]), (False, "text_sha256 is not the sha256 of text"))
         self.assertEqual((v["m3"]["affirmed"], v["m3"]["error"]), (False, "not rated"))
-        self.assertEqual((out["affirmed"], out["scorer"]["event"], out["scorer"]["threshold"]), (2, "Pinned: bitcoin", 3.5))
+        self.assertEqual((out["affirmed"], out["scorer"]["event"], out["scorer"]["kind"], out["scorer"]["threshold"]),
+                         (2, None, "moments", 3.5))
         self.assertEqual(v["m1"]["text_sha256"], self.c["candidates"][0]["text_sha256"])
         self.assertTrue(os.path.exists(os.path.join(self.root, "verdicts", "latest.json")))
 
@@ -180,11 +206,11 @@ class TestCandidates(unittest.TestCase):
         p = SS.result_path("m1", "t", "ab" * 32)
         os.makedirs(os.path.dirname(p))
         with open(p, "w") as f:
-            json.dump([{"event": "Pinned: bitcoin", "score": 4.0}, {"event": "Pinned: bitcoin", "score": None},
-                       {"event": "Pinned: other", "score": 2.0}], f)
-        self.assertEqual(SS.latest("m1", "t", "ab" * 32, "Pinned: bitcoin")["score"], 4.0)
-        self.assertEqual(SS.latest("m1", "t", "ab" * 32, "Pinned: other")["score"], 2.0)
-        self.assertIsNone(SS.latest("m1", "t", "ab" * 32, "Pinned: none"))
+            json.dump([{"kind": "moments", "event": None, "score": 4.0}, {"kind": "moments", "event": None, "score": None},
+                       {"event": "Pinned: other", "score": 2.0}], f)               # an old entry: kind story
+        self.assertEqual(SS.latest("m1", "t", "ab" * 32)["score"], 4.0)
+        self.assertEqual(SS.latest("m1", "t", "ab" * 32, "story", "Pinned: other")["score"], 2.0)
+        self.assertIsNone(SS.latest("m1", "t", "ab" * 32, "story", "Pinned: none"))
 
 
 class TestGpu0(unittest.TestCase):
