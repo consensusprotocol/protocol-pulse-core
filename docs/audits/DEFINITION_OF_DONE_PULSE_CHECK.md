@@ -6,6 +6,8 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:16 RULING 60 MERGED (cc9e424f, audits batch 63 x2: no consensus findings in either cycle; pushed 2959cfd9). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (MEDLEY REFERENCE REPRODUCED); the affected suites 77 passed. The pin-stage scorer restarted on it (scorer_sha ae7f410162d3) and is RE-RATING the builder's 145 as kind 'moments' (queued 11:16:20). The builder gets the count and the contract change when the verdicts are written.
+
 ## 11:09 ORDER '11:01' B, RULING 60 BUILT (worktree r60, now in audit), PROVED BEFORE IT COUNTS: the 9 delivered spans PASS 9 / 9; tonight's step-A REFERENT_OUTSIDE clips FAIL 27 / 29 (93 %, bar 80 %).
 - THE MOMENTS SCORER: story_semantics.ALONE_PROMPT + rate_alone.
   - It asks ONE thing: "does a viewer who hears only this clip understand what is being claimed, with nothing in it depending on words outside the clip?"
