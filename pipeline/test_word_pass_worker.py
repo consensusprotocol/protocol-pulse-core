@@ -277,10 +277,10 @@ class TestFetchFailure(TestCycle):
     def test_a_fetch_that_dies_writes_failure_rows_and_the_cycle_goes_on(self):          # batch 55 C1
         real = W._fetch
 
-        def dying(vid, rows, tmp):
+        def dying(vid, rows, tmp, hold=None):
             if vid == "vB":
                 raise OSError("sha256 read failed")
-            return real(vid, rows, tmp)
+            return real(vid, rows, tmp, hold)
         with mock.patch.object(W, "_fetch", dying):
             rep = W.cycle()
         got = {r["moment_id"]: r for r in self.rows_written()}
@@ -288,6 +288,114 @@ class TestFetchFailure(TestCycle):
         self.assertIn("fetch: OSError: sha256 read failed", got["m002"]["error"])
         self.assertIn("fetch: OSError", got["m003"]["error"])
         self.assertEqual((rep["written"], rep["failed"]), (1, 2))
+
+
+BOT = ("acquisition: AcquisitionError: audio download failed: ERROR: [youtube] x: Sign in to confirm you're not a bot. "
+       "Use --cookies-from-browser or --cookies for the authentication.")
+
+
+class TestPlatformBlock(unittest.TestCase):
+    """2026-11-13 04:47: YouTube refused every request and 330 moments got failure rows in 2 minutes. A failure in
+    YouTube's sign-in wording is checked ONCE per cycle against a control video: refused too = the platform's (no row,
+    the cycle stops, retried later); answered = that video's own (written, control_ok)."""
+
+    def setUp(self):
+        TestCycle.setUp(self)
+
+    def rows_written(self):
+        return TestCycle.rows_written(self) if os.path.exists(W.ROWS_FILE) else []
+
+    def blocked_audio(self, vid):
+        raise W.ts.AcquisitionError("audio download failed: ERROR: [youtube] x: Sign in to confirm you're not a bot. "
+                                    "Use --cookies-from-browser or --cookies for the authentication.")
+
+    def test_a_platform_block_writes_no_row_and_the_moments_come_back_when_it_clears(self):
+        calls = []
+        with mock.patch.object(W.ts, "download_audio", self.blocked_audio), \
+                mock.patch.object(W, "control_ok", lambda: calls.append(1) or False):
+            rep = W.cycle()
+        self.assertEqual(self.rows_written(), [])                             # nothing burned
+        self.assertEqual((rep["failed"], rep["blocked_rows"], len(calls)), (0, 3, 1))   # one control request
+        self.assertIn("control video", rep["blocked"])
+        self.assertEqual(W.passed_ids(), set())
+        rep = W.cycle()                                                       # the platform answers again
+        got = {r["moment_id"]: r for r in self.rows_written()}
+        self.assertEqual(set(got), {"m001", "m002", "m003"})
+        self.assertTrue(got["m001"]["sentence_ready"])
+        self.assertIsNone(rep["blocked"])
+
+    def test_the_videos_own_sign_in_failure_is_written_with_control_ok_and_not_retried(self):
+        failed, cycles = 0, 0
+        with mock.patch.object(W.ts, "download_audio", self.blocked_audio), mock.patch.object(W, "control_ok", lambda: True):
+            while cycles < 4:                     # a fetch that starts after the first sign-in failure is skipped
+                rep = W.cycle()                   # (batch 60 C1) and picked again by the next cycle
+                cycles += 1
+                if not rep["picked"]:
+                    break
+                failed += rep["failed"]
+                self.assertIsNone(rep["blocked"])
+        rows = self.rows_written()
+        self.assertEqual((failed, len(rows), rep["picked"]), (3, 3, 0))
+        self.assertTrue(all(r.get("control_ok") is True and W.BLOCK.search(r["error"]) for r in rows), rows)
+        self.assertEqual(W.passed_ids(), {"m001", "m002", "m003"})
+
+    def test_a_fetch_starting_after_a_sign_in_failure_makes_no_request(self):          # batch 60 C1
+        import threading
+        hold, asked = threading.Event(), []
+        with mock.patch.object(W.ts, "ensure_meta", lambda vid: asked.append(("meta", vid)) or {"duration": 400}), \
+                mock.patch.object(W.ts, "download_audio", lambda vid: asked.append(("audio", vid)) or self.blocked_audio(vid)):
+            jobs, fails, _ = W._fetch("vA", [self.rows[0]], self.store, hold)
+            self.assertTrue(hold.is_set())                                     # set by the failure, in its thread
+            self.assertTrue(W.blocked_failure(fails[0][1]))
+            jobs, fails, secs = W._fetch("vB", self.rows[1:], self.store, hold)
+        self.assertEqual(asked, [("meta", "vA"), ("audio", "vA")])               # vB never asked the platform
+        self.assertEqual((jobs, [w for _, w in fails], secs), ([], [W.SKIPPED, W.SKIPPED], 0.0))
+
+    def test_an_old_sign_in_failure_row_without_control_ok_is_retried_once_and_other_rows_are_not(self):
+        os.makedirs(os.path.dirname(W.ROWS_FILE), exist_ok=True)
+        with open(W.ROWS_FILE, "w") as f:
+            for mid, err in (("m001", BOT), ("m002", "acquisition: AcquisitionError: metadata unavailable: Video unavailable"),
+                             ("m003", "word pass: RuntimeError: decoder crashed")):
+                f.write(json.dumps({"moment_id": mid, "video_id": "v", "sentence_ready": False, "error": err}) + "\n")
+        self.assertEqual(W.passed_ids(), {"m002", "m003"})
+        self.assertFalse(W.blocked_failure("word pass: RuntimeError: Sign in to confirm"))   # acquisition only
+        self.assertFalse(W.blocked_failure(None))
+
+    def test_a_non_sign_in_acquisition_failure_never_asks_the_control(self):
+        def gone(vid):
+            raise W.ts.AcquisitionError("audio download failed: ERROR: Video unavailable")
+        with mock.patch.object(W.ts, "download_audio", gone), \
+                mock.patch.object(W, "control_ok", lambda: self.fail("the control was asked")):
+            rep = W.cycle()
+        self.assertEqual((rep["failed"], rep["blocked_rows"]), (3, 0))
+        self.assertTrue(all("control_ok" not in r for r in self.rows_written()))
+
+    def test_the_control_is_the_stores_own_ytdlp_call(self):
+        seen = []
+
+        def fake(args, timeout=120):
+            seen.append(args)
+            return subprocess.CompletedProcess(args, 0, W.CONTROL_VIDEO + "\n", "")
+        with mock.patch.object(W.ts, "_ytdlp", fake):
+            self.assertTrue(W.control_ok())
+        self.assertEqual(seen, [["--skip-download", "--print", "id", W.ts.canonical_url(W.CONTROL_VIDEO)]])
+        for res in (subprocess.CompletedProcess([], 1, "", "Sign in to confirm"), subprocess.CompletedProcess([], 0, "", "")):
+            with mock.patch.object(W.ts, "_ytdlp", lambda args, timeout=120, res=res: res):
+                self.assertFalse(W.control_ok())
+        with mock.patch.object(W.ts, "_ytdlp", mock.Mock(side_effect=subprocess.TimeoutExpired("yt-dlp", 60))):
+            self.assertFalse(W.control_ok())
+
+    def test_a_blocked_cycle_sleeps_before_the_next(self):
+        sleeps = []
+
+        def stop(s):
+            sleeps.append(s)
+            raise KeyboardInterrupt
+        with mock.patch.object(W, "cycle", lambda limit=None: {"picked": 3, "blocked": "x"}), \
+                mock.patch.object(W.time, "sleep", stop):
+            with self.assertRaises(KeyboardInterrupt):
+                W.main(["--sleep", "7"])
+        self.assertEqual(sleeps, [7.0])
 
 
 class TestGpu1Only(unittest.TestCase):

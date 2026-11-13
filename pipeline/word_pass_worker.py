@@ -21,6 +21,13 @@ One cycle:
    start, end]: the segments sha does not. A row goes to STORE/moments/word_pass.jsonl:
    {moment_id, video_id, window_record, record_sha256, sentence_ready, window, at}. sentence_ready is false when a
    stretch is still unpunctuated. A failed moment also gets a row, with its error, and is not retried in a loop.
+   EXCEPT a platform block (2026-11-13 04:47: YouTube refused every request, "Sign in to confirm you're not a bot",
+   and 330 moments got failure rows in 2 minutes): an acquisition failure in YouTube's sign-in wording (BLOCK) is
+   checked ONCE per cycle against a control video. If YouTube refuses the control too, the failure is the platform's,
+   not the moment's: no row is written, the fetches not yet started are cancelled, the cycle ends "blocked" and the
+   worker sleeps. If the control answers, the failure is that video's (an age gate, a sign-in-only video) and is
+   written as before, with control_ok. A BLOCK failure row without control_ok (written before this check) is
+   retried once.
 7. The cycle's report goes to STORE/moments/word_pass_cycles.jsonl: minutes, the GPU1 peak MiB, counts, the channels,
    and the age of the newest sentence-ready moment.
 Usage: CUDA_VISIBLE_DEVICES=1 python3 pipeline/word_pass_worker.py [--once] [--limit N] [--sleep S]"""
@@ -31,9 +38,11 @@ import hashlib
 import json
 import math
 import os
+import re
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
@@ -50,6 +59,17 @@ FETCH_WORKERS = 4         # order '02:46': audio fetched in parallel, ahead of t
 PER_CHANNEL = math.ceil(PER_CYCLE / MIN_CHANNELS)
 OWNER = "word-pass worker (integrator, GPU1)"
 LEASE_WAIT_S = 1800
+BLOCK = re.compile(r"Sign in to confirm|--cookies for the authentication", re.I)   # YouTube's sign-in wording
+CONTROL_VIDEO = "wdk5JZ9hPzs"     # the approved medley reference's own source: public, known to download
+
+
+def control_ok():
+    """True when YouTube answers a metadata request for CONTROL_VIDEO (the store's own yt-dlp call and cookies)."""
+    try:
+        r = ts._ytdlp(["--skip-download", "--print", "id", ts.canonical_url(CONTROL_VIDEO)], timeout=60)
+    except Exception:
+        return False
+    return r.returncode == 0 and CONTROL_VIDEO in (r.stdout or "")
 
 _ROWS = """
 import json, sys
@@ -93,15 +113,23 @@ def ledger_rows(now, ingest_root=INGEST_ROOT, timeout=300):
 
 
 def passed_ids(rows_file=None):
-    """moment_ids that already have a row (ready, not ready or failed): never worked again by this worker."""
+    """moment_ids that already have a row (ready, not ready or failed): never worked again by this worker. A BLOCK
+    acquisition failure without control_ok is the platform's, not the moment's: it does not count (retried)."""
     rows_file, done = rows_file or ROWS_FILE, set()          # resolved at call time, never bound at import
     if os.path.exists(rows_file):
         with open(rows_file) as f:
             for line in f:
                 line = line.strip()
                 if line:
-                    done.add(json.loads(line)["moment_id"])
+                    row = json.loads(line)
+                    if not (blocked_failure(row.get("error")) and not row.get("control_ok")):
+                        done.add(row["moment_id"])
     return done
+
+
+def blocked_failure(why):
+    """An acquisition failure in YouTube's sign-in wording: the platform's or the video's (control_ok decides)."""
+    return isinstance(why, str) and why.startswith("acquisition:") and bool(BLOCK.search(why))
 
 
 def has_full_record(video_id):
@@ -273,15 +301,25 @@ def gpu1_used():
         return None
 
 
-def _fetch(vid, rows, tmp):
+SKIPPED = "skipped: a sign-in failure is being checked against the control video"
+
+
+def _fetch(vid, rows, tmp, hold=None):
     """One video: its meta, its audio ONCE, every window cut. Runs in a fetch thread, never under a lease.
+    hold (a threading.Event, batch 60 C1): set by the first sign-in failure of the cycle, in its own thread; a fetch
+    starting while it is set makes no request (its rows come back SKIPPED: no row written, retried).
     -> (jobs, failures, seconds)."""
     t0, jobs, fails = time.time(), [], []
+    if hold is not None and hold.is_set():
+        return [], [(r, SKIPPED) for r in rows], 0.0
     try:
         meta = ts.ensure_meta(vid)
         audio = ts.download_audio(vid)
     except Exception as e:
-        return [], [(r, f"acquisition: {type(e).__name__}: {e}") for r in rows], time.time() - t0
+        why = f"acquisition: {type(e).__name__}: {e}"
+        if hold is not None and blocked_failure(why):
+            hold.set()
+        return [], [(r, why) for r in rows], time.time() - t0
     try:
         media_sha = ts.sha256_file(audio)
         for r in rows:
@@ -308,6 +346,7 @@ def cycle(now=None, limit=PER_CYCLE):
               "fresh_channels": len({r["channel_id"] for r in fresh}), "day_rows": len(day),
               "day_picked": sum(is_fresh(r, now, DAY_H) for r in picks),
               "picked": len(picks), "channels": nch, "written": 0, "sentence_ready": 0, "failed": 0, "peak_gpu1_mib": 0,
+              "blocked": None, "blocked_rows": 0,              # a platform block: no rows written for those moments
               "newest_ready_published_at": None, "_ready_channels": set(),
               "fetch_s": 0.0, "lease_wait_s": 0.0, "foreign_wait_s": 0.0, "gpu_s": 0.0, "batches": 0}
     # fetch_s: the summed time of every fetch thread (downloads and cuts, overlapping the GPU); lease_wait_s: waiting
@@ -337,14 +376,17 @@ def cycle(now=None, limit=PER_CYCLE):
                 report["batches"] += 1
     try:
         with ThreadPoolExecutor(FETCH_WORKERS) as ex:                     # order '02:46': fetched ahead, in parallel
-            of = {}                                                       # future -> its video's rows
+            of, hold = {}, threading.Event()                              # future -> its video's rows
             for v in dict.fromkeys(r["video_id"] for r in picks):
                 mine = [r for r in picks if r["video_id"] == v]
-                of[ex.submit(_fetch, v, mine, tmp)] = mine
-            pending, ready = set(of), []
+                of[ex.submit(_fetch, v, mine, tmp, hold)] = mine
+            pending, ready, verdict = set(of), [], {}
             while pending or ready:
                 for f in [f for f in pending if f.done()]:
                     pending.discard(f)
+                    if f.cancelled():                                     # cancelled at a platform block: no row
+                        report["blocked_rows"] += len(of[f])
+                        continue
                     try:
                         jobs, fails, secs = f.result()
                     except Exception as e:                                # batch 55 C1: a fetch that dies still
@@ -352,7 +394,24 @@ def cycle(now=None, limit=PER_CYCLE):
                     report["fetch_s"] += secs
                     ready += jobs
                     for r, why in fails:
-                        _fail(r, report, why)
+                        if why == SKIPPED:                                # never asked the platform: retried later
+                            report["blocked_rows"] += 1
+                            continue
+                        if not blocked_failure(why):
+                            _fail(r, report, why)
+                            continue
+                        if "control_ok" not in verdict:                   # ONE control request per cycle
+                            verdict["control_ok"] = control_ok()
+                            if not verdict["control_ok"]:
+                                report["blocked"] = f"YouTube refuses the control video {CONTROL_VIDEO} too: {why[:200]}"
+                                log(f"  platform block, the cycle stops: {report['blocked']}")
+                                for p in pending:
+                                    p.cancel()                            # only fetches not yet started stop
+                        if verdict["control_ok"]:
+                            _fail(r, report, why, control_ok=True)        # that video's own failure
+                            hold.clear()                                  # the platform answers: fetches go on
+                        else:
+                            report["blocked_rows"] += 1                   # the platform's: no row, retried later
                 if len(ready) >= BATCH or (ready and not pending):
                     gpu_batch(ready[:BATCH])                              # the lease per batch, left after it
                     ready = ready[BATCH:]
@@ -397,11 +456,12 @@ def _one(r, meta, media_sha, w0, w1, wav, report, decoded=None):
         _fail(r, report, f"word pass: {type(e).__name__}: {e}")
 
 
-def _fail(r, report, why):
+def _fail(r, report, why, control_ok=False):
     report["failed"] += 1
     log(f"  {r['moment_id']} ({r['video_id']}): {why}")
     append_row({"moment_id": r["moment_id"], "video_id": r["video_id"], "window_record": None, "record_sha256": None,
-                "sentence_ready": False, "error": why[:300], "at": ts.now_iso()})
+                "sentence_ready": False, "error": why[:300], "at": ts.now_iso(),
+                **({"control_ok": True} if control_ok else {})})
 
 
 def main(argv=None):
@@ -420,7 +480,7 @@ def main(argv=None):
             rep = {"picked": 0}
         if a.once:
             return 0
-        if not rep.get("picked"):
+        if not rep.get("picked") or rep.get("blocked"):
             time.sleep(a.sleep)
 
 
