@@ -63,6 +63,17 @@ class TestContract(unittest.TestCase):
         self.assertIn("not measured", VP.hook_block({"measured": False}))
         self.assertIn("not measured", VP.hook_block(None))
 
+    def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
+        class R:
+            cached, usd = False, 0.37
+        r = R()
+        r.usage = {"in": 2760, "out": 6226, "usd_reported": 0.041144}
+        self.assertEqual(VP.cost(r), {"usd": 0.041144, "usd_basis": "reported"})
+        r.usage = {"in": 2760, "out": 6226}
+        self.assertEqual(VP.cost(r), {"usd": 0.37, "usd_basis": "estimate"})
+        r.cached = True
+        self.assertEqual(VP.cost(r), {"usd": 0.0, "usd_basis": "cached"})
+
     def test_the_seal_never_holds_a_scratch_path_or_a_cost(self):
         s = VP.sealed({"version": "v", "measured": True, "flags": [], "third_person": {}, "on_screen_text": [],
                        "lower_third": {}, "backend": "b", "replayed": False, "usd": 0.01, "cached": True,

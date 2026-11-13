@@ -2065,7 +2065,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     usd0 = _spent(spend)
     import visual_pin as VP                            # ruling 70
     vcache = VP.load_cache(visual_cache) if visual_cache else {}
-    out_visual = {"calls": 0, "cached": 0, "usd": 0.0, "unmeasured": 0, "flags": 0}
+    out_visual = {"calls": 0, "cached": 0, "usd_reported": 0.0, "usd_estimate": 0.0, "estimated_calls": 0,
+                  "unmeasured": 0, "flags": 0}   # ruling 70: the vendor's figure and the estimate never mixed
 
     def see(ms_):                                      # RULING 70: the clips' sheets, judged (cached per moment)
         todo = [m for m in ms_ if not (m.get("visual") or {}).get("measured")]
@@ -2075,7 +2076,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             for m, rec in zip(todo, recs):
                 m["visual"] = rec
                 out_visual["cached" if rec.get("cached") else "calls"] += 1     # audit 1541 C1: every attempt
-                out_visual["usd"] = round(out_visual["usd"] + float(rec.get("usd") or 0.0), 6)
+                if rec.get("usd_basis") == "reported":
+                    out_visual["usd_reported"] = round(out_visual["usd_reported"] + float(rec.get("usd") or 0.0), 6)
+                elif rec.get("usd_basis") == "estimate":
+                    out_visual["usd_estimate"] = round(out_visual["usd_estimate"] + float(rec.get("usd") or 0.0), 6)
+                    out_visual["estimated_calls"] += 1
                 out_visual["unmeasured"] += 0 if rec.get("measured") else 1
                 out_visual["flags"] += len(rec.get("flags") or [])
             VP.save_cache(visual_cache, vcache)

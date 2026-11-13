@@ -245,8 +245,10 @@ def main(argv=None):
                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
     vis = res.get("visual") or {}
     say(f"  visual (ruling 70): {vis.get('calls', 0)} sheet(s) asked ({vis.get('unmeasured', 0)} not measured), "
-        f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); measured cost ${vis.get('usd', 0):.4f} "
-        f"(the router's figure: vendor-reported where the reply carries it)")
+        f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); cost ${vis.get('usd_reported', 0):.4f} "
+        f"vendor-reported" + (f" + ${vis.get('usd_estimate', 0):.4f} price-table estimate for "
+                              f"{vis.get('estimated_calls', 0)} call(s) with no vendor figure"
+                              if vis.get("estimated_calls") else ""))
     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
         f"vendor-reported after this build (before it: ${spent0:.2f})")
     try:                                                 # audit 1420 C2: a registry failure never loses the record;

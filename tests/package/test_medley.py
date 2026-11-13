@@ -624,7 +624,8 @@ class Rig:
                                  "finding": "no third person"},
                 "on_screen_text": [], "lower_third": {"name": None, "text": None},
                 "sheet": {"name": f"visual_{m['moment_id']}.jpg", "sha256": "0" * 64, "times": [0.0], "path": "/x"},
-                "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "cached": False}
+                "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "usd_basis": "reported",
+                "cached": False}
         return dict(base, **self.visuals.get(m["moment_id"], {}))
 
     def onset(self, m, *a, **k):
@@ -1623,6 +1624,7 @@ class TestRuling70Visual(unittest.TestCase):
         self.assertEqual([sg["visual"]["sheet"]["name"] for sg in pk["segments"]],
                          ["visual_h.jpg", "visual_x.jpg", "visual_y.jpg"])
         self.assertNotIn("path", pk["segments"][0]["visual"]["sheet"])  # never a scratch path in the seal
+        self.assertEqual((out["visual"]["usd_reported"], out["visual"]["usd_estimate"]), (0.006, 0.0))
         self.assertIn("visual", package_pin.MEDLEY_GATES)
         pin = package_pin.to_pin(spk(pk), "r")
         self.assertIn("visual", pin["segments"][1])

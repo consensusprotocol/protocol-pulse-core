@@ -228,6 +228,19 @@ def sealed(rec):
     return out
 
 
+def cost(r):
+    """A reply's cost as RULING 70 reports it: {"usd": the vendor-reported figure where the reply carries one (xAI
+    cost_in_usd_ticks, Heimdall usage.cost: Reply.usage["usd_reported"]), "usd_basis": "reported"}; else the price-table
+    estimate (Reply.usd, an upper bound) with "usd_basis": "estimate"; a reply served from its recording costs nothing
+    ("cached")."""
+    if getattr(r, "cached", False):
+        return {"usd": 0.0, "usd_basis": "cached"}
+    rep = (getattr(r, "usage", None) or {}).get("usd_reported")
+    if isinstance(rep, (int, float)) and not isinstance(rep, bool):
+        return {"usd": round(float(rep), 6), "usd_basis": "reported"}
+    return {"usd": round(float(getattr(r, "usd", 0.0) or 0.0), 6), "usd_basis": "estimate"}
+
+
 def visual_for(router, m, work_dir, cache, seed=7, log=print):
     """The clip's visual record (cached per moment and span). Not measured on any failure: never a pass (law L-m).
     -> {"version", "measured", "flags", "third_person", "on_screen_text", "lower_third", "sheet" {"name", "sha256",
@@ -238,12 +251,12 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
     if hit is not None:                              # the judged sheet, still on disk with the judged bytes
         p = os.path.join(work_dir, "visual", (hit.get("sheet") or {}).get("name") or "-")
         if _sha_of(p) == (hit.get("sheet") or {}).get("sha256"):
-            return dict(hit, cached=True, usd=0.0, sheet=dict(hit["sheet"], path=p))
+            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=p))
     try:
         video = fetch(m["video_id"], float(m["start"]), float(m["end"]), work_dir)
         path, sha, ts = sheet(video, float(m["start"]), float(m["end"]), work_dir)
         if hit is not None and sha == hit["sheet"]["sha256"]:        # rebuilt, the same bytes: the same verdict
-            return dict(hit, cached=True, usd=0.0, sheet=dict(hit["sheet"], path=path))
+            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=path))
         with open(path, "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
     except Exception as e:                       # noqa: BLE001  no sheet: not measured (law L-m), never a crash
@@ -258,10 +271,10 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
             rec = {"version": VERSION, "measured": True, **v, "flags": flags(v),
                    "sheet": {"name": os.path.basename(path), "sha256": sha, "times": ts, "path": path},
                    "backend": r.backend, "replayed": bool(getattr(r, "replayed", False)),
-                   "usd": 0.0 if getattr(r, "cached", False) else float(getattr(r, "usd", 0.0) or 0.0),
+                   **cost(r),
                    "usage": getattr(r, "usage", None), "cached": bool(getattr(r, "cached", False))}
             if cache is not None and not rec["replayed"]:
-                cache[k] = {x: y for x, y in rec.items() if x not in ("cached", "usd")}
+                cache[k] = {x: y for x, y in rec.items() if x not in ("cached", "usd", "usd_basis")}
             return rec
         except Exception as e:                   # noqa: BLE001  fail closed; each try's reason is kept (C2)
             if r is not None and not isinstance(e, (P.ProviderError, P.SpendLimit)) and hasattr(router, "reject"):

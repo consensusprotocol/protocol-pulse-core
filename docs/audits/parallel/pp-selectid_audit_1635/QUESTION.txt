@@ -1,0 +1,35 @@
+You are auditing a SMALL reporting fix on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins).
+Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- The router (providers.Router) returns a Reply whose .usd is the PRICE-TABLE ESTIMATE (usage x the config's
+  upper-bound $ per 1M). Where a vendor reports its own cost, the back-end puts it in Reply.usage["usd_reported"]:
+  xAI's cost_in_usd_ticks / 1e10, Heimdall's usage.cost.
+- The spend ledger keeps the two apart (usd_reported vs usd_estimate), per the project's rule: record the vendor's
+  figure, label an estimate as an estimate.
+- RULING 70 (orchestrator 15:29 Nov 13): "Report the measured cost on the first build."
+
+The defect:
+- visual_pin.visual_for recorded "usd" from Reply.usd (the estimate).
+- The build summed that, and the driver's log line called it "measured cost ... vendor-reported where the reply
+  carries it".
+- On the first build it printed $0.3646 for 3 sheets. The ledger shows the vendor-reported cost was $0.0890; the
+  $0.3646 is the price-table upper bound.
+
+The fix:
+1. visual_pin.cost(reply) returns the cost and its basis:
+   - {"usd": usage["usd_reported"], "usd_basis": "reported"} when the vendor reported one;
+   - else {"usd": Reply.usd, "usd_basis": "estimate"};
+   - {"usd": 0.0, "usd_basis": "cached"} for a reply served from its recording.
+   Cache hits carry usd_basis "cached". Neither usd nor usd_basis enters the cache or the seal.
+2. package.build's out["visual"] keeps usd_reported and usd_estimate apart (plus estimated_calls); they are never
+   summed under one label.
+3. The driver's log line prints "$X vendor-reported", and, only when some call carried no vendor figure,
+   "+ $Y price-table estimate for N call(s) with no vendor figure".
+4. Tests: test_visual_pin covers the three bases; test_medley covers the build's split totals. test_visual_pin 11,
+   test_medley 138 OK.
+
+Check: that no path labels an estimate as reported (or the reverse), and that a bool or a missing figure never counts
+as reported. Also that nothing here changes a gate, the seal or the cache key.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

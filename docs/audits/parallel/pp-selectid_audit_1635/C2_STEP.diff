@@ -1,0 +1,140 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index ce8c6e4..dc2f3fc 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2065,7 +2065,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     usd0 = _spent(spend)
+     import visual_pin as VP                            # ruling 70
+     vcache = VP.load_cache(visual_cache) if visual_cache else {}
+-    out_visual = {"calls": 0, "cached": 0, "usd": 0.0, "unmeasured": 0, "flags": 0}
++    out_visual = {"calls": 0, "cached": 0, "usd_reported": 0.0, "usd_estimate": 0.0, "estimated_calls": 0,
++                  "unmeasured": 0, "flags": 0}   # ruling 70: the vendor's figure and the estimate never mixed
+ 
+     def see(ms_):                                      # RULING 70: the clips' sheets, judged (cached per moment)
+         todo = [m for m in ms_ if not (m.get("visual") or {}).get("measured")]
+@@ -2075,7 +2076,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             for m, rec in zip(todo, recs):
+                 m["visual"] = rec
+                 out_visual["cached" if rec.get("cached") else "calls"] += 1     # audit 1541 C1: every attempt
+-                out_visual["usd"] = round(out_visual["usd"] + float(rec.get("usd") or 0.0), 6)
++                if rec.get("usd_basis") == "reported":
++                    out_visual["usd_reported"] = round(out_visual["usd_reported"] + float(rec.get("usd") or 0.0), 6)
++                elif rec.get("usd_basis") == "estimate":
++                    out_visual["usd_estimate"] = round(out_visual["usd_estimate"] + float(rec.get("usd") or 0.0), 6)
++                    out_visual["estimated_calls"] += 1
+                 out_visual["unmeasured"] += 0 if rec.get("measured") else 1
+                 out_visual["flags"] += len(rec.get("flags") or [])
+             VP.save_cache(visual_cache, vcache)
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index 6cb6417..4cecca8 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -228,6 +228,19 @@ def sealed(rec):
+     return out
+ 
+ 
++def cost(r):
++    """A reply's cost as RULING 70 reports it: {"usd": the vendor-reported figure where the reply carries one (xAI
++    cost_in_usd_ticks, Heimdall usage.cost: Reply.usage["usd_reported"]), "usd_basis": "reported"}; else the price-table
++    estimate (Reply.usd, an upper bound) with "usd_basis": "estimate"; a reply served from its recording costs nothing
++    ("cached")."""
++    if getattr(r, "cached", False):
++        return {"usd": 0.0, "usd_basis": "cached"}
++    rep = (getattr(r, "usage", None) or {}).get("usd_reported")
++    if isinstance(rep, (int, float)) and not isinstance(rep, bool):
++        return {"usd": round(float(rep), 6), "usd_basis": "reported"}
++    return {"usd": round(float(getattr(r, "usd", 0.0) or 0.0), 6), "usd_basis": "estimate"}
++
++
+ def visual_for(router, m, work_dir, cache, seed=7, log=print):
+     """The clip's visual record (cached per moment and span). Not measured on any failure: never a pass (law L-m).
+     -> {"version", "measured", "flags", "third_person", "on_screen_text", "lower_third", "sheet" {"name", "sha256",
+@@ -238,12 +251,12 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
+     if hit is not None:                              # the judged sheet, still on disk with the judged bytes
+         p = os.path.join(work_dir, "visual", (hit.get("sheet") or {}).get("name") or "-")
+         if _sha_of(p) == (hit.get("sheet") or {}).get("sha256"):
+-            return dict(hit, cached=True, usd=0.0, sheet=dict(hit["sheet"], path=p))
++            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=p))
+     try:
+         video = fetch(m["video_id"], float(m["start"]), float(m["end"]), work_dir)
+         path, sha, ts = sheet(video, float(m["start"]), float(m["end"]), work_dir)
+         if hit is not None and sha == hit["sheet"]["sha256"]:        # rebuilt, the same bytes: the same verdict
+-            return dict(hit, cached=True, usd=0.0, sheet=dict(hit["sheet"], path=path))
++            return dict(hit, cached=True, usd=0.0, usd_basis="cached", sheet=dict(hit["sheet"], path=path))
+         with open(path, "rb") as f:
+             b64 = base64.b64encode(f.read()).decode()
+     except Exception as e:                       # noqa: BLE001  no sheet: not measured (law L-m), never a crash
+@@ -258,10 +271,10 @@ def visual_for(router, m, work_dir, cache, seed=7, log=print):
+             rec = {"version": VERSION, "measured": True, **v, "flags": flags(v),
+                    "sheet": {"name": os.path.basename(path), "sha256": sha, "times": ts, "path": path},
+                    "backend": r.backend, "replayed": bool(getattr(r, "replayed", False)),
+-                   "usd": 0.0 if getattr(r, "cached", False) else float(getattr(r, "usd", 0.0) or 0.0),
++                   **cost(r),
+                    "usage": getattr(r, "usage", None), "cached": bool(getattr(r, "cached", False))}
+             if cache is not None and not rec["replayed"]:
+-                cache[k] = {x: y for x, y in rec.items() if x not in ("cached", "usd")}
++                cache[k] = {x: y for x, y in rec.items() if x not in ("cached", "usd", "usd_basis")}
+             return rec
+         except Exception as e:                   # noqa: BLE001  fail closed; each try's reason is kept (C2)
+             if r is not None and not isinstance(e, (P.ProviderError, P.SpendLimit)) and hasattr(router, "reject"):
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 6647ab8..63f93ab 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -245,8 +245,10 @@ def main(argv=None):
+                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
+     vis = res.get("visual") or {}
+     say(f"  visual (ruling 70): {vis.get('calls', 0)} sheet(s) asked ({vis.get('unmeasured', 0)} not measured), "
+-        f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); measured cost ${vis.get('usd', 0):.4f} "
+-        f"(the router's figure: vendor-reported where the reply carries it)")
++        f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); cost ${vis.get('usd_reported', 0):.4f} "
++        f"vendor-reported" + (f" + ${vis.get('usd_estimate', 0):.4f} price-table estimate for "
++                              f"{vis.get('estimated_calls', 0)} call(s) with no vendor figure"
++                              if vis.get("estimated_calls") else ""))
+     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
+         f"vendor-reported after this build (before it: ${spent0:.2f})")
+     try:                                                 # audit 1420 C2: a registry failure never loses the record;
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index ee2d718..dea7ca8 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -624,7 +624,8 @@ class Rig:
+                                  "finding": "no third person"},
+                 "on_screen_text": [], "lower_third": {"name": None, "text": None},
+                 "sheet": {"name": f"visual_{m['moment_id']}.jpg", "sha256": "0" * 64, "times": [0.0], "path": "/x"},
+-                "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "cached": False}
++                "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "usd_basis": "reported",
++                "cached": False}
+         return dict(base, **self.visuals.get(m["moment_id"], {}))
+ 
+     def onset(self, m, *a, **k):
+@@ -1623,6 +1624,7 @@ class TestRuling70Visual(unittest.TestCase):
+         self.assertEqual([sg["visual"]["sheet"]["name"] for sg in pk["segments"]],
+                          ["visual_h.jpg", "visual_x.jpg", "visual_y.jpg"])
+         self.assertNotIn("path", pk["segments"][0]["visual"]["sheet"])  # never a scratch path in the seal
++        self.assertEqual((out["visual"]["usd_reported"], out["visual"]["usd_estimate"]), (0.006, 0.0))
+         self.assertIn("visual", package_pin.MEDLEY_GATES)
+         pin = package_pin.to_pin(spk(pk), "r")
+         self.assertIn("visual", pin["segments"][1])
+diff --git a/tests/package/test_visual_pin.py b/tests/package/test_visual_pin.py
+index df3c51b..22f9647 100644
+--- a/tests/package/test_visual_pin.py
++++ b/tests/package/test_visual_pin.py
+@@ -63,6 +63,17 @@ class TestContract(unittest.TestCase):
+         self.assertIn("not measured", VP.hook_block({"measured": False}))
+         self.assertIn("not measured", VP.hook_block(None))
+ 
++    def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
++        class R:
++            cached, usd = False, 0.37
++        r = R()
++        r.usage = {"in": 2760, "out": 6226, "usd_reported": 0.041144}
++        self.assertEqual(VP.cost(r), {"usd": 0.041144, "usd_basis": "reported"})
++        r.usage = {"in": 2760, "out": 6226}
++        self.assertEqual(VP.cost(r), {"usd": 0.37, "usd_basis": "estimate"})
++        r.cached = True
++        self.assertEqual(VP.cost(r), {"usd": 0.0, "usd_basis": "cached"})
++
+     def test_the_seal_never_holds_a_scratch_path_or_a_cost(self):
+         s = VP.sealed({"version": "v", "measured": True, "flags": [], "third_person": {}, "on_screen_text": [],
+                        "lower_third": {}, "backend": "b", "replayed": False, "usd": 0.01, "cached": True,
