@@ -1,0 +1,302 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "121e3fb8ec24d4931fc2a1d5ed873ae83c8b287ab0992a5821d49c739aafe53e",
+ "result": {
+  "text": "We pay that bill over the next two years. I think it's pretty clear we already won. But if you were to find one asteroid that had huge gold deposits in it, you could double the world's gold supply overnight. You cannot do that with Bitcoin.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.34,
+    "text": "We pay that bill over the next two years. I think it's pretty clear we already won. But if you were to find one asteroid that had huge gold deposits in it, you could double the world's gold supply overnight. You cannot do that with Bitcoin."
+   }
+  ],
+  "words": [
+   {
+    "text": "We",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pay",
+    "start": 0.18,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.4,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bill",
+    "start": 0.58,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 0.9,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.1,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 1.24,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 1.5,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 1.66,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.3,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.36,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.44,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 2.56,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clear",
+    "start": 2.74,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.98,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 3.12,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won.",
+    "start": 3.48,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.86,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.14,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 4.54,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.3,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "find",
+    "start": 5.46,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 5.82,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asteroid",
+    "start": 6.04,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.7,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 6.86,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "huge",
+    "start": 7.12,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 7.38,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deposits",
+    "start": 7.54,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.88,
+    "end": 7.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 7.98,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.54,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "could",
+    "start": 8.64,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "double",
+    "start": 8.78,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.98,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world's",
+    "start": 9.08,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 9.3,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply",
+    "start": 9.46,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overnight.",
+    "start": 9.76,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 10.36,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cannot",
+    "start": 10.5,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 10.74,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.84,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 10.94,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 11.04,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.72
+ },
+ "usd": 0.002544,
+ "seconds": 0.9,
+ "recorded_at": "2026-11-13T13:47:22Z"
+}

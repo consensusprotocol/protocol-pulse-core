@@ -1,41 +1,41 @@
 {
- "usd_estimate": 42.570984,
- "calls": 421,
+ "usd_estimate": 43.409804,
+ "calls": 430,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 240,
-   "in": 538248,
-   "out": 1174748,
-   "usd_estimate": 32.05994,
+   "calls": 243,
+   "in": 540771,
+   "out": 1186381,
+   "usd_estimate": 32.36338,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 3.5618336,
-   "reported_calls": 240
+   "usd_reported": 3.59232265,
+   "reported_calls": 243
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 75,
-   "in": 88921,
-   "out": 480562,
-   "usd_estimate": 8.735916,
+   "calls": 80,
+   "in": 97243,
+   "out": 514420,
+   "usd_estimate": 9.268752,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.09422446,
-   "reported_calls": 70
+   "usd_reported": 0.10103026,
+   "reported_calls": 75
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 99,
+   "calls": 100,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.296416,
+   "usd_estimate": 0.29896,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 1482.08
+   "audio_s": 1494.8
   },
   "heimdall:qwen/qwen3.8-27b": {
    "calls": 7,
@@ -52,24 +52,24 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 85,
-   "usd_estimate": 17.60997
+   "calls": 86,
+   "usd_estimate": 17.762766
   },
   "angle_write": {
-   "calls": 79,
-   "usd_estimate": 11.304791
+   "calls": 83,
+   "usd_estimate": 11.684831
   },
   "coherence_verdict": {
-   "calls": 62,
-   "usd_estimate": 4.320452
+   "calls": 65,
+   "usd_estimate": 4.623892
   },
   "exclusion_verdict": {
    "calls": 31,
    "usd_estimate": 0.72458
   },
   "transcribe": {
-   "calls": 99,
-   "usd_estimate": 0.296416
+   "calls": 100,
+   "usd_estimate": 0.29896
   },
   "viewer_takeaway": {
    "calls": 38,
@@ -84,9 +84,7 @@
    "usd_estimate": 0.28129
   }
  },
- "reserved": {
-  "3078636:9036cc94ea": 0.296763
- },
- "usd_reported": 3.68997976,
- "usd_unreported_estimate": 2.312476
+ "reserved": {},
+ "usd_reported": 3.72727461,
+ "usd_unreported_estimate": 2.31502
 }

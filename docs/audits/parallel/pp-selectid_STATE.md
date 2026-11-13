@@ -1,4 +1,36 @@
-SPEND (ruling 48): $5.97 of $12.00 vendor-reported (08:28 ET; no build starts at $10). No pin yet. 52 and 53 are committed and rebuilt; 54 is in audit. QUESTION: THE COHERENCE VERDICT AFTER THE TAKEAWAY STILL RATES THE HOOK ON 'HOW MUCH IT ADVANCES THE THROUGH-LINE' (BAR 4, MIN OVER ALL CLIPS): SHOULD RULING 52'S HOOK RATING APPLY THERE TOO, OR STAY CLIPS-ALONE ONLY?
+SPEND (ruling 48): $6.04 of $12.00 vendor-reported (09:02 ET; no build starts at $10). No pin yet. Rulings 52, 53, 54 and item 55 are committed and each was rebuilt. What blocks a pin now is the SUPPLY: 5 clips clear every gate, and the clips-alone judge finds their one formable line-up incoherent (hook 2, clips 1-5). The chain restarts on the word-pass cycles. QUESTION (STILL OPEN): SHOULD RULING 52'S HOOK RATING ALSO APPLY TO THE COHERENCE VERDICT AFTER THE TAKEAWAY?
+
+## 09:02 ET: 54 and 55 committed; a defect in my 54 found by its own build and fixed; the supply is the binding limit
+
+- **54 (ebf6ff32, audit 0830):** the pool completes an angle that cannot form its FIRST line-up: at most the 10 best
+  candidates, at least half the line-up from the angle's own moments, checked inside the search. The proposer is told
+  each clip's limits.
+- **The defect, mine (found by the 08:46 build, ledger_20261113_134638):**
+  - The limits said every clip under 8 s "may only play LAST". But lineup_for's short-clip rule binds only the clips
+    AFTER the hook, so a short clip may OPEN.
+  - That build's 5 cleared clips allowed exactly one line-up, opening on Bitcoin Mechanic (7.26 s): 7.26 + 13.94 +
+    9.46 + 6.93 = 37.59 s.
+  - Told the opener could only play last, the writer correctly returned no angle, and the build ended "no readable
+    angles". Three reviewers had passed 54 without catching it.
+  - **Fixed at b1fd9f15 (audit 0855, 2 cycles):** "under 8 s: only the hook or the LAST clip" for a short clip that can
+    open, "only the LAST clip" for one that cannot.
+- **Its rebuild (08:57):** the 3 angles came from Heimdall deepseek, in time (188 s on its clock). EVERY angle formed
+  that one line-up, and every one failed the clips-alone verdict:
+  | angle | ratings (hook derived per ruling 52) | flagged joins |
+  |---|---|---|
+  | 1 | hook 2, 1, 2, 2 | 2 |
+  | 2 | hook 2, 3, 5, 4 | 3 |
+  | 3 | hook 2, 1, 1, 1 | 3 |
+- **55 (886775c5, audit 0831):** the router appends every missed deadline, and every answer of 240 s or more, to
+  docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.jsonl, the evidence file. The .md documents its schema.
+- **What binds now: the supply.**
+  - 169 usable moments; 112 left out by STAND_ALONE; 13 clear step A; 7 pass L-v 2 + CUTTABLE; 5 clear step A from
+    both vendors.
+  - Those 5 (What Bitcoin Did, CNBC Television, Altcoin Daily, Bitcoin Mechanic, The Bitcoin Layer) form one line-up,
+    and the judge finds it incoherent.
+  - New moments come only from the word-pass worker's new rows, so the chain restarts on its cycles. Spend per build
+    is now about $0.01-0.06 (step A and the angles replay from the cache when the supply does not change).
+
 
 ## 08:28 ET: rulings 52-55, in your order
 
