@@ -73,6 +73,33 @@ class TestCreditsLabels(unittest.TestCase):
         self.assertEqual(S.fit_label_sizes(self.MOMENTS[0], self.MOMENTS[1], [540] * 3, 1080, 46, 32, BOLD, REG,
                                            row=False), (46, 32))      # the 9:16 card was never affected
 
+    def test_the_measured_ink_is_the_drawn_ink(self):
+        """Audit batch 42 (glm F1 / qwen F1): _ink is measured the way render_shoutout draws (the same textbbox, the same
+        integer centring name_x = cx - tw // 2, no anchor). Each label is drawn that way on black: its lit columns lie
+        INSIDE _ink's extent (the box includes side bearings), at most 4 px in on either side, so a measured gap of g px
+        is at least g px on screen."""
+        from PIL import Image, ImageDraw
+        for font in (ImageFont.truetype(BOLD, 46), ImageFont.truetype(BOLD, 41), ImageFont.truetype(REG, 29)):
+            for text, cx in (("Saifedean Ammous", 500), ("What Bitcoin Did", 961), ("@nataliebrunell", 1420), ("Il", 77)):
+                im = Image.new("L", (1920, 120), 0)
+                d = ImageDraw.Draw(im)
+                bb = d.textbbox((0, 0), text, font=font)                  # render_shoutout's own measure and centring
+                d.text((cx - (bb[2] - bb[0]) // 2, 20), text, fill=255, font=font)
+                cols = [x for x in range(1920) if any(im.getpixel((x, y)) for y in range(120))]
+                left, right = S._ink(font, text, cx)
+                self.assertTrue(left <= cols[0] <= left + 4 and right - 5 <= cols[-1] <= right - 1,
+                                (text, cols[0], cols[-1], left, right))
+
+    def test_a_9x16_stack_with_a_long_label_shrinks_every_label_inside_the_frame(self):
+        """Audit batch 42 (glm F3): several labels on the 9:16 stack (one per line, so only the frame edge applies)."""
+        names = ["W" * 24, "Natalie Brunell", "What Bitcoin Did"]
+        ns, hs = S.fit_label_sizes(names, ["@a", "@b", "@c"], [540] * 3, 1080, 46, 32, BOLD, REG, row=False)
+        self.assertLess(ns, 46)
+        f = ImageFont.truetype(BOLD, ns)
+        for t in names:
+            l, r = S._ink(f, t, 540)
+            self.assertTrue(l >= S.LABEL_MARGIN and r <= 1080 - S.LABEL_MARGIN, (t, l, r))
+
     def test_a_card_that_needs_labels_under_60_percent_is_refused(self):
         names = ["MARA Holdings (Marathon Digital)", "Marty Bent (Rabbit Hole Recap)", "The Investors Podcast Network",
                  "Strategy (MicroStrategy)"]

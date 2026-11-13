@@ -34,15 +34,16 @@ FONT_REG_PATHS = [
 ]
 
 
-LABEL_MIN_GAP = 12      # px at 1080p between neighbouring credit labels on the 16:9 row: the tightest gap PBX approved
-                        # (the v2f card, 'The Bitcoin Layer' / 'Bitcoin Magazine', 12 px as drawn)
+LABEL_MIN_GAP = 12      # px at 1080p between neighbouring credit labels on the 16:9 row, by _ink's measure: the tightest
+                        # gap PBX approved (the v2f card, 'The Bitcoin Layer' / 'Bitcoin Magazine': 12 px, 16 lit px)
 LABEL_FIT_GAP = 40      # px at 1080p: a card that must change is sized for a clear gap, not the bare minimum
 LABEL_MARGIN = 20       # px at 1080p kept between any credit label and the frame edge
 LABEL_MIN_SCALE = 0.6   # labels are shrunk no further than this; a card that would need it is refused, never drawn touching
 
 
 def _ink(font, text, cx):
-    """The drawn ink extent [left, right) of `text` centred on cx exactly as render_shoutout draws it."""
+    """The extent [left, right) of `text` centred on cx the way render_shoutout draws it (its textbbox, its integer
+    centring): the glyph box with side bearings, so the lit pixels lie inside it (a measured gap is a lower bound)."""
     x0, _, x1, _ = font.getbbox(text)
     left = cx - (x1 - x0) // 2 + x0
     return left, left + (x1 - x0)
