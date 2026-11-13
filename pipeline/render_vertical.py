@@ -377,15 +377,24 @@ LETTERBOX_VF = ("split[main][bg];[bg]scale=-2:2400:flags=lanczos,crop=1080:1920:
                 f"[main]scale={VERT_W}:-2:flags=lanczos[mainout];[bgout][mainout]overlay=(W-w)/2:(H-h)/2")
 # colorlevels runs in RGB: ffmpeg 4.4's round trip keeps the YUV values but drops the matrix tag, so a 9:16 part
 # opening on a safe frame came out color_space=unknown (Nov 11 recut: decoders read it as BT.601, G9 luma 14.47
-# instead of 14.74). reframe_auto re-declares the input's own matrix after the safe frame (metadata only).
-_KNOWN_MATRICES = {"bt709", "bt470bg", "smpte170m", "bt2020nc", "bt2020c", "smpte240m", "fcc"}
+# instead of 14.74). A stack2 / stack3 shot (split, vstack, pad) drops ALL FOUR tags: a 9:16 part opening on one came
+# out untagged and so did the final, which takes its first part's tags (Nov 13, runs pinned_20261113_031328 and
+# pinned_20261113_191409: G9 13.6 vs 14.73, every source BT.709). reframe_auto re-declares the input's own colour
+# properties after EVERY shot (metadata only; the pixels are untouched).
+_KNOWN = {"color_range": ("range", {"tv", "pc"}),
+          "color_primaries": ("color_primaries", {"bt709", "bt470bg", "smpte170m", "bt470m", "smpte240m", "film",
+                                                  "bt2020"}),
+          "color_transfer": ("color_trc", {"bt709", "bt470bg", "smpte170m", "bt470m", "smpte240m", "linear",
+                                           "iec61966-2-1", "bt2020-10", "bt2020-12"}),
+          "color_space": ("colorspace", {"bt709", "bt470bg", "smpte170m", "bt2020nc", "bt2020c", "smpte240m", "fcc"})}
 
 
-def _input_matrix(path):
-    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=color_space",
-                        "-of", "csv=p=0", path], capture_output=True, text=True)
-    m = r.stdout.strip()
-    return m if m in _KNOWN_MATRICES else None
+def _input_colour(path):
+    """The input's declared colour properties as setparams options, known values only ('' when none is known)."""
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=" + ",".join(_KNOWN),
+                        "-of", "default=noprint_wrappers=1", path], capture_output=True, text=True)
+    got = dict(x.split("=", 1) for x in r.stdout.split() if "=" in x)
+    return ":".join(f"{opt}={got[k]}" for k, (opt, ok) in _KNOWN.items() if got.get(k) in ok)
 
 
 def _shot_vf(shot, src_w, src_h):
@@ -415,12 +424,12 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
     gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     fps = plan["fps"]
     graph, labels = [], []
-    matrix = _input_matrix(seg_path)
+    colour = _input_colour(seg_path)
     for k, shot in enumerate(plan["shots"]):
         a, b = int(round(shot["start"] * fps)), int(round(shot["end"] * fps))
         vf = _shot_vf(shot, plan["width"], plan["height"])
-        if vf == LETTERBOX_VF and matrix:              # keep the input's declared matrix through the safe frame
-            vf += f",setparams=colorspace={matrix}"
+        if colour:                                     # every shot keeps the input's declared colour (metadata only)
+            vf += f",setparams={colour}"
         graph.append(f"[0:v]trim=start_frame={a}:end_frame={b},setpts=PTS-STARTPTS,"
                      f"{vf},setsar=1:1[v{k}]")
         labels.append(f"[v{k}]")
