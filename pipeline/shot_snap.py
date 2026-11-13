@@ -39,7 +39,7 @@ def scene_changes_9x16(clip):
     on vertical_layout.classify's plan (the renderer's own crop), scored before any encode."""
     import render_vertical
     import vertical_layout
-    g = render_vertical.auto_graph(vertical_layout.classify(clip)) + \
+    g = render_vertical.auto_graph(vertical_layout.classify(clip), render_vertical._input_colour(clip)) + \
         ";[vout]select='gte(scene,0)',metadata=print:key=lavfi.scene_score:file=-[s]"
     r = subprocess.run(["ffmpeg", "-v", "error", "-i", clip, "-filter_complex", g, "-map", "[s]", "-f", "null", "-"],
                        capture_output=True, text=True, check=True, timeout=600)
