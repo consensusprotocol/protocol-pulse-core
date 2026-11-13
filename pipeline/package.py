@@ -685,8 +685,8 @@ def trim_variant(m, sources):
         word, nxt = toks[w0].get("word") or "", toks[w0 + 1]
     except (KeyError, IndexError, TypeError, ValueError):
         return None
-    tok = canon.canon_tokens(word)[:1]
-    if w1 <= w0 or not tok or tok[0] not in TRIM_WORDS:
+    tok = canon.canon_tokens(word)                 # exactly ONE canonical token, as the render's validate_schema
+    if w1 <= w0 or len(tok) != 1 or tok[0] not in TRIM_WORDS:          # ("and/or" is two: the integrator, 07:19)
         return None
     if len(canon.canon_tokens(E.spoken(toks[w0 + 1:w1 + 1]))) < E.MIN_STATEMENT_TOKENS:
         return None                          # the kept words still make a statement (audit 0530 C1, glm P0-2)

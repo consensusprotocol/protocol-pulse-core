@@ -1,0 +1,28 @@
+You are auditing a small diff on branch pp-selectid (Protocol Pulse: moments-first packaging). This branch seals pins
+of short video medleys; the integrator renders them. Your role: a strict reviewer of a one-rule tightening.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background:
+- Ruling 33 part 2 lets a clip that opens on ONE leading word (but/and/so/well/now/yeah) be cut one word in. The pin
+  carries the trimmed word as "trimmed_leading".
+- The render's pinned.validate_schema (the integrator's branch) requires the trimmed word to be EXACTLY ONE canonical
+  token: `tok = canon.canon_tokens(tl); if len(tok) != 1 or tok[0] not in L.TRIMMABLE_LEADING: refuse`.
+- The integrator found (07:19 ET Nov 13) that this branch's checks read only the FIRST canonical token
+  (`canon.canon_tokens(w)[:1]`). So "But so" (tokens ['but', 'so']) or "and/or" (['and', 'or']) passed here, and the
+  render would refuse that pin at prepare. Measured: canon.canon_tokens("But so") == ['but', 'so'],
+  canon.canon_tokens("and/or") == ['and', 'or'], canon.canon_tokens("But,") == ['but'].
+
+The change:
+1. pipeline/package.py, trim_variant (the moment's own test): the trimmed word must be exactly one canonical token,
+   one of TRIM_WORDS; else no variant.
+2. pipeline/package_pin.py, trim_problems (the pin's test): the same; the reason says "must be ONE word".
+3. tests/package/test_medley.py: a moment opening on "And/or" gives no variant; a pin with trimmed_leading "But so" or
+   "and/or" is refused.
+- test_medley 81 OK, every other suite OK.
+
+Check that the two tests now accept exactly what the render's validate_schema accepts (one canonical token in the
+six words, punctuation allowed as canon strips it), that nothing that passed before and is valid at the render is now
+refused, and that nothing else changed.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

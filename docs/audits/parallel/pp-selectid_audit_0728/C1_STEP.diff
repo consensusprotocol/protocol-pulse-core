@@ -1,0 +1,54 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 5fce642..63f680d 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -685,8 +685,8 @@ def trim_variant(m, sources):
+         word, nxt = toks[w0].get("word") or "", toks[w0 + 1]
+     except (KeyError, IndexError, TypeError, ValueError):
+         return None
+-    tok = canon.canon_tokens(word)[:1]
+-    if w1 <= w0 or not tok or tok[0] not in TRIM_WORDS:
++    tok = canon.canon_tokens(word)                 # exactly ONE canonical token, as the render's validate_schema
++    if w1 <= w0 or len(tok) != 1 or tok[0] not in TRIM_WORDS:          # ("and/or" is two: the integrator, 07:19)
+         return None
+     if len(canon.canon_tokens(E.spoken(toks[w0 + 1:w1 + 1]))) < E.MIN_STATEMENT_TOKENS:
+         return None                          # the kept words still make a statement (audit 0530 C1, glm P0-2)
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 733acbe..dfbb94f 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -125,9 +125,9 @@ def trim_problems(segments):
+             out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
+             continue
+         w, u, st = s["trimmed_leading"], s["untrimmed_start"], s.get("start")
+-        tok = canon.canon_tokens(w)[:1] if isinstance(w, str) else []
+-        if not tok or tok[0] not in TRIM_WORDS:
+-            out.append(f"segment {i}: trimmed_leading {w!r} is not one of {'/'.join(TRIM_WORDS)}")
++        tok = canon.canon_tokens(w) if isinstance(w, str) else []          # exactly ONE canonical token: the
++        if len(tok) != 1 or tok[0] not in TRIM_WORDS:                      # render's pinned.validate_schema
++            out.append(f"segment {i}: trimmed_leading {w!r} must be ONE word, one of {'/'.join(TRIM_WORDS)}")
+         num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
+         if not num(u) or not num(st) or not 0 <= float(u) < float(st):   # never raises (audit 0530 C1, glm P0-8)
+             out.append(f"segment {i}: untrimmed_start {u!r} must be a number with 0 <= it < start {st!r}")
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index c68fcc1..e231c02 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -803,6 +803,7 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+     def test_only_one_word_and_only_the_ruled_words(self):
+         for sentence in ("But then Bitcoin had six negative weeks back to back in its whole history.",    # 'then'
+                          "Because Bitcoin had six negative weeks back to back in its whole history.",      # not ruled
++                         "And/or Bitcoin had six negative weeks back to back in its whole history.",       # 2 tokens
+                          "Bitcoin had six negative weeks back to back in its whole history."):             # no opener
+             m, srcs = self.moment(sentence)
+             self.assertIsNone(PK.trim_variant(m, srcs), sentence)
+@@ -868,7 +869,8 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+         other[1]["trimmed_leading"], other[1]["scorer_pending"] = "But", False      # and so is scorer_pending
+         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
+-        for bad in ({"trimmed_leading": "Because"}, {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
++        for bad in ({"trimmed_leading": "Because"}, {"trimmed_leading": "But so"}, {"trimmed_leading": "and/or"},
++                    {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
+                     {"scorer_pending": False}):                                       # ruling 49 (a) in plain words
+             p = spk(pk)
+             p["segments"][1] = dict(p["segments"][1], **bad)

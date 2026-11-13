@@ -125,9 +125,9 @@ def trim_problems(segments):
             out.append(f"segment {i}: trimmed_leading and untrimmed_start come together (ruling 33 part 2)")
             continue
         w, u, st = s["trimmed_leading"], s["untrimmed_start"], s.get("start")
-        tok = canon.canon_tokens(w)[:1] if isinstance(w, str) else []
-        if not tok or tok[0] not in TRIM_WORDS:
-            out.append(f"segment {i}: trimmed_leading {w!r} is not one of {'/'.join(TRIM_WORDS)}")
+        tok = canon.canon_tokens(w) if isinstance(w, str) else []          # exactly ONE canonical token: the
+        if len(tok) != 1 or tok[0] not in TRIM_WORDS:                      # render's pinned.validate_schema
+            out.append(f"segment {i}: trimmed_leading {w!r} must be ONE word, one of {'/'.join(TRIM_WORDS)}")
         num = lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)
         if not num(u) or not num(st) or not 0 <= float(u) < float(st):   # never raises (audit 0530 C1, glm P0-8)
             out.append(f"segment {i}: untrimmed_start {u!r} must be a number with 0 <= it < start {st!r}")

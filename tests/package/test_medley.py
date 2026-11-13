@@ -803,6 +803,7 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
     def test_only_one_word_and_only_the_ruled_words(self):
         for sentence in ("But then Bitcoin had six negative weeks back to back in its whole history.",    # 'then'
                          "Because Bitcoin had six negative weeks back to back in its whole history.",      # not ruled
+                         "And/or Bitcoin had six negative weeks back to back in its whole history.",       # 2 tokens
                          "Bitcoin had six negative weeks back to back in its whole history."):             # no opener
             m, srcs = self.moment(sentence)
             self.assertIsNone(PK.trim_variant(m, srcs), sentence)
@@ -868,7 +869,8 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
         other[1]["trimmed_leading"], other[1]["scorer_pending"] = "But", False      # and so is scorer_pending
         self.assertNotEqual(package_pin.seal(other, *args), mp["package_sha256"])
-        for bad in ({"trimmed_leading": "Because"}, {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
+        for bad in ({"trimmed_leading": "Because"}, {"trimmed_leading": "But so"}, {"trimmed_leading": "and/or"},
+                    {"untrimmed_start": 0.5}, {"untrimmed_start": -1.0},
                     {"scorer_pending": False}):                                       # ruling 49 (a) in plain words
             p = spk(pk)
             p["segments"][1] = dict(p["segments"][1], **bad)
