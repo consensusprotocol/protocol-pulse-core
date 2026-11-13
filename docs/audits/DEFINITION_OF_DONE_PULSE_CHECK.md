@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:43 RULING 73 MERGED as AMENDED '18:40' (585b6da5; audits batch 69 x4). The IN lead cap is 600 ms; the references are untouched. regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, every protected reference reproduced (preview, moments, medley with its hook at 14.38-19.01, first pass).
+- WITH 600 ms, recomputed on the runs' own files (cut_in-cut_out, seconds on the window clock):
+  - 41f29b1f (the medley reference's run): hook 14.38-19.01, clip_01 14.30-34.16, clip_02 14.30-31.56. ALL UNCHANGED.
+  - 37c5b5f5: hook 14.79-23.41, clip_01 14.30-25.27, clip_02 14.38-19.01. ALL UNCHANGED; clip_02 no longer moves.
+  - 0c68b589: unchanged. clip_01 OUT recomputes 29.50 against 29.51 with the OLD code too, within one hop.
+  - 13949b7c: hook OUT 27.09 -> 27.78 (after 'reissued.'); clip_01 IN 10.97 -> 13.84 (600 ms before 'I').
+  - On the OLD code both 13949b7c must-fail tests fail; on the fix 33 pass.
+- THE PRE-CHECK restarted at 18:43:08 on decoder_sha 8a101f222598, rules 'ruling 17 + ruling 72 + ruling 73'. It now holds a span the render cannot cut. The builder has both values.
+- THE STAND-ALONE SCORER (order '18:40' (2)) is not behind.
+  - It rated the builder's 18:30:01 candidates file within 45 s: 66 candidates, 4 new (62 already rated under the same scorer_sha); verdicts at 18:30:45, 13 of 66 affirmed.
+  - The orchestrator's '76 of 123 left out on STAND_ALONE at 18:29' is more than the file's 66. Told the builder: any moment not in the file is not rated.
+- 13949b7c does not render (rulings 76 / 77; withdrawn). Next: the word-pass tiers (ruling 77.4).
+
 ## 18:26 RULING 73 READY TO MERGE, AUDITED TWICE (batch 69; branch r73-cut-follows-lock 9599e54e, pushed). ONLY the medley reference's re-baseline ruling is outstanding.
 - Cycle 1's consensus (low, every accepted_cut path clamped into the ranges): FIXED.
 - Cycle 2's consensus (medium, 'an emptied IN range stays cuttable'): DISPROVED. The reviewers' exact example reproduces as cuttable False with the ruling-73 reason, and it is kept as a test.
