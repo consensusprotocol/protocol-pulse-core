@@ -6,6 +6,27 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:47 THE BUILDER'S PIN IS RENDERING: ledger_20261113_183302 (seal 61fd55d013b3e190), run runs/pinned_20261113_184605.
+- The render holds the GPU0 lease: pulse_check_run 20261113_184525, PID 3916660, since 13:45:25 ET. Preflight passed every check at HEAD 758bfc99.
+- THE PIN:
+  - Received 13:44 ET from pp-selectid. It was sealed 13:38 ET on code 912370bf (rulings 65 + 66).
+  - Frozen as data/moments_pins/MOMENTS_PIN_LEDGER_183302.json (file sha256 45d0afcabad1d451ce31873ff616837e379a38364b443b1eb0d1abfab96a1279).
+  - check_pin_only: READY (pin only) 61fd55d013b3e190: no intro, one VO line (the takeaway, after clip 2).
+- LINE-UP:
+  - hook: Simply Bitcoin DcUbBkyeh9M 236.69-253.31 (16.62 s);
+  - clip: CNBC Television GXWj2JO9bz8 124.16-138.10 (13.94 s);
+  - clip: Scott Melker mKNAcOFMYD4 755.45-764.21 (8.76 s).
+  - Title: "No single owner controls the bitcoin network". None of the clips is time-sensitive, so there is no L-v 3 deadline.
+- GPU0 HAND-OVER (law L-r):
+  - the yield flag went up at 13:45:10;
+  - the lease was free (the scorer's last batch ended 13:33);
+  - the render took the lease at 13:45:25;
+  - the flag came down at 13:47:36.
+- THE PIN-STAGE SCORER SINCE 11:35, as the builder rewrote its candidates file. Every count is under scorer_sha ae7f410162d3:
+  - 16 of 148 affirmed (12:28);
+  - 16 of 142 (13:05);
+  - 14 of 138 (13:33, build ledger_20261113_183302).
+
 ## 11:35 RULING 60 RE-RATING: 9 OF 145 AFFIRMED (was 0 under the old story test). Untrimmed 4 / 93, trimmed 5 / 52. 6 of the 94 moments have at least one affirmed variant; trimming rescued 2 that were refused untrimmed. 0 errors. Rated 11:16-11:34 ET, scorer_sha ae7f410162d3, kind moments, event null, rule score >= 3.5. verdicts/latest.json (= verdicts_20261113T1516070000.json).
 - Scores: 1.0 x 23, 2.0 x 94, 3.0 x 19, 4.0 x 9. The model now uses the whole scale.
 - The reasons name the clip's own dependence ("the 'it' refers to something unsaid", "we don't know what letters"), never a headline.
