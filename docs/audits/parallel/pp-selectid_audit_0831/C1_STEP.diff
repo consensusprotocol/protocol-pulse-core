@@ -1,0 +1,149 @@
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 49bfc9f..1eaba43 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -501,7 +501,7 @@ class Router:
+     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
+ 
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+-                 local_llm=None, chains=None, limit_basis="estimate"):
++                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0):
+         with open(config) as f:
+             self.config = json.load(f)
+         self.env_path = env_path or ENV_PATH
+@@ -509,6 +509,9 @@ class Router:
+         if limit_basis not in ("estimate", "reported"):
+             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
+         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
++        import threading
++        self.deadline_log, self.slow_log_s = deadline_log, slow_log_s     # order 08:06 item 55: the evidence file
++        self._log_lock = threading.Lock()
+         self.down, self.notices = {}, []
+         self.backends = {}
+         for name, spec in self.config["backends"].items():
+@@ -578,6 +581,21 @@ class Router:
+         with self._lock():
+             return float(self._ledger()["usd_estimate"])
+ 
++    def _log_slow(self, rec):
++        """Order 08:06 item 55: one JSON line per call that missed its deadline or answered in >= slow_log_s, appended
++        to deadline_log (the evidence the Heimdall team gets). Evidence, never a gate: a write that fails becomes a
++        notice and the call goes on."""
++        if not self.deadline_log:
++            return
++        line = json.dumps(dict(rec, utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
++        try:
++            with self._log_lock:
++                os.makedirs(os.path.dirname(os.path.abspath(self.deadline_log)), exist_ok=True)
++                with open(self.deadline_log, "a") as f:
++                    f.write(line + "\n")
++        except OSError as e:
++            self.notices.append(f"the deadline log could not be written: {type(e).__name__}: {e}")
++
+     def _basis_total(self, d):
+         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
+         bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
+@@ -726,6 +744,9 @@ class Router:
+             except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
+                 self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
+                 tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
++                self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
++                                "deadline_s": deadline_s, "seconds": deadline_s, "prompt_chars": len(prompt),
++                                "max_tokens": max_tokens})
+                 continue
+             except RequestRejected as e:
+                 self._settle(key)
+@@ -741,6 +762,11 @@ class Router:
+                 raise
+             usd = b.usd(usage)
+             self._settle(key, b, usage, usd, role)
++            if secs >= self.slow_log_s:                # item 55: an answer this slow is evidence too
++                self._log_slow({"kind": "answered_slowly", "threshold_s": self.slow_log_s, "role": role, "model": name,
++                                "vendor": b.vendor, "deadline_s": deadline_s, "seconds": round(secs, 2),
++                                "prompt_chars": len(prompt), "max_tokens": max_tokens, "in": (usage or {}).get("in"),
++                                "out": (usage or {}).get("out")})
+             if not (isinstance(text, str) and text.strip()):   # an empty reply: this call moves on (audit C2 K7)
+                 tried.append((name, "refused this request: an empty reply"))
+                 continue
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 637e675..1ea63a0 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -121,7 +121,7 @@ def main(argv=None):
+                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
+                   f, indent=1, default=str)
+     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains())
++                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(), deadline_log=PL.DEADLINE_LOG)
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+     if spent0 >= PL.LY_STOP_USD:
+         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index c958eab..24e4276 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -52,6 +52,7 @@ LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate rea
+ LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
+                                    # Each paid call still RESERVES its price-table upper bound while in flight.
+ TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
++DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
+ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
+         "fresh_20261111_192645", "fresh_20261111_190259", "fresh_20261110_093150", "fresh_20261107_080503",
+         "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
+@@ -276,7 +277,7 @@ def main(argv=None):
+         print(table())
+         return 0
+     router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD,
+-                      limit_basis=LY_LIMIT_BASIS, chains=chains())
++                      limit_basis=LY_LIMIT_BASIS, chains=chains(), deadline_log=DEADLINE_LOG)
+     own = meter(router)
+     used = reply_meter(router)
+     os.makedirs(a.work_dir, exist_ok=True)
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index fb94590..0641fe9 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -89,9 +89,13 @@ class TestDeadline(unittest.TestCase):
+             slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
+             next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
+             r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
+-                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0)
++                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0,
++                       deadline_log=os.path.join(d, "DEADLINES.jsonl"))
+             t0 = _t.time()
+             rep = r.call("angle_write", "p", 100, 7, deadline_s=0.3)
++            log = [json.loads(x) for x in open(os.path.join(d, "DEADLINES.jsonl"))]       # item 55: the evidence
++            self.assertEqual([(x["kind"], x["model"], x["prompt_chars"], x["max_tokens"], x["deadline_s"]) for x in log],
++                             [("missed_deadline", "heimdall:deepseek", 1, 100, 0.3)])
+             self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
+             self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
+             self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
+@@ -102,6 +106,28 @@ class TestDeadline(unittest.TestCase):
+                                    slow.upper_usd("p", 100), places=6)
+             self.assertEqual(led["reserved"], {})                      # no reservation left behind
+ 
++    def test_item_55_a_slow_answer_is_logged_and_no_log_writes_nothing(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            class Took(Fake):                                           # a back-end reports its own seconds
++                def complete(self, prompt, max_tokens, seed, system=None):
++                    text, usage, _ = super().complete(prompt, max_tokens, seed, system)
++                    return text, usage, 0.25
++            slow = Took("heimdall:deepseek", "heimdall", answer='{"ok": 1}', family="deepseek")
++            path = os.path.join(d, "DEADLINES.jsonl")
++            r = router(d, [slow], {"check": ["heimdall:deepseek"]}, deadline_log=path, slow_log_s=0.2)
++            r.call("check", "pp", 50, 7)                                # no deadline, answered in 0.25 s >= 0.2 s
++            log = [json.loads(x) for x in open(path)]
++            self.assertEqual([(x["kind"], x["prompt_chars"], x["in"], x["out"]) for x in log],
++                             [("answered_slowly", 2, 1000, 100)])
++            self.assertGreaterEqual(log[0]["seconds"], 0.2)
++            fast = Fake("heimdall:qwen", "heimdall", answer="{}")
++            router(d, [fast], {"check": ["heimdall:qwen"]}, deadline_log=path, slow_log_s=0.2).call("check", "p")
++            self.assertEqual(len(open(path).read().splitlines()), 1)   # a fast answer is not evidence
++            router(d, [Took("heimdall:x", "heimdall", answer="{}")], {"check": ["heimdall:x"]},
++                   slow_log_s=0.2).call("check", "p")                   # no deadline_log: nothing written
++            self.assertEqual(len(open(path).read().splitlines()), 1)
++
+     def test_an_answer_inside_the_deadline_and_an_error_keep_their_meaning(self):
+         import tempfile
+         with tempfile.TemporaryDirectory() as d:

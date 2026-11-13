@@ -52,6 +52,7 @@ LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate rea
 LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
                                    # Each paid call still RESERVES its price-table upper bound while in flight.
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
+DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
 RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
         "fresh_20261111_192645", "fresh_20261111_190259", "fresh_20261110_093150", "fresh_20261107_080503",
         "fresh_20261107_065702", "fresh_20261106_213852")           # newest first: the first is tonight's
@@ -276,7 +277,7 @@ def main(argv=None):
         print(table())
         return 0
     router = P.Router(env_path=PM.PS.ENV, record_dir=REPLIES, spend_path=SPEND, limit_usd=LY_LIMIT_USD,
-                      limit_basis=LY_LIMIT_BASIS, chains=chains())
+                      limit_basis=LY_LIMIT_BASIS, chains=chains(), deadline_log=DEADLINE_LOG)
     own = meter(router)
     used = reply_meter(router)
     os.makedirs(a.work_dir, exist_ok=True)

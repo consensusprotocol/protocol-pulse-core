@@ -501,7 +501,7 @@ class Router:
     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
 
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
-                 local_llm=None, chains=None, limit_basis="estimate"):
+                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0):
         with open(config) as f:
             self.config = json.load(f)
         self.env_path = env_path or ENV_PATH
@@ -509,6 +509,9 @@ class Router:
         if limit_basis not in ("estimate", "reported"):
             raise ValueError(f"limit_basis must be 'estimate' or 'reported', not {limit_basis!r}")
         self.limit_basis = limit_basis            # what limit_usd counts: _basis_total
+        import threading
+        self.deadline_log, self.slow_log_s = deadline_log, slow_log_s     # order 08:06 item 55: the evidence file
+        self._log_lock = threading.Lock()
         self.down, self.notices = {}, []
         self.backends = {}
         for name, spec in self.config["backends"].items():
@@ -577,6 +580,21 @@ class Router:
             return 0.0
         with self._lock():
             return float(self._ledger()["usd_estimate"])
+
+    def _log_slow(self, rec):
+        """Order 08:06 item 55: one JSON line per call that missed its deadline or answered in >= slow_log_s, appended
+        to deadline_log (the evidence the Heimdall team gets). Evidence, never a gate: a write that fails becomes a
+        notice and the call goes on."""
+        if not self.deadline_log:
+            return
+        line = json.dumps(dict(rec, utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
+        try:
+            with self._log_lock:
+                os.makedirs(os.path.dirname(os.path.abspath(self.deadline_log)), exist_ok=True)
+                with open(self.deadline_log, "a") as f:
+                    f.write(line + "\n")
+        except OSError as e:
+            self.notices.append(f"the deadline log could not be written: {type(e).__name__}: {e}")
 
     def _basis_total(self, d):
         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
@@ -726,6 +744,9 @@ class Router:
             except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
                 self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
                 tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
+                self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
+                                "deadline_s": deadline_s, "seconds": deadline_s, "prompt_chars": len(prompt),
+                                "max_tokens": max_tokens})
                 continue
             except RequestRejected as e:
                 self._settle(key)
@@ -741,6 +762,11 @@ class Router:
                 raise
             usd = b.usd(usage)
             self._settle(key, b, usage, usd, role)
+            if secs >= self.slow_log_s:                # item 55: an answer this slow is evidence too
+                self._log_slow({"kind": "answered_slowly", "threshold_s": self.slow_log_s, "role": role, "model": name,
+                                "vendor": b.vendor, "deadline_s": deadline_s, "seconds": round(secs, 2),
+                                "prompt_chars": len(prompt), "max_tokens": max_tokens, "in": (usage or {}).get("in"),
+                                "out": (usage or {}).get("out")})
             if not (isinstance(text, str) and text.strip()):   # an empty reply: this call moves on (audit C2 K7)
                 tried.append((name, "refused this request: an empty reply"))
                 continue

@@ -121,7 +121,7 @@ def main(argv=None):
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
                   f, indent=1, default=str)
     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains())
+                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(), deadline_log=PL.DEADLINE_LOG)
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
     if spent0 >= PL.LY_STOP_USD:
         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "

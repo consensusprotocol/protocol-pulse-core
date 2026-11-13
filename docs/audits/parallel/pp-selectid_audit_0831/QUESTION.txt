@@ -1,0 +1,34 @@
+You are auditing a small diff on branch pp-selectid (Protocol Pulse). providers.Router calls paid model vendors in a
+fail-over chain. A writer call has a deadline (300 s): a back-end that misses it is abandoned (DeadlineExceeded) and
+the chain moves on. Your role: a strict reviewer of a new evidence log.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+The order this diff implements (ORCHESTRATOR 08:06 item 55, verbatim): "Heimdall deepseek and qwen both missed 300 s on
+the angle step at 07:14, and one 8-excerpt screen took 8 min. Record every missed deadline (model, prompt size,
+seconds) in one file for the Heimdall team; I owe PBX that evidence."
+- Already done (data, not in this diff): docs/audits/parallel/pp-selectid_HEIMDALL_DEADLINES.md + .jsonl, backfilled
+  from the build records and the reply cache.
+
+The change:
+1. pipeline/providers.py:
+   - Router(..., deadline_log=None, slow_log_s=240.0) and _log_slow(rec), which appends one JSON line (with a UTC
+     stamp) to deadline_log under a threading.Lock;
+   - when the call abandons a back-end at its deadline it logs {"kind": "missed_deadline", role, model, vendor,
+     deadline_s, seconds, prompt_chars, max_tokens};
+   - when a back-end answers in >= slow_log_s it logs {"kind": "answered_slowly", threshold_s, role, model, vendor,
+     deadline_s, seconds, prompt_chars, max_tokens, in, out};
+   - without deadline_log nothing is written. A failed write becomes a router notice and never fails the call: this
+     is evidence, not a gate.
+2. tests/package/proof_ly.py + proof_ledger.py: the order's Routers log to the evidence file's .jsonl (DEADLINE_LOG).
+3. tests/providers/test_providers.py:
+   - the existing deadline test also asserts the one missed_deadline line;
+   - a new test: an answer of 0.25 s against a 0.2 s threshold is logged with its tokens; a fast answer is not; a
+     Router with no deadline_log writes nothing.
+- test_providers 16 OK; every other suite OK.
+
+Check: every missed deadline is logged exactly once with the fields the order names; the log can never change a
+call's outcome or the spend ledger; concurrent calls (the build calls the router from a thread pool) cannot interleave
+lines; nothing secret (a key, a prompt's text) is written: only sizes.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

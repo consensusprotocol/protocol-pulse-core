@@ -5,6 +5,13 @@ angle_tried) and the reply cache (tests/package/fixtures/replies: every answered
 usage). New misses are appended to HEIMDALL_DEADLINES.jsonl beside this file once the router's logging lands
 (in audit).
 
+**The .jsonl schema (one JSON object per line):**
+- "kind": "missed_deadline" (abandoned at deadline_s) or "answered_slowly" (answered in >= threshold_s);
+- "utc" (the stamp the router writes; the backfilled lines carry build_utc / utc instead), "role", "model" (the
+  router's back-end name, vendor:model), "vendor";
+- "deadline_s" (null without a deadline), "seconds", "prompt_chars" (the prompt's size; never its text), "max_tokens";
+- answered_slowly only: "in" / "out" tokens (null when the vendor reports none).
+
 **The pattern:**
 - The angle prompt is small: 3,000-6,200 characters, about 800-1,700 input tokens.
 - deepseek/deepseek-v4.1-flash writes 9,400-15,000 OUTPUT tokens (mostly hidden reasoning) for a reply capped at

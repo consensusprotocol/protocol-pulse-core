@@ -89,9 +89,14 @@ class TestDeadline(unittest.TestCase):
             slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
             next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
             r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
-                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0)
+                       spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0,
+                       deadline_log=os.path.join(d, "DEADLINES.jsonl"))
             t0 = _t.time()
             rep = r.call("angle_write", "p", 100, 7, deadline_s=0.3)
+            with open(os.path.join(d, "DEADLINES.jsonl")) as f:                          # item 55: the evidence
+                log = [json.loads(x) for x in f]
+            self.assertEqual([(x["kind"], x["model"], x["prompt_chars"], x["max_tokens"], x["deadline_s"]) for x in log],
+                             [("missed_deadline", "heimdall:deepseek", 1, 100, 0.3)])
             self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
             self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
             self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
@@ -101,6 +106,34 @@ class TestDeadline(unittest.TestCase):
             self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"],
                                    slow.upper_usd("p", 100), places=6)
             self.assertEqual(led["reserved"], {})                      # no reservation left behind
+
+    @staticmethod
+    def lines(path):
+        with open(path) as f:
+            return len(f.read().splitlines())
+
+    def test_item_55_a_slow_answer_is_logged_and_no_log_writes_nothing(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            class Took(Fake):                                           # a back-end reports its own seconds
+                def complete(self, prompt, max_tokens, seed, system=None):
+                    text, usage, _ = super().complete(prompt, max_tokens, seed, system)
+                    return text, usage, 0.25
+            slow = Took("heimdall:deepseek", "heimdall", answer='{"ok": 1}', family="deepseek")
+            path = os.path.join(d, "DEADLINES.jsonl")
+            r = router(d, [slow], {"check": ["heimdall:deepseek"]}, deadline_log=path, slow_log_s=0.2)
+            r.call("check", "pp", 50, 7)                                # no deadline, answered in 0.25 s >= 0.2 s
+            with open(path) as f:
+                log = [json.loads(x) for x in f]
+            self.assertEqual([(x["kind"], x["prompt_chars"], x["in"], x["out"]) for x in log],
+                             [("answered_slowly", 2, 1000, 100)])
+            self.assertGreaterEqual(log[0]["seconds"], 0.2)
+            fast = Fake("heimdall:qwen", "heimdall", answer="{}")
+            router(d, [fast], {"check": ["heimdall:qwen"]}, deadline_log=path, slow_log_s=0.2).call("check", "p")
+            self.assertEqual(self.lines(path), 1)   # a fast answer is not evidence
+            router(d, [Took("heimdall:x", "heimdall", answer="{}")], {"check": ["heimdall:x"]},
+                   slow_log_s=0.2).call("check", "p")                   # no deadline_log: nothing written
+            self.assertEqual(self.lines(path), 1)
 
     def test_an_answer_inside_the_deadline_and_an_error_keep_their_meaning(self):
         import tempfile
