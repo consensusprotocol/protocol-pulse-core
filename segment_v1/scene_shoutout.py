@@ -34,6 +34,48 @@ FONT_REG_PATHS = [
 ]
 
 
+LABEL_MIN_GAP = 12      # px at 1080p between neighbouring credit labels on the 16:9 row: the tightest gap PBX approved
+                        # (the v2f card, 'The Bitcoin Layer' / 'Bitcoin Magazine', 12 px as drawn)
+LABEL_FIT_GAP = 40      # px at 1080p: a card that must change is sized for a clear gap, not the bare minimum
+LABEL_MARGIN = 20       # px at 1080p kept between any credit label and the frame edge
+LABEL_MIN_SCALE = 0.6   # labels are shrunk no further than this; a card that would need it is refused, never drawn touching
+
+
+def _ink(font, text, cx):
+    """The drawn ink extent [left, right) of `text` centred on cx exactly as render_shoutout draws it."""
+    x0, _, x1, _ = font.getbbox(text)
+    left = cx - (x1 - x0) // 2 + x0
+    return left, left + (x1 - x0)
+
+
+def fit_label_sizes(names, handles, xs, frame_w, name_size, handle_size, font_bold, font_reg, scale=1.0, row=True):
+    """The credits labels never touch and never leave the frame (orchestrator list 2026-11-12: on the 16:9 card
+    'Saifedean Ammous' ran into 'What Bitcoin Did'). Returns the largest (name, handle) font sizes, name_size /
+    handle_size at most and scaled together, at which every label keeps LABEL_MARGIN * scale inside the frame and, on a
+    row (16:9; the 9:16 stack has one label per line), neighbouring labels keep their gap. Labels that keep
+    LABEL_MIN_GAP * scale at the original sizes keep those sizes exactly (the protected references render unchanged);
+    a card that must change is sized for LABEL_FIT_GAP * scale. Raises RuntimeError when that needs less than
+    LABEL_MIN_SCALE: fail closed, never a card with labels touching."""
+    margin = LABEL_MARGIN * scale
+
+    def fits(texts, font, gap):
+        ex = [_ink(font, t, x) for t, x in zip(texts, xs) if t]
+        if any(l < margin or r > frame_w - margin for l, r in ex):
+            return False
+        return not row or all(b[0] - a[1] >= gap for a, b in zip(ex, ex[1:]))
+
+    if fits(names, ImageFont.truetype(font_bold, name_size), LABEL_MIN_GAP * scale) and \
+            fits(handles, ImageFont.truetype(font_reg, handle_size), LABEL_MIN_GAP * scale):
+        return name_size, handle_size
+    for ns in range(name_size - 1, int(math.ceil(name_size * LABEL_MIN_SCALE)) - 1, -1):
+        hs = max(1, int(round(handle_size * ns / name_size)))
+        if fits(names, ImageFont.truetype(font_bold, ns), LABEL_FIT_GAP * scale) and \
+                fits(handles, ImageFont.truetype(font_reg, hs), LABEL_FIT_GAP * scale):
+            return ns, hs
+    raise RuntimeError(f"STOP: the credits labels {list(names)} do not fit without touching even at "
+                       f"{LABEL_MIN_SCALE:.0%} size")
+
+
 def _find_font(paths):
     for p in paths:
         if os.path.exists(p):
@@ -207,6 +249,16 @@ def render_shoutout(channels, size=(1920, 1080), vo_wav=None, out_path=None):
         for i in range(n):
             cx = start_x + i * (avatar_diam + int(200 * scale))
             positions.append((cx, cy))
+
+    if font_bold and font_reg:        # labels never touch or leave the frame; unchanged sizes whenever they already fit
+        fit = fit_label_sizes([nd["name"] for nd in node_data], [nd["handle"] for nd in node_data],
+                              [p[0] for p in positions], w, name_size, handle_size, font_bold, font_reg,
+                              scale=scale, row=not is_vertical)
+        if fit != (name_size, handle_size):
+            print(f"  Labels: {name_size}/{handle_size} px -> {fit[0]}/{fit[1]} px (credits labels must not touch)")
+            name_size, handle_size = fit
+            name_font = ImageFont.truetype(font_bold, name_size)
+            handle_font = ImageFont.truetype(font_reg, handle_size)
 
     # PP mark
     mark_img = None
