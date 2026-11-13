@@ -1,0 +1,518 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "757477cafa0d7b3fb9ce966fd008882b32b6dc3c0493ddaff6decbf3981a4a59",
+ "result": {
+  "text": "of, of property rights gave the ability for cities to really flourish. Mm-hmm. So if you look at, uh, as Bitcoin as, as digital real estate, digital property- Mm ... the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right? Yes. Right. So owning Bitcoin is like owning this, this, this plot of land in a vastly expanding digital economy- Yes ... that everybody wants to-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 3.34,
+    "text": "of, of property rights gave the ability for cities to really flourish."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.4,
+    "end": 3.6,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 3.9,
+    "end": 7.6,
+    "text": "So if you look at, uh, as Bitcoin as, as digital real estate, digital property-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 7.66,
+    "end": 7.68,
+    "text": "Mm"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 7.68,
+    "end": 12.2,
+    "text": "... the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 12.54,
+    "end": 12.62,
+    "text": "Yes. Right."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 12.68,
+    "end": 17.44,
+    "text": "So owning Bitcoin is like owning this, this, this plot of land in a vastly expanding digital economy-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 17.6,
+    "end": 17.78,
+    "text": "Yes"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 18.08,
+    "end": 18.94,
+    "text": "... that everybody wants to-"
+   }
+  ],
+  "words": [
+   {
+    "text": "of,",
+    "start": 0.14,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.4,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "property",
+    "start": 0.54,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rights",
+    "start": 0.96,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gave",
+    "start": 1.32,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.62,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ability",
+    "start": 1.72,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 2.14,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cities",
+    "start": 2.28,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.58,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 2.7,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flourish.",
+    "start": 2.96,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 3.4,
+    "end": 3.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 3.9,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.04,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.14,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 4.26,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at,",
+    "start": 4.46,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.78,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 4.94,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.12,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as,",
+    "start": 5.54,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 5.78,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 5.98,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 6.36,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate,",
+    "start": 6.52,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 6.78,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "property-",
+    "start": 7.16,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm",
+    "start": 7.66,
+    "end": 7.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 7.68,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.74,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "emergence",
+    "start": 7.8,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.2,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.34,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 8.74,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "give",
+    "start": 8.92,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.2,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 9.26,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 9.52,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opportunity",
+    "start": 9.66,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.2,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 10.3,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "creation",
+    "start": 10.58,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.96,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.04,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 11.18,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "space,",
+    "start": 11.64,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 11.96,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yes.",
+    "start": 12.54,
+    "end": 12.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Right.",
+    "start": 12.56,
+    "end": 12.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 12.68,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owning",
+    "start": 12.82,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.08,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.46,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 13.56,
+    "end": 13.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "owning",
+    "start": 13.76,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 13.96,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 14.2,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 14.46,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "plot",
+    "start": 14.64,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.84,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "land",
+    "start": 15.02,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 15.26,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.38,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vastly",
+    "start": 15.74,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expanding",
+    "start": 16.16,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 16.66,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy-",
+    "start": 17.02,
+    "end": 17.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yes",
+    "start": 17.6,
+    "end": 17.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 18.08,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.12,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody",
+    "start": 18.32,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wants",
+    "start": 18.72,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to-",
+    "start": 18.94,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.96
+ },
+ "usd": 0.003792,
+ "seconds": 1.2,
+ "recorded_at": "2026-11-13T16:36:39Z"
+}

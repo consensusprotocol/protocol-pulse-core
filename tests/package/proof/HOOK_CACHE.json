@@ -1,0 +1,90 @@
+{
+ "33c015a45418bd193444:8cef5ec5e513b240b56b51550f54018d65683db0b2aa07fff3f87134ab97ba1e:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 4,
+   "rating": 3,
+   "why": "mild opener lacks scroll-stopping punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "82473bb0964f115fbdda:501b49fc5f45660d67647451b7a0190ab332d2fbf728483e706da82d50f1d25a:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "rating": 4,
+   "why": "strong fact but limited tease for next",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "06f73bef2e37ba14bee4:a92688bc331dd18dea617a39649b8c3e20695dbb6b0ce9f5f2bbdb34d1eed6de:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 2,
+   "rating": 2,
+   "why": "niche term and 'don't buy' discourages",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "5f40984b34d20c7dc69b:80ad9dbd646c2f42509d0bf490f00010caf5ae110441c22c935797d38254ab1c:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 5,
+   "setup": 3,
+   "rating": 2,
+   "why": "generic advice doesn't grab attention",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "f29c27fb49bdc3fd050e:73173a5554f43e7e8492c00e64f8152ca4e0a17484271fe447724c361c3a8642:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 5,
+   "rating": 4,
+   "why": "slightly dense for instant first seconds",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "2e77a0a7af2aab66a3a4:5fc5532ff148dbc429f9ca68893bc9fda4f7ce8268276a0f3dd35316eb9dc3b9:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "assumes prior context with 'though'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "7376e34f2c5978c017bc:4e733a6b272f8b6d04b86546f7157aa90e37248b4d6122ed083636bf5d45b985:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 4,
+   "rating": 3,
+   "why": "rambling with 'you know' filler",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ },
+ "45c3bb5f25833cb1338c:4f7c377658d819a8194a03d80eb2136b047577c4fd1db57ba500a4ae4440307a:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "time-specific to one November week",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+  }
+ }
+}

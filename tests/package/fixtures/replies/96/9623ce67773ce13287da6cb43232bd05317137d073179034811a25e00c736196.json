@@ -1,0 +1,164 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "acfc8d95a3dc796c18cbedba727e39a41a13a7bd3fd47b08bfae494473635d29",
+ "result": {
+  "text": "So I'll be honest with you, I think that Bitcoin will go lower than 57K during Trump's term. Okay? I think it will. ",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.26,
+    "end": 11.12,
+    "text": "So I'll be honest with you, I think that Bitcoin will go lower than 57K during Trump's term. Okay? I think it will."
+   }
+  ],
+  "words": [
+   {
+    "text": "So",
+    "start": 0.26,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'll",
+    "start": 1.18,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 1.3,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honest",
+    "start": 1.38,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 1.64,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you,",
+    "start": 1.82,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.6,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.8,
+    "end": 3.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.84,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.96,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 5.48,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 5.7,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lower",
+    "start": 5.92,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 6.22,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "57K",
+    "start": 6.52,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "during",
+    "start": 8.039,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Trump's",
+    "start": 8.4,
+    "end": 8.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "term.",
+    "start": 9.1,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Okay?",
+    "start": 9.9,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.56,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.76,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.88,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will.",
+    "start": 10.96,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.62
+ },
+ "usd": 0.002524,
+ "seconds": 1.0,
+ "recorded_at": "2026-11-13T16:36:51Z"
+}

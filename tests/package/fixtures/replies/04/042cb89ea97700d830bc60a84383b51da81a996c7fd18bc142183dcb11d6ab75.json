@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "674f003b52614bde16c8345d602f43d6217d411bfd9e85ea809d4abcc5864a3b",
+ "result": {
+  "text": "asset prices disappear versus your salary. And Bit- Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to change in relation to that. No one is going to pay you $10,000",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.78,
+    "text": "asset prices disappear versus your salary. And Bit- Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to change in relation to that. No one is going to pay you $10,000"
+   }
+  ],
+  "words": [
+   {
+    "text": "asset",
+    "start": 0.0,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prices",
+    "start": 0.3,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "disappear",
+    "start": 1.38,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "versus",
+    "start": 2.38,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 2.82,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "salary.",
+    "start": 3.02,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.82,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bit-",
+    "start": 4.019,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.38,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "might",
+    "start": 4.76,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 4.92,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 5.04,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.28,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "savings,",
+    "start": 5.44,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 5.86,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 5.98,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 6.16,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 6.6,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 6.88,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "salary",
+    "start": 7.12,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher",
+    "start": 7.66,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 8.08,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 8.32,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 8.42,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "live",
+    "start": 8.7,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.88,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.0,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.08,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standard.",
+    "start": 9.48,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Even",
+    "start": 10.14,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 10.34,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.44,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 10.54,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "paid",
+    "start": 10.74,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 11.12,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 11.38,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 12.26,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 12.34,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "getting",
+    "start": 12.46,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "paid",
+    "start": 12.7,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$10,000",
+    "start": 12.92,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.8,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "month,",
+    "start": 13.9,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.58,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$10,000",
+    "start": 14.74,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth",
+    "start": 15.68,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.92,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 16.059,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.52,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 16.74,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 17.08,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change",
+    "start": 17.98,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 18.3,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "relation",
+    "start": 18.42,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.88,
+    "end": 18.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 19.04,
+    "end": 19.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No",
+    "start": 19.64,
+    "end": 19.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 19.8,
+    "end": 19.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 19.96,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 20.08,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 20.28,
+    "end": 20.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pay",
+    "start": 20.4,
+    "end": 20.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 20.54,
+    "end": 20.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$10,000",
+    "start": 20.62,
+    "end": 20.78,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.8
+ },
+ "usd": 0.00416,
+ "seconds": 1.39,
+ "recorded_at": "2026-11-13T16:36:54Z"
+}

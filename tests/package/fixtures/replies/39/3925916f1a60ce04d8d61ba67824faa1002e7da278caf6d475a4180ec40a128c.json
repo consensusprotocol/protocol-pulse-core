@@ -1,0 +1,230 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "282dd3b1d0a686289402eb44d12225b7b3f4f29e971808074f852574a2f0ec93",
+ "result": {
+  "text": "Some, guys, it's been rough, okay? Look, Bitcoin's good, but it's been a rough bear market. Even though we're at, like, 70K, it's been a rough bear market in terms of sentiment. But man",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.16,
+    "end": 12.42,
+    "text": "Some, guys, it's been rough, okay? Look, Bitcoin's good, but it's been a rough bear market. Even though we're at, like, 70K, it's been a rough bear market in terms of sentiment. But man"
+   }
+  ],
+  "words": [
+   {
+    "text": "Some,",
+    "start": 0.16,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guys,",
+    "start": 1.34,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 1.66,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 1.9,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rough,",
+    "start": 2.12,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "okay?",
+    "start": 2.48,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Look,",
+    "start": 3.24,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 3.82,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good,",
+    "start": 4.4,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 4.76,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 5.0,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 5.18,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.36,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rough",
+    "start": 5.64,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 6.0,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market.",
+    "start": 6.24,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Even",
+    "start": 6.54,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though",
+    "start": 6.72,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 6.86,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at,",
+    "start": 6.98,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 7.1,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "70K,",
+    "start": 7.62,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.96,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 9.04,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.2,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rough",
+    "start": 9.3,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 9.58,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 9.82,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.16,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "terms",
+    "start": 10.26,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.48,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sentiment.",
+    "start": 10.62,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 11.86,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man",
+    "start": 12.28,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.46
+ },
+ "usd": 0.002492,
+ "seconds": 1.04,
+ "recorded_at": "2026-11-13T16:36:28Z"
+}

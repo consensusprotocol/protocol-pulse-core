@@ -1,0 +1,332 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "385a492d7f09d9eeffd0ef9f15b521ffd985640a337c1ac5ca77c159634ce689",
+ "result": {
+  "text": "You know, you do have to live a life though so there is a world outside of Bitcoin. Enjoy Bitcoin for what it is. It's an incredible thing for humanity, um, and I'm super bullish on it, but remember that you have a body, you have a mind. Go work out",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 13.82,
+    "text": "You know, you do have to live a life though so there is a world outside of Bitcoin. Enjoy Bitcoin for what it is. It's an incredible thing for humanity, um, and I'm super bullish on it, but remember that you have a body, you have a mind. Go work out"
+   }
+  ],
+  "words": [
+   {
+    "text": "You",
+    "start": 0.18,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 0.26,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.46,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 0.62,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.74,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.86,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "live",
+    "start": 0.96,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.08,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life",
+    "start": 1.14,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though",
+    "start": 1.4,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 2.06,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 2.22,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.42,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.56,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 2.66,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outside",
+    "start": 2.92,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.26,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 3.36,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Enjoy",
+    "start": 3.88,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.24,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 4.9,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 5.06,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 5.2,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is.",
+    "start": 5.34,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 5.52,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 5.66,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incredible",
+    "start": 5.76,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 7.24,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 7.5,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "humanity,",
+    "start": 7.66,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 8.52,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.98,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 9.14,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "super",
+    "start": 9.28,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bullish",
+    "start": 9.56,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.88,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 10.0,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 10.12,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remember",
+    "start": 10.26,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.64,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.3,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 11.38,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.54,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "body,",
+    "start": 11.64,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.96,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 12.04,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.2,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mind.",
+    "start": 12.28,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Go",
+    "start": 13.22,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "work",
+    "start": 13.38,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 13.68,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.1
+ },
+ "usd": 0.00282,
+ "seconds": 1.02,
+ "recorded_at": "2026-11-13T16:36:08Z"
+}

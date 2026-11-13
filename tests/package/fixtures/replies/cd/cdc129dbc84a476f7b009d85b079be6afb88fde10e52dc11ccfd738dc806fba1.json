@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "ced5969a32f7d0b566100c691dc8ec0939062d5f9e4c537f8ab24bb9cd51ab20",
+ "result": {
+  "text": "move the market very much. If you look... You, you can just do the regression yourself. You can go on Polymarket, look at the odds of clarity, and regress it against the Bitcoin price, and what you'll see is that had almost no impact. And even in the days that you saw-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.16,
+    "text": "move the market very much. If you look... You, you can just do the regression yourself. You can go on Polymarket, look at the odds of clarity, and regress it against the Bitcoin price, and what you'll see is that had almost no impact. And even in the days that you saw-"
+   }
+  ],
+  "words": [
+   {
+    "text": "move",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.12,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 0.24,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 0.52,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much.",
+    "start": 0.7,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 1.78,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.9,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look...",
+    "start": 2.06,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You,",
+    "start": 2.5,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.7,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 2.76,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.86,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 2.96,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.1,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "regression",
+    "start": 3.28,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yourself.",
+    "start": 3.62,
+    "end": 3.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 3.9,
+    "end": 3.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 3.96,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 4.04,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 4.16,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Polymarket,",
+    "start": 4.26,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 5.16,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.42,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.54,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "odds",
+    "start": 5.68,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.86,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clarity,",
+    "start": 5.96,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.68,
+    "end": 6.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "regress",
+    "start": 7.1,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.5,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 7.64,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.86,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.96,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price,",
+    "start": 8.26,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.92,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 9.04,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you'll",
+    "start": 9.16,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 9.36,
+    "end": 9.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.56,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.66,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 9.86,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 10.02,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 10.26,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact.",
+    "start": 10.36,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 10.98,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 11.12,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 11.28,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.34,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "days",
+    "start": 11.48,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.96,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.1,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw-",
+    "start": 12.16,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.18
+ },
+ "usd": 0.002436,
+ "seconds": 1.09,
+ "recorded_at": "2026-11-13T16:36:19Z"
+}

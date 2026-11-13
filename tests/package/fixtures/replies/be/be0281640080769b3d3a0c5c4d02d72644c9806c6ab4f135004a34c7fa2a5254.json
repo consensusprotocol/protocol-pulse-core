@@ -1,0 +1,338 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4662c08c7ca5afd021b310bc37e7f10f4b8d2b1f70f7ef3ab826644fa7176213",
+ "result": {
+  "text": "Euro because your currency couldn't hold up. But the researchers said it best. Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed, it's never gone into another currency, it's never been redenominated or reissued. Countries have key man risk-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 17.98,
+    "text": "Euro because your currency couldn't hold up. But the researchers said it best. Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed, it's never gone into another currency, it's never been redenominated or reissued. Countries have key man risk-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Euro",
+    "start": 0.14,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 0.5,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 0.98,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency",
+    "start": 1.12,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "couldn't",
+    "start": 1.48,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 1.72,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 1.98,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 2.14,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.28,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "researchers",
+    "start": 2.44,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 3.02,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.2,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best.",
+    "start": 3.36,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Currencies",
+    "start": 3.96,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.42,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "often",
+    "start": 4.62,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "born",
+    "start": 5.0,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.3,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "political",
+    "start": 5.48,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reasons,",
+    "start": 5.96,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 6.36,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fail",
+    "start": 6.64,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 7.02,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economic",
+    "start": 7.22,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reasons.",
+    "start": 7.76,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.5,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "launched",
+    "start": 8.98,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.26,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "January",
+    "start": 9.42,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.76,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2009.",
+    "start": 9.96,
+    "end": 10.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 10.74,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 10.96,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 11.2,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "renamed,",
+    "start": 11.4,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 12.04,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 12.24,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gone",
+    "start": 12.48,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 12.68,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 13.06,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency,",
+    "start": 13.46,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 14.08,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 14.26,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 14.48,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "redenominated",
+    "start": 14.68,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 15.62,
+    "end": 15.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reissued.",
+    "start": 16.12,
+    "end": 16.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Countries",
+    "start": 16.78,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 17.1,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "key",
+    "start": 17.3,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man",
+    "start": 17.52,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk-",
+    "start": 17.74,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.12
+ },
+ "usd": 0.003624,
+ "seconds": 1.52,
+ "recorded_at": "2026-11-13T16:35:50Z"
+}

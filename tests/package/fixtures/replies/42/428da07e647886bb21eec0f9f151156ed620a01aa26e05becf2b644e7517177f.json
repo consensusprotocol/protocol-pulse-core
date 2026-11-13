@@ -1,0 +1,380 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "26ec97232f3e32c3a7a9893f74932cc7769004b316ad8fa442194049cf3bc929",
+ "result": {
+  "text": "the weaker currency and buying the stronger currency. I think we've seen over time Bitcoin's volatility has trended lower and lower, effectively making Bitcoin better collateral because you can borrow more against it and, and not have to worry about, you know, a 90% drawdown that we saw, you know, many, many years ago in Bitcoin. And I think",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.62,
+    "text": "the weaker currency and buying the stronger currency. I think we've seen over time Bitcoin's volatility has trended lower and lower, effectively making Bitcoin better collateral because you can borrow more against it and, and not have to worry about, you know, a 90% drawdown that we saw, you know, many, many years ago in Bitcoin. And I think"
+   }
+  ],
+  "words": [
+   {
+    "text": "the",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weaker",
+    "start": 0.14,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency",
+    "start": 0.54,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.6,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 1.8,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.16,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stronger",
+    "start": 2.32,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "currency.",
+    "start": 2.74,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.98,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.08,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 4.38,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 4.64,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 4.94,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 5.22,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 6.22,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatility",
+    "start": 6.7,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 7.52,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trended",
+    "start": 7.98,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lower",
+    "start": 8.54,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.94,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lower,",
+    "start": 9.12,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "effectively",
+    "start": 10.26,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "making",
+    "start": 10.84,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.18,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 11.66,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "collateral",
+    "start": 11.98,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 12.76,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 13.02,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 13.12,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "borrow",
+    "start": 13.26,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 13.54,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 13.7,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.08,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 14.3,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.82,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 15.04,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 15.22,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.36,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worry",
+    "start": 15.48,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 15.78,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.44,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 16.5,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.82,
+    "end": 16.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "90%",
+    "start": 17.1,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drawdown",
+    "start": 17.7,
+    "end": 18.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.22,
+    "end": 18.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 18.42,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw,",
+    "start": 18.98,
+    "end": 19.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 19.44,
+    "end": 19.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 19.5,
+    "end": 19.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many,",
+    "start": 19.9,
+    "end": 20.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 20.28,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 20.48,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago",
+    "start": 20.72,
+    "end": 20.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.98,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 21.12,
+    "end": 21.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 22.28,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 22.4,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 22.46,
+    "end": 22.62,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.04
+ },
+ "usd": 0.004608,
+ "seconds": 1.04,
+ "recorded_at": "2026-11-13T16:36:36Z"
+}

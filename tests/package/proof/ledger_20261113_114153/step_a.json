@@ -1,0 +1,291 @@
+{
+ "3ef9d4de892af5cca51a:9d43580c729b": {
+  "label": "3ef9d4de892af5cca51a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker (meetup organizer)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "Giacomo",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "having to update their node",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "having run a Bitcoin meetup for 10 years and interacted with thousands of Bitcoiners",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The vast majority of Bitcoiners do not want to update their nodes and get anxious when they must do so.",
+  "certainty": "likely",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "95d20143d5e2af5612b1:9d43580c729b": {
+  "label": "95d20143d5e2af5612b1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker (Michael Dunworth)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the listener",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "RSA",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That",
+    "refers_to": "the level of conviction shown by the bets",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 10 years and in 5 years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker bets one Bitcoin that RSA will be broken in 10 years and half a Bitcoin that it breaks in 5 years, showing high conviction.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "You were you were the uh cryptography is going to break guy before it was cool.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b799cf6a63d3a47d7d9d:9d43580c729b": {
+  "label": "b799cf6a63d3a47d7d9d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "manufacturing gold or mining asteroids to increase gold supply",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "a generic person/finder",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is immune to scarcity-invalidating discoveries like those affecting gold because no asteroid contains Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Why Bitcoin CANNOT Reach $1 Million by 2030 | Haseeb Qureshi",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a45d26b88cd5b176ae13:9d43580c729b": {
+  "label": "a45d26b88cd5b176ae13",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the CEO (Phong Le)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "society/industry modernizing finance (not fully generic)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but concern modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people globally.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "US NOW IN AN EXCLUSIVE INTERVIEW, FENG LI, CEO OF STRATEGY.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb63e8dcd4eb9502451e:9d43580c729b": {
+  "label": "eb63e8dcd4eb9502451e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the day of the Nvidia CEO scandal/news",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "on days with unrelated scandals causing dumps",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Days like today shake people out as Bitcoin dumps on unrelated scandals, leading to panic sales of the scarcest asset at the worst time.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Learn more about Bitcoinbacked loans with Ledend at learn.in.io/simply.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "00dc5e6b2347d9c0e922~trim:9d43580c729b": {
+  "label": "00dc5e6b2347d9c0e922~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Saylor adopting Bitcoin culture as a leader/king figure",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In Bitcoin we like to think no one is in charge, no one has influence, there are no kings because they cannot be trusted, and so in the protocol we trust.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4178ddd19465e979f8f1:9d43580c729b": {
+  "label": "4178ddd19465e979f8f1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "the people's (who bought Bitcoin personally)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "I",
+    "refers_to": "the individual PM/investor",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "the fund or institution",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin ETF adoption followed a bottoms-up path where individuals first bought Bitcoin personally then advocated to their investment committees and institutions to allocate.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "When you look at these um offerings, you're talking a lot about retail,",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44216aab8847bd718241:9d43580c729b": {
+  "label": "44216aab8847bd718241",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "The funds",
+    "refers_to": "index funds tracking MSCI",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Strategy's (MicroStrategy's)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The funds are selling Strategy's stock while the Bitcoin never changes hands, and nothing in MSCI's decision forces Strategy to sell its Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

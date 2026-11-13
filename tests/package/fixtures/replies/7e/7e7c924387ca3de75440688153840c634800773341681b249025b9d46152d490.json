@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4c3a64e9e6922099c5f280a00a51fc19d33a886768a8ecc84807607c958961da",
+ "result": {
+  "text": "thing to do. But for risk assets, it's just a bad sign. So we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year. Yeah. Um, the Federal Reserve at-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 11.12,
+    "text": "thing to do. But for risk assets, it's just a bad sign. So we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 11.58,
+    "end": 11.68,
+    "text": "Yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 11.76,
+    "end": 12.92,
+    "text": "Um, the Federal Reserve at-"
+   }
+  ],
+  "words": [
+   {
+    "text": "thing",
+    "start": 0.1,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.3,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do.",
+    "start": 0.42,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.18,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.38,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "risk",
+    "start": 1.52,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets,",
+    "start": 1.88,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.6,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.92,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.14,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bad",
+    "start": 3.22,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sign.",
+    "start": 3.54,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.9,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 4.04,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peaked",
+    "start": 4.36,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.96,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.1,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "NASDAQ",
+    "start": 5.4,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peaked",
+    "start": 5.92,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.14,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "October",
+    "start": 6.28,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "6th",
+    "start": 7.14,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 7.54,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 7.74,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.5,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peaked",
+    "start": 9.06,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "October",
+    "start": 9.4,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "6th",
+    "start": 10.14,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 10.56,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 10.94,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 11.58,
+    "end": 11.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Um,",
+    "start": 11.76,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.0,
+    "end": 12.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Federal",
+    "start": 12.16,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Reserve",
+    "start": 12.4,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at-",
+    "start": 12.82,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.97
+ },
+ "usd": 0.002594,
+ "seconds": 1.43,
+ "recorded_at": "2026-11-13T16:36:46Z"
+}

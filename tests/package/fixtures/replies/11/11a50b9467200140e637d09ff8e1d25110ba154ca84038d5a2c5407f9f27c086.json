@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a45c995bfc5f80b25ba2f2e8b9422cd84448a2af2e33523a2bbf248368d72b00",
+ "result": {
+  "text": "If you are technical enough, multi-sig, multi-vendor is the way. I still think everyone should hold their own Bitcoin. I'm, I'm not the biggest fan of the trend we've seen of people sending their Bitcoin to ETFs. Actually, I don't know if you guys saw",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.12,
+    "text": "If you are technical enough, multi-sig, multi-vendor is the way. I still think everyone should hold their own Bitcoin. I'm, I'm not the biggest fan of the trend we've seen of people sending their Bitcoin to ETFs. Actually, I don't know if you guys saw"
+   }
+  ],
+  "words": [
+   {
+    "text": "If",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 0.06,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technical",
+    "start": 0.2,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough,",
+    "start": 0.66,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multi-sig,",
+    "start": 1.06,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multi-vendor",
+    "start": 1.68,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.42,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.62,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way.",
+    "start": 2.72,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.42,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 4.56,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.82,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 5.08,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 5.58,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 5.8,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 6.06,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 6.32,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm,",
+    "start": 7.5,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 7.94,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 8.16,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.62,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 8.8,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fan",
+    "start": 9.16,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.48,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.6,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trend",
+    "start": 9.78,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seen",
+    "start": 10.36,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.86,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 11.26,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sending",
+    "start": 11.62,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 11.9,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.1,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.64,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs.",
+    "start": 12.9,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Actually,",
+    "start": 13.6,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.36,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 14.4,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 14.52,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 14.62,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.74,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guys",
+    "start": 14.84,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saw",
+    "start": 15.06,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.14
+ },
+ "usd": 0.003028,
+ "seconds": 1.43,
+ "recorded_at": "2026-11-13T16:36:12Z"
+}

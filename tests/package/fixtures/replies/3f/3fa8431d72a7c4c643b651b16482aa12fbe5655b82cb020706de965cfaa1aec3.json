@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 13,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video.\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.\"\nCLIP label=\"clip_01\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: DataDash): \"The Bitcoin capital markets are still in their early stages. But the opportunity to put Bitcoin to work through staking, collateral, and decentralized financial applications is still worth paying attention to.\"\nCLIP label=\"clip_03\" (on screen: Simply Bitcoin): \"I still think everyone should hold their own Bitcoin. I'm not the biggest fan of the trend we've seen of people sending their Bitcoin to ETFs.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\n3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"hook\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1},\n\"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin protects against mismanagement by central authorities through decentralization, promoting self-custody and DeFi opportunities.\",\n  \"hook\": {\n    \"scroll\": 4,\n    \"alone\": 5,\n    \"setup\": 3\n  },\n  \"clips\": {\n    \"clip_01\": 5,\n    \"clip_02\": 4,\n    \"clip_03\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"provides specific bank risk example of hook's central authority failures\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"shifts from why choose Bitcoin to its financial opportunities\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": false,\n      \"why\": \"abrupt shift from DeFi uses to warning against ETFs\"\n    }\n  }\n}",
+ "usage": {
+  "in": 869,
+  "out": 3961,
+  "usd_reported": 0.01085435
+ },
+ "usd": 0.10337,
+ "seconds": 34.36,
+ "recorded_at": "2026-11-13T16:49:23Z"
+}

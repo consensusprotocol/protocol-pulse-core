@@ -1,0 +1,404 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "38ef7db684e4b214db815a417a35c3f5c3042394b52894e10be4359d229bcb9c",
+ "result": {
+  "text": "Everything in that new money. The tricky thing about Bitcoin is that it's all happening at one time, right? Like, it is a store of value, you can transact like a medium of exchange over the internet, and a lot of us already kinda price our net worth, our life in sats. It's already a unit of account for a lot of people",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 19.0,
+    "text": "Everything in that new money. The tricky thing about Bitcoin is that it's all happening at one time, right? Like, it is a store of value, you can transact like a medium of exchange over the internet, and a lot of us already kinda price our net worth, our life in sats. It's already a unit of account for a lot of people"
+   }
+  ],
+  "words": [
+   {
+    "text": "Everything",
+    "start": 0.04,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.7,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.56,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 1.78,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 1.96,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 4.04,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tricky",
+    "start": 4.2,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 4.46,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.64,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.88,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.3,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.44,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 5.6,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 5.82,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happening",
+    "start": 6.02,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 6.74,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 6.9,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 7.1,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 7.38,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 7.94,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.36,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.48,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.64,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "store",
+    "start": 8.76,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.96,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value,",
+    "start": 9.06,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.88,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.02,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transact",
+    "start": 10.26,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 11.08,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.26,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "medium",
+    "start": 11.32,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.58,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exchange",
+    "start": 11.64,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 12.08,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.26,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "internet,",
+    "start": 12.38,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.88,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.02,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 13.08,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.3,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 13.46,
+    "end": 13.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 13.7,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kinda",
+    "start": 14.22,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 14.56,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 15.18,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "net",
+    "start": 15.42,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth,",
+    "start": 15.62,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 16.0,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life",
+    "start": 16.16,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 16.58,
+    "end": 16.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sats.",
+    "start": 16.78,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 17.14,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "already",
+    "start": 17.28,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.62,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unit",
+    "start": 17.76,
+    "end": 17.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.96,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account",
+    "start": 18.04,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 18.34,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 18.46,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 18.5,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.66,
+    "end": 18.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 18.76,
+    "end": 19.0,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.46
+ },
+ "usd": 0.004092,
+ "seconds": 1.19,
+ "recorded_at": "2026-11-13T16:36:01Z"
+}

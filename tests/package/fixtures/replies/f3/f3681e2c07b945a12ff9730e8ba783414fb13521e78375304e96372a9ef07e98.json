@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d540594b3ef7e3c1934fe25cf848fa569e2c5eadbba998fa0c6fd6b2e02376e5",
+ "result": {
+  "text": "of the early bull thesis. I'm not sure we are passing the test here. So last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50-week moving average. Mm-hmm.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 12.58,
+    "text": "of the early bull thesis. I'm not sure we are passing the test here. So last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50-week moving average."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 13.16,
+    "end": 13.36,
+    "text": "Mm-hmm."
+   }
+  ],
+  "words": [
+   {
+    "text": "of",
+    "start": 0.12,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.38,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 0.56,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 0.96,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thesis.",
+    "start": 1.26,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 1.8,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 1.88,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sure",
+    "start": 2.02,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.2,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.3,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "passing",
+    "start": 2.46,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.88,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "test",
+    "start": 3.02,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 3.3,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.82,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 4.26,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week",
+    "start": 4.6,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 5.42,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had,",
+    "start": 5.58,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 5.88,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 6.02,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weeks",
+    "start": 6.14,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago,",
+    "start": 6.36,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.54,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 6.6,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.68,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 6.78,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hack",
+    "start": 7.04,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.58,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 7.76,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "history",
+    "start": 8.06,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 8.36,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance.",
+    "start": 8.5,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 9.34,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 9.58,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kept",
+    "start": 9.86,
+    "end": 10.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "above",
+    "start": 10.1,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 10.66,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50-week",
+    "start": 11.34,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 11.92,
+    "end": 12.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average.",
+    "start": 12.26,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 13.16,
+    "end": 13.36,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.14
+ },
+ "usd": 0.002828,
+ "seconds": 1.1,
+ "recorded_at": "2026-11-13T16:36:47Z"
+}

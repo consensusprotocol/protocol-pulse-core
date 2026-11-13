@@ -1,4 +1,31 @@
-RULING 57 COMMITTED (5a168850, audit 1006) AND BUILT (10:36 ET, ledger_20261113_152651): 997 adapter rows -> 587 moments -> 265 usable -> 166 left out by STAND_ALONE (52 back as trimmed variants) -> 24 screened at step A (the PRESCREEN_N cap) -> 12 cleared -> 7 L-v 2 + CUTTABLE -> 5 cleared the second vendor too (4 of them can open) -> 3 angles (Heimdall deepseek, 410 s) -> 3 line-ups, and every one fails the clips-alone verdict with its hook rated 1 or 2 on its own job. No package. SPEND (ruling 48): $6.25 of $12.00. RULING 56: the render's own scorer rated all 145 of my candidates and affirmed none (77 at 1.0, 75 of them off-topic; 68 at 3.0; the bar is 3.5); my admission side is in audit and admits nothing from that file. QUESTION (STILL OPEN): THE HOOK IS WHAT FAILS, AND MORE SCREENED MOMENTS ARE THE NEAREST SOURCE OF NEW HOOKS. PRESCREEN_N = 24 SCREENS 24 OF ~150 CANDIDATES AT 72 h: RAISE IT (EACH 8 MORE COST ~$0.02 REPORTED ON XAI)?
+RULINGS 58 + 59 COMMITTED (5cb00867, audit 1112, 2 cycles) AND BUILT (11:31-11:50 ET, ledger_20261113_163106): 1087 rows -> 689 moments -> 325 usable -> 177 screened at step A (every candidate) -> 51 cleared -> 31 L-v 2 + CUTTABLE -> 14 pass G17a -> 8 can open -> 8 rated on the hook's own job, 2 rated >= 4 (both Simply Bitcoin; the best three: Simply Bitcoin 4 "strong fact but limited tease for next", Simply Bitcoin 4 "slightly dense for instant first seconds", Scott Melker 3 "mild opener lacks scroll-stopping punch") -> 14 cleared the second vendor -> 3 angles, all written for the SAME hook -> 8 line-ups, every one fails the clips-alone verdict: in context the hook rates 2-4, and the last clip 2-3 with the join before it. No package. SPEND (ruling 48): $6.81 of $12.00. A GAP OF MINE: the writer was told "up to 1 angle for EACH hook" and my angle check does not enforce it, so the second passing hook was never tried; the fix is next, in audit. RULING 60: under stand-alone only, the integrator re-rated the 145: 9 affirmed. My admission side is adapted to it and audited 2 cycles (1138); its cycle-2 consensus fix is in review; no build has read verdicts yet. No question open.
+
+## 11:55 ET: rulings 58 + 59 built; ruling 60 adapted
+
+- **58 + 59 (5cb00867, audit 1112).**
+  - Cycle 1: grok passed it; qwen's P0 (the second-screen filter) is refuted with the line that does it; glm stopped at
+    its token limit with no P0.
+  - Cycle 2: no P0 or P1 holds; qwen's P1 (two screens from one vendor) is refuted, because the second screen avoids
+    the FIRST verdict's vendor.
+  - The P2s are recorded in FINAL_CONSENSUS.md.
+- **Its build (19 min).** The funnel is on line 1.
+  - Step A on every candidate: 177 screened, 51 cleared. Every verdict is cached for the next builds
+    (STEP_A_CACHE.json, keyed by moment, text, context and show date).
+  - The hook ratings, one call: 8 rated, 2 pass. The full table is in FUNNEL.md, stage 4b.
+  - What fails now: no longer the hook alone. In context the passing hooks rate 2-4 (their "setup" depends on what
+    follows). Mostly the LAST clip rates 2-3, with the join before it flagged.
+  - Seven of the 8 line-ups went to one angle: ruling 41's swaps kept re-judging it.
+- **Ruling 60 (the integrator's merge, 8a6cfaad).** For a moments pin the clip scorer judges stand-alone only, and the
+  score alone affirms (>= 3.5).
+  - Their re-rating of my 145 candidates: 9 affirmed (4 untrimmed, 5 trimmed).
+  - My admission side (ruling 56) is ported onto 58 + 59 and adapted. It copies the render's own stand_alone.py (read
+    only), so the pin stage runs check_edl(moments=True), as validate does. Its verdict check requires kind
+    "moments", event null, threshold 3.5, and the render's code sha recomputed now.
+  - A read-only dry run on today's moments would admit 3 openers as clips and keep 2 affirmed trimmed variants.
+  - Audit 1138: no P0 or P1 holds after 2 cycles. qwen's "P0" (the pin does not re-compare the scorer sha) is refuted:
+    the render re-asks its own scorer at validate.
+  - Its one cycle-2 consensus P1 (diagnostics on an unreadable verdicts file, observability only) is implemented and in
+    its own short review (1138b), so no unreviewed line goes in.
 
 ## 10:38 ET: 57 built, audit 1005's record corrected, 56's first verdicts (none affirmed)
 

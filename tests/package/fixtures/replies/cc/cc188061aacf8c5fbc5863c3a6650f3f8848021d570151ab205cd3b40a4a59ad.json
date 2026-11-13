@@ -1,0 +1,434 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f682283f256ed6472a8c33a6c5e3f562046f5fb110df64b7234bbaeb581ed580",
+ "result": {
+  "text": "an additional 30 pounds. That's not how Bitcoin mining works. A Bitcoin mine does not get better at mining Bitcoin the longer it mines Bitcoin. The only way to get better at it is to become faster or to become larger. The only way to get better at mining Bitcoin is to be faster or to be f- be larger, and it's because the game that we're playing",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.36,
+    "end": 18.74,
+    "text": "an additional 30 pounds. That's not how Bitcoin mining works. A Bitcoin mine does not get better at mining Bitcoin the longer it mines Bitcoin. The only way to get better at it is to become faster or to become larger. The only way to get better at mining Bitcoin is to be faster or to be f- be larger, and it's because the game that we're playing"
+   }
+  ],
+  "words": [
+   {
+    "text": "an",
+    "start": 0.36,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "additional",
+    "start": 0.46,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30",
+    "start": 1.02,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pounds.",
+    "start": 1.24,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 1.9,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 2.1,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 2.34,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.52,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 2.9,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "works.",
+    "start": 3.22,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "A",
+    "start": 3.98,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.08,
+    "end": 4.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mine",
+    "start": 4.44,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 4.72,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 4.96,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 5.26,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 5.72,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.98,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 6.14,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.46,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.16,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "longer",
+    "start": 7.4,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.8,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mines",
+    "start": 7.94,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 8.26,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 8.98,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 9.22,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 9.48,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.72,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 9.82,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 9.98,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 10.26,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.38,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.54,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.68,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 10.76,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "faster",
+    "start": 11.82,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 12.44,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.56,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 12.64,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "larger.",
+    "start": 13.34,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 14.14,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 14.46,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 14.72,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.82,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 14.92,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 15.06,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 15.24,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mining",
+    "start": 15.34,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.58,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 15.9,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.0,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 16.059,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "faster",
+    "start": 16.18,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 16.46,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.52,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 16.58,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "f-",
+    "start": 16.7,
+    "end": 16.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 16.92,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "larger,",
+    "start": 17.06,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.48,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 17.56,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 17.68,
+    "end": 17.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.98,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "game",
+    "start": 18.14,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.38,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 18.5,
+    "end": 18.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "playing",
+    "start": 18.66,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.76
+ },
+ "usd": 0.003752,
+ "seconds": 1.21,
+ "recorded_at": "2026-11-13T16:36:00Z"
+}

@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "108aaad7d240af5a5daeac49bbf6afb6c966de10a380cfe5599a9acfcad54839",
+ "result": {
+  "text": "Go work out, get some sun, connect with family and friends. Don't let a singular asset, whether it be Bitcoin or an equity that you hold, consume all of your thinking. Wow",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.22,
+    "end": 9.02,
+    "text": "Go work out, get some sun, connect with family and friends. Don't let a singular asset, whether it be Bitcoin or an equity that you hold, consume all of your thinking."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 10.12,
+    "end": 10.42,
+    "text": "Wow"
+   }
+  ],
+  "words": [
+   {
+    "text": "Go",
+    "start": 0.22,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "work",
+    "start": 0.38,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 0.68,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 1.22,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 1.36,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sun,",
+    "start": 1.6,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "connect",
+    "start": 2.34,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 2.6,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "family",
+    "start": 2.74,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.04,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "friends.",
+    "start": 3.18,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Don't",
+    "start": 4.019,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 4.22,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.9,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "singular",
+    "start": 5.04,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset,",
+    "start": 5.58,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whether",
+    "start": 5.86,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.02,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 6.1,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.24,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 6.74,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 6.8,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equity",
+    "start": 6.9,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.2,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.3,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold,",
+    "start": 7.42,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "consume",
+    "start": 7.98,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 8.4,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.52,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 8.62,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thinking.",
+    "start": 8.74,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wow",
+    "start": 10.12,
+    "end": 10.42,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.48
+ },
+ "usd": 0.002096,
+ "seconds": 1.42,
+ "recorded_at": "2026-11-13T16:35:50Z"
+}

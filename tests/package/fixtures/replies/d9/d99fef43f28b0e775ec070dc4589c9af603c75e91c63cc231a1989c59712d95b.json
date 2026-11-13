@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "56d430c88e4d7bb8fbbebb5f360a7a9acf2b1822afbfa495f049f2cc36e1ab14",
+ "result": {
+  "text": "Bankless Nation, we're in the second week of November, and we are once again testing whether or not this bull market is intact or not. Bitcoin lost the 50-week moving average. It's now right in between the 50-week and the 200-week moving average. We're the cycle investors",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 4.3,
+    "end": 17.28,
+    "text": "Bankless Nation, we're in the second week of November, and we are once again testing whether or not this bull market is intact or not. Bitcoin lost the 50-week moving average. It's now right in between the 50-week and the 200-week moving average. We're the cycle investors"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bankless",
+    "start": 4.3,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nation,",
+    "start": 4.58,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 4.9,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.02,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.12,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "second",
+    "start": 5.26,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week",
+    "start": 5.56,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.72,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "November,",
+    "start": 5.8,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.22,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 6.34,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 6.44,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "once",
+    "start": 6.72,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again",
+    "start": 7.02,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "testing",
+    "start": 7.42,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whether",
+    "start": 7.96,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 8.32,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 8.48,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 8.68,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 8.9,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 9.06,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.46,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "intact",
+    "start": 9.68,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 10.22,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not.",
+    "start": 10.4,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.82,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lost",
+    "start": 11.66,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.38,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50-week",
+    "start": 12.58,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 13.06,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average.",
+    "start": 13.36,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 13.62,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 13.8,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 13.98,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.1,
+    "end": 14.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "between",
+    "start": 14.18,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.4,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "50-week",
+    "start": 14.58,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.82,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.9,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "200-week",
+    "start": 15.04,
+    "end": 15.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moving",
+    "start": 15.42,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "average.",
+    "start": 15.68,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 16.02,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.3,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle",
+    "start": 16.44,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investors",
+    "start": 16.72,
+    "end": 17.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.41
+ },
+ "usd": 0.003482,
+ "seconds": 1.31,
+ "recorded_at": "2026-11-13T16:36:31Z"
+}

@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "13c7d7b2e0df299779817e9039818eb31ae5a50d94372bc51044e48260881aec",
+ "result": {
+  "text": "Whether that be, and I think Buffett would say the same thing about equities. If you just commit to five years, 10 years, and then you put the money in, whatever it is, stocks, Bitcoin, whatever you think you like, the question isn't, when it goes down, the question isn't should I sell? The question is, has it been five years yet? Yeah.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.7,
+    "end": 18.84,
+    "text": "Whether that be, and I think Buffett would say the same thing about equities. If you just commit to five years, 10 years, and then you put the money in, whatever it is, stocks, Bitcoin, whatever you think you like, the question isn't, when it goes down, the question isn't should I sell? The question is, has it been five years yet?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 19.52,
+    "end": 19.72,
+    "text": "Yeah."
+   }
+  ],
+  "words": [
+   {
+    "text": "Whether",
+    "start": 0.7,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.94,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 1.12,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.22,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.5,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.56,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Buffett",
+    "start": 1.78,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 2.12,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 2.24,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.38,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 2.5,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 2.7,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.86,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equities.",
+    "start": 3.08,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 4.0,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.12,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 4.24,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "commit",
+    "start": 4.46,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.54,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 5.9,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 6.18,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10",
+    "start": 6.5,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 6.72,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.7,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 7.86,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.48,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 8.62,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.78,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 8.9,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 9.18,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whatever",
+    "start": 9.36,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.68,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 9.8,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stocks,",
+    "start": 9.98,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 10.34,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whatever",
+    "start": 10.86,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.2,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 11.4,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.66,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 11.78,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.12,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question",
+    "start": 13.28,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't,",
+    "start": 13.82,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 14.16,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.26,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 14.36,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down,",
+    "start": 14.62,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.98,
+    "end": 15.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question",
+    "start": 15.14,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't",
+    "start": 15.54,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 15.76,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.98,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell?",
+    "start": 16.1,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 16.84,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question",
+    "start": 16.98,
+    "end": 17.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 17.4,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 17.58,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 17.8,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 17.94,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 18.16,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 18.38,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yet?",
+    "start": 18.62,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah.",
+    "start": 19.52,
+    "end": 19.72,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.28
+ },
+ "usd": 0.004056,
+ "seconds": 1.78,
+ "recorded_at": "2026-11-13T16:36:01Z"
+}

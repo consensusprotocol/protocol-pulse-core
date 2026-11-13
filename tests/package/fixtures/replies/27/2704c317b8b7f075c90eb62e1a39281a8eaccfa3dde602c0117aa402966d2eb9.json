@@ -1,0 +1,458 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d72d6f91d17c06d52b566b02d88a5516ab2aeb20dbb823c787afd7ae80fc30bf",
+ "result": {
+  "text": "want, they want a product like this. I think that's why we've had success there. And again, I think there's, um, the other side of the trade, the Amplified Bitcoin side, like it's a win-win transaction. It's a marketplace almost to some extent, where some people want high USD yield, other people are willing to effectively pay that yield in order to get access to Amplified Bitcoin. And the fact that like",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.46,
+    "text": "want, they want a product like this. I think that's why we've had success there. And again, I think there's, um, the other side of the trade, the Amplified Bitcoin side, like it's a win-win transaction. It's a marketplace almost to some extent, where some people want high USD yield, other people are willing to effectively pay that yield in order to get access to Amplified Bitcoin. And the fact that like"
+   }
+  ],
+  "words": [
+   {
+    "text": "want,",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 0.34,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 0.46,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.6,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "product",
+    "start": 0.68,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.06,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this.",
+    "start": 1.3,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.94,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.98,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.12,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 2.3,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 2.44,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 2.58,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "success",
+    "start": 2.76,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 3.18,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.92,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again,",
+    "start": 4.059,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.32,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.42,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's,",
+    "start": 5.28,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 6.04,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.28,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 6.4,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "side",
+    "start": 6.6,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.78,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.86,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade,",
+    "start": 7.02,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.7,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Amplified",
+    "start": 7.88,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.34,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "side,",
+    "start": 8.82,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 9.56,
+    "end": 9.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 9.92,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.06,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "win-win",
+    "start": 10.14,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transaction.",
+    "start": 10.54,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 11.12,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.28,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "marketplace",
+    "start": 11.36,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "almost",
+    "start": 12.08,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.38,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 12.52,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "extent,",
+    "start": 12.7,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 13.1,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 13.68,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 13.88,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 14.18,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high",
+    "start": 14.44,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "USD",
+    "start": 14.82,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yield,",
+    "start": 15.34,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 16.16,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 16.379,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 16.62,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "willing",
+    "start": 16.76,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 17.06,
+    "end": 17.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "effectively",
+    "start": 17.16,
+    "end": 17.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pay",
+    "start": 17.72,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.94,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yield",
+    "start": 18.22,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 18.98,
+    "end": 19.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "order",
+    "start": 19.1,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 19.4,
+    "end": 19.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 19.52,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "access",
+    "start": 19.72,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 20.1,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Amplified",
+    "start": 20.24,
+    "end": 20.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 20.66,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 21.58,
+    "end": 21.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.86,
+    "end": 21.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fact",
+    "start": 21.98,
+    "end": 22.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 22.2,
+    "end": 22.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 22.34,
+    "end": 22.46,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.53
+ },
+ "usd": 0.004506,
+ "seconds": 1.06,
+ "recorded_at": "2026-11-13T16:36:37Z"
+}

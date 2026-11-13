@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7ad533d691f37bd241fe279425176d1c7cb51cef7b91ef579d5faed50f250d03",
+ "result": {
+  "text": "than nine, and now there's millions of them and they're all pressuring the actual prices. But the fact is, on a one-year basis right now, Bitcoin's down 28% and the S&P 500's up 11%. It's showing significant divergent weakness. I think it's a significant leading",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 14.3,
+    "text": "than nine, and now there's millions of them and they're all pressuring the actual prices. But the fact is, on a one-year basis right now, Bitcoin's down 28% and the S&P 500's up 11%. It's showing significant divergent weakness. I think it's a significant leading"
+   }
+  ],
+  "words": [
+   {
+    "text": "than",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nine,",
+    "start": 0.14,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.7,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 0.86,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 1.06,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "millions",
+    "start": 1.28,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.64,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 1.74,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.88,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 2.02,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 2.22,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pressuring",
+    "start": 2.6,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.04,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actual",
+    "start": 3.16,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prices.",
+    "start": 3.48,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.9,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.04,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fact",
+    "start": 4.22,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 4.52,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.64,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.74,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one-year",
+    "start": 5.92,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basis",
+    "start": 6.3,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 6.66,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 6.8,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 6.98,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 7.42,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "28%",
+    "start": 7.78,
+    "end": 8.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.74,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.86,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P",
+    "start": 9.0,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "500's",
+    "start": 9.58,
+    "end": 9.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 9.94,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "11%.",
+    "start": 10.12,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 10.94,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "showing",
+    "start": 11.1,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "significant",
+    "start": 11.54,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "divergent",
+    "start": 12.1,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "weakness.",
+    "start": 12.56,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.02,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 13.04,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 13.2,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.36,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "significant",
+    "start": 13.48,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leading",
+    "start": 14.04,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.34
+ },
+ "usd": 0.002868,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-13T16:36:22Z"
+}

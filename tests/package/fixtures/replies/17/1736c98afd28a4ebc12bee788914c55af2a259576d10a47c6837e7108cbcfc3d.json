@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5902e9fa0d0d73690cbae35b269736716daa5b906453f241c09d87f215f42cbf",
+ "result": {
+  "text": "Hmm Am I, am I in the confession booth? Uh-oh. Yep. Okay. I've committed a- No judgment ... a big- a Bitcoin sin. I've, um, sold large amount of Bitcoin to put a down payment on a house. This is judgment",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.4,
+    "end": 0.94,
+    "text": "Hmm"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.14,
+    "end": 2.46,
+    "text": "Am I, am I in the confession booth?"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 2.8,
+    "end": 4.0,
+    "text": "Uh-oh. Yep. Okay."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.08,
+    "end": 4.56,
+    "text": "I've committed a-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 4.58,
+    "end": 5.3,
+    "text": "No judgment"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 5.34,
+    "end": 11.3,
+    "text": "... a big- a Bitcoin sin. I've, um, sold large amount of Bitcoin to put a down payment on a house."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 11.86,
+    "end": 12.72,
+    "text": "This is judgment"
+   }
+  ],
+  "words": [
+   {
+    "text": "Hmm",
+    "start": 0.4,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Am",
+    "start": 1.14,
+    "end": 1.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I,",
+    "start": 1.24,
+    "end": 1.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "am",
+    "start": 1.46,
+    "end": 1.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 1.56,
+    "end": 1.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 1.64,
+    "end": 1.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 1.72,
+    "end": 1.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "confession",
+    "start": 1.82,
+    "end": 2.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "booth?",
+    "start": 2.24,
+    "end": 2.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Uh-oh.",
+    "start": 2.8,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yep.",
+    "start": 3.24,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Okay.",
+    "start": 3.6,
+    "end": 4.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 4.08,
+    "end": 4.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "committed",
+    "start": 4.22,
+    "end": 4.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a-",
+    "start": 4.56,
+    "end": 4.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "No",
+    "start": 4.58,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "judgment",
+    "start": 4.74,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "...",
+    "start": 5.34,
+    "end": 5.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 5.44,
+    "end": 5.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "big-",
+    "start": 5.46,
+    "end": 5.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 6.12,
+    "end": 6.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.22,
+    "end": 6.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "sin.",
+    "start": 6.7,
+    "end": 7.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I've,",
+    "start": 7.38,
+    "end": 7.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "um,",
+    "start": 7.78,
+    "end": 7.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "sold",
+    "start": 8.08,
+    "end": 8.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "large",
+    "start": 8.66,
+    "end": 8.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "amount",
+    "start": 8.92,
+    "end": 9.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 9.14,
+    "end": 9.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.24,
+    "end": 9.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 9.76,
+    "end": 9.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "put",
+    "start": 9.88,
+    "end": 9.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 10.06,
+    "end": 10.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "down",
+    "start": 10.18,
+    "end": 10.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "payment",
+    "start": 10.42,
+    "end": 10.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "on",
+    "start": 10.72,
+    "end": 10.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 10.86,
+    "end": 10.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "house.",
+    "start": 10.94,
+    "end": 11.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "This",
+    "start": 11.86,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.1,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "judgment",
+    "start": 12.3,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.74
+ },
+ "usd": 0.002548,
+ "seconds": 1.18,
+ "recorded_at": "2026-11-13T16:36:24Z"
+}

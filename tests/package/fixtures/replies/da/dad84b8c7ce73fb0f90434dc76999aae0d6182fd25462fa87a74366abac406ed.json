@@ -1,0 +1,278 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "3ffb7412c62a19e3d0f27d863cf8a46f09875a92b4b52d634efeec022e12af19",
+ "result": {
+  "text": "It's just another equity. It's just another stock. And I know people say, \"Well, that's not what Bitcoin is really.\" Bitcoin is essentially Gold 2.0, and that's pretty much it. No one's using it for peer-to-peer transactions. Nobody. I mean, very few",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.56,
+    "end": 14.88,
+    "text": "It's just another equity. It's just another stock. And I know people say, \"Well, that's not what Bitcoin is really.\" Bitcoin is essentially Gold 2.0, and that's pretty much it. No one's using it for peer-to-peer transactions. Nobody. I mean, very few"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.56,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.68,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 0.8,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equity.",
+    "start": 1.58,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 2.2,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.32,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 2.42,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock.",
+    "start": 2.68,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.9,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.04,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 4.1,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.42,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say,",
+    "start": 4.68,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Well,",
+    "start": 4.8,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 4.92,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.1,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 5.2,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.36,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.8,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really.\"",
+    "start": 6.2,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.8,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.14,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "essentially",
+    "start": 8.22,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Gold",
+    "start": 8.76,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2.0,",
+    "start": 9.46,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.66,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 10.76,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 11.0,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 11.2,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 11.44,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No",
+    "start": 11.66,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one's",
+    "start": 11.8,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "using",
+    "start": 12.02,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.22,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.32,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "peer-to-peer",
+    "start": 12.46,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transactions.",
+    "start": 12.88,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nobody.",
+    "start": 13.78,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.4,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 14.46,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 14.62,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 14.88,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.9
+ },
+ "usd": 0.00298,
+ "seconds": 1.19,
+ "recorded_at": "2026-11-13T16:36:49Z"
+}

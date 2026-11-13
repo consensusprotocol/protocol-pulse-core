@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0992f71cf67eafbebdbdcbb41dc1fb4585a9a13b62dfc018de905d9719064f43",
+ "result": {
+  "text": "Understand the trade-offs while you do this. Multi-sig, multi-vendor multi-sig is probably the best, most secure way. Actually, it's not probably. It is the most secure way to handle your personal self-custody of your Bitcoin. But",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 18.96,
+    "text": "Understand the trade-offs while you do this. Multi-sig, multi-vendor multi-sig is probably the best, most secure way. Actually, it's not probably. It is the most secure way to handle your personal self-custody of your Bitcoin. But"
+   }
+  ],
+  "words": [
+   {
+    "text": "Understand",
+    "start": 0.04,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.54,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade-offs",
+    "start": 0.7,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while",
+    "start": 1.32,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.68,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 1.84,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this.",
+    "start": 2.06,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Multi-sig,",
+    "start": 4.019,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multi-vendor",
+    "start": 6.38,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multi-sig",
+    "start": 7.08,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.52,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 8.74,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.44,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best,",
+    "start": 9.62,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 10.5,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "secure",
+    "start": 10.74,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way.",
+    "start": 11.2,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Actually,",
+    "start": 11.5,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 11.76,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 11.88,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably.",
+    "start": 12.06,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 12.62,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.94,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.16,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 13.36,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "secure",
+    "start": 13.62,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 14.08,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.46,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "handle",
+    "start": 15.42,
+    "end": 15.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 15.76,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "personal",
+    "start": 15.92,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "self-custody",
+    "start": 16.34,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 17.02,
+    "end": 17.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 17.12,
+    "end": 17.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 17.24,
+    "end": 17.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 18.74,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.09
+ },
+ "usd": 0.003818,
+ "seconds": 1.09,
+ "recorded_at": "2026-11-13T16:36:28Z"
+}
