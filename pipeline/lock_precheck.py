@@ -60,6 +60,7 @@ REPO = os.path.dirname(PIPELINE)
 sys.path.insert(0, PIPELINE)
 import local_judge as LJ  # noqa: E402  (the yield flag)
 import pinned  # noqa: E402
+import sentence_law  # noqa: E402  (ruling 73 (c): the render's own cut placement, lock_cut)
 
 ROOT = os.environ.get("PP_LOCK_PRECHECK_DIR", os.path.join(REPO, "data", "lock_precheck"))
 OWNER = "pin-stage lock pre-check (integrator, GPU0)"
@@ -68,7 +69,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72"         # what an entry's verdict judged; an entry under other rules is never reused
+RULES = "ruling 17 + ruling 72 + ruling 73"   # what an entry's verdict judged; other rules' entries are never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
@@ -298,7 +299,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
-            spent, lock, reason, t, spoken = [], None, err, time.time(), None
+            spent, lock, reason, t, spoken, cut = [], None, err, time.time(), None, None
             wd = work_dir(vid, lo, hi, sha)
 
             def recognise(src):                                  # ONE paid reading per acquisition (cached), spend kept
@@ -326,6 +327,12 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                                   f"repetitions and function words at {diffs} | lock: {lock['text']!r} | spoken: "
                                   f"{text!r}")
                         outcome, lock = "hold", None
+                    if lock is not None:                         # ruling 73 (c): the render's own cut placement
+                        cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
+                                                    "hook" if s["role"] == "hook" else "clip")
+                        if cut.get("error"):
+                            outcome, lock = "hold", None
+                            reason = f"ruling 73: the render cannot cut this span: {cut['error']}"
                 except pinned.PinError as e:                     # what the render's stage pinned would hold on
                     outcome, reason, lock = "hold", str(e), None
                 except Exception as e:                           # any step failed (the second reading included): no
@@ -341,6 +348,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      if lock else None,
                      "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
                      "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
+                     "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
+                     if cut else None,
                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
                      "timing": {"download_s": dl.get(vid, 0.0), "decode_s": dsec, "lock_s": round(time.time() - t, 1)},
                      "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
