@@ -335,6 +335,16 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix (L-r 4 amended '11:57'):** a foreign GPU0 user is waited out (15 s polls, up to 10 min), logged, and holds only if it stays; nothing that is not ours is killed. A site-side fix (that fallback on GPU0) is the orchestrator's call.
 **Detection:** waitress.log 'Article generated via Ollama' close to a run's Gpu0Foreign.
 
+### E-FAIL-071: A background waiter never ended: its pgrep pattern matched its own command line
+**Evidence:** 2026-11-12, the integrator's background shell b4624iyr8 ('until ! pgrep -f "heimdall-audit --question Batch 28" ...; do sleep 5; done; <read the replies>') polled from the ruling 10 audit (about 08:00 ET) until stopped at 20:25. The bash process running the loop carries the pattern in its own argv, so pgrep -f always found a match and the loop never reached the read. Nothing it guarded was lost: the replies were read separately at the time.
+**Fix:** wait on a PID (wait / kill -0 <pid>) or a sentinel file the job writes at its end, never on pgrep -f with a pattern that appears in the waiter's own command line.
+**Detection:** a waiter still running long after the process it waits for has exited; pgrep -af <pattern> lists only the waiter's own shell.
+
+### E-FAIL-072: Status lines carried times that were estimated, not read from the clock
+**Evidence:** 2026-11-12, integrator status lines after the 20:30 order: '20:37', '20:41', '20:47', '20:52' were written from an estimate of elapsed work. `date` at the next command read 20:31:22 (20:31:54 a moment later), so the stated times ran 6-21 minutes ahead of the clock. The DoD's own heading used `date +%H:%M` and was right.
+**Fix:** every status line and every DoD time is taken from a `date` call made immediately before it is written; a line without a fresh `date` reading carries no time.
+**Detection:** a status time later than the next `date` output in the same session.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 
