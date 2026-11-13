@@ -281,7 +281,8 @@ def to_pin(pk, run_name):
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual")
+                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual",
+                                          "attested")      # rulings 68 / 72: an adopted spoken text, sealed
                         if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],

@@ -1,0 +1,819 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+new file mode 100644
+index 0000000..a389742
+--- /dev/null
++++ b/pipeline/lock_precheck.py
+@@ -0,0 +1,240 @@
++"""RULING 68 (orchestrator 14:02 Nov 13) and RULING 72 (live 17:17 Nov 13 on the integrator's side): the render's own
++ruling-17 lock, asked BEFORE any write is paid for a line-up and before its pin is sealed. Ruling 68: "When it exists,
++your approved text comes from it."
++
++The integrator's service runs the render's acquisition, decode and lock (pinned.acquire, validate_range,
++pinned.segment_lock) on the segments of a request. Under ruling 72 it compares the second recogniser with the lock on
++every span.
++
++Requests: this worktree's tests/package/proof/lock_requests/ (<name>.tmp, then rename). The service only reads there,
++and answers each name and content once.
++
++Results: read only, in /home/ultron/protocol_pulse/data/lock_precheck/results/
++<video_id>.<start %.3f>-<end %.3f>.<decoder[:12]>.json. Each file is a list. The answer is the newest entry (by "at")
++that meets all of these:
++- rules == "ruling 17 + ruling 72";
++- its window is the segment's [start, end];
++- its role, approved_text, trimmed_leading and untrimmed_start equal the request's.
++Entries without "rules" are ruling 68's, from before, and are never read.
++
++Outcomes:
++- no_difference, adopted, two_readings: pass. The approved text stands.
++- adopt_spoken: the text to seal is "spoken_text", already through the render's validate_range + segment_lock. It is
++  adopted only when this side's own check agrees that every difference is in ruling 67's carry-over class
++  (attest.carry_class: a function word, or the speaker's own immediate repetition; never a number, a name or a
++  negation). Otherwise it is a hold (fail closed).
++- hold: the clip may not be used with that text. The reason says why.
++- error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
++  is sent again rather than reusing an error.
++
++The text a pin seals is the approved text, or the adopted spoken text with an "attested" record
++(package_pin.SEALED_LATER), as ruling 67's re-seal records it."""
++import json
++import os
++import re
++import time
++from datetime import datetime, timezone
++
++import attest as AT
++
++RULES = "ruling 17 + ruling 72"
++DECODER = "25cd6f15e6c9"                      # the integrator's decoder_sha[:12] (unchanged by ruling 72)
++RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
++REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
++                        "lock_requests")      # this worktree's; the service only reads it
++PASS = frozenset(("no_difference", "adopted", "two_readings"))
++TRIM = ("trimmed_leading", "untrimmed_start")
++ID_RE = re.compile(r"[A-Za-z0-9_.:~-]{1,120}")
++TIMEOUT_S = 1200.0                            # a fresh line-up takes about 2-2.5 min; the service yields to renders
++POLL_S = 10.0
++OLDEST = datetime.min.replace(tzinfo=timezone.utc)
++
++
++def segments_of(segs):
++    """The request's segments, exactly as package_pin.to_pin will carry them from this line-up: role (the hook first),
++    start and end rounded to the millisecond, the moment's text as approved_text, and both trim fields when the
++    moment is trimmed (package._package copies them then)."""
++    out = []
++    for i, m in enumerate(segs):
++        s = {"video_id": str(m["video_id"]), "start": round(float(m["start"]), 3), "end": round(float(m["end"]), 3),
++             "role": "hook" if i == 0 else "clip", "approved_text": m["text"]}
++        if m.get("trimmed_leading"):
++            s.update({k: m[k] for k in TRIM})
++        out.append(s)
++    return out
++
++
++def result_file(seg, results_dir=RESULTS, decoder=DECODER):
++    return os.path.join(results_dir, f"{seg['video_id']}.{seg['start']:.3f}-{seg['end']:.3f}.{decoder[:12]}.json")
++
++
++def _at(s):
++    try:
++        t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return OLDEST
++    return t if t.tzinfo is not None else t.replace(tzinfo=timezone.utc)
++
++
++def _matches(e, seg):
++    w = e.get("window")
++    try:
++        win = [round(float(w[0]), 3), round(float(w[1]), 3)] if isinstance(w, list) and len(w) == 2 else None
++    except (TypeError, ValueError):
++        win = None
++    return (e.get("rules") == RULES and win == [seg["start"], seg["end"]] and e.get("role") == seg["role"] and
++            e.get("approved_text") == seg["approved_text"] and all(e.get(k) == seg.get(k) for k in TRIM))
++
++
++def answer(seg, results_dir=RESULTS, request_id=None):
++    """The newest matching entry (by "at", then file order), only `request_id`'s when given; None when there is none
++    or the file cannot be read (no answer is never a pass)."""
++    try:
++        with open(result_file(seg, results_dir)) as f:
++            entries = json.load(f)
++    except (OSError, ValueError):
++        return None
++    best = None
++    for k, e in enumerate(entries if isinstance(entries, list) else []):
++        if isinstance(e, dict) and _matches(e, seg) and (request_id is None or e.get("request_id") == request_id):
++            key = (_at(e.get("at")), k)
++            if best is None or key >= best[0]:
++                best = (key, e)
++    return best[1] if best else None
++
++
++def send(segments, request_id, requests_dir=REQUESTS):
++    """Write the WHOLE line-up as one request: <request_id>.tmp, then renamed to <request_id>.json. Never over an
++    existing request (the service answers each name and content once)."""
++    if not isinstance(request_id, str) or not ID_RE.fullmatch(request_id):
++        raise ValueError(f"a request_id is 1-120 of [A-Za-z0-9_.:~-]: {request_id!r}")
++    os.makedirs(requests_dir, exist_ok=True)
++    final = os.path.join(requests_dir, request_id + ".json")
++    tmp = os.path.join(requests_dir, request_id + ".tmp")
++    if os.path.exists(final) or os.path.exists(tmp):
++        raise FileExistsError(f"{final} (or its .tmp) exists: a request is never written over")
++    with open(tmp, "x") as f:
++        json.dump({"request_id": request_id, "segments": segments}, f, indent=1)
++    os.rename(tmp, final)
++    return final
++
++
++def decide(seg, e):
++    """One segment's verdict from its answer -> {"verdict": "pass" | "adopt" | "hold" | "error", "outcome", "why",
++    and for an adoption "spoken_text" and "differences"}."""
++    if e is None:
++        return {"verdict": "error", "outcome": None, "why": "no answer from the render's lock in time (law L-m)"}
++    out, why = e.get("outcome"), str(e.get("reason") or "")[:400]
++    if out in PASS:
++        return {"verdict": "pass", "outcome": out, "why": why}
++    if out == "hold":
++        return {"verdict": "hold", "outcome": out, "why": why or "held (no reason given)"}
++    if out != "adopt_spoken":
++        return {"verdict": "error", "outcome": out, "why": f"no verdict: outcome {out!r} {why}".strip()}
++    spoken, approved = e.get("spoken_text"), seg["approved_text"]
++    if not isinstance(spoken, str) or not spoken.strip():
++        return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
++    r, p, ops = AT.diff(spoken, approved)
++    if not ops:                                       # the same canonical words: the approved text stands
++        return {"verdict": "pass", "outcome": out, "why": "adopt_spoken with no canonical difference"}
++    classes = [AT.carry_class(r, p, o, (spoken, approved)) for o in ops]
++    diffs = [{"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "class": k}
++             for (_, a, b, c, d), k in zip(ops, classes)]
++    if None in classes:                               # this side's ruling-67 check disagrees: fail closed
++        return {"verdict": "hold", "outcome": out, "differences": diffs,
++                "why": "adopt_spoken, but by this side's attest.carry_class a difference is outside ruling 67's "
++                       "class: " + str([[x["spoken"], x["approved"]] for x in diffs if x["class"] is None])[:300]}
++    return {"verdict": "adopt", "outcome": out, "why": why, "spoken_text": spoken, "differences": diffs}
++
++
++def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_s=TIMEOUT_S, poll_s=POLL_S,
++          clock=time.time, sleep=time.sleep, log=print):
++    """The render's lock for this line-up. An answer already on file is used (never an error), else the whole line-up
++    is sent and its answers awaited. -> {"ok": every segment passes or is adopted, "request_id": the one sent or None,
++    "segments": [request segment + decide() + the answer's "entry" ref], "error": why no verdict, or None}."""
++    req = segments_of(segs)
++    got = [answer(s, results_dir) for s in req]
++    sent = None
++    if any(e is None or e.get("outcome") not in PASS | {"adopt_spoken", "hold"} for e in got):
++        sent = request_id
++        send(req, request_id, requests_dir)
++        log(f"    ruling 72: the lock pre-check asked ({request_id}, {len(req)} segment(s))")
++        deadline = clock() + timeout_s
++        while True:
++            got = [answer(s, results_dir, request_id) for s in req]
++            if all(e is not None for e in got) or clock() >= deadline:
++                break
++            sleep(poll_s)
++    rows = []
++    for s, e in zip(req, got):
++        d = decide(s, e)
++        rows.append(dict(s, **d, entry=None if e is None else {
++            "request_id": e.get("request_id"), "at": e.get("at"), "outcome": e.get("outcome"),
++            "lock_sha256": (e.get("lock") or {}).get("sha256") if isinstance(e.get("lock"), dict) else None,
++            "file": os.path.basename(result_file(s, results_dir))}))
++    errs = [f"{x['video_id']} {x['start']}-{x['end']}: {x['why']}" for x in rows if x["verdict"] == "error"]
++    return {"ok": all(x["verdict"] in ("pass", "adopt") for x in rows), "request_id": sent, "segments": rows,
++            "error": "; ".join(errs)[:600] or None}
++
++
++def attested(row, run_rule="ruling 72 (live 17:17 Nov 13): adopt_spoken, in ruling 67's carry-over class"):
++    """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
++    return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
++            "carried": "every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
++                       "ruling 67's carry-over class (checked on this side too), and no line quotes the changed words",
++            "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
++
++
++def quoting_lines(lines, row):
++    """The lines that quote an adopted segment's changed words (ruling 67: such a line is re-gated first)."""
++    r, p, ops = AT.diff(row["spoken_text"], row["approved_text"])
++    return AT.quotes(lines, r, p, ops)
++
++
++def apply(pk, pre):
++    """The package as it will be sealed, from this line-up's pre-check: each adopted segment's text is the spoken text
++    with its "attested" record, and the hook's first words follow its text. Refuses (ValueError) unless the pre-check
++    passed and covers exactly the package's segments (video, start, end, approved text, in order), and when a line
++    quotes an adopted segment's changed words (ruling 67: re-gated first). -> pk (its segments are its own)."""
++    rows, segs = pre.get("segments") or [], pk["segments"]
++    if pre.get("ok") is not True:
++        raise ValueError(f"the render's lock pre-check did not pass: {pre.get('error') or 'a segment holds'}")
++    if len(rows) != len(segs) or any(
++            r["video_id"] != s["video_id"] or r["start"] != round(float(s["start"]), 3) or
++            r["end"] != round(float(s["end"]), 3) or r["approved_text"] != s["text"] for r, s in zip(rows, segs)):
++        raise ValueError("the lock pre-check does not cover exactly this package's segments")
++    lines = [x["text"] for x in pk.get("lines") or []]
++    for r, s in zip(rows, segs):
++        if r["verdict"] == "adopt":
++            q = quoting_lines(lines, r)
++            if q:
++                raise ValueError(f"ruling 67: these lines quote the changed words of {s['video_id']}: {q}")
++            s["text"], s["attested"] = r["spoken_text"], attested(r)
++    pk["hook_first_words"] = " ".join(segs[0]["text"].split()[:8])      # as package._package derives it
++    pk["precheck"] = {"ok": True, "request_id": pre.get("request_id"),
++                      "segments": [dict({k: r.get(k) for k in ("video_id", "start", "end", "role", "verdict", "outcome",
++                                                               "entry")}, text=s["text"])   # the text the lock passed
++                                   for r, s in zip(rows, segs)]}
++    return pk
++
++
++def failed(e):
++    """A pre-check that raised (a request that could not be written, an answer that could not be decided): no
++    verdict, never a pass (law L-m). -> the shape check() returns (audit 1744 C1)."""
++    return {"ok": False, "request_id": None, "segments": [], "error": f"{type(e).__name__}: {str(e)[:300]}"}
++
++
++def pin_problems(pk):
++    """The pin stage's own check (ruling 68): a package is sealed only with a passing pre-check that covers exactly its
++    segments as they now stand (an adopted text included). -> [why]."""
++    pre = pk.get("precheck") or {}
++    rows, segs = pre.get("segments") or [], pk.get("segments") or []
++    if pre.get("ok") is not True:
++        return ["ruling 68: no passing lock pre-check on this package"]
++    if len(rows) != len(segs) or any(r.get("video_id") != s.get("video_id") or
++                                     r.get("start") != round(float(s.get("start")), 3) or
++                                     r.get("end") != round(float(s.get("end")), 3) or
++                                     r.get("verdict") not in ("pass", "adopt") or
++                                     r.get("text") != s.get("text") for r, s in zip(rows, segs)):   # audit 1744 C1
++        return ["ruling 68: the lock pre-check does not cover this package's segments as they now stand"]
++    return []
+diff --git a/pipeline/package.py b/pipeline/package.py
+index a0c1526..ad6dd60 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2119,7 +2119,7 @@ def candidate_lineup(router, candidate, cleared, now):
+ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
+           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+-          visual_cache=None, registered=None):
++          visual_cache=None, registered=None, lock_check=None):
+     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+@@ -2151,11 +2151,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     line-up the search forms that is registered is recorded ("registered") and neither judged nor written, and the angle
+     ends there, as it ends after a passing line-up whose line fails; ruling 3's no-voice fallback never adds the clip
+     that would form one (audit 1655). A build from a candidate ignores it.
++    RULING 68 / 72 (lock_check, lock_precheck.check through the driver): "your approved text comes from" the render's own
++    ruling-17 lock. A line-up whose clips pass is asked BEFORE any write is paid:
++      - a clip the render would hold is out (doomed), and the line-up is re-lined;
++      - no verdict (an error, or no answer in time) is never a pass: nothing is written, the search stops, and the
++        line-up stays a candidate (its class is "budget");
++      - a package keeps the approved texts, or seals an adopted spoken text with its "attested" record
++        (lock_precheck.apply, checked again at the pin stage).
++    The no-voice line-up is asked too. lock_check None: no pre-check (the tests' rigs); the driver always passes it.
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+     held_map = dict(registered or {}) if candidate is None else {}   # ruling 66: the registry's line-ups, by moment ids
+     import visual_pin as VP                            # ruling 70
++    import lock_precheck as LP                         # rulings 68 / 72
+     vcache = VP.load_cache(visual_cache) if visual_cache else {}
+     out_visual = {"calls": 0, "cached": 0, "usd_reported": 0.0, "usd_estimate": 0.0, "estimated_calls": 0,
+                   "unmeasured": 0, "flags": 0}   # ruling 70: the vendor's figure and the estimate never mixed
+@@ -2488,6 +2497,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         if vbad:
+             note["why_not"] = f"ruling 70: the visual check is not measured for {vbad}"
+             return None
++        nv_pre = None
++        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
++            try:
++                nv_pre = lock_check(order)
++            except Exception as e:                        # noqa: BLE001  audit 1744 C1: no verdict, never a pass
++                nv_pre = LP.failed(e)
++        if nv_pre is not None and not nv_pre.get("ok"):
++            note["why_not"] = f"ruling 68 / 72: the render's lock: {nv_pre.get('error') or 'a clip holds'}"[:400]
++            if nv_pre.get("error") or not nv_pre.get("segments"):
++                out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
++            return None
+         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
+         pk["medley"] = nv_med
+         cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
+@@ -2527,6 +2547,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": nv_med}
+         pk["seconds"] = round(time.time() - t0, 1)
+         pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
++        if nv_pre is not None:                            # rulings 68 / 72: the texts it seals
++            try:
++                pk = LP.apply(pk, nv_pre)
++            except Exception as e:                        # noqa: BLE001  audit 1744 C1: never a crash, never a pin
++                note["why_not"] = f"ruling 68 / 72: {e}"[:400]
++                return None
+         note["result"] = "PACKAGE"
+         log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package ({len(order)} clips, "
+             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
+@@ -2540,7 +2566,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             dropped, n_lineup, swapped, filled = set(), 0, None, None
+             if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
+                 n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
+-            while total < lineups and not out["packages"] and not out.get("budget_stop"):
++            while total < lineups and not out["packages"] and not out.get("budget_stop") and \
++                    not out.get("lock_stop"):
+                 if candidate is not None and n_lineup >= candidate["n_lineup"]:
+                     break                                 # RULING 66: the candidate alone, never re-lined or swapped
+                 if over_budget(ai):
+@@ -2662,6 +2689,29 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     doomed |= set(vbad)
+                     rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
+                     relined, w_used = True, writes      # no write is paid
++                pre = None
++                if not relined and lock_check is not None:  # RULINGS 68 / 72: the render's own lock, before any write
++                    try:
++                        pre = lock_check(segs)
++                    except Exception as e:                # noqa: BLE001  audit 1744 C1: no verdict, never a pass
++                        pre = LP.failed(e)
++                    rec["precheck"] = {"request_id": pre.get("request_id"), "ok": pre.get("ok"),
++                                       "segments": [{k: x.get(k) for k in ("video_id", "start", "end", "verdict",
++                                                                          "outcome", "why")} for x in pre["segments"]]}
++                    log(f"    ruling 72: the render's lock: " + ", ".join(
++                        f"{x['video_id']} {x['verdict']}" for x in pre["segments"]) + f" ({time.time() - t0:.0f} s)")
++                    held = {segs[i]["moment_id"]: x["why"] for i, x in enumerate(pre["segments"])
++                            if x["verdict"] == "hold"}
++                    if pre.get("error") or not pre["segments"]:      # no verdict is never a pass (law L-m): nothing
++                        rec["why"] = f"ruling 68 / 72: no lock verdict: {pre.get('error')}"[:500]   # is written, the
++                        rec["budget"], out["lock_stop"] = True, rec["why"]   # search stops, the line-up stays a
++                        w_used = writes                                     # candidate (class "budget")
++                    elif held:                             # the render would hold these clips: out, re-lined
++                        dropped |= set(held)
++                        doomed |= set(held)
++                        rec["why"] = ("ruling 72: the render's lock holds " +
++                                      "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
++                        relined, w_used = True, writes
+                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
+                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
+                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
+@@ -2889,12 +2939,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
+                     pk["seconds"] = round(time.time() - t0, 1)
+                     pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
++                    if lock_check is not None:            # rulings 68 / 72: the texts it seals come from the lock
++                        try:
++                            pk = LP.apply(pk, pre)
++                        except Exception as e:            # noqa: BLE001  audit 1744 C1: never a crash, never a pin
++                            rec["why"] = f"ruling 68 / 72: {e}"[:400]
++                            w_used = writes
++                            break
+                     out["packages"].append(pk)
+                     rec["result"] = "PACKAGE"
+                     break
+                 rec["relined"] = relined                    # ruling 66: a clip was dropped (or a line-up rule)
+                 if not out["packages"] and not relined and ok_m and not med["flagged"] and \
+-                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop"):
++                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop") \
++                        and not out.get("lock_stop"):
+                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
+                     if nv is not None:
+                         out["packages"].append(nv)
+@@ -2907,7 +2965,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                   (f" ({', '.join(rules)})" if rules else ""))
+                 if out["packages"] or not relined:
+                     break
+-            if out["packages"] or out.get("budget_stop") or over_budget(ai):
++            if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or over_budget(ai):
+                 break
+     out["package"] = out["packages"][0] if out["packages"] else None
+     if candidate is not None:                             # RULING 66: what became of the candidate
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 19330af..a846a1c 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -281,7 +281,8 @@ def to_pin(pk, run_name):
+                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
+                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
+                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
+-                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual")
++                     **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual",
++                                          "attested")      # rulings 68 / 72: an adopted spoken text, sealed
+                         if k in s},
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 02585be..38e802b 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -58,6 +58,7 @@ import proof_ly as PL  # noqa: E402
+ import proof_saved_runs as PS  # noqa: E402
+ import providers as P  # noqa: E402
+ import speakers as SP  # noqa: E402
++import lock_precheck as LP  # noqa: E402
+ 
+ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+ 
+@@ -175,7 +176,9 @@ def main(argv=None):
+               hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
+               scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
+               scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
+-              visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"))       # ruling 70
++              visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
++              lock_check=lambda segs, n=iter(range(1, 10 ** 6)): LP.check(       # rulings 68 / 72: before any write
++                  segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say))
+     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
+     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
+         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
+@@ -220,6 +223,9 @@ def main(argv=None):
+     if res["package"]:
+         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
+         try:
++            lock = LP.pin_problems(res["package"])       # ruling 68: sealed only with a passing lock pre-check
++            if lock:
++                raise package_pin.PinRefused("; ".join(lock))
+             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
+                                               name="MOMENTS_PIN_LEDGER.json")
+             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+new file mode 100644
+index 0000000..b7c4f3b
+--- /dev/null
++++ b/tests/package/test_lock_precheck.py
+@@ -0,0 +1,224 @@
++#!/usr/bin/env python3
++"""RULINGS 68 / 72 (orchestrator 14:02 Nov 13; live on the integrator's side 17:17 Nov 13): the render's own ruling-17
++lock, asked before a line-up is written and before its pin is sealed (pipeline/lock_precheck.py). Offline: the
++requests and results directories are temporary, the clock and the sleep are the test's."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import lock_precheck as LP  # noqa: E402
++
++HOOK = {"moment_id": "h", "video_id": "DcUbBkyeh9M", "start": 216.0541, "end": 228.6739,
++        "text": "Bitcoin launched in January of 2009. It's never been renamed."}
++CLIP = {"moment_id": "x", "video_id": "MqVqfEDXgLo", "start": 937.971, "end": 957.291,
++        "text": "I think Bitcoin only dropped like 5, 6%."}
++TRIM = dict(CLIP, moment_id="t", video_id="HWuMai_mAug", start=1691.139, end=1698.069, trimmed_leading="And",
++            untrimmed_start=1690.9, text="treasury companies will also bleed to Bitcoin.")
++
++
++def entry(seg, outcome="no_difference", at="2026-11-13T22:30:00Z", rid="r1", **kw):
++    e = {"rules": LP.RULES, "request_id": rid, "video_id": seg["video_id"], "start": seg["start"], "end": seg["end"],
++         "window": [seg["start"], seg["end"]], "role": seg["role"], "approved_text": seg["approved_text"],
++         "trimmed_leading": seg.get("trimmed_leading"), "untrimmed_start": seg.get("untrimmed_start"),
++         "outcome": outcome, "reason": None, "lock": {"sha256": "ab" * 32}, "at": at}
++    e.update(kw)
++    return e
++
++
++class Dirs(unittest.TestCase):
++    def setUp(self):
++        self.tmp = tempfile.TemporaryDirectory()
++        self.req, self.res = os.path.join(self.tmp.name, "req"), os.path.join(self.tmp.name, "res")
++        os.makedirs(self.res)
++
++    def tearDown(self):
++        self.tmp.cleanup()
++
++    def put(self, seg, *entries):
++        p = LP.result_file(seg, self.res)
++        old = []
++        if os.path.exists(p):
++            with open(p) as f:
++                old = json.load(f)
++        with open(p, "w") as f:
++            json.dump(old + list(entries), f)
++
++
++class TestRequest(Dirs):
++    def test_the_segments_are_the_pins_own(self):
++        s = LP.segments_of([HOOK, CLIP, TRIM])
++        self.assertEqual([x["role"] for x in s], ["hook", "clip", "clip"])
++        self.assertEqual((s[0]["start"], s[0]["end"]), (216.054, 228.674))              # to the millisecond
++        self.assertEqual(s[0]["approved_text"], HOOK["text"])
++        self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
++        self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
++        self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
++                         "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
++
++    def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
++        segs = LP.segments_of([HOOK, CLIP])
++        p = LP.send(segs, "pp-selectid.ledger_x.1", self.req)
++        self.assertEqual(os.listdir(self.req), ["pp-selectid.ledger_x.1.json"])           # no .tmp left
++        with open(p) as f:
++            self.assertEqual(json.load(f), {"request_id": "pp-selectid.ledger_x.1", "segments": segs})
++        with self.assertRaises(FileExistsError):
++            LP.send(segs, "pp-selectid.ledger_x.1", self.req)
++        for bad in ("", "a b", "x" * 121, "../x"):
++            with self.assertRaises(ValueError):
++                LP.send(segs, bad, self.req)
++
++
++class TestAnswer(Dirs):
++    def test_the_newest_matching_entry_of_ruling_72_and_only_it(self):
++        s = LP.segments_of([HOOK])[0]
++        self.put(s, entry(s, "hold", at="2026-11-13T22:00:00Z"), entry(s, "no_difference", at="2026-11-13T22:05:00Z"),
++                 dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), rules=None),        # ruling 68's: never read
++                 entry(dict(s, approved_text="other words"), "adopted", at="2026-11-13T23:00:00Z"),
++                 dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), window=[216.0, 228.674]),
++                 dict(entry(s, "adopted", at="2026-11-13T23:00:00Z"), role="clip"))
++        self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")
++        self.put(s, entry(s, "hold", at="2026-11-13T22:05:00Z", rid="r2"))                 # same time: the later one
++        self.assertEqual(LP.answer(s, self.res)["outcome"], "hold")
++        self.assertEqual(LP.answer(s, self.res, request_id="r1")["outcome"], "no_difference")
++        self.assertIsNone(LP.answer(s, self.res, request_id="r9"))
++        t = LP.segments_of([TRIM])[0]
++        self.put(t, dict(entry(t), untrimmed_start=1690.0))                               # the trim must match
++        self.assertIsNone(LP.answer(t, self.res))
++        with open(LP.result_file(LP.segments_of([CLIP])[0], self.res), "w") as f:
++            f.write("{not json")
++        self.assertIsNone(LP.answer(LP.segments_of([CLIP])[0], self.res))                  # unreadable: no answer
++
++
++class TestDecide(unittest.TestCase):
++    s = LP.segments_of([CLIP])[0]
++
++    def test_the_outcomes(self):
++        for out in ("no_difference", "adopted", "two_readings"):
++            self.assertEqual(LP.decide(self.s, entry(self.s, out))["verdict"], "pass")
++        self.assertEqual(LP.decide(self.s, entry(self.s, "hold", reason="ruling 72: at ['x']"))["why"],
++                         "ruling 72: at ['x']")
++        for e in (None, entry(self.s, "error"), entry(self.s, "decoded"), entry(self.s, "adopt_spoken"),
++                  entry(self.s, "adopt_spoken", spoken_text="  ")):
++            self.assertEqual(LP.decide(self.s, e)["verdict"], "error", e and e.get("outcome"))
++
++    def test_adopt_spoken_only_inside_ruling_67s_class_by_this_sides_check(self):
++        rep = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text="I think I think Bitcoin only dropped like "
++                                                                          "5, 6%."))
++        self.assertEqual((rep["verdict"], rep["differences"][0]["class"]), ("adopt", "immediate repetition"))
++        fw = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text="I think the Bitcoin only dropped like 5, 6%."))
++        self.assertEqual(fw["verdict"], "adopt")
++        for spoken in ("I think Bitcoin only dropped like 7, 6%.", "I think Ethereum only dropped like 5, 6%.",
++                       "I think Bitcoin never dropped like 5, 6%."):                      # a number, a name, a negation
++            d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
++            self.assertEqual(d["verdict"], "hold", spoken)
++            self.assertIn("outside ruling 67's class", d["why"])
++        same = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text="i think bitcoin only dropped like 5 6%"))
++        self.assertEqual(same["verdict"], "pass")                                          # no canonical difference
++
++
++class TestCheck(Dirs):
++    def run_check(self, segs, appear=None, timeout=60.0):
++        t = [0.0]
++        sleeps = []
++
++        def sleep(s):
++            sleeps.append(s)
++            t[0] += s
++            if appear and len(sleeps) == 1:
++                appear()
++        rep = LP.check(segs, "pp-selectid.ledger_x.1", self.req, self.res, timeout_s=timeout, poll_s=10.0,
++                       clock=lambda: t[0], sleep=sleep, log=lambda m: None)
++        return rep, sleeps
++
++    def test_answers_on_file_are_used_and_nothing_is_asked(self):
++        segs = LP.segments_of([HOOK, CLIP])
++        for s in segs:
++            self.put(s, entry(s))
++        rep, sleeps = self.run_check([HOOK, CLIP])
++        self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
++        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.25cd6f15e6c9.json")
++
++    def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
++        segs = LP.segments_of([HOOK, CLIP])
++        self.put(segs[0], entry(segs[0]))                                                  # one answered before
++        self.put(segs[1], entry(segs[1], "error"))                                         # an error: asked again
++
++        def appear():
++            for s in segs:
++                self.put(s, entry(s, rid="pp-selectid.ledger_x.1", at="2026-11-13T23:00:00Z"))
++        rep, sleeps = self.run_check([HOOK, CLIP], appear)
++        self.assertEqual((rep["ok"], rep["request_id"], len(sleeps)), (True, "pp-selectid.ledger_x.1", 1))
++        with open(os.path.join(self.req, "pp-selectid.ledger_x.1.json")) as f:
++            req = json.load(f)
++        self.assertEqual(len(req["segments"]), 2)                                          # the WHOLE line-up
++
++    def test_no_answer_in_time_is_no_verdict_never_a_pass(self):
++        rep, sleeps = self.run_check([HOOK, CLIP], timeout=30.0)
++        self.assertFalse(rep["ok"])
++        self.assertIn("no answer from the render's lock in time", rep["error"])
++        self.assertEqual(sleeps, [10.0, 10.0, 10.0])
++
++    def test_a_hold_is_not_ok_and_is_not_an_error(self):
++        segs = LP.segments_of([HOOK, CLIP])
++        self.put(segs[0], entry(segs[0], "hold", reason="PinError: edge"))
++        self.put(segs[1], entry(segs[1]))
++        rep, _ = self.run_check([HOOK, CLIP])
++        self.assertEqual((rep["ok"], rep["error"], rep["segments"][0]["verdict"]), (False, None, "hold"))
++
++
++class TestApply(Dirs):
++    def pk(self):
++        return {"segments": [{"video_id": m["video_id"], "start": m["start"], "end": m["end"], "text": m["text"]}
++                             for m in (HOOK, CLIP)],
++                "lines": [{"slot": "takeaway", "text": "Durability matters more than speed."}],
++                "hook_first_words": " ".join(HOOK["text"].split()[:8])}
++
++    def pre(self, hook_spoken=None):
++        segs = LP.segments_of([HOOK, CLIP])
++        self.put(segs[0], entry(segs[0], "adopt_spoken", spoken_text=hook_spoken) if hook_spoken else entry(segs[0]))
++        self.put(segs[1], entry(segs[1]))
++        return LP.check([HOOK, CLIP], "r", self.req, self.res, log=lambda m: None)
++
++    def test_an_adopted_text_is_sealed_with_its_record_and_the_hook_words_follow(self):
++        spoken = "Bitcoin launched in in January of 2009. It's never been renamed."      # 'in' said twice
++        pk = LP.apply(self.pk(), self.pre(spoken))
++        s = pk["segments"][0]
++        self.assertEqual(s["text"], spoken)
++        self.assertEqual(s["attested"]["was"], HOOK["text"])
++        self.assertIn(s["attested"]["differences"][0]["class"], ("immediate repetition", "function word"))
++        self.assertEqual(pk["hook_first_words"], "Bitcoin launched in in January of 2009. It's")
++        named = "Bitcoin Bitcoin launched in January of 2009. It's never been renamed."   # a name is critical
++        with self.assertRaises(ValueError):                                                # (L-v 2): held
++            LP.apply(self.pk(), self.pre(named))
++        self.assertEqual(LP.pin_problems(pk), [])
++        self.assertNotIn("attested", pk["segments"][1])
++
++    def test_apply_refuses_what_does_not_cover_or_pass_or_is_quoted(self):
++        pre = self.pre()
++        other = self.pk()
++        other["segments"][1]["end"] = 958.0
++        with self.assertRaises(ValueError):
++            LP.apply(other, pre)                                                          # not these segments
++        with self.assertRaises(ValueError):
++            LP.apply(self.pk(), dict(pre, ok=False))
++        spoken = "Bitcoin launched in January of 2009. It's it's never been renamed."
++        quoting = self.pk()
++        quoting["lines"] = [{"slot": "takeaway", "text": "It's it's never been renamed, and that matters."}]
++        with self.assertRaises(ValueError):
++            LP.apply(quoting, self.pre(spoken))
++
++    def test_the_pin_stage_needs_a_passing_pre_check_on_these_segments(self):
++        self.assertIn("no passing lock pre-check", LP.pin_problems(self.pk())[0])
++        pk = LP.apply(self.pk(), self.pre())
++        self.assertEqual(LP.pin_problems(pk), [])
++        pk["segments"][0]["start"] = 216.2
++        self.assertIn("does not cover", LP.pin_problems(pk)[0])
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index d084147..b395b01 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -524,7 +524,7 @@ class Rig:
+     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
+-                 cached=False, candidate=None, visuals=None, registered=None):
++                 cached=False, candidate=None, visuals=None, registered=None, lock_check=None):
+         import providers as P
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+@@ -535,6 +535,7 @@ class Rig:
+         self.medley_calls, self.write_calls, self.prompts = [], [], []
+         self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
+         self.registered = registered                        # ruling 66: the registry's line-ups (candidates.registered)
++        self.lock_check = lock_check                        # rulings 68 / 72: the render's lock (lock_precheck.check)
+         self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
+         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
+         self.screens, self.events, self.a_seen = [], [], []
+@@ -667,6 +668,8 @@ class Rig:
+         kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
+         if self.registered is not None:
+             kw["registered"] = self.registered
++        if self.lock_check is not None:
++            kw["lock_check"] = self.lock_check
+         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
+             import tempfile
+             fd, path = tempfile.mkstemp(suffix=".json")
+@@ -2040,6 +2043,129 @@ class TestRuling66Amended(unittest.TestCase):
+                                              cx("the real productivity story"))[1], False)        # a clip's own
+ 
+ 
++def lock_stub(verdicts=None, error=False, calls=None):
++    """lock_precheck.check as the build calls it: each moment's outcome from `verdicts` ({moment id: (outcome,
++    spoken_text)}, default no_difference), decided by the real lock_precheck.decide; error: no answer at all."""
++    import lock_precheck as LP
++
++    def check(segs):
++        req = LP.segments_of(segs)
++        if calls is not None:
++            calls.append([m["moment_id"] for m in segs])
++        if error:
++            return {"ok": False, "request_id": "r", "error": "no answer from the render's lock in time",
++                    "segments": [dict(s, verdict="error", outcome=None, why="no answer", entry=None) for s in req]}
++        rows = []
++        for m, s in zip(segs, req):
++            out, spoken = (verdicts or {}).get(m["moment_id"], ("no_difference", None))
++            e = {"outcome": out, "reason": "PinError: the edge word" if out == "hold" else None,
++                 "spoken_text": spoken, "request_id": "r", "at": "2026-11-13T23:00:00Z", "lock": {"sha256": "ab" * 32}}
++            rows.append(dict(s, **LP.decide(s, e), entry={"request_id": "r", "outcome": out}))
++        return {"ok": all(r["verdict"] in ("pass", "adopt") for r in rows), "request_id": "r", "segments": rows,
++                "error": None}
++    return check
++
++
++class TestRuling72Lock(unittest.TestCase):
++    """RULINGS 68 / 72 (14:02; live 17:17 Nov 13): the render's own lock, asked for a line-up whose clips pass, BEFORE
++    any write: a held clip is out and the line-up re-lined; no verdict stops the search with nothing written; a package
++    seals the approved texts, or an adopted spoken text with its "attested" record; the pin stage checks it again."""
++    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 14.0)]   # every line-up >= 39 s
++
++    def test_a_held_clip_is_out_and_the_line_up_is_re_lined_before_any_write(self):
++        calls = []
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
++                  lock_check=lock_stub({"x": ("hold", None)}, calls=calls))
++        out = rig.run()
++        self.assertEqual(calls, [["h", "x", "y"], ["h", "y", "z"]])
++        self.assertEqual(rig.write_calls, [(["h", "y", "z"], None)])               # nothing written for the held one
++        self.assertIn("ruling 72: the render's lock holds x: PinError: the edge word", out["tried"][0]["why"])
++        self.assertEqual(out["tried"][0]["precheck"]["segments"][1]["verdict"], "hold")
++        self.assertIsNotNone(out["package"])
++        import lock_precheck as LP
++        self.assertEqual(LP.pin_problems(out["package"]), [])                       # the pin stage's own check
++
++    def test_no_verdict_writes_nothing_and_stops_the_search(self):
++        rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
++                  lock_check=lock_stub(error=True))
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))       # no write, no second angle
++        self.assertTrue(out["tried"][0]["budget"])
++        self.assertIn("no lock verdict", out["lock_stop"])
++        c = PK.load_candidate(TestRuling66Candidate().record(), source="proof/ledger_x")
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
++                  lock_check=lock_stub(error=True)).run()
++        self.assertEqual(out["candidate"]["class"], "budget")                      # it stays as it was
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
++                  lock_check=lock_stub({"y": ("hold", None)})).run()
++        self.assertEqual(out["candidate"]["class"], "clip")                        # a clip fails a gate: closed
++
++    def test_an_adopted_spoken_text_is_sealed_with_its_record(self):
++        import lock_precheck as LP
++        spoken = self.MS[0]["text"].replace(" ", " the ", 1)                      # one function word more
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
++                  lock_check=lock_stub({"h": ("adopt_spoken", spoken)}))
++        pk = rig.run()["package"]
++        self.assertEqual(pk["segments"][0]["text"], spoken)
++        self.assertEqual(pk["segments"][0]["attested"]["was"], self.MS[0]["text"])
++        self.assertEqual(pk["hook_first_words"], " ".join(spoken.split()[:8]))
++        self.assertEqual(LP.pin_problems(pk), [])
++        pin = package_pin.to_pin(spk(pk), "test")
++        self.assertEqual(pin["segments"][0]["approved_text"], spoken)
++        self.assertEqual(pin["segments"][0]["attested"]["was"], self.MS[0]["text"])   # sealed (SEALED_LATER)
++        mp = pin["moments_package"]
++        self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"],
++                                          mp["caption"], mp["gates"], mp.get("btc_screen")), mp["package_sha256"])
++        bare = dict(pin["segments"][0])
++        bare.pop("attested")
++        self.assertNotEqual(package_pin.seal([bare] + pin["segments"][1:], mp["edl_vo"], mp["signoff_expected"],
++                                             mp["title"], mp["caption"], mp["gates"], mp.get("btc_screen")),
++                            mp["package_sha256"])                                 # the record is in the seal
++
++    def test_a_pre_check_that_raises_is_no_verdict_never_a_crash(self):
++        """Audit 1744 C1 (glm P1-2): a request that cannot be written, or an answer that cannot be decided, raises
++        inside lock_check: the line-up gets no write, the search stops, and the build still returns its record."""
++        def boom(segs):
++            raise OSError("the lock_requests directory is not writable")
++        rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
++                  lock_check=boom)
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))
++        self.assertIn("OSError: the lock_requests directory is not writable", out["lock_stop"])
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        calls = []
++
++        def second_raises(segs):                        # the voiced line-up passes; the no-voice one raises
++            calls.append(len(segs))
++            if len(calls) > 1:
++                raise ValueError("an answer that cannot be decided")
++            return lock_stub()(segs)
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
++                  [None, None], takeaways=bad, lock_check=second_raises).run()
++        self.assertIsNone(out["package"])
++        self.assertIn("ValueError: an answer that cannot be decided", out["lock_stop"])   # stops, as voiced
++
++    def test_the_pin_stage_compares_the_text_the_lock_passed(self):
++        import lock_precheck as LP
++        pk = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], lock_check=lock_stub()).run()[
++            "package"]
++        self.assertEqual(LP.pin_problems(pk), [])
++        pk["segments"][1]["text"] += " And more."                                 # changed after the lock passed
++        self.assertIn("as they now stand", LP.pin_problems(pk)[0])
++
++    def test_the_no_voice_line_up_asks_the_lock_too(self):
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        calls = []
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
++                  [None, None], takeaways=bad, lock_check=lock_stub({"z": ("hold", None)}, calls=calls))
++        out = rig.run()
++        self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "y", "z"]])          # its own line-up, the added clip
++        self.assertIsNone(out["package"])
++        self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
++
++
+ class TestRuling65Caption(unittest.TestCase):
+     """RULING 65 (12:52): A CAPTION NEVER KILLS A PACKAGE. Only the caption fails fidelity: ONE more write for the caption
+     alone (a new prompt, told the refused sentence and why; the takeaway and title kept as gated); if that fails too,

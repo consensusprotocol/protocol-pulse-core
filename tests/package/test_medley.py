@@ -524,7 +524,7 @@ class Rig:
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
-                 cached=False, candidate=None, visuals=None, registered=None):
+                 cached=False, candidate=None, visuals=None, registered=None, lock_check=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -535,6 +535,7 @@ class Rig:
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
         self.registered = registered                        # ruling 66: the registry's line-ups (candidates.registered)
+        self.lock_check = lock_check                        # rulings 68 / 72: the render's lock (lock_precheck.check)
         self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
@@ -667,6 +668,8 @@ class Rig:
         kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
         if self.registered is not None:
             kw["registered"] = self.registered
+        if self.lock_check is not None:
+            kw["lock_check"] = self.lock_check
         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
             import tempfile
             fd, path = tempfile.mkstemp(suffix=".json")
@@ -2038,6 +2041,129 @@ class TestRuling66Amended(unittest.TestCase):
         self.assertEqual(PK.takeaway_refusal(f, [])[1], False)                                     # no failure
         self.assertEqual(PK.takeaway_refusal(f, [{"segment": "clip_02", "rule": "POLARITY", "detail": "x"}],
                                              cx("the real productivity story"))[1], False)        # a clip's own
+
+
+def lock_stub(verdicts=None, error=False, calls=None):
+    """lock_precheck.check as the build calls it: each moment's outcome from `verdicts` ({moment id: (outcome,
+    spoken_text)}, default no_difference), decided by the real lock_precheck.decide; error: no answer at all."""
+    import lock_precheck as LP
+
+    def check(segs):
+        req = LP.segments_of(segs)
+        if calls is not None:
+            calls.append([m["moment_id"] for m in segs])
+        if error:
+            return {"ok": False, "request_id": "r", "error": "no answer from the render's lock in time",
+                    "segments": [dict(s, verdict="error", outcome=None, why="no answer", entry=None) for s in req]}
+        rows = []
+        for m, s in zip(segs, req):
+            out, spoken = (verdicts or {}).get(m["moment_id"], ("no_difference", None))
+            e = {"outcome": out, "reason": "PinError: the edge word" if out == "hold" else None,
+                 "spoken_text": spoken, "request_id": "r", "at": "2026-11-13T23:00:00Z", "lock": {"sha256": "ab" * 32}}
+            rows.append(dict(s, **LP.decide(s, e), entry={"request_id": "r", "outcome": out}))
+        return {"ok": all(r["verdict"] in ("pass", "adopt") for r in rows), "request_id": "r", "segments": rows,
+                "error": None}
+    return check
+
+
+class TestRuling72Lock(unittest.TestCase):
+    """RULINGS 68 / 72 (14:02; live 17:17 Nov 13): the render's own lock, asked for a line-up whose clips pass, BEFORE
+    any write: a held clip is out and the line-up re-lined; no verdict stops the search with nothing written; a package
+    seals the approved texts, or an adopted spoken text with its "attested" record; the pin stage checks it again."""
+    MS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 14.0)]   # every line-up >= 39 s
+
+    def test_a_held_clip_is_out_and_the_line_up_is_re_lined_before_any_write(self):
+        calls = []
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
+                  lock_check=lock_stub({"x": ("hold", None)}, calls=calls))
+        out = rig.run()
+        self.assertEqual(calls, [["h", "x", "y"], ["h", "y", "z"]])
+        self.assertEqual(rig.write_calls, [(["h", "y", "z"], None)])               # nothing written for the held one
+        self.assertIn("ruling 72: the render's lock holds x: PinError: the edge word", out["tried"][0]["why"])
+        self.assertEqual(out["tried"][0]["precheck"]["segments"][1]["verdict"], "hold")
+        self.assertIsNotNone(out["package"])
+        import lock_precheck as LP
+        self.assertEqual(LP.pin_problems(out["package"]), [])                       # the pin stage's own check
+
+    def test_no_verdict_writes_nothing_and_stops_the_search(self):
+        rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
+                  lock_check=lock_stub(error=True))
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))       # no write, no second angle
+        self.assertTrue(out["tried"][0]["budget"])
+        self.assertIn("no lock verdict", out["lock_stop"])
+        c = PK.load_candidate(TestRuling66Candidate().record(), source="proof/ledger_x")
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
+                  lock_check=lock_stub(error=True)).run()
+        self.assertEqual(out["candidate"]["class"], "budget")                      # it stays as it was
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], candidate=c,
+                  lock_check=lock_stub({"y": ("hold", None)})).run()
+        self.assertEqual(out["candidate"]["class"], "clip")                        # a clip fails a gate: closed
+
+    def test_an_adopted_spoken_text_is_sealed_with_its_record(self):
+        import lock_precheck as LP
+        spoken = self.MS[0]["text"].replace(" ", " the ", 1)                      # one function word more
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  lock_check=lock_stub({"h": ("adopt_spoken", spoken)}))
+        pk = rig.run()["package"]
+        self.assertEqual(pk["segments"][0]["text"], spoken)
+        self.assertEqual(pk["segments"][0]["attested"]["was"], self.MS[0]["text"])
+        self.assertEqual(pk["hook_first_words"], " ".join(spoken.split()[:8]))
+        self.assertEqual(LP.pin_problems(pk), [])
+        pin = package_pin.to_pin(spk(pk), "test")
+        self.assertEqual(pin["segments"][0]["approved_text"], spoken)
+        self.assertEqual(pin["segments"][0]["attested"]["was"], self.MS[0]["text"])   # sealed (SEALED_LATER)
+        mp = pin["moments_package"]
+        self.assertEqual(package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"],
+                                          mp["caption"], mp["gates"], mp.get("btc_screen")), mp["package_sha256"])
+        bare = dict(pin["segments"][0])
+        bare.pop("attested")
+        self.assertNotEqual(package_pin.seal([bare] + pin["segments"][1:], mp["edl_vo"], mp["signoff_expected"],
+                                             mp["title"], mp["caption"], mp["gates"], mp.get("btc_screen")),
+                            mp["package_sha256"])                                 # the record is in the seal
+
+    def test_a_pre_check_that_raises_is_no_verdict_never_a_crash(self):
+        """Audit 1744 C1 (glm P1-2): a request that cannot be written, or an answer that cannot be decided, raises
+        inside lock_check: the line-up gets no write, the search stops, and the build still returns its record."""
+        def boom(segs):
+            raise OSError("the lock_requests directory is not writable")
+        rig = Rig(self.MS, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)] * 2, [None],
+                  lock_check=boom)
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual((rig.write_calls, len(rig.medley_calls)), ([], 1))
+        self.assertIn("OSError: the lock_requests directory is not writable", out["lock_stop"])
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        calls = []
+
+        def second_raises(segs):                        # the voiced line-up passes; the no-voice one raises
+            calls.append(len(segs))
+            if len(calls) > 1:
+                raise ValueError("an answer that cannot be decided")
+            return lock_stub()(segs)
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None, None], takeaways=bad, lock_check=second_raises).run()
+        self.assertIsNone(out["package"])
+        self.assertIn("ValueError: an answer that cannot be decided", out["lock_stop"])   # stops, as voiced
+
+    def test_the_pin_stage_compares_the_text_the_lock_passed(self):
+        import lock_precheck as LP
+        pk = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], lock_check=lock_stub()).run()[
+            "package"]
+        self.assertEqual(LP.pin_problems(pk), [])
+        pk["segments"][1]["text"] += " And more."                                 # changed after the lock passed
+        self.assertIn("as they now stand", LP.pin_problems(pk)[0])
+
+    def test_the_no_voice_line_up_asks_the_lock_too(self):
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        calls = []
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)],
+                  [None, None], takeaways=bad, lock_check=lock_stub({"z": ("hold", None)}, calls=calls))
+        out = rig.run()
+        self.assertEqual(calls, [["h", "x", "y"], ["h", "x", "y", "z"]])          # its own line-up, the added clip
+        self.assertIsNone(out["package"])
+        self.assertIn("ruling 68 / 72: the render's lock", out["tried"][0]["no_voice"]["why_not"])
 
 
 class TestRuling65Caption(unittest.TestCase):

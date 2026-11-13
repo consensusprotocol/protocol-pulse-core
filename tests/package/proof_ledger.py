@@ -58,6 +58,7 @@ import proof_ly as PL  # noqa: E402
 import proof_saved_runs as PS  # noqa: E402
 import providers as P  # noqa: E402
 import speakers as SP  # noqa: E402
+import lock_precheck as LP  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 
@@ -175,7 +176,9 @@ def main(argv=None):
               hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"),          # ruling 59 (a): cached
               scorer_verdicts_path=PK.SCORER_VERDICTS,                            # ruling 56 / 60: read only
               scorer_candidates_path=PK.SCORER_CANDIDATES, build_name=os.path.basename(out_dir),
-              visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"))       # ruling 70
+              visual_cache=os.path.join(HERE, "proof", "VISUAL_CACHE.json"),       # ruling 70
+              lock_check=lambda segs, n=iter(range(1, 10 ** 6)): LP.check(       # rulings 68 / 72: before any write
+                  segs, f"pp-selectid.{os.path.basename(out_dir)}.{next(n)}", log=say))
     name, at = os.path.relpath(out_dir, REPO), now.isoformat()
     if cand is not None:                                 # --from-candidate: that candidate alone (ruling 66, 13:18)
         res = PK.build(router, moments, sources, ctx, candidate=cand, **kw)
@@ -220,6 +223,9 @@ def main(argv=None):
     if res["package"]:
         SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
+            lock = LP.pin_problems(res["package"])       # ruling 68: sealed only with a passing lock pre-check
+            if lock:
+                raise package_pin.PinRefused("; ".join(lock))
             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
                                               name="MOMENTS_PIN_LEDGER.json")
             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],

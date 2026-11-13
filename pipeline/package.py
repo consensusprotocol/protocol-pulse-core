@@ -2119,7 +2119,7 @@ def candidate_lineup(router, candidate, cleared, now):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
-          visual_cache=None, registered=None):
+          visual_cache=None, registered=None, lock_check=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -2151,11 +2151,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     line-up the search forms that is registered is recorded ("registered") and neither judged nor written, and the angle
     ends there, as it ends after a passing line-up whose line fails; ruling 3's no-voice fallback never adds the clip
     that would form one (audit 1655). A build from a candidate ignores it.
+    RULING 68 / 72 (lock_check, lock_precheck.check through the driver): "your approved text comes from" the render's own
+    ruling-17 lock. A line-up whose clips pass is asked BEFORE any write is paid:
+      - a clip the render would hold is out (doomed), and the line-up is re-lined;
+      - no verdict (an error, or no answer in time) is never a pass: nothing is written, the search stops, and the
+        line-up stays a candidate (its class is "budget");
+      - a package keeps the approved texts, or seals an adopted spoken text with its "attested" record
+        (lock_precheck.apply, checked again at the pin stage).
+    The no-voice line-up is asked too. lock_check None: no pre-check (the tests' rigs); the driver always passes it.
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
     held_map = dict(registered or {}) if candidate is None else {}   # ruling 66: the registry's line-ups, by moment ids
     import visual_pin as VP                            # ruling 70
+    import lock_precheck as LP                         # rulings 68 / 72
     vcache = VP.load_cache(visual_cache) if visual_cache else {}
     out_visual = {"calls": 0, "cached": 0, "usd_reported": 0.0, "usd_estimate": 0.0, "estimated_calls": 0,
                   "unmeasured": 0, "flags": 0}   # ruling 70: the vendor's figure and the estimate never mixed
@@ -2488,6 +2497,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         if vbad:
             note["why_not"] = f"ruling 70: the visual check is not measured for {vbad}"
             return None
+        nv_pre = None
+        if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
+            try:
+                nv_pre = lock_check(order)
+            except Exception as e:                        # noqa: BLE001  audit 1744 C1: no verdict, never a pass
+                nv_pre = LP.failed(e)
+        if nv_pre is not None and not nv_pre.get("ok"):
+            note["why_not"] = f"ruling 68 / 72: the render's lock: {nv_pre.get('error') or 'a clip holds'}"[:400]
+            if nv_pre.get("error") or not nv_pre.get("segments"):
+                out["lock_stop"] = note["why_not"]        # no verdict: the search stops, as for a voiced line-up
+            return None
         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
         pk["medley"] = nv_med
         cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
@@ -2527,6 +2547,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": nv_med}
         pk["seconds"] = round(time.time() - t0, 1)
         pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+        if nv_pre is not None:                            # rulings 68 / 72: the texts it seals
+            try:
+                pk = LP.apply(pk, nv_pre)
+            except Exception as e:                        # noqa: BLE001  audit 1744 C1: never a crash, never a pin
+                note["why_not"] = f"ruling 68 / 72: {e}"[:400]
+                return None
         note["result"] = "PACKAGE"
         log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package ({len(order)} clips, "
             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
@@ -2540,7 +2566,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
             dropped, n_lineup, swapped, filled = set(), 0, None, None
             if candidate is not None:                     # RULING 66: its own seeds, so its recorded calls are served
                 n_lineup, swapped = candidate["n_lineup"] - 1, cand_segs
-            while total < lineups and not out["packages"] and not out.get("budget_stop"):
+            while total < lineups and not out["packages"] and not out.get("budget_stop") and \
+                    not out.get("lock_stop"):
                 if candidate is not None and n_lineup >= candidate["n_lineup"]:
                     break                                 # RULING 66: the candidate alone, never re-lined or swapped
                 if over_budget(ai):
@@ -2662,6 +2689,29 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     doomed |= set(vbad)
                     rec["why"] = "ruling 70: " + "; ".join(f"{k}: {v}" for k, v in vbad.items())[:400] + ": re-lined"
                     relined, w_used = True, writes      # no write is paid
+                pre = None
+                if not relined and lock_check is not None:  # RULINGS 68 / 72: the render's own lock, before any write
+                    try:
+                        pre = lock_check(segs)
+                    except Exception as e:                # noqa: BLE001  audit 1744 C1: no verdict, never a pass
+                        pre = LP.failed(e)
+                    rec["precheck"] = {"request_id": pre.get("request_id"), "ok": pre.get("ok"),
+                                       "segments": [{k: x.get(k) for k in ("video_id", "start", "end", "verdict",
+                                                                          "outcome", "why")} for x in pre["segments"]]}
+                    log(f"    ruling 72: the render's lock: " + ", ".join(
+                        f"{x['video_id']} {x['verdict']}" for x in pre["segments"]) + f" ({time.time() - t0:.0f} s)")
+                    held = {segs[i]["moment_id"]: x["why"] for i, x in enumerate(pre["segments"])
+                            if x["verdict"] == "hold"}
+                    if pre.get("error") or not pre["segments"]:      # no verdict is never a pass (law L-m): nothing
+                        rec["why"] = f"ruling 68 / 72: no lock verdict: {pre.get('error')}"[:500]   # is written, the
+                        rec["budget"], out["lock_stop"] = True, rec["why"]   # search stops, the line-up stays a
+                        w_used = writes                                     # candidate (class "budget")
+                    elif held:                             # the render would hold these clips: out, re-lined
+                        dropped |= set(held)
+                        doomed |= set(held)
+                        rec["why"] = ("ruling 72: the render's lock holds " +
+                                      "; ".join(f"{k}: {v}" for k, v in held.items()))[:500] + ": re-lined"
+                        relined, w_used = True, writes
                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
@@ -2889,12 +2939,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
                     pk["seconds"] = round(time.time() - t0, 1)
                     pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+                    if lock_check is not None:            # rulings 68 / 72: the texts it seals come from the lock
+                        try:
+                            pk = LP.apply(pk, pre)
+                        except Exception as e:            # noqa: BLE001  audit 1744 C1: never a crash, never a pin
+                            rec["why"] = f"ruling 68 / 72: {e}"[:400]
+                            w_used = writes
+                            break
                     out["packages"].append(pk)
                     rec["result"] = "PACKAGE"
                     break
                 rec["relined"] = relined                    # ruling 66: a clip was dropped (or a line-up rule)
                 if not out["packages"] and not relined and ok_m and not med["flagged"] and \
-                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop"):
+                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop") \
+                        and not out.get("lock_stop"):
                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
                     if nv is not None:
                         out["packages"].append(nv)
@@ -2907,7 +2965,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                   (f" ({', '.join(rules)})" if rules else ""))
                 if out["packages"] or not relined:
                     break
-            if out["packages"] or out.get("budget_stop") or over_budget(ai):
+            if out["packages"] or out.get("budget_stop") or out.get("lock_stop") or over_budget(ai):
                 break
     out["package"] = out["packages"][0] if out["packages"] else None
     if candidate is not None:                             # RULING 66: what became of the candidate

@@ -1,4 +1,13 @@
-17:59 ET: ORDER 18:01 RECEIVED. Ruling 73 is with the integrator; 13949b7c re-renders as sealed once it is merged. Its texts are right below this line. The LIVERA CANDIDATE gets prepared and is NOT sent: its takeaway written alone, ruling 72's pre-check, its pin sealed and held. Ruling 72's pre-check is in its audit (1744, cycle 1 done: grok and qwen SHIP yes; glm's two real findings are fixed); the commit comes before the candidate runs. QUESTION: THE LIVERA CANDIDATE OPENS ON 13949b7c'S HOOK SPAN (DcUbBkyeh9M 216.054-228.674). IF 13949b7c PASSES AND SHIPS, SENDING THE CANDIDATE TOO SHIPS THE SAME HOOK TWICE (L-p: a delivered span is out). IS IT A FALLBACK ONLY (SENT IF 13949b7c FAILS ELSEWHERE), OR DO YOU WANT BOTH? I hold it until you say. SPEND (ruling 48): $8.08 of $12.00; I stop and tell you at $10.
+18:04 ET: RULING 76 (18:08) RECEIVED. (c) 13949b7c IS WITHDRAWN; ages at 23:02Z on the render clock:
+  - hook: Simply Bitcoin DcUbBkyeh9M, published 2026-11-10T22:55Z, 72.1 h;
+  - clip: Yahoo Finance MqVqfEDXgLo, 2026-11-13T15:00Z, 8.0 h;
+  - clip: Altcoin Daily HWuMai_mAug, 2026-11-12T15:38Z, 31.4 h.
+The integrator has been told not to re-render it. THE LIVERA CANDIDATE IS EXPIRED, so it is not prepared and not sent: Simply Bitcoin 72.1 h; BTC Sessions cPZNcHlpokA (2026-11-11T21:33Z) 49.5 h; Stephan Livera Sjb6lUiL0m4 (2026-11-11T18:03Z) 53.0 h. (d) THE 12 H POOL, from the 16:57 build's records (a 72 h screen, so partial): 195 MOMENTS INSIDE 12 H, on 13 videos. Of the 124 that build screened, 43 are inside 12 h: 27 CLEARED, 18 CUTTABLE, 7 rated as hooks, 0 HOOKS >= 4 (best 3). A build on the 12 h pool screens up to 124 of the 195 and gives the exact counts. Ruling 72's lock pre-check is COMMITTED (audit 1744, 2 cycles). NEXT: ruling 76 as one audited change, then a build on the 12 h pool:
+  - the 12 h window on the render clock, with no time-sensitive exception;
+  - the registry's expiry;
+  - the render-clock re-check at the pin stage;
+  - delivered speech re-posted on another channel.
+SPEND (ruling 48): $8.08 of $12.00.
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -37,6 +46,10 @@
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
 
+
+## 18:04 ET: the 18:01 order (line 1 as it stood at 17:59)
+
+> 17:59 ET: ORDER 18:01 RECEIVED. Ruling 73 is with the integrator; 13949b7c re-renders as sealed once it is merged. Its texts are right below this line. The LIVERA CANDIDATE gets prepared and is NOT sent: its takeaway written alone, ruling 72's pre-check, its pin sealed and held. Ruling 72's pre-check is in its audit (1744, cycle 1 done: grok and qwen SHIP yes; glm's two real findings are fixed); the commit comes before the candidate runs. QUESTION: THE LIVERA CANDIDATE OPENS ON 13949b7c'S HOOK SPAN (DcUbBkyeh9M 216.054-228.674). IF 13949b7c PASSES AND SHIPS, SENDING THE CANDIDATE TOO SHIPS THE SAME HOOK TWICE (L-p: a delivered span is out). IS IT A FALLBACK ONLY (SENT IF 13949b7c FAILS ELSEWHERE), OR DO YOU WANT BOTH? I hold it until you say. SPEND (ruling 48): $8.08 of $12.00; I stop and tell you at $10.
 
 ## 17:59 ET: 13949b7c held at prepare (line 1 as it stood at 17:34)
 

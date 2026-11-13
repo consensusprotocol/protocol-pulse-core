@@ -1,0 +1,67 @@
+You are auditing a change to the medley pin builder on branch pp-selectid (Protocol Pulse: the builder of sealed medley
+pins that an integrator renders). Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- A pin seals each clip's approved_text. At the render, ruling 17 locks the approved text to the render's own decode
+  of the audio; a difference HOLDS the render.
+- RULING 67: when the texts differ only by function words or the speaker's own immediate repetitions (attest.carry_class;
+  never a number, a name or a negation: critical tokens), the pin may be re-sealed with the attested text and the
+  verdicts carry over, recorded as "attested" (a sealed field: package_pin.SEALED_LATER). Lines that quote the changed
+  words are re-gated first.
+- RULING 68 (orchestrator 14:02): the integrator's pin-stage ruling-17 pre-check: "When it exists, your approved text
+  comes from it."
+- RULING 72 (now live on the integrator's side, 17:17), the contract they gave:
+  - requests go to tests/package/proof/lock_requests/*.json (<name>.tmp, then rename). The service only reads there
+    and answers each name + content once. Send the WHOLE line-up in one request, start/end exactly as the pin carries
+    them.
+  - results (read only): /home/ultron/protocol_pulse/data/lock_precheck/results/<video_id>.<start %.3f>-<end %.3f>.
+    25cd6f15e6c9.json, a list. Take the newest entry with rules == "ruling 17 + ruling 72" whose window and role /
+    approved_text / trimmed fields match yours; entries without "rules" are ruling 68's, ignore them.
+  - outcomes: no_difference / adopted / two_readings = pass. adopt_spoken: "spoken_text" is the text to seal (already
+    through the render's validate_range + segment_lock), every difference being in ruling 67's class. hold: the reason.
+    error: no verdict, never a pass, never reused.
+  - their advice: send the candidate texts BEFORE the paid verdicts.
+
+The change:
+1. pipeline/lock_precheck.py (new):
+   - segments_of mirrors package_pin.to_pin: role, ms-rounded start/end, the moment's text, the trim fields only
+     when trimmed;
+   - answer(): the newest matching entry, optionally only a given request_id's;
+   - send(): .tmp, then rename; never over an existing request;
+   - decide(): adopt_spoken is adopted only when THIS side's attest.carry_class agrees; otherwise a hold;
+   - check(): answers already on file are reused (never an error); else the whole line-up is sent and its own
+     answers awaited (timeout 1200 s, poll 10 s); no answer = error;
+   - apply(): the package's adopted texts plus the "attested" record and hook_first_words. It refuses unless the
+     check passed and covers exactly the package's segments, and when a line quotes changed words;
+   - pin_problems(): the pin stage's own check.
+2. package.build(lock_check=) asks it for a line-up whose clips pass, BEFORE any write:
+   - a held clip is dropped and doomed, and the line-up re-lined;
+   - an error writes nothing and stops the search (out["lock_stop"], rec["budget"], so a candidate's class is
+     "budget" and it stays as it was). Two guards stop it, the inner loop's condition and the angle loop's; either
+     alone suffices;
+   - a package goes through LP.apply before it is appended;
+   - the no-voice line-up (its added clip) asks too.
+   lock_check None (the test rigs): unchanged.
+3. package_pin.to_pin copies "attested" into the pin segment (already sealed when present: SEALED_LATER). seal() is
+   not changed. The integrator imports this file live for its seal recompute.
+4. The driver passes lock_check to every build (request ids "pp-selectid.<build dir>.<n>"), and before write_pin
+   refuses a package whose pin_problems() is non-empty.
+5. Tests:
+   - test_lock_precheck (12): the request's segments, matching and newest, request-id filtering, unreadable files,
+     every outcome, this side's carry-class veto (a number, a name, a negation), reuse vs asking, the timeout,
+     apply's refusals, the pin-stage check;
+   - test_medley TestRuling72Lock (4): hold, then re-line; no verdict, then no write and the search stops (a
+     candidate's class: budget; a held clip: clip); adoption sealed with its record and the seal recomputes; the
+     no-voice line-up asks.
+   Mutation runs: each wiring point removed fails a test. The two stop guards fail only together, by design.
+
+Check, against the diff:
+- that no pin can be sealed with a text the render's lock did not pass or adopt (the build gate, apply, and the
+  driver's pin_problems);
+- that an adopted text is only ever within ruling 67's class by THIS side's check, and is recorded and sealed;
+- that "no verdict" is never a pass, and never closes a line-up as if it failed;
+- the matching rules (newest, the ruling-72 entries only, window rounding, trim fields) against the contract above;
+- request writing: atomic, never over an existing request, ids within the allowed characters;
+- that nothing here changes what any other gate accepts, or seal().
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
