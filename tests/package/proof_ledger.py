@@ -134,7 +134,9 @@ def main(argv=None):
     t0 = time.time()
     res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
                    work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
-                   spend=lambda: (own["est"], own["best"]))
+                   spend=lambda: (own["est"], own["best"]),
+                   step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
+                   hook_cache=os.path.join(HERE, "proof", "HOOK_CACHE.json"))          # ruling 59 (a): cached
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)

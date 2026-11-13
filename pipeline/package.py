@@ -6,8 +6,11 @@ usable()      moments a package may use: on screen eligible (word timing, law L-
               overlapping a moment delivered in the previous 24 h (novelty by video and time, L-p), channel not opted
               out, <= 20 s (L-u), a time-sensitive moment only from a source <= TIME_SENSITIVE_H old (L-v 3), no
               measured speaker change (L-v 1)
-prescreen()   step A of law L-s on each usable moment's own context, ONCE per moment (package-independent), stored on
-              the moment (`store`: a JSON ledger keyed by moment and the step-A prompt); never recomputed
+prescreen()   step A of law L-s on EVERY usable moment's own context (ruling 58), ONCE per moment (package-independent):
+              this build's ledger (`store`) and the step-A cache every build shares (`cache`: moment id + text sha +
+              context sha + the step-A prompt); never recomputed
+hook_ratings() RULING 59: the hook question of ruling 52 on every cleared, cuttable moment that can open, ONE batched
+              call, cached; only a hook rated >= HOOK_MIN opens, and the angles are written FOR the passing hooks
 ANGLES        role angle_write: up to MAX_ANGLES one-sentence angles, each backed by 3-8 cleared moments from >= 3
               channels (one clip per channel, L-u), listed in PLAY ORDER (L-y 3)
 lineup_for()  code: the hook + 2-4 clips for one angle in the proposer's play order, every segment from a different
@@ -49,6 +52,7 @@ import json
 import math
 import os
 import re
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -64,13 +68,16 @@ R4_WPS, R4_PREROLL_S, R4_SHARE = 2.5, 1.0, 0.25      # edl_rules.rule_r4's own e
 TIME_SENSITIVE_H = 24.0            # L-v 3: 'today' / 'just' / a price level only from a source this fresh
 FRESH_H = 24.0                     # ruling 57 (09:59 Nov 13): a line-up with a clip this fresh is preferred
 UNKNOWN_AGE_H = 1.0e6              # ruling 57: a clip with no readable publish time counts as the oldest there is
-PRESCREEN_N = 24                   # moments whose own context is screened (step A) before any writing
+PRESCREEN_N = None                 # RULING 58 (11:00 Nov 13): EVERY candidate is screened at step A (was 24), the
+                                   # miner's best first; a number keeps the old cap (the re-screens pass their own)
 PRESCREEN_BATCH = 8                # excerpts per step-A call
+PRESCREEN_WORKERS = 6              # ruling 58: the step-A batches run in parallel (about 19 batches at 72 h)
 PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
 SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
 MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
 WRITES = 2
 COHERENCE_MIN = 4                  # the blind coherence verdict: every rating >= 4 and a through-line, else next angle
+HOOK_MIN = COHERENCE_MIN           # RULING 59 (b): only a moment rated >= 4 on the hook's own job may open a line-up
 BUDGET_WALL_S = 900.0              # orchestrator 22:40 ruling 5 (Heimdall as the writer; was 05:25 item 5's 360 s x2):
 BUDGET_USD_REPORTED = 1.50         # per package 15 min wall and $1.50 by the vendors' OWN reported cost,
 BUDGET_USD_ESTIMATE = 5.00         # with the price-table estimate (it over-states ~7x) only as a hard ceiling
@@ -384,74 +391,127 @@ def _load_store(store):
         return json.load(f)
 
 
+CACHE_LOCK = threading.Lock()      # ruling 58 / 59: a cache file is merged under one lock (parallel step-A batches)
+
+
+def text_sha(text):
+    """The sha256 of a text's UTF-8 bytes (ruling 58: a cached verdict is for exactly this text)."""
+    return hashlib.sha256((text or "").encode("utf-8")).hexdigest()
+
+
+def _load_cache(path):
+    """A verdict cache shared by every build (ruling 58 / 59): {key: {back-end: verdict}}. A missing or unreadable
+    file is an empty cache (the verdicts are asked again and paid for again, never invented)."""
+    try:
+        with open(path) as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
+def _cache_put(path, new):
+    """Merge {key: {back-end: verdict}} into the cache file (read again under the lock, .tmp then rename)."""
+    if not path or not new:
+        return
+    with CACHE_LOCK:
+        db = _load_cache(path)
+        for k, by_b in new.items():
+            db[k] = dict(db.get(k) if isinstance(db.get(k), dict) else {}, **by_b)
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        with open(path + ".tmp", "w") as f:
+            json.dump(db, f, indent=1)
+        os.replace(path + ".tmp", path)
+
+
 def src_of(x, sources):
     """A moment's (or a package segment's) own Source: context_integrity.source_for, the one lookup rule."""
     return CI.source_for(x, sources)
 
 
 def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
-              store=None, log=print):
-    """Step A (context only, package-independent by law L-s) on the best n usable moments, distinct channels first:
-    ({moment_id: A item}, {moment_id: [failing rules]}, {vendor}, {family}). Each moment is screened ONCE: a stored item
-    (same moment, same step-A prompt, a back-end off the writers' vendor and family) is reused, never recomputed.
-    writer_vendor / writer_family: of the writers, so step A never runs on them."""
+              store=None, log=print, cache=None):
+    """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
+    {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
+    first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
+    from a back-end off the writers' vendor and family is reused from this build's ledger (`store`), else from the
+    step-A cache every build shares (`cache`), keyed by the moment id, the sha256 of its text, the sha256 of the exact
+    context step A reads (its window, title, channel, publish time and the show date, so time words are judged again on
+    a new show date) and the step-A prompt's version. The batches run in parallel (PRESCREEN_WORKERS), each with the
+    seed of its place in the queue. Only a parsed verdict is stored: a call that fails is no verdict (law L-m), never
+    remembered. writer_vendor / writer_family: of the writers, so step A never runs on them."""
     import providers as P
-    seen, order = set(), []
     ranked = sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"]))
-    for m in ranked:
-        if m["channel_id"] not in seen:
-            order.append(m)
-            seen.add(m["channel_id"])
-    order = (order + [m for m in ranked if m not in order])[:n]
-    db = _load_store(store)
+    if n is None:
+        order = ranked                                   # ruling 58: every candidate, the miner's best first
+    else:
+        seen, order = set(), []
+        for m in ranked:
+            if m["channel_id"] not in seen:
+                order.append(m)
+                seen.add(m["channel_id"])
+        order = (order + [m for m in ranked if m not in order])[:n]
+    db, cdb = _load_store(store), _load_cache(cache)
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
-    a_by, fails, vendors, families, todo = {}, {}, set(), set(), []
+    off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    a_by, fails, vendors, families, todo, contexts, keys = {}, {}, set(), set(), [], {}, {}
     for m in order:
-        rec = db.get(f"{m['moment_id']}:{STEP_A_VERSION}")
-        b = router.backends.get((rec or {}).get("backend"))
-        if rec and b is not None and b.vendor not in wv and b.family not in wf:
-            a_by[m["moment_id"]] = rec
-            fails[m["moment_id"]] = CI.a_failures(rec)
+        mid = m["moment_id"]
+        text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
+        if text is None:            # no L-s context (a window record without its caption record, short coverage, an
+            fails[mid] = ["CONTEXT_UNAVAILABLE: no L-s context for this moment (law L-s)"]     # unclocked moment): THIS
+            continue                # moment is not cleared; it never poisons its batch's call
+        contexts[mid] = {"text": text, "title": src_of(m, sources).title or "", "channel": _name(m, ctx),
+                         "window": win, "published": str(m.get("published_at") or "")[:16],
+                         "show_date": ctx.now.strftime("%Y-%m-%d")}
+        keys[mid] = f"{mid}:{text_sha(m['text'])}:{text_sha(json.dumps(contexts[mid], sort_keys=True))}:{STEP_A_VERSION}"
+        rec = db.get(f"{mid}:{STEP_A_VERSION}")
+        if not (isinstance(rec, dict) and off(rec.get("backend"))):
+            rec = next((x for name, x in sorted((cdb.get(keys[mid]) or {}).items())
+                        if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
+        if rec is not None:
+            b = router.backends[rec["backend"]]
+            a_by[mid], fails[mid] = rec, CI.a_failures(rec)
+            db[f"{mid}:{STEP_A_VERSION}"] = rec
             vendors.add(b.vendor)
             families.add(b.family)
         else:
             todo.append(m)
-    for i in range(0, len(todo), batch):
-        chunk = todo[i:i + batch]
-        contexts = {}
-        for m in chunk:
-            text, win = CI._window_text(src_of(m, sources), m["sentences"][0], m["sentences"][1], *m["words"])
-            if text is None:        # no L-s context (a window record without its caption record, short coverage, an
-                fails[m["moment_id"]] = ["CONTEXT_UNAVAILABLE: no L-s context for this moment (law L-s)"]   # unclocked
-                continue            # moment): THIS moment is not cleared; it never poisons its batch's call
-            contexts[m["moment_id"]] = {"text": text, "title": src_of(m, sources).title or "",
-                                        "channel": _name(m, ctx), "window": win,
-                                        "published": str(m.get("published_at") or "")[:16],
-                                        "show_date": ctx.now.strftime("%Y-%m-%d")}
-        if not contexts:
-            continue
+    chunks = [todo[i:i + batch] for i in range(0, len(todo), batch)]
+
+    def screen(i, chunk):
         try:
-            got, backend = CI.step_a(router, contexts, writer_vendor, seed=7 + i, writer_family=writer_family)
+            return CI.step_a(router, {m["moment_id"]: contexts[m["moment_id"]] for m in chunk}, writer_vendor,
+                             seed=7 + i * batch, writer_family=writer_family), None
         except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
-            for mid in contexts:
-                fails[mid] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}"]
+            return None, e
+    with ThreadPoolExecutor(max_workers=max(1, min(PRESCREEN_WORKERS, len(chunks)))) as ex:
+        res = list(ex.map(lambda ic: screen(*ic), enumerate(chunks)))   # map keeps the chunks' order: zipped below
+    new = {}
+    for chunk, (got, e) in zip(chunks, res):
+        if got is None:
+            for m in chunk:
+                fails[m["moment_id"]] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:160]}"]
             continue
+        items, backend = got
         b = router.backends.get(backend)
         vendors.add(b.vendor if b else backend)
         families.add(b.family if b else backend)
-        for mid, a in got.items():
-            a_by[mid] = a
-            fails[mid] = CI.a_failures(a)
+        for mid, a in items.items():
+            a_by[mid], fails[mid] = a, CI.a_failures(a)
             db[f"{mid}:{STEP_A_VERSION}"] = a
-    if store and todo:
+            if mid in keys and a.get("backend"):
+                new.setdefault(keys[mid], {})[a["backend"]] = a
+    if store and (todo or db):
         os.makedirs(os.path.dirname(os.path.abspath(store)), exist_ok=True)
         with open(store + ".tmp", "w") as f:
             json.dump(db, f, indent=1)
         os.replace(store + ".tmp", store)
+    _cache_put(cache, new)
     return a_by, fails, vendors, families
 
 
-def second_screen(router, cleared, a_by, sources, ctx, log=print):
+def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
     """ORDER 06:22 item 45: step A from a SECOND vendor on every cuttable clip, BEFORE the angle step. The writer is
     known only when the angle call answers (Heimdall first, Grok on its failure: angle_write), and a verdict never
     comes from the writer's vendor (L-x). The only step-A vendors are the writers' own two (context_verdict: xai, then
@@ -469,7 +529,8 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print):
             for i in range(0, len(g), PRESCREEN_BATCH)]
     def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
         try:
-            return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log)
+            return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log,
+                             cache=cache)                    # ruling 58: a second verdict is paid for once too
         except Exception as e:
             return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
                         for m in chunk}, set(), set()
@@ -502,7 +563,12 @@ channels were not in one conversation and never answer each other.
 {note}
 {clips}
 
-Find up to {k} ANGLES, best first. An angle is ONE sentence a viewer could repeat: a point that several of these clips
+THE HOOKS: a video may OPEN only on one of these clips; each was judged first, alone, on its job as the opener (rated
+4-5 of 5), best first:
+{hooks}
+
+Find ANGLES, best hook first: up to {per} for EACH hook above, at most {k} in all, each written FOR its hook (it opens
+the video and sets up the point). An angle is ONE sentence a viewer could repeat: a point that several of these clips
 GENUINELY support together (each clip adds a different reason, fact or voice to the same point). Do not make a point
 the clips do not state. Do not build an angle on a price level or move as if it were today's news unless a clip says
 it is today's.
@@ -511,11 +577,10 @@ clip's opening makes sense right after the previous clip's ending, in the speake
 introduction to be understood). The video plays the hook and 2-4 more clips, ONE per channel, from 3-5 DIFFERENT
 channels, together {lo:.0f}-{hi:.0f} seconds of clips. PLACEMENT LIMITS: a clip marked "only the hook or the LAST
 clip" is the first or the LAST id of an angle's list, never in between; a clip marked "only the LAST clip" is the LAST
-id or is not in it; a clip marked "cannot open" is never the hook. Give as many good angles as the clips allow (aim for
-{k}); for
+id or is not in it; a clip marked "cannot open" is never the hook. Give as many good angles as the clips allow; for
 each angle give: "angle" (the sentence); "moments": the ids of 4 to 8 clips IN PLAY ORDER, the hook first (more choice
 survives a clip that later fails a check), from at least 3 different channels, with enough seconds among them;
-"hook": the first id, whose FIRST WORDS grab attention AND set up the angle; "support": for each of those ids, a few
+"hook": the first id: the hook from THE HOOKS this angle is written for; "support": for each of those ids, a few
 words on what it adds and why it follows the clip before it (an internal note).
 Return ONLY this JSON object: {{"angles": [{{"angle": "...", "moments": ["id", "id", "id"], "hook": "id",
 "support": {{"id": "..."}}}}]}}"""
@@ -543,6 +608,72 @@ Return ONLY this JSON object: {{"through_line": "...", "hook": {{"scroll": 1, "a
 "clips": {{{clip_keys}}}, "joins": {{{joins}}}}}"""
 HOOK_PARTS = ("scroll", "alone", "setup")   # ruling 52 (08:06 Nov 13): the hook's own job, each part rated 1-5
 HOOK_RULE = "the lowest of scroll / alone / setup (ruling 52): every part must reach the bar"
+HOOKS_PROMPT = """You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's
+own words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as
+the opener of a video; the candidates are not compared with each other and never play together.
+
+{hooks}
+
+For EACH candidate: """ + HOOK_QUESTION + """
+Give "why": a few words on the candidate's weakest part.
+Return ONLY this JSON object: {{"hooks": {{{keys}}}}}"""   # ruling 59 (a): ruling 52's ONE hook question, per candidate
+HOOK_VERSION = hashlib.sha256(HOOKS_PROMPT.encode()).hexdigest()[:12]   # a cached rating is for exactly this question
+
+
+def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None, seed=7):
+    """RULING 59 (a): the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked of EVERY
+    given moment ALONE, in ONE batched call (coherence_verdict, never the writers' vendor or family), each rating
+    DERIVED as the lowest part (HOOK_RULE). Cached (`cache`, shared by every build) by the moment id, the sha256 of its
+    text and the question's version: a moment is rated once, by a back-end off the writers. One re-ask on a reply out
+    of contract. -> ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
+    A moment the call did not rate has no rating (law L-m: never a pass)."""
+    import providers as P
+    wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+    off = lambda name: (lambda b: b is not None and b.vendor not in wv and b.family not in wf)(router.backends.get(name))
+    cdb, out, todo = _load_cache(cache), {}, []
+    key = lambda m: f"{m['moment_id']}:{text_sha(m['text'])}:{HOOK_VERSION}"
+    for m in ms:
+        rec = next((x for name, x in sorted((cdb.get(key(m)) or {}).items())
+                    if isinstance(x, dict) and off(name) and x.get("backend") == name), None)
+        if rec is not None:
+            out[m["moment_id"]] = dict(rec, cached=True)
+        else:
+            todo.append(m)
+    if not todo:
+        return out, None
+    ids = [m["moment_id"] for m in todo]
+    cands = "\n".join(f'CANDIDATE id="{m["moment_id"]}" (on screen: {CI._q(_name(m, ctx), 80)}): '
+                      f'"{CI._q(m["text"], 900)}"' for m in todo)
+    keys = ", ".join(f'"{i}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}' for i in ids)
+    err = None
+    for s in (seed, seed + 1):
+        r = None
+        try:
+            r = router.call("coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), 600 + 150 * len(ids), s,
+                            avoid_vendor=writer_vendor, avoid_family=writer_family)
+            v = json.loads(r.text.strip())
+            h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
+            if not isinstance(h, dict) or set(h) != set(ids) or any(
+                    not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
+                    any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
+                raise ValueError("hook ratings out of contract")
+        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:
+            if r is not None and isinstance(e, (ValueError, TypeError, KeyError)):
+                router.reject(r)
+            err = f"{type(e).__name__}: {str(e)[:200]}"
+            if isinstance(e, (ValueError, TypeError, KeyError)):
+                continue                                 # out of contract: one re-ask
+            break                                        # unavailable or the spend guard: no verdict (law L-m)
+        new = {}
+        for m in todo:
+            x = h[m["moment_id"]]
+            rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_PARTS), "why": x["why"][:300],
+                   "backend": r.backend, "rule": HOOK_RULE}
+            out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+            new[key(m)] = {r.backend: rec}
+        _cache_put(cache, new)
+        return out, None
+    return out, err
 
 WRITE_LY = """You are PBX MAX, the host of a 60-second Bitcoin video made of other channels' own words.
 THE ANGLE (the point this video makes): "{angle}"
@@ -612,7 +743,7 @@ def current_levels(sources, ctx, hours=24.0):
     return sorted(out)
 
 
-def check_angles(obj, by_id, k=MAX_ANGLES):
+def check_angles(obj, by_id, k=MAX_ANGLES, hooks=None):
     if not isinstance(obj, dict) or set(obj) != {"angles"} or not isinstance(obj["angles"], list) or \
             not 1 <= len(obj["angles"]) <= k:
         raise ValueError(f"exactly {{'angles': [1-{k} items]}}")
@@ -633,6 +764,8 @@ def check_angles(obj, by_id, k=MAX_ANGLES):
             raise ValueError(f"angle {i + 1}: >= 3 channels (one clip per channel, L-u), and the hook one of its moments")
         if not isinstance(a["support"], dict) or set(a["support"]) != set(ms):
             raise ValueError(f"angle {i + 1}: 'support' needs exactly its moment ids")
+        if hooks is not None and a["hook"] not in hooks:            # ruling 59 (c): written FOR a passing hook
+            raise ValueError(f"angle {i + 1}: its hook {a['hook']!r} is not one of THE HOOKS")
         out.append(a)
     return out
 
@@ -853,6 +986,34 @@ def no_role_on_screen(m):
     return None if (c_ok or h_ok) else f"the render's STAND_ALONE with no clip scorer at the pin stage: {c_why}; {h_why}"
 
 
+def can_open(m):
+    """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
+    render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
+    59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
+    (an unmeasured rating is never a pass, law L-m). A moment without the key is judged as before ruling 59."""
+    import stand_alone as SA
+    if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True
+            and SA.opener("hook", m.get("text") or "")[0]):
+        return False
+    r = (m.get("hook_rating") or {}).get("rating") if "hook_rating" in m else HOOK_MIN
+    return isinstance(r, int) and not isinstance(r, bool) and r >= HOOK_MIN
+
+
+def hook_order(ms):
+    """RULING 59 (c): the passing hooks best first: the derived rating, then the sum of its parts, then the miner's
+    score, then the id (a total order)."""
+    hr = lambda m: m.get("hook_rating") or {}
+    return sorted(ms, key=lambda m: (-(hr(m).get("rating") or 0), -sum(hr(m).get(k) or 0 for k in HOOK_PARTS),
+                                     -m["rank_score"], m["moment_id"]))
+
+
+def hook_line(m, ctx):
+    """One rated hook as ruling 59 (d) lists it: the channel, the rating and its parts, the judge's reason, the words."""
+    r = m.get("hook_rating") or {}
+    return {"moment_id": m["moment_id"], "channel": _name(m, ctx), "rating": r.get("rating"),
+            **{k: r.get(k) for k in HOOK_PARTS}, "why": r.get("why"), "text": (m.get("text") or "")[:160]}
+
+
 def lineup_ok(segs, crange=None, repeat_ok=False):
     """The rules lineup_for applies, checked on a GIVEN line-up in play order -> (ok, why): the hook can open (hook
     eligibility and the G17a measure), every clip is clip-eligible, the hook + LY_CLIPS clips, one segment per channel
@@ -862,7 +1023,7 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
     h, clips = segs[0], segs[1:]
     if not LY_CLIPS[0] <= len(clips) <= LY_CLIPS[1]:
         return False, f"{len(clips)} clips"
-    if not ((h.get("eligibility") or {}).get("hook", {}).get("ok") and (h.get("hook_onset") or {}).get("pass") is True):
+    if not can_open(h):                                  # ruling 59 (b): rated too, once the pool's hooks are
         return False, "the hook cannot open"
     if not all((m.get("eligibility") or {}).get("clip", {}).get("ok") for m in clips):
         return False, "a clip is not clip-eligible"
@@ -884,22 +1045,22 @@ def lineup_ok(segs, crange=None, repeat_ok=False):
     return True, "ok"
 
 
-def swap_lineup(segs, weak, pool, avoid=frozenset(), crange=None):
+def swap_lineup(segs, weak, pool, avoid=frozenset(), crange=None, keep_hook=False):
     """RULING 41: the next line-up after a clips-alone failure. Every segment in `weak` (moment ids rated below the
     bar) is swapped AT ITS PLACE for the next candidate by score from the whole cleared pool: the hook for the next hook
     by its first 2 s (scores.hook_first_2s), a clip for the next clip by rank_score. The segments rated 4-5 stay where
     they are. The first combination (up to SWAP_TOP candidates per place, in score order) that passes lineup_ok wins,
-    one clip per channel first, then L-y 4's supply exception. -> (segs, {old id: new id}) or (None, None)."""
+    one clip per channel first, then L-y 4's supply exception. keep_hook (RULING 59 c: a line-up is built AROUND its
+    hook): a weak hook is never swapped, so no swap fits. -> (segs, {old id: new id}) or (None, None)."""
     used = {m["moment_id"] for m in segs}
     places = [i for i, m in enumerate(segs) if m["moment_id"] in weak]
-    if not places:
+    if not places or (keep_hook and 0 in places):
         return None, None
     free = [m for m in pool.values() if m["moment_id"] not in used and m["moment_id"] not in avoid]
 
     def cands(i):
         if i == 0:
-            c = [m for m in free if (m.get("eligibility") or {}).get("hook", {}).get("ok")
-                 and (m.get("hook_onset") or {}).get("pass") is True]
+            c = [m for m in free if can_open(m)]                     # ruling 59 (b): rated, once rated
             c.sort(key=lambda m: (-m["scores"]["hook_first_2s"], -m["rank_score"], m["moment_id"]))
         else:
             c = [m for m in free if (m.get("eligibility") or {}).get("clip", {}).get("ok")
@@ -923,15 +1084,15 @@ def placement(m):
     """RULING 54: a clip's placement limits as the angle proposer is told them, exactly lineup_for's rules. Without hook
     eligibility and a passed hook onset (G17a) it cannot open. Under SHORT_CLIP_S it may not play mid-line-up: the
     short-clip rule binds the clips AFTER the hook only, so a short clip that can open may be the hook or the LAST clip,
-    and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook)."""
-    opens = bool((m.get("eligibility") or {}).get("hook", {}).get("ok")) and \
-        (m.get("hook_onset") or {}).get("pass") is True
+    and one that cannot open only the LAST (the 08:46 build: a 7.26 s opener was the only formable hook). RULING 59:
+    "may open" is can_open(): once the pool's hooks are rated, only a hook rated >= HOOK_MIN opens."""
+    opens = can_open(m)
     if m["duration_s"] < SHORT_CLIP_S:
         return f" | under {SHORT_CLIP_S:.0f} s: " + ("only the hook or the LAST clip" if opens else "only the LAST clip")
     return "" if opens else " | cannot open (never the hook)"
 
 
-def pool_fill(angle, pool, dropped=frozenset(), now=None):
+def pool_fill(angle, pool, dropped=frozenset(), now=None, hook_only=False):
     """PROPOSAL 1: an angle whose own moments form no line-up (lineup_for, one clip per channel, then L-y 4's
     exception) is completed from the WHOLE cleared pool, as ruling 41's swap fills a place: the pool's other moments
     are appended to the angle's after its own, best by rank_score, and lineup_for runs again under every unchanged
@@ -951,7 +1112,7 @@ def pool_fill(angle, pool, dropped=frozenset(), now=None):
     half = lambda segs: 2 * sum(m["moment_id"] in mine for m in segs) >= len(segs)   # the angle's own: >= half
     for repeat_ok in (False, True):
         segs = lineup_for(ext, pool, dropped, repeat_ok=repeat_ok, need_onset=True, need_stand_alone=True, accept=half,
-                          now=now)
+                          now=now, hook_only=hook_only)
         if segs is not None:
             return segs, [m["moment_id"] for m in segs if m["moment_id"] not in mine]
     return None, None
@@ -976,7 +1137,7 @@ def fresh_key(segs, now):
 
 
 def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, repeat_ok=False, need_onset=False,
-               need_stand_alone=False, accept=None, now=None):
+               need_stand_alone=False, accept=None, now=None, hook_only=False):
     """The hook + clips[0]..clips[1] clips for one angle, in the PROPOSER'S PLAY ORDER (L-y 3: the order carries a
     medley): the proposer's hook (else the angle's best hook-eligible moment by its first 2 s), the clips from the
     angle's other moments, every segment from a different channel (L-u), at most PRICE_PREDICTIONS_MAX price
@@ -991,8 +1152,8 @@ def lineup_for(angle, by_id, dropped=frozenset(), clips=LY_CLIPS, crange=None, r
     lo, hi = crange or medley_content_range()
     pos = {m: i for i, m in enumerate(angle["moments"])}
     ms = [by_id[m] for m in angle["moments"] if m in by_id and m not in dropped]
-    hooks = [m for m in ms if (m.get("eligibility") or {}).get("hook", {}).get("ok") and
-             (not need_onset or (m.get("hook_onset") or {}).get("pass") is True)]
+    hooks = [m for m in ms if (can_open(m) if need_onset else (m.get("eligibility") or {}).get("hook", {}).get("ok"))
+             and (not hook_only or m["moment_id"] == angle["hook"])]   # ruling 59 (b) rated; (c) the angle's own hook
     hooks.sort(key=lambda m: (m["moment_id"] != angle["hook"], -m["scores"]["hook_first_2s"]))
     for h in hooks:
         pool = [m for m in ms if m is not h and (m.get("eligibility") or {}).get("clip", {}).get("ok")
@@ -1437,13 +1598,20 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
 
 
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
-          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD):
+          writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
+          hook_cache=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
     one bridge, only at the join the clips-alone verdict flagged); the first package that passes every hard gate wins.
     work_dir: where law L-v 2's audio windows go (required: without it no package can pass). store: the step-A ledger.
     spend: a callable returning the ledger's USD (dollars per package).
+    step_a_cache / hook_cache (rulings 58 / 59): the verdict caches every build shares (None: this build's only).
+    RULING 59, HOOK FIRST: once the pool is screened, every cleared, cuttable moment that can open is rated on the hook's
+    own job in one batched call (hook_ratings); only a hook rated >= HOOK_MIN opens; with none, the build stops there
+    ('no hook in the pool', the three best listed) before the second screen, the angles and any line-up. The angle
+    writer is given THE HOOKS and writes each angle FOR one; the angles are tried best hook first (ruling 57's
+    freshness next), each line-up opens on its angle's own hook and never swaps it.
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
@@ -1457,7 +1625,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)
-    a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log)
+    a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
+                                                   cache=step_a_cache)          # ruling 58: every candidate, once
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
@@ -1507,7 +1676,32 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["prescreen"]["trim_cut"] = trim_cut
     log(f"  {sum(m['hook_onset'].get('pass') is True for m in cleared.values())} of them can open a medley "
         f"(G17a at the pin stage: genuine quiet before the first onset)")
-    a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log)        # ORDER 06:22 item 45
+    for m in cleared.values():                                           # a rating is this build's own (its
+        m.pop("hook_rating", None)                                       # cache's), never one carried in
+    openers = {mid: m for mid, m in cleared.items() if can_open(m)}      # RULING 59 (a): every one that can open,
+    rated, hook_err = hook_ratings(router, list(openers.values()), ctx, wv, wf, cache=hook_cache) if openers else \
+        ({}, None)                                                        # one batched call, cached
+    for mid, m in cleared.items():                                       # (b): the rating gates every opening now
+        m["hook_rating"] = rated.get(mid) or {"rating": None, "why": (f"not rated: {hook_err}" if mid in openers else
+                                                                      "cannot open (hook eligibility, G17a or the "
+                                                                      "render's hook rule)")}
+    best = [hook_line(m, ctx) for m in hook_order([m for mid, m in openers.items() if mid in rated])[:3]]
+    out["hook_pool"] = {"can_open": len(openers), "rated": len(rated), "error": hook_err, "min": HOOK_MIN,
+                        "ratings": {mid: rated[mid] for mid in sorted(rated)}, "best": best,
+                        "passing": [m["moment_id"] for m in hook_order([m for m in cleared.values() if can_open(m)])]}
+    log(f"  hooks (ruling 59): {len(openers)} can open, {len(rated)} rated, {len(out['hook_pool']['passing'])} rated >= "
+        f"{HOOK_MIN} on the hook's own job" + (f"; NOT RATED: {hook_err}" if hook_err else "") +
+        f" ({time.time() - t0:.0f} s)")
+    if not out["hook_pool"]["passing"]:                                  # (d): no line-up is paid for
+        out["why_none"] = ("no hook in the pool (ruling 59 d): " + (
+            f"none of the {len(openers)} moments that can open rates >= {HOOK_MIN} on the hook's own job" +
+            (f" ({len(openers) - len(rated)} not rated: {hook_err})" if hook_err else "") + "; the best: " +
+            "; ".join(f"{b['channel']} {b['rating']} (scroll {b['scroll']}, alone {b['alone']}, setup {b['setup']}): "
+                      f"{b['why']}" for b in best) if openers else
+            "no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)"))
+        return out
+    a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
+                                    cache=step_a_cache)                  # ORDER 06:22 item 45
     out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
                                          "FAIL: " + "; ".join(off_fail.get(mid) or ["no second verdict"])
                                          for mid in cleared}
@@ -1518,30 +1712,45 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         out["why_none"] = (f"{len(cleared)} cleared moments pass the second pass, CUTTABLE and step A from both "
                            f"vendors, from fewer than 3 channels")
         return out
+    passing = hook_order([m for m in cleared.values() if can_open(m)])    # ruling 59: the passing hooks still
+    if not passing:                                                        # cleared after the second screen
+        out["why_none"] = ("no hook in the pool (ruling 59 d): every hook rated >= " + str(HOOK_MIN) + " failed the "
+                           "second vendor's step A: " + "; ".join(out["prescreen"]["second_vendor"].get(mid, "?")
+                                                                    for mid in out["hook_pool"]["passing"]))
+        return out
     clips = "\n".join(f'id={m["moment_id"]} | {_name(m, ctx)} | {m["duration_s"]:.1f} s{placement(m)} | '
                       f'"{quote_data(m["text"], 600)}"'
                       for m in sorted(cleared.values(), key=lambda m: (-m["rank_score"], m["moment_id"])))
+    hooks_txt = "\n".join(f'id={m["moment_id"]} | rated {m["hook_rating"]["rating"]} on its own job: '
+                          f'"{quote_data(m["hook_rating"].get("why") or "", 200)}"' for m in passing)
+    per = max(1, max_angles // len(passing))
     lo, hi = medley_content_range()
-    angles, angle_reply = None, None
+    angles, angle_reply, errs = None, None, []
     for seed in (7, 8):                               # one re-ask on an out-of-contract reply (never served again)
         r = None
         try:
             r = router.call("angle_write", ANGLE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"),
-                                                               clips=clips, k=max_angles, lo=lo, hi=hi), 3000, seed,
+                                                               clips=clips, hooks=hooks_txt, per=per, k=max_angles,
+                                                               lo=lo, hi=hi), 3000, seed,
                             deadline_s=WRITER_DEADLINE_S)
-            angles, angle_reply = check_angles(json.loads(r.text.strip()), cleared, max_angles), r
+            angles, angle_reply = check_angles(json.loads(r.text.strip()), cleared, max_angles,
+                                               hooks={m["moment_id"] for m in passing}), r   # ruling 59 (c)
             break
         except Exception as e:
             if r is not None:
                 router.reject(r)
-            out["why_none"] = f"no readable angles: {type(e).__name__}: {str(e)[:200]}"
+            errs.append(f"{type(e).__name__}: {str(e)[:200]}")       # every reason, the first one too
+            out["why_none"] = "no readable angles: " + "; then ".join(errs)
     if not angles:
         return out
     out.pop("why_none", None)
     def first_fresh(a):                                   # ruling 57: the angles whose first line-up holds a clip
-        segs = lineup_for(a, cleared, need_onset=True, need_stand_alone=True, now=ctx.now)   # <= FRESH_H old go first
-        return bool(segs) and fresh_key(segs, ctx.now)[0]
-    angles = sorted(angles, key=lambda a: not first_fresh(a))      # stable: the writer's order within each group
+        segs = lineup_for(a, cleared, need_onset=True, need_stand_alone=True, now=ctx.now, hook_only=True)  # <= FRESH_H
+        return bool(segs) and fresh_key(segs, ctx.now)[0]                                              # old go first
+    hrank = {m["moment_id"]: (-m["hook_rating"]["rating"], -sum(m["hook_rating"][k] for k in HOOK_PARTS))
+             for m in passing}                            # ruling 59 (c): the best hook first, then ruling 57's
+    angles = sorted(angles, key=lambda a: (hrank[a["hook"]], not first_fresh(a)))   # freshness; stable: the writer's
+    # order within each
     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
@@ -1692,15 +1901,16 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     exception = supply_exception(segs, ctx)
                 else:
                     segs, exception = lineup_for(angle, cleared, frozenset(dropped | doomed), need_onset=True,
-                                                 need_stand_alone=True, now=ctx.now), None
+                                                 need_stand_alone=True, now=ctx.now, hook_only=True), None
                     if segs is None:                      # L-y 4: one clip per channel unless the supply forces otherwise
                         segs = lineup_for(angle, cleared, frozenset(dropped | doomed), repeat_ok=True, need_onset=True,
-                                          need_stand_alone=True, now=ctx.now)
+                                          need_stand_alone=True, now=ctx.now, hook_only=True)
                         if segs is not None:
                             exception = supply_exception(segs, ctx)
                     filled = None
                     if segs is None and n_lineup == 0:    # PROPOSAL 1: the angle's own moments form not even its
-                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed), ctx.now)   # FIRST: the
+                        segs, filled = pool_fill(angle, cleared, frozenset(dropped | doomed), ctx.now,
+                                                 hook_only=True)   # FIRST: the
                         # pool completes it. A re-line after a drop moves on to the next angle, as before
                         exception = supply_exception(segs, ctx) if segs is not None else None
                 rec = {"angle": ai + 1, "text": angle["angle"], "lineup": [m["moment_id"] for m in segs] if segs else None,
@@ -1725,11 +1935,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             if lb in by_lab and x < COHERENCE_MIN}      # ruling 41: the HOOK too (the next hook)
                     if len(med.get("flagged") or []) > LY_MAX_BRIDGES:
                         weak |= {by_lab[j.split(" -> ")[1]]["moment_id"] for j in med["flagged"][1:]}
+                    hook_weak = segs[0]["moment_id"] in weak
+                    weak.discard(segs[0]["moment_id"])    # ruling 59 (c): the line-up is built AROUND its hook
                     if not med.get("measured") or not weak:
-                        rec["why"] = "the clips alone have no through-line a viewer can state (or it was not measured)"
+                        rec["why"] = ("the hook rates below the bar in this line-up and no clip after it does; the angle "
+                                      "is written for this hook (ruling 59 c)" if med.get("measured") and hook_weak else
+                                      "the clips alone have no through-line a viewer can state (or it was not measured)")
                         break
                     dropped |= weak
-                    swapped, swaps = swap_lineup(segs, weak, cleared, frozenset(dropped | doomed))
+                    swapped, swaps = swap_lineup(segs, weak, cleared, frozenset(dropped | doomed), keep_hook=True)
                     rec["why"] = (f"the clips alone fail (ratings / joins): swapped {swaps}, re-judged (ruling 41)"
                                   if swapped is not None else
                                   f"the clips alone fail (ratings / joins): dropped {sorted(weak)}, no swap fits the "
@@ -1777,7 +1991,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         router.backends.get((a_by.get(m["moment_id"]) or {}).get("backend")))]
                     if stale:                                  # audit C2 K5: never judged by the writer's vendor
                         got_a, fails_a, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f,
-                                                         n=len(stale), store=None)
+                                                         n=len(stale), store=None, cache=step_a_cache)
                         bad = {}
                         for m in stale:
                             mid = m["moment_id"]
@@ -1791,7 +2005,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                             dropped |= set(bad)                # with their reason; the next-best cuttable clip takes
                             doomed |= set(bad)                 # each place (ruling 41's swap); the clips-alone verdict
                             out["prescreen"].setdefault("rescreen_failed", {}).update(bad)     # re-judges the line-up
-                            swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed))
+                            swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed),
+                                                         keep_hook=True)
                             rec["why"] = (f"step A, re-screened off the writer's vendor, fails {sorted(bad)} (out for "
                                           f"good): " + (f"swapped {swaps}, re-judged (order 06:22 item 44)"
                                                         if swapped is not None else

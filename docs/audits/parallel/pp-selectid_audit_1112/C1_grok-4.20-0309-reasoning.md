@@ -1,0 +1,21 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 74 s finish=stop usage in 29294 / out 966 usd~0.171 (upper-bound price)
+
+**P2: pipeline/package.py:49** (CACHE_LOCK = threading.Lock()): Protects only intra-process parallel batches in prescreen() and _cache_put(). As a threading lock + file-based read/merge/.tmp/os.replace, it cannot synchronize across separate Python processes sharing the same step_a_cache or hook_cache. If the orchestrator ever runs concurrent builds, lost updates are possible (both load same JSON, both write). Diff does not show orchestrator scheduling, so uncertain whether this is reachable; matches "parallel step-A batches" comment but not full shared-cache safety.
+
+**P2: pipeline/package.py:278** (key = lambda m: f"{m['moment_id']}:{text_sha(m['text'])}:{HOOK_VERSION}"): Hook cache key omits context SHA (show_date, title, window) that step-A key includes (lines 140, 98-99). HOOKS_PROMPT uses only text + id, ruling 59 description does not mention context, and K1 explicitly notes context only for step A, so this matches the implemented rulings. Still, a date-sensitive hook judgment could reuse a cached verdict on new show_date.
+
+**P2: pipeline/package.py:502-512 & 533-538** (hook_rating population, post-second-screen re-filter): build() clears any carried "hook_rating", rates only pre-second-screen openers, then sets rating=None + error why for any unrated/low-rated after second_screen. The "passing hooks still cleared after the second screen" comment and explicit re-computation of passing list + why_none path are present and fail-closed (no line-ups, no angle_write). Matches K2 exactly. No path lets an unrated/low-rated hook reach lineup_for/pool_fill/swap_lineup/lineup_ok/can_open (all updated, including keep_hook=True and hook_only=True).
+
+**P2: pipeline/package.py:169-179** (ThreadPoolExecutor + enumerate(chunks)): Parallel batches preserve original per-chunk seed (7 + i * batch) and map order. Failed batch sets per-moment STEP_A_UNAVAILABLE with exception text, never caches (lines 182-184, 840-845 in test), never poisons other moments. _load_cache returns {} on corrupt file (line 64). Good fail-closed.
+
+**P2: pipeline/package.py:296-310 & 897-903** (hook_ratings reply contract): Strict validation (exact ids, int 1-5 for each of scroll/alone/setup, why str, set equality), one re-ask on ValueError/TypeError/KeyError, ProviderError/SpendLimit = err + no verdict (law L-m / L-j). Derived min rating, cached only on success. Test coverage (test_a_reply_out_of_contract..., test_one_batched_call...) verifies.
+
+**P2: pipeline/package.py:337, 558, 931** (check_angles hooks= param): Rejects angle whose "hook" not in supplied passing set → ValueError → re-ask on angle_write. Prompt now supplies THE HOOKS best-first with ratings/reasons and "up to {per} for EACH hook". Matches K3. No unintentional change to old callers (default=None, test preserves).
+
+**P2: pipeline/package.py:382, 410, 423, 458, 506, 912** (can_open, placement, lineup_ok, lineup_for hook_only=True, swap_lineup keep_hook=True): All paths updated; unrated/low-rated hook cannot open (including no-hook early return before second_screen/angles/lineups, matching (d)). K5 default (HOOK_MIN when key absent) preserved for unit tests/old callers. Weak hook now ends angle with specific message (lines 610-612) instead of swap. Matches K4 and rewritten ruling-41 test.
+
+**P2: tests/package/test_medley.py:686-698** (Rig.rate_hooks) and new TestRuling58/TestRuling59 suites: Rig fakes exactly the new contract (including hook_err path, cached flag, per-moment why). proof_ledger supplies caches. All 11 suites still pass per diff summary; no behavior change outside rulings 58/59 visible.
+
+No P0/P1. Every fail-closed path (unrated hook, failed batch/call, corrupt cache, out-of-contract angle, no passing after second screen), cache vendor filtering, thread batching, angle contract, and "spends nothing on line-ups" when no hook are verifiable in the diff and match the stated rulings/K1-K6. No violation of listed governing laws detectable in changed selection paths (L-f, L-j, M12, LAW 20/22 appear untouched).
+
+**SHIP: yes**

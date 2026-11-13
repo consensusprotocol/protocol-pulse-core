@@ -505,12 +505,13 @@ class Rig:
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
-                 trim_fail=()):
+                 trim_fail=(), hooks=None, hook_err=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
         self.trim_fail = set(trim_fail)                    # trimmed moments whose trimmed cut fails ruling 33 (a)
+        self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
@@ -534,7 +535,7 @@ class Rig:
         self.write_avoid = []
 
     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
-                  batch=PK.PRESCREEN_BATCH, store=None, log=print):
+                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None):
         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
         av, af = self.P._as_set(writer_vendor), self.P._as_set(writer_family)
@@ -552,6 +553,20 @@ class Rig:
             got[mid] = dict(self.A_OK, backend=name)
             fails[mid] = list(self.a_fail.get((v, mid), []))
         return got, fails, set(), set()
+
+    def rate_hooks(self, router, ms, ctx_, writer_vendor, writer_family=None, cache=None, seed=7):
+        """Ruling 59 (a) as the real hook_ratings answers: every given moment rated (self.hooks, default 5 / 5 / 5),
+        the rating derived as the lowest part; hook_err: the call failed and nothing is rated."""
+        self.hook_calls.append([m["moment_id"] for m in ms])
+        self.events.append("hook_ratings")
+        if self.hook_err:
+            return {}, self.hook_err
+        out = {}
+        for m in ms:
+            sc, al, se = self.hooks.get(m["moment_id"], (5, 5, 5))
+            out[m["moment_id"]] = {"scroll": sc, "alone": al, "setup": se, "rating": min(sc, al, se),
+                                   "why": f"why {m['moment_id']}", "backend": "xai:grok", "cached": False}
+        return out, None
 
     def medley(self, router, segs, ctx_, wv, seed=7, writer_family=None):
         self.medley_calls.append([m["moment_id"] for m in segs])
@@ -602,6 +617,7 @@ class Rig:
             "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
             "hook_onset_for": self.onset,
+            "hook_ratings": self.rate_hooks,
             "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
                                                              "clips": {sg["label"]: 5 for sg in pk["segments"]},
                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
@@ -754,19 +770,26 @@ class TestBuildLoop(unittest.TestCase):
         self.assertIsNotNone(out["package"])                               # the search went on: $1.60 < $3.00
         self.assertEqual((out["search"]["lineups"], out["search"]["usd_reported"]), (2, 1.6))
 
-    def test_a_hook_without_80_ms_of_genuine_quiet_gives_way_and_none_means_no_line_up(self):
+    def test_a_hook_without_80_ms_of_genuine_quiet_never_opens_and_none_means_no_hook(self):
         """Batch pin #1, held 01:39 ET Nov 13 (G17a: 30 ms of genuine lead before the hook). A moment opens a medley
-        only when its hook onset was measured and passed; the proposer's hook gives way to the angle's next."""
-        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"h"})
-        pk = rig.run()["package"]
-        self.assertNotEqual(pk["segments"][0]["moment_id"], "h")
+        only when its hook onset was measured and passed. RULING 59: it is never rated as a hook nor one of THE HOOKS
+        the writer is given; with no moment that can open, the build stops before any line-up."""
+        rig = Rig(self.MS, ["x", "h", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"h"})
+        out = rig.run()
+        self.assertNotIn("h", rig.hook_calls[0])                          # never asked as a hook
+        p = next(p for r, p in rig.prompts if r == "angle_write")
+        self.assertIn("id=h | A | 12.0 s | cannot open (never the hook) | ", p)
+        self.assertNotIn("id=h | rated", p)                               # not one of THE HOOKS
+        pk = out["package"]
+        self.assertEqual(pk["segments"][0]["moment_id"], "x")
         self.assertEqual(pk["gates"]["hook_onset"]["status"], "PASS")
         self.assertEqual(pk["gates"]["hook_onset"]["lead_ms"], 200)
         rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"h", "x", "y", "z"})
         out = rig.run()
         self.assertIsNone(out["package"])
-        self.assertEqual(rig.medley_calls, [])                    # nothing paid for a line-up that cannot open
-        self.assertIn("no line-up", out["tried"][0]["why"])
+        self.assertEqual((rig.medley_calls, rig.hook_calls), ([], []))   # nothing paid for: no hook, no line-up
+        self.assertIn("no hook in the pool", out["why_none"])
+        self.assertIn("no cleared, cuttable moment can open", out["why_none"])
 
     def test_the_supply_exception_is_recorded(self):
         ms = [pm("h", "A", 14.0), pm("x", "B", 13.0), pm("y", "C", 3.0), pm("e", "A", 13.0)]
@@ -987,6 +1010,234 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
 
 
+class TestRuling58StepAEveryCandidate(unittest.TestCase):
+    """RULING 58 (11:00): EVERY candidate is screened at step A, the miner's best first, and a verdict is cached by the
+    moment id + its text sha (and the exact context step A reads), so a moment is paid for once, not once per build."""
+
+    def pool(self, n=20, words="is the hardest money ever made"):
+        ms, srcs = [], {}
+        for i in range(n):
+            mid = f"m{i:02d}"
+            src = source(["Before it came the long part of the show.", f"Bitcoin number {i} {words}.",
+                          "After it came the end of the show."], vid=f"v{mid}")
+            a, b = src.sentences[1]
+            m = dict(pm(mid, f"C{i:02d}", 0.0, rank=float(i), vid=f"v{mid}"), text=E.spoken(src.tokens[a:b + 1]),
+                     words=[a, b], sentences=[1, 1], start=float(src.tokens[a]["start"]), end=float(src.tokens[b]["end"]))
+            m["duration_s"] = round(m["end"] - m["start"], 2)
+            ms.append(m)
+            srcs[f"v{mid}"] = src
+        return ms, srcs
+
+    def router(self):
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        return type("R", (), {"backends": {"xai:grok": B("xai", "grok"), "heimdall:deepseek": B("heimdall", "deepseek")}})()
+
+    def fake(self, calls, fail=frozenset()):
+        import context_integrity as CI
+        from test_gates import a_item
+
+        def step_a(router_, contexts, wv, seed=7, writer_family=None):
+            calls.append((sorted(contexts), seed))
+            if set(contexts) & set(fail):
+                raise RuntimeError("the batch reply was out of contract")
+            b = "heimdall:deepseek" if "xai" in (wv or set()) else "xai:grok"
+            return {mid: dict(a_item(mid), backend=b) for mid in contexts}, b
+        saved = CI.step_a
+        CI.step_a = step_a
+        self.addCleanup(setattr, CI, "step_a", saved)
+
+    def test_every_candidate_is_screened_the_miners_best_first(self):
+        self.assertIsNone(PK.PRESCREEN_N)
+        import tempfile
+        ms, srcs = self.pool(20)
+        calls = []
+        self.fake(calls)
+        with tempfile.TemporaryDirectory() as d:
+            a_by, fails, vendors, _ = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"},
+                                                   store=os.path.join(d, "a.json"), cache=os.path.join(d, "c.json"))
+        self.assertEqual(len(a_by), 20)                                   # all 20, not 24 of 150
+        self.assertEqual(sum(len(c[0]) for c in calls), 20)
+        self.assertEqual(sorted(c[1] for c in calls), [7, 15, 23])        # 8 + 8 + 4, the seeds of their places
+        first = next(c[0] for c in calls if c[1] == 7)
+        self.assertEqual(first, sorted(f"m{i:02d}" for i in range(19, 11, -1)))   # the miner's best 8 first
+        self.assertEqual(vendors, {"xai"})
+        self.assertFalse(any(fails.values()))
+
+    def test_a_moment_is_paid_for_once_across_builds(self):
+        import tempfile
+        ms, srcs = self.pool(10)
+        calls = []
+        self.fake(calls)
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "STEP_A_CACHE.json")
+            PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, store=os.path.join(d, "1.json"),
+                         cache=cache)
+            self.assertEqual(sum(len(c[0]) for c in calls), 10)
+            calls.clear()                                                 # the next build: a new ledger, same cache
+            a_by, fails, _, _ = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"},
+                                             store=os.path.join(d, "2.json"), cache=cache)
+            self.assertEqual((calls, len(a_by)), ([], 10))               # nothing paid for again
+            with open(os.path.join(d, "2.json")) as f:
+                self.assertEqual(len(json.load(f)), 10)                   # this build's ledger still records them
+            changed, srcs2 = self.pool(10, words="is the softest money ever made")
+            PK.prescreen(self.router(), changed[:2] + ms[2:], dict(srcs, **{k: srcs2[k] for k in ("vm00", "vm01")}),
+                         ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01"])   # a new text: asked again
+            calls.clear()
+            later = E.Context(NOW + timedelta(days=1), REG)
+            PK.prescreen(self.router(), ms[:3], srcs, later, {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # a new show date
+            calls.clear()
+            a_by, _, _, _ = PK.prescreen(self.router(), ms[:3], srcs, ctx(), {"xai"}, {"grok"}, cache=cache)
+            self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # never the writer's
+            self.assertEqual({a["backend"] for a in a_by.values()}, {"heimdall:deepseek"})     # vendor's verdict
+
+    def test_a_failed_batch_is_no_verdict_never_cached_and_says_why(self):
+        import tempfile
+        ms, srcs = self.pool(10)
+        calls = []
+        self.fake(calls, fail={"m09"})                                    # the miner's best batch fails
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "c.json")
+            a_by, fails, _, _ = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(len(a_by), 2)                                # the other batch (2) only
+            self.assertEqual(fails["m09"], ["STEP_A_UNAVAILABLE: RuntimeError: the batch reply was out of contract"])
+            with open(cache) as f:
+                self.assertEqual(len(json.load(f)), 2)                    # a failure is never remembered
+            calls.clear()
+            PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual(len(sum((c[0] for c in calls), [])), 8)      # asked again, the 8 only
+
+
+class TestRuling59HookFirst(unittest.TestCase):
+    """RULING 59 (11:00): HOOK FIRST. Every cleared, cuttable moment that can open is rated on the hook's own job (ruling
+    52's question) in one batched call, cached; only a hook rated >= 4 opens; the angles are written FOR the passing
+    hooks and tried best hook first; with no passing hook the build stops before any line-up, listing the best three."""
+
+    def canned(self, *replies):
+        c = Canned(coherence_verdict=list(replies))
+        B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+        c.backends = {"fake:coherence_verdict": B("fake", "fake")}
+        return c
+
+    def test_one_batched_call_rates_every_hook_and_the_rating_is_derived_and_cached(self):
+        import tempfile
+        ms = [pm("a", "A", 12.0), pm("b", "B", 12.0)]
+        reply = {"hooks": {"a": {"scroll": 5, "alone": 4, "setup": 5, "why": "w a"},
+                           "b": {"scroll": 5, "alone": 2, "setup": 5, "why": "needs what came before"}}}
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "HOOK_CACHE.json")
+            c = self.canned(reply)
+            got, err = PK.hook_ratings(c, ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertIsNone(err)
+            self.assertEqual(c.calls, [("coherence_verdict", {"heimdall"}, {"deepseek"})])   # ONE call, off the writers
+            self.assertEqual((got["a"]["rating"], got["b"]["rating"]), (4, 2))   # the lowest part (ruling 52)
+            self.assertEqual(got["b"]["why"], "needs what came before")
+            again, err = PK.hook_ratings(self.canned(), ms, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual((err, again["a"]["rating"], again["a"]["cached"]), (None, 4, True))   # no call at all
+            new = [dict(ms[0], text="Bitcoin is a new text now."), ms[1]]
+            c = self.canned({"hooks": {"a": {"scroll": 3, "alone": 3, "setup": 3, "why": "w"}}})
+            got, _ = PK.hook_ratings(c, new, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+            self.assertEqual((len(c.calls), got["a"]["rating"], got["b"]["cached"]), (1, 3, True))   # its new text only
+
+    def test_the_prompt_asks_ruling_52s_question_of_each_candidate_alone(self):
+        ms = [pm("a", "A", 12.0), pm("b", "B", 12.0)]
+        prompts = []
+        c = self.canned({"hooks": {k: {"scroll": 5, "alone": 5, "setup": 5, "why": "w"} for k in "ab"}})
+        call = c.call
+        c.call = lambda role, prompt, *a, **k: (prompts.append(prompt), call(role, prompt, *a, **k))[1]
+        PK.hook_ratings(c, ms, ctx(), set(), set())
+        self.assertIn(PK.HOOK_QUESTION, prompts[0])                       # ONE definition of the hook's job
+        self.assertIn('CANDIDATE id="a"', prompts[0])
+        self.assertIn('CANDIDATE id="b"', prompts[0])
+        self.assertIn("Judge each one ALONE", prompts[0])
+
+    def test_a_reply_out_of_contract_is_asked_once_more_then_nothing_is_rated(self):
+        ms = [pm("a", "A", 12.0)]
+        ok = {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}
+        c = self.canned({"hooks": {"a": {"scroll": 9, "alone": 4, "setup": 4, "why": "w"}}}, ok)
+        got, err = PK.hook_ratings(c, ms, ctx(), set(), set())
+        self.assertEqual((err, got["a"]["rating"], len(c.calls), len(c.rejected)), (None, 4, 2, 1))
+        for bad in ({"hooks": {}}, {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4}}}, {"x": 1}, "no json"):
+            got, err = PK.hook_ratings(self.canned(bad, bad), ms, ctx(), set(), set())
+            self.assertEqual(got, {})
+            self.assertIn("Error", err)
+        got, err = PK.hook_ratings(self.canned(), ms, ctx(), set(), set())   # unavailable: no verdict (law L-m)
+        self.assertEqual(got, {})
+        self.assertIn("ProviderError", err)
+
+    def test_only_a_hook_rated_4_or_more_opens(self):
+        m = dict(pm("a", "A", 12.0), hook_onset={"pass": True})
+        self.assertTrue(PK.can_open(m))                                   # not rated yet: as before ruling 59
+        for rating, ok in ((4, True), (5, True), (3, False), (None, False)):
+            r = dict(m, hook_rating={"rating": rating})
+            self.assertEqual(PK.can_open(r), ok, rating)
+            self.assertEqual(PK.placement(r), "" if ok else " | cannot open (never the hook)")
+        self.assertFalse(PK.can_open(dict(m, hook_rating=None)))
+        self.assertFalse(PK.can_open(dict(m, hook_rating={"rating": True})))
+        self.assertFalse(PK.can_open(dict(m, text="And Bitcoin is money.")))   # the render's hook rule
+        self.assertFalse(PK.lineup_ok([dict(m, hook_rating={"rating": 3}), pm("x", "B", 14.0), pm("y", "C", 13.0)])[0])
+
+    def test_a_line_up_opens_on_its_angles_own_hook_and_never_swaps_it(self):
+        ms = [dict(pm(k, k.upper(), d), hook_onset={"pass": True}, hook_rating={"rating": 5})
+              for k, d in (("a", 12.0), ("b", 14.0), ("c", 13.0), ("d", 13.0))]
+        by = {m["moment_id"]: m for m in ms}
+        by["b"]["scores"] = dict(by["b"]["scores"], hook_first_2s=99)     # a stronger opener elsewhere
+        segs = PK.lineup_for(angle(["b", "a", "c", "d"], "a"), by, need_onset=True, hook_only=True)
+        self.assertEqual(segs[0]["moment_id"], "a")
+        low = dict(by, a=dict(by["a"], hook_rating={"rating": 3}))
+        self.assertIsNone(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True, hook_only=True))
+        self.assertEqual(PK.lineup_for(angle(["b", "a", "c", "d"], "a"), low, need_onset=True)[0]["moment_id"], "b")
+        self.assertEqual(PK.swap_lineup(segs, {"a"}, by, keep_hook=True), (None, None))
+        new, swaps = PK.swap_lineup(segs, {segs[1]["moment_id"]}, by, keep_hook=True)
+        self.assertEqual(new[0]["moment_id"], "a")
+        with self.assertRaises(ValueError):
+            PK.check_angles({"angles": [angle(["b", "a", "c"], "b")]}, by, hooks={"a"})
+        self.assertEqual(len(PK.check_angles({"angles": [angle(["a", "b", "c"], "a")]}, by, hooks={"a"})), 1)
+
+    def test_no_hook_in_the_pool_stops_before_the_second_screen_and_lists_the_best_three(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  hooks={"h": (3, 4, 4), "x": (2, 5, 5), "y": (4, 3, 4), "z": (1, 1, 1)})
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertTrue(out["why_none"].startswith("no hook in the pool (ruling 59 d): none of the 4 moments"))
+        self.assertEqual([b["moment_id"] for b in out["hook_pool"]["best"]], ["h", "y", "x"])
+        self.assertEqual([b["rating"] for b in out["hook_pool"]["best"]], [3, 3, 2])
+        self.assertIn("A 3 (scroll 3, alone 4, setup 4): why h", out["why_none"])
+        self.assertEqual(rig.medley_calls, [])
+        self.assertNotIn("angle_write", rig.events)                     # no angle, no line-up paid for
+        self.assertEqual(len(rig.screens), 1)                            # and no second screen
+        rig = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], hook_err="ProviderError: down")
+        out = rig.run()
+        self.assertIn("not rated: ProviderError: down", out["why_none"])
+        self.assertEqual(rig.medley_calls, [])
+
+    def test_the_writer_is_given_the_passing_hooks_and_the_best_hook_goes_first(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        rig = Rig(ms, [["h", "x", "y", "z"], ["x", "h", "y", "z"]], [(True, [], None, Rig.LINE)], [None],
+                  hooks={"h": (4, 4, 4), "x": (5, 5, 5), "y": (3, 3, 3), "z": (3, 4, 5)})
+        out = rig.run()
+        p = next(p for r, p in rig.prompts if r == "angle_write")
+        self.assertIn("THE HOOKS", p)
+        self.assertLess(p.index("id=x | rated 5"), p.index("id=h | rated 4"))    # best first
+        self.assertNotIn("id=y | rated", p)
+        self.assertIn("id=y | C | 13.0 s | cannot open (never the hook) | ", p)
+        self.assertIn("up to 1 for EACH hook above, at most 3 in all", p)
+        self.assertEqual(rig.medley_calls[0][0], "x")                   # the x angle, though the writer gave it second
+        self.assertEqual(out["hook_pool"]["passing"], ["x", "h"])
+        self.assertIsNotNone(out["package"])
+
+    def test_an_angle_not_written_for_a_passing_hook_is_out_of_contract(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0)]
+        rig = Rig(ms, ["y", "h", "x", "z"], [(True, [], None, Rig.LINE)], [None], hooks={"y": (3, 3, 3)})
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertIn("is not one of THE HOOKS", out["why_none"])           # the first reply, rejected
+        self.assertEqual((len(rig.router.rejected), sum(r == "angle_write" for r, _ in rig.prompts)), (1, 2))
+        self.assertEqual(rig.medley_calls, [])
+
+
 class TestOrder0622StepAFromBothVendors(unittest.TestCase):
     """ORDER 06:22: 45, step A from BOTH vendors on every cuttable clip before the angle step; 44, a failed re-screen
     after a write swaps out that clip only, and the line-up carries on."""
@@ -1089,7 +1340,7 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
                 "z": {"backend": "heimdall:deepseek"}}
         seen = []
 
-        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print):
+        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None):
             seen.append((sorted(wv), [m["moment_id"] for m in chunk]))
             name = "heimdall:deepseek"          # off xai for h and x; for z (first verdict heimdall) the SAME vendor
             return {m["moment_id"]: {"backend": name} for m in chunk}, {m["moment_id"]: [] for m in chunk}, set(), set()
@@ -1323,13 +1574,13 @@ class TestRuling41Search(unittest.TestCase):
             if segs is not None:
                 self.assertEqual(PK.lineup_ok(segs), (True, "ok"), order)
 
-    def test_the_build_swaps_a_low_rated_hook_and_stops_at_8_line_ups(self):
+    def test_a_low_rated_hook_is_never_swapped_and_the_search_stops_at_8_line_ups(self):
         ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0), pm("g", "E", 12.0)]
-        rig = Rig(ms, ["h", "x", "y", "z"], [(False, [], {"hook": 3}, Rig.LINE), (True, [], None, Rig.LINE)], [None])
+        rig = Rig(ms, [["h", "x", "y", "z"], ["g", "x", "y", "z"]],
+                  [(False, [], {"hook": 3}, Rig.LINE), (True, [], None, Rig.LINE)], [None])
         out = rig.run()
-        self.assertEqual(rig.medley_calls[0][0], "h")
-        self.assertNotEqual(rig.medley_calls[1][0], "h")                    # the hook rated 3 was swapped
-        self.assertIn("swapped", out["tried"][0]["why"])
+        self.assertEqual([c[0] for c in rig.medley_calls], ["h", "g"])     # ruling 59 (c): h's angle ends, g's next
+        self.assertIn("written for this hook (ruling 59 c)", out["tried"][0]["why"])
         self.assertIsNotNone(out["package"])
         many = [pm(c, c.upper(), 13.0) for c in "abcdefghijklmnop"]
         fails = [(False, [], {"clip_01": 2}, Rig.LINE)] * 12
@@ -1337,7 +1588,7 @@ class TestRuling41Search(unittest.TestCase):
         out = rig.run()
         self.assertEqual(len(rig.medley_calls), PK.LINEUPS_PER_BUILD)       # 8, over every angle
         self.assertEqual(out["search"]["lineups"], 8)
-
+        self.assertTrue(all(c[0] in ("a", "i") for c in rig.medley_calls))  # each line-up keeps its angle's hook
 
 class TestRuling37QuestionHook(unittest.TestCase):
     """Ruling 37: a clip ending on a question may be the HOOK only; the clips-alone verdict judges the join after it,

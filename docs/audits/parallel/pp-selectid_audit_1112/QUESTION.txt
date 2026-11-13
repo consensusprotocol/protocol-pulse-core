@@ -1,0 +1,114 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: the L-y MEDLEY, a hook + 2-4 clips from YouTube
+channels, sealed in a pin that the integrator renders). Your role: a strict reviewer of a screening and selection change.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Background (static):
+- A build turns the moments of a 72 h window into "usable" moments. Step A (law L-s) then judges each moment's own
+  context with a model: a verdict per moment, never from the angle writer's vendor or family. Until now step A
+  screened only the PRESCREEN_N = 24 best (distinct channels first), and its verdicts were stored only in the build's
+  own ledger.
+- After step A:
+  - L-v 2 + CUTTABLE (a second recognition pass);
+  - the hook onset rule G17a (a moment may OPEN a medley only with genuine quiet before its first onset);
+  - the second vendor's step A on every cuttable clip (order 06:22 item 45);
+  - ONE angle-writer call (up to 3 angles, each a sentence + clip ids in play order + a "hook");
+  - line-ups (lineup_for, up to 8 per build, ruling 41), each judged on the clips ALONE by a blind verdict
+    (medley(): a through-line, ruling 52's three-part hook rating, a rating per clip, the joins);
+  - then writes and gates.
+- Ruling 41: a clips-alone failure swaps the weak segments (swap_lineup), the hook included.
+- Ruling 52's hook question (HOOK_QUESTION): scroll / alone / setup, each 1-5. The rating is DERIVED as the lowest
+  part, and the bar is 4 (COHERENCE_MIN).
+- The router: role "coherence_verdict" (the blind quality verdicts), role "angle_write" (Heimdall first, Grok on its
+  failure), role "context_verdict" (step A). A call that fails is never a verdict (law L-m); fail closed (law L-j).
+
+The orders this diff implements (ORCHESTRATOR RULINGS 58 and 59, 11:00 ET Nov 13, verbatim):
+58. "PRESCREEN_N = 24 is retired: screen EVERY candidate at step A (about 150 at 72 h, about $0.40 reported), highest
+miner score first, verdicts cached by moment id + text sha so a moment is paid for once, not once per build."
+59. "HOOK FIRST. Every recent line-up died on its hook (rated 1-2 on its own job) after the money was spent judging the
+whole line-up. Change the order:
+(a) once the pool is screened, ask the hook question of ruling 52 about EVERY cleared, cuttable moment that can open
+(one batched call; cache it);
+(b) only moments rated >= 4 as a hook may open a line-up;
+(c) line-ups are built AROUND a passing hook, best hook first, the angle writer told which hook it is writing for;
+(d) if no moment in the pool rates >= 4 as a hook, the build stops there with 'no hook in the pool', lists the three
+best with their ratings and reasons, and spends nothing on line-ups."
+
+The change (pipeline/package.py, tests/package/proof_ledger.py, tests/package/test_medley.py):
+
+58:
+1. PRESCREEN_N = None: prescreen screens every usable moment, by the miner's rank_score, best first. A number keeps the
+   old cap (the re-screens pass their own n).
+2. The step-A batches (8 each) run in parallel (PRESCREEN_WORKERS = 6). Each batch keeps the seed of its place in the
+   queue, as before.
+3. A verdict cache shared by every build (`cache`). The key is the moment id, the sha256 of its text, the sha256 of
+   the exact context step A reads, and the step-A prompt version. The context covers the window, title, channel,
+   publish time and the show date, so time words are judged again on a new show date. The value is {back-end: item}.
+   - A cached item is reused only from a back-end off the writers' vendor and family.
+   - Only parsed verdicts are stored; a failed batch is never cached. Its reason now carries the exception message,
+     not only its type.
+   - The file is merged under a lock: read again, update, .tmp, then rename.
+4. second_screen and the re-screen after a write use the same cache.
+
+59:
+5. hook_ratings(): ruling 52's HOOK_QUESTION, verbatim, asked of every moment that can open, in ONE batched call
+   (role coherence_verdict, off the writers).
+   - The prompt is HOOKS_PROMPT: each candidate is judged alone, as the opener.
+   - The reply contract: exactly the asked ids, each {scroll, alone, setup} as ints 1-5 plus "why".
+   - The rating is derived as the lowest part.
+   - One re-ask on a reply out of contract. An unavailable call or the spend guard rates nothing.
+   - Cached by the moment id + text sha + the question's version.
+6. can_open(m): hook-eligible, G17a passed, a first word the render's STAND_ALONE takes for a hook
+   (stand_alone.opener). Once build() has set "hook_rating" on every cleared moment, it also needs a rating
+   >= HOOK_MIN (4); an unrated moment never opens. lineup_for (with need_onset), lineup_ok, swap_lineup's hook places
+   and placement() all use it.
+7. build():
+   - After L-v 2 + CUTTABLE + G17a and the trimmed-cut check, it rates every cleared moment that can open, first
+     clearing any rating carried in.
+   - It sets hook_rating on every cleared moment.
+   - It records out["hook_pool"]: can_open, rated, passing (best first), the best three, and the error.
+   - With no passing hook it returns 'no hook in the pool (ruling 59 d)'. The three best appear in the why, with
+     their parts and reasons. The second screen, the angle call and any line-up are never reached.
+   - After the second screen it re-checks that a passing hook is still cleared.
+8. The angle prompt carries THE HOOKS: the passing hooks, best first, each with its rating and reason. The writer gives
+   up to `per` = max(1, 3 // the number of passing hooks) angles for EACH hook, at most 3 in all, each written FOR its
+   hook. check_angles(..., hooks=) rejects an angle whose hook is not one of them; that is out of contract, so one
+   re-ask. why_none keeps every reason.
+9. The angles are tried best hook first (rating, then the sum of its parts), then by ruling 57's freshness, then in the
+   writer's order (a stable sort).
+10. Every line-up opens on its angle's own hook (lineup_for / pool_fill hook_only=True). A hook the clips-alone verdict
+    rates low is never swapped (swap_lineup keep_hook=True; weak.discard(hook)). The weak clips after it are swapped
+    as before. When only the hook is weak, the angle ends and the next angle (another hook) is tried.
+11. proof_ledger passes tests/package/proof/STEP_A_CACHE.json and HOOK_CACHE.json.
+12. Tests:
+    - new: 3 for ruling 58 and 8 for ruling 59;
+    - rewritten for 59: the G17a test (a hook without the quiet is never one of THE HOOKS) and ruling 41's hook-swap
+      test (now: never swapped; the next hook's angle is tried);
+    - the test Rig rates hooks the way the real function answers.
+    test_medley 105 OK; all 11 suites OK.
+
+Stated readings (say so if you read the rulings differently):
+- K1 (58): the cache key adds the context's sha to "moment id + text sha". Step A judges the context, and a new show
+  date re-judges time words (law L-v 3), so a moment is paid for once per context and show date.
+- K2 (59 a): "once the pool is screened" is read as after step A, L-v 2 + CUTTABLE, G17a and the trimmed cut, and
+  BEFORE the second vendor's step A. With no passing hook, the second screen's cost is not spent either. A passing
+  hook that then fails the second screen is gone, and the build stops if none remains.
+- K3 (59 c): one angle call carries all passing hooks. Each angle is written for exactly one of them, and the build
+  tries them best hook first. It does not make one writer call per hook.
+- K4 (59 c): "built AROUND a passing hook": the hook is fixed for its angle's line-ups and never swapped (this
+  narrows ruling 41's swap to the clips). A weak hook in context ends the angle.
+- K5: the hook rating gate lives on the moment ("hook_rating", set by build()). A moment without the key (unit tests,
+  any caller before ruling 59) is judged as before.
+- K6: ruling 57's "newest clips" now ranks after the hook's rating across angles.
+
+Check in particular:
+- every fail-closed path (an unrated hook, a failed rating call, a failed step-A batch, a corrupt cache file);
+- the cache keys and that a cached verdict is never from the writers' vendor;
+- that no unrated or low-rated moment can open by any path: lineup_for, pool_fill, swap_lineup, lineup_ok, the
+  no-voice path;
+- that (d) spends nothing on line-ups;
+- the thread safety of the parallel batches and the cache writes;
+- the angle contract;
+- whether any old caller of prescreen / lineup_for / swap_lineup / check_angles changes behaviour unintentionally.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
