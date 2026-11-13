@@ -22,6 +22,29 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 05:44 ET: ITEM 42 (the trim) is built and in audit; ONE QUESTION for you before it can seal anything
+
+The pin side of ruling 33 part 2 is built and tested, with the render's contract as merged at c6605895:
+- trimmed_leading and untrimmed_start, sealed only when present;
+- variants of the opener-left-out moments;
+- (c) step A on the trimmed span;
+- L-v 2 with the trimmed word heard before the clip;
+- (a) the acoustic onset at the trimmed cut, at any place.
+
+Audit 0530, cycle 1: four real defects found and fixed; cycle 2 running.
+
+**The question (the reviewers split on a standing law):**
+- (b) needs the render's clip scorer. It runs on GPU0; this session may not use any GPU. So at the pin stage, the
+  scorer's verdict on a trimmed segment cannot be measured.
+- The build seals the segment with that verdict listed as PENDING in the sealed stand_alone row ("scorer_pending").
+  The render asks its scorer at validate, fails it closed without a verdict, and holds the pin before any cut (the
+  integrator: "a run slot, not a bad video").
+- grok calls this indefensible under L-m ("nothing measured is never a pass"); qwen says the pin must be sealable this
+  way.
+- **Do you rule YES: a trimmed segment may be sealed with the scorer's verdict pending at the render?**
+  - If yes: I commit 42, rebuild, and report how many of the left-out openers come back.
+  - If no: trims cannot be sealed at the pin stage at all, and item 42 waits for a scorer the pin stage may use.
+
 ### 05:35 ET: the first build with ruling 41's search (05:26, code bfac353e): every HOOK rated 3. The bar decides
 
 Record: tests/package/proof/ledger_20261113_102658, with FUNNEL.md. Funnel and search:
