@@ -166,6 +166,141 @@ class TestAttribute(unittest.TestCase):
         self.assertEqual(r.calls, [])                                # nothing to ask: no call is paid
 
 
+CAPS = [  # the episode's own captions around the clip of the 13:38 pin (mKNAcOFMYD4), with their turn markers
+    (694.40, "&gt;&gt; Tell that to his wife."), (696.24, "&gt;&gt; No. And here's the thing is cheaters"),
+    (700.72, "cheat. Liars lie."), (750.64, "I'll tell you, this is my biggest fear"),
+    (753.60, "like of all No, second biggest. My"), (755.76, "biggest fear is that I go to the bank"),
+    (762.08, "me and that's why that's why we Bitcoin."), (764.80, "My second biggest fear and th this is"),
+    (894.64, "And you know, Reddit's a great example."), (908.24, "&gt;&gt; Yeah."),
+    (909.36, "&gt;&gt; And now Reddit stock is going like this"),
+    (944.00, "supposed to call him super intelligent,"), (945.28, "Scott? Well, because the president and"),
+    (956.32, "&gt;&gt; it's I Yeah, I I just, you know, it just")]
+TWO = [{"name": "Scott Melker", "role": "host", "line": "channel: Scott Melker"},
+       {"name": "Mark Yusko", "role": "guest", "line": "title: Wall Street's Bitcoin Bet l Mark Yusko"}]
+
+
+def store_with(d, vid, caps, repeat=False):
+    os.makedirs(os.path.join(d, "transcripts", vid))
+    segs = [{"start": t, "end": t + 1, "text": x} for t, x in caps]
+    if repeat:                                    # rolling auto captions repeat a line
+        segs = [x for sg in segs for x in (sg, dict(sg))]
+    with open(os.path.join(d, "transcripts", vid, "transcript.yt_auto.json"), "w") as f:
+        json.dump({"segments": segs, "transcript_method": "yt_auto:en-orig"}, f)
+
+
+class TestRuling69Turn(unittest.TestCase):
+    """RULING 69 (15:29): the attribution reads the caption turn markers and the addresses by name across the whole
+    turn that contains the clip; a speaker is named when the turn structure plus one address or self-introduction
+    shows it; a lower third is one more piece of evidence, never alone."""
+
+    def turn(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            store_with(d, "v", CAPS, repeat=True)
+            units, src = SP.captions("v", stores=(os.path.join(d, "missing"), d))
+        return units, src
+
+    def test_the_turn_holding_the_clip_runs_across_a_one_word_interjection(self):
+        units, src = self.turn()
+        self.assertEqual(len(units), len(CAPS))                                   # a repeated line is read once
+        self.assertEqual(sum(u[2] for u in units), 5)
+        self.assertEqual(len(src["sha256"]), 64)
+        t, why = SP.turn_of(units, 755.454, 764.214)
+        self.assertIsNone(why)
+        self.assertEqual((t["start"], t["end"], t["backchannels"]), (696.24, 945.28, ["Yeah."]))
+        self.assertTrue(SP._within("super intelligent, Scott?", t["text"]))       # the address, across "Yeah."
+        self.assertNotIn("Tell that to his wife", t["text"])
+        self.assertFalse(SP._within("it's I Yeah", t["text"]))                    # the next real turn is out
+        self.assertEqual(SP.turn_of(units, 905.0, 912.0)[1], "a speaker-change marker falls inside the clip")
+        self.assertEqual(SP.turn_of(units, 600.0, 610.0)[1], "no speaker-change marker before the clip")
+        t2, _ = SP.turn_of(units, 944.0, 946.0)                                    # the same turn, seen from after
+        self.assertEqual((t2["start"], t2["backchannels"]), (696.24, ["Yeah."]))  # the interjection: both ways
+
+    def test_only_a_backchannel_continues_a_turn_and_a_bad_record_is_skipped(self):
+        caps = [(t, x.replace("&gt;&gt; Yeah.", "&gt;&gt; Mark, why?")) for t, x in CAPS]   # B takes the floor
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            store_with(d, "v", caps)
+            units, _ = SP.captions("v", stores=(d,))
+            t, _ = SP.turn_of(units, 755.454, 764.214)
+            self.assertEqual((t["end"], t["backchannels"]), (894.64, []))          # a question ends the turn
+            self.assertFalse(SP._within("super intelligent, Scott?", t["text"]))
+            bad = os.path.join(d, "b")
+            store_with(bad, "v", [(10.0, "&gt;&gt; one"), (5.0, "&gt;&gt; two")])     # out of order
+            os.makedirs(os.path.join(d, "c", "transcripts", "v"))
+            with open(os.path.join(d, "c", "transcripts", "v", "transcript.yt_auto.json"), "w") as f:
+                json.dump({"segments": [{"text": "&gt;&gt; no start"}]}, f)          # no start
+            self.assertEqual(SP.captions("v", stores=(bad, os.path.join(d, "c")))[0], None)   # skipped, no crash
+        sp = SP.attribute(Canned(json.dumps(verdict("unknown", ""))), {"k0": 2, "k1": 2, "start": "x", "end": 1},
+                          source(SENTS), META, caps=([(1.0, "a", True)], {"file": "f", "sha256": "s"}))
+        self.assertTrue(sp["turn"]["why"].startswith("the caption turn could not be read"))   # measured, no crash
+
+    def test_a_long_turn_is_cut_on_word_boundaries_around_the_clip(self):
+        units = [(0.0, "intro words", True)] + [(float(i), f"filler{i} word", False) for i in range(1, 3000)] + \
+            [(3000.0, "the clip words here", False)] + [(3000.0 + i, f"tail{i} word", False) for i in range(1, 3000)]
+        t, _ = SP.turn_of(units, 3000.0, 3000.5)
+        self.assertLessEqual(len(t["text"]), SP.TURN_MAX_CHARS)
+        self.assertIn("the clip words here", t["text"])
+        for w in t["text"].split():                                                    # no word cut in two
+            self.assertRegex(w, r"^(filler\d+|tail\d+|word|the|clip|words|here)$")
+
+    def test_an_address_names_the_other_of_two_people_and_code_checks_the_quote(self):
+        units, _ = self.turn()
+        text = SP.turn_of(units, 755.454, 764.214)[0]["text"]
+        rec = {"name": SP.UNKNOWN, "role": None, "line": None, "basis": None, "why": "w", "people": TWO}
+        ev = SP.check_turn({"address": {"name": "Scott Melker", "quote": "call him super intelligent, Scott?"}},
+                           TWO, text)
+        out = SP.decide(rec, ev, TWO)
+        self.assertEqual((out["name"], out["role"]), ("Mark Yusko", "guest"))
+        self.assertIn("addresses Scott Melker in the clip's turn", out["basis"])
+        three = TWO + [{"name": "Arthur Hayes", "role": "other", "line": "Arthur Hayes on the AI trade"}]
+        self.assertEqual(SP.decide(rec, ev, three)["name"], SP.UNKNOWN)          # one of three is not excluded enough
+        for bad in ({"name": "Scott Melker", "quote": "call him super smart, Scott?"},      # not in the turn
+                    {"name": "Scott Melker", "quote": "the president and his"},              # no name of his
+                    {"name": "Jeff Booth", "quote": "call him super intelligent, Scott?"},   # not one of the people
+                    {"name": "Scott Melker", "quote": "Scott?"}):                            # under three words
+            self.assertIsNone(SP.check_turn({"address": bad}, TWO, text)["address"], bad)
+        intro = SP.check_turn({"self_intro": {"name": "Mark Yusko", "quote": "biggest fear is that"}}, TWO, text)
+        self.assertIsNone(intro["self_intro"])                                    # the quote must hold the name
+
+    def test_a_self_introduction_names_its_speaker_and_conflicts_are_unknown(self):
+        text = "Good morning everyone, I'm Mark Yusko and today we talk about Bitcoin."
+        rec = {"name": SP.UNKNOWN, "role": None, "line": None, "basis": None, "why": "w", "people": TWO}
+        ev = SP.check_turn({"self_intro": {"name": "Mark Yusko", "quote": "I'm Mark Yusko and today"}}, TWO, text)
+        self.assertEqual(SP.decide(rec, ev, TWO)["name"], "Mark Yusko")
+        named = dict(rec, name="Scott Melker", role="host", line="channel: Scott Melker", basis="b c d")
+        self.assertEqual(SP.decide(named, ev, TWO)["name"], SP.UNKNOWN)          # the two rules disagree
+
+    def test_a_lower_third_never_names_alone_and_a_contradicting_one_is_unknown(self):
+        rec = {"name": SP.UNKNOWN, "role": None, "line": None, "basis": None, "why": "w", "people": TWO}
+        none = {"address": None, "self_intro": None}
+        self.assertEqual(SP.decide(rec, none, TWO, lower_third="Mark W. Yusko")["name"], SP.UNKNOWN)
+        ev = {"address": {"name": "Scott Melker", "quote": "super intelligent, Scott?"}, "self_intro": None}
+        agree = SP.decide(rec, ev, TWO, lower_third="Mark W. Yusko")
+        self.assertEqual(agree["name"], "Mark Yusko")
+        self.assertIn("the lower third reads 'Mark W. Yusko'", agree["basis"])
+        self.assertEqual(SP.decide(rec, ev, TWO, lower_third="SCOTT MELKER")["name"], SP.UNKNOWN)
+
+    def test_attribute_reads_the_turn_and_records_its_evidence(self):
+        units, src = self.turn()
+        v = {"people": [{"name": "Scott Melker", "role": "host", "line": "channel: Natalie Brunell"},
+                        {"name": "Jeff Booth", "role": "guest", "line": "Jeff Booth joins me to revisit"}],
+             "speaker": {"name": "unknown", "basis": "", "why": "nothing in the window"},
+             "turn": {"address": {"name": "Jeff Booth", "quote": "call him super intelligent, Scott?"},
+                      "self_intro": None}}
+        seg = {"k0": 2, "k1": 2, "start": 755.454, "end": 764.214}
+        r = Canned(json.dumps(v))
+        sp = SP.attribute(r, seg, source(SENTS), META, caps=(units, src))
+        self.assertIn("THE CLIP'S TURN", r.calls[0][1])
+        self.assertIn("super intelligent, Scott?", r.calls[0][1])
+        self.assertEqual(sp["name"], "unknown")       # "Scott Melker" is not on a source line here: not a person,
+        self.assertTrue(sp["turn"]["read"])            # and the quote holds no name of Jeff Booth: nothing stands
+        self.assertEqual((sp["turn"]["source"]["sha256"], sp["turn"]["backchannels"]), (src["sha256"], ["Yeah."]))
+        sp2 = SP.attribute(Canned(json.dumps(v)), seg, source(SENTS), META)               # no captions: as before
+        self.assertEqual((sp2["turn"]["read"], sp2["turn"]["why"]), (False, "no caption record with speaker-change "
+                                                                             "markers"))
+
+
 class TestPinCarriesTheSpeaker(unittest.TestCase):
     def pk(self, sp):
         g = {k: {"status": "PASS", "replayed": False} for k in package_pin.REQUIRED_GATES}

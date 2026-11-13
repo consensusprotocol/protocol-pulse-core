@@ -1,0 +1,74 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder that seals medley pins). Your role: a
+strict reviewer of a step that NAMES real people in a sealed pin (PBX tags them publicly). A wrong name is worse than
+"unknown". Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static): pipeline/speakers.py attributes each clip's speaker.
+- One verdict (role speaker_verdict, one model call) gets the source's own lines (title, channel, description) and 8
+  sentences of the word record around the clip, in which turns are NOT marked.
+- It proposes the people the source names and who speaks the clip, with a basis quote.
+- check() keeps a person only if a source line names them, and a speaker only if the basis (>= 3 words) is verbatim in
+  the clip or the transcript around it. Otherwise the speaker is "unknown".
+- The 13:38 pin's clip 3 (mKNAcOFMYD4, Scott Melker's live show with the guest Mark Yusko) came out "unknown", though
+  the episode's own YouTube captions mark speaker turns with ">>". The clip lies in one turn (opening at 696.24) that
+  runs, across the other person's one-word ">> Yeah." (908.24), to an address "...super intelligent, Scott?" (945.28).
+
+The ruling this diff implements (ORCHESTRATOR 15:29 Nov 13, verbatim):
+"RULING 69: the attribution step reads the caption turn markers and addresses by name across the whole turn that
+contains the clip, not only the windows around it; a speaker is named when the turn structure plus one address or
+self-introduction shows it. Audit, then it applies to new pins."
+And ruling 70's part that touches this step: "lower_third feeds ruling 69 as one more piece of evidence, never alone."
+
+The change (pipeline/speakers.py, tests/package/test_speakers.py):
+1. captions(video_id): reads transcript.yt_auto.json from the first store whose copy carries any '>>' (the main tree's
+   store, then pp-ingest's, where a live episode's captions arrive later).
+   - It returns units [(t, text, opens_turn)] plus {file, sha256}.
+   - Rolling repeats of a line are read once; '>>' is HTML-unescaped; a '>>' inside a line opens a turn there; a bare
+     '>>' opens the turn at the next words.
+2. turn_of(units, start, end), in code. It returns None with a reason when a marker falls inside the clip, or no marker
+   precedes it. Otherwise:
+   - the turn runs from the last marker at or before the clip to the next marker;
+   - it continues across another person's interjection of <= BACKCHANNEL_WORDS (3) words between two markers, in BOTH
+     directions (A, then B's "Yeah.", then A again: one turn of A);
+   - the interjections are recorded; the turn is cut to TURN_MAX_CHARS around the clip.
+3. The verdict's prompt adds THE CLIP'S TURN and a step 3: quote (>= 3 exact words) any ADDRESS BY NAME (the turn's
+   speaker speaking TO one of the people) and any SELF-INTRODUCTION in the turn. The reply gains
+   "turn": {"address", "self_intro"}.
+4. check_turn() keeps one only when its quote is >= 3 words, verbatim in the turn, holds a word of the person's name,
+   and the person is one of the people check() kept.
+5. decide():
+   - A self-introduction names its speaker.
+   - An address names the OTHER person ONLY when the source's lines name exactly two people.
+   - When the basis rule (check) names someone else: "unknown".
+   - A lower third names nobody alone; one that contradicts the decision makes it "unknown"; one that agrees is added
+     to the basis.
+6. attribute(..., caps, lower_third) records "turn": {read, why, source {file, sha256}, start, end, backchannels,
+   address, self_intro}. attribute_package passes captions(video id) and the segment's ruling-70 visual.lower_third.name
+   (absent until ruling 70).
+7. Tests: TestRuling69Turn (5), on the real clip's caption lines:
+   - the turn across "Yeah.", seen from both sides;
+   - the refusals of a marker inside the clip and of no marker before it;
+   - an address naming the other of two, and not one of three;
+   - the quote checks: not in the turn, no name word, not a person, under 3 words;
+   - a self-introduction, and a conflict with the basis rule;
+   - the lower third never alone, agreeing, contradicting;
+   - attribute() end to end.
+   test_speakers 21 OK.
+On the real record: turn_of finds the turn 696.24-953.52, skips "Yeah.", and holds "super intelligent, Scott?".
+
+Stated readings (say so if you read the ruling differently):
+- K1: "the whole turn that contains the clip" = between the captions' own speaker-change markers. One person's
+  interjection of at most three words (a backchannel such as "Yeah.") does not end the other's turn: the words on
+  both sides of it are the same speaker's. This is the reading the orchestrator accepted for the 945.28 evidence.
+- K2: "an address" names the speaker only by elimination, so only when the source's lines name exactly two people.
+  With three or more, an address excludes one and names no one.
+- K3: the model finds the quotes; code checks every quote against the turn and the people, as check() already does
+  for the basis.
+- K4: a lower third is evidence that can CONFIRM or VETO a decision, never make one.
+
+Check in particular:
+- any path that NAMES someone on less than the turn structure plus an address or self-introduction;
+- the backchannel merge (could it join two different speakers' turns?);
+- marker parsing (an unescaped '>>', a line split across markers, rolling repeats);
+- the turn cut; the prompt; the conflicts.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
