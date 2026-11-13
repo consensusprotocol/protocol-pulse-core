@@ -22,6 +22,20 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 04:42 ET: the 04:22 build (code a3e8bd65): a line-up passed the clips-alone verdict, then the WALL BUDGET cut it
+
+Record: tests/package/proof/ledger_20261113_092234, with FUNNEL.md. Funnel:
+- 510 rows -> 313 moments -> 95 usable (39 opener, 2 ad-read early) -> 17 cleared step A -> 12 L-v 2 + CUTTABLE ->
+  8 can open.
+- The angle step took until 671 s: both Heimdall writers were abandoned at 300 s each, then xai grok answered.
+- Angle 1, line-up 1: the clips-alone verdict failed (one clip rated 1).
+- Angle 3, line-up 1 (3 clips, 41.8 s): the clips-alone verdict PASSED at 888 s.
+- Its write ran past the 900 s wall: "stopped in angle 3 of 3: 1133 s of 900 s wall / $0.42 of $1.50 reported".
+- **This is the second build in a row lost to writer latency, not to any integrity gate.** The 03:39 build's
+  deepseek angle took 224 s, close to the 300 s deadline, and 2 of the last 3 builds' angle calls timed out on both
+  Heimdall writers. Your ruling on ruling 5's wall budget (asked at 03:41) is now the binding decision.
+- The next build (04:41, code 56582b6b) adds ruling 34's wider supply.
+
 ### 03:48 ET: the 03:39 build, every effective ruling (A, 35, 38, 39, 32): no package; the bottleneck moved
 
 Record: tests/package/proof/ledger_20261113_083956 (code 2564f64e), with FUNNEL.md. Funnel:

@@ -1,0 +1,12 @@
+=== 04:22:34 EST LEDGER medley build, code a3e8bd65, now (render clock) 2026-11-13T09:22:34+00:00, since 2026-11-13T03:01:09+00:00 (--since), publish window 24.0 h
+  delivered: moments-fresh_20261112_050611-37c5b5f5 (2026-11-12T13:43:40+00:00), moments-fresh_20261112_050611-41f29b1f (2026-11-13T03:01:09+00:00), moments-batch_b1_fresh_20261111_213954-1b4a63d0 (2026-11-13T05:20:11+00:00), moments-ledger_20261113_073738-d2657bbe (2026-11-13T07:53:42+00:00); 12 clip spans out
+  adapter: 510 rows ({"hard exclusion flag (L-u)": 123, "altcoin or not about Bitcoin": 30, "speaker change inside (caption marker)": 22})
+  word pass: {"rows": 680, "unreadable": 0, "ready": 580, "not_ready": 100, "failed": 0, "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"}
+  ledger rows 510: 313 moments on 22 videos (313 word records); 0 rows wait for a word record, 78 wait for their own window, 83 do not re-anchor, 0 malformed, 36 duplicates; 0 video(s) name more than one channel, 0 read from a fallback record; 432 window record(s) used (0 video(s) without a caption record for L-s)
+  95 usable, 39 of them left out (they open on a conjunction or reply fragment, which the render's STAND_ALONE fails with no clip scorer), 2 on an ad-read marker (the exclusion screen's deterministic part), 17 cleared step A (141 s)
+  12 of them pass the second recognition pass and CUTTABLE (163 s)
+  8 of them can open a medley (G17a at the pin stage: genuine quiet before the first onset)
+  3 angles from xai:grok-4.20-0309-reasoning (671 s)
+  angle 1 line-up 1 (4 clips, 42.5 s): clips alone FAIL {'hook': 4, 'clip_01': 5, 'clip_02': 1, 'clip_03': 4} flagged ['clip_01 -> clip_02', 'clip_02 -> clip_03'] (839 s)
+  angle 3 line-up 1 (3 clips, 41.8 s): clips alone PASS {'hook': 4, 'clip_01': 5, 'clip_02': 4} flagged ['hook -> clip_01'] (888 s)
+no package (stopped in angle 3 of 3: 1133 s of 900 s wall / $0.42 of $1.50 reported / $1.90 of the $5.00 estimate ceiling (ruling 5, 22:40)); usable 95, cleared 17

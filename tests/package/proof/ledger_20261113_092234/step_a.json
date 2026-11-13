@@ -1,0 +1,632 @@
+{
+ "3ef9d4de892af5cca51a:9d43580c729b": {
+  "label": "3ef9d4de892af5cca51a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "Giacomo",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "having to update their node",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "Bitcoiners",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The vast majority of Bitcoiners do not want to update their nodes and feel intense anxiety when they must do so.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "I've run a Bitcoin meetup for 10 years now. And I've interacted with thousands of Bitcoiners, as I'm sure you have, Giacomo.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "95d20143d5e2af5612b1:9d43580c729b": {
+  "label": "95d20143d5e2af5612b1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "RSA",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 10 years",
+    "inside": true
+   },
+   {
+    "text": "in five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has high conviction that RSA will be broken within five years (half-Bitcoin bet) and certainly within ten years (full Bitcoin bet).",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "You were you were the uh cryptography is going to break guy before it was cool.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b799cf6a63d3a47d7d9d:9d43580c729b": {
+  "label": "b799cf6a63d3a47d7d9d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "manufacturing gold or asteroid mining vastly increasing gold supply",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is immune to technological advances that can inflate gold supply because no asteroid contains Bitcoin that could be mined.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a45d26b88cd5b176ae13:9d43580c729b": {
+  "label": "a45d26b88cd5b176ae13",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but instead concern modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people worldwide.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "US NOW IN AN EXCLUSIVE INTERVIEW, FENG LI, CEO OF STRATEGY. IT'S GREAT TO SEE YOU TODAY.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb63e8dcd4eb9502451e:9d43580c729b": {
+  "label": "eb63e8dcd4eb9502451e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "the current day of the Nvidia CEO scandal/news",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Days like today cause people to get shaken out as Bitcoin dumps on an unrelated scandal, leading them to panic sell the scarcest asset at the worst time.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Jeff Booth, one of my favorite Bitcoiners and author of The Price of Tomorrow, laid out the economics for Natalie Brunell 2 days before Hang resigned.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4178ddd19465e979f8f1:9d43580c729b": {
+  "label": "4178ddd19465e979f8f1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin ETF adoption has occurred bottom-up, with individuals first buying Bitcoin personally then advocating to their institutional investment committees to allocate as well.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "even my old job when I was at Kalpers managing a bond portfolio, it didn't matter how much I love Bitcoin, it was not within the mandate of investable assets.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "44216aab8847bd718241:9d43580c729b": {
+  "label": "44216aab8847bd718241",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "its",
+    "refers_to": "Strategy's (the company's)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Index funds selling Strategy stock due to the MSCI decision does not cause any Bitcoin to change hands or force Strategy to sell its Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c7646b4ee91f955cf58f:9d43580c729b": {
+  "label": "c7646b4ee91f955cf58f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Treasury companies and basically everything else in the crypto industry will eventually bleed value to Bitcoin because founders, miners, and managers extract value while Bitcoin itself does not.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "when I started talking about Bitcoin dominance a lot 5 years ago, I mean, I talked about it since 2019 when I started my channel",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "06f73bef2e37ba14bee4:9d43580c729b": {
+  "label": "06f73bef2e37ba14bee4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin on the Blake 2B chain",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the assertion that Bitcoin on the Blake 2B chain is incredible",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you don't want to buy any",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin on the Blake 2B chain is incredible though the speaker is not promoting buying it.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I have no interest in doing that, guys. I'm not going to fight that battle.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3a6cb29a4d904118192c:9d43580c729b": {
+  "label": "3a6cb29a4d904118192c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin and crypto are not partisan issues but are about modernizing financial markets and creating financial freedom for 350 million Americans and 8 billion people worldwide.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Phong Le on CNBC PowerLunch | November 12, 2026",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c3be6f1c71c4397b081a:9d43580c729b": {
+  "label": "c3be6f1c71c4397b081a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "the bank",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the scenario where the bank owns the money and can take it",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "My second biggest fear and th this is becoming it's starting to become the biggest fear is the whole purpose I believe of building these giant data centers",
+  "time_ok": "yes",
+  "proposition": "The biggest fear is that banks can take deposited money, which is why the speaker uses Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Tell that to his wife. \u203a\u203a No. And And here's the thing is cheaters cheat.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e77a0a7af2aab66a3a4:9d43580c729b": {
+  "label": "2e77a0a7af2aab66a3a4",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin started turning though before liquidity turned red",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "in this analysis of the liquidity index and Bitcoin chart",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin started turning before liquidity turned red, and that is an important caveat.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Your lender should share that discipline. That's letin liquidity for your next move",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8eb7874dda967502eb6b:9d43580c729b": {
+  "label": "8eb7874dda967502eb6b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "security",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In Bitcoin, security is the entire foundation rather than just a feature.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "And that's where my new sponsor, BitGo, come in.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f83f52fc4f432b465030:9d43580c729b": {
+  "label": "f83f52fc4f432b465030",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People discover Bitcoin out of desperation because they cannot trust traditional assets like the property market, and everyone gets Bitcoin at the price they deserve.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a the only problem it was down to solve was trust and so \u203a\u203a and it's really easy to see like say MVK was a knob in hindsight",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "bb57e854fd863e0773ef:9d43580c729b": {
+  "label": "bb57e854fd863e0773ef",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if it can be passed down",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is only generational wealth if it can be passed down.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Every Bitcoiner eventually has to answer one question. If something happened to me, could my family access my Bitcoin?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "049e1a336876642b44af:9d43580c729b": {
+  "label": "049e1a336876642b44af",
+  "speaker_changes_inside": "no",
+  "view": "ad_read",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the hardest asset on Earth that took discipline to accumulate, so the Bitcoin-backed loan platform should share that discipline.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I have no opty. I have no one to back me up. But if uh if I really wake up worse tomorrow, you guys you you guys might get the Australian tomorrow.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "180834a8a804c38e8771:9d43580c729b": {
+  "label": "180834a8a804c38e8771",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "Core Scientific and similar Bitcoin mining companies",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They",
+    "refers_to": "Core Scientific and similar Bitcoin mining companies",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Core Scientific and other Bitcoin miners are no longer focused on Bitcoin mining and have instead switched to operating data centers for AI.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7e3e7de8b12c647dca24:9d43580c729b": {
+  "label": "7e3e7de8b12c647dca24",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the $82 million worth of Bitcoin that Strategy bought",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the first week of November about $1.28 billion left the spot Bitcoin ETFs while Strategy bought only about $82 million worth of Bitcoin so the ETFs let go of roughly 15 times that amount.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Lewis signing off.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "955704068d8fb8ebaa22:9d43580c729b": {
+  "label": "955704068d8fb8ebaa22",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "Strategy and the CEO's company",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the Binance theft and hack",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we're",
+    "refers_to": "Strategy and the CEO's company",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Strategy holds all its Bitcoin with U.S.-based custodians in cold storage so the Binance hack creates only reputational risk to the crypto space rather than a direct risk to how they hold their Bitcoin and they must stay vigilant.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "'AI is still going to dominate the world,' says Strategy CEO Phong Le",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a940f5e977ac7b946a09:9d43580c729b": {
+  "label": "a940f5e977ac7b946a09",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the rapid discovery of vulnerabilities in PHP, Wordpress, BTC paper wallet foundation and similar dependencies affecting huge portions of the internet",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker had a meltdown upon realizing that a PHP server vulnerability impacting 70% of the internet, Wordpress being cooked at 40% of the internet, and the BTC paper foundation being vulnerable all at once was horrifying like a nightmare.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b805e69a19c24703d799:9d43580c729b": {
+  "label": "b805e69a19c24703d799",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the asset Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we want it to be successful",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "What doesn't kill you makes you stronger but you just die instead and the speaker does not think Bitcoin is going to die as it is embedded in why he is here and started the business after realizing after FTX Celsius and BlockFi that trillions must come into Bitcoin for success and not via plastic hardware devices.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "why this business was started because after FTX Celsius and BlockFi collapsed, I just realized that trillions of dollars have to come into this asset if we want it to be successful and it's not coming in via plastic devices.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "bbfffdc554c309412801:9d43580c729b": {
+  "label": "bbfffdc554c309412801",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Strategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Strategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Strategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Strategy raised $284 million by selling new shares spent $188 million buying back its own preferred stock and spent $82 million on Bitcoin so that less than a third of the money went to Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "This is Lewis signing off.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7376e34f2c5978c017bc:9d43580c729b": {
+  "label": "7376e34f2c5978c017bc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Nobody tells people to put all their gold or cash in a duffel bag in their mattress but for some reason everyone says you have to put all this Bitcoin in your house on you.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "why this business was started because after FTX Celsius and BlockFi collapsed, I just realized that trillions of dollars have to come into this asset if we want it to be successful and it's not coming in via plastic devices.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8676a245ceccd17609dc:9d43580c729b": {
+  "label": "8676a245ceccd17609dc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "For many people the host is the Bitcoin guy just as one would have a builder guy or a plumber guy and people silo others into their purpose or mini purpose.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}
