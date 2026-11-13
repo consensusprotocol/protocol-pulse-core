@@ -278,6 +278,8 @@ class Run:
                 self.sampler.set(None)
                 if name in self.sampler.peaks:
                     rec["gpu0_peak_mib"] = self.sampler.peaks[name]
+                if name in self.sampler.peaks_by_gpu.get(1, {}):           # law L-r: a table per GPU
+                    rec["gpu1_peak_mib"] = self.sampler.peaks_by_gpu[1][name]
             self.save()
 
     def save(self):
@@ -289,7 +291,7 @@ class Run:
 
 def stage_env(run):
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise Hold("CUDA_VISIBLE_DEVICES must be exactly '0' (GPU1 quarantined)")
+        raise Hold("CUDA_VISIBLE_DEVICES must be exactly '0': renders and their gates run on GPU0 (law L-r layout)")
     # tracked code must be unmodified; untracked pipeline/*.py must not exist (segment_v1
     # holds historical untracked scratch; executed files are verified tracked+unmodified
     # at the end of the run from sys.modules)
@@ -1361,13 +1363,15 @@ def write_report(run):
     total = ((g0.get("at_start") or {}).get("memory_mib") or [None, None])[1]
     if "left" in g0:
         L += ["", f"- GPU0 at the run's end (law L-r leave): {g0['left']}"]
-    L += ["", f"## GPU0 peak memory per stage (law L-r; nvidia-smi memory.used sampled every 1 s, a lower bound; GPU0 "
-              f"total {total} MiB)", "| stage | peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|"]
+    L += ["", f"## Peak memory per stage and GPU (law L-r: every GPU has one owner at a time; nvidia-smi memory.used "
+              f"sampled every 1 s, a lower bound; GPU0 total {total} MiB; the run owns GPU0, GPU1 belongs to others)",
+          "| stage | GPU0 peak MiB | GPU1 peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|---|"]
     for r in s["stages"]:
         oom = (p.get("gpu0_oom") or {}).get(r["name"], [])
         fails = [e for e in oom if e.get("error")]
         retry = "-" if not fails else ("passed" if any(e.get("outcome") == "passed" for e in oom) else "held")
-        L.append(f"| {r['name']} | {r.get('gpu0_peak_mib', 'not sampled')} | {len(fails)} | {retry} |")
+        L.append(f"| {r['name']} | {r.get('gpu0_peak_mib', 'not sampled')} | {r.get('gpu1_peak_mib', 'not sampled')} | "
+                 f"{len(fails)} | {retry} |")
     vc = p.get("visual_checklist") or {}
     if vc:
         L += ["", "## Visual checklist (answered FROM the contact sheets qa/contact_sheet_<fmt>.jpg; any no = HOLD)"]

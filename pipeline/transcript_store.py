@@ -310,8 +310,9 @@ def _load(name):
     Heimdall batch13): L-r makes it so by construction: gpu0.whisper loads through swap_to, which deletes every
     other GPU0 model first, and the model reloads through swap_to after any later swap."""
     global _WHISPER, _REFERENCE
-    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
+    if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("0", "1"):
+        raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 or 1: one GPU per process, under that GPU's "
+                               "lease (law L-r; the word-pass worker runs on GPU1)")
     import gpu0
     m = gpu0.whisper(name, batched=True)
     if name == WHISPER_MODEL:

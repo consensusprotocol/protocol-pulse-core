@@ -46,6 +46,20 @@ REGRESSION_SCRIPT = BASE / "regression_test.sh"
 OLLAMA_URL = "http://127.0.0.1:11435"
 MODEL = os.environ.get("WATCHDOG_MODEL", "qwen3-coder:30b")
 
+def _gpu1_client():
+    """services/gpu_lease_client.py, loaded by its path (this file runs as a script or as a package module)."""
+    import importlib.util
+    import sys as _sys
+    m = _sys.modules.get("gpu_lease_client")
+    if m is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gpu_lease_client.py")
+        spec = importlib.util.spec_from_file_location("gpu_lease_client", path)
+        m = importlib.util.module_from_spec(spec)
+        _sys.modules["gpu_lease_client"] = m
+        spec.loader.exec_module(m)
+    return m
+
+
 # Files we NEVER patch — gospel law
 NEVER_PATCH = {"assembler.py", "tts_engine.py", "gemini_grade.py", "routes.py"}
 
@@ -109,24 +123,13 @@ def send_telegram(msg):
 # ---------------------------------------------------------------------------
 
 def ollama_chat(system_prompt, user_prompt, temperature=0.3):
-    """Fresh Ollama conversation — zero prior context (gospel: Fresh Perspective)."""
-    import requests
+    """Fresh Ollama conversation — zero prior context (gospel: Fresh Perspective). On GPU1 under its lease (law L-r:
+    every GPU has one owner at a time; orchestrator 2026-11-12 '22:50'): keep_alive 0, so the 30B is not resident between
+    calls (a cold load measured 19.7 s); waits up to 10 min while the word-pass worker holds GPU1."""
     try:
-        resp = requests.post(
-            f"{OLLAMA_URL}/api/chat",
-            json={
-                "model": MODEL,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "stream": False,
-                "options": {"temperature": temperature},
-            },
-            timeout=120,
-        )
-        resp.raise_for_status()
-        return resp.json().get("message", {}).get("content", "").strip()
+        return _gpu1_client().chat_gpu1(
+            MODEL, [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+            owner="local_watchdog", options={"temperature": temperature}, wait_s=600, timeout=120).strip()
     except Exception as e:
         logger.error("Ollama call failed: %s", e)
         return None

@@ -23,7 +23,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
 if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r (E-FAIL-053): an explicit CPU request stays CPU;
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0 only (GPU1 is quarantined)
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0: renders run there (law L-r layout)
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)

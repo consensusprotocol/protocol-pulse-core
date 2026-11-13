@@ -26,6 +26,20 @@ OUTPUT_DIR = BASE / "data" / "intelligence"
 OUTPUT_PATH = OUTPUT_DIR / "morning_intelligence_brief.json"
 LOG_PATH = BASE / "logs" / "morning_brief.log"
 
+def _gpu1_client():
+    """services/gpu_lease_client.py, loaded by its path (this file runs as a script or as a package module)."""
+    import importlib.util
+    import sys as _sys
+    m = _sys.modules.get("gpu_lease_client")
+    if m is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gpu_lease_client.py")
+        spec = importlib.util.spec_from_file_location("gpu_lease_client", path)
+        m = importlib.util.module_from_spec(spec)
+        _sys.modules["gpu_lease_client"] = m
+        spec.loader.exec_module(m)
+    return m
+
+
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -268,19 +282,12 @@ Based on this data, produce a JSON intelligence brief with EXACTLY this structur
 
 def call_local_llm(prompt: str) -> dict:
     """Call local Qwen3 via Ollama. Returns parsed brief dict or empty dict."""
-    import requests
-    try:
-        resp = requests.post("http://localhost:11435/api/chat", json={
-            "model": "qwen3-coder:30b",
-            "messages": [
-                {"role": "system", "content": "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."},
-                {"role": "user", "content": prompt}
-            ],
-            "stream": False,
-            "options": {"temperature": 0.3}
-        }, timeout=60)
-        resp.raise_for_status()
-        raw = resp.json().get("message", {}).get("content", "")
+    try:                                   # GPU1 under its lease, keep_alive 0 (law L-r; orchestrator 2026-11-12 '22:50')
+        raw = _gpu1_client().chat_gpu1(
+            "qwen3-coder:30b",
+            [{"role": "system", "content": "You are a Bitcoin intelligence analyst. Return ONLY valid JSON. No markdown. No preamble. No explanation."},
+             {"role": "user", "content": prompt}],
+            owner="morning_brief", options={"temperature": 0.3}, wait_s=600, timeout=120)
         raw = raw.strip()
         # Strip markdown fences if present
         if raw.startswith("```"):
