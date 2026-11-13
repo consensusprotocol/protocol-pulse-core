@@ -37,8 +37,13 @@ def pytest_configure(config):
 
 
 def pytest_unconfigure(config):
-    while _LEASE:
-        _LEASE.pop().__exit__(None, None, None)
+    try:
+        if _LEASE:                         # law L-r: leave GPU0 as found. A session's Ollama load otherwise stays resident
+            import gpu0                    # for its keep-alive and the next run waits it out as foreign (Nov 12 21:32:
+            gpu0.leave()                   # gemma3:27b, 18.6 GB, after the V1 local measurement; bible E-FAIL-075)
+    finally:
+        while _LEASE:
+            _LEASE.pop().__exit__(None, None, None)
 
 
 def _holds_gpu0_context(pid):
