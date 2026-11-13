@@ -1,0 +1,2 @@
+# Batch 67 cycle 3 (the skip-fix delta): one consensus finding, fixed
+glm F1 [low], agreed by qwen27b: the test proved only the absence of side effects, not the skip path. FIX: it captures the log and asserts the exact skip line ('gone.json: not readable now (FileNotFoundError); the next pass sees it'), and that nothing was answered or closed (answered/, done/, failed/ absent). test_lock_precheck: 24 passed.

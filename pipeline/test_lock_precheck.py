@@ -412,9 +412,12 @@ class TestBuildersDirectory(Base):
     def test_a_file_removed_after_it_was_listed_is_skipped_not_a_crash(self):
         os.makedirs(LP.EXTRA)
         p = os.path.join(LP.EXTRA, "gone.json")
+        said = []
         with mock.patch.object(LP, "pending", lambda: [p]):      # listed, then removed by the builder before the read
-            self.assertEqual(LP.serve_once(log=self.log), 0)
-        self.assertFalse(os.path.exists(os.path.join(self.root, "answered")))
+            self.assertEqual(LP.serve_once(log=said.append), 0)  # no crash: the skip path ran
+        self.assertEqual(said, ["  gone.json: not readable now (FileNotFoundError); the next pass sees it"])
+        for d in ("answered", os.path.join("requests", "done"), os.path.join("requests", "failed")):
+            self.assertFalse(os.path.exists(os.path.join(self.root, d)), d)   # not answered, not closed
 
     def test_a_malformed_request_there_is_recorded_here_and_left_alone(self):
         os.makedirs(LP.EXTRA)
