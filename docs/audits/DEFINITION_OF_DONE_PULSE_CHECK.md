@@ -11,6 +11,11 @@ Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fa
   - G9_tail 9:16: 14.8 against 14.7315. The 9:16 final, vert_hook and the 16:9 are all tagged tv / bt709 (the colour fix).
   - G19_edge_shots 9:16 PASS: prepare held the hook's frame 406 (the 9:16 crop scored 0.317) on frame 405, held_tail_frames 1 (ruling 71). G19 PASSES in both formats.
 - The flag behind 'WITH FLAGS' is the hook's 9:16 safe frame (10.21-14.00 s, the source's b-roll), flagged as always.
+- KIT DEFECT, found after the delivery, for the orchestrator. 67848's publishing kit suggests the title 'bitcoin | Pulse Check', and its description opens with 'bitcoin.'.
+  - Cause: telegram.publish_kit takes edl['headline'] or edl['topic'] ('bitcoin'). It never reads the sealed title and caption that this moments EDL carries (law L-t): title 'No single owner controls the bitcoin network', caption 'bitcoin is not a partisan issue. no ceo or committee keeps its rules, thousands of computers do, and that is financial freedom.'
+  - The videos and their captions are not affected.
+  - The kit's SPEAKERS section reads the sealed record (all 'unknown'). Nothing on the render side reads the builder's SPEAKERS_ATTESTED.json yet (clip 3 = Mark Yusko; orchestrator 15:29 (2), given to the builder).
+  - PROPOSAL, not built: publish_kit uses edl['title'] / edl['caption'] when present, and reads a sha256-checked copy of the speaker attestation frozen beside the pin. Audited, and then, if the orchestrator wants it, a corrected kit is sent as a reply to 67848.
 
 ## 16:10 RE-RENDER OF 0c68b589 LAUNCHED under rulings 71 + the 9:16 colour fix (orchestrator '15:45'): run stamp 20261113_211009, tmux pipeline_pulse_check_20261113_211009, HEAD 3395c61f.
 - The GPU0 lease has been held by PID 350507 since 16:10:09. The yield flag went up at 16:10:04 (the lease was free, GPU0 at 18 MiB, no Ollama model resident) and came down at 16:10:10.
