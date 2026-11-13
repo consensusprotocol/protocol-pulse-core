@@ -667,15 +667,16 @@ def rule_r11(edl):
     between clips); two or more fail always (the line-up is wrong). No minimum: no VO line at all passes. Story-type and
     untyped EDLs (the protected references) are not moments packages and are unchanged. Fail closed (audit batch 40): a
     moments EDL without a vo object and clips, a clip without an integer index, bridges that are not a list, a line whose
-    after_clip is not a clip index, a non-text line, and a recorded bridge with no bridge line fail."""
+    after_clip is not a clip index, clip indexes other than exactly 1..n, a non-text line, and a recorded bridge
+    with no bridge line fail."""
     if edl.get("package_type") != "moments":
         return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
     vo, clips = edl.get("vo"), edl.get("clips")
     if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
         return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
     idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
-    if not all(type(i) is int for i in idx):                      # audit batch 40 F1: fail closed on its own
-        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not all integers"
+    if any(type(i) is not int for i in idx) or idx != list(range(1, len(clips) + 1)):   # batch 40 F1 / cycle 3 glm F1:
+        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not 1..{len(clips)}"  # the last clip is index n
     bridges = vo.get("bridges")
     if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
         return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"

@@ -1170,10 +1170,13 @@ class TestR11VoShape(unittest.TestCase):
             else:
                 del e["vo"]["bridges"]
             self.fails(e, "vo bridges is not a list")
-        for index in ("1", None, 1.0, True):                         # audit F1: R11 fails closed on its own
+        for index in ("1", None, 1.0, True, 2, 3, 0):                # audit F1 / cycle 3 glm F1: exactly 1..n
             e = self.edl()
             e["clips"][0]["index"] = index
-            self.fails(e, "are not all integers")
+            self.fails(e, "are not 1..3")
+        e = self.edl(bridges=(self.TAKE, {"text": "y", "after_clip": 3}))
+        e["clips"][2]["index"] = 2                                      # a duplicated last index cannot hide a takeaway
+        self.fails(e, "are not 1..3")
         e = self.edl()
         e["clips"][1] = "clip"
         self.assertFalse(rule_r11(e)[0])
