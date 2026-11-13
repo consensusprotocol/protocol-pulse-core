@@ -845,6 +845,11 @@ def stage_render(run):
     with open(os.path.join(run.dir, "render_16x9.log"), "w") as f:
         f.write(cap16.text())
     postflight_check(final9, tot9, "9x16", log_output=log9)
+    # ruling 29 (orchestrator '01:55'): the final mix measured and corrected to target BEFORE the gates (two-pass
+    # loudnorm on the 16:9, its exact audio muxed into the 9:16, both re-measured); G5 unchanged
+    import loudness
+    run.prov["loudness"] = loudness.correct_finals(final16, final9)
+    print(f"  loudness: {run.prov['loudness'].get('action')}")
 
     # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence
     with open(paths["cuts_json"]) as f:
