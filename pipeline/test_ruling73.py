@@ -52,6 +52,13 @@ class TestTheRangesFollowTheLock(unittest.TestCase):
         self.assertEqual((none["cut_lo"], none["cuttable"]), (14.04, False))
         self.assertIn("(ruling 73 b)", none["reason"])
 
+    def test_b_an_emptied_range_is_not_cuttable(self):
+        # batch 69 c2's example (cut_lo 10.0, cut_hi 13.0, first word at 14.0): the range empties and says so
+        b = {"valid": True, "cut_lo": 10.0, "cut_hi": 13.0, "cut": 12.0, "cuttable": True}
+        SL._ruling73(b, {}, words_at(("X", 14.0, 14.4)), 0, 0)
+        self.assertEqual((b["cut_lo"], b["cut_hi"], b["cuttable"]), (13.6, 13.0, False))
+        self.assertIn("(ruling 73 b)", b["reason"])
+
     def test_b_a_file_head_keeps_its_quiet_up_to_the_bound(self):
         head = {"valid": True, "file_head": True, "cut_lo": 0.0, "cut_hi": 13.0, "cut": 13.0, "cuttable": True}
         SL._ruling73(head, {}, words_at(("Bitcoin", 14.0, 14.5)), 0, 0)
