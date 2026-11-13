@@ -17,19 +17,22 @@ import visual_check as VC  # noqa: E402
 class TestLocalRoute(unittest.TestCase):
     def setUp(self):
         self.calls = []
-        self.saved = (VC._call_local, VC._call, VC._request)
+        self.saved = (VC._call_local, VC._call, VC._request, VC._call_xai)
         VC._call_local = lambda p, t, m, timeout: self.calls.append(("local", m)) or ('{"answers": {}}', {})
+        VC._call_xai = lambda p, t, m, timeout: self.calls.append(("xai", m)) or ('{"answers": {}}', {})
         VC._request = lambda p, t, m: ("req", m)
         VC._call = lambda req, timeout: self.calls.append(("heimdall", req[1])) or ('{"answers": {}}', {})
 
     def tearDown(self):
-        VC._call_local, VC._call, VC._request = self.saved
+        VC._call_local, VC._call, VC._request, VC._call_xai = self.saved
 
-    def test_ollama_names_go_local_and_every_other_name_to_heimdall(self):
+    def test_ollama_names_go_local_xai_names_to_xai_and_every_other_name_to_heimdall(self):
         VC._call_any("x.jpg", "q", VC.LOCAL_VISION, 5)
+        VC._call_any("x.jpg", "q", "xai:grok-4.3", 5)
         for m in VC.VISION_MODELS:
             VC._call_any("x.jpg", "q", m, 5)
-        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b")] + [("heimdall", m) for m in VC.VISION_MODELS])
+        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b"), ("xai", "xai:grok-4.3")]
+                         + [("heimdall", m) for m in VC.VISION_MODELS])
 
     def test_the_default_panel_is_unchanged(self):
         self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
