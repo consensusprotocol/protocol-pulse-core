@@ -1,0 +1,23 @@
+Batch 69 = RULING 73 (orchestrator 2026-11-13 '18:00'), verbatim: "THE CUT FOLLOWS THE LOCK'S WORDS. (a) OUT: the out point is never before the decoded END of the lock's LAST word. A pause inside the locked text is not a cut point, however long: the sentence law looks for the tail pause only AFTER the last locked word. (The hook ended on 'or' at a 130 ms pause before 'reissued'.) (b) IN: the in point is never more than 400 ms before the first locked word's onset (and never less than the head-lead rule requires: 80 ms, or the declared pad). Dead air before the first word is trimmed to that lead; if the audio in that lead is not quiet by the head rule, hold with that reason. (clip_01 opened 3.47 s before 'I'.) (c) Both are checked at the pin-stage pre-check service too (ruling 68 / 72), so the builder learns before the seal that a span cannot be cut to these rules. Must-fail tests: both of 13949b7c's spans fail on the old code and pass on the fix; the three delivered pins' cuts are unchanged by it (0c68b589, 41f29b1f, 37c5b5f5: same in / out to the frame, or say which moved and why)."
+Background (measured on the real run pinned_20261113_221758):
+- the hook's pause_out (26.99-27.12) lies inside the decoded last word 'reissued.' (26.66-27.54). boundary() searches the quiet run between the two words' MIDPOINTS (a guard for Whisper's off edges), and the hesitation run's end (27.12) just crosses the midpoint (27.10).
+- clip_01's decode has a 4.58 s hole before 'I' (14.44). The IN pause found is a 60 ms dip at 10.96, so the clip opens on 3.47 s of non-speech (the second recogniser hears no words; Whisper hallucinates 'thank you').
+The change (pipeline/sentence_law.py, pipeline/lock_precheck.py):
+- boundary(..., tail=False): with tail=True (only the edge after a lock's last word) the pause is searched from words[k]['end'] to the next word's midpoint. A run inside the last word cannot be chosen; a run crossing the decoded end still can.
+- edge_plan calls boundary(sa, words, i1, tail=True), then _ruling73(bin_, bout, words, i0, i1), which narrows the legal ranges:
+  - OUT cut_lo >= words[i1]['end'];
+  - IN cut_lo >= words[i0]['start'] - IN_LEAD_MAX_S (0.400). The cut is moved to start - LEAD_TARGET_S (0.25) when it was before the bound. A file head keeps its quiet up to the bound.
+  - Not cuttable when the range empties, with a reason naming (ruling 73 a / b).
+  - The head-lead rule is untouched: ruling 28's hook_lead (80 ms) and the D1 pad still run, now inside the narrowed range.
+- accepted_cut: a cut placed at the boundary point (DEC-10 d valley / short gaps) is clamped into [cut_lo, cut_hi], so no path cuts outside the ranges. G16 (_edge_row) reads the same ranges.
+- sentence_law.lock_cut(src, words, lock, label): write_lock_cut_table's per-segment body moved verbatim (edge_plan, accepted_cut, hook_lead for the hook, the trimmed onset rule). write_lock_cut_table calls it, and so does the pre-check (c): after ruling 17 / 72 a span whose lock stands is cut with it, and an error holds with "ruling 73: the render cannot cut this span: ...". RULES becomes "ruling 17 + ruling 72 + ruling 73".
+MEASURED (the cut table recomputed with the old and the new code on the runs' own files):
+- 13949b7c: hook OUT 27.09 -> 27.78 (after 'reissued.'s end); clip_01 IN 10.97 -> 14.04; clip_01 OUT +20 ms; clip_02 unchanged.
+- 0c68b589: unchanged (its clip_01 OUT recomputes one 10 ms hop off with the OLD code too).
+- Every OUT of every delivered pin: unchanged.
+- ONE span moves IN: 'Bitcoin ... ever.' (41f29b1f's hook 14.38 -> 14.57; 37c5b5f5's clip_02 14.38 -> 14.69). It opened 0.56 s before its first word. It is also the protected medley reference's hook, so that reference's reproduction reports the changed decision (an orchestrator ruling is pending; not merged).
+Tests:
+- test_ruling73.py: _ruling73 unit tests (a, b, file head); the must-fail on 13949b7c's real run (fails on the old sentence_law, passes on the fix); the delivered pins' cuts unchanged but the named span (fails on the old code because the named span did not move).
+- test_lock_precheck.py: a span the render cannot cut holds before the seal; a passing span records the render's cut.
+- 32 passed.
+FIND: a path that can still cut outside the narrowed ranges (OUT before the decoded end, IN more than 400 ms early); a behaviour change for spans the rule does not touch (the refactor of write_lock_cut_table must be verbatim); the head-lead rule weakened; a pre-check verdict that differs from the render's cut table for the same span; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.

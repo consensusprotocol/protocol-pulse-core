@@ -1,0 +1,69 @@
+{
+ "question": "Batch 69 CYCLE 4 (the second cycle of the amendment; cycle 3: no consensus findings; the diff is unchanged) = RULING 73 (b) AMENDED (orchestrator 2026-11-13 '18:40'), verbatim: \"DO NOT RE-BASELINE THE REFERENCE. The medley reference is a video PBX approved as it is; its hook opens 590 ms before the first word and that was fine. My 400 ms was a number I picked; the reference is the evidence. RULING 73 (b) AMENDED: the IN lead cap is 600 ms, not 400. With 600 the medley reference's hook, 41f29b1f and 37c5b5f5 must recompute UNCHANGED to the frame (say so with the numbers; if 37c5b5f5 clip_02 still moves, tell me by how much before merging), and 13949b7c's clip_01 (3.47 s of dead air) still fails on the old code and passes on the fix.\"\nThe delta (after cycles 1 and 2 of batch 69):\n- sentence_law.IN_LEAD_MAX_S 0.400 -> 0.600. The comment and docstring are amended, and the hold reason prints the cap rounded.\n- test_ruling73 is moved to 600 ms:\n  - unit expectations (13.84 / 13.4 bounds);\n  - a new unit case, the medley hook's own geometry (cut 14.38 with a 0.56 s lead before 'Bitcoin' at 14.94), keeps its cut;\n  - MOVED = {} (no delivered cut may move);\n  - the 13949b7c must-fail renamed to 600 ms.\nMEASURED with the amended code (the cut tables recomputed on the runs' own files):\n- 41f29b1f (the medley reference's run): hook 14.38-19.01, clip_01 14.3-34.16, clip_02 14.3-31.56. All UNCHANGED.\n- 37c5b5f5: hook 14.79-23.41, clip_01 14.3-25.27, clip_02 14.38-19.01. All UNCHANGED.\n- 0c68b589: unchanged. clip_01 OUT recomputes 29.50 against the recorded 29.51 with the OLD code too, within one hop.\n- 13949b7c: hook OUT 27.09 -> 27.78 ((a)); clip_01 IN 10.97 -> 13.84 (600 ms before 'I' at 14.44).\n- On the old sentence_law the two 13949b7c must-fail tests FAIL; on the amended fix 33 pass.\nFIND: a delivered or reference cut that can still move; a 13949b7c-like dead-air head that passes at 600 ms; a test that no longer tests ruling 73 after the change; anything in the delta beyond the constant and the tests. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.1,
+   "cost": 0.0006138186,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 14.6,
+   "cost": 0.000162099,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.5,
+   "cost": 0.0007968891,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 4.5,
+   "cost": 0.000148118,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/test_ruling73.py",
+   "line": 47,
+   "issue": "The new medley-hook unit case does not actually exercise the amended cap: the reference's 0.56 s lead also passes at 400 ms, so the case tests nothing that distinguishes 600 from 400 (the ruling-73 amendment's distinguishing case is 13949b7c, which is only covered by the must-fail class).",
+   "evidence": "ref = {\"valid\": True, \"cut_lo\": 14.32, \"cut_hi\": 14.99, \"cut\": 14.38, \"cuttable\": True}   # the medley hook / SL._ruling73(ref, {}, words_at((\"Bitcoin\", 14.94, 15.3)), 0, 0)  # 0.56 s lead / self.assertEqual((ref[\"cut_lo\"], ref[\"cut\"], \"ruling73_in\" in ref), (14.34, 14.38, True))   # cut kept",
+   "fix": "None required for correctness; optionally assert the lead is > 0.400 (e.g. assertTrue(14.94 - 14.38 > 0.400)) so the case documents why 400 ms would have moved it.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0017209247,
+ "out_dir": "/home/ultron/worktrees/r73/docs/audits/pulse-sentence-law/batch69_r73_cut_follows_lock/cycle4/heimdall"
+}

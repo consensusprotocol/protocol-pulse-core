@@ -65,6 +65,11 @@ VALLEY_MARGIN_S = 0.010     # (a TIGHTENING) with no quiet run, the minimum is s
 SHORT_IN_S, SHORT_OUT_S = 0.080, 0.140   # DEC-10 d: a gap shorter than these (the 01:50 numbers, now choosing
                                          # only the METHOD, never legality) is cut at its envelope minimum
 LEAD_TARGET_S = 0.250       # preferred lead-in kept before the first onset (Law 14: breath kept)
+IN_LEAD_MAX_S = 0.600       # RULING 73 (b) (orchestrator 2026-11-13 '18:00', AMENDED '18:40': 600 ms, not 400; the
+                            # PBX-approved medley reference's hook opens 0.56 s before its first word, and it is the
+                            # evidence): the in point is never more than this before the first locked word's onset
+                            # (its decoded start); dead air before it is trimmed to LEAD_TARGET_S. (pin 13949b7c
+                            # clip_01 opened 3.47 s before 'I', on non-speech)
 TAIL_TARGET_S = 0.300       # M19: cut_out = min(offset + 0.30, onset - 0.06)
 LEAD_PAD_S = 0.250          # D1 room-tone pad (6 frames at 24 fps)
 QUIET_BELOW_SPEECH_DB = 25.0
@@ -245,8 +250,9 @@ def find_valley(sa, end_a, start_b):
 
 # ── boundaries ──
 
-def boundary(sa, words, k):
-    """Sentence boundary between word k and k+1 (k = -1: file head; k = len-1: file end)."""
+def boundary(sa, words, k, tail=False):
+    """Sentence boundary between word k and k+1 (k = -1: file head; k = len-1: file end). tail: the boundary AFTER a
+    lock's last word (ruling 73 (a)): its pause is searched only after that word's decoded end, never inside it."""
     n = len(words)
     rec = {"after_word": words[k]["word"] if k >= 0 else "<file head>",
            "before_word": words[k + 1]["word"] if k + 1 < n else "<file end>"}
@@ -274,7 +280,9 @@ def boundary(sa, words, k):
     # with the words before / after them, which can win a tie (DEC-10 audit: abutting-word fixture). Not the
     # transcript gap: Whisper's word edges can sit 100+ ms off the real pause (v2f hook OUT, Nov 10 D3c)
     mid = lambda w: (w["start"] + w["end"]) / 2
-    quiet, lv = find_pause(sa, mid(words[k]), mid(words[k + 1]))
+    # ruling 73 (a): after a lock's last word the pause is searched from its decoded END: a quiet run inside the locked
+    # text (13949b7c's hook: 'or [130 ms] reissued.' inside the decoded 'reissued.') is a hesitation, not the end
+    quiet, lv = find_pause(sa, words[k]["end"] if tail else mid(words[k]), mid(words[k + 1]))
     point, gap, pause = boundary_geometry(sa, words, k, lv, quiet)     # DEC-10
     rec.update(levels=lv, pause=pause, quiet_run=quiet, point=point, word_gap=gap)
     if pause is None:
@@ -329,7 +337,7 @@ def edge_plan(sa, words, i0, i1, trimmed=None):
     """Boundaries around words[i0..i1] and the legal cut ranges they allow. trimmed: the lock's trimmed_leading
     (ruling 33 part 2): the IN edge is the measured pause after that word, and the cut must SIT in its quiet run."""
     bin_ = trimmed_boundary(sa, words, i0, trimmed) if trimmed else boundary(sa, words, i0 - 1)
-    bout = boundary(sa, words, i1)
+    bout = boundary(sa, words, i1, tail=True)
     plan = {"in": bin_, "out": bout}
     if bin_["valid"]:
         p = bin_["pause"]
@@ -357,8 +365,38 @@ def edge_plan(sa, words, i0, i1, trimmed=None):
         ok = hi >= lo - 1e-9
         bout.update(cut_lo=lo, cut_hi=hi, cut=round(min(max(target, lo), hi), 3), cuttable=ok,
                     reason=None if ok else "no room after the last word")
+    _ruling73(bin_, bout, words, i0, i1)
     plan["ok"] = bool(bin_.get("cuttable") and bout.get("cuttable"))
     return plan
+
+
+def _ruling73(bin_, bout, words, i0, i1):
+    """RULING 73 (orchestrator 2026-11-13 '18:00'), THE CUT FOLLOWS THE LOCK'S WORDS, on the legal cut ranges (so the cut
+    table, accepted_cut, hook_lead and G16 all hold to it):
+    (a) OUT never before the decoded END of the last locked word;
+    (b) IN never more than IN_LEAD_MAX_S (600 ms, amended '18:40') before the first locked word's decoded start. Dead
+        air before it is trimmed to LEAD_TARGET_S; the head-lead rule (80 ms for the hook, ruling 28's hook_lead; the
+        D1 pad) is unchanged."""
+    if bin_.get("valid") and "cut_lo" in bin_:
+        bound = round(words[i0]["start"] - IN_LEAD_MAX_S, 3)
+        if bin_["cut_lo"] < bound - 1e-9:
+            bin_["ruling73_in"] = {"bound": bound, "was": [bin_["cut_lo"], bin_["cut_hi"], bin_["cut"]]}
+            hi = max(bin_["cut_hi"], bound) if bin_.get("file_head") else bin_["cut_hi"]   # a file head keeps its quiet
+            target = bin_["cut"] if bin_["cut"] >= bound else words[i0]["start"] - LEAD_TARGET_S
+            ok = hi >= bound - 1e-9
+            bin_.update(cut_lo=bound, cut_hi=round(hi, 3), cut=round(min(max(target, bound), hi), 3),
+                        cuttable=bool(bin_.get("cuttable")) and ok,
+                        reason=bin_.get("reason") if ok else
+                        f"no cut within {int(round(IN_LEAD_MAX_S * 1000))} ms before the first locked word (ruling 73 b)")
+    if bout.get("valid") and "cut_lo" in bout:
+        end = round(words[i1]["end"], 3)
+        if bout["cut_lo"] < end - 1e-9:
+            bout["ruling73_out"] = {"bound": end, "was": [bout["cut_lo"], bout["cut_hi"], bout["cut"]]}
+            ok = bout["cut_hi"] >= end - 1e-9
+            bout.update(cut_lo=end, cut=round(min(max(bout["cut"], end), bout["cut_hi"]), 3),
+                        cuttable=bool(bout.get("cuttable")) and ok,
+                        reason=bout.get("reason") if ok else
+                        "no cut after the decoded end of the last locked word (ruling 73 a)")
 
 
 # ── selection lock ──
@@ -692,8 +730,11 @@ def accepted_cut(src, plan, step=HOP_S, sa=None):
     v = {side: cand["valley"][side] or short(side) for side in ("in", "out")}
     # the point guard is reachable: a file head / file end edge has no point, and cut_candidates marks it a
     # valley when cut_accept clears none of its candidates; it keeps the plan's cut there
-    cut_in = plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None else cand["in"][0]
-    cut_out = plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None else cand["out"][0]
+    clamp = lambda b, x: round(min(max(x, b["cut_lo"]), b["cut_hi"]), 3)       # ruling 73: never outside the ranges
+    cut_in = clamp(plan["in"], plan["in"]["point"] if v["in"] and plan["in"].get("point") is not None
+                   else cand["in"][0])                                       # b69 c1: every path clamped
+    cut_out = clamp(plan["out"], plan["out"]["point"] if v["out"] and plan["out"].get("point") is not None
+                    else cand["out"][0])
     # DEC-12b amended / law L-b: every machine-cut edge gets a fade that never overlaps its edge word: 2 frames
     # (83 ms) inside the gap when it fits, shorter down to 10 ms when it does not (human PIN tables keep 20 / 30)
     fi, fo, _ = edge_fades(sa, plan, cut_in, cut_out)
@@ -828,49 +869,52 @@ def write_lock_cut_table(run_dir):
             continue
         with open(tpath) as f:
             words = json.load(f)["words"]
-        plan = edge_plan(SourceAudio(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4")), words,
-                         lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
         entry.update(first_word_expected=lock["first_word"], last_word_expected=lock["last_word"],
-                     selection_lock_sha256=lock["sha256"],
-                     pause_in=plan["in"].get("pause"), pause_out=plan["out"].get("pause"))
-        if not plan["ok"]:
-            why = [f"{s.upper()}: {plan[s].get('reason') or 'not cuttable'}" for s in ("in", "out")
-                   if not plan[s].get("cuttable")]
-            cuts.append({**entry, "error": "locked sentence edges not cuttable: " + "; ".join(why)})
-            continue
-        pick = accepted_cut(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan)
-        if pick is None:
-            cuts.append({**entry, "error": (
-                f"no cut inside the locked pauses keeps the neighbour words inaudible (IN {plan['in']['cut_lo']}-"
-                f"{plan['in']['cut_hi']}, OUT {plan['out']['cut_lo']}-{plan['out']['cut_hi']})")})
-            continue
-        cut_in, cut_out = pick["cut_in"], pick["cut_out"]
-        fade_in_ms, pad_s, hook, valley_in = pick["fade_in_ms"], plan["in"]["lead_in_pad_s"], None, pick["valley_in"]
-        if label == "hook" and not plan["in"].get("file_head"):         # ruling 28: the hook keeps 80 ms (D1)
-            hook = hook_lead(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), plan, pick)
-            if hook.get("refused"):                                    # fail closed BEFORE any render (G17a)
-                cuts.append({**entry, "verified": False, "error": f"hook lead (ruling 28): {hook['refused']}",
-                             "hook_lead": hook})
-                continue
-            if hook["cut_in"] != pick["cut_in"]:          # a moved cut is a cut_accept-clean candidate, never a
-                valley_in = False                          # valley (audit batch 56 C1)
-            cut_in, fade_in_ms, pad_s = hook["cut_in"], hook["fade_in_ms"], hook["pad_s"]
-        trim = None
-        if lock.get("trimmed_leading"):                  # ruling 33 part 2: the onset rule on the audio as cut
-            ok, trim = trimmed_onset(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), cut_in, fade_in_ms)
-            if not ok:
-                cuts.append({**entry, "verified": False, "trimmed_onset": trim, "error": (
-                    f"trimmed leading word (ruling 33 part 2): {plan['in']['trimmed_leading']!r} cannot be cut cleanly: "
-                    f"the audio as cut at {cut_in:.3f} opens on sound (first onset {trim['onset_s']} s)")})
-                continue
-        cuts.append({**entry, "cut_in": cut_in, "cut_out": cut_out, "cut_duration": round(cut_out - cut_in, 3),
-                     "fade_in_ms": fade_in_ms, "fade_out_ms": pick["fade_out_ms"],
-                     "valley_in": valley_in, "valley_out": pick["valley_out"],
-                     "lead_in_pad_s": pad_s, "verified": True, **({"hook_lead": hook} if hook else {}),
-                     **({"trimmed_onset": trim} if trim else {})})
+                     selection_lock_sha256=lock["sha256"])
+        cuts.append({**entry, **lock_cut(os.path.join(run_dir, "sources", f"{seg['video_id']}.mp4"), words, lock,
+                                         label)})
     with open(os.path.join(run_dir, "cuts_final.json"), "w") as f:
         json.dump(cuts, f, indent=2)
     return cuts
+
+
+def lock_cut(src, words, lock, label):
+    """One locked segment's cut, exactly as the render places it: edge_plan (ruling 73's edges included),
+    accepted_cut, ruling 28's hook_lead for the hook, ruling 33's onset rule for a trimmed word. -> the fields the
+    cut table records ('error', verified False, when the segment cannot be cut). The one code path of
+    write_lock_cut_table and the pin-stage pre-check (ruling 73 (c), pipeline/lock_precheck.py)."""
+    plan = edge_plan(SourceAudio(src), words, lock["i0"], lock["i1"], trimmed=lock.get("trimmed_leading"))
+    out = {"pause_in": plan["in"].get("pause"), "pause_out": plan["out"].get("pause")}
+    if not plan["ok"]:
+        why = [f"{s.upper()}: {plan[s].get('reason') or 'not cuttable'}" for s in ("in", "out")
+               if not plan[s].get("cuttable")]
+        return {**out, "error": "locked sentence edges not cuttable: " + "; ".join(why)}
+    pick = accepted_cut(src, plan)
+    if pick is None:
+        return {**out, "error": (
+            f"no cut inside the locked pauses keeps the neighbour words inaudible (IN {plan['in']['cut_lo']}-"
+            f"{plan['in']['cut_hi']}, OUT {plan['out']['cut_lo']}-{plan['out']['cut_hi']})")}
+    cut_in, cut_out = pick["cut_in"], pick["cut_out"]
+    fade_in_ms, pad_s, hook, valley_in = pick["fade_in_ms"], plan["in"]["lead_in_pad_s"], None, pick["valley_in"]
+    if label == "hook" and not plan["in"].get("file_head"):         # ruling 28: the hook keeps 80 ms (D1)
+        hook = hook_lead(src, plan, pick)
+        if hook.get("refused"):                                    # fail closed BEFORE any render (G17a)
+            return {**out, "verified": False, "error": f"hook lead (ruling 28): {hook['refused']}", "hook_lead": hook}
+        if hook["cut_in"] != pick["cut_in"]:          # a moved cut is a cut_accept-clean candidate, never a
+            valley_in = False                          # valley (audit batch 56 C1)
+        cut_in, fade_in_ms, pad_s = hook["cut_in"], hook["fade_in_ms"], hook["pad_s"]
+    trim = None
+    if lock.get("trimmed_leading"):                  # ruling 33 part 2: the onset rule on the audio as cut
+        ok, trim = trimmed_onset(src, cut_in, fade_in_ms)
+        if not ok:
+            return {**out, "verified": False, "trimmed_onset": trim, "error": (
+                f"trimmed leading word (ruling 33 part 2): {plan['in']['trimmed_leading']!r} cannot be cut cleanly: "
+                f"the audio as cut at {cut_in:.3f} opens on sound (first onset {trim['onset_s']} s)")}
+    return {**out, "cut_in": cut_in, "cut_out": cut_out, "cut_duration": round(cut_out - cut_in, 3),
+            "fade_in_ms": fade_in_ms, "fade_out_ms": pick["fade_out_ms"],
+            "valley_in": valley_in, "valley_out": pick["valley_out"],
+            "lead_in_pad_s": pad_s, "verified": True, **({"hook_lead": hook} if hook else {}),
+            **({"trimmed_onset": trim} if trim else {})}
 
 
 # ── G16 SENTENCE_BOUNDARY (pre-render and final gate) ──

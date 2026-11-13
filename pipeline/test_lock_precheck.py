@@ -74,7 +74,10 @@ class Base(unittest.TestCase):
             return getattr(self, "scribe_words", None) or words_of(self.scribe_text), 0.0078
 
         self.wants = mock.Mock(return_value=False)
+        self.cut = {"pause_in": None, "pause_out": None, "cut_in": 15.2, "cut_out": 24.4, "cut_duration": 9.2,
+                    "lead_in_pad_s": 0.0, "verified": True}               # ruling 73 (c): the render's cut, stubbed
         for p in (mock.patch.object(LP, "ROOT", self.root),
+                  mock.patch.object(LP.sentence_law, "lock_cut", lambda src, words, lock, label: dict(self.cut)),
                   mock.patch.object(LP, "EXTRA", os.path.join(self.root, "extra")),    # never the builder's real dir
                   mock.patch.object(select_passages, "_download_window", download),
                   mock.patch.object(select_passages, "_whisper_transcribe", transcribe),
@@ -356,6 +359,23 @@ class TestRuling72(Base):
             e = LP.latest(VID, s["start"], s["end"], window=(START, END))
             self.assertEqual((e["outcome"], e["as_spoken"]["verdict"]), ("decoded", "same"), e)
         self.assertEqual(len(self.heard), 1)
+
+    def test_ruling_73_a_span_the_render_cannot_cut_holds_before_the_seal(self):
+        self.cut = {"pause_in": None, "pause_out": None, "error": "locked sentence edges not cuttable: OUT: no cut "
+                    "after the decoded end of the last locked word (ruling 73 a)"}
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
+        self.assertTrue(e["reason"].startswith("ruling 73: the render cannot cut this span: locked sentence edges"))
+        self.assertIn("(ruling 73 a)", e["cut"]["error"])
+
+    def test_ruling_73_a_passing_span_records_the_render_cut(self):
+        self.request(approved_text=ATTESTED)
+        LP.serve_once(log=self.log)
+        e = self.entry(ATTESTED)
+        self.assertEqual(e["outcome"], "no_difference")
+        self.assertEqual((e["cut"]["cut_in"], e["cut"]["cut_out"], e["cut"]["error"]), (15.2, 24.4, None))
 
     def test_a_failed_second_reading_is_an_error_never_a_pass(self):
         def broken(src):
