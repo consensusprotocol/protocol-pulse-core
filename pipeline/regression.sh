@@ -98,13 +98,13 @@ echo ""
 
 # ── Step 7: third protected reference (orchestrator order 2026-11-12 '20:30' (c)) ──
 echo "--- STEP 7: PROTECTED REFERENCE pulse_moments_2026-11-12 (every file exactly as its SHA256SUMS, none added) ---"
-set +e
-python3 pipeline/check_reference_manifest.py references/pulse_moments_2026-11-12
-MOMENTS_RC=$?
-set -e
-if [ "$MOMENTS_RC" -ne 0 ] && [ "$MOMENTS_RC" -ne 2 ]; then      # 2 = reference not on this machine (SKIP)
-    echo "  FAIL: the protected moments reference changed (docs/references/REFERENCE_PULSE_MOMENTS_2026-11-12.md)"
-    exit 1
+if [ -f references/pulse_moments_2026-11-12/SHA256SUMS ]; then   # SKIP is decided HERE (audit batch 41 F1): any
+    if ! python3 pipeline/check_reference_manifest.py references/pulse_moments_2026-11-12; then   # nonzero exit fails,
+        echo "  FAIL: the protected moments reference changed (docs/references/REFERENCE_PULSE_MOMENTS_2026-11-12.md)"
+        exit 1                                                   # a missing checker included
+    fi
+else
+    echo "  SKIP: protected reference not on this machine: references/pulse_moments_2026-11-12"
 fi
 echo ""
 
