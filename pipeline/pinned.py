@@ -142,6 +142,17 @@ def validate_schema(pin, registry=None):
             errs.append(f"{tag}: need 0 <= start < end (got {st}, {en})")
         if s.get("time_coords") not in COORDS:
             errs.append(f"{tag}: time_coords must be one of {COORDS}")
+        if "trimmed_leading" in s or "untrimmed_start" in s:          # ruling 33 part 2 (orchestrator '03:42')
+            import canon
+            tl, us = s.get("trimmed_leading"), s.get("untrimmed_start")
+            tok = canon.canon_tokens(tl) if isinstance(tl, str) else []
+            if len(tok) != 1 or tok[0] not in L.TRIMMABLE_LEADING:
+                errs.append(f"{tag}: trimmed_leading must be ONE word, one of {sorted(L.TRIMMABLE_LEADING)}")
+            if not isinstance(us, (int, float)) or isinstance(us, bool) or not isinstance(st, (int, float)) \
+                    or not 0 <= us < st:
+                errs.append(f"{tag}: untrimmed_start must be a number with 0 <= untrimmed_start < start")
+            if not pin.get("machine_cuts"):
+                errs.append(f"{tag}: trimmed_leading needs a machine_cuts pin (the cut is placed in the measured pause)")
         src = s.get("source") or {}
         if src.get("kind") == "youtube":
             if s.get("time_coords") != "youtube":
@@ -436,6 +447,26 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     return new
 
 
+def trimmed_lock(lock, seg, words):
+    """Ruling 33 part 2 (orchestrator 2026-11-13 '03:42'): the segment locks a whole sentence with ONE leading word left
+    out (seg['trimmed_leading']; seg['untrimmed_start'] is where the untrimmed sentence starts, on the segment's clock).
+    The run's own transcript must hold that word right before the lock (text, never time). The lock records it inside
+    its digest; sentence_law plans the IN edge at the measured pause after it, and the cut table / G16 hold the clip
+    when it cannot be cut cleanly."""
+    import canon
+    k = lock["i0"] - 1
+    heard = words[k]["word"].strip() if k >= 0 else "<file head>"
+    if k < 0 or canon.canon_tokens(heard) != canon.canon_tokens(seg["trimmed_leading"]):
+        raise PinError(f"{lock['video_id']} words {lock['i0']}-{lock['i1']}: trimmed_leading "
+                       f"{seg['trimmed_leading']!r} is not the word before the lock in the run's transcript ({heard!r}) "
+                       f"(ruling 33 part 2)")
+    new = {k2: v for k2, v in lock.items() if k2 != "sha256"}
+    new["trimmed_leading"] = {"rule": "ruling 33 part 2 (orchestrator 2026-11-13 '03:42')", "word": heard,
+                              "word_index": k, "untrimmed_start": seg["untrimmed_start"]}
+    new["sha256"] = L._lock_digest(new)
+    return new
+
+
 # ── 4. canonical EDL (same shape as select_passages.select_and_build_edl) ──
 
 def build_edl(pin, acq, registry=None, log=print):
@@ -453,6 +484,8 @@ def build_edl(pin, acq, registry=None, log=print):
                            L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
                            v.get("approved_text_similarity"),
                            "pinned approved_text" if s.get("approved_text") else "pinned exact range")
+        if "trimmed_leading" in s:
+            lock = trimmed_lock(lock, s, a["transcript"]["words"])                       # ruling 33 part 2
         if s.get("approved_text"):
             lock = adjudicate_lock(lock, a["path"], a["transcript"]["words"], log=log)    # ruling 17
         seg = {

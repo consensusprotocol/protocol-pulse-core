@@ -682,7 +682,8 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     with open(os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")) as f:
         words = json.load(f)["words"]
     src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
-    cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"]))
+    cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"],
+                                             trimmed=lock.get("trimmed_leading")))    # ruling 33 part 2
     from cut_accept import check_cut_acoustics
     pad = float(c.get("lead_in_pad_s") or 0)
     tried = c.setdefault("contract_retries", [])
