@@ -23,8 +23,9 @@ CONTRACT (the builder):
   same canonical tokens meets no difference at the render), "no_difference", "adopted" (ruling 17: the second recogniser
   reads the approved words), "two_readings" (ruling 18), "hold" (the render's stage pinned would hold: reason is its
   PinError), "error" (no verdict, never a pass: the acquisition or the decode failed).
-  An identical span, window and approved text under the same DECODER_SHA is answered from its last entry ("reused":
-  true; no decode, no second-recogniser spend).
+  An identical span, window and request fields (KEY: role, approved text, trimmed fields) under the same DECODER_SHA is
+  answered from its last non-error entry ("reused": true; no decode, no second-recogniser spend). Run ONE serving
+  process: a result file is appended read-then-replace.
 - The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed.
 - DECODER_SHA: sha256 over CODE, the acquisition, decoder and lock code. An entry under another DECODER_SHA is not
   this code's.
@@ -53,6 +54,7 @@ BATCH = 4
 SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
 
 
 def decoder_sha():
@@ -112,14 +114,21 @@ def _entries(path):
         return json.load(f)
 
 
-def latest(video_id, start, end, sha=None, window=None, approved_text=None):
+def latest(video_id, start, end, sha=None, window=None, approved_text=None, **seg):
     """The newest entry for this span under this decoder code (default: the current), this acquisition window (default:
-    the span alone, the video's only segment in its line-up) and approved text (None: a decode request), else None."""
+    the span alone, the video's only segment in its line-up), this approved text (None: a decode request) and every
+    other KEY field given in seg (role, trimmed_leading, untrimmed_start), else None."""
     sha = sha or decoder_sha()
     want = [float(x) for x in (window or (start, end))]
+    seg = dict(seg, approved_text=approved_text)
     es = [e for e in _entries(result_path(video_id, start, end, sha))
-          if e["start"] == start and e["end"] == end and e["window"] == want and e.get("approved_text") == approved_text]
+          if e["start"] == start and e["end"] == end and e["window"] == want
+          and all(e.get(k) == seg[k] for k in KEY if k in seg)]
     return es[-1] if es else None
+
+
+def _key(s):
+    return {k: s.get(k) for k in KEY}
 
 
 def _videos(r):
@@ -129,7 +138,7 @@ def _videos(r):
 def _cached(r, sha):
     """True when every segment of r has a non-error entry for its span, window and approved text (answered from it)."""
     for s in r["segments"]:
-        e = latest(s["video_id"], s["start"], s["end"], sha, window(r["segments"], s["video_id"]), s.get("approved_text"))
+        e = latest(s["video_id"], s["start"], s["end"], sha, window(r["segments"], s["video_id"]), **_key(s))
         if e is None or e["outcome"] == "error":
             return False
     return True
@@ -184,9 +193,9 @@ def answer(path, r, dl, dec, sha, log=print):
     import faster_whisper
     for s in r["segments"]:
         vid, (lo, hi) = s["video_id"], window(r["segments"], s["video_id"])
-        prev = latest(vid, s["start"], s["end"], sha, (lo, hi), s.get("approved_text"))
+        prev = latest(vid, s["start"], s["end"], sha, (lo, hi), **_key(s))
         if prev is not None and prev["outcome"] != "error":
-            entry = dict(prev, request_id=r["request_id"], role=s["role"], reused=True,
+            entry = dict(prev, request_id=r["request_id"], reused=True,
                          at=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
         else:
             a, err, dsec = dec.get(vid, (None, "not decoded", 0.0))
@@ -211,7 +220,7 @@ def answer(path, r, dl, dec, sha, log=print):
                      "offset": a["offset"] if a else None,
                      "source_file_sha256": a["provenance"].get("source_file_sha256") if a else None,
                      "transcript_sha256": lock["transcript_sha256"] if lock else None, "decoder_sha": sha,
-                     "faster_whisper": faster_whisper.__version__, "approved_text": s.get("approved_text"),
+                     "faster_whisper": faster_whisper.__version__, **{k: s.get(k) for k in KEY if k != "role"},
                      "outcome": outcome, "reason": reason,
                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
                      if lock else None,

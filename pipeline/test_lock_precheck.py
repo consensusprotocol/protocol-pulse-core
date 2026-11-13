@@ -56,10 +56,13 @@ class Base(unittest.TestCase):
                     f.write(b"\0" * 100_001)
             return (p, float(round(max(0, start_s - pad)))) if os.path.exists(p) else (None, 0)
 
-        def transcribe(source_path, video_id, run_dir):
+        def transcribe(source_path, video_id, run_dir):        # cached by path, as the real _whisper_transcribe
+            p = os.path.join(run_dir, "transcripts", f"{video_id}.json")
+            if os.path.exists(p):
+                with open(p) as f:
+                    return json.load(f)
             self.decodes.append(video_id)
             out = {"words": words_of(self.run_text), "language": "en", "duration": 39.0}
-            p = os.path.join(run_dir, "transcripts", f"{video_id}.json")
             os.makedirs(os.path.dirname(p), exist_ok=True)
             with open(p, "w") as f:
                 json.dump(out, f)
@@ -236,6 +239,22 @@ class TestDiscipline(Base):
         es = LP._entries(LP.result_path(VID, START, END, LP.decoder_sha()))
         self.assertEqual([(e["request_id"], e["reused"]) for e in es], [("r1", False), ("r2", True)])
         self.assertEqual((len(self.heard), self.decodes), (1, [VID]))
+
+    def test_the_reuse_key_is_every_field_the_answer_depends_on(self):
+        self.request("r1")
+        LP.serve_once(log=self.log)
+        self.request("r2", role="hook")                           # role names a hold's tag: answered again
+        self.request("r3", trimmed_leading="and", untrimmed_start=754.9)   # the trimmed lock differs: answered again
+        self.request("r4")                                        # identical to r1: reused
+        LP.serve_once(log=self.log)
+        es = {e["request_id"]: e for e in LP._entries(LP.result_path(VID, START, END, LP.decoder_sha()))}
+        self.assertEqual({k: (e["reused"], e["role"]) for k, e in es.items()},   # a cached one is answered first
+                         {"r1": (False, "clip"), "r2": (False, "hook"), "r3": (False, "clip"), "r4": (True, "clip")})
+        self.assertEqual((es["r3"]["trimmed_leading"], es["r3"]["untrimmed_start"], es["r3"]["outcome"]),
+                         ("and", 754.9, "hold"))
+        self.assertIn("trim", es["r3"]["reason"].lower())       # trimmed_lock's own refusal: no 'and' before the lock
+        self.assertEqual(LP.latest(VID, START, END, role="hook")["request_id"], "r2")
+        self.assertEqual(self.decodes, [VID])                    # one decode: the acquisition is cached
 
     def test_a_failed_download_is_an_error_never_a_pass(self):
         self.fail_download = True
