@@ -113,6 +113,10 @@ class TestRecencyRenderClock(Fixture):
         self.assertIn("24.1 h before this render (limit 24 h, law L-v 3)", bad[0])
         ok, recs = pinned.recency_problems(self.mpin((False, self.at(60)), (True, self.at(23.9))), now=self.NOW)
         self.assertEqual(ok, [])
+        self.assertEqual(pinned.recency_problems(self.mpin((True, self.at(24.0))), now=self.NOW)[0], [])  # 'older than
+        self.assertEqual(len(pinned.recency_problems(self.mpin((True, self.at(24.01))), now=self.NOW)[0]), 1)  # 24 h'
+        with self.assertRaisesRegex(pinned.PinError, "segments must be a non-empty list"):         # audit batch 44 c1
+            pinned.validate_schema(self.pin(moments_package={"type": "moments"}, segments=[]), REG)
         self.assertEqual([r["age_h_at_render"] for r in recs][:2], [60.0, 23.9])
 
     def test_the_real_clip_02_passed_at_its_universe_and_holds_tonight(self):
@@ -142,6 +146,8 @@ class TestRecencyRenderClock(Fixture):
         self.assertEqual(len(bad), 1)
         self.assertIn("in the future of this render", bad[0])
         self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.2))), now=self.NOW)[0], [])
+        self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.25))), now=self.NOW)[0], [])  # exactly 15 min
+        self.assertEqual(len(pinned.recency_problems(self.mpin((False, self.at(-0.26))), now=self.NOW)[0]), 1)
 
     def test_other_pins_are_checked_only_where_a_segment_is_time_sensitive(self):
         p = self.pin()
