@@ -370,6 +370,11 @@ Check: story_semantics.derive_story_query: a transcript_cluster item is derived 
 **Fix:** the route was removed (gemma3 had failed the V1 cases anyway); the allowed set was not widened. Any change that adds or touches a model or GPU call path runs test_gpu0 (CPU, under a minute) before it is committed.
 **Detection:** a new '/api/chat', '/api/generate' or '11434' string in pipeline code outside the three allowed functions.
 
+### E-FAIL-078: The integrator's docs commits during a render moved HEAD and held the run
+**Evidence:** 2026-11-12, run pinned_20261113_031328 (launched 22:12 at 1f50a0ca): the integrator committed and pushed DoD / law / bible updates to the release branch at 22:13, 22:14, 22:23, 22:33, 22:43, 23:03 and 23:08, assuming docs could not touch a run. The attestation records 'executed code not at the recorded revision: HEAD moved during the run 1f50a0ca -> 9f75e686': it binds the run to HEAD at launch, not only to the code files.
+**Fix:** while a run is in flight, the release branch's HEAD does not move: DoD / law notes wait, or go to a side branch merged after the run ends.
+**Detection:** a run's holds naming 'HEAD moved during the run'; `git log --since=<run start>` on the release branch while status.json says running.
+
 ### L-j RELEASE IS AUTHORISED ON THESE BYTES (red-team order 2026-11-11 '21:55', A): 'all release gates passed' means every REQUIRED gate ran, on samples, unwaived, on exactly the bytes that are sent.
 Check: pipeline/release_auth.py is the one authorisation every send path uses: exact gate inventory v1 (REQUIRED rows exactly 'PASS' with evidence executed and samples >= 1; MONITORING rows present with an exact verdict, reported, not deciding: addendum '22:15' item 4; any other or missing row = blocker); run_fresh writes ATTESTATION.json last (holds anywhere = HOLD; executed code at the launch revision; the finals and manifests must be the bytes the gates measured); authorise() re-hashes both finals, EDL, manifests, gate report, verification pack and sheets before the first send; telegram.deliver_run checks each file's digest again before its send, checkpoints every message, never resends an unknown outcome; the legacy send_telegram_preview is removed; replays are never deliverable. Tests: test_release_auth.py (the fail-closed mutation family), test_telegram_delivery.py, test_failure_blocks.py.
 
