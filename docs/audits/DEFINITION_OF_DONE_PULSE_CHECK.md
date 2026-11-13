@@ -6,7 +6,7 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
-## 15:33 FACTS FOR THE G19 / G9 RULINGS (order '15:28' 2), run pinned_20261113_191409 (pin 0c68b589). Both are measured on the run's own finals.
+## 15:28 FACTS FOR THE G19 / G9 RULINGS (order '15:28' 2), run pinned_20261113_191409 (pin 0c68b589). Both are measured on the run's own finals.
 G19_edge_shots 9:16, ONE FRAME:
 - WHICH SHOT: the hook's LAST frame, frame 406 at 16.917 s of the final (24 fps). It is the SOURCE's own punch-in on Simply Bitcoin's host: the same man, cut to a tighter framing.
   - It comes 57 ms after his last word 'debate' ends (speech_off 16.86 s, prepare's record);
