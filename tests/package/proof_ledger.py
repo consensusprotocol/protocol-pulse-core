@@ -113,7 +113,8 @@ def main(argv=None):
     say(f"  adapter: {len(rows)} rows ({json.dumps(rep.get('excluded'))})")
     wp, wp_rep = LB.word_pass_index(a.word_pass)
     say(f"  word pass: {json.dumps(wp_rep)}")
-    moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp)
+    moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
+                                               ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"))
     inputs["word_pass"] = wp_rep
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,

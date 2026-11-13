@@ -245,34 +245,43 @@ def window_source(row, wp, ctx, store=STORE):
     return src, path, None
 
 
-def caption_source(row, ctx, store=STORE):
+def caption_source(row, ctx, store=STORE, ledger_store=None):
     """The full-video record the ledger row was MINED from: the one whose segments sha is the row's transcript_sha256
-    (the full-video slots transcripts/<vid>/transcript.*.json only; never a window). It is a window record's L-s
-    context (the contract) -> (Source with .duration_s, file name) or (None, why). Two records matching is ambiguous:
-    no context (audit 0123 C1, glm P0-1)."""
+    (the full-video slots transcripts/<vid>/transcript.*.json only; never a window). It is searched in `store` (main's)
+    and then in `ledger_store`, the store the ledger was mined from (pp-ingest's data/editorial, read-only). The
+    first live build found 8 of 16 window videos' caption records there and not in main's (5 absent, 3 re-fetched
+    under another sha). It is a window record's L-s context (the contract) -> (Source with .duration_s,
+    "<store>/<file>") or (None, why). Matches whose tokens differ are ambiguous, and give no context (audit 0123 C1,
+    glm P0-1); the same record copied in both stores gives the same tokens and is one record."""
     vid, want = row["video_id"], row.get("transcript_sha256")
-    d = os.path.join(store, "transcripts", vid)
-    try:
-        names = sorted(n for n in os.listdir(d) if n.startswith("transcript.") and n.endswith(".json"))
-    except OSError:
-        return None, "no transcript directory for the video"
-    found, unreadable = [], 0
-    for n in names:
-        try:
-            with open(os.path.join(d, n)) as f:
-                rec = json.load(f)
-            if not isinstance(rec, dict) or not want or rec.get("transcript_sha256") != want or \
-                    ts.segments_sha256(rec.get("segments") or []) != want:
-                continue
-            found.append((n, rec, S.tokens_from_record(rec)))
-        except (OSError, ValueError, KeyError, TypeError, AttributeError):
-            unreadable += 1
+    found, unreadable, dirs = [], 0, 0
+    for label, root in (("main", store), ("ledger", ledger_store)):
+        if not root:
             continue
+        d = os.path.join(root, "transcripts", vid)
+        try:
+            names = sorted(n for n in os.listdir(d) if n.startswith("transcript.") and n.endswith(".json"))
+        except OSError:
+            continue
+        dirs += 1
+        for n in names:
+            try:
+                with open(os.path.join(d, n)) as f:
+                    rec = json.load(f)
+                if not isinstance(rec, dict) or not want or rec.get("transcript_sha256") != want or \
+                        ts.segments_sha256(rec.get("segments") or []) != want:
+                    continue
+                found.append((f"{label}/{n}", rec, S.tokens_from_record(rec)))
+            except (OSError, ValueError, KeyError, TypeError, AttributeError):
+                unreadable += 1
+                continue
     if not found:
-        return None, ("no record in the store matches the row's transcript_sha256" +
+        return None, ("no transcript directory for the video" if not dirs else
+                      "no record in the store matches the row's transcript_sha256" +
                       (f" ({unreadable} transcript file(s) could not be read)" if unreadable else ""))   # C2 glm N2
-    if len(found) > 1:
-        return None, f"{len(found)} records match the row's transcript_sha256 ({[n for n, _, _ in found]}): ambiguous"
+    if len({json.dumps(toks, sort_keys=True) for _, _, toks in found}) > 1:
+        return None, f"{len(found)} records match the row's transcript_sha256 ({[n for n, _, _ in found]}) with " \
+                     f"different words: ambiguous"
     n, rec, (timing, toks) = found[0]
     reg = ctx.channel(row.get("channel_id")) or {}
     src = E.Source(vid, row.get("channel_id"), reg.get("display_name") or row.get("channel_name"),
@@ -375,7 +384,7 @@ def reanchor(row, src):
     return sp, info
 
 
-def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None):
+def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None, ledger_store=None):
     """Ledger rows -> (moments in the packager's form, {video_id: Source}, report). word_pass: word_pass_index()'s
     {moment_id: row} (None = no window records). Rows on a video with neither a sentence-ready full-video word record
     nor a sentence-ready window record, rows whose text does not re-anchor on whole sentences, and duplicates of one
@@ -425,7 +434,7 @@ def build_inputs(rows, ctx, store=STORE, log=print, word_pass=None):
                 report["no_word_record_why"][why] = report["no_word_record_why"].get(why, 0) + len(rs)
                 report["no_word_record_videos"][vid] = {"rows": len(rs), "why": why}     # which videos (glm C3 P2-2)
                 continue
-            src.context_source, cwhy = caption_source(wrow, ctx, store)
+            src.context_source, cwhy = caption_source(wrow, ctx, store, ledger_store)
             if src.context_source is None:
                 src.context_source = None
                 report["no_caption_context"][vid] = cwhy          # L-s fails closed for this video's clips

@@ -1,0 +1,55 @@
+You are auditing a small diff on branch pp-selectid (Protocol Pulse: moments-first packaging, the L-y MEDLEY of real
+clips). It adds G17a at the PIN stage: a medley's HOOK must keep >= 80 ms (HEAD_LEAD_MIN_S, D1: the hook starts
+playback) of GENUINE quiet before its first onset in the prepared clip.
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Why: the integrator's render HELD batch pin #1 at 01:39 ET Nov 13 on G17_onset_tail. Its hook kept 30 ms of genuine
+lead (the render measures that with sentence_law.gate_g17_prepared = head_tail on the prepared clip).
+- The packager's eligibility rule T12 measured the WORD RECORD's gap before the hook (400 ms) and passed it.
+- The source audio, measured offline with acoustic.rms_envelope at 10 ms, holds breath (about -27 dBFS), then exact
+  DIGITAL ZEROS (a hard edit, -200 dB), then speech.
+- Zeros are not room tone (quiet_runs(genuine=True) drops frames under DIGITAL_FLOOR_DBFS), so the genuine lead was
+  about 20-30 ms.
+- On pin #1's real audio, the new check measures 20 ms for that hook (FAIL), and 200 ms / 30 ms for its two other
+  clips (only a hook needs 80 ms).
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass;
+- the gate inventory is sealed, and a required row missing or not exactly PASS refuses the pin.
+
+The files:
+1. pipeline/hook_onset.py (new): measure(src, w0, w1, video_id, start, end, work_dir, audio=None).
+   - The moment's cut is planned on the SOURCE audio (the L-v 2 window that transcript_truth.audio_window already
+     fetched) with the render's own sentence_law.edge_plan.
+   - The planned prepared clip's head is measured with the render's own sentence_law.head_tail, on a slice of the
+     source envelope from the planned cut (_Slice).
+   - A lead-in pad counts only where edge_plan grants one (a file head).
+   - It is not measured (never a pass) on any missing audio, word or plan.
+2. pipeline/package.py:
+   - hook_onset_for(): a cached wrapper.
+   - build(): measures every moment that cleared L-v 2 + CUTTABLE, before the angles.
+   - lineup_for(need_onset=True, set by build): a moment OPENS a medley only if its hook onset was measured and
+     passed; the proposer's hook gives way to the angle's next one that did.
+   - inventory(hook=...): a sealed "hook_onset" row (PASS / FAIL / NOT RUN, with lead_ms, cut_in, why).
+3. pipeline/package_pin.py: MEDLEY_GATES gains "hook_onset", so to_pin refuses a medley without it, exactly PASS.
+4. tests/package/test_hook_onset.py (new): synthetic envelopes. Breath, then digital zeros, then speech: FAIL. Room
+   tone: PASS. No audio, or words outside the window: not measured.
+5. tests/package/test_medley.py:
+   - the build rig stubs hook_onset_for (no audio);
+   - a new test: the proposer's hook gives way, and with none able to open there is no line-up and no paid call;
+   - the medley rows include hook_onset.
+
+Check, concretely:
+(a) Can a hook with < 80 ms of genuine lead (as the render will measure it) still reach a pin? Look at the slice
+    versus the prepared clip, the pad, zeros, and the cut's choice.
+(b) Can an unmeasured hook pass or open a line-up?
+(c) Does anything change for non-hook clips, or for the full-video and window paths?
+(d) Is the hook_onset row really required and sealed for every medley pin, the no-voice path included?
+(e) Do the tests fail on the defect each one names?
+
+Output:
+- Findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+- Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+- End with a verdict line: "SHIP: yes | yes with conditions | no".

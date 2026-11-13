@@ -1,5 +1,25 @@
-BATCH READY: tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json
+BATCH: pin #1 (tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json, 1b4a63d0) was HELD at render 01:39 ET and NOT SENT. G17 hook onset: 30 ms of genuine lead < 80 ms. The packaging root cause is found (below), and the pin-stage pre-check is being built. G5 (-15.2 LUFS) and G9 (BT.601) are render rows.
 
+
+## After the 01:39 ET render hold: pin #1 HELD; the hook-onset root cause, measured on the source audio
+
+- **The integrator, 01:39 ET:** run pinned_20261113_054035 HELD, not sent.
+  - Held by G17_onset_tail (both formats; the content-integrity row, so the review drop was refused): the prepared
+    hook Sjb6lUiL0m4 has 30 ms of quiet lead before its first word, against the 80 ms hook rule (D1).
+  - Also failed: G5 (-15.2 LUFS), G9 (BT.601 source) and G18 9:16 (the hook's decode inserts 'when').
+  - G20 passed in both formats.
+- **Packaging root cause:**
+  - T12 (eligibility hook_lead) measured the WORD RECORD's gap before the hook: "markets." ends 3090.35 s, "When"
+    starts 3090.75 s, so 400 ms, which passed.
+  - The source audio (the L-v 2 window Sjb6lUiL0m4_3089250_3111370.wav, 10 ms RMS frames, acoustic.rms_envelope)
+    shows what that gap really holds: breath at about -27 dBFS (3090.41-3090.57), then a run of exact DIGITAL ZEROS
+    (-200 dB, 3090.65-3090.77: a hard edit in the source), then speech from 3090.81.
+  - Zeros are not room tone (sentence_law: "codec zeros ... are not room tone"), so the genuine quiet before the
+    onset is about 20-30 ms, which is what the render measured.
+  - The word record's timestamps cannot see an edit like that. Only the audio can.
+- **Fix in progress:** a pin-stage HOOK ONSET check with the render's own functions (sentence_law.edge_plan on the
+  L-v 2 source audio, then head_tail on the planned cut: G17a's measurement). It is to be sealed and required, so a
+  hook like this never reaches a render again. The integrator suggested it in their hold message.
 
 ## 00:53 ET: the batch is ONE pin. No second medley passes every gate from the remaining supply
 

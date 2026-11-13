@@ -368,14 +368,14 @@ class TestMedleyPackageAndPin(unittest.TestCase):
 
     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
         pk = self.build()
-        self.assertEqual(package_pin.required_gates(pk)[-3:], ("medley", "ly_shape", "house_style"))
+        self.assertEqual(package_pin.required_gates(pk)[-4:], ("medley", "ly_shape", "house_style", "hook_onset"))
         pk["gates"] = self.gates(pk)
         pin = package_pin.to_pin(spk(pk), "test")
         mp = pin["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
         self.assertEqual(mp["shape"], "medley")
-        for missing in ("medley", "ly_shape", "house_style"):
+        for missing in ("medley", "ly_shape", "house_style", "hook_onset"):
             g = self.gates(pk)
             g.pop(missing)
             with self.assertRaises(package_pin.PinRefused):
@@ -421,11 +421,11 @@ class Rig:
             "referents": [], "conditions": [], "retraction": "none", "time_ok": "yes", "certainty": "certain"}
 
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
-                 spend=None):
+                 spend=None, no_hook=()):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
-        self.uncuttable, self.excluded = set(uncuttable), set(excluded)
+        self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
         self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}])
@@ -475,6 +475,9 @@ class Rig:
                                                          "backend": "xai:grok"},
             "truth_for": lambda router, m, *a, **k: {"ok": True, "replayed": False, "model": "scribe_v1",
                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
+            "hook_onset_for": lambda m, *a, **k: ({"pass": False, "measured": True, "lead_ms": 20, "why": "20 ms < 80"}
+                                                  if m["moment_id"] in self.no_hook else
+                                                  {"pass": True, "measured": True, "lead_ms": 200, "why": "ok"}),
             "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
                                                              "clips": {sg["label"]: 5 for sg in pk["segments"]},
                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
@@ -617,6 +620,20 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual((rig.medley_calls, rig.write_calls), ([], []))   # no clips-alone call, no write paid
         self.assertIsNone(out["package"])
 
+    def test_a_hook_without_80_ms_of_genuine_quiet_gives_way_and_none_means_no_line_up(self):
+        """Batch pin #1, held 01:39 ET Nov 13 (G17a: 30 ms of genuine lead before the hook). A moment opens a medley
+        only when its hook onset was measured and passed; the proposer's hook gives way to the angle's next."""
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"h"})
+        pk = rig.run()["package"]
+        self.assertNotEqual(pk["segments"][0]["moment_id"], "h")
+        self.assertEqual(pk["gates"]["hook_onset"]["status"], "PASS")
+        self.assertEqual(pk["gates"]["hook_onset"]["lead_ms"], 200)
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], no_hook={"h", "x", "y", "z"})
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual(rig.medley_calls, [])                    # nothing paid for a line-up that cannot open
+        self.assertIn("no line-up", out["tried"][0]["why"])
+
     def test_the_supply_exception_is_recorded(self):
         ms = [pm("h", "A", 14.0), pm("x", "B", 13.0), pm("y", "C", 3.0), pm("e", "A", 13.0)]
         rig = Rig(ms, ["h", "x", "y", "e"], [(True, [], None, Rig.LINE)], [None])
@@ -674,7 +691,8 @@ class TestNoVoiceRealGates(unittest.TestCase):
                for sg in pk["segments"]}
         coh = dict(med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
-                                   shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]))
+                                   shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+                                   hook={"pass": True, "measured": True, "lead_ms": 200, "cut_in": 1.0, "why": "ok"})
         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
         mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))

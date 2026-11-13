@@ -26,7 +26,8 @@ from datetime import datetime, timezone
 SCHEMA = "protocol_pulse.pinned_story.v1"
 REQUIRED_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime", "r4",
                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable", "coherence")
-MEDLEY_GATES = ("medley", "ly_shape", "house_style")   # L-y (20:30): the clips-alone verdict, the medley's shape;
+MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset")   # hook_onset: G17a at the pin stage, after
+                                                                      # batch pin #1's render hold (01:39 ET Nov 13)   # L-y (20:30): the clips-alone verdict, the medley's shape;
                                                          # ruling 6 (22:40): PBX's copy rules on every line
 
 

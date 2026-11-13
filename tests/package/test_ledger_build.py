@@ -492,19 +492,65 @@ class TestWindowRecords(unittest.TestCase):
             self.assertTrue(text.startswith("money caption line 585"))        # ... ("money", the last word of line 510)
             self.assertGreaterEqual(win[1], m["end"] + CI.CONTEXT_AFTER_S)
 
-    def test_two_records_matching_the_rows_sha_are_ambiguous_and_give_no_context(self):
-        with tempfile.TemporaryDirectory() as d:
+    def test_the_ledgers_own_record_is_found_and_differing_matches_are_ambiguous(self):
+        """The first FRESH build: 8 of 16 window videos had their caption record only in the ledger's store
+        (pp-ingest's), not in main's. A copy with the same words is one record; same-sha matches whose words differ
+        are ambiguous (audit 0123 C1, glm P0-1), so there is no context."""
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as led:
             rel, wp, r, words = window_fixture(d)
             src = os.path.join(d, "transcripts", "vidW", "transcript.yt_auto.json")
-            with open(src) as f, open(os.path.join(d, "transcripts", "vidW", "transcript.yt_manual.json"), "w") as g:
-                g.write(f.read())
-            cs, why = LB.caption_source(r, E.Context(NOW, REG), d)
+            os.makedirs(os.path.join(led, "transcripts", "vidW"))
+            with open(src) as f:
+                cap = json.load(f)
+            os.remove(src)                                                   # only in the ledger's store
+            with open(os.path.join(led, "transcripts", "vidW", "transcript.yt_auto.json"), "w") as f:
+                json.dump(cap, f)
+            self.assertIsNone(LB.caption_source(r, ctx, d)[0])                  # main's store alone: none
+            cs, where = LB.caption_source(r, ctx, d, led)
+            self.assertEqual((cs.transcript_method, where), ("yt_auto", "ledger/transcript.yt_auto.json"))
+            with open(src, "w") as f:                                         # the same record in main's store too
+                json.dump(cap, f)
+            self.assertEqual(LB.caption_source(r, ctx, d, led)[1], "main/transcript.yt_auto.json")
+            odd = dict(cap, words=[{"word": "other", "start": 1.0, "end": 1.5}])    # same segments sha, other words
+            with open(os.path.join(d, "transcripts", "vidW", "transcript.yt_manual.json"), "w") as g:
+                json.dump(odd, g)
+            cs, why = LB.caption_source(r, ctx, d, led)
             self.assertIsNone(cs)
             self.assertIn("ambiguous", why)
             os.remove(os.path.join(d, "transcripts", "vidW", "transcript.yt_manual.json"))
             with open(src, "w") as f:                                        # glm C2 N2: unreadable is said, not
                 f.write("{not json")                                         # "no record matches" alone
             self.assertIn("1 transcript file(s) could not be read", LB.caption_source(r, E.Context(NOW, REG), d)[1])
+
+    def test_a_moment_without_context_never_poisons_its_step_a_batch(self):
+        """The first FRESH build: one window moment without a caption record in a step-A batch made the batch's call
+        fail, and EVERY moment in it was marked unavailable (0 cleared in 0 s). Now that moment alone is not cleared."""
+        import context_integrity as CI
+        import package as PK
+        ctx = E.Context(NOW, REG)
+        with tempfile.TemporaryDirectory() as d:
+            rel, wp, r, words = window_fixture(d, caption=False)              # a window without its caption
+            TestWordSourceAndInputs.store_with(self, d, "vidA", SENTS)        # a full-video record, other channel
+            ra = dict(row(SENTS[1], mid="A1", vid="vidA"), channel_id="UCother", channel_name="Other")
+            ms, srcs, rep = LB.build_inputs([r, ra], ctx, d, log=lambda s: None, word_pass={"W1": wp})
+            self.assertEqual(sorted(m["mined"]["ledger_moment_id"] for m in ms), ["A1", "W1"])
+            sent = []
+
+            def step_a(router, contexts, *a, **k):
+                sent.append(sorted(contexts))
+                return {mid: dict(sent=True) for mid in contexts}, "xai:grok"
+            saved, CI.step_a = CI.step_a, step_a
+            try:
+                router = type("R", (), {"backends": {}})()
+                a_by, fails, v, f = PK.prescreen(router, ms, srcs, ctx, "heimdall", log=lambda s: None)
+            finally:
+                CI.step_a = saved
+            mid_w = next(m["moment_id"] for m in ms if m["mined"]["ledger_moment_id"] == "W1")
+            mid_a = next(m["moment_id"] for m in ms if m["mined"]["ledger_moment_id"] == "A1")
+            self.assertEqual(sent, [[mid_a]])                                  # the batch still went out
+            self.assertTrue(fails[mid_w][0].startswith("CONTEXT_UNAVAILABLE"))
+            self.assertIn(mid_a, a_by)
 
     def test_the_exclusion_verdict_reads_the_caption_context(self):
         """glm C1 P2-7: the normal path, measured: the verdict's prompt carries the caption's words around the clip."""
