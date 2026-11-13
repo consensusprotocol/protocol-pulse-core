@@ -6,6 +6,30 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:08 RULING 73 (a) + (b) BUILT (worktree r73, not merged): ONE DELIVERED SPAN MOVES, and it is the PROTECTED MEDLEY REFERENCE's hook. A DECISION FOR THE ORCHESTRATOR before the merge.
+- WHAT: the tail pause is searched only after the last locked word's decoded END (a). The legal cut ranges in edge_plan hold OUT >= that end and IN >= the first locked word's decoded start - 400 ms (b). Dead air is trimmed; the head-lead rule (ruling 28, D1) is unchanged. accepted_cut never cuts outside the ranges. G16 checks the same ranges.
+- MUST-FAIL, 13949b7c, recomputed with the run's own source and transcript:
+  - hook OUT 27.09 -> 27.78. It now falls after the decoded end of 'reissued.' (27.54), in the pause before 'Countries'.
+  - clip_01 IN 10.97 -> 14.04, 400 ms before 'I'.
+  - (clip_01 OUT +20 ms: the tail search now starts at '6%.'s end. clip_02 unchanged.)
+  - The OLD code reproduces 27.09 / 10.97.
+- DELIVERED PINS, every cut recomputed with the old and the new code on the runs' own files:
+  - 0c68b589: unchanged. Its clip_01 OUT recomputes 29.50 against the recorded 29.51 with the OLD code too (one 10 ms hop, before this change).
+  - Every OUT cut of every delivered pin: unchanged.
+  - 41f29b1f hook / 37c5b5f5 clip_02 / the medley reference's hook, the SAME span ('Bitcoin' ... 'ever.'): IN MOVES.
+    - 41f29b1f hook: 14.38 -> 14.57 (+190 ms). The hook keeps ruling 28's 80 ms, so hook_lead takes 14.57.
+    - 37c5b5f5 clip_02: 14.38 -> 14.69 (+310 ms; LEAD_TARGET_S before the onset).
+    - WHY: that cut opened 0.56 s before 'Bitcoin' (decoded start 14.94), beyond the new 400 ms bound.
+  - the preview reference: REPRODUCED unchanged.
+- THE CONSEQUENCE: pipeline/regression.sh's medley reference reproduction (tag ref-pulse-medley-2026-11-12) reports 'hook: cut 14.57-19.01 (reference 14.38-19.01)', a changed decision. So the regression gate fails, and I cannot merge.
+- FOR THE ORCHESTRATOR TO RULE, one of:
+  - (1) re-baseline the medley reference's hook IN to the ruling-73 cut (a re-tag of the protected reference's expectation);
+  - (2) another bound or rule for that span.
+  Until then ruling 73 stays unmerged. I am building (c), the pre-check side, and the tests meanwhile.
+- ALSO FOR THE ORCHESTRATOR: the builder relays ruling 76 (18:08: a clip is usable only while its source is <= 12 h old on the render clock), which WITHDRAWS 13949b7c (hook 72 h, clip 3 31 h).
+  - I have not received ruling 76, so I have not built a render-side check for it.
+  - I am NOT re-rendering 13949b7c until you confirm the withdrawal or the re-render.
+
 ## 17:31 PUBLISHING-KIT FIX MERGED (4c60b029; audits batch 68 x2, no consensus findings; must-fail: the old telegram.py gives 'SUGGESTED TITLE: bitcoin | Pulse Check'). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0; test_telegram_delivery + test_review_drop 41 passed.
 - A moments pin's kit now suggests '<sealed title> | Pulse Check' and leads its description with the sealed caption (law L-t). Story pins are unchanged.
 - The 17:12 kit (67848) went out before the fix. Whether a corrected kit is sent as a reply to it is the orchestrator's call; nothing has been sent.
