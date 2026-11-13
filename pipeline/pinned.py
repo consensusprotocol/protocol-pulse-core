@@ -469,6 +469,21 @@ def trimmed_lock(lock, seg, words):
 
 # ── 4. canonical EDL (same shape as select_passages.select_and_build_edl) ──
 
+def segment_lock(s, a, v, recognise=None, log=print):
+    """One pin segment's selection lock exactly as the render makes it: make_lock over validate_range's facts v,
+    trimmed_lock (ruling 33 part 2), adjudicate_lock (ruling 17). The one code path of build_edl and the pin-stage
+    pre-check (ruling 68, pipeline/lock_precheck.py); recognise: adjudicate_lock's second recogniser (None: the real)."""
+    lock = L.make_lock(s["video_id"], a["transcript"]["words"], v["i0"], v["i1"],
+                       L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
+                       v.get("approved_text_similarity"),
+                       "pinned approved_text" if s.get("approved_text") else "pinned exact range")
+    if "trimmed_leading" in s:
+        lock = trimmed_lock(lock, s, a["transcript"]["words"])                       # ruling 33 part 2
+    if s.get("approved_text"):
+        lock = adjudicate_lock(lock, a["path"], a["transcript"]["words"], recognise=recognise, log=log)  # ruling 17
+    return lock
+
+
 def build_edl(pin, acq, registry=None, log=print):
     from select_passages import _generate_vo_script, build_vertical_overrides
     if registry is None:
@@ -480,14 +495,7 @@ def build_edl(pin, acq, registry=None, log=print):
         a = acq[s["video_id"]]
         v = validate_range(s, a)
         ch = by_name[s["channel"]]
-        lock = L.make_lock(s["video_id"], a["transcript"]["words"], v["i0"], v["i1"],
-                           L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
-                           v.get("approved_text_similarity"),
-                           "pinned approved_text" if s.get("approved_text") else "pinned exact range")
-        if "trimmed_leading" in s:
-            lock = trimmed_lock(lock, s, a["transcript"]["words"])                       # ruling 33 part 2
-        if s.get("approved_text"):
-            lock = adjudicate_lock(lock, a["path"], a["transcript"]["words"], log=log)    # ruling 17
+        lock = segment_lock(s, a, v, log=log)
         seg = {
             "video_id": s["video_id"],
             "channel": s["channel"],

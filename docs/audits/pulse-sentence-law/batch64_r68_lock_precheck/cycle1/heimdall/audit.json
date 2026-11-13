@@ -1,0 +1,185 @@
+{
+ "question": "Batch 64 = RULING 68 (orchestrator 2026-11-13 '14:03'), verbatim: \"the pin-stage ruling-17 pre-check. The render's own acquisition, decode and adjudicate_lock on each line-up span, on GPU0 under the lease with the yield flag, results keyed by video id + span + decoder sha, offered to the builder as the source of approved text BEFORE the paid verdicts.\"\nBackground (measured): pin 61fd55d0 held at the render's stage pinned (ruling 17): clip 3's approved text was the word pass's distil-large-v3 decode; the render's decoder (large-v3, beam 5) and the second recogniser (scribe_v1) both read 'punch in' (not 'punch you') and a repeated \"that's why\". An A/B on the same audio showed the decoder is the cause. The render's stage pinned is: pinned.acquire (per video: select_passages._download_window over [min start, max end] of that video's pin segments, padded 15 s, cached by path in run_dir/sources; _whisper_transcribe, large-v3 beam 5 + punctuation, cached by path in run_dir/transcripts), then build_edl per segment: validate_range, make_lock, trimmed_lock (ruling 33 part 2), adjudicate_lock (ruling 17: the paid second recogniser runs only when the decode and the approved text differ in canonical tokens; a PinError is a HOLD). GPU0 (law L-r) discipline as in stand_alone_scorer: the lease per batch, the yield flag checked before taking it, once it is held and before every unit, release_all at the batch end; a render always first.\nThe change:\n- pinned.segment_lock(s, a, v, recognise=None, log=print): build_edl's lock lines moved verbatim into one function (recognise is passed to adjudicate_lock; None = the real recogniser, as before); build_edl calls it in the same place, after validate_range and the channel lookup.\n- pipeline/lock_precheck.py (new): requests in data/lock_precheck/requests; downloads BEFORE the lease (the same _download_window, into a work dir per video + window + decoder sha); decodes UNDER one lease per batch via pinned.acquire on that video's segments (the download a cache hit); locks AFTER the lease via pinned.validate_range + pinned.segment_lock with a wrapper around the real second recogniser that records its spend. Outcomes: decoded (no approved text: lock.text is offered), no_difference, adopted, two_readings, hold (the PinError), error (never a pass). Results per video + span + decoder sha (a list; entries record the window and the approved text); an identical span + window + approved text under the same sha is answered from its last non-error entry (reused, no decode, no spend). DECODER_SHA over select_passages.py, punctuation.py, pinned.py, sentence_law.py, canon.py, gpu0.py.\n- Tests: test_lock_precheck.py, 12 cases (one code path; the decode text; no difference without spend; the E-FAIL-081 shape holds with the render's reason; adopted; two readings; a render first at three points; malformed requests; one window per video; reuse without spend; a failed download is an error and is not reused). test_pinned + test_trimmed_leading: 43 passed, 3 skipped.\nFIND: a way the pre-check's lock can differ from the render's for the same span and window (a second code path, a different window, a cache serving another window or another code); GPU0 used without the lease, or held during downloads or the paid recogniser, or not given back to a render; a hold or an error reported as a pass; a stale reuse; a behaviour change in build_edl; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 17.0,
+   "cost": 0.001131314,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 28.5,
+   "cost": 0.000394289,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 18.7,
+   "cost": 0.0012490055,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 42.7,
+   "cost": 0.000505176,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "A reused entry is answered from the last non-error entry keyed only by span+window+approved_text, but the entry's role is overwritten and the reused entry's role is taken from the new request, so two requests differing only in role (or in trimmed_leading/untrimmed_start, which are not part of the reuse key) silently get the earlier answer even though the lock (make_lock's source label, trimmed_lock's i0/i1) depends on them.",
+   "evidence": "prev = latest(vid, s[\"start\"], s[\"end\"], sha, (lo, hi), s.get(\"approved_text\"))\nif prev is not None and prev[\"outcome\"] != \"error\":\n    entry = dict(prev, request_id=r[\"request_id\"], role=s[\"role\"], reused=True, ...",
+   "fix": "Include role and trimmed_leading/untrimmed_start in the reuse key (or recompute the lock from the cached acquisition instead of copying the previous entry).",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/lock_precheck.py",
+   "line": 245,
+   "issue": "GPU0 lease is not acquired when all requests are cached, violating the 'render always first' discipline and potentially allowing the pre-check to run concurrently with a render or without yielding.",
+   "evidence": "        elif _cached(r, sha):\n            answer(path, r, {}, {}, sha, log=log)\n            n += 1",
+   "fix": "Ensure that even cached requests are processed under the GPU0 lease or that the yield flag is checked and respected before answering them, consistent with the 'render always first' rule.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/lock_precheck.py",
+   "line": 155,
+   "issue": "The `decode` function checks `LJ.render_wants_gpu0()` inside the loop, but if a render requests GPU0 mid-decode, it returns `None` and leaves the `decoded` dict incomplete. The subsequent `answer` call for that request will use `dec.get(vid, (None, 'not decoded', 0.0))`, resulting in an 'error' outcome for all segments, even if some were successfully decoded. This is a partial failure that is not clearly distinguished from a total failure.",
+   "evidence": "        if LJ.render_wants_gpu0():\n            return None",
+   "fix": "If a render requests GPU0 mid-decode, the entire batch should be aborted and left pending, or the partially decoded results should be handled explicitly to avoid marking successfully decoded segments as errors.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 105,
+   "issue": "The `latest` function uses `e['window'] == want` for comparison, where `want` is a list of floats. If the window values in the entry are stored as integers or have floating-point precision differences, this comparison may fail, leading to stale reuse or missed cache hits.",
+   "evidence": "    es = [e for e in _entries(result_path(video_id, start, end, sha))\n          if e[\"start\"] == start and e[\"end\"] == end and e[\"window\"] == want and e.get(\"approved_text\") == approved_text]",
+   "fix": "Use a more robust comparison for floating-point values, such as checking if the difference is within a small epsilon, or ensure consistent formatting of window values when storing and retrieving them.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F4",
+   "severity": "low",
+   "file": "pipeline/test_lock_precheck.py",
+   "line": 185,
+   "issue": "The test `test_a_render_comes_first` sets `self.wants.side_effect = [False, False, True]` to simulate a render requesting GPU0 while the lease is being taken. However, the `gpu0.lease` mock is a `contextlib.nullcontext()`, which does not actually check the yield flag. The test relies on the `decode` function checking `LJ.render_wants_gpu0()` inside the loop, but the lease acquisition itself is not tested for yield flag compliance.",
+   "evidence": "        self.wants.return_value, self.wants.side_effect = None, [False, False, True]   # it goes up as the lease is taken\n        self.assertEqual(LP.serve_once(log=self.log), 0)",
+   "fix": "Enhance the test to verify that the yield flag is checked before acquiring the lease and that the lease is not held if a render requests GPU0, ensuring the 'render always first' discipline is fully tested.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "The reuse key compares the stored window list to floats built from the request, but the stored window comes from the same computation, so a request whose video's other segments changed (same span, different line-up) gets a fresh window and correctly misses \u2014 yet the result file is keyed only by span+sha, so entries for different windows accumulate in one file and latest() filters by window; correct, but the reuse check in _cached uses window(r[\"segments\"], vid) which for a single-segment request defaults to (start, end) \u2014 the same span sent alone after being sent in a line-up is NOT reused (a second decode, second spend) even though the ruling says 'an identical span + window + approved text under the same sha is answered from its last non-error entry'.",
+   "evidence": "sha = sha or decoder_sha()\nwant = [float(x) for x in (window or (start, end))]\nes = [e for e in _entries(result_path(video_id, start, end, sha))\n      if e[\"start\"] == start and e[\"end\"] == end and e[\"window\"] == want and e.get(\"approved_text\") == approved_text]",
+   "fix": "None needed if the ruling's 'identical window' is read strictly; otherwise document that the window is part of the key (the docstring already says so).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 0,
+   "issue": "In serve_once, when a render asks while the lease is held (decode returns None), the finally clause calls gpu0.release_all() and the lease context exits, but the requests already decoded stay in `decoded` and are answered \u2014 while the ones not yet decoded stay pending; however the requests that WERE decoded are answered after the lease, and their locks (with the paid second recogniser) run outside the lease, which the ruling permits ('the locks and the second recogniser (network) run after it is left'). No defect; noted for completeness.",
+   "evidence": "finally:\n    gpu0.release_all()                           # GPU0 left as found before the lease goes",
+   "fix": "None.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/lock_precheck.py",
+   "line": 150,
+   "issue": "decode() checks the source file by the fixed name sources/<vid>.mp4, but _download_window's return (path, offset) \u2014 which pinned.acquire consumes \u2014 may name the file differently; if the download produced a differently named file, decode() reports 'the source window did not download' even though prefetch succeeded, and the error entry is then not reused (a re-download every repeat).",
+   "evidence": "if not os.path.exists(os.path.join(wd, \"sources\", f\"{vid}.mp4\")):\n            out[vid] = (None, \"the source window did not download (before the lease)\", 0.0)",
+   "fix": "Use the path returned by _download_window (or the path pinned.acquire's provenance records) instead of assuming sources/<vid>.mp4."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 196,
+   "issue": "answer() writes the result file per segment with _entries(out) + [entry] read-then-replace, but two concurrent serve_once processes (or a serve and a once) answering different requests for the same span can interleave, losing an entry; the request files are moved to done/ without any locking, so the last writer wins.",
+   "evidence": "tmp = out + \".tmp\"\n        with open(tmp, \"w\") as f:\n            json.dump(_entries(out) + [entry], f, indent=1)\n        os.replace(tmp, out)",
+   "fix": "Serialise with a lockfile around the read-modify-write, or accept single-writer operation and document it."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 236,
+   "issue": "In serve_once, when a malformed request is failed, n is incremented and the file removed, but if ALL of todo were malformed, the function returns n>0 and the serve loop skips its sleep \u2014 harmless, but if a render asked (LJ.render_wants_gpu0() true) after some requests were already failed, the remaining ready requests' prefetch results are discarded and they stay pending while their downloads were already paid for; the next pass re-downloads (cache hit, so cheap) \u2014 noted only because prefetch's work_dir is keyed by window+sha, so nothing is lost.",
+   "evidence": "if ready and not LJ.render_wants_gpu0():",
+   "fix": "None needed; behaviour is correct, the discarded prefetch is a cache hit on retry."
+  }
+ ],
+ "total_cost": 0.0032797845,
+ "out_dir": "/home/ultron/worktrees/r68/docs/audits/pulse-sentence-law/batch64_r68_lock_precheck/cycle1/heimdall"
+}
