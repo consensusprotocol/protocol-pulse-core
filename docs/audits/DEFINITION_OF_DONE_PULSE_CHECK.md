@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:18 HOLD, two 9:16 rows, both RENDER-SIDE, not the pin's: pin 0c68b589 (ruling 67 re-seal), run runs/pinned_20261113_191409, run_fresh exit 3 at 15:18:01 ET. Not delivered on the pass path. REVIEW DROP: decided below the facts.
+- The pin itself passed everything that judges it: stage pinned (ruling 17, no difference left), validate, and G16 / G17 / G18 / G20 / V1 in both formats. Every 16:9 row PASS.
+- 9:16 G9_tail FAIL: luma 13.6 against the floor 14.7315.
+  - Cause, measured with ffprobe over every 9:16 part: the 9:16 final is UNTAGGED (range / space / transfer / primaries unknown). It takes its first part's tags, and vert_hook opens on a stack2 shot; reframe_auto's stack2 path (split, vstack, pad) drops all four tags.
+  - Every source is BT.709 tv, and so are the 16:9 final (G9 14.3 PASS) and the single-crop part vert_clip_01.
+  - The same mechanism held the 41f29b1f medley (run 031328: its hook opened on stack2, 13.6). Ruling 26 credited that one to the BT.601 clip; the per-part probes now show the untagged stack2 hook was the first part.
+  - FIX BUILT, audited twice (batch 65, branch g9-vert-colour-tags 5b0f9f8c, no consensus findings): reframe_auto re-declares the input's colour after EVERY shot (setparams, metadata only). G9 and its floor are not touched. CPU must-fail: the old code fails 2/2, the fix passes 2/2. The GPU must-fail test runs next.
+- 9:16 G19_edge_shots FAIL: no detail is stored in the run's records; it is being measured now.
+- 9:16 G14_frame_similarity LIMITED, as always for a crop (not a blocker).
+
+## 14:13 THE RE-SEALED PIN IS RENDERING (ruling 67): seal 0c68b589371297c0, which replaces 61fd55d0.
+- The run started 14:13:29 ET in tmux pipeline_pulse_check_20261113_191329, at HEAD 6fd7c8fc. The GPU0 lease has been held by PID 3973412 since 14:13:29.
+- This entry is written to disk and committed only after the run ends (orchestrator 14:03).
+- THE PIN:
+  - Frozen as data/moments_pins/MOMENTS_PIN_ATTESTED_183302.json (file sha256 5dfcbe8ffa661f6769cad80455e8f82a0cb3c825df6a5e1aeae1bbbd0ff8c25b).
+  - check_pin_only: READY (pin only) 0c68b589371297c0, with the builder's worktree at 3b1691b2 ('attested' in SEALED_LATER).
+  - The line-up is unchanged. Clip 3's approved text is now the attested reading, whose canon tokens equal the 13:46 run's decode of words 32-73.
+- GPU0 HAND-OVER:
+  - the yield flag went up at 14:13:26;
+  - the lease and the run lock were free; GPU0 was at 18 MiB with no Ollama model resident;
+  - the render took the lease at 14:13:29;
+  - the flag came down at 14:13:33.
+
 ## 14:06 E-FAIL-081 A/B: THE DECODER IS THE CAUSE, NOT THE WINDOW. Same audio, the run's own 39 s acquired window of mKNAcOFMYD4 (runs/pinned_20261113_184605/sources/mKNAcOFMYD4.mp4):
 - The WORD PASS's verbatim decode (word_pass_worker.decode_verbatim: faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en, run 14:05 on GPU0 under the lease):
   - reads 'I punch you my code' and 'And that's why we Bitcoin.' (both of the pin's errors);
