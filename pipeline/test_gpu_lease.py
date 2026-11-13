@@ -107,16 +107,27 @@ class TestSerialisedNeverOOM(Gpu1Box):
 
 class TestGpu1NeedsItsLease(Gpu1Box):
     def test_a_gpu1_load_without_the_gpu1_lease_is_refused(self):
+        """Audit batch 45 B (consensus): no lease is refused; holding only GPU0's lease is still refused; holding GPU1's
+        lease the same load proceeds (the refusal is the lease, nothing else)."""
+        import contextlib
         with mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "1"}):
             self.assertEqual(gpu0.current_gpu(), 1)
             with self.assertRaisesRegex(gpu0.LeaseMissing, "a GPU1 load without the GPU1 lease"):
                 gpu0.swap_to("whisper:large-v3")
-            with gpu0.lease("the GPU0 lease is not the GPU1 lease", wait_s=0) if False else gpu0._on(0):
-                pass
-            with gpu0._on(0), gpu0.lease("holding GPU0 only"):
-                pass
-            with self.assertRaisesRegex(gpu0.LeaseMissing, "a GPU1 load without the GPU1 lease"):
-                gpu0.swap_to("ollama:qwen3-coder:30b")
+            stack = contextlib.ExitStack()
+            with gpu0._on(0):
+                stack.enter_context(gpu0.lease("holding GPU0 only"))
+            with stack:
+                with gpu0._on(0):
+                    self.assertTrue(gpu0.held())                       # GPU0's lease IS held here ...
+                self.assertFalse(gpu0.held())                          # ... GPU1's is not
+                with self.assertRaisesRegex(gpu0.LeaseMissing, "a GPU1 load without the GPU1 lease"):
+                    gpu0.swap_to("ollama:qwen3-coder:30b")
+                with self.assertRaisesRegex(gpu0.LeaseMissing, "a GPU1 load without the GPU1 lease"):
+                    gpu0.swap_to("whisper:large-v3")
+            with gpu0.lease("the word-pass worker (test)"):            # the positive control
+                ev = gpu0.swap_to("whisper:large-v3")
+                self.assertEqual(ev["gpu"], 1)
 
     def test_a_process_works_on_one_gpu(self):
         with gpu0.lease("t"):                                          # a GPU0 process ...
