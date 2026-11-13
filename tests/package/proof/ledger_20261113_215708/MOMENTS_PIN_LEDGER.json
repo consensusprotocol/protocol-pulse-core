@@ -1,0 +1,457 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-ledger_20261113_215708-13949b7c",
+ "label": "bitcoin",
+ "headline": "A maturing asset outlasts the tech trade",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-13T22:14:05+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, ledger_20261113_215708)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "DcUbBkyeh9M",
+   "channel": "Simply Bitcoin",
+   "start": 216.054,
+   "end": 228.674,
+   "approved_text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.",
+   "transcript_sha256": "6d1aa0b9eea093985abac6f7f417670c6120463ba480e2f317f4300fa481c186",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-10T22:55:16Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "the transcript does not address anyone by name before or in the clip, the clip does not speak of the speaker's own work/role/company in first person, and no self-identification is present",
+    "people": [
+     {
+      "name": "Michael Saylor",
+      "role": "guest",
+      "line": "Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosive allegations surrounding Nvidia CEO Jensen Huang, a bigger question emerges: What happens when one person's actions threaten an entire market? Michael Saylor and Arthur Hayes offer competing perspectives on the AI trade, while Bitwise outlines a potential path to $1.6 million Bitcoin. Discover why key man risk matters, how concentrated your 401(k) might be, and why Bitcoin offers a fundamentally different model of ownership."
+     },
+     {
+      "name": "Arthur Hayes",
+      "role": "guest",
+      "line": "Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosive allegations surrounding Nvidia CEO Jensen Huang, a bigger question emerges: What happens when one person's actions threaten an entire market? Michael Saylor and Arthur Hayes offer competing perspectives on the AI trade, while Bitwise outlines a potential path to $1.6 million Bitcoin. Discover why key man risk matters, how concentrated your 401(k) might be, and why Bitcoin offers a fundamentally different model of ownership."
+     }
+    ],
+    "turn": {
+     "read": false,
+     "why": "no speaker-change marker before the clip",
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-1",
+    "measured": true,
+    "flags": [],
+    "third_person": {
+     "finding": "No person other than the speaker appears as a still, photo, or graphic in any frame, and no on-screen text names anyone.",
+     "how": "none",
+     "name_on_screen": null,
+     "shown": false,
+     "words_negative": true
+    },
+    "on_screen_text": [
+     {
+      "asserts_beyond_words": false,
+      "text": "Bitcoin Genesis Block",
+      "why": "Title card labeling the hex graphic as the Bitcoin genesis block, which illustrates the spoken point that Bitcoin launched in January 2009 and adds no separate claim."
+     },
+     {
+      "asserts_beyond_words": false,
+      "text": "Raw Hex Version",
+      "why": "Subtitle of the same title card describing the display format, not a factual assertion beyond the spoken words."
+     }
+    ],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "backend": "xai_vision:grok-4.7",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_7aa15a546b84bd5e.jpg",
+     "sha256": "7aa15a546b84bd5ed9eb262ff06962fb9f6b2e79869631322b77d389f1aaa9a9",
+     "times": [
+      216.05,
+      218.05,
+      220.05,
+      222.05,
+      224.05,
+      226.05,
+      228.05,
+      228.62
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "MqVqfEDXgLo",
+   "channel": "Yahoo Finance",
+   "start": 937.971,
+   "end": 957.291,
+   "approved_text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent.",
+   "transcript_sha256": "50af3e012a3dde0f6655796c592c04cc5765bc8266dfaadd17643888236dbde4",
+   "time_sensitive": true,
+   "source_published_at": "2026-11-13T15:00:29Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "the transcript does not address the speaker by name and the clip does not contain any first-person reference to a role or company tied to a specific person",
+    "people": [
+     {
+      "name": "Changpeng Zhao",
+      "role": "guest",
+      "line": "Changpeng Zhao, co-founder and former Chief Executive Officer, Binance"
+     },
+     {
+      "name": "Brian Sozzi",
+      "role": "host",
+      "line": "Brian Sozzi, Executive Editor, Yahoo Finance"
+     }
+    ],
+    "turn": {
+     "read": false,
+     "why": "a speaker-change marker falls inside the clip",
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-1",
+    "measured": true,
+    "flags": [],
+    "third_person": {
+     "shown": false,
+     "how": "none",
+     "words_negative": true,
+     "name_on_screen": null,
+     "finding": "Only the live speaker is visible; no still, photo, or graphic of any other person appears, and no on-screen text names anyone."
+    },
+    "on_screen_text": [],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "backend": "xai_vision:grok-4.7",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_43a0883e59ca43e6.jpg",
+     "sha256": "43a0883e59ca43e67a67053cbbcec7b5b1c12cfc1d96c1bd3123ab3324e8f005",
+     "times": [
+      937.97,
+      940.72,
+      943.48,
+      946.23,
+      948.98,
+      951.73,
+      954.49,
+      957.24
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "start": 1691.139,
+   "end": 1698.069,
+   "approved_text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.",
+   "transcript_sha256": "a60dcdb5d448a924b8b714b03afdd65644851d26173158eb8a9d06fa19a730f9",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-12T15:38:05Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "the basis for 'Ben Cowen' is not 3+ words found in the clip or the transcript around it",
+    "people": [
+     {
+      "name": "Ben Cowen",
+      "role": "guest",
+      "line": "title: Last Chance To Buy Bitcoin Over $70k?? Ben Cowen Interview"
+     }
+    ],
+    "turn": {
+     "read": true,
+     "why": null,
+     "source": {
+      "file": "/home/ultron/protocol_pulse/data/editorial/transcripts/HWuMai_mAug/transcript.yt_auto.json",
+      "sha256": "a997244cb4874f432324ff58a61bec75799016cf61c2cc94f8efeaec13e671d3"
+     },
+     "start": 1561.707,
+     "end": 1763.81,
+     "backchannels": [],
+     "address": null,
+     "self_intro": null
+    },
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "visual": {
+    "version": "visual-1",
+    "measured": true,
+    "flags": [],
+    "third_person": {
+     "shown": false,
+     "how": "none",
+     "words_negative": false,
+     "name_on_screen": null,
+     "finding": "Both people visible are live video participants in the show, and no other person appears as a still, photo, or graphic."
+    },
+    "on_screen_text": [],
+    "lower_third": {
+     "name": null,
+     "text": null
+    },
+    "backend": "xai_vision:grok-4.7",
+    "replayed": false,
+    "sheet": {
+     "name": "visual_e6e72e4ac6c1bf84.jpg",
+     "sha256": "e6e72e4ac6c1bf84ffb4c6b867cb7e3ee3bba02ae0fbf3e2a25c6b21c0a0e574",
+     "times": [
+      1691.14,
+      1693.14,
+      1695.14,
+      1697.14,
+      1698.02
+     ]
+    }
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "13949b7c2779021ca787065fb7e22cfb62d13c2d2f4d8e1dcbeb7018a87e7d37",
+  "type": "moments",
+  "vo_kind": "medley (L-y), written, attempt 1",
+  "edl_vo": {
+   "intro": null,
+   "bridges": [
+    {
+     "text": "Durability matters more than speed. A market that survives every cycle earns trust without asking. That is real maturation.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Simply Bitcoin, Yahoo Finance, and Altcoin Daily. Go follow them for more. Links are below.",
+  "title": "A maturing asset outlasts the tech trade",
+  "caption": "resilience is becoming the whole story. capital keeps finding a wider home.",
+  "hook_first_words": "Currencies are often born for political reasons, but",
+  "vo_jobs": {
+   "takeaway": "takeaway"
+  },
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "no_voice": null,
+  "caption_fallback": false,
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "hook_onset": {
+    "status": "PASS",
+    "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+    "replayed": false,
+    "n": 1,
+    "lead_ms": 180,
+    "cut_in": 215.804,
+    "why": "ok"
+   },
+   "stand_alone": {
+    "status": "PASS",
+    "by": "stand_alone.check_edl (the render's STAND_ALONE at the pin stage, moments=True: the render's clip scorer's verdicts as the integrator's service gave them, stand-alone only, the score alone (rulings 56, 60); without an affirming one a conjunction, reply-fragment or trimmed opener fails closed)",
+    "replayed": false,
+    "n": 1,
+    "rows": [
+     "hook: PASS opener: opens on 'currencies' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_01: PASS opener: opens on 'i' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_02: PASS opener: opens on 'i' | topic: about Bitcoin by the miner's screen ('Bitcoin')"
+    ],
+    "medley_names_bitcoin": {
+     "pass": true,
+     "segments": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "why": "named by hook, clip_01, clip_02"
+    },
+    "screen": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b"
+   },
+   "visual": {
+    "status": "PASS",
+    "by": [
+     "xai_vision:grok-4.7"
+    ],
+    "replayed": false,
+    "n": 3,
+    "flags": [],
+    "by_rule": "visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, never a reject by itself"
+   }
+  },
+  "btc_screen": {
+   "pattern": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b",
+   "source": "pp-ingest pipeline/ingest/mine.py@8e6afb61"
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "runtime_s_estimate": 61.77,
+  "cut_evidence": null,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=DcUbBkyeh9M&t=186s",
+   "https://www.youtube.com/watch?v=MqVqfEDXgLo&t=907s",
+   "https://www.youtube.com/watch?v=HWuMai_mAug&t=1661s"
+  ]
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1050,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"f003b72d2fe13d894ea5\" (on screen: Simply Bitcoin): \"Bitcoin is a life lessens in patience and conviction.\"\nCANDIDATE id=\"e05b34a672b73f3334ea\" (on screen: Simply Bitcoin): \"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\nCANDIDATE id=\"994ca307911a9ee1eb79\" (on screen: Simply Bitcoin): \"As I've said multiple times on this show, if you are the lone Bitcoiner, it does get lonely. When you come into Bitcoin, you're the only one that has this realization.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"f003b72d2fe13d894ea5\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"e05b34a672b73f3334ea\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"994ca307911a9ee1eb79\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\n  \"hooks\": {\n    \"f003b72d2fe13d894ea5\": {\n      \"scroll\": 3,\n      \"alone\": 5,\n      \"setup\": 4,\n      \"why\": \"lacks punch to stop scrolling\"\n    },\n    \"e05b34a672b73f3334ea\": {\n      \"scroll\": 2,\n      \"alone\": 2,\n      \"setup\": 4,\n      \"why\": \"starts with filler and prior references\"\n    },\n    \"994ca307911a9ee1eb79\": {\n      \"scroll\": 2,\n      \"alone\": 2,\n      \"setup\": 3,\n      \"why\": \"assumes context from prior mentions\"\n    }\n  }\n}",
+ "usage": {
+  "in": 743,
+  "out": 3014,
+  "usd_reported": 0.00832935
+ },
+ "usd": 0.079065,
+ "seconds": 24.1,
+ "recorded_at": "2026-11-13T21:59:46Z"
+}

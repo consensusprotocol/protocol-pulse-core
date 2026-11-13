@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-13T21:02:41+00:00",
- "build": "ledger_20261113_210211",
+ "generated_at": "2026-11-13T21:57:41+00:00",
+ "build": "ledger_20261113_215708",
  "kind": "moments",
  "candidates": [
   {
@@ -139,12 +139,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7117881d12512ebf0227",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 11.4,
+   "text": "And throughout this whole process, I've been saying forever, proof of work is a lifestyle. It's not just enough to buy Bitcoin and hold it. Like you are a walking billboard for Bitcoin.",
+   "text_sha256": "f27113bcbfef69ad131048057a659113369351774d5d53d43d177c7fa40e3d0e",
+   "trimmed_leading": null
+  },
+  {
    "pid": "ca33c7c7064d6870fc17",
    "video_id": "Sjb6lUiL0m4",
    "channel": "Stephan Livera",
    "duration": 19.14,
    "text": "But then if you can say, well, you know, it survived a 50 % Bitcoin drawdown in a bear market. USD cash reserves existed to pay the dividends. Companies had years, even decades worth of Bitcoin on the balance sheet that had a dividend coverage, potential dividend coverage as well.",
    "text_sha256": "d3e046ecca0b983df3f34f7ec6e89c128bbafa8126a74ae1d1080c969b7a07c6",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fbe26a2503b54cf9e9dc",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 17.43,
+   "text": "So you are seeing two worldviews clash right now. There's the traditional view of J.P. Morgan and Jamie Diamond. And then there's this new view of... Bitcoin as preceding collateral, Bitcoin as the future of money, and strategy becoming a quote -unquote Bitcoin bank for the future.",
+   "text_sha256": "aa9fd0931350edef76f319ed14ffc46a0c9cb981b2e81b7a8d25fcbd3f80d0fd",
    "trimmed_leading": null
   },
   {
@@ -172,6 +190,15 @@
    "duration": 8.0,
    "text": "Because in lugano, uh we have this uh payment system with more than 400 businesses accepting bitcoin. So you can live in bitcoin lugano.",
    "text_sha256": "7b812eb583df25fcf3211109c79c2222d3f69aed70380aa06852de8b7858516c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "28ebdcede4ba375f2607",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.98,
+   "text": "And the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
+   "text_sha256": "9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc",
    "trimmed_leading": null
   },
   {
@@ -319,12 +346,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "191fea6ec4e0331dfead",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 8.48,
+   "text": "But again, part of this whole thing is not just Bitcoin as capital. It's you as human capital. Bitcoin needs humans.",
+   "text_sha256": "5f00486f917976717c55c30098e1327ad782407c46ec18903e057235479d8ac4",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2128c2a13781d829e372",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
    "duration": 9.46,
    "text": "And I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
    "text_sha256": "c8f9b6d53c9d685eab56ef3b1410221447e05a43de843e60297cac5546d13421",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4170169f9347de0ee893",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 11.99,
+   "text": "And until the perception around holding Bitcoin changes, he's making the case that we won't see all time high. I don't know about all that per se. But I do agree with the fundamental message.",
+   "text_sha256": "b39158c309f8a00364a215c67085f076049b8ac371d798535fe529aca73f4952",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "50a55b51014063e426e5",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.94,
+   "text": "And on the opposite side, Sailor's been kind of positioning himself as like the Jamie Diamond of Bitcoin. He's recently came out and said, like, strategy is going to become the central bank of crypto.",
+   "text_sha256": "758effb12b352c9af31bac875df89f1df2de5121aab8ccf7334f30801f1c2bde",
    "trimmed_leading": null
   },
   {
@@ -580,15 +634,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "04abb94730f940656581",
-   "video_id": "R-iKNbc7-zk",
-   "channel": "Altcoin Daily",
-   "duration": 11.12,
-   "text": "So I'll be honest with you. I think that Bitcoin will go lower than 57K during Trump's term. Okay. I think it will.",
-   "text_sha256": "4390daa61e8f6d9b86fe315c89c8358239b5e87720b5e8f92935cdb8ebb630d8",
-   "trimmed_leading": null
-  },
-  {
    "pid": "1d562f5799544d92c6d8",
    "video_id": "5yaK-qNOKqE",
    "channel": "CoinTelegraph",
@@ -649,6 +694,15 @@
    "duration": 12.26,
    "text": "And that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
    "text_sha256": "12e65c60960daeedb181303de51c4fba8f51e78c900b4a9b755b0ef29c2b9764",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "081b03a09f0cb452e481",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 14.02,
+   "text": "And now, and this was my response. Like, like, non -ironically, okay? Non -ironically. I don't think Bitcoin price will go up until Bitcoiners and tell people that hold a lot of Bitcoin stop being dorks and losers. Period.",
+   "text_sha256": "e629156fbaf024b1a08d5b73602ac0b67dadfb4a6d3d980382b4392eb6e363cc",
    "trimmed_leading": null
   },
   {
@@ -760,6 +814,24 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "7117881d12512ebf0227~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 11.32,
+   "text": "throughout this whole process, I've been saying forever, proof of work is a lifestyle. It's not just enough to buy Bitcoin and hold it. Like you are a walking billboard for Bitcoin.",
+   "text_sha256": "f9874f98e2ce82c94dc6067442c2ee94338e9db096952b40331fc3e1d164ab60",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "fbe26a2503b54cf9e9dc~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 17.33,
+   "text": "you are seeing two worldviews clash right now. There's the traditional view of J.P. Morgan and Jamie Diamond. And then there's this new view of... Bitcoin as preceding collateral, Bitcoin as the future of money, and strategy becoming a quote -unquote Bitcoin bank for the future.",
+   "text_sha256": "965a8ff017616239337a8d836a8df711a089c5597a3953e10d38dfafdc5ceea2",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "040795ca039b3d65e0a7~trim",
    "video_id": "NVUxOhIV3K8",
    "channel": "Stephan Livera",
@@ -776,6 +848,15 @@
    "text": "the fear -mongering of single -sig Bitcoin wallets are broken, never touch them. The data proves that to be wrong.",
    "text_sha256": "0604e90cb998d08e93d77737f25a704d4d3cee5af2dcf195eb20d300f08aa391",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "28ebdcede4ba375f2607~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.9,
+   "text": "the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
+   "text_sha256": "d0d7afa1b5cf39cc595971a312d875288357d88a8d03a650e5326c662f14373d",
+   "trimmed_leading": "And"
   },
   {
    "pid": "94ca04cde8d0380acfe8~trim",
@@ -904,12 +985,39 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "191fea6ec4e0331dfead~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 8.4,
+   "text": "again, part of this whole thing is not just Bitcoin as capital. It's you as human capital. Bitcoin needs humans.",
+   "text_sha256": "827f6feedb62d77d9373cec9f457829c7c5ada6bae2139015b8b7f48238bdee6",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "2128c2a13781d829e372~trim",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
    "duration": 9.4,
    "text": "I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
    "text_sha256": "4f4d1bb8f2cd7ff31799138fd125691af179211f9c3cfef852e769f7dece2390",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "4170169f9347de0ee893~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 11.83,
+   "text": "until the perception around holding Bitcoin changes, he's making the case that we won't see all time high. I don't know about all that per se. But I do agree with the fundamental message.",
+   "text_sha256": "8aef15f3773c905cde0a7981e2a81ec2f3abbe6e9aaed133097aed1f27e53ce4",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "50a55b51014063e426e5~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.84,
+   "text": "on the opposite side, Sailor's been kind of positioning himself as like the Jamie Diamond of Bitcoin. He's recently came out and said, like, strategy is going to become the central bank of crypto.",
+   "text_sha256": "34cf0600daaa64d1c7c5875703d20b80ae55a0d042425f77d3bd34115bce9a41",
    "trimmed_leading": "And"
   },
   {
@@ -1138,15 +1246,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "04abb94730f940656581~trim",
-   "video_id": "R-iKNbc7-zk",
-   "channel": "Altcoin Daily",
-   "duration": 10.6,
-   "text": "I'll be honest with you. I think that Bitcoin will go lower than 57K during Trump's term. Okay. I think it will.",
-   "text_sha256": "21a8e1587c405b93c5fd66123e52d1c36506461a2b490f55b7dcbd1cf01863b4",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "1d562f5799544d92c6d8~trim",
    "video_id": "5yaK-qNOKqE",
    "channel": "CoinTelegraph",
@@ -1207,6 +1306,15 @@
    "duration": 12.18,
    "text": "that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
    "text_sha256": "5f11e6a37d276e18c8edfabecca08666f60645cbbe76fa7830ab11b647d916b0",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "081b03a09f0cb452e481~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 13.98,
+   "text": "now, and this was my response. Like, like, non -ironically, okay? Non -ironically. I don't think Bitcoin price will go up until Bitcoiners and tell people that hold a lot of Bitcoin stop being dorks and losers. Period.",
+   "text_sha256": "7c905459601b9457d38614c72622b959323e5865c846f7c7a140afcc2f81a330",
    "trimmed_leading": "And"
   }
  ]

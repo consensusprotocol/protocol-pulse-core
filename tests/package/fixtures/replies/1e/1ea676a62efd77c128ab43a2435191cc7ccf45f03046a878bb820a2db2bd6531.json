@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "08f835ddbe97816a366366e07ad1348762e9de6e4b0d4aa07cd6c2e712592adb",
+ "result": {
+  "text": "I endorse the message that Brian just said. It's like, if we want Bitcoin to succeed, there's a few things we need to do. One, separate ourselves from all the scammers in shitcoin land. That's why I keep going",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.04,
+    "end": 15.08,
+    "text": "I endorse the message that Brian just said. It's like, if we want Bitcoin to succeed, there's a few things we need to do. One, separate ourselves from all the scammers in shitcoin land. That's why I keep going"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 1.04,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "endorse",
+    "start": 1.16,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.72,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "message",
+    "start": 1.84,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.7,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Brian",
+    "start": 3.0,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 3.46,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said.",
+    "start": 3.64,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 3.88,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 4.059,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.16,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 5.32,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 5.48,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.8,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.26,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "succeed,",
+    "start": 6.44,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 8.0,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.22,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 8.34,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 8.56,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 8.96,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.14,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do.",
+    "start": 9.3,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "One,",
+    "start": 10.12,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "separate",
+    "start": 10.68,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ourselves",
+    "start": 11.12,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 11.58,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 11.84,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.02,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scammers",
+    "start": 12.24,
+    "end": 12.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.7,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shitcoin",
+    "start": 12.86,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "land.",
+    "start": 13.38,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 13.86,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 14.12,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.4,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "keep",
+    "start": 14.52,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 14.76,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.12
+ },
+ "usd": 0.003024,
+ "seconds": 0.96,
+ "recorded_at": "2026-11-13T21:59:09Z"
+}

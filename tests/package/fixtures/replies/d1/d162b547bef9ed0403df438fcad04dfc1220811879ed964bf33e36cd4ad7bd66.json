@@ -1,0 +1,422 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0653b8cb7437d4e158707e491bc37e6470b0e8b5e74e1d2738ca93abfbfe8dc7",
+ "result": {
+  "text": "It's wholly not a black pill. I also said the other day on my, on my account, it was something on the lines of like, \"Bitcoin calls to the part of you that knows you can be better.\" Look, I've gone on this rant before multiple times, and I actually have one saved, saved in my drafts where it's like, \"Bitcoin elitist for the win.\" Like",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.5,
+    "end": 24.7,
+    "text": "It's wholly not a black pill. I also said the other day on my, on my account, it was something on the lines of like, \"Bitcoin calls to the part of you that knows you can be better.\" Look, I've gone on this rant before multiple times, and I actually have one saved, saved in my drafts where it's like, \"Bitcoin elitist for the win.\" Like"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 1.5,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wholly",
+    "start": 1.68,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 2.0,
+    "end": 2.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.18,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "black",
+    "start": 2.26,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pill.",
+    "start": 2.58,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.36,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 4.5,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 4.9,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.14,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 5.28,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "day",
+    "start": 5.52,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.38,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my,",
+    "start": 6.54,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.86,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 6.98,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account,",
+    "start": 7.08,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.7,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 7.76,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 7.88,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.22,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.36,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lines",
+    "start": 8.44,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.84,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 9.02,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Bitcoin",
+    "start": 9.36,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "calls",
+    "start": 9.94,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.36,
+    "end": 10.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.5,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 10.64,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.0,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.2,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.36,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knows",
+    "start": 11.56,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.88,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 11.98,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.12,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better.\"",
+    "start": 12.3,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Look,",
+    "start": 14.4,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 14.58,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gone",
+    "start": 14.72,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 14.92,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 15.04,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rant",
+    "start": 15.26,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 15.5,
+    "end": 15.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multiple",
+    "start": 16.72,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "times,",
+    "start": 17.14,
+    "end": 17.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.78,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 19.0,
+    "end": 19.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 19.08,
+    "end": 19.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 19.4,
+    "end": 19.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 19.66,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saved,",
+    "start": 19.9,
+    "end": 20.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saved",
+    "start": 20.32,
+    "end": 20.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 20.62,
+    "end": 20.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 20.72,
+    "end": 20.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "drafts",
+    "start": 20.9,
+    "end": 21.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 21.24,
+    "end": 21.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 21.36,
+    "end": 21.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 21.5,
+    "end": 21.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Bitcoin",
+    "start": 21.68,
+    "end": 22.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "elitist",
+    "start": 22.14,
+    "end": 22.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 22.68,
+    "end": 22.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 22.86,
+    "end": 22.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "win.\"",
+    "start": 23.02,
+    "end": 23.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 24.58,
+    "end": 24.7,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.77
+ },
+ "usd": 0.004954,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-13T21:59:10Z"
+}

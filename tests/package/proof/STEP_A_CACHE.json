@@ -6579,5 +6579,728 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "f003b72d2fe13d894ea5:39f1396ff92f07d29c897e9312b059d17a48c49c23d8463ca9f8491cb575fb22:65b894789014385a24dfa47602609416be8d0dd05b9a38446378d244a7f50825:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f003b72d2fe13d894ea5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is a life lesson in patience and conviction.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "You're the only Bitcoin channel I watch.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f003b72d2fe13d894ea5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is a life lesson in patience and conviction.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "You're the only Bitcoin channel I watch. Well, thank you, man.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "38dc9d04d8b6a7e25a10:e392721237f301eb5a3963934df8fe389a099585e65b41709d91b2e5243416af:45f0f5fdfcab20335850c761c56627cdc96fefbe82e32291acfd1ccac3c59404:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "38dc9d04d8b6a7e25a10",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "if we want Bitcoin to succeed",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "To make Bitcoin succeed we must separate ourselves from scammers and shitcoin land.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I endorse the message that Brian just said.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "38dc9d04d8b6a7e25a10",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "people who want Bitcoin to succeed (speaker and audience/community)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we",
+     "refers_to": "people who want Bitcoin to succeed (speaker and audience/community)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "ourselves",
+     "refers_to": "people who want Bitcoin to succeed (speaker and audience/community)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if we want Bitcoin to succeed",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If we want Bitcoin to succeed, we need to do a few things, starting with separating ourselves from scammers and shitcoin land.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've been telling you all year of this 2026...",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7a033059dd483e36a8db:369ad99867de8fe1ee068c343e91ba53b1706c6612b58d3d85d7e9bd1e1b2fc3:3835c7eba710cc3507062a618d3bdcdd324a4ec4568347fc3a3b8ed21f799fdd:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7a033059dd483e36a8db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the fact that Bitcoin changed the speaker's life",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has fundamentally changed the speaker's life in finances, career, residence, and worldview.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "McFly Opti, for real, thank you for carrying the weight of the show.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "7a033059dd483e36a8db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the point/idea the speaker is about to illustrate (that Bitcoin changed his life)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that Bitcoin truly changed his life completely, affecting his finances, work, residence, and worldview.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "All right, let's see what Rumble is saying.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e05b34a672b73f3334ea:87514ebf7e4ac07aa4a498df20526f1e6058b6a6cdf24a6ad4cd9860dbde4ea3:6cc7181e9bf549525d60055e2e8221778b57b80d20d73d291e958a2169ca7e3a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e05b34a672b73f3334ea",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the idea of viewers becoming better people",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Simply Bitcoin / the speaker's content and community",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker wants every viewer of Simply Bitcoin to become a better person thanks to the show and community, not just richer.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "e05b34a672b73f3334ea",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the desire/statement that follows (that people become better because of Bitcoin/Simply Bitcoin)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "every single person",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "every single person",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "me",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the hypothetical person who comes up to thank the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin / Simply Bitcoin / the community",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker wants everyone who has watched Simply Bitcoin and interacted with him in the live chat to eventually tell him that they are a better person, not just richer, because of it.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've said this multiple times on this show.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "e8ac8d86dea8e2996ae0:8185aa1429b48f1f95495e8ac08b64569b19e673dfa23f6fffae4e204ff1eade:767a6f06e26951fc8410fe87b28b97b8ac54a09aad653cacb060ed6c995c79d4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e8ac8d86dea8e2996ae0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "JP Morgan increased its iBit holdings to 11.4 million shares worth $540 million and is bullish on both Bitcoin and MSTR.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is from Coindes. This is Coindesk covering it on Twitter.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "be9efa84fddb57f5d974:5673dff7e37cf9dd97a8d9efeef56dd8bf99986d527ad16d33e008edd90e87dc:79f36d694576fb0c463e290b010fa48efd3c4d5deb39896179adc93b95200244:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "be9efa84fddb57f5d974",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "normal people / those adjacent to Bitcoin who watch gambling-sponsored content",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Normal people view Bitcoin as just another shitcoin and as gambling.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin and these guys are sponsored by like Duel and Stake",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f07b5a20dc8cd723d171:8ba7685561b54f885e905f3e9e10ab6aace90a447fe2441a0a26d45060f452ae:2eee30c6fcec9226e08c5d456a991c7f5f26f897ed6c0f38c3839a115942d13e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f07b5a20dc8cd723d171",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "To fake a dump, one sells Bitcoin to oneself at lower prices.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "You're the only Bitcoin channel I watch.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "56c3f96b6f148760c9f5:d921b4c19c1d704e929fd0d013138b770a79f943c12fe78a3fa8999529ad535d:00801e242dde4b09d03dceb732076feba0efc0a350bf747bb7d5742395478518:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "56c3f96b6f148760c9f5",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "Bitcoiners / humans in the community",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "us",
+     "refers_to": "Bitcoiners / humans in the community",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin remaining a niche thing",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Until we get better as humans and more people look to us for advice on life",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Until Bitcoiners improve as humans and others seek their life advice, Bitcoin will remain a niche interest that repels people due to its holders.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Opti is a wannabe clavvicular.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "78909644aa3667a3e177:519b7479ba9338102961f8a09b6ff9e663fc9c08fb209c3c9ca81398c6ecac60:e3cea3ad1cfc34af5734278bd66f8e8c5268352e2f59dfc2a6f2647ebf1ba091:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "78909644aa3667a3e177",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "Brian Harrington",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this idea",
+     "refers_to": "you are the walking billboard for Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the idea",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this way",
+     "refers_to": "phrasing as walking billboard for Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Brian Harrington has been emphasizing the idea that Bitcoin holders are walking billboards for Bitcoin, which matches what the speaker has said for years though Brian does not phrase it that way.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is one of my friends, Brian Harrington. He's been on the show.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "92605f87420c44b3b8f3:4a8c00ca535daa44436248ade1856bb6b9bd1eb4d103ebd04a55b7d0db5d8a45:0ae2433e628412e825a48e49db3e33cfc028e9a979d11fbc202297e278702964:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "92605f87420c44b3b8f3",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "on the show during casual Friday",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the current Bitcoin market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker is speaking a little more casually here, but the current Bitcoin price is $68,850 and the situation is brutal.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Alrighty then, guys. So, we're going to do a little casual Friday, you know,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "94bd089fb811e443f4a5:bc43b5d2369bb091fbd9f5ad4b94135ae52d8771d4cdb80794e4edae357cfe0a:d3b68f61cd9a92de3e03f3980fb60cfc256d229a04b67c51a903107bd80dc7ec:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "94bd089fb811e443f4a5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this narrative",
+     "refers_to": "lumping Bitcoin in with shitcoins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "us all",
+     "refers_to": "Bitcoiners",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "this narrative",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The narrative lumping Bitcoin with shitcoins makes Bitcoiners look like scammers or gamblers, but that is not what Bitcoin is.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I endorse the message that Brian just said.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "994ca307911a9ee1eb79:dc3335610930125b76f9838d5f6bc600a245ac14340b8e9dbc222e394c3be4d4:4cdaeca0d116bbaa3f2c80c4143d85ba059589fcc53c8b06dbb8a882c567e31c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "994ca307911a9ee1eb79",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this show",
+     "refers_to": "Simply Bitcoin",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "being the lone Bitcoiner",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you are the lone Bitcoiner",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "As the speaker has said before, if you are the lone Bitcoiner it does get lonely, and when you come into Bitcoin you are the only one with this realization.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "this channel has fundamentally become a part of their lives",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "994ca307911a9ee1eb79",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I've",
+     "refers_to": "the speaker/host",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this show",
+     "refers_to": "the show/channel being spoken on (Simply Bitcoin)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "being the lone Bitcoiner / the situation of being the lone Bitcoiner",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this realization",
+     "refers_to": "the realization about Bitcoin that the speaker has in mind, not specified in the selected words",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you are the lone Bitcoiner",
+     "inside": true
+    },
+    {
+     "text": "When you come into Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that, as he has often said on the show, being the lone Bitcoiner is lonely, and when you first get into Bitcoin you are the only one who has this realization.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "As I've said multiple times on this show",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "a714eb9413d3d1a6c3e2:868f0226c5396ba6f0dd554f1a6257562c9c8ce17dc003fefe2a22edc04d0abb:7db21aa1bae5a2852e79a5812cc67f92b39852b304a6e9d1ba58b520c8976507:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a714eb9413d3d1a6c3e2",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "my account",
+     "refers_to": "the speaker's Twitter/X account",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "a statement or tweet",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this rant",
+     "refers_to": "the rant about Bitcoin calling people to be better and Bitcoin elitists",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker recently tweeted something like Bitcoin calls to the part of you that knows you can be better, and has gone on this rant about Bitcoin elitists for the win multiple times before.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I also said the other day on my account",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "e0ef020c20d3c577f58c:0c2422721a4f8361fccd79fb028f50e27ea1c5ed413a81f49d728d5fa3aa2c5c:59b81156c81981d31a85961df4bb0edf3fc416f14697dccef8da3d859f69453a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e0ef020c20d3c577f58c",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "this idea",
+     "refers_to": "Bitcoiners being elite capital",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we",
+     "refers_to": "Bitcoiners",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when I came up into Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "When the speaker came into Bitcoin there was an idea that Bitcoiners were elite capital who are the smartest, understand how the world works, and are going to be the richest and in power.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Look, I've gone on this rant before multiple times",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "756d28a8b35a6d73c005:9af518337d7ccd33e5fb0d2bbc75b59df3a7ca465400515f89c5ff6321b96179:22545e43ec199052069bb5caa09e9d32af432095106e472426f334e6197fac79:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "756d28a8b35a6d73c005",
+   "speaker_changes_inside": "no",
+   "view": "reading_aloud",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the Koshi betting market",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "before January 2027",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "According to the Koshi market, the chance of Bitcoin crossing 100K before January 2027 is 6 percent, and it has gone up 1 percent since the speaker started this.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "this is on Kouchi, of course. ... So, this market's interesting.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "03203bb0ab3aed3b3562fd6d9377287be97251d4e35da06e42f0e91088beff5d",
+ "result": {
+  "text": "All righty then, guys. We're gonna do a little casual Friday, you know, a little, a little more casual here. But the current Bitcoin price is $68,850. Dude, it's brutal. Let's see. Where are we at?",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 13.66,
+    "text": "All righty then, guys. We're gonna do a little casual Friday, you know, a little, a little more casual here. But the current Bitcoin price is $68,850. Dude, it's brutal. Let's see. Where are we at?"
+   }
+  ],
+  "words": [
+   {
+    "text": "All",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "righty",
+    "start": 0.2,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then,",
+    "start": 0.6,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guys.",
+    "start": 0.94,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 1.6,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 1.74,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 1.9,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.0,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 2.06,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "casual",
+    "start": 2.48,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Friday,",
+    "start": 3.14,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 3.88,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 3.94,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.019,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little,",
+    "start": 4.08,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.48,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "little",
+    "start": 4.6,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 4.76,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "casual",
+    "start": 4.98,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here.",
+    "start": 5.7,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 6.06,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.32,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "current",
+    "start": 6.52,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.86,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 7.34,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.96,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$68,850.",
+    "start": 8.52,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dude,",
+    "start": 11.26,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 11.64,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "brutal.",
+    "start": 11.84,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Let's",
+    "start": 12.48,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see.",
+    "start": 12.74,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Where",
+    "start": 13.18,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 13.28,
+    "end": 13.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.38,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at?",
+    "start": 13.56,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.7
+ },
+ "usd": 0.00274,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-13T21:59:06Z"
+}

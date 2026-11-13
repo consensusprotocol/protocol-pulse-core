@@ -88,6 +88,45 @@
   },
   "version": "visual-1"
  },
+ "a5f5a1d5d1e5482718f6:937.971-957.291:visual-1:3d4e338e3629af5e": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_43a0883e59ca43e6.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_43a0883e59ca43e6.jpg",
+   "sha256": "43a0883e59ca43e67a67053cbbcec7b5b1c12cfc1d96c1bd3123ab3324e8f005",
+   "times": [
+    937.97,
+    940.72,
+    943.48,
+    946.23,
+    948.98,
+    951.73,
+    954.49,
+    957.24
+   ]
+  },
+  "third_person": {
+   "finding": "Only the live speaker is visible; no still, photo, or graphic of any other person appears, and no on-screen text names anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2769,
+   "out": 2199,
+   "usd_reported": 0.017004
+  },
+  "version": "visual-1"
+ },
  "afe8101ad97672f4a9ad:3799.476-3815.836:visual-1:04751cd9f52004ea": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -124,6 +163,42 @@
    "in": 2766,
    "out": 5738,
    "usd_reported": 0.038232
+  },
+  "version": "visual-1"
+ },
+ "c7646b4ee91f955cf58f:1691.139-1698.069:visual-1:12c8f5da0237510c": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_e6e72e4ac6c1bf84.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_e6e72e4ac6c1bf84.jpg",
+   "sha256": "e6e72e4ac6c1bf84ffb4c6b867cb7e3ee3bba02ae0fbf3e2a25c6b21c0a0e574",
+   "times": [
+    1691.14,
+    1693.14,
+    1695.14,
+    1697.14,
+    1698.02
+   ]
+  },
+  "third_person": {
+   "finding": "Both people visible are live video participants in the show, and no other person appears as a still, photo, or graphic.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2737,
+   "out": 4385,
+   "usd_reported": 0.030056
   },
   "version": "visual-1"
  }

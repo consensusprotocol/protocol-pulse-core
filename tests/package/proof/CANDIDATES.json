@@ -39,7 +39,8 @@
   "tests/package/proof/ledger_20261113_180515",
   "tests/package/proof/ledger_20261113_183302",
   "tests/package/proof/ledger_20261113_210211",
-  "tests/package/proof/ledger_20261113_212949"
+  "tests/package/proof/ledger_20261113_212949",
+  "tests/package/proof/ledger_20261113_215708"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -195,6 +196,28 @@
      "class": "line",
      "fresh": false,
      "why": "2 write(s) failed their gates (STRONGER)"
+    }
+   ]
+  },
+  "82473bb0964f115fbdda+a5f5a1d5d1e5482718f6+c7646b4ee91f955cf58f": {
+   "lineup": [
+    "82473bb0964f115fbdda",
+    "a5f5a1d5d1e5482718f6",
+    "c7646b4ee91f955cf58f"
+   ],
+   "source": "tests/package/proof/ledger_20261113_215708",
+   "index": 2,
+   "found_at": "2026-11-13T21:57:08.586494+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261113_215708",
+     "at": "2026-11-13T21:57:08.586494+00:00",
+     "class": "package",
+     "fresh": false,
+     "why": "packaged by the build that passed it"
     }
    ]
   }

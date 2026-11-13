@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: A maturing asset outlasts the tech trade\nCAPTION: resilience is becoming the whole story. capital keeps finding a wider home.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: Yahoo Finance): \"I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent.\"\nCLIP label=\"clip_02\" (on screen: Altcoin Daily): \"I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.\"\nVOICE-OVER: Durability matters more than speed. A market that survives every cycle earns trust without asking. That is real maturation.\nVOICE-OVER: Clips today from Simply Bitcoin, Yahoo Finance, and Altcoin Daily. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\n  \"through_line\": \"Bitcoin demonstrates maturation as a resilient asset by outlasting tech stock volatility in downturns and attracting capital flows from treasuries and the industry.\",\n  \"clips\": {\n    \"clip_01\": 5,\n    \"clip_02\": 4\n  },\n  \"vo_point\": 4\n}",
+ "usage": {
+  "in": 667,
+  "out": 1551,
+  "usd_reported": 0.00457685
+ },
+ "usd": 0.04211,
+ "seconds": 12.24,
+ "recorded_at": "2026-11-13T22:12:41Z"
+}
