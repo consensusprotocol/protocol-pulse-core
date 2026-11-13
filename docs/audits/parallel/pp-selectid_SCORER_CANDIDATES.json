@@ -1,0 +1,1312 @@
+{
+ "generated_at": "2026-11-13T15:16:07+00:00",
+ "build": "ledger_20261113_145246",
+ "event_expected": "Pinned: bitcoin",
+ "candidates": [
+  {
+   "pid": "16df0954cc411a943bbc",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "duration": 14.08,
+   "text": "And so we've seen kind of the four -year cycles play out, which my belief is that those will become less meaningful over the course of into the future. But we're willing to underwrite Bitcoin going down 80%.",
+   "text_sha256": "8b9f785e0bbb40b8348dd6dfd9098d472418698fb7a8f5aaaa14bf1f912a9b53",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cfdd07a397920dd30607",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 11.06,
+   "text": "But you talk someone in Venezuela and they're like, wait, oh, you're like, oh, it's volatile. It's like, what do you mean? It's volatile. My country's lost 90 % in like 12 months. It's worse than that. It's like, oh, no, no, this just swings like 20 % here and there.",
+   "text_sha256": "8cb2b236339fe3396933c14093e9b554f899f2e6dede579ad57a9cee1bb2ae03",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5217250daaec7267e57d",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 14.92,
+   "text": "And that means when you when you're attacking anything, There's the hard, like the software attack where you find an exploit in the code base. But every single hacker on earth will tell you the one thing, the same. The number one way to compromise anything is through social engineering.",
+   "text_sha256": "fcee51cff9511e1ada3e159e757b00cc04647f3bff17fde2ff6646cedb3b5362",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b6391ff95cb1ef5a2063",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 9.26,
+   "text": "And so all of that is to say macros in the driver's seat. It has been the entire year. You've seen it with what's happening with data centers, with memory stocks, with gold.",
+   "text_sha256": "9630fbbc3a34c3dc24b742a11ab28294acd4eebbe5be5a9ff6db561a170bdd54",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e040fee1a1c940c921df",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 8.9,
+   "text": "And if there are no more moats, where are you going to put your money? You're going to put your money in the one thing that has a moat, the one thing that can't be to base, the best form of money.",
+   "text_sha256": "d125172b66205e9b50103e9838906f45fddb840c45130979c57cc897698e6464",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5797fe7a621b600b37cf",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 15.07,
+   "text": "But I guess bringing things to more short and medium term, if the idea is, okay, money printing, you know, governments of the world. They have these very big debts. Obviously, you're American. American government debt is like, whatever, 40 trillion last I checked.",
+   "text_sha256": "fe5ed9dcbff15b621b0cf2acf34275dacb8a135939d6c27c590813dc67b7da7e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6f6d6f54de605b086ab3",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 7.32,
+   "text": "But if you were to find one asteroid that had huge gold deposits in it, you could double the world's gold supply overnight. You cannot do that with Bitcoin.",
+   "text_sha256": "0a59da225f7f5630014b4987605c695da37e90ae0fde11820fac3cd58eba668a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fa73f6c3fe91a4e78d18",
+   "video_id": "DcUbBkyeh9M",
+   "channel": "Simply Bitcoin",
+   "duration": 16.88,
+   "text": "And Wall Street's answer is diversification. But the ultimate diversification is decentralization. Bitcoin is an asset that can be owned by everyone. but totally controlled by no one. No key man, no key company, no key country. That's why I think it's the best antidote to key man, key sector, or key country risk.",
+   "text_sha256": "a5b28c2b400eb423258642b086cd98f5d4e67a691530e56dffc04c3d891f8690",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "00dc5e6b2347d9c0e922",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 13.46,
+   "text": "But this was not, as a as again, i'd like to point out, in bitcoin, we like to think no one is in charge of it. No one has influence. And there are no kings because kings cannot be trusted. So in the protocol, we trust.",
+   "text_sha256": "8a8000c4f9226c27f71e161a18bb1f82ea34b762aff3401e5e7915afcf457d79",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0d4d772b8d54fe42950f",
+   "video_id": "BS0XC_tixa8",
+   "channel": "Simply Bitcoin",
+   "duration": 13.12,
+   "text": "And that's why Bitcoin matters so much in this fight. For 17 years, they've come at it through the price, through the banks, through the rules, and now through its biggest buyer. And there's still no CEO to pressure, no board to lean on, and nobody to remove.",
+   "text_sha256": "ae48ec55de9a740e3001027edbbb8822e21c14d140c8af60c1f99e44bd8e529b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0f50515021b30ddfbec6",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 16.3,
+   "text": "So if you look at the average income in the lowest 20 economies like $40 a month. So when people go, dude, it's like it's only like 400 boxed by a node. That's like now that we translate that to our world. That's like saying, how many Bitcoin miners do you own?",
+   "text_sha256": "26a90fa2a457d17c62e499fcd4a3709137d44049daf1841ae6220d5c2f9e9e38",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "91b5fe9d749569e7cdf8",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 10.7,
+   "text": "And it's got a immutable supply. Like it's got a unchangeable supply. It doesn't do anything else. It's very boring and it does one thing, but it does that thing with absolute certainty.",
+   "text_sha256": "8b4e508af954375852a3ce654c1386294b64b41c317c78a689e9accd030bdcbe",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "eba522c41880b45a3bd6",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 10.84,
+   "text": "But when you're a business that deals with money, specifically a bearer asset, you don't have a choice. Security is your product. Now, oh, we need the bells and the wizard.",
+   "text_sha256": "76c85c2e8d0fd9c54018026152411202d45ff5f9f71000f534708db46a0dea19",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0700afb3b61ffb4cbbe3",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 10.96,
+   "text": "But I don't know if it will last forever because ultimately I think we're measuring the price of Bitcoin in fiat money. Fiat monies historically eventually fail.",
+   "text_sha256": "6d44587a6d3161a6de98b1048ceb0647d3a2863949db4435aa17501d39f9d638",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1d7ec816c85be89ce6a9",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 9.15,
+   "text": "And maybe that's the white pill or the optimistic thing. I believe you and listeners with is like, I talked to the largest firms in the world and they're all working on their strategy. They're all hiring. They're all building things out.",
+   "text_sha256": "13d01477059e8bf8aa4b27e3ee505972e9c21ffcb4445e3a26cb673a31dc47c3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "47d3d30968a793a6f9a8",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 18.54,
+   "text": "So all, any Bitcoin exchange operator, you'll know that they have the most. battle tested systems possible because they are the final front they are the gold mine every single one of them. So whether it's coin base whether it's crack and whether it's whoever, they are the place where people want to go because they know if i get in, i get it.",
+   "text_sha256": "15711bde3548b8d360a0cdaf1ea0b5258da889bb91c55a9439abd62609681346",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "511a7cdc2ce798c78a5f",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 12.53,
+   "text": "Because normally what causes dominance to collapse is a parabolic rally by a bitcoin. And until we have a parabolic rally by bitcoin, Yes, dominance might go down sometimes, but it still likely will continue to go up.",
+   "text_sha256": "44d22af3bf11962355f06c4eaf4afa8dd864e930c823360cda22d7d42113c145",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "544fc6c48aae0042e64d",
+   "video_id": "f22H17BKYRw",
+   "channel": "The Bitcoin Layer",
+   "duration": 13.6,
+   "text": "So Jamie and I really see eye to eye when it comes to this adage that price is truth. In the end, price is the only thing that we can use to tell. what's really going on in a market.",
+   "text_sha256": "793f1e40f8de8903cc31647fbdb45e467d5289ea4a23c0ca9196c9fb053af5fd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "61f82aa067b14ed0595f",
+   "video_id": "f22H17BKYRw",
+   "channel": "The Bitcoin Layer",
+   "duration": 7.12,
+   "text": "So it's easy for people to make that leap that, oh, these assets aren't correlated anymore. They've decoupled.",
+   "text_sha256": "6533405730e08a075b54394bb6ed58057eb66c431c30c30bb07caf5e54740468",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ca33c7c7064d6870fc17",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 19.14,
+   "text": "But then if you can say, well, you know, it survived a 50 % Bitcoin drawdown in a bear market. USD cash reserves existed to pay the dividends. Companies had years, even decades worth of Bitcoin on the balance sheet that had a dividend coverage, potential dividend coverage as well.",
+   "text_sha256": "d3e046ecca0b983df3f34f7ec6e89c128bbafa8126a74ae1d1080c969b7a07c6",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d12132f5312be0dfe3f8",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 12.2,
+   "text": "And so the idea is if you're going to put material wealth in an asset, Why would you put it in a way where you can lose it all? Whether you're doing it yourself on a single harder device, collaborative custody, or third party custodian, it's not to say that there should be some percentage in something like that.",
+   "text_sha256": "2d32a87a2b761da57c56c0eefe87d8c4a0eb08025f52f9a9b2e401fc1b9b6175",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e8116beba556497dd08c",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 9.69,
+   "text": "And I'll be honest with you. For the first time in a long time, I'm uncertain what happens to Bitcoin next. I can see the bull case. I can see the bear case.",
+   "text_sha256": "2ef0befd80bd61c31a31f71fffaf77c966929823af4893ee796b19ee9298dc4c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "12b74e9893af988262c6",
+   "video_id": "lYca6Bg0FkM",
+   "channel": "The Bitcoin Layer",
+   "duration": 4.74,
+   "text": "And that's the key word here. Strong dollar means fear around the world.",
+   "text_sha256": "0686ea1b22914f2901a097b8d961ab1c92648d5e09ae73dbfd951fcafcf98e4a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1b78d5158d770af6f09c",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 11.55,
+   "text": "So the fear -mongering of single -sig Bitcoin wallets are broken, never touch them. The data proves that to be wrong.",
+   "text_sha256": "f809f5dab3bf820cc4fa1f4d2c662def3816a7e8448545629078e62cead8c15e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "223740003495702b53ec",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 8.0,
+   "text": "Because in lugano, uh we have this uh payment system with more than 400 businesses accepting bitcoin. So you can live in bitcoin lugano.",
+   "text_sha256": "7b812eb583df25fcf3211109c79c2222d3f69aed70380aa06852de8b7858516c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5ed74534aaf43ada4547",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 15.34,
+   "text": "And so, like, as someone would buy a share of similar, we potentially were selling the share. And then, like, the very same moment, we were loading up the dollars into an exchange and buying Bitcoin. And so it was kind of like a delta neutral trade to some extent.",
+   "text_sha256": "d2c36a207b746199080c3171bbb65afb507e8ae775194053c3296cef86a3ae85",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6c48bc05926df28de924",
+   "video_id": "RTck1cfw3GY",
+   "channel": "Coin Bureau",
+   "duration": 5.66,
+   "text": "So MSCI is treating this as a category. We're not looking at some kind of crypto grudge here.",
+   "text_sha256": "78ec15812f0d65d5ae4557e54d5e4da009101176d8c71727c0710e84dcefb6a4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "96f4b068851935d576c2",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 14.03,
+   "text": "So if there's if there's anything of consequence that ever shows, i think the scammy, empty version shows up first, because it's quicker to do. It's quicker to make something that's worthless, is meaningless, it sounds like the thing that's going to be worth something. than it is to create something of actual consequence.",
+   "text_sha256": "f51902a05c4c314f93afa8b6cbeecbbbc3baf2a71b22acda320364182bcc75af",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a39690d7f3681352c031",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 16.3,
+   "text": "But for the people in Namibia, the people in Brazil, Chile, Venezuela, is a very big different conversation. So in the West, what's basically happened is we've gotten bored. And so we've needed to kind of cook stuff up to meet our sort of boredom in a way.",
+   "text_sha256": "28750e8c9bb3da8762257399b8f92e0e5d7010d4bdf444d3a4d05cf5913c532e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a9f63d41611cc368ca69",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 17.86,
+   "text": "And that's incredibly petrifying. Like if you, if you're not on top of it and the people that you associate with in the space or the products that you use aren't on top of it. It's real damaging. Like, you know, like if you've got family, if you've got, you know, a lot riding on it, it's petrifying to say the least.",
+   "text_sha256": "c6598ba5359e1394b8f7023b8cb52b9258cae73179b288fb433920dffec34326",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c637f7357eea5cec6991",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 4.4,
+   "text": "And then Saylor, you know, kind of has mentioned, like, well, Bitcoin is the moat. And I completely agree with that.",
+   "text_sha256": "ed1b3544426205852c86c8a723c4e4035e9e5835bd1490bba6303b72ed0832d7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c7a080d2ebb203e81d2a",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 18.59,
+   "text": "And the biggest thing with these LLMs and stuff like that is forget their math ability. What they are is if we think of maths and cryptography as puzzles. they are translators. So I could be a plumber, I could be an actor, I could be podcast, I could be a cryptographer. It can translate it to me in a way that I would understand.",
+   "text_sha256": "3d20ae1640a86f8c3fa2c81c031d2095eebdf4e5fb1e307a0e5b002a28735bdd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "eb5ef19bc37fa4ee9ad5",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "duration": 18.05,
+   "text": "So it's kind of like you mix for us about 85%, 90 % Bitcoin, 10, 15 % cash to be able to have cash to write out that downside. we could ride out any historical bare market without even have to sell a single Bitcoin.",
+   "text_sha256": "a588581b0150be7ee8ed0830f4c2fb1b80eeaaa41bbb56547b0c0aa8000120f2",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fec8d4cca387ac1e0bc4",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 11.21,
+   "text": "But I think it just makes it a hard sell for other companies to follow a similar strategy if the most bullish company that's been buying Bitcoin is break even on it after all these years.",
+   "text_sha256": "01da47564bd9e95781cbb82e081e84856358564ea1b13d762b62575943744349",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "007be1f3547a3bcee53e",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 17.83,
+   "text": "And I'm sorry, if you're put, if you're dumped in the throne as a six -year -old boy and a crown is put on your head, the faster you realize the responsibility that just got placed on you and live up to it, the better. And you don't have an alternative. You don't get to screw around and be ridiculous. You don't get to abdicate. You don't get to pretend you're not king.",
+   "text_sha256": "422444cbac25dd854e3afcccaf875988e41390e0ca5a0def2615f5b359cfd140",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3763843e90b435db8624",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 12.02,
+   "text": "But if we're looking at what Bitcoin's goal is, right, which is and that's where it differs. But if Bitcoin's goal is to really try to fix money, right, change money, like it's not really working when there's a central authority. So we want to try and change it.",
+   "text_sha256": "8b8b536a6c28a4add8094386bd3af10988c77e8d883da81a849b4e06b20a4a55",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "56a8084fc8be3f4c3761",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 10.62,
+   "text": "So, I mean, first thing I'll say, right now what you're really pricing is the AI trade, not the crypto trade. The short -term volatility has everything to do with AI, very little to do with crypto.",
+   "text_sha256": "6f76dbb6be45b74317ba7cbb863685eff32645b3f196c65c1be4bc271bdb50fa",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7d168cc55471e026c817",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 7.9,
+   "text": "And the first one I'm going to start with is the 200 day moving average. got absolutely cratered through the 200 day moving average.",
+   "text_sha256": "3c73986981821a00f79d7ff587ff8392f55e7342be87fdc3da9ba21214781daa",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8072c7bcdc1dfe503b69",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 17.55,
+   "text": "And again, I think, There's the other side of the trade, the amplified Bitcoin side, like it's a win -win transaction. It's a marketplace almost to some extent where some people want high USD yield. Other people are willing to effectively pay that yield in order to get access to amplified Bitcoin.",
+   "text_sha256": "3519bc50936ccea739d0c4b5f8d6fd06245de8f7e49d40c65f361d1233486e38",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "904b25c5d5e37d19913e",
+   "video_id": "lYca6Bg0FkM",
+   "channel": "The Bitcoin Layer",
+   "duration": 14.24,
+   "text": "So that begs the question, is Bitcoin a leader for global liquidity? Is it able to sniff out a rollover in liquidity before it happens? Or is it able to sniff out a pop in liquidity? before it happens.",
+   "text_sha256": "adf7f7dcebdbd4e2fd213ecfb643fac35984501a85e47f3b16231dd4069dfc8c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b8912911083cd0d98c5f",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 10.22,
+   "text": "So this was not a, like most of the things in our industry are already there. Most of the things in our industry are already baked into the bread. Bitcoin is already there.",
+   "text_sha256": "8b085b701b576179da02923212d3b2e84982bea8601906b836aaff19f985589d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c054e374f09df259f8f5",
+   "video_id": "EW9uZkrXBOA",
+   "channel": "Simply Bitcoin",
+   "duration": 17.16,
+   "text": "So the idea that Bitcoin just stops here at 1.5 trillion and barely improves from here, I think is just not very realistic in terms of believing that, you know, believing that there will be no further. people that choose to understand and want to store wealth in Bitcoin. I think we've got a lot further to go.",
+   "text_sha256": "55d226007b03514d342cb0a41f32c24613854a3c323de50e2506e7a4b5c16ceb",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "efb6ad794d8ade618870",
+   "video_id": "h4JhXQoW6kE",
+   "channel": "Bankless",
+   "duration": 8.7,
+   "text": "So last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50 -week moving average.",
+   "text_sha256": "d390e419d3168bdad35d220a3a5786d9008b64bbcb303a79941171ed60e85c18",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f159818401398182a256",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "duration": 11.57,
+   "text": "And our belief is that there's an income crisis, there's a retirement crisis in this country. We're deep in the belief of the K -shaped economy and that the average person... just needs yield.",
+   "text_sha256": "05f731f77a4851fc704f9896f6064a6670495b1e3fef3f2d20c654adb9ff2847",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "082a1f3f1050222bed1d",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 13.7,
+   "text": "And, you know, the reason that it could be sustainable is because Bitcoin is a perfectly scarce asset, and the dollar is not a perfectly scarce asset. We're creating more and more dollars in the financial system all the time by design.",
+   "text_sha256": "e9f7d3efdbd71d038e4fbd000ebb3611a6a571be24e483fa8f3818dafe841b2d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "200a76f4b8c47098ed10",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 15.46,
+   "text": "And Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to... change in relation to that.",
+   "text_sha256": "5d0245747ed96a300fba228adf6330eb74db8407b1007b4f014adaa813e4b58f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2128c2a13781d829e372",
+   "video_id": "OGI3nIsnXF8",
+   "channel": "Digital Asset News",
+   "duration": 9.46,
+   "text": "And I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
+   "text_sha256": "c8f9b6d53c9d685eab56ef3b1410221447e05a43de843e60297cac5546d13421",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2a56cf7819d2557cfffc",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 14.6,
+   "text": "And really, like, I'm not seeing anything in particular in Bitcoin that is necessarily showing me that this is a Bitcoin problem in particular. Like, it's not really... There's no real big bad news in Bitcoin.",
+   "text_sha256": "5126badbf9ce21564898b37f1bae562a57d39cbfb17034f137ff251e66409f33",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a57cd265a21929a291b1",
+   "video_id": "f22H17BKYRw",
+   "channel": "The Bitcoin Layer",
+   "duration": 18.19,
+   "text": "But essentially, I think there was an important shift that happened. in the middle of the year, which coincided with the peak in tech in the tech frenzy driven by margin debt. So Bitcoin de -levered first half of this year. I think tech is going through a de -leveraging for the next couple of months.",
+   "text_sha256": "4c505ae4c380f3000774fb1554bdacca66be70421ace6fa8f05f07a11e56860f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a68fd9fae23dc07f4eea",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 5.68,
+   "text": "But does AI make Bitcoin more valuable or less necessary? Yeah, it's a great question.",
+   "text_sha256": "63e1c800e84ec0822ff7ef7dc21f22c94a63abd8b98591d9b20650060253555a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b41c3cdd84c4f561bc12",
+   "video_id": "gSZP493Dxis",
+   "channel": "CoinTelegraph",
+   "duration": 19.42,
+   "text": "And I say that from a position of my own clarity because when I was in government, there was no restriction on my owning Bitcoin. There was no legal restriction. There was no rule at the CFTC. And yet I decided if I was responsible for making rules around crypto, I wouldn't own crypto. It was a self -imposed restriction.",
+   "text_sha256": "33975d0a0baad96b053e655d66ff6b504dd4e16b5fb1b69d0483f6dd871eeeef",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b5d8448a483803509d87",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 10.64,
+   "text": "And if you're not, if you're not focused on that, if you treat it like a second class citizen, all of us, like as a team, because this is the thing, Bitcoin is a world group project. We're all on the same team, whether we like it or not.",
+   "text_sha256": "7cb0a68832c4064c7486f26dddb810e53962791a36e165f1d2b9fb56f1d4d7c4",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c307ee16cc4f5291f784",
+   "video_id": "1vg1cufkadc",
+   "channel": "BTC Sessions",
+   "duration": 19.91,
+   "text": "And while AI is a massive opportunity for us, it kind of comes into a lot of what BTC sessions done, these sovereign sessions, you know, trying to make sure that we're controlling our own AI in our own environments. We're controlling our money and our own keys and the whole concept of the sovereign individual.",
+   "text_sha256": "185e0549b6205ca588cf2bee57d92731dca8181cf6a4ee96223e88da13a21a9a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c7c16471fda6db9ce131",
+   "video_id": "mKNAcOFMYD4",
+   "channel": "Scott Melker",
+   "duration": 18.53,
+   "text": "And the thing that does have me a little bit spooked is there's a lot of leverage in the stock market. Like a lot. Like a lot. close to the all -time high. In terms of dollars, it is the all -time high.",
+   "text_sha256": "9334389cab0f0bf48abe96649ebfe545e3fbd1f75f4862eec4a1efe0ee8817e8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e3feeb07a7ffd068caad",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 5.52,
+   "text": "And I don't, it's not like I've got a zillion screwing Bitcoin. Like Bitcoin's a lot of money to me and I don't like partying with bitcoins really ever.",
+   "text_sha256": "6b3578d02317da855ff370b190bdca27c057da7e268a23ed555f1c1073150f17",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ed9df2d7865dddd1a80d",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 16.28,
+   "text": "So for people that are saying Bitcoin's going to go to 100,000 by the end of December, you're like, that's probably not a possibility of the way things are going right now. That's probably not going to happen in terms of, yeah, having a... I mean, at this point, that's like a 30 % move.",
+   "text_sha256": "a72e1975115ed21f141f845c1612040e3a4789d7146e45152a0ee3cbe62a24f3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "28270b40b4cc8b07557b",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 11.66,
+   "text": "And I think we have, I mean, like, I'm fairly certain there has been some of that in Bitcoin community, too. I think hopefully that the Bitcoin community is a bit more difficult to infiltrate.",
+   "text_sha256": "615d1026217d27dd9d4c3e067ba3e32155b1c1960af43445dc79879ab5ab457a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2f68e5280cc16138df28",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 14.09,
+   "text": "So we could never realize, by the way, this is an interesting thing. When Bitcoin started, we never realized. the problems of inflation. People thought about it and stuff, but we'd never felt it. yeah it's only now, 2026, where we're like, way like our country's fucked too.",
+   "text_sha256": "1c9494a3f689575b57feb02c7c9c37598bdbcffb5de136387e8df400587dff27",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "33eb4d6ce42af8927cd2",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 4.06,
+   "text": "But I do think eventually we will go below the realized price, right? It's just a matter of when.",
+   "text_sha256": "97186a47d4afd324cb57ba3d365384c62bd99cc777fb0b4416067b5f24e0ae3b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "36a956726efa1bdb5bec",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 16.72,
+   "text": "So I would the way I would propose or thinking about Bitcoin is in the short order, we can go down or up 10 to 20%. I think we naturally hang out there. I think we probably did bottom out in the summer. But it's not until there's real market forces that move with the liquidity cycle that we will see this.",
+   "text_sha256": "0a15f3e5178c2d3344e6dd6a291541b280dd6abad936ced0d2b9d287ab3b35ea",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9dc526107c16d562a003",
+   "video_id": "RTck1cfw3GY",
+   "channel": "Coin Bureau",
+   "duration": 16.96,
+   "text": "But if FTSE Russell, SNP, or NASDAQ were to draw the same line, JP Morgan's estimate of the selling and strategy more than triples. So the companies set up to buy Bitcoin with their own stock are now on the wrong side of the line that other index providers could copy.",
+   "text_sha256": "a7df507e75c07eea0e34150a29581abe4fd7c39c73767740f7167c00986cb5e0",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a7bc3f88e13dd58b1c7c",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 18.08,
+   "text": "And it's interesting, too, in that way, because I think part of it, You know, because in Bitcoin, you can get canceled for opinions on every damn thing. Like, I feel like I was getting railed against by Bip 1 -10ers when I said one thing. And then I was getting railed against quartards when I said the next thing.",
+   "text_sha256": "8afe98ec6132029719a49495cd394b4b45d7547a57b53b1631d2c30d5ead4b25",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c8eb0aab13c9782495cd",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 11.16,
+   "text": "But looking at the liquidations, again, the liquidation chart isn't even that crazy. It looks in the last 24 hours, about $282 million got liquidated. Long's got liquidated in Bitcoin.",
+   "text_sha256": "dcea733241572ac479fba8bea5b72c8202d0bb8ac7399749439785ff3cb59572",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d1c65df64564079537d5",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 7.04,
+   "text": "And until that changes, I mean, Bitcoin dominance, one of our favorite topics, right, is probably just going to keep going up.",
+   "text_sha256": "3df4c5386a293cfd521bd5687611ff2c6cb21341c8a1686aa2cdf049826403ac",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ff3eb6fb1c228dd9bec3",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 7.96,
+   "text": "So. The machines, they want data and they want energy. So there's steamrolling places to create data centers. Like, look, that's the number one thing in the world right now.",
+   "text_sha256": "b3f956bc1fc88aa2f138e626eceb29e81fa630cdad6806eb32f96e7141fad829",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1dad3c54a5fe38e65116",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 17.28,
+   "text": "So in the context of things, it's not like an astronomical dump is going to happen per se. It's not like, you know, a month's worth of strategy. shares are going to be dumped in one single day. But that is going to do some damage to the price here.",
+   "text_sha256": "185ca1d0903b276b3756dc9b64e5664ca61072577f6dd914c21ea81596d81638",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "28fb4e4d24ab818032f0",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "duration": 17.17,
+   "text": "And so my view is it almost has to be in the realm of Bitcoin, AI, energy, and then something that provides some benefit to the investors. And so it could be the benefit is using the ETF wrapper for tax purposes to rebalance within a thematic trade.",
+   "text_sha256": "b27e7e960052994511bf8704029bdf9e46bf8b3f6a2ba26d8044e706d94426dc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2d8a2050417e286fc2eb",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 9.64,
+   "text": "And if you call it incorrectly, you may not outpace Bitcoin. In fact, you're unlikely. I think it's unlikely that you would if you don't pick correctly.",
+   "text_sha256": "d34dd82afa32681562547c66e5621a918c538c1ec5a1062d76f053b4e5e92b0e",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "42aacd14f229f0f2c337",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 12.17,
+   "text": "And so like, with that perspective, it's like, all right, you can If you try to pick any individual company index, I think, you know, you're probably going to underperform the SMP 500. You're probably going to underperform Bitcoin as well.",
+   "text_sha256": "d00c3826e42b13d6f911aeb9f09464b829cca92f0dabd977408c2b10cb691dce",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7d010fbd69e0a447faa4",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 14.71,
+   "text": "But I mean, the perception was that the software that we promoted as the industry standard, and it was the industry standard. was still insecure. And what is even worse is that we have two kinds of merchants in Lugano.",
+   "text_sha256": "89bc76d4686d63f888f9cfc4bd0ec78c7efcb6309f397e7a22682cca1344b499",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "837731ebe9e38aa0c791",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 19.34,
+   "text": "And I think when that happens, Bitcoin could break above the power law and it could sustainably break above the power law. And Bitcoin kind of becomes like the global money and the global capital asset that people kind of use for their long -term savings and maybe even day -to -day transactional currency.",
+   "text_sha256": "60b2f3ef870bea5c7e06a0b56b3a57758785152d342c7d70149c9a9624f8393b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8935a0b351127fe16b1c",
+   "video_id": "eHfc3uZPzYc",
+   "channel": "Bloomberg Television",
+   "duration": 8.22,
+   "text": "And Bitcoin cannot ignore the move there down 3.8%. Bitcoin now at 71,000. $500 on Bitcoin.",
+   "text_sha256": "055c4d1902fa49ffba71c4c8c3166d7a2bcd25c5339ee8efcec94672edd59320",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fd24993c6e0d9a2eca7a",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 12.98,
+   "text": "But i do i do really kind of, i have been so heartbroken, dude, about the stories i've heard of people like... saving 20 bucks a week. They've got a new kid. They've just lost all their money.",
+   "text_sha256": "b00ee7af3399ee282a6c73a73667edc268247b1413d4e5b3b5e0104e1dcbefc5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "11492e7de9030cb225fb",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 8.72,
+   "text": "And when they happened, we had to shut down the payments for just a few hours. It was patched very quickly, no loss of funds.",
+   "text_sha256": "a0e01501f4a71ac1c54e56f39a2a29c7e1f44118c18ef4efbc27603a82767a45",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "351aa1a4a2366745eb2f",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 13.26,
+   "text": "And we let them off the hook for that because we say Bitcoin has no kings. It does not have these influential people. The extent to which there are people of that nature, they are like me, they are way smaller, way less influential.",
+   "text_sha256": "fb98d61471d50bd07e4a4d87a92c9f588e9646dc8831a0bca2c90779fbba71b3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "38bcbba04b4370275cd0",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 4.54,
+   "text": "So there's still a lot of runway here. There's still a lot of runway for capital to find its way into Bitcoin.",
+   "text_sha256": "cc6574a81a574e07aebc2e926d0a0e4a0da33b516748a6b066a7933b4b7bed25",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4e3d088f16dcdc0b2032",
+   "video_id": "anSDOymvNk8",
+   "channel": "Digital Asset News",
+   "duration": 14.36,
+   "text": "So, you know, again, I think people, they get upset about, you know, who's in office, but maybe it really doesn't matter. Maybe it just doesn't matter. Maybe just Bitcoin will do its own thing and crypto will do its own thing. And they're like, whatever.",
+   "text_sha256": "bcb92d5d8cbb4013da5580c6317322545c9c47432f2c62d059c56c84a861b104",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6cb6ed9c32d8d25a9079",
+   "video_id": "OGI3nIsnXF8",
+   "channel": "Digital Asset News",
+   "duration": 7.31,
+   "text": "So I just don't see Bitcoin as that. I never really did see it as that. It's a good hedge against inflation, though.",
+   "text_sha256": "e0b7e066adb062c4015c6cbd0a7fdeca7a93814b4ebff09024fec93323a343e7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a330f0d9414af384caeb",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 11.63,
+   "text": "And this is where the story really gets interesting if you haven't been falling along. It's this idea that, yes, institutions are embracing Bitcoin. Yes, Wall Street launched an ETF.",
+   "text_sha256": "aa728399eebd6fc36456dd236379bdc2e79dc3219fa9e5e6426ee5f60bcc584a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "04abb94730f940656581",
+   "video_id": "R-iKNbc7-zk",
+   "channel": "Altcoin Daily",
+   "duration": 11.12,
+   "text": "So I'll be honest with you. I think that Bitcoin will go lower than 57K during Trump's term. Okay. I think it will.",
+   "text_sha256": "4390daa61e8f6d9b86fe315c89c8358239b5e87720b5e8f92935cdb8ebb630d8",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1d562f5799544d92c6d8",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 13.38,
+   "text": "And that is a very, very good sign for crypto. Because, you know, take James Salarico, the senator from Texas, who won the huge upset. He's a Bitcoin guy. You know, he was voting on the Texas Bitcoin Reserve.",
+   "text_sha256": "c96fb94b6ca2877bb1998a6c4d49511a6602e632d9183d435efec23b0d1c54fd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9a2443775ada43519e4a",
+   "video_id": "ArpmEcnzCCM",
+   "channel": "DataDash",
+   "duration": 5.48,
+   "text": "So we've been the better part of this year in this $300 window. Sometimes you think Bitcoin can be boring.",
+   "text_sha256": "8c92d494ba03b1af18bf04782cb70c3c92f5181213d9f7e545c9a2d231ca0563",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9ef449774f186ff9f6bb",
+   "video_id": "tB85PzNA99I",
+   "channel": "Scott Melker",
+   "duration": 14.33,
+   "text": "So obviously I think that's stupid with tons of leverage flushes. But I just want to point out one thing on the chart is that. All this quote unquote downside, you have Bitcoin just sitting on the 200 MA here on the daily, and that is always retested even in a bull market after breakdown.",
+   "text_sha256": "ccb2454ce4f8986cf4cd337c24878355e7c6755df69f0a745aee03aeffb5361d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "aff7ac8c07ebbe6eac6e",
+   "video_id": "h4JhXQoW6kE",
+   "channel": "Bankless",
+   "duration": 10.52,
+   "text": "But also, I want to stress that the point of this PSA is that they do not require a response. And this person, this tax attorney who's tweeting this out is like, this is kind of a scare tactic.",
+   "text_sha256": "395970a761f44d5a3153c02abe2b2dd07e2b88a92ca5adc44bb5c152b109a833",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "04d407cb7609e505c26d",
+   "video_id": "h4JhXQoW6kE",
+   "channel": "Bankless",
+   "duration": 19.16,
+   "text": "So if you get one of these letters, it means the IRS has information about your cryptocurrency activity and wants you to review whether you've met your tax. reporting obligations. It's not an audit, but they're sending these letters to crypto traders just saying, hey, like, we have eyes on like what you're doing and are you, better double check to make sure you're filing.",
+   "text_sha256": "09fb95c7c5e9cbf021f43551c5c780e101223311d61b3d40ed4cbd05b31b1194",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "11c282475f56a475f185",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 16.27,
+   "text": "Because every, every Q4, the reason Bitcoin drops, arguably, is because the stock market drops, right? It's like, have you know, I'm sure you've noticed that it took Bitcoin. Several weeks to really start dropping, even though the stock market, the NASDAQ was dropping well before Bitcoin, right?",
+   "text_sha256": "6a19f4cacb02f1859069f7bf640d567c8ebe543f295989d80ec515751dc0d0af",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "47e6772b6dd300cdba48",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 13.4,
+   "text": "So many people are pushing, you know, that million dollar idea for Bitcoin by 2030. Is there a possibility that happens in your eyes? Million dollars by 2030, I would say, All, certainly not.",
+   "text_sha256": "1d0cb0e71673799c42ef8952a2055348773769ca5d07b614882cbd14ec6eb2f9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fc855d89068802178fbd",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 14.32,
+   "text": "And so I think digital credit is probably going to keep exploding. I think the track record will have been built. The yield will be probably far greater than anything else that traditional markets have to offer.",
+   "text_sha256": "aca1d2363a85f978a9f89b06c7eec58072e7272991ca7de219d842a8ff42d974",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "13b918f478c2b6257799",
+   "video_id": "SIbzTHUCJWY",
+   "channel": "Coin Bureau",
+   "duration": 15.17,
+   "text": "So when prices rolled over in October, nobody needed convincing. The September rally got rewritten as the fake out and the slide was seen as confirmation. And just like that, it was cool and sensible to be mega bearish again.",
+   "text_sha256": "0fed7cb782a6c1d2ebbaf0abb7302ae0bef0b8a935129aca170f5aec078bc501",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a9ef66a12a8090eb3fef",
+   "video_id": "EjzQS-l-bIw",
+   "channel": "DataDash",
+   "duration": 12.26,
+   "text": "And that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
+   "text_sha256": "12e65c60960daeedb181303de51c4fba8f51e78c900b4a9b755b0ef29c2b9764",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8a6b876be07ba7f27f59",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 19.54,
+   "text": "And everyone is now engaging in a kind of pretense where they want other people to believe. Oh yeah, I feel good about putting my money on. 33 black or whatever. And other people, you look around to them and they're saying, yeah, we think that's going to win too. You're all bullshitting each other and you all know it.",
+   "text_sha256": "c6f54ef9bb2e0b71ce0c5eb4211d11b7fd487c9c17178923f5271c7425ed3a20",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "079fe82d1bb35ca12e17",
+   "video_id": "anSDOymvNk8",
+   "channel": "Digital Asset News",
+   "duration": 6.66,
+   "text": "But it's not just Gary Gensler. But as Gary was in there, he gave everybody an opportunity to buy some cheap Bitcoin.",
+   "text_sha256": "34ec74aa7393fac7ca8ae77cd8f18c4a033fc146399aea2ce76e944131c4b97f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5ee2df5ec6860e0617be",
+   "video_id": "xQvOm1CqMwY",
+   "channel": "Stacker News",
+   "duration": 12.78,
+   "text": "And I told him, I was like, for me personally, I think this is good for Bitcoin. It's like business as usual. I think this is actually better than having Trump in office, to be honest. Because I think Trump has just done a terrible job for Bitcoin outside of the Ross thing.",
+   "text_sha256": "b9813a81e166e7431bc1c31b6d0fa185eb3fe9131f8da180317bce8e99494620",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "00dc5e6b2347d9c0e922~trim",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 12.62,
+   "text": "this was not, as a as again, i'd like to point out, in bitcoin, we like to think no one is in charge of it. No one has influence. And there are no kings because kings cannot be trusted. So in the protocol, we trust.",
+   "text_sha256": "683903dbd8629ca7f6dd18b0f75e462a1c851353b673e09666e5030f90b42307",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "04abb94730f940656581~trim",
+   "video_id": "R-iKNbc7-zk",
+   "channel": "Altcoin Daily",
+   "duration": 10.6,
+   "text": "I'll be honest with you. I think that Bitcoin will go lower than 57K during Trump's term. Okay. I think it will.",
+   "text_sha256": "21a8e1587c405b93c5fd66123e52d1c36506461a2b490f55b7dcbd1cf01863b4",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "0700afb3b61ffb4cbbe3~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 10.94,
+   "text": "I don't know if it will last forever because ultimately I think we're measuring the price of Bitcoin in fiat money. Fiat monies historically eventually fail.",
+   "text_sha256": "e84f8e355efbb6794c0f71ad6329cf1441ab2874414db948c97a86efcbd4ca01",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "079fe82d1bb35ca12e17~trim",
+   "video_id": "anSDOymvNk8",
+   "channel": "Digital Asset News",
+   "duration": 6.64,
+   "text": "it's not just Gary Gensler. But as Gary was in there, he gave everybody an opportunity to buy some cheap Bitcoin.",
+   "text_sha256": "5d8dd248c8685d389f1ec3e8917895842d809a344eefc3c756c92848070fa04d",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "082a1f3f1050222bed1d~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 13.34,
+   "text": "you know, the reason that it could be sustainable is because Bitcoin is a perfectly scarce asset, and the dollar is not a perfectly scarce asset. We're creating more and more dollars in the financial system all the time by design.",
+   "text_sha256": "f860d14d06184dee2dc7dabdf3e07209bf937eb63cee4e144d42bb882d9cd911",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "0d4d772b8d54fe42950f~trim",
+   "video_id": "BS0XC_tixa8",
+   "channel": "Simply Bitcoin",
+   "duration": 13.04,
+   "text": "that's why Bitcoin matters so much in this fight. For 17 years, they've come at it through the price, through the banks, through the rules, and now through its biggest buyer. And there's still no CEO to pressure, no board to lean on, and nobody to remove.",
+   "text_sha256": "ab6844d661a3500527695dd180c37e408925241c5889180c6e059290f3393d0b",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "0f50515021b30ddfbec6~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 16.24,
+   "text": "if you look at the average income in the lowest 20 economies like $40 a month. So when people go, dude, it's like it's only like 400 boxed by a node. That's like now that we translate that to our world. That's like saying, how many Bitcoin miners do you own?",
+   "text_sha256": "8d6ccaf01b1c14384873da306b37e5b25d610ff7fa59acfc23bb1a2be5d99564",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "1b78d5158d770af6f09c~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 11.37,
+   "text": "the fear -mongering of single -sig Bitcoin wallets are broken, never touch them. The data proves that to be wrong.",
+   "text_sha256": "0604e90cb998d08e93d77737f25a704d4d3cee5af2dcf195eb20d300f08aa391",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "1d562f5799544d92c6d8~trim",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 12.9,
+   "text": "that is a very, very good sign for crypto. Because, you know, take James Salarico, the senator from Texas, who won the huge upset. He's a Bitcoin guy. You know, he was voting on the Texas Bitcoin Reserve.",
+   "text_sha256": "b3263d16f1be29e6712f11c69618d78677f50eb8d9a4d118dd221a2e1d047a5d",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "200a76f4b8c47098ed10~trim",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 15.3,
+   "text": "Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to... change in relation to that.",
+   "text_sha256": "19a6760de431a9a48c33ca3062d1eb1603f2eed7e13b78e6f9018004bffdfca7",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "2128c2a13781d829e372~trim",
+   "video_id": "OGI3nIsnXF8",
+   "channel": "Digital Asset News",
+   "duration": 9.4,
+   "text": "I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
+   "text_sha256": "4f4d1bb8f2cd7ff31799138fd125691af179211f9c3cfef852e769f7dece2390",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "28270b40b4cc8b07557b~trim",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 11.62,
+   "text": "I think we have, I mean, like, I'm fairly certain there has been some of that in Bitcoin community, too. I think hopefully that the Bitcoin community is a bit more difficult to infiltrate.",
+   "text_sha256": "95d20bf7b4108839868fef8e628feed58280215e5359ddd6ee062b3271bbea3f",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "2a56cf7819d2557cfffc~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 14.56,
+   "text": "really, like, I'm not seeing anything in particular in Bitcoin that is necessarily showing me that this is a Bitcoin problem in particular. Like, it's not really... There's no real big bad news in Bitcoin.",
+   "text_sha256": "22de68399c65c38292b911fa10b1bfdbc185e48fd8aca1347bb27f1995200a74",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "2d8a2050417e286fc2eb~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 9.64,
+   "text": "if you call it incorrectly, you may not outpace Bitcoin. In fact, you're unlikely. I think it's unlikely that you would if you don't pick correctly.",
+   "text_sha256": "0fbdf3c2f709e45441b161968b2e83bf0800d5f907d2062a9916489f537bc03b",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "2f68e5280cc16138df28~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 14.05,
+   "text": "we could never realize, by the way, this is an interesting thing. When Bitcoin started, we never realized. the problems of inflation. People thought about it and stuff, but we'd never felt it. yeah it's only now, 2026, where we're like, way like our country's fucked too.",
+   "text_sha256": "2e4b09d32055f267ace70660881243102c78b9cf13541d50cf94f4861f7d1a76",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "351aa1a4a2366745eb2f~trim",
+   "video_id": "WghTi5Ep4ro",
+   "channel": "Bitcoin Mechanic",
+   "duration": 13.24,
+   "text": "we let them off the hook for that because we say Bitcoin has no kings. It does not have these influential people. The extent to which there are people of that nature, they are like me, they are way smaller, way less influential.",
+   "text_sha256": "e398046bd744123fcc8adb732bc39a47c7086ce17931eadbb211f7ea51a32b34",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "36a956726efa1bdb5bec~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 16.7,
+   "text": "I would the way I would propose or thinking about Bitcoin is in the short order, we can go down or up 10 to 20%. I think we naturally hang out there. I think we probably did bottom out in the summer. But it's not until there's real market forces that move with the liquidity cycle that we will see this.",
+   "text_sha256": "ad9ca74c3e39f920270e1785eda0c7a1853fe5a03c9c815a7a12f0d9807cb867",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "3763843e90b435db8624~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 12.02,
+   "text": "if we're looking at what Bitcoin's goal is, right, which is and that's where it differs. But if Bitcoin's goal is to really try to fix money, right, change money, like it's not really working when there's a central authority. So we want to try and change it.",
+   "text_sha256": "ac091c0063b9feee3ae0c8ad42f8ccfbc389d23bc77c1d27a9d867f0928d037b",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "38bcbba04b4370275cd0~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 3.98,
+   "text": "there's still a lot of runway here. There's still a lot of runway for capital to find its way into Bitcoin.",
+   "text_sha256": "6334bc19f3b17611f406c952d763aa9a6c0a5044ebcc3b65ffcad6874a9aa600",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "47d3d30968a793a6f9a8~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 18.46,
+   "text": "all, any Bitcoin exchange operator, you'll know that they have the most. battle tested systems possible because they are the final front they are the gold mine every single one of them. So whether it's coin base whether it's crack and whether it's whoever, they are the place where people want to go because they know if i get in, i get it.",
+   "text_sha256": "81469b199b5a26981acb4e883b82547867daf86e48ea2b5e1aa8719c1360e693",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "47e6772b6dd300cdba48~trim",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 13.32,
+   "text": "many people are pushing, you know, that million dollar idea for Bitcoin by 2030. Is there a possibility that happens in your eyes? Million dollars by 2030, I would say, All, certainly not.",
+   "text_sha256": "a62daf7eb8519a88b798efe0c4b144ad3413e5c1f004a6e66d41c8e1efc63f3f",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "4e3d088f16dcdc0b2032~trim",
+   "video_id": "anSDOymvNk8",
+   "channel": "Digital Asset News",
+   "duration": 13.98,
+   "text": "you know, again, I think people, they get upset about, you know, who's in office, but maybe it really doesn't matter. Maybe it just doesn't matter. Maybe just Bitcoin will do its own thing and crypto will do its own thing. And they're like, whatever.",
+   "text_sha256": "824514f519872e506414a8aa673b0d0c2ff6c352fdc33e666e5bb89eb5fff44b",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "5ee2df5ec6860e0617be~trim",
+   "video_id": "xQvOm1CqMwY",
+   "channel": "Stacker News",
+   "duration": 12.72,
+   "text": "I told him, I was like, for me personally, I think this is good for Bitcoin. It's like business as usual. I think this is actually better than having Trump in office, to be honest. Because I think Trump has just done a terrible job for Bitcoin outside of the Ross thing.",
+   "text_sha256": "d010b9967a9f2ef084ce3a558713a20f60488bef0cc40cba6429aea67c29c31a",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "6cb6ed9c32d8d25a9079~trim",
+   "video_id": "OGI3nIsnXF8",
+   "channel": "Digital Asset News",
+   "duration": 7.11,
+   "text": "I just don't see Bitcoin as that. I never really did see it as that. It's a good hedge against inflation, though.",
+   "text_sha256": "fc99c380d901f2ad9d7be8e9fafd1faca62f8e17a4fc9072594318609571229c",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "6f6d6f54de605b086ab3~trim",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 7.22,
+   "text": "if you were to find one asteroid that had huge gold deposits in it, you could double the world's gold supply overnight. You cannot do that with Bitcoin.",
+   "text_sha256": "5ddf37607388b35349a5d54037e42689eb5aa77ad9b0be85ec4b9681ce999f8e",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "8072c7bcdc1dfe503b69~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 17.03,
+   "text": "again, I think, There's the other side of the trade, the amplified Bitcoin side, like it's a win -win transaction. It's a marketplace almost to some extent where some people want high USD yield. Other people are willing to effectively pay that yield in order to get access to amplified Bitcoin.",
+   "text_sha256": "a40675fb3080057cd494467f3250079f7fd0c4d033d7ffc75497dfff24025701",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "837731ebe9e38aa0c791~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 19.34,
+   "text": "I think when that happens, Bitcoin could break above the power law and it could sustainably break above the power law. And Bitcoin kind of becomes like the global money and the global capital asset that people kind of use for their long -term savings and maybe even day -to -day transactional currency.",
+   "text_sha256": "84b5357f0e678dec505aea6aaec2819ab3c47b0db1146f93201f0d47b58bbb6a",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "8935a0b351127fe16b1c~trim",
+   "video_id": "eHfc3uZPzYc",
+   "channel": "Bloomberg Television",
+   "duration": 7.8,
+   "text": "Bitcoin cannot ignore the move there down 3.8%. Bitcoin now at 71,000. $500 on Bitcoin.",
+   "text_sha256": "fc880928bff911565d5e4895a7c9ff64552615a83cf0dcef456582b291335bee",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "904b25c5d5e37d19913e~trim",
+   "video_id": "lYca6Bg0FkM",
+   "channel": "The Bitcoin Layer",
+   "duration": 14.18,
+   "text": "that begs the question, is Bitcoin a leader for global liquidity? Is it able to sniff out a rollover in liquidity before it happens? Or is it able to sniff out a pop in liquidity? before it happens.",
+   "text_sha256": "1d5569bdc39b6b2dae8779e327638df78263507d0f6ee573d62d0ceb04d7260f",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "98e2a77d521984b28e90~trim",
+   "video_id": "ArpmEcnzCCM",
+   "channel": "DataDash",
+   "duration": 10.62,
+   "text": "this has been the major target zone that I've been looking for since 2024, right? So ever since we basically ripped through this region right here, the target for me was always 74 to 7,700.",
+   "text_sha256": "f6372157a6c9c0890229fd2e5ce97275861add7bb3b78fe22dd5869ff6c2c42a",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "9a2443775ada43519e4a~trim",
+   "video_id": "ArpmEcnzCCM",
+   "channel": "DataDash",
+   "duration": 5.48,
+   "text": "we've been the better part of this year in this $300 window. Sometimes you think Bitcoin can be boring.",
+   "text_sha256": "01a3caf8e52f9dfb04185d9e9ffc95f8ca34bc50b28f7066dfa0aa388f5b045a",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "9dc526107c16d562a003~trim",
+   "video_id": "RTck1cfw3GY",
+   "channel": "Coin Bureau",
+   "duration": 16.76,
+   "text": "if FTSE Russell, SNP, or NASDAQ were to draw the same line, JP Morgan's estimate of the selling and strategy more than triples. So the companies set up to buy Bitcoin with their own stock are now on the wrong side of the line that other index providers could copy.",
+   "text_sha256": "9669f8d79ab7f745bac95502e0b8d74576410b3bbcea133ab41e270454efba30",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "9ef449774f186ff9f6bb~trim",
+   "video_id": "tB85PzNA99I",
+   "channel": "Scott Melker",
+   "duration": 14.31,
+   "text": "obviously I think that's stupid with tons of leverage flushes. But I just want to point out one thing on the chart is that. All this quote unquote downside, you have Bitcoin just sitting on the 200 MA here on the daily, and that is always retested even in a bull market after breakdown.",
+   "text_sha256": "a3b75524439a180b1c6adc277825e07896d060312b450a383ec9de2d5cc00075",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "a330f0d9414af384caeb~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 11.49,
+   "text": "this is where the story really gets interesting if you haven't been falling along. It's this idea that, yes, institutions are embracing Bitcoin. Yes, Wall Street launched an ETF.",
+   "text_sha256": "76ec06f92d81f63d17efe19bc7fbe9e3537b5994c3ae99fa39583bf0d0dd8423",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "a57cd265a21929a291b1~trim",
+   "video_id": "f22H17BKYRw",
+   "channel": "The Bitcoin Layer",
+   "duration": 18.11,
+   "text": "essentially, I think there was an important shift that happened. in the middle of the year, which coincided with the peak in tech in the tech frenzy driven by margin debt. So Bitcoin de -levered first half of this year. I think tech is going through a de -leveraging for the next couple of months.",
+   "text_sha256": "281e649d4fa3db2960634ee45703eabee6529471e4917f07a552297b3f2d48a8",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "a68fd9fae23dc07f4eea~trim",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "duration": 5.44,
+   "text": "does AI make Bitcoin more valuable or less necessary? Yeah, it's a great question.",
+   "text_sha256": "244b18b9b77e80929631132f469aa4604ee1cac929f1727283628b3fa6cd39c1",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "a7bc3f88e13dd58b1c7c~trim",
+   "video_id": "4msljdLlmnU",
+   "channel": "Guy Swann",
+   "duration": 17.98,
+   "text": "it's interesting, too, in that way, because I think part of it, You know, because in Bitcoin, you can get canceled for opinions on every damn thing. Like, I feel like I was getting railed against by Bip 1 -10ers when I said one thing. And then I was getting railed against quartards when I said the next thing.",
+   "text_sha256": "1ae63e824119f1e8a8c379a560db45976cc5953961d96b1431bd6512c8a68326",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "a9ef66a12a8090eb3fef~trim",
+   "video_id": "EjzQS-l-bIw",
+   "channel": "DataDash",
+   "duration": 12.18,
+   "text": "that brings us back to the bigger picture, the potential for Bitcoin to become more than simply in an asset investors' hold. The opportunity is to develop financial markets around that asset, and Stax is positioning itself as part of that infrastructure.",
+   "text_sha256": "5f11e6a37d276e18c8edfabecca08666f60645cbbe76fa7830ab11b647d916b0",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b41c3cdd84c4f561bc12~trim",
+   "video_id": "gSZP493Dxis",
+   "channel": "CoinTelegraph",
+   "duration": 19.14,
+   "text": "I say that from a position of my own clarity because when I was in government, there was no restriction on my owning Bitcoin. There was no legal restriction. There was no rule at the CFTC. And yet I decided if I was responsible for making rules around crypto, I wouldn't own crypto. It was a self -imposed restriction.",
+   "text_sha256": "fd2d2a5a8448ca73fc70f944162beb6491b7466f24e51b01160d04758617248b",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b5d8448a483803509d87~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 10.64,
+   "text": "if you're not, if you're not focused on that, if you treat it like a second class citizen, all of us, like as a team, because this is the thing, Bitcoin is a world group project. We're all on the same team, whether we like it or not.",
+   "text_sha256": "eeb54a5125b88d23e70472a893cd9930deb07eac258969669c205f619435dac0",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b8912911083cd0d98c5f~trim",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 10.14,
+   "text": "this was not a, like most of the things in our industry are already there. Most of the things in our industry are already baked into the bread. Bitcoin is already there.",
+   "text_sha256": "0e9d964912ba6cf4439d2f9366d29a3686fdaa211fb3c23c1389e24ef5686536",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "c054e374f09df259f8f5~trim",
+   "video_id": "EW9uZkrXBOA",
+   "channel": "Simply Bitcoin",
+   "duration": 17.08,
+   "text": "the idea that Bitcoin just stops here at 1.5 trillion and barely improves from here, I think is just not very realistic in terms of believing that, you know, believing that there will be no further. people that choose to understand and want to store wealth in Bitcoin. I think we've got a lot further to go.",
+   "text_sha256": "138e1125085b2a1797ff4b9760252c1607092f39d4d0b0c038ab140fa28b80e5",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "c307ee16cc4f5291f784~trim",
+   "video_id": "1vg1cufkadc",
+   "channel": "BTC Sessions",
+   "duration": 19.89,
+   "text": "while AI is a massive opportunity for us, it kind of comes into a lot of what BTC sessions done, these sovereign sessions, you know, trying to make sure that we're controlling our own AI in our own environments. We're controlling our money and our own keys and the whole concept of the sovereign individual.",
+   "text_sha256": "ffed17fe984fbde5e2314fd208bf6cdafd64fbb21a2a20bc06adc5b5eb5f8b67",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "c8eb0aab13c9782495cd~trim",
+   "video_id": "WTCwyxW-lHk",
+   "channel": "Simply Bitcoin",
+   "duration": 10.98,
+   "text": "looking at the liquidations, again, the liquidation chart isn't even that crazy. It looks in the last 24 hours, about $282 million got liquidated. Long's got liquidated in Bitcoin.",
+   "text_sha256": "6f6fffc4fcdcd2f7673758f988a4b574a2b8d030dcec15bddb73d6eb6441cb65",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "d1c65df64564079537d5~trim",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 7.04,
+   "text": "until that changes, I mean, Bitcoin dominance, one of our favorite topics, right, is probably just going to keep going up.",
+   "text_sha256": "6e7f24c25c6342d18f71a080e8faeb3fee633e777ce528246af0f6c379467e09",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "e3feeb07a7ffd068caad~trim",
+   "video_id": "acxge3Orsv8",
+   "channel": "What Bitcoin Did",
+   "duration": 5.26,
+   "text": "I don't, it's not like I've got a zillion screwing Bitcoin. Like Bitcoin's a lot of money to me and I don't like partying with bitcoins really ever.",
+   "text_sha256": "fa40f4225734f02f1782f2080b6b72d22571f905fa412ba674f1b7aa8a60d722",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "e8116beba556497dd08c~trim",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 9.55,
+   "text": "I'll be honest with you. For the first time in a long time, I'm uncertain what happens to Bitcoin next. I can see the bull case. I can see the bear case.",
+   "text_sha256": "8f84dde5faf257ba408a7bd2d29a3ca2a532ae9ac16fafbdd71b9f33e88ed55b",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "eb5ef19bc37fa4ee9ad5~trim",
+   "video_id": "mJviDNOhIyw",
+   "channel": "Anthony Pompliano",
+   "duration": 17.95,
+   "text": "it's kind of like you mix for us about 85%, 90 % Bitcoin, 10, 15 % cash to be able to have cash to write out that downside. we could ride out any historical bare market without even have to sell a single Bitcoin.",
+   "text_sha256": "a4521ccab67f588eb09e20fda9588b1e2e4f0154342aac7a4f6ee6d36d353f9d",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "ed9df2d7865dddd1a80d~trim",
+   "video_id": "5yaK-qNOKqE",
+   "channel": "CoinTelegraph",
+   "duration": 16.08,
+   "text": "for people that are saying Bitcoin's going to go to 100,000 by the end of December, you're like, that's probably not a possibility of the way things are going right now. That's probably not going to happen in terms of, yeah, having a... I mean, at this point, that's like a 30 % move.",
+   "text_sha256": "7b7abdc83e256d7ee976889c3c0a474c014326483f1aae7e705b065f5c1be1d0",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "efb6ad794d8ade618870~trim",
+   "video_id": "h4JhXQoW6kE",
+   "channel": "Bankless",
+   "duration": 8.64,
+   "text": "last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50 -week moving average.",
+   "text_sha256": "b66b8b0f662a93074606d4c0b417ce59084e55f0fac17009068843ad3063482f",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "fa73f6c3fe91a4e78d18~trim",
+   "video_id": "DcUbBkyeh9M",
+   "channel": "Simply Bitcoin",
+   "duration": 16.84,
+   "text": "Wall Street's answer is diversification. But the ultimate diversification is decentralization. Bitcoin is an asset that can be owned by everyone. but totally controlled by no one. No key man, no key company, no key country. That's why I think it's the best antidote to key man, key sector, or key country risk.",
+   "text_sha256": "5d46864dac379b6e2d6ba80a9deb93e67f2d93cd3135c30abcd31e8417dd524f",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "fec8d4cca387ac1e0bc4~trim",
+   "video_id": "HWuMai_mAug",
+   "channel": "Altcoin Daily",
+   "duration": 11.15,
+   "text": "I think it just makes it a hard sell for other companies to follow a similar strategy if the most bullish company that's been buying Bitcoin is break even on it after all these years.",
+   "text_sha256": "47486f33d546f53a3cfcb93416d185cef6868a8c67c8b7c0e02e38b8cc5f76c7",
+   "trimmed_leading": "But"
+  }
+ ]
+}
