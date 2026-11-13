@@ -23,8 +23,6 @@ BOUNDARY_FRAMES = 3
 VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdall gateway, image input
                                            # (listed 2026-11-11); a "no" from EITHER holds
 VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
-LOCAL_VISION = "ollama:gemma3:27b"   # law L-x: V1's second back-end, the local model on Ultron's GPU0 (L-r: lease + swap_to)
-OLLAMA_URL = "http://localhost:11434"
 XAI_BASE = "https://api.x.ai/v1"     # law L-x: a second VENDOR for V1's vision ('xai:<model>'); measured before it is seated
 
 CHECKLIST = [
@@ -196,23 +194,6 @@ def _call(req, timeout):
     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
 
 
-def _call_local(image_path, text, model, timeout):
-    """(content, raw) of one LOCAL vision call (law L-x second back-end): Ollama on Ultron, loaded through
-    gpu0.swap_to (law L-r: the caller holds the GPU0 lease; without it swap_to refuses and nothing loads)."""
-    import urllib.request
-    import gpu0
-    gpu0.swap_to(model)                  # gpu0 keys Ollama models 'ollama:<name>' (REQUIREMENT_MIB) and strips the prefix
-    with open(image_path, "rb") as f:
-        img = base64.b64encode(f.read()).decode()
-    body = {"model": model.split(":", 1)[1], "stream": False, "keep_alive": "5m",
-            "options": {"temperature": 0, "num_predict": 4096, "num_ctx": 8192},
-            "messages": [{"role": "user", "content": text, "images": [img]}]}
-    req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json"})
-    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
-    return (raw.get("message") or {}).get("content") or "", raw
-
-
 def _xai_key():
     env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
     try:
@@ -238,10 +219,10 @@ def _call_xai(image_path, text, model, timeout):
 
 
 def _call_any(image_path, text, model, timeout):
-    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end, 'xai:<name>' the xAI vendor
-    (law L-x), any other name the Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
-    if model.startswith("ollama:"):
-        return _call_local(image_path, text, model, timeout)
+    """(content, raw) from the model's own route: 'xai:<name>' the xAI vendor (law L-x), any other name the Heimdall
+    gateway. Raises on a route error (callers retry, then HOLD). No local route here: GPU0's Ollama is called only
+    through story_semantics.LocalLLM (law L-r, test_gpu0 TestNoDirectLoaders), and the local candidate measured for V1
+    (gemma3:27b, 2026-11-12: 0 of 5 must-fail cases caught, bible E-FAIL-076) is not seated."""
     if model.startswith("xai:"):
         return _call_xai(image_path, text, model, timeout)
     return _call(_request(image_path, text, model), timeout)
