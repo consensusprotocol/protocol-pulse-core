@@ -10,6 +10,7 @@ Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_pinned.py
 """
 import copy
 import json
+import time
 import os
 import shutil
 import subprocess
@@ -65,6 +66,8 @@ class Fixture(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
+    RECENT = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 3600))   # law L-v 3 fields (a moments
+                                                                                     # pin states them on every segment)
     def pin(self, **kw):
         p = {"schema": pinned.SCHEMA, "story_id": "t1", "label": "test label", "approved_by": "PBX",
              "approved_at": "2026-11-06T21:00:00-05:00",
@@ -75,6 +78,8 @@ class Fixture(unittest.TestCase):
                   "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"]},
                  {"role": "clip", "video_id": "AAAAAAAAAA1", "channel": APPROVED, "start": 14.02, "end": 27.88,
                   "time_coords": "source_file", "source": self.src["AAAAAAAAAA1"]}]}
+        for seg in p["segments"]:
+            seg.update(time_sensitive=False, source_published_at=self.RECENT)
         p.update(kw)
         return p
 
@@ -82,6 +87,88 @@ class Fixture(unittest.TestCase):
         path = os.path.join(self.tmp, "pin.json")
         json.dump(p, open(path, "w"))
         return path
+
+
+class TestRecencyRenderClock(Fixture):
+    """Law L-v 3 amended (orchestrator 2026-11-12 '22:40'): recency is checked on the RENDER clock at the pinned stage.
+    A time_sensitive clip whose source is more than 24 h old at render time holds the run; a moments pin states
+    time_sensitive and source_published_at on every segment (fail closed); other pins only where a segment says
+    time_sensitive. The real case: the 41f29b1f medley's clip_02 (published 2026-11-11T18:03:23Z) passed at its universe
+    (11.0 h) and is 33.3 h old at the night's delivery."""
+    NOW = 1794540000.0                                                     # 2026-11-13T03:20:00Z
+
+    def at(self, hours):
+        return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.NOW - hours * 3600))
+
+    def mpin(self, *segs):
+        p = self.pin(moments_package={"type": "moments"})
+        for seg, (ts, pub) in zip(p["segments"], segs):
+            seg.update(time_sensitive=ts, source_published_at=pub)
+        return p
+
+    def test_a_time_sensitive_clip_over_24_h_at_render_holds_and_under_passes(self):
+        bad, recs = pinned.recency_problems(self.mpin((False, self.at(60)), (True, self.at(24.1))), now=self.NOW)
+        self.assertEqual(len(bad), 1)
+        self.assertIn("segment 1 (clip BBBBBBBBBB2): time-sensitive", bad[0])
+        self.assertIn("24.1 h before this render (limit 24 h, law L-v 3)", bad[0])
+        ok, recs = pinned.recency_problems(self.mpin((False, self.at(60)), (True, self.at(23.9))), now=self.NOW)
+        self.assertEqual(ok, [])
+        self.assertEqual(pinned.recency_problems(self.mpin((True, self.at(24.0))), now=self.NOW)[0], [])  # 'older than
+        self.assertEqual(len(pinned.recency_problems(self.mpin((True, self.at(24.01))), now=self.NOW)[0]), 1)  # 24 h'
+        with self.assertRaisesRegex(pinned.PinError, "segments must be a non-empty list"):         # audit batch 44 c1
+            pinned.validate_schema(self.pin(moments_package={"type": "moments"}, segments=[]), REG)
+        self.assertEqual([r["age_h_at_render"] for r in recs][:2], [60.0, 23.9])
+
+    def test_the_real_clip_02_passed_at_its_universe_and_holds_tonight(self):
+        p = self.mpin((False, "2026-11-10T13:45:51Z"), (False, "2026-11-09T17:00:09Z"),      # the pin's real publish
+                      (True, "2026-11-11T18:03:23Z"))                                         # times (its sources file)
+        self.assertEqual(pinned.recency_problems(p, now=1794474360.0)[0], [])              # 2026-11-12T05:06Z: 11.0 h
+        bad = pinned.recency_problems(p, now=self.NOW)[0]                                 # 2026-11-13T03:20Z
+        self.assertEqual(len(bad), 1)
+        self.assertIn("segment 2 (clip AAAAAAAAAA1): time-sensitive", bad[0])
+        self.assertIn("33.3 h before this render", bad[0])
+
+    def test_a_moments_pin_must_state_both_fields_on_every_segment(self):
+        for mutate, part in ((lambda s: s.pop("time_sensitive"), "time_sensitive must be true or false"),
+                             (lambda s: s.update(time_sensitive="true"), "time_sensitive must be true or false"),
+                             (lambda s: s.update(time_sensitive=1), "time_sensitive must be true or false"),
+                             (lambda s: s.pop("source_published_at"), "is not an ISO 8601 time with its offset"),
+                             (lambda s: s.update(source_published_at="2026-11-12T10:00:00"), "with its offset"),
+                             (lambda s: s.update(source_published_at="yesterday"), "with its offset")):
+            p = self.mpin((False, self.at(1)), (False, self.at(1)), (False, self.at(1)))
+            mutate(p["segments"][2])
+            bad = pinned.recency_problems(p, now=self.NOW)[0]
+            self.assertEqual(len(bad), 1, bad)
+            self.assertIn(part, bad[0])
+
+    def test_a_publish_time_in_the_future_fails_beyond_15_min_of_skew(self):
+        bad = pinned.recency_problems(self.mpin((False, self.at(-0.5))), now=self.NOW)[0]
+        self.assertEqual(len(bad), 1)
+        self.assertIn("in the future of this render", bad[0])
+        self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.2))), now=self.NOW)[0], [])
+        self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.25))), now=self.NOW)[0], [])  # exactly 15 min
+        self.assertEqual(len(pinned.recency_problems(self.mpin((False, self.at(-0.26))), now=self.NOW)[0]), 1)
+
+    def test_other_pins_are_checked_only_where_a_segment_is_time_sensitive(self):
+        p = self.pin()
+        for seg in p["segments"]:
+            seg.pop("time_sensitive"), seg.pop("source_published_at")
+        self.assertEqual(pinned.recency_problems(p, now=self.NOW), ([], []))           # the protected references' pins
+        p["segments"][1].update(time_sensitive=True, source_published_at=self.at(30))
+        bad = pinned.recency_problems(p, now=self.NOW)[0]
+        self.assertEqual(len(bad), 1)
+        self.assertIn("30.0 h before this render", bad[0])
+
+    def test_prepare_holds_a_stale_pin_before_any_download_and_records_the_check(self):
+        p = self.pin(moments_package={"type": "moments"})
+        p["segments"][1].update(time_sensitive=True, source_published_at="2026-11-11T18:03:23Z")
+        with self.assertRaisesRegex(pinned.PinError, "law L-v 3 \\(render clock\\): segment 1"):
+            pinned.prepare(self.write(p), self.run_dir, log=lambda s: None)
+        self.assertFalse(os.path.exists(os.path.join(self.run_dir, "edl.json")))
+        self.assertFalse(os.path.exists(os.path.join(self.run_dir, "PINNED_DECISION.json")))
+        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)              # a human pin: recorded
+        rec = json.load(open(os.path.join(self.run_dir, "PINNED_DECISION.json")))["recency"]
+        self.assertEqual((rec["limit_h"], rec["segments"]), (24.0, []))
 
 
 class TestSchema(Fixture):
@@ -398,7 +485,8 @@ class TestMomentsPackage(Fixture):
 
     def test_duplicate_or_reordered_bridges_are_refused_with_three_clips(self):
         segs = self.pin()["segments"] + [{"role": "clip", "video_id": "BBBBBBBBBB2", "channel": PENDING, "start": 18.5,
-                                          "end": 28.9, "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"]}]
+                                          "end": 28.9, "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"],
+                                          "time_sensitive": False, "source_published_at": self.RECENT}]   # law L-v 3
         for name, bridges in (("duplicate", [1, 1]), ("reordered", [2, 1])):
             with self.subTest(name):
                 m = self.mp(segs, edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": a} for a in bridges]})

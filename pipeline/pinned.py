@@ -51,6 +51,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE_DIR)
@@ -65,6 +66,9 @@ MIN_WORDS_IN_RANGE = 3
 APPROVED_TEXT_MIN_RATIO = 0.8              # approved_text vs transcript words touching the range
 FADE_IN_MS, FADE_OUT_MS = 20, 30           # the factory's M19 fades (cut.py / run_isolated)
 _VID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+
+
+RECENCY_LIMIT_H = 24.0                      # law L-v 3 (amended '22:40'): on the RENDER clock
 
 
 class PinError(Exception):
@@ -169,6 +173,51 @@ def validate_schema(pin, registry=None):
 
 
 # ── 2. acquisition (existing helpers only) ──
+
+def _utc_epoch(text):
+    """Seconds since the epoch of an ISO 8601 time WITH its offset ('Z' or +hh:mm); None for anything else."""
+    from datetime import datetime
+    if not isinstance(text, str) or not text.strip():
+        return None
+    try:
+        t = datetime.fromisoformat(text.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t.timestamp() if t.tzinfo is not None else None
+
+
+def recency_problems(pin, now=None):
+    """Law L-v 3 on the RENDER clock (orchestrator 2026-11-12 '22:40'): a time_sensitive clip (recency words such as
+    'right now', a current price level) whose source was published more than RECENCY_LIMIT_H before `now` (this
+    render's own clock) holds the run. A machine-built moments pin states, inside its seal, time_sensitive (true /
+    false) and source_published_at (ISO 8601 with its offset) on EVERY segment: a missing or malformed field, or a
+    publish time in the future, is a problem too (fail closed). Any other pin (human, protected reference) is checked
+    only where a segment states time_sensitive true. Returns ([problem], [per-segment record])."""
+    now = time.time() if now is None else now
+    moments = "moments_package" in pin
+    problems, recs = [], []
+    for i, s in enumerate(pin.get("segments") or []):
+        tag = f"segment {i} ({s.get('role')} {s.get('video_id')})"
+        ts, pub = s.get("time_sensitive"), s.get("source_published_at")
+        if not moments and ts is not True:
+            continue
+        if type(ts) is not bool:
+            problems.append(f"{tag}: time_sensitive must be true or false (law L-v 3)")
+            continue
+        t = _utc_epoch(pub)
+        if t is None:
+            problems.append(f"{tag}: source_published_at {pub!r} is not an ISO 8601 time with its offset (law L-v 3)")
+            continue
+        age_h = (now - t) / 3600.0
+        recs.append({"segment": i, "video_id": s.get("video_id"), "time_sensitive": ts, "source_published_at": pub,
+                     "age_h_at_render": round(age_h, 2)})
+        if age_h < -0.25:
+            problems.append(f"{tag}: source_published_at {pub} is {-age_h:.1f} h in the future of this render")
+        elif ts and age_h > RECENCY_LIMIT_H:
+            problems.append(f"{tag}: time-sensitive, its source was published {pub}, {age_h:.1f} h before this render "
+                            f"(limit {RECENCY_LIMIT_H:.0f} h, law L-v 3)")
+    return problems, recs
+
 
 def acquire(pin, run_dir, log=print):
     """Returns {video_id: {"path", "offset", "transcript", "provenance"}}. Raises PinError."""
@@ -538,6 +587,10 @@ def prepare(pin_path, run_dir, log=print):
     with open(CHANNELS_PATH) as f:
         registry = json.load(f)
     validate_schema(pin, registry)
+    checked_at = time.time()                                     # law L-v 3: the render's own clock, before any download
+    stale, recency = recency_problems(pin, now=checked_at)
+    if stale:
+        raise PinError("law L-v 3 (render clock): " + "; ".join(stale))
     acq = acquire(pin, run_dir, log=log)
     edl, overrides, report = build_edl(pin, acq, registry, log=log)
     with open(os.path.join(run_dir, "edl.json"), "w") as f:
@@ -551,6 +604,7 @@ def prepare(pin_path, run_dir, log=print):
             json.dump(pin["editorial_review"], f, indent=2)
     rec = {"mode": "pinned", "pin_path": os.path.abspath(pin_path),
            "pin_sha256": hashlib.sha256(raw).hexdigest(), "pin": pin, "validation": report,
+           "recency": {"checked_at_epoch": round(checked_at, 1), "limit_h": RECENCY_LIMIT_H, "segments": recency},
            "rule": "ranges are used exactly as supplied: never extended, trimmed, snapped or improved"}
     with open(os.path.join(run_dir, "PINNED_DECISION.json"), "w") as f:
         json.dump(rec, f, indent=2)
