@@ -1,0 +1,94 @@
+{
+ "question": "Batch 65 CYCLE 2 (cycle 1: no consensus findings; the diff is unchanged) = the 9:16 colour-tag fix (law Section 2 format lock; ruling 26 (a) \"tag every final explicitly\", which ruling 30 left out because it took the BT.601 source to be the only cause). G9 (the tail luma gate) measures through RGB, so a final's colour tags enter its number. Its floor and its measure are NOT changed here.\nMeasured (Nov 13, four runs, ffprobe of every 9:16 part): every 9:16 part is made by render_vertical.reframe_auto (layout 'auto' in all four runs). A part whose shot plan includes a stack2 shot (split, crop, scale, vstack, pad) comes out with all four tags unknown (range, space, transfer, primaries). A single-crop part keeps its source's tags. A safe-frame part already re-declares its matrix (the Nov 11 fix). The 9:16 final takes its FIRST part's tags:\n- run 191409: the hook opens on stack2, the final is untagged, G9 9:16 13.6 vs 14.73 FAIL, with every source BT.709 tv;\n- run 031328 (the medley): the hook opens on stack2, untagged, 13.6 FAIL;\n- run 165629: the hook is single (bt709), the final bt709, 14.8 PASS (although its clip_02 part was untagged);\n- run 054035: the hook was BT.601 (smpte170m), 14.5 FAIL (ruling 30's case, converted at prepare now).\nThe change: _input_matrix (colorspace only) becomes _input_colour. It probes the input's color_range, color_primaries, color_transfer and color_space, keeps only whitelisted values, and returns setparams options. reframe_auto appends \",setparams=<those>\" after EVERY shot (it did so only after the safe frame, and only for colorspace). Metadata only: setparams rewrites frame properties, not pixels.\nTests: test_safe_frame_colour.py. The NVENC class gains test_a_part_opening_on_a_stack2_keeps_bt709_and_its_range (run on GPU0 under the lease: must fail on the old code, pass on the new). New CPU tests: every shot's chain ends on the input's colour, and the probe keeps known values only.\nFIND: a pixel change (anything but tag metadata); a wrong or untruthful tag (a declared colour the pixels are not in); a filtergraph that breaks for any shot class (single, stack2, stack3, screen / safe frame) or for several shots in one part; a tag still lost on some 9:16 path the final can open on; a change to G9 or its floor; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 30.1,
+   "cost": 0.0012245155,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 33.4,
+   "cost": 0.000178746,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 10.2,
+   "cost": 0.0004524915,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 17.0,
+   "cost": 0.000176793,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/test_safe_frame_colour.py",
+   "line": 79,
+   "issue": "The GPU test's mock of subprocess.run swallows the real encode, so the test does not test what it claims (a part opening on a stack2 keeps bt709 and its range through a real render); it only checks the filtergraph string. The class docstring says 'run on GPU0 under the lease: must fail on the old code, pass on the new', but the mocked run never encodes, so the old code would also pass this test (the old code's graph also ends each shot's chain with setsar=1:1, just without the setparams, and the assertion only checks the new code's expected substring).",
+   "evidence": "with mock.patch.object(RV, \"_input_colour\", lambda p: colour), \\\n                mock.patch.object(RV.subprocess, \"run\", lambda cmd, **k: ran.append(cmd) or ok), \\\n                mock.patch(\"gpu0.swap_to\", lambda *a, **k: None), mock.patch(\"gpu0.raise_if_oom\", lambda *a, **k: None):",
+   "fix": "Split the graph-assertion into the CPU test (where it already lives) and let the GPU test run the real encode, or assert the old code's graph would fail the same assertion (e.g. check the setparams substring is actually new).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/test_safe_frame_colour.py",
+   "line": 86,
+   "issue": "The probe test's second case asserts primaries=bt470bg and colorspace=smpte170m survive, but the third case (all-unknown) returns '' and the first case's expected string orders range first; the dict-iteration order of _KNOWN (Python 3.7+ insertion order) makes the output order deterministic, but the test hard-codes that order, coupling the test to _KNOWN's declaration order rather than to the documented contract ('known values only').",
+   "evidence": "self.assertEqual(RV._input_colour(\"x.mp4\"), \"range=tv:color_primaries=bt709:color_trc=bt709:colorspace=bt709\")",
+   "fix": "Parse the returned options into a dict/set before comparing, or sort both sides, so the test checks the contract (known values kept, unknown dropped) rather than the incidental option order.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/render_vertical.py",
+   "line": 391,
+   "issue": "_input_colour parses ffprobe output by whitespace-splitting lines; a value containing a space or an unexpected extra key would corrupt the dict, and any ffprobe failure (nonzero returncode) is silently treated as no colour, so the part renders untagged with no warning \u2014 the very failure mode this fix targets can recur silently.",
+   "evidence": "got = dict(x.split(\"=\", 1) for x in r.stdout.split() if \"=\" in x); return \":\".join(...) with no check of r.returncode",
+   "fix": "Check r.returncode and log/skip gracefully, or use -of json / -of csv=p=0 like the old _input_matrix did, which was immune to key=value line parsing."
+  }
+ ],
+ "total_cost": 0.002032546,
+ "out_dir": "/home/ultron/worktrees/g9tags/docs/audits/pulse-sentence-law/batch65_vert_colour_tags/cycle2/heimdall"
+}
