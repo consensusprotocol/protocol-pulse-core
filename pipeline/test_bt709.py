@@ -123,6 +123,7 @@ class TestBt709(unittest.TestCase):
                 rf.to_bt709(self.run, ["v601"])
         self.assertEqual(sha(s), before)
         self.assertEqual([n for n in os.listdir(os.path.join(self.run, "sources")) if n != "v601.mp4"], [])
+        self.assertFalse(os.path.exists(os.path.join(self.run, "sources_bt601")))      # batch 54 C2: nothing moved
 
 
 if __name__ == "__main__":
