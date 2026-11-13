@@ -857,3 +857,54 @@ def rate_passages(llm, q, passages):
         except Exception:
             pass
     return out, None
+
+
+# RULING 60 (orchestrator 2026-11-13 '11:01'): for a MOMENTS pin the scorer judges STAND-ALONE ONLY. Topicality is
+# ruling 34's (the miner's screen per clip, the medley names Bitcoin) and is not asked again; no event headline; the
+# model judges the clip as spoken (no fixed score for an opener word). The story path (CLIP_PROMPT) is unchanged.
+ALONE_PROMPT = """You judge clips for a short Bitcoin video built from other people's spoken clips. Each clip below is
+heard ON ITS OWN: the viewer hears nothing said before it and nothing said after it.
+
+{note}
+For each clip judge ONE thing: does a viewer who hears only this clip understand what is being claimed, with nothing
+in it depending on words outside the clip?
+Judge the clip as spoken. Do not judge its topic, importance, accuracy or style. A first word such as "but", "and",
+"so", "well", "now" or "yeah" is not by itself a dependence: judge whether what is claimed is complete and clear
+without the words said before it.
+Rate each clip 1-5:
+5 = what is claimed is fully understood from this clip alone;
+4 = understood alone; any gap is one a viewer fills without effort;
+3 = partly understood: one piece needed to know what is claimed is outside the clip;
+2 = mostly depends on words outside the clip;
+1 = cannot be understood without words outside the clip.
+Also name each clip's main fault: "none"; "starts_mid_thought" ONLY when what is claimed cannot be understood without
+words said BEFORE the clip (it answers an unheard question, or a word such as "it", "that", "this", "they" or "he"
+points to something only said before); an opening word or phrase alone ("but", "and", "so", "well", "now",
+"however", "I mean", "yeah") is never this fault; "ends_mid_thought" when what is claimed is cut off before it is
+complete; "other" for anything else.
+{passages}
+Return ONLY JSON: {{"ratings": [{{"id": clip id, "score": 1-5, "fault": one of the four, "reason": short}}]}}"""
+
+ALONE_FAULTS = ("none", "starts_mid_thought", "ends_mid_thought", "other")
+
+
+def rate_alone(llm, passages):
+    """RULING 60: the moments scorer. ({pid: (score, reason, fault)}, error_or_None), read exactly as rate_passages
+    reads its reply; an unknown fault is "unspecified"; unparseable -> no ratings (never invented)."""
+    ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
+                   f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
+    try:
+        r = llm.chat_json(ALONE_PROMPT.format(note=UNTRUSTED_NOTE, passages=ex), max_tokens=1200, validate=_v_rate)
+    except LLMParseError as e:
+        return {}, {"error": str(e), "llm_attempts": e.attempts}
+    out = {}
+    valid = {p["pid"] for p in passages}
+    for x in r.get("ratings", []) or []:
+        try:
+            pid = str(x["id"])
+            if pid in valid:
+                fault = x.get("fault") if x.get("fault") in ALONE_FAULTS else "unspecified"
+                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
+        except Exception:
+            pass
+    return out, None

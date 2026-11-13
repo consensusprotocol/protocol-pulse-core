@@ -2,18 +2,21 @@
 """pipeline/stand_alone_scorer.py: the render's own STAND_ALONE clip scorer at the PIN STAGE (orchestrator 2026-11-13
 '09:58' item 56). The builder may use no GPU, so moments that open on a word the scorer must affirm (a conjunction, a
 reply fragment, a trimmed leading word) were left out unjudged. This asks THE SAME judge earlier: stand_alone.clip_scorer
-(the one code path run_fresh.stage_validate uses: story_semantics.rate_passages on the GPU0 LocalLLM, gemma3:27b,
-temperature 0) and stand_alone.affirmed (the one threshold). Validate re-checks at render as now. Nothing is loosened.
+(the one code path run_fresh.stage_validate uses, on the GPU0 LocalLLM, gemma3:27b, temperature 0) and
+stand_alone.affirmed (the one threshold). Validate re-checks at render as now. Nothing is loosened.
+RULING 60 ('11:01'): a MOMENTS request (kind "moments", every builder pin) is judged STAND-ALONE ONLY
+(story_semantics.ALONE_PROMPT via rate_alone; no event; affirmed = score >= 3.5); a "story" request keeps
+CLIP_PROMPT with its event and the story threshold.
 
 CONTRACT (the builder):
 - REQUEST: write data/stand_alone_scorer/requests/<request_id>.json (write <name>.tmp, then rename):
-  {"request_id": str, "event": str, "passages": [{"moment_id": str, "pid": str, "channel": str, "duration": number,
-  "text": str}, ...]}. ONE scorer call per request, exactly validate's shape: the passages are scored together, as
+  {"request_id": str, "kind": "moments" | "story" (default "story"), "event": str (story only; absent or null for
+  moments), "passages": [{"moment_id": str, "pid": str, "channel": str, "duration": number, "text": str}, ...]}. ONE scorer call per request, exactly validate's shape: the passages are scored together, as
   validate scores every segment of an EDL that needs the scorer in one call. To be byte-identical with validate:
-  event "Pinned: <the pin's headline, else its label>", pid "hook" / "clip_NN" by position, channel the registry
+  a moments pin is kind "moments" (no event; a story pin: event "Pinned: <headline, else label>"), pid "hook" / "clip_NN" by position, channel the registry
   display name, duration the locked words' span (seconds; the prompt rounds it), text the approved text.
 - RESULT: data/stand_alone_scorer/results/<moment_id>.<sha256(text)[:16]>.<SCORER_SHA[:12]>.json: a list of verdicts
-  for that moment and text under this scorer code, one per distinct prompt: {request_id, event, pid, channel,
+  for that moment and text under this scorer code, one per distinct prompt: {request_id, kind, event, pid, channel,
   duration, prompt_sha256, score, reason, fault, affirmed, threshold, model, digest, scorer_sha, at}. score None with
   an error = the reply was unparseable: NOT affirmed.
 - The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed.
@@ -44,8 +47,7 @@ ROOT = os.environ.get("PP_SCORER_DIR", os.path.join(REPO, "data", "stand_alone_s
 OWNER = "pin-stage clip scorer (integrator, GPU0)"
 BATCH = 8
 SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
-PRE_FILTER_EVENT = "Pinned: bitcoin"   # validate's own event for a moments pin ('Pinned: ' + its headline, else its
-                                       # label 'bitcoin'); before a line-up there is no headline. Validate re-asks.
+KINDS = ("moments", "story")          # ruling 60: a moments pin is judged stand-alone only, with no event
 
 
 def scorer_sha():
@@ -74,8 +76,13 @@ def problems(r):
         return ["not an object"]
     if not isinstance(r.get("request_id"), str) or not SAFE.match(r["request_id"]):
         out.append("request_id must be 1-120 of [A-Za-z0-9_.:-]")
-    if not isinstance(r.get("event"), str) or not r["event"].strip():
-        out.append("event must be a non-empty string")
+    kind = r.get("kind", "story")
+    if kind not in KINDS:
+        out.append(f"kind must be one of {KINDS}")
+    elif kind == "story" and (not isinstance(r.get("event"), str) or not r["event"].strip()):
+        out.append("event must be a non-empty string (kind story)")
+    elif kind == "moments" and r.get("event") is not None:
+        out.append("a moments request carries no event (ruling 60: stand-alone only)")
     ps = r.get("passages")
     if not isinstance(ps, list) or not 1 <= len(ps) <= 16:
         return out + ["passages must be a list of 1-16"]
@@ -118,9 +125,9 @@ def answer(path, llm, sha, log=print):
         os.remove(path)
         log(f"  {name}: malformed: {'; '.join(why)}")
         return
-    rec, err = Recording(llm), None
+    rec, err, moments = Recording(llm), None, r.get("kind", "story") == "moments"
     try:
-        ratings = SA.clip_scorer(r["event"], llm=rec)([dict(p) for p in r["passages"]])
+        ratings = SA.clip_scorer(r.get("event"), llm=rec, moments=moments)([dict(p) for p in r["passages"]])
     except gpu0.Gpu0Stop:
         raise
     except Exception as e:                                       # no verdict, never invented: NOT affirmed
@@ -128,9 +135,10 @@ def answer(path, llm, sha, log=print):
     psha = hashlib.sha256(rec.prompts[-1].encode()).hexdigest() if rec.prompts else None
     for p in r["passages"]:
         score, reason, fault = ratings.get(p["pid"], (None, None, None))
-        entry = {"request_id": r["request_id"], "event": r["event"], "pid": p["pid"], "channel": p["channel"],
+        entry = {"request_id": r["request_id"], "kind": r.get("kind", "story"), "event": r.get("event"), "pid": p["pid"],
+                 "channel": p["channel"],
                  "duration": p["duration"], "prompt_sha256": psha, "score": score, "reason": reason, "fault": fault,
-                 "affirmed": SA.affirmed(score, fault), "threshold": SA.CLIP_MIN_SCORE, "model": getattr(llm, "model", None),
+                 "affirmed": SA.affirmed(score, fault, moments), "threshold": SA.CLIP_MIN_SCORE, "model": getattr(llm, "model", None),
                  "digest": getattr(llm, "digest", None), "scorer_sha": sha,
                  "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                  **({"error": err or "no rating for this pid in the reply"} if score is None else {})}
@@ -147,7 +155,7 @@ def answer(path, llm, sha, log=print):
     os.makedirs(os.path.join(ROOT, "requests", "done"), exist_ok=True)
     os.replace(path, os.path.join(ROOT, "requests", "done", name))
     log(f"  {name}: {len(r['passages'])} passage(s), affirmed "
-        f"{sum(SA.affirmed(*ratings.get(p['pid'], (None, None, None))[::2]) for p in r['passages'])}"
+        f"{sum(SA.affirmed(*ratings.get(p['pid'], (None, None, None))[::2], moments) for p in r['passages'])}"
         f"{' ERROR ' + err if err else ''}")
 
 
@@ -182,21 +190,21 @@ def serve_once(log=print):
     return n
 
 
-def latest(moment_id, text, sha, event):
-    """The newest entry WITH a score for this moment, text, scorer code and event (an entry without one is not a
-    verdict: batch 62 c1, glm), else the newest for that event, else None."""
+def latest(moment_id, text, sha, kind="moments", event=None):
+    """The newest entry WITH a score for this moment, text, scorer code, kind and event (an entry without one is not
+    a verdict: batch 62 c1, glm), else the newest for them, else None."""
     p = result_path(moment_id, text, sha)
     if not os.path.exists(p):
         return None
     with open(p) as f:
-        es = [e for e in json.load(f) if e.get("event") == event]
+        es = [e for e in json.load(f) if e.get("kind", "story") == kind and e.get("event") == event]
     return next((e for e in reversed(es) if e.get("score") is not None), es[-1] if es else None)
 
 
 def enqueue_candidates(path, sha):
     """The builder's candidates file (docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json: {generated_at, build,
     candidates: [{pid, video_id, channel, duration, text, text_sha256, trimmed_leading}]}): one single-passage request
-    per candidate not yet rated under this scorer code with PRE_FILTER_EVENT. -> (candidates, refused {pid: why})."""
+    per candidate not yet rated under this scorer code, kind "moments" (ruling 60). -> (candidates, refused)."""
     with open(path) as f:
         c = json.load(f)
     refused = {}
@@ -205,9 +213,9 @@ def enqueue_candidates(path, sha):
         if not isinstance(text, str) or hashlib.sha256(text.encode()).hexdigest() != x.get("text_sha256"):
             refused[pid] = "text_sha256 is not the sha256 of text"
             continue
-        if latest(pid, text, sha, PRE_FILTER_EVENT) is not None and latest(pid, text, sha, PRE_FILTER_EVENT)["score"] is not None:
+        if (latest(pid, text, sha) or {}).get("score") is not None:
             continue                                                 # rated before: reused, never asked twice
-        r = {"request_id": f"cand.{pid}.{x['text_sha256'][:12]}", "event": PRE_FILTER_EVENT,
+        r = {"request_id": f"cand.{pid}.{x['text_sha256'][:12]}", "kind": "moments",
              "passages": [{"moment_id": pid, "pid": "clip_01", "channel": x.get("channel"), "duration": x.get("duration"),
                            "text": text}]}
         why = problems(r)
@@ -231,15 +239,16 @@ def write_verdicts(c, refused, sha, src):
         if pid in refused:
             v[pid] = {"text_sha256": x.get("text_sha256"), "affirmed": False, "error": refused[pid]}
             continue
-        e = latest(pid, x["text"], sha, PRE_FILTER_EVENT) or {}
+        e = latest(pid, x["text"], sha) or {}
         v[pid] = {"text_sha256": x["text_sha256"], "score": e.get("score"), "reason": e.get("reason"),
                   "fault": e.get("fault"), "affirmed": bool(e.get("affirmed")), "prompt_sha256": e.get("prompt_sha256"),
                   **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
     out = {"rated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "build": c.get("build"),
            "candidates_file": src, "candidates_generated_at": c.get("generated_at"),
-           "scorer": {"model": "gemma3:27b", "prompt": "story_semantics.CLIP_PROMPT via stand_alone.clip_scorer",
-                      "threshold": SA.CLIP_MIN_SCORE, "rule": "stand_alone.affirmed: score >= threshold and fault != "
-                      "starts_mid_thought", "event": PRE_FILTER_EVENT, "scorer_sha": sha},
+           "scorer": {"model": "gemma3:27b", "kind": "moments", "rubric": "ruling 60: stand-alone only",
+                      "prompt": "story_semantics.ALONE_PROMPT via stand_alone.clip_scorer(moments=True)",
+                      "threshold": SA.CLIP_MIN_SCORE, "rule": "stand_alone.affirmed(moments=True): score >= threshold",
+                      "event": None, "scorer_sha": sha},
            "affirmed": sum(1 for x in v.values() if x.get("affirmed")), "verdicts": v}
     d = os.path.join(ROOT, "verdicts")
     os.makedirs(d, exist_ok=True)
