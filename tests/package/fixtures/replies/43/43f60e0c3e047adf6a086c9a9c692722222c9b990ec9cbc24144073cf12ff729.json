@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"I think we've seen over time, Bitcoin's volatility has trended lower and lower, effectively making Bitcoin better collateral, because you can borrow more against it and not have to worry about, a 90 % drawdown that we saw, many, many years ago in Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: Altcoin Daily): \"I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin succeeds economically unlike other currencies by improving stability over time and attracting greater adoption.\",\n  \"clips\": {\n    \"clip_01\": 4,\n    \"clip_02\": 3\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"Hook on Bitcoin not failing economically leads to its lower volatility as collateral\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"From Bitcoin's stability to companies adopting it as treasury asset\"\n    }\n  }\n}",
+ "usage": {
+  "in": 673,
+  "out": 2498,
+  "usd_reported": 0.00695185
+ },
+ "usd": 0.065815,
+ "seconds": 27.01,
+ "recorded_at": "2026-11-13T21:34:34Z"
+}
