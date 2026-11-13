@@ -22,6 +22,27 @@ NO PIN READY. Pin d2657bbe was HELD at the integrator's validate (03:00 ET), bef
 - **Speaker credits:** the integrator's delivery texts already credit the channel name and never guess a person
   (merged at 785c374a, per the integrator).
 
+### 05:35 ET: the first build with ruling 41's search (05:26, code bfac353e): every HOOK rated 3. The bar decides
+
+Record: tests/package/proof/ledger_20261113_102658, with FUNNEL.md. Funnel and search:
+- 313 moments -> 176 usable -> 16 cleared step A -> 11 L-v 2 + CUTTABLE -> 7 can open -> 3 angles (heimdall
+  deepseek, in time);
+- the SEARCH judged 4 line-ups of 8 and spent $0.06 reported ($0.71 estimate);
+- **every one failed the clips-alone verdict on its HOOK, rated 3, with the clips rated 4-5**:
+  | angle | hook (channel: first words) | ratings | through-line the verdict stated |
+  |---|---|---|---|
+  | 2 | Coin Bureau: "Michael Saylor just had a pretty rough day..." | hook 3, 4, 5 | "Setbacks and risks in traditional finance ... demonstrate Bitcoin's resilience" |
+  | 2 | Coin Bureau: "The funds are selling strategies stock..." (swapped in) | hook 3, 5, 4 | "Bitcoin is a resilient alternative to traditional finance..." |
+  | 3 | The Bitcoin Layer: "Bitcoin started turning though before liquidity turned red..." | hook 3, 4, 5 | "Bitcoin shows resilience amid liquidity shifts..." |
+  | 3 | Bitcoin Mechanic: "Bitcoin on the Blake 2B chain is incredible..." (swapped in) | hook 3, 4, 5 | "Perspectives on Bitcoin's value, market movements..." |
+- The search ended at 4: once the clips rated 4-5 were kept in place, no further hook swap fit the line-up rules
+  (seconds, channels, onset), and each angle's re-line found no line-up in its own moments.
+- **Finding for your ruling (item 3 again):** the clips-alone verdict (MEDLEY_PROMPT) rates the HOOK on "how much it
+  advances that through-line", like a clip, with the same bar of 4. A hook is a setup line: four different hooks scored
+  3 while their clips scored 4-5. The bar is unchanged per your order. Whether the hook should be rated on its own job
+  ("grabs attention and sets up the medley") is yours to rule.
+- Next: ruling 42 (the trim) is in audit, then a rebuild. YouTube is clear since 05:25.
+
 ### ORDER 04:58, item 43 (measured on the 04:41 record): angle 2's "no line-up" is NOT a channel shortage
 
 - **The supply:** the 11 cuttable moments sit on **9 channels**: What Bitcoin Did, CNBC Television, Altcoin Daily,
