@@ -6,6 +6,10 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 15:39 RULING 68 LIVE: the service runs in tmux pipeline_pp_lockcheck (GPU0, under the lease, yields to renders), decoder_sha 25cd6f15e6c9. The builder has the contract.
+- The request and result paths, the outcomes, and HOW TO USE IT: send the candidate approved texts before the paid verdicts; on 'hold' adopt the run_decode words and ask again; never use the exact-range decode as a text source.
+- The measured costs, and what it does not catch: 1b4a63d0's G18 class, which is ruling 31's.
+
 ## 15:39 RULING 68 MEASURED (L-aa). The pre-check reproduces the render's decode BYTE FOR BYTE and catches 61fd55d0's clip 3 in 2.4 min for $0.0078. It does NOT catch 1b4a63d0's G18 hook: that is a different class. decoder_sha 25cd6f15e6c9; raw data in scratchpad e081/r68_measure.json.
 - METHOD: tonight's two line-ups were each sent ONCE with their pins' approved texts, as the builder would send them, then once as a decode request. Run from the main checkout at c1c9deee on GPU0, under the lease with the yield flag.
 - MINUTES AND SCRIBE COST PER LINE-UP:
