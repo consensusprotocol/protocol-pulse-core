@@ -1,0 +1,5 @@
+=== 00:16:23 EST BATCH medley build b2, code 0453f171+afbea8f7b750, delivered ['moments-fresh_20261112_050611-37c5b5f5', 'moments-fresh_20261112_050611-41f29b1f'], kept ['tests/package/proof/fresh_20261111_213954/package_batch_b1.json'], avoid ['Sjb6lUiL0m4', 'UJFQBaMh3yg', 'vgsSZ4mAHfQ']
+  62 moments, 37 on avoided videos out; 9 delivered or kept spans out; now (render clock) 2026-11-13T05:16:27+00:00
+  9 usable, 7 cleared step A (0 s)
+  2 of them pass the second recognition pass and CUTTABLE (1 s)
+no package (2 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels); usable 9, cleared 7

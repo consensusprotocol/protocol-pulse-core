@@ -1,0 +1,530 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "88f21affdfb5cb3202563b4da667c80184337b08a220b330d0e6ffae08e65534",
+ "result": {
+  "text": "There's no accountability, and this is actually a problem. So a couple of years ago, uh, during the COVID pandemic, a lot of people that I know, a lot of my friends started buying Bitcoin, and I didn't. And now I'm at a point where I feel like if I go and buy Bitcoin, I'm at a disadvantage because my friends that bought it a few years ago are going to be so much more wealthy than I am. How do you see-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 1.46,
+    "text": "There's no accountability, and this is actually a problem."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.58,
+    "end": 20.24,
+    "text": "So a couple of years ago, uh, during the COVID pandemic, a lot of people that I know, a lot of my friends started buying Bitcoin, and I didn't. And now I'm at a point where I feel like if I go and buy Bitcoin, I'm at a disadvantage because my friends that bought it a few years ago are going to be so much more wealthy than I am. How do you see-"
+   }
+  ],
+  "words": [
+   {
+    "text": "There's",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 0.08,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "accountability,",
+    "start": 0.18,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.66,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 0.74,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.86,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "actually",
+    "start": 0.98,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.16,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "problem.",
+    "start": 1.22,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 1.58,
+    "end": 1.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 1.72,
+    "end": 1.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "couple",
+    "start": 1.8,
+    "end": 1.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 1.98,
+    "end": 2.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "years",
+    "start": 2.08,
+    "end": 2.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ago,",
+    "start": 2.28,
+    "end": 2.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 2.68,
+    "end": 2.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "during",
+    "start": 2.9,
+    "end": 3.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 3.22,
+    "end": 3.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "COVID",
+    "start": 3.34,
+    "end": 3.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "pandemic,",
+    "start": 3.62,
+    "end": 4.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 4.08,
+    "end": 4.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "lot",
+    "start": 4.14,
+    "end": 4.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "people",
+    "start": 4.34,
+    "end": 4.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 4.56,
+    "end": 4.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 4.72,
+    "end": 4.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 4.78,
+    "end": 4.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 4.9,
+    "end": 4.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "lot",
+    "start": 4.94,
+    "end": 5.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 5.04,
+    "end": 5.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "my",
+    "start": 5.12,
+    "end": 5.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "friends",
+    "start": 5.28,
+    "end": 5.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "started",
+    "start": 5.6,
+    "end": 5.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "buying",
+    "start": 5.86,
+    "end": 6.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.14,
+    "end": 6.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 6.96,
+    "end": 7.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 7.12,
+    "end": 7.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "didn't.",
+    "start": 7.2,
+    "end": 7.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And",
+    "start": 8.14,
+    "end": 8.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "now",
+    "start": 8.72,
+    "end": 9.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I'm",
+    "start": 9.34,
+    "end": 9.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "at",
+    "start": 9.44,
+    "end": 9.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 9.52,
+    "end": 9.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "point",
+    "start": 9.62,
+    "end": 9.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "where",
+    "start": 9.9,
+    "end": 10.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 10.4,
+    "end": 10.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "feel",
+    "start": 10.6,
+    "end": 10.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like",
+    "start": 10.88,
+    "end": 11.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "if",
+    "start": 11.3,
+    "end": 11.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 11.6,
+    "end": 11.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "go",
+    "start": 12.06,
+    "end": 12.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 12.38,
+    "end": 12.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "buy",
+    "start": 12.54,
+    "end": 12.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 12.76,
+    "end": 13.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I'm",
+    "start": 13.36,
+    "end": 13.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "at",
+    "start": 13.46,
+    "end": 13.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 13.56,
+    "end": 13.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "disadvantage",
+    "start": 13.68,
+    "end": 14.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 14.32,
+    "end": 14.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "my",
+    "start": 14.58,
+    "end": 14.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "friends",
+    "start": 14.76,
+    "end": 14.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 14.98,
+    "end": 15.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "bought",
+    "start": 15.12,
+    "end": 15.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 15.3,
+    "end": 15.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 15.42,
+    "end": 15.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "few",
+    "start": 15.5,
+    "end": 15.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "years",
+    "start": 15.64,
+    "end": 15.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ago",
+    "start": 15.84,
+    "end": 16.079,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "are",
+    "start": 16.56,
+    "end": 16.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "going",
+    "start": 16.66,
+    "end": 16.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 16.82,
+    "end": 16.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "be",
+    "start": 16.9,
+    "end": 17.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 17.04,
+    "end": 17.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "much",
+    "start": 17.16,
+    "end": 17.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "more",
+    "start": 17.34,
+    "end": 17.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "wealthy",
+    "start": 17.52,
+    "end": 17.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "than",
+    "start": 18.24,
+    "end": 18.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 18.5,
+    "end": 18.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "am.",
+    "start": 18.6,
+    "end": 18.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "How",
+    "start": 19.34,
+    "end": 19.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "do",
+    "start": 19.52,
+    "end": 19.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 19.7,
+    "end": 19.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "see-",
+    "start": 20.18,
+    "end": 20.24,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.28
+ },
+ "usd": 0.004056,
+ "seconds": 1.24,
+ "recorded_at": "2026-11-13T05:05:33Z"
+}

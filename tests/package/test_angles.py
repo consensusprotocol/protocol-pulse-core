@@ -129,6 +129,8 @@ class TestPinAndTruth(unittest.TestCase):
                           {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
                 "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
                               "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
+                              "speaker": {"name": "unknown", "role": None, "line": None, "basis": None, "why": "t",
+                                          "people": [], "measured": True},
                               "source_published_at": "2026-11-12T01:00:00Z"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
 
     def test_the_pin_refuses_anything_not_exactly_pass_and_is_sealed(self):

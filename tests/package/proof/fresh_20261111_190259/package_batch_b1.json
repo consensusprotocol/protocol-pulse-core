@@ -1,0 +1,437 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin emerged as an alternative to government money, but its price and legality are still shaped by sentiment, rates, and Congress.",
+   "lineup": [
+    "863cc95ab7c5e0c11482",
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 63.48,
+     "bridge": {
+      "after": "hook",
+      "after_clip": 0,
+      "join": "hook -> clip_01",
+      "text": "From Stephan Livera's show, Bitcoin sentiment cycles.",
+      "why": "Without it, the jump from government money to market mood has no stated referent.",
+      "confirmed_by": {
+       "join": "hook -> clip_01",
+       "why": "abrupt shift from adopting Bitcoin vs gov money to bull/bear sentiment cycles",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      17,
+      20
+     ],
+     "lines": [
+      {
+       "slot": "intro",
+       "text": "From Stephan Livera's show, Bitcoin sentiment cycles.",
+       "cites": [
+        "0c751a33022013fb3086"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "Bitcoin's origin story is freedom. Its market still answers to mood, borrowing costs, and political rules alone.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Money no government owns, mood still rules",
+       "cites": []
+      },
+      {
+       "slot": "caption",
+       "text": "bitcoin's price still follows crowd mood and borrowing costs, not government money.",
+       "cites": [
+        "863cc95ab7c5e0c11482",
+        "0c751a33022013fb3086",
+        "01154f025a00f40132a7"
+       ]
+      }
+     ],
+     "violations": [
+      {
+       "slot": "caption",
+       "rule": "VERDICT_UNCERTAIN",
+       "detail": "bitcoin's price still follows crowd mood and borrowing costs, not government money"
+      }
+     ],
+     "verdict_classes": {
+      "intro": [
+       "production",
+       "commentary"
+      ],
+      "takeaway": [
+       "commentary",
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "fact"
+      ]
+     }
+    },
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 63.48,
+     "bridge": {
+      "after": "hook",
+      "after_clip": 0,
+      "join": "hook -> clip_01",
+      "text": "Stephan Livera on Bitcoin's price and crowd mood.",
+      "why": "The hook is about government money, and the next clip is about market mood, so the referent is unclear.",
+      "confirmed_by": {
+       "join": "hook -> clip_01",
+       "why": "abrupt shift from adopting Bitcoin vs gov money to bull/bear sentiment cycles",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      13,
+      20
+     ],
+     "lines": [
+      {
+       "slot": "intro",
+       "text": "Stephan Livera on Bitcoin's price and crowd mood.",
+       "cites": [
+        "0c751a33022013fb3086"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "A currency can reject the state and still answer to the crowd. That is the trap.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "Escape from state money, still ruled by sentiment",
+       "cites": []
+      },
+      {
+       "slot": "caption",
+       "text": "escape from state money does not mean escape from the crowd. mood and rates still rule.",
+       "cites": []
+      }
+     ],
+     "violations": [
+      {
+       "slot": "intro",
+       "rule": "VERDICT_NO",
+       "detail": "The clip features Stephan Livera speaking on Bitcoin's price and crowd mood."
+      }
+     ],
+     "verdict_classes": {
+      "intro": [
+       "attribution"
+      ],
+      "takeaway": [
+       "commentary"
+      ],
+      "title": [
+       "commentary"
+      ],
+      "caption": [
+       "commentary"
+      ]
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin offers an alternative to government currency but experiences extreme price swings due to changing investor sentiment and sensitivity to rising interest rates.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "abrupt shift from adopting Bitcoin vs gov money to bull/bear sentiment cycles"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "flows from hating Bitcoin at market bottoms to macro reasons like rates reducing its appeal"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true
+  }
+ ],
+ "unusable": {
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2d2ee640cf1d2adab655": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6d91c6af0e23f79c946e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "219465c7c3b73c49143a": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "2952b07ede23dd542a69": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f56505eda00b45f4675e": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "82a9946883d124030934": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "c6e1e853c2ae8ea88ddb": "40.39 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b9544ad347ef6e6c56e": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "cc661d19abea81e5b9b7": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "a51d8398638df74b3f4a": "20.48 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6ad350843b54d1f48f05": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 34,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 16,
+  "failed": {
+   "55722e7365cc43558d7e": [
+    "CONDITION_OUTSIDE"
+   ],
+   "7a17f3252d14fe2ed7aa": [
+    "REFERENT_OUTSIDE"
+   ],
+   "04a149678014424229d3": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "c6cdbadebbac52e4e623": [
+    "REFERENT_OUTSIDE"
+   ],
+   "128b99b7a2487f58d3ba": [
+    "REFERENT_OUTSIDE"
+   ],
+   "14daf2da53fd3fe0b104": [
+    "REFERENT_OUTSIDE"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ]
+  },
+  "second_pass": {
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "984b91dd88d5f86e3158": "PASS",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "01154f025a00f40132a7": "PASS",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "9a9ed680fa64a4ae7305": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "8055c5252b61b9639cbe": "PASS",
+   "863cc95ab7c5e0c11482": "PASS",
+   "885875fc8337379c0e77": "L-v 2 FAIL",
+   "43e6d312e1a1e6a4e33c": "PASS"
+  },
+  "cuttable": 6
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin emerged as an alternative to government money, but its price and legality are still shaped by sentiment, rates, and Congress.",
+   "moments": [
+    "863cc95ab7c5e0c11482",
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7",
+    "43e6d312e1a1e6a4e33c"
+   ],
+   "hook": "863cc95ab7c5e0c11482"
+  },
+  {
+   "angle": "Bitcoin promises a new internet and abundance, but its adoption still depends on legal approval and market conditions.",
+   "moments": [
+    "8055c5252b61b9639cbe",
+    "43e6d312e1a1e6a4e33c",
+    "01154f025a00f40132a7",
+    "0c751a33022013fb3086"
+   ],
+   "hook": "8055c5252b61b9639cbe"
+  },
+  {
+   "angle": "Bitcoin is both a sentiment-driven market asset and a monetary revolution beyond government money.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7",
+    "863cc95ab7c5e0c11482",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "0c751a33022013fb3086"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "Bitcoin's origin story is freedom. Its market still answers to mood, borrowing costs, and political rules alone.",
+   "words": 17,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  },
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 2,
+   "text": "A currency can reject the state and still answer to the crowd. That is the trap.",
+   "words": 16,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "why_none": "stopped in angle 1 of 3: 990 s of 900 s wall / $0.25 of $1.50 reported / $2.55 of the $5.00 estimate ceiling (ruling 5, 22:40)",
+ "budget_stop": {
+  "seconds": 989.9,
+  "usd_reported": 0.246,
+  "usd_estimate": 2.5483,
+  "angles_tried": 1,
+  "angles": 3
+ },
+ "seconds": 989.9,
+ "usd": 2.5483,
+ "run": "fresh_20261111_190259",
+ "tag": "b1",
+ "usd_estimate": 2.5483,
+ "usd_best_known": 0.246,
+ "code": "0453f171+cee27e7502fa",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:18:36 EST",
+ "as_of": "2026-11-13T05:02:06.380637+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  }
+ ],
+ "full": {
+  "est": 2.7083,
+  "best": 0.3018,
+  "model_s": 1160.02,
+  "calls": 34
+ }
+}

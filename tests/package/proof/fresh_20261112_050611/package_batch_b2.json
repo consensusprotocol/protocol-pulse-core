@@ -1,0 +1,175 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "aff2e3571d56180a9e06": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1e31dd4b7ddb686a18d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "9d3621a7156736bc9f96": "21.8 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "bb4e1ce55c244ad108e1": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "a3a5a50ffc1f5bed0174": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "fb5522673f5af6c7d405": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a093672188a95f92324f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6645c9ad4109de35828": "25.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']"
+ },
+ "usable": 9,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 9,
+  "cleared": 7,
+  "failed": {
+   "60174b6059b1d67c34bd": [
+    "REFERENT_OUTSIDE"
+   ],
+   "d556b5ea8171285790e8": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "8055c5252b61b9639cbe": "PASS",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5d5e163125435e85061a": "PASS",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "c6cdbadebbac52e4e623": "L-v 2 FAIL",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL"
+  },
+  "cuttable": 2
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "2 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels",
+ "run": "fresh_20261112_050611",
+ "tag": "b2",
+ "seconds": 0.8,
+ "usd_estimate": 0.0,
+ "usd_best_known": 0.0,
+ "code": "0453f171+afbea8f7b750",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:16:28 EST",
+ "as_of": "2026-11-13T05:16:27.185899+00:00",
+ "avoid_videos": [
+  "Sjb6lUiL0m4",
+  "UJFQBaMh3yg",
+  "vgsSZ4mAHfQ"
+ ],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "batch:fresh_20261111_213954"
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "batch:fresh_20261111_213954"
+  }
+ ],
+ "full": {
+  "est": 0.019,
+  "best": 0.019,
+  "model_s": 13.06,
+  "calls": 7
+ }
+}

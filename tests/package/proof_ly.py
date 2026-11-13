@@ -41,6 +41,7 @@ import package as PK  # noqa: E402
 import package_pin  # noqa: E402
 import proof_moments as PM  # noqa: E402
 import providers as P  # noqa: E402
+import speakers as SP  # noqa: E402
 
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
@@ -159,6 +160,7 @@ def run_one(run, router, work_dir, log, own, used=None, as_of_now=False):
     if res["package"]:
         pk = res["package"]
         pk["usd_best_known"] = res["usd_best_known"]
+        SP.attribute_package(router, pk, sources, log=log)                # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
             path, pin = package_pin.write_pin(pk, run, os.path.join(OUT, run), name=f"MOMENTS_PIN_LY{suffix.upper()}.json")
             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],

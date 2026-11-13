@@ -1,4 +1,65 @@
-DELIVERING, not a new READY (ruling 1 (a), 22:40): the integrator delivers the 41f29b1f medley REVIEW ONLY, as it is; you tell PBX that clip_02 was 33 h old at delivery. The NEXT READY pin will be the first FRESH medley, built from the ingest ledger once the integrator's word-pass worker (GPU1) marks moments sentence-ready (ruling 2). Every pin from this commit on seals per-segment recency facts (ruling 1).
+BATCH READY: tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json
+
+
+## 00:21 ET: the 00:05 batch (PBX: "new batch!"): pin #1 SEALED and sent to the integrator; #2 and #3 building
+
+**Why every package is a rebuild.** The four named L-y packages reuse delivered moments, so the order's item 2 ("no
+moment reused") rules all four out as they are:
+- each opens on wdk5JZ9hPzs 3218.1-3221.6, the hook of both 37c5b5f5 and 41f29b1f;
+- each carries c1JGheQBPH4 2403.2-2422.1, from 41f29b1f;
+- fresh_20261112_001448 is 41f29b1f clip for clip.
+They were built with delivered=(). The rebuilds (tests/package/proof_batch.py) run the packager as it stands, so house
+style comes in the writer's prompt and the STYLE lint (item 1). Each build:
+- uses the RENDER clock (ruling 1);
+- passes every clip span of both delivered pins and of the batch's kept packages as delivered (package.usable drops
+  any overlap);
+- avoids the kept packages' videos where possible;
+- stays within ruling 5's budget.
+
+**Results:**
+- fresh_20261112_001448: no package. 17 cleared step A, but only 3 passed L-v 2 + CUTTABLE, from < 3 channels.
+- fresh_20261111_192645: no package. None of the 3 angles had a line-up that fits the medley's seconds and the
+  channel rules (why_none was not filled in; a reporting gap in build(), noted).
+- fresh_20261111_190259: no package. The clips-alone check passed, but two writes failed fidelity on a non-takeaway
+  line, and ruling 5's wall budget stopped the build at 990 s of 900 s.
+- **fresh_20261111_213954: PACKAGE -> pin #1** (814 s; $1.88 estimate, $0.18 best known).
+- fresh_20261112_050611 avoiding pin #1's videos: no package (2 moments pass L-v 2 + CUTTABLE, < 3 channels).
+  Avoiding videos is therefore not possible on this supply, so videos may repeat across the batch; moments never do.
+  050611 is building again with only pin #1's spans out.
+
+**Speakers (item 3; pipeline/speakers.py, audit docs/audits/parallel/pp-selectid_audit_0007/, 2 cycles, no P0/P1):**
+- A clip's speaker is named only when the clip or the transcript around it shows who speaks, in a quote checked word
+  for word. A title or description naming a guest never names a clip's speaker by itself.
+- Everyone the source's lines name is listed with that line, for tags.
+- On pin #1 all three speakers are "unknown". Each was measured, and nothing in or around the clips shows who speaks.
+  The people named for tagging: Stephan Livera and Joe Burnett; Saifedean Ammous, Jason Hickel and Pavlina Tcherneva
+  (a Doha Debates debate); Coin Bureau's description names nobody.
+
+**Seal compatibility (sent to the integrator):** their check_pin_only recomputes seal() from this worktree's
+package_pin.py. Every pin sealed before ruling 1 failed that recompute; 6 of 6 recompute again now (SEALED_LATER).
+
+**Spend (SPEND_BATCH.json):** $0.700 best known so far, of the order's $6 vendor-reported ($6.68 by the price-table
+estimate).
+
+
+### #1: tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json
+- story moments-batch_b1_fresh_20261111_213954-1b4a63d0; package_sha256 1b4a63d0c78005dc768a245959025feaf9636c08746f7711fd8654197cbd9c86; runtime estimate 65.74 s; shape medley
+- title: "The crowd feels. The structure holds."
+- caption: "the crowd trades feeling. the structure keeps its value."
+- takeaway: "The structure does not move with the mood. Most people still price it by the mood."
+- bridge after clip 1: "Coin Bureau, on rates and how markets treat Bitcoin." (why: The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.; confirmed by xai:grok-4.20-0309-reasoning)
+- sign-off: "Clips today from Stephan Livera, Saifedean Ammous, and Coin Bureau. Go follow them for more. Links are below."
+- hook 0: Stephan Livera https://youtu.be/Sjb6lUiL0m4 3090.75-3109.87 s (published 2026-11-11T18:03:23Z; time_sensitive False)
+  - verbatim: "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  - speaker: **unknown**: both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is. The source names: Stephan Livera (host): "channel: Stephan Livera"; Joe Burnett (guest): "title: Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788"
+- clip 1: Saifedean Ammous https://youtu.be/vgsSZ4mAHfQ 4664.57-4673.21 s (published 2026-11-10T08:21:50Z; time_sensitive False)
+  - verbatim: "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  - speaker: **unknown**: multiple people speak in this episode, and nothing in or around the clip shows which one this is. The source names: Saifedean Ammous (host): "channel: Saifedean Ammous"; Jason Hickel (guest): "The Doha Debates hosts Saifedean to debate the nature of money with two MMT economists, Jason Hickel and Pavli"; Pavlina Tcherneva (guest): "The Doha Debates hosts Saifedean to debate the nature of money with two MMT economists, Jason Hickel and Pavli"
+- clip 2: Coin Bureau https://youtu.be/UJFQBaMh3yg 191.38-203.06 s (published 2026-11-10T11:33:20Z; time_sensitive False)
+  - verbatim: "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  - speaker: **unknown**: the transcript does not address anyone by name, the clip has no first-person tie to own work/role/company, and nothing shows which person is speaking. The source names nobody.
+
+**Earlier line 1 (ruling 1 (a), 22:40):** DELIVERING, not a new READY (ruling 1 (a), 22:40): the integrator delivers the 41f29b1f medley REVIEW ONLY, as it is; you tell PBX that clip_02 was 33 h old at delivery. The NEXT READY pin will be the first FRESH medley, built from the ingest ledger once the integrator's word-pass worker (GPU1) marks moments sentence-ready (ruling 2). Every pin from this commit on seals per-segment recency facts (ruling 1).
 
 
 ## 23:22 ET: ruling 2's builder path is BUILT and proven end to end; no package from tonight's ready rows (not fresh anyway)

@@ -1,0 +1,255 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is a new monetary system that ends government money's monopoly and increases holders' purchasing power without needing a CEO.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin's price swings are driven by crowd sentiment and hard-money scarcity, not by a CEO.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "Bitcoin's permissionless design means it can deliver a new internet and monetary abundance even without political approval or a CEO.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "359e48e54b63603c4bbc": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0b23079da216f3e1be1f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "2952b07ede23dd542a69": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7a5f734f844bbfd67c1f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "d1d4382d292f18207ea2": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6c26e6ba3e9362d33c6e": "30.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a746ada209ac1c17a521": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "bf1d09d20f7b2fbba5d9": "38.03 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c6e1e853c2ae8ea88ddb": "40.39 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f56505eda00b45f4675e": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "0640439fbe5fe44393f5": "not eligible on screen: hook: opener; clip: opener",
+  "173b9804d9f412fcc16b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "cc67ff154ee8d33953de": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0979e051fc69ff925d73": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "43a7b30e487e0135cf6f": "29.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "ff167c51fb38dfbc03b5": "38.13 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "536503b5e8b97f2e0ebd": "20.41 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "a51d8398638df74b3f4a": "20.48 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 33,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "27bf8bffdcdc5f785bb8": [
+    "REFERENT_OUTSIDE",
+    "STALE_TIME"
+   ],
+   "9a9ed680fa64a4ae7305": [
+    "CONDITION_OUTSIDE"
+   ],
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "39cb7d2a1a661ba699e2": [
+    "REFERENT_OUTSIDE"
+   ],
+   "6d91c6af0e23f79c946e": [
+    "REFERENT_OUTSIDE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE",
+    "RETRACTION"
+   ],
+   "1dd835fcfbdcc4cba847": [
+    "NOT_OWN_SINCERE"
+   ]
+  },
+  "second_pass": {
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "8055c5252b61b9639cbe": "PASS",
+   "984b91dd88d5f86e3158": "PASS",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "863cc95ab7c5e0c11482": "PASS",
+   "9eb4b93bfebabd2c853c": "PASS",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "e375df8065e9bd8f421b": "not cuttable at an edge (ruling C / 7)",
+   "077e975c9d52dde86ef3": "PASS",
+   "3c2018635aaee62fb2dc": "L-v 2 FAIL",
+   "7a17f3252d14fe2ed7aa": "PASS",
+   "1df196cbd1858b330e38": "PASS"
+  },
+  "cuttable": 8
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is a new monetary system that ends government money's monopoly and increases holders' purchasing power without needing a CEO.",
+   "moments": [
+    "7a17f3252d14fe2ed7aa",
+    "863cc95ab7c5e0c11482",
+    "9eb4b93bfebabd2c853c",
+    "1df196cbd1858b330e38",
+    "8055c5252b61b9639cbe"
+   ],
+   "hook": "7a17f3252d14fe2ed7aa"
+  },
+  {
+   "angle": "Bitcoin's price swings are driven by crowd sentiment and hard-money scarcity, not by a CEO.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "984b91dd88d5f86e3158",
+    "7a17f3252d14fe2ed7aa",
+    "9eb4b93bfebabd2c853c"
+   ],
+   "hook": "0c751a33022013fb3086"
+  },
+  {
+   "angle": "Bitcoin's permissionless design means it can deliver a new internet and monetary abundance even without political approval or a CEO.",
+   "moments": [
+    "7a17f3252d14fe2ed7aa",
+    "077e975c9d52dde86ef3",
+    "8055c5252b61b9639cbe",
+    "863cc95ab7c5e0c11482",
+    "9eb4b93bfebabd2c853c"
+   ],
+   "hook": "7a17f3252d14fe2ed7aa"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "seconds": 471.7,
+ "usd": 0.9016,
+ "run": "fresh_20261111_192645",
+ "tag": "b1",
+ "usd_estimate": 0.9016,
+ "usd_best_known": 0.1,
+ "code": "0453f171+058327e1bb17",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:09:55 EST",
+ "as_of": "2026-11-13T05:02:03.304730+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  }
+ ],
+ "full": {
+  "est": 0.9371,
+  "best": 0.1354,
+  "model_s": 490.33,
+  "calls": 21
+ }
+}

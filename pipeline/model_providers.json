@@ -212,6 +212,15 @@
    ],
    "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
   },
+  "speaker_verdict": {
+   "chain": [
+    "xai:grok-4.20-0309-reasoning",
+    "anthropic:claude-opus-5-5",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "local:gemma3:27b"
+   ],
+   "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
+  },
   "transcribe": {
    "chain": [
     "openai_stt:gpt-4o-transcribe-diarize",

@@ -1,0 +1,248 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f1e02d91d4ffd48901c0e0bd1d8fc088d1b5eafb0398acac1edd44db96290bdc",
+ "result": {
+  "text": "You're gonna sell the bottom, you're gonna over-leverage at the top. You're gon- you're, you're gonna make a mistake, and you're gonna end up with less Bitcoin than you had before. And I think when the next",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 9.14,
+    "text": "You're gonna sell the bottom, you're gonna over-leverage at the top. You're gon- you're, you're gonna make a mistake, and you're gonna end up with less Bitcoin than you had before. And I think when the next"
+   }
+  ],
+  "words": [
+   {
+    "text": "You're",
+    "start": 0.12,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 0.22,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 0.44,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.64,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom,",
+    "start": 0.74,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 1.46,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 1.56,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over-leverage",
+    "start": 1.76,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 2.32,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.42,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top.",
+    "start": 2.54,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You're",
+    "start": 3.36,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gon-",
+    "start": 3.48,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're,",
+    "start": 3.66,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 3.88,
+    "end": 3.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 3.96,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 4.14,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.3,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mistake,",
+    "start": 4.36,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.78,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 4.92,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 5.02,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "end",
+    "start": 5.2,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 5.36,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 5.7,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "less",
+    "start": 6.48,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.68,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 7.0,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 7.16,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 7.26,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before.",
+    "start": 7.46,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 7.94,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.2,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 8.24,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 8.78,
+    "end": 8.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.92,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 9.0,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.18
+ },
+ "usd": 0.001836,
+ "seconds": 0.74,
+ "recorded_at": "2026-11-13T05:06:03Z"
+}

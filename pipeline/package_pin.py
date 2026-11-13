@@ -63,21 +63,54 @@ def recency_problems(segments):
     return out
 
 
+SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): the render clock checks L-v 3 on these
+                "speaker")                                 # the 00:05 ET Nov 13 order, item 3
+
+
 def seal(segments, edl_vo, signoff, title, caption, gates):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
-    words, the transcript sha, and since ruling 1 (22:40) time_sensitive and source_published_at), the VO the renderer
-    will speak (intro, bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate
-    inventory."""
-    body = {"segments": [{"video_id": s["video_id"], "start": round(float(s["start"]), 3),
-                          "end": round(float(s["end"]), 3), "text": s["approved_text"],
-                          "transcript_sha256": s.get("transcript_sha256"),
-                          "time_sensitive": s.get("time_sensitive"),             # ruling 1 (22:40): the render clock
-                          "source_published_at": s.get("source_published_at")}   # checks L-v 3 on these
-                         for s in segments],
+    words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
+    bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
+    A SEALED_LATER field enters the body only when the segment carries its key. Every pin sealed before that field
+    existed then recomputes to its own package_sha256: the integrator's check recomputes seals with this module, and
+    all 6 earlier pins in tests/package/proof failed under an always-present field. A new pin always carries them,
+    because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest."""
+    def body_of(s):
+        b = {"video_id": s["video_id"], "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
+             "text": s["approved_text"], "transcript_sha256": s.get("transcript_sha256")}
+        b.update({k: s[k] for k in SEALED_LATER if k in s})
+        return b
+    body = {"segments": [body_of(s) for s in segments],
             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
                                                              for b in edl_vo.get("bridges") or []]},
             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def speaker_problems(segments):
+    """[why] for segments whose speaker record (speakers.attribute) is missing or malformed: the orchestrator's 00:05 ET
+    Nov 13 order (item 3) has every pin carry, per segment, the speaker's name (or "unknown", never a guess) with its
+    evidence. A named speaker needs the source line that names them and the basis that shows they speak the clip."""
+    out = []
+    for i, s in enumerate(segments):
+        sp = s.get("speaker")
+        if not isinstance(sp, dict) or not isinstance(sp.get("name"), str) or not sp["name"].strip():
+            out.append(f'segment {i}: no speaker record (a name, or "unknown")')
+        elif not isinstance(sp.get("people"), list) or type(sp.get("measured")) is not bool:
+            out.append(f"segment {i}: the speaker record states no people list or no measured flag")
+        elif not all(isinstance(p, dict) and isinstance(p.get("name"), str) and p["name"].strip() and
+                     isinstance(p.get("line"), str) and p["line"].strip() and p.get("role") in ("host", "guest", "other")
+                     for p in sp["people"]):
+            out.append(f"segment {i}: a person without a name, a source line or a role")
+        elif sp["name"] != "unknown" and sp["measured"] is not True:
+            out.append(f"segment {i}: speaker {sp['name']!r} is named by a record that was not measured")   # C2 glm N1
+        elif sp["name"] != "unknown" and not all(isinstance(sp.get(k), str) and sp[k].strip() for k in ("line", "basis")):
+            out.append(f"segment {i}: speaker {sp['name']!r} is named without the source line and the basis")
+        elif sp["name"] != "unknown" and not any(p["name"] == sp["name"] and p["line"] == sp["line"] and
+                                                 p["role"] == sp.get("role") for p in sp["people"]):
+            out.append(f"segment {i}: speaker {sp['name']!r} is not one of the people the source names, with that "
+                       f"person's line and role")             # what speakers.check produces (audit 0007 C1 K1)
+    return out
 
 
 def gate_problems(gates, required=REQUIRED_GATES):
@@ -126,7 +159,7 @@ def line_problems(pk):
 def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
                                                                      for x in line_problems(pk)] + \
-        recency_problems(pk.get("segments") or [])
+        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or [])
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -135,6 +168,7 @@ def to_pin(pk, run_name):
                      "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
+                     "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}

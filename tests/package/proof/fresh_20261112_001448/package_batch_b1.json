@@ -1,0 +1,189 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "3edfe678a4ff97bec65e": "22.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "56a13b0215ba11d6ab77": "not eligible on screen: hook: opener; clip: opener",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d066389057a79ca76bad": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "d1d4382d292f18207ea2": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3b3050f4afd6f3c011e7": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "f61f981eb89a4fe99e9f": "20.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0c6d4845f9d7643e6a1c": "20.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "10b716601d89b49f1450": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "e0d1228b3c5e27e8855d": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "0979e051fc69ff925d73": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3bd07ebe92cf2d20492b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "537ed78ee35ff78b4ebb": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "56bd09518d61a1bd4b82": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "57671945c6879045237c": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "ff167c51fb38dfbc03b5": "hard exclusion (L-u): ['single_source_breaking']",
+  "1853fbf19737b9a0e0f9": "22.59 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "d27f06243f46f09b9328": "35.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f7c51cc3aee285db890f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "6121da64aa97a0569f44": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "1dbd4849fda93f42298f": "25.52 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "34eac7a2d177046c6bae": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener",
+  "536503b5e8b97f2e0ebd": "20.41 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 26,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "43e6d312e1a1e6a4e33c": [
+    "NOT_OWN_SINCERE"
+   ],
+   "863cc95ab7c5e0c11482": [
+    "REFERENT_OUTSIDE"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ],
+   "e8c3738e3d7aff4ba06e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "805a9282d37c5a2aff3e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "6d91c6af0e23f79c946e": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "6353ef6c32236e89f0cc": "not cuttable at an edge (ruling C / 7)",
+   "84699cf1156096cda287": "not cuttable at an edge (ruling C / 7)",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "d1e31dd4b7ddb686a18d": "not cuttable at an edge (ruling C / 7)",
+   "c356a9fc110380aca230": "not cuttable at an edge (ruling C / 7)",
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "1dd835fcfbdcc4cba847": "not cuttable at an edge (ruling C / 7)",
+   "69cd6a94f00b24cc1818": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "6596d98da9d4fe465a8e": "not cuttable at an edge (ruling C / 7)",
+   "dcf66b69d2de136b5166": "PASS",
+   "81f9b98d79dddabc360a": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 3
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "3 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels",
+ "run": "fresh_20261112_001448",
+ "tag": "b1",
+ "seconds": 235.3,
+ "usd_estimate": 0.8285,
+ "usd_best_known": 0.1021,
+ "code": "0453f171+08bbf2454ede",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:06:03 EST",
+ "as_of": "2026-11-13T05:02:08.420695+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  }
+ ],
+ "full": {
+  "est": 0.8741,
+  "best": 0.1476,
+  "model_s": 257.21,
+  "calls": 20
+ }
+}

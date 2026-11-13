@@ -1,0 +1,5 @@
+=== 00:02:04 EST BATCH medley build b1, code 0453f171, delivered ['moments-fresh_20261112_050611-37c5b5f5', 'moments-fresh_20261112_050611-41f29b1f'], kept [], avoid []
+  59 moments, 0 on avoided videos out; 6 delivered or kept spans out; now (render clock) 2026-11-13T05:02:08+00:00
+  26 usable, 17 cleared step A (222 s)
+  3 of them pass the second recognition pass and CUTTABLE (235 s)
+no package (3 cleared moments pass the second pass and CUTTABLE, from fewer than 3 channels); usable 26, cleared 17

@@ -43,6 +43,7 @@ import package_pin  # noqa: E402
 import proof_ly as PL  # noqa: E402
 import proof_saved_runs as PS  # noqa: E402
 import providers as P  # noqa: E402
+import speakers as SP  # noqa: E402
 
 def delivered_pins(paths):
     """The pins already delivered -> (every clip span {video_id, start, end, pin} for package.usable's overlap check,
@@ -123,6 +124,7 @@ def main(argv=None):
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
     if res["package"]:
+        SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
         try:
             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
                                               name="MOMENTS_PIN_LEDGER.json")

@@ -1,0 +1,6 @@
+=== 00:01:58 EST BATCH medley build b1, code 0453f171, delivered ['moments-fresh_20261112_050611-37c5b5f5', 'moments-fresh_20261112_050611-41f29b1f'], kept [], avoid []
+  70 moments, 0 on avoided videos out; 6 delivered or kept spans out; now (render clock) 2026-11-13T05:02:03+00:00
+  33 usable, 17 cleared step A (189 s)
+  8 of them pass the second recognition pass and CUTTABLE (210 s)
+  3 angles from heimdall:deepseek/deepseek-v4.1-flash (472 s)
+no package (None); usable 33, cleared 17

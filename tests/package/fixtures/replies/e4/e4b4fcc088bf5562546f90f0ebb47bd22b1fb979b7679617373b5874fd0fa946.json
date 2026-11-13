@@ -1,0 +1,290 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1db96d080906750ca1c2a7693f9937b4f36e62ed200775f78571ba0a6830028d",
+ "result": {
+  "text": "Their business may have been failing. You know Eric Semler, who is, you know, uh, chairman of Semler Scientific, he famously said, like, \"The zombie companies should be the ones that buy Bitcoin.\" And obviously I completely agree with that. It makes perfect sense.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.22,
+    "end": 10.98,
+    "text": "Their business may have been failing. You know Eric Semler, who is, you know, uh, chairman of Semler Scientific, he famously said, like, \"The zombie companies should be the ones that buy Bitcoin.\" And obviously I completely agree with that. It makes perfect sense."
+   }
+  ],
+  "words": [
+   {
+    "text": "Their",
+    "start": 0.22,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "business",
+    "start": 0.38,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 0.72,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.8,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 0.88,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "failing.",
+    "start": 1.06,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 1.44,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 1.5,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Eric",
+    "start": 1.64,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Semler,",
+    "start": 1.9,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 2.56,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 2.66,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.84,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.9,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 3.36,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chairman",
+    "start": 3.66,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.96,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Semler",
+    "start": 4.059,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Scientific,",
+    "start": 4.32,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 4.76,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "famously",
+    "start": 4.88,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said,",
+    "start": 5.3,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 5.46,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"The",
+    "start": 5.58,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "zombie",
+    "start": 5.72,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 6.06,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 6.94,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 7.16,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ones",
+    "start": 7.44,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.119,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 8.24,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.\"",
+    "start": 8.4,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.78,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously",
+    "start": 8.92,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 9.26,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 9.28,
+    "end": 9.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agree",
+    "start": 9.64,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 9.84,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that.",
+    "start": 9.94,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 10.08,
+    "end": 10.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 10.14,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perfect",
+    "start": 10.36,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sense.",
+    "start": 10.68,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.54
+ },
+ "usd": 0.002308,
+ "seconds": 1.38,
+ "recorded_at": "2026-11-13T05:05:26Z"
+}

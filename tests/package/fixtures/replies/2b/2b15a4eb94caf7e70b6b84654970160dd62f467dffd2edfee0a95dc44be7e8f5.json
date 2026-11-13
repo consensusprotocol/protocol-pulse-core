@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6479ee3e4c281c67b3399ab9bd9212da5e5ebc630e43a7fac5ba3976c31cb8ec",
+ "result": {
+  "text": "The company leans on one man. This is another glaring reason why Bitcoin having no CEO is a feature, not a bug. Now zoom out a bit",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 7.22,
+    "text": "The company leans on one man. This is another glaring reason why Bitcoin having no CEO is a feature, not a bug. Now zoom out a bit"
+   }
+  ],
+  "words": [
+   {
+    "text": "The",
+    "start": 0.0,
+    "end": 0.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 0.06,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leans",
+    "start": 0.4,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 0.62,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 0.8,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man.",
+    "start": 0.98,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 1.74,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.86,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "another",
+    "start": 1.94,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "glaring",
+    "start": 2.24,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 2.6,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 2.88,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.08,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "having",
+    "start": 3.4,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 3.66,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO",
+    "start": 3.9,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.6,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.74,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feature,",
+    "start": 4.9,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.4,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.56,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bug.",
+    "start": 5.66,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now",
+    "start": 6.48,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "zoom",
+    "start": 6.7,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 6.88,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.02,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bit",
+    "start": 7.1,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 7.44
+ },
+ "usd": 0.001488,
+ "seconds": 0.74,
+ "recorded_at": "2026-11-13T05:05:27Z"
+}

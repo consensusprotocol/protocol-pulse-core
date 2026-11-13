@@ -1,0 +1,768 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 1709764a..8c184de0 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -212,6 +212,15 @@
+    ],
+    "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
+   },
++  "speaker_verdict": {
++   "chain": [
++    "xai:grok-4.20-0309-reasoning",
++    "anthropic:claude-opus-5-5",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "local:gemma3:27b"
++   ],
++   "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
++  },
+   "transcribe": {
+    "chain": [
+     "openai_stt:gpt-4o-transcribe-diarize",
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 598db658..aaa361c7 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -65,14 +65,15 @@ def recency_problems(segments):
+ 
+ def seal(segments, edl_vo, signoff, title, caption, gates):
+     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
+-    words, the transcript sha, and since ruling 1 (22:40) time_sensitive and source_published_at), the VO the renderer
+-    will speak (intro, bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate
+-    inventory."""
++    words, the transcript sha, since ruling 1 (22:40) time_sensitive and source_published_at, and since the 00:05 ET
++    Nov 13 order the speaker record), the VO the renderer will speak (intro, bridges with after_clip), the sign-off,
++    the ONE title and caption (law L-t), and the gate inventory."""
+     body = {"segments": [{"video_id": s["video_id"], "start": round(float(s["start"]), 3),
+                           "end": round(float(s["end"]), 3), "text": s["approved_text"],
+                           "transcript_sha256": s.get("transcript_sha256"),
+                           "time_sensitive": s.get("time_sensitive"),             # ruling 1 (22:40): the render clock
+-                          "source_published_at": s.get("source_published_at")}   # checks L-v 3 on these
++                          "source_published_at": s.get("source_published_at"),   # checks L-v 3 on these
++                          "speaker": s.get("speaker")}                           # 00:05 ET Nov 13 item 3
+                          for s in segments],
+             "vo": {"intro": edl_vo.get("intro"), "bridges": [{"text": b["text"], "after_clip": b["after_clip"]}
+                                                              for b in edl_vo.get("bridges") or []]},
+@@ -80,6 +81,22 @@ def seal(segments, edl_vo, signoff, title, caption, gates):
+     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+ 
+ 
++def speaker_problems(segments):
++    """[why] for segments whose speaker record (speakers.attribute) is missing or malformed: the orchestrator's 00:05 ET
++    Nov 13 order (item 3) has every pin carry, per segment, the speaker's name (or "unknown", never a guess) with its
++    evidence. A named speaker needs the source line that names them and the basis that shows they speak the clip."""
++    out = []
++    for i, s in enumerate(segments):
++        sp = s.get("speaker")
++        if not isinstance(sp, dict) or not isinstance(sp.get("name"), str) or not sp["name"].strip():
++            out.append(f'segment {i}: no speaker record (a name, or "unknown")')
++        elif not isinstance(sp.get("people"), list) or type(sp.get("measured")) is not bool:
++            out.append(f"segment {i}: the speaker record states no people list or no measured flag")
++        elif sp["name"] != "unknown" and not all(isinstance(sp.get(k), str) and sp[k].strip() for k in ("line", "basis")):
++            out.append(f"segment {i}: speaker {sp['name']!r} is named without the source line and the basis")
++    return out
++
++
+ def gate_problems(gates, required=REQUIRED_GATES):
+     """[why] for an inventory that does not authorise a pin (empty = every required gate exactly PASS, measured live)."""
+     if not isinstance(gates, dict):
+@@ -126,7 +143,7 @@ def line_problems(pk):
+ def to_pin(pk, run_name):
+     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
+                                                                      for x in line_problems(pk)] + \
+-        recency_problems(pk.get("segments") or [])
++        recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or [])
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+@@ -135,6 +152,7 @@ def to_pin(pk, run_name):
+                      "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
+                      "approved_text": s["text"], "transcript_sha256": s.get("transcript_sha256"),
+                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
++                     "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
+diff --git a/pipeline/speakers.py b/pipeline/speakers.py
+new file mode 100644
+index 00000000..d903028f
+--- /dev/null
++++ b/pipeline/speakers.py
+@@ -0,0 +1,170 @@
++#!/usr/bin/env python3
++"""pipeline/speakers.py: ORCHESTRATOR 00:05 ET Nov 13, item 3. Every pin segment names its SPEAKER where the source
++names the person, with the evidence: PBX tags the right people, and law L-v 1 needs it. An unknown speaker is
++"unknown", never a guess.
++
++Evidence is text, and code checks it:
++- source_lines(meta): the source's own lines, from the store's meta.json (yt-dlp, at acquisition): "title: ...",
++  "channel: ...", then each description line that is not a bare link.
++- context(src, k0, k1): the clip's own words in the word record, with CONTEXT_BEFORE sentences before it and
++  CONTEXT_AFTER after it.
++- One verdict (role speaker_verdict) proposes, as JSON, two things: the people the source's lines name, each with the
++  line that names them; and who speaks THIS clip, with a basis quoted from the transcript.
++- check() keeps only what the text shows:
++  - a person stands only if their line is part of one of the source's lines and holds their name; the person
++    carries that WHOLE source line as evidence;
++  - the speaker is named only if they are one of those people AND the basis (>= BASIS_MIN_WORDS words) is verbatim in
++    the clip or the transcript around it.
++  A source line alone never names a clip's speaker: a title that names a guest does not show who speaks a given
++  clip. Otherwise the speaker is "unknown", with why, and every person the source names is still listed (people) for
++  tagging.
++-> the segment's "speaker": {"name", "role", "line", "basis", "why", "people", "measured", "backend", "replayed"}.
++"""
++import json
++import os
++import re
++
++import eligibility as E
++
++CONTEXT_BEFORE, CONTEXT_AFTER = 8, 2      # sentences of the word record around the clip, for who speaks it
++BASIS_MIN_WORDS = 3                       # a basis is a phrase, never one word
++MAX_DESCRIPTION_LINES = 60
++ROLES = ("host", "guest", "other")
++UNKNOWN = "unknown"
++STORE = os.path.join(os.environ.get("PP_MAIN_TREE", "/home/ultron/protocol_pulse"), "data", "editorial")
++
++PROMPT = """You identify who is SPEAKING in one clip of a Bitcoin video, so the people in it can be credited and tagged.
++
++Tone: factual. Name a person only when the text below shows it. "unknown" is a correct, expected answer, and a wrong
++name is worse than "unknown". Never infer from the topic, the style or the title alone.
++
++THE SOURCE'S OWN LINES (its title, its channel and its description, one per line):
++{lines}
++
++THE TRANSCRIPT AROUND THE CLIP (the clip is between <clip> and </clip>; speaker turns are not marked):
++{context}
++
++Do this:
++1. List every person these source lines name who appears in the video (host, guest or other), each with the ONE
++   source line that names them, copied character for character.
++2. Decide who speaks the words inside <clip>. Name a person only if the TRANSCRIPT shows it, for example:
++   - the transcript just before the clip addresses them by name, and the clip answers;
++   - the clip speaks of their own work, role or company in the first person, and a source line ties that to them.
++   Copy the exact words from the clip or the transcript around it that show it (the basis, at least three words).
++   A title or description that names a guest does NOT show who speaks a given clip. If nothing in the transcript
++   shows it, the speaker is "unknown", and "why" says what is missing.
++
++Example: an interview whose title names a guest, where the clip and the transcript around it hold no name, no
++first-person tie and no address -> "speaker": {{"name": "unknown", "basis": "", "why": "both the host and the guest
++speak in this episode, and nothing in or around the clip shows which one this is"}}
++
++Return ONLY this JSON object:
++{{"people": [{{"name": "...", "role": "host|guest|other", "line": "..."}}],
++ "speaker": {{"name": "<one of the people, or unknown>", "basis": "<exact words from the transcript, or empty>",
++ "why": "..."}}}}
++
++Remember: copy every line and the basis exactly; "unknown" whenever the transcript does not show who speaks."""
++
++
++def _norm(s):
++    """Case, punctuation and spacing aside: the text a quote must match."""
++    return " ".join(re.sub(r"[^\w']+", " ", str(s or "").casefold()).split())
++
++
++def store_meta(video_id, store=STORE):
++    """The store's meta.json for a video (title, channel, description), or {} when it is not there."""
++    try:
++        with open(os.path.join(store, "transcripts", video_id, "meta.json")) as f:
++            meta = json.load(f)
++        return meta if isinstance(meta, dict) else {}
++    except (OSError, ValueError):
++        return {}
++
++
++def source_lines(meta):
++    out = []
++    if isinstance(meta.get("exact_title"), str) and meta["exact_title"].strip():
++        out.append(f"title: {meta['exact_title'].strip()}")
++    if isinstance(meta.get("channel_name"), str) and meta["channel_name"].strip():
++        out.append(f"channel: {meta['channel_name'].strip()}")
++    desc = meta.get("description") if isinstance(meta.get("description"), str) else ""
++    for line in desc.split("\n"):
++        line = line.strip()
++        if line and not re.fullmatch(r"\S*https?://\S*", line) and len(out) < MAX_DESCRIPTION_LINES + 2:
++            out.append(line)
++    return out
++
++
++def context(src, k0, k1, before=CONTEXT_BEFORE, after=CONTEXT_AFTER):
++    """(the sentences before, the clip, the sentences after) in the word record's own words."""
++    sents = src.sentences
++    a, b = max(0, k0 - before), min(len(sents) - 1, k1 + after)
++
++    def say(i, j):
++        return E.spoken(src.tokens[sents[i][0]:sents[j][1] + 1]) if i <= j else ""
++    return say(a, k0 - 1), say(k0, k1), say(k1 + 1, b)
++
++
++def check(v, lines, clip, around):
++    """The verdict, kept only where the text shows it (never the model's word) -> the speaker record (no backend)."""
++    if not isinstance(v, dict) or not isinstance(v.get("people"), list) or not isinstance(v.get("speaker"), dict):
++        raise ValueError("speaker verdict out of contract")
++    nlines = [_norm(x) for x in lines]
++    people = []
++    for p in v["people"]:
++        if not isinstance(p, dict) or not isinstance(p.get("name"), str) or not isinstance(p.get("line"), str):
++            continue
++        nn, nl = _norm(p["name"]), _norm(p["line"])
++        whole = next((lines[i] for i, x in enumerate(nlines) if nl and nl in x), None)
++        if not nn or whole is None or nn not in _norm(whole) or any(_norm(q["name"]) == nn for q in people):
++            continue                             # not a source line, or the line does not name them
++        people.append({"name": p["name"].strip(), "role": p.get("role") if p.get("role") in ROLES else "other",
++                       "line": whole})
++    sp = v["speaker"]
++    name, basis = sp.get("name"), sp.get("basis")
++    rec = {"name": UNKNOWN, "role": None, "line": None, "basis": None,
++           "why": str(sp.get("why") or "")[:300], "people": people}
++    if isinstance(name, str) and _norm(name) not in ("", UNKNOWN):
++        match = next((p for p in people if _norm(p["name"]) == _norm(name)), None)
++        nb = _norm(basis)
++        if match is None:
++            rec["why"] = f"{name.strip()!r} is not a person the source's lines name"
++        elif len(nb.split()) < BASIS_MIN_WORDS or not (nb in _norm(clip) or nb in _norm(around)):
++            rec["why"] = (f"the basis for {name.strip()!r} is not {BASIS_MIN_WORDS}+ words found in the clip or the "
++                          f"transcript around it")
++        else:
++            rec.update(name=match["name"], role=match["role"], line=match["line"], basis=str(basis).strip())
++    return rec
++
++
++def attribute(router, seg, src, meta, seed=7):
++    """One segment's speaker record. A call that fails, or a reply out of contract, is "unknown" with measured false."""
++    import providers as P
++    base = {"name": UNKNOWN, "role": None, "line": None, "basis": None, "people": [], "measured": False}
++    if src is None or "k0" not in seg or "k1" not in seg:
++        return dict(base, why="no word record for the clip's context")
++    lines = source_lines(meta or {})
++    if not lines:
++        return dict(base, why="the source's title, channel and description are not in the store", measured=True)
++    before, clip, after = context(src, int(seg["k0"]), int(seg["k1"]))
++    prompt = PROMPT.format(lines="\n".join(lines), context=f"{before}\n<clip>{clip}</clip>\n{after}".strip())
++    r = None
++    try:
++        r = router.call("speaker_verdict", prompt, 900, seed)
++        rec = check(json.loads(r.text.strip()), lines, clip, f"{before} {after}")
++    except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
++        if r is not None and isinstance(e, (ValueError, TypeError)):
++            router.reject(r)
++        return dict(base, why=f"not measured: {type(e).__name__}: {str(e)[:160]}")
++    return dict(rec, measured=True, backend=r.backend, replayed=bool(getattr(r, "replayed", False)))
++
++
++def attribute_package(router, pk, sources, meta_for=store_meta, log=print):
++    """Every segment of a package gets its speaker record, in place (before the pin is sealed)."""
++    for i, s in enumerate(pk["segments"]):
++        s["speaker"] = attribute(router, s, sources.get(s["video_id"]), meta_for(s["video_id"]))
++        sp = s["speaker"]
++        log(f"    speaker {i}: {s['video_id']} -> {sp['name']}"
++            + (f" ({sp['role']}; basis {sp['basis']!r})" if sp["name"] != UNKNOWN else f" ({sp.get('why')})")
++            + f"; the source names {[p['name'] for p in sp['people']]}")
++    return pk
+diff --git a/tests/package/proof_batch.py b/tests/package/proof_batch.py
+new file mode 100644
+index 00000000..785f2bcf
+--- /dev/null
++++ b/tests/package/proof_batch.py
+@@ -0,0 +1,181 @@
++#!/usr/bin/env python3
++"""ORCHESTRATOR 00:05 ET Nov 13 (PBX on the L-y medley: "new batch!"): up to THREE novel L-y medleys, ranked, sealed.
++
++Why rebuilds: the four L-y packages of the 20:30 re-run (fresh_20261112_001448, fresh_20261111_213954,
++fresh_20261111_192645, fresh_20261111_190259) were built with delivered=() and every one reuses delivered moments.
++Each opens on the hook wdk5JZ9hPzs 3218.1-3221.6 (in 37c5b5f5 and 41f29b1f) and carries c1JGheQBPH4 2403.2-2422.1 (in
++41f29b1f); 001448 is 41f29b1f clip for clip. The order's item 2 ("no moment reused") therefore rebuilds every one from
++the remaining moments.
++
++build RUN: one universe's medley, built by the packager as it stands (house style in the writer's prompt and in the
++STYLE lint, recency facts per segment, ruling 5's budget and deadlines):
++- "now" is the RENDER clock (ruling 1): step A, L-v 3 and currency are judged against tonight.
++- Novelty: every clip span of --delivered (the delivered pins) and of --exclude (the batch's kept packages) goes to
++  package.usable as delivered, which drops any moment that overlaps one in the same video (L-p).
++- --avoid-videos drops every moment of those source videos first ("no source video used twice across the batch if
++  avoidable"). When such a build finds no package, a second build without the avoidance is the order's "if
++  avoidable"; it is a separate run with its own tag.
++- The legs and meters are proof_ly's. Spend goes to the batch's own ledger, SPEND_BATCH.json (estimate ceiling
++  BATCH_LIMIT_USD). The order's budget is $6 vendor-reported for the batch.
++Writes tests/package/proof/<RUN>/package_batch_<tag>.json (the package, or why none) and package_batch_<tag>.log.
++
++seal RUN --tag T: the kept package's speakers (speakers.attribute_package: the source's own lines and the transcript
++around each clip; "unknown" unless the text shows it), then the pin through package_pin.to_pin (every gate, recency
++and speaker check) -> tests/package/proof/<RUN>/MOMENTS_PIN_BATCH_<T>.json; the speakers are written back into
++package_batch_<T>.json.
++
++Usage: python3 tests/package/proof_batch.py build RUN --tag T --delivered PIN ... [--exclude PKG_JSON ...]
++                                                   [--avoid-videos VID ...]
++       python3 tests/package/proof_batch.py seal RUN --tag T
++"""
++import argparse
++import json
++import os
++import sys
++import time
++from datetime import datetime, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import eligibility as E  # noqa: E402
++import moments as M  # noqa: E402
++import package as PK  # noqa: E402
++import package_pin  # noqa: E402
++import proof_ledger as PLG  # noqa: E402
++import proof_ly as PL  # noqa: E402
++import providers as P  # noqa: E402
++import speakers as SP  # noqa: E402
++
++OUT = PL.OUT
++SPEND = os.path.join(OUT, "SPEND_BATCH.json")
++BATCH_LIMIT_USD = 30.0     # the price-table estimate ceiling for the batch's own ledger (an upper bound; the
++                           # reported cost ran about 1/8 of it tonight); ruling 5's per-package $1.50 reported and
++                           # $5 estimate still stop each build; the order's batch budget is $6 vendor-reported
++
++
++def package_spans(paths):
++    """Every clip span of the batch's kept packages (package_batch_*.json) -> [{video_id, start, end, pin}]."""
++    out = []
++    for p in paths:
++        with open(p) as f:
++            res = json.load(f)
++        pk = res.get("package")
++        if not pk:
++            raise ValueError(f"{p}: holds no package")
++        out += [{"video_id": s["video_id"], "start": float(s["start"]), "end": float(s["end"]),
++                 "pin": f"batch:{os.path.basename(os.path.dirname(p))}"} for s in pk["segments"]]
++    return out
++
++
++def build(run, tag, delivered, avoid, router, own, used, say, work_dir):
++    rec_m = json.load(open(os.path.join(PL.PM.OUT, run, "moments.json")))
++    words, captions, ctx_u, saved = PL.PM.universe_sources(run)
++    sources = {s.video_id: s for s in words}
++    now = datetime.now(timezone.utc)
++    ctx = E.Context(now, PL.PM.PS.REG, ledger=PL.PM.PS.ledger_entries())
++    moments = [m for m in rec_m["moments"] if m["video_id"] not in avoid]
++    say(f"  {len(rec_m['moments'])} moments, {len(rec_m['moments']) - len(moments)} on avoided videos out; "
++        f"{len(delivered)} delivered or kept spans out; now (render clock) {now.isoformat(timespec='seconds')}")
++    e0, b0 = own["est"], own["best"]
++    u0 = dict(used)
++    t0 = time.time()
++    res = PK.build(router, moments, sources, ctx, delivered=delivered, optout=M.optout_ids(), log=say,
++                   work_dir=work_dir, store=os.path.join(OUT, run, "step_a_now.json"),
++                   spend=lambda: (own["est"], own["best"]))
++    res.update(run=run, tag=tag, seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"] - e0, 4),
++               usd_best_known=round(own["best"] - b0, 4), code=PL.code_sha(), chains=router.chains,
++               at=time.strftime("%Y-%m-%d %H:%M:%S %Z"), as_of=now.isoformat(), avoid_videos=sorted(avoid),
++               delivered_spans=delivered,
++               full={k: round(used[k] - u0[k], 4) for k in ("est", "best", "model_s", "calls")})
++    if res["package"]:
++        res["package"]["usd_best_known"] = res["usd_best_known"]
++        say(f"PACKAGE ({res['seconds']} s, ${res['usd_estimate']} estimate, ${res['usd_best_known']} best known): "
++            + "; ".join(f"{s['video_id']} {float(s['start']):.1f}-{float(s['end']):.1f}"
++                        for s in res["package"]["segments"]))
++    else:
++        say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
++    with open(os.path.join(OUT, run, f"package_batch_{tag}.json"), "w") as f:
++        json.dump(res, f, indent=1, default=str)
++    return res
++
++
++def seal(run, tag, router, say):
++    path = os.path.join(OUT, run, f"package_batch_{tag}.json")
++    with open(path) as f:
++        res = json.load(f)
++    pk = res.get("package")
++    if not pk:
++        raise ValueError(f"{path}: holds no package")
++    words, captions, ctx_u, saved = PL.PM.universe_sources(run)
++    SP.attribute_package(router, pk, {s.video_id: s for s in words}, log=say)
++    with open(path, "w") as f:
++        json.dump(res, f, indent=1, default=str)
++    out, pin = package_pin.write_pin(pk, f"batch_{tag}_{run}", os.path.join(OUT, run),
++                                     name=f"MOMENTS_PIN_BATCH_{tag.upper()}.json")
++    say(f"PIN {os.path.relpath(out, REPO)} {pin['moments_package']['package_sha256']}")
++    return out, pin
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    sub = ap.add_subparsers(dest="cmd", required=True)
++    b = sub.add_parser("build")
++    b.add_argument("run")
++    b.add_argument("--tag", required=True)
++    b.add_argument("--delivered", nargs="+", required=True, metavar="PIN")
++    b.add_argument("--exclude", nargs="*", default=[], metavar="PKG_JSON", help="the batch's kept packages")
++    b.add_argument("--avoid-videos", nargs="*", default=[], metavar="VID")
++    b.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
++    sl = sub.add_parser("seal")
++    sl.add_argument("run")
++    sl.add_argument("--tag", required=True)
++    a = ap.parse_args(argv)
++    if a.cmd == "seal":
++        router = P.Router(env_path=PL.PM.PS.ENV, record_dir=PL.REPLIES, spend_path=SPEND,
++                          limit_usd=BATCH_LIMIT_USD, chains=PL.chains())
++        own = PL.meter(router)
++        with open(os.path.join(OUT, a.run, f"package_batch_{a.tag}.log"), "a") as logf:
++            def say(s):
++                print(f"[{a.run}:{a.tag}] {s}", flush=True)
++                logf.write(s + "\n")
++                logf.flush()
++            say(f"=== {time.strftime('%H:%M:%S %Z')} SEAL {a.tag}: speakers, then the pin")
++            try:
++                seal(a.run, a.tag, router, say)
++            except (package_pin.PinRefused, ValueError, OSError) as e:
++                say(f"PIN REFUSED: {type(e).__name__}: {e}")
++                return 4
++            finally:
++                say(f"  speakers: ${own['est']:.4f} estimate, ${own['best']:.4f} best known")
++        return 0
++    try:                                                # read before anything is written (fail closed)
++        delivered, _, pins = PLG.delivered_pins(a.delivered)
++        delivered = delivered + package_spans(a.exclude)
++        if not os.path.exists(os.path.join(PL.PM.OUT, a.run, "moments.json")):
++            raise ValueError(f"{a.run}: no saved universe")
++    except (OSError, ValueError, KeyError, TypeError) as e:
++        print(f"REFUSED: {type(e).__name__}: {e}", file=sys.stderr)
++        return 2
++    os.makedirs(a.work_dir, exist_ok=True)
++    router = P.Router(env_path=PL.PM.PS.ENV, record_dir=PL.REPLIES, spend_path=SPEND, limit_usd=BATCH_LIMIT_USD,
++                      chains=PL.chains())
++    own, used = PL.meter(router), PL.reply_meter(router)
++    with open(os.path.join(OUT, a.run, f"package_batch_{a.tag}.log"), "a") as logf:
++        def say(s):
++            print(f"[{a.run}:{a.tag}] {s}", flush=True)
++            logf.write(s + "\n")
++            logf.flush()
++        say(f"=== {time.strftime('%H:%M:%S %Z')} BATCH medley build {a.tag}, code {PL.code_sha()}, delivered "
++            f"{[p['story_id'] for p in pins]}, kept {a.exclude}, avoid {sorted(a.avoid_videos)}")
++        try:
++            build(a.run, a.tag, delivered, set(a.avoid_videos), router, own, used, say, a.work_dir)
++        except P.SpendLimit as e:
++            say(f"STOPPED: {e}")
++            return 3
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index e574a0ad..5d344003 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -43,6 +43,7 @@ import package_pin  # noqa: E402
+ import proof_ly as PL  # noqa: E402
+ import proof_saved_runs as PS  # noqa: E402
+ import providers as P  # noqa: E402
++import speakers as SP  # noqa: E402
+ 
+ def delivered_pins(paths):
+     """The pins already delivered -> (every clip span {video_id, start, end, pin} for package.usable's overlap check,
+@@ -123,6 +124,7 @@ def main(argv=None):
+                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
+                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
+     if res["package"]:
++        SP.attribute_package(router, res["package"], sources, log=say)     # 00:05 ET Nov 13 item 3: sealed in the pin
+         try:
+             path, pin = package_pin.write_pin(res["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
+                                               name="MOMENTS_PIN_LEDGER.json")
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 40779901..75193f64 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -41,6 +41,7 @@ import package as PK  # noqa: E402
+ import package_pin  # noqa: E402
+ import proof_moments as PM  # noqa: E402
+ import providers as P  # noqa: E402
++import speakers as SP  # noqa: E402
+ 
+ REPLIES = os.path.join(HERE, "fixtures", "replies")
+ OUT = os.path.join(HERE, "proof")
+@@ -159,6 +160,7 @@ def run_one(run, router, work_dir, log, own, used=None, as_of_now=False):
+     if res["package"]:
+         pk = res["package"]
+         pk["usd_best_known"] = res["usd_best_known"]
++        SP.attribute_package(router, pk, sources, log=log)                # 00:05 ET Nov 13 item 3: sealed in the pin
+         try:
+             path, pin = package_pin.write_pin(pk, run, os.path.join(OUT, run), name=f"MOMENTS_PIN_LY{suffix.upper()}.json")
+             res["pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
+diff --git a/tests/package/test_angles.py b/tests/package/test_angles.py
+index 34762dcd..60a9f85a 100644
+--- a/tests/package/test_angles.py
++++ b/tests/package/test_angles.py
+@@ -129,6 +129,8 @@ class TestPinAndTruth(unittest.TestCase):
+                           {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
+                 "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
+                               "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
++                              "speaker": {"name": "unknown", "role": None, "line": None, "basis": None, "why": "t",
++                                          "people": [], "measured": True},
+                               "source_published_at": "2026-11-12T01:00:00Z"} for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
+ 
+     def test_the_pin_refuses_anything_not_exactly_pass_and_is_sealed(self):
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 68b37217..6b68f88e 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -58,6 +58,15 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
+             "supply_exception": supply}
+ 
+ 
++
++def spk(pk):
++    """speakers.attribute's record on every segment, as the real flow attaches it before the pin is sealed (the
++    00:05 ET Nov 13 order, item 3): an unknown speaker, measured, no person named."""
++    for s in pk.get("segments") or []:
++        s.setdefault("speaker", {"name": "unknown", "role": None, "line": None, "basis": None, "why": "test",
++                                 "people": [], "measured": True})
++    return pk
++
+ class TestMedleyArithmetic(unittest.TestCase):
+     def test_the_medley_seconds_let_one_takeaway_land_60_to_70(self):
+         lo, hi = PK.medley_content_range()
+@@ -361,7 +370,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+         pk = self.build()
+         self.assertEqual(package_pin.required_gates(pk)[-3:], ("medley", "ly_shape", "house_style"))
+         pk["gates"] = self.gates(pk)
+-        pin = package_pin.to_pin(pk, "test")
++        pin = package_pin.to_pin(spk(pk), "test")
+         mp = pin["moments_package"]
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
+         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
+@@ -370,16 +379,16 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+             g = self.gates(pk)
+             g.pop(missing)
+             with self.assertRaises(package_pin.PinRefused):
+-                package_pin.to_pin(dict(pk, gates=g), "test")
++                package_pin.to_pin(spk(dict(pk, gates=g)), "test")
+         with self.assertRaises(package_pin.PinRefused):
+-            package_pin.to_pin(dict(pk, gates=self.gates(pk, ly_shape={"status": "FAIL", "replayed": False})), "test")
++            package_pin.to_pin(spk(dict(pk, gates=self.gates(pk, ly_shape={"status": "FAIL", "replayed": False}))), "test")
+ 
+     def test_the_gated_takeaway_must_be_the_spoken_one(self):
+         pk = self.build()
+         pk["gates"] = self.gates(pk)
+         pk["vo"] = dict(pk["vo"], bridges=["A different closing line."])
+         with self.assertRaises(package_pin.PinRefused) as cm:
+-            package_pin.to_pin(pk, "test")
++            package_pin.to_pin(spk(pk), "test")
+         self.assertIn("bridges", str(cm.exception))
+ 
+     def test_the_old_shape_keeps_its_slots(self):
+@@ -396,7 +405,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+         b = {"text": "Next, on keys.", "cites": ["x"], "why": "no referent"}
+         pk0 = self.build(bridge=b, k=0)                   # audit 2030 C1 (grok P2-2): the intro slot pins as intro
+         pk0["gates"] = self.gates(pk0)
+-        mp = package_pin.to_pin(pk0, "test")["moments_package"]
++        mp = package_pin.to_pin(spk(pk0), "test")["moments_package"]
+         self.assertEqual(mp["edl_vo"], {"intro": "Next, on keys.",
+                                         "bridges": [{"text": pk0["vo"]["bridges"][0], "after_clip": 2}]})
+         self.assertEqual(mp["vo_jobs"], {"intro": "connection", "takeaway": "takeaway"})
+@@ -530,7 +539,7 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertEqual(pk["bridge"]["confirmed_by"]["join"], "clip_01 -> clip_02")
+         self.assertEqual(pk["vo"]["bridges_after_clip"], [1, 2])
+         self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
+-        package_pin.to_pin(pk, "test")                    # every required row exactly PASS: the pin is allowed
++        package_pin.to_pin(spk(pk), "test")                    # every required row exactly PASS: the pin is allowed
+ 
+     def test_a_clip_the_second_recogniser_cannot_cut_is_never_offered_to_the_angles(self):
+         rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None], uncuttable={"y"})
+@@ -543,7 +552,7 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertEqual(rig.medley_calls, [["h", "x", "z"]])
+         pk = out["package"]
+         self.assertEqual(pk["gates"]["cuttable"]["status"], "PASS")
+-        package_pin.to_pin(pk, "test")                    # build() returns only a package its pin accepts
++        package_pin.to_pin(spk(pk), "test")                    # build() returns only a package its pin accepts
+ 
+     def test_an_excluded_moment_stays_out_of_every_later_angle(self):
+         ms = self.MS + [pm("w", "E", 14.0)]
+@@ -572,7 +581,7 @@ class TestBuildLoop(unittest.TestCase):
+         self.assertAlmostEqual(pk["runtime_s_estimate"], 52.0 + PK.FINAL_TAIL_S, places=2)
+         self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
+         self.assertIn("no VO line", pk["checks"]["coherence"]["note"])
+-        mp = package_pin.to_pin(pk, "test")["moments_package"]
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
+ 
+     def test_no_voice_never_ships_a_join_the_blind_check_flagged(self):
+@@ -667,7 +676,7 @@ class TestNoVoiceRealGates(unittest.TestCase):
+         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
+                                    shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]))
+         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
+-        mp = package_pin.to_pin(pk, "test")["moments_package"]
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
+         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))
+ 
+     def test_a_published_time_without_an_offset_fails_before_any_paid_verdict(self):
+diff --git a/tests/package/test_speakers.py b/tests/package/test_speakers.py
+new file mode 100644
+index 00000000..edf70db3
+--- /dev/null
++++ b/tests/package/test_speakers.py
+@@ -0,0 +1,168 @@
++#!/usr/bin/env python3
++"""pipeline/speakers.py (ORCHESTRATOR 00:05 ET Nov 13, item 3): every pin segment names its speaker where the source
++names the person, with the evidence; an unknown speaker is "unknown", never a guess. Offline: the verdict is canned,
++and code checks every claim against the text."""
++import json
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, os.path.join(REPO, "tests", "eligibility"))
++import package_pin  # noqa: E402
++import speakers as SP  # noqa: E402
++from test_eligibility import source  # noqa: E402
++
++META = {"exact_title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
++        "channel_name": "Natalie Brunell",
++        "description": "Are we headed toward a future of abundance?\n"
++                       "Jeff Booth joins me to revisit The Price of Tomorrow and explore how AI is shaping our future.\n"
++                       "https://example.com/link\n"}
++LINES = SP.source_lines(META)
++SENTS = ["Jeff, you wrote about deflation years ago.", "What do you see now?",
++         "When I wrote The Price of Tomorrow, I said technology is deflationary.",
++         "Bitcoin lets that deflation reach everyone.", "That is the point."]
++
++
++def verdict(name, basis, people=None):
++    return {"people": people if people is not None else [
++        {"name": "Jeff Booth", "role": "guest", "line": "Jeff Booth joins me to revisit The Price of Tomorrow"},
++        {"name": "Natalie Brunell", "role": "host", "line": "channel: Natalie Brunell"}],
++        "speaker": {"name": name, "basis": basis, "why": "w"}}
++
++
++class Reply:
++    def __init__(self, text):
++        self.text, self.backend, self.replayed, self.usage, self.usd, self.seconds = text, "xai:grok", False, {}, 0, 0
++
++
++class Canned:
++    def __init__(self, text):
++        self.text, self.calls, self.rejected = text, [], []
++
++    def call(self, role, prompt, max_tokens=2000, seed=7, **k):
++        self.calls.append((role, prompt))
++        return Reply(self.text)
++
++    def reject(self, r):
++        self.rejected.append(r)
++
++
++class TestSourceLinesAndContext(unittest.TestCase):
++    def test_the_sources_own_lines_and_never_a_bare_link(self):
++        self.assertEqual(LINES[:2], ["title: Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
++                                     "channel: Natalie Brunell"])
++        self.assertIn("Jeff Booth joins me to revisit The Price of Tomorrow and explore how AI is shaping our future.",
++                      LINES)
++        self.assertNotIn("https://example.com/link", LINES)
++        self.assertEqual(SP.source_lines({}), [])
++
++    def test_the_context_is_the_word_records_own_sentences_around_the_clip(self):
++        before, clip, after = SP.context(source(SENTS), 2, 2, before=2, after=1)
++        self.assertEqual((before, clip, after), (SENTS[0] + " " + SENTS[1], SENTS[2], SENTS[3]))
++
++
++class TestCheck(unittest.TestCase):
++    clip, around = SENTS[2], SENTS[0] + " " + SENTS[1]
++
++    def test_a_person_stands_only_on_a_source_line_that_names_them_and_carries_the_whole_line(self):
++        people = [{"name": "Jeff Booth", "role": "guest", "line": "Jeff Booth joins me to revisit"},     # part of a line
++                  {"name": "Saifedean Ammous", "role": "guest", "line": "Saifedean Ammous joins me"},      # not a line
++                  {"name": "Natalie Brunell", "role": "host", "line": "Jeff Booth joins me to revisit"},  # not her line
++                  {"name": "jeff booth", "role": "guest", "line": "title: Jeff Booth Warning"}]           # twice
++        rec = SP.check(verdict("unknown", "", people), LINES, self.clip, self.around)
++        self.assertEqual([(p["name"], p["line"]) for p in rec["people"]], [
++            ("Jeff Booth", "Jeff Booth joins me to revisit The Price of Tomorrow and explore how AI is shaping our "
++                           "future.")])
++
++    def test_a_speaker_is_named_only_on_a_basis_in_the_clip_or_the_transcript_around_it(self):
++        rec = SP.check(verdict("Jeff Booth", "When I wrote The Price of Tomorrow"), LINES, self.clip, self.around)
++        self.assertEqual((rec["name"], rec["role"], rec["basis"]), ("Jeff Booth", "guest",
++                                                                    "When I wrote The Price of Tomorrow"))
++        self.assertTrue(rec["line"].startswith("Jeff Booth joins me"))
++        rec = SP.check(verdict("Jeff Booth", "jeff you wrote about deflation"), LINES, self.clip, self.around)
++        self.assertEqual(rec["name"], "Jeff Booth")                  # case and punctuation aside, in the context
++
++    def test_a_title_that_names_a_guest_never_names_the_clips_speaker(self):
++        """A basis found only in the source's lines (the title, the description) does not show who speaks a clip."""
++        for basis in ("Jeff Booth joins me to revisit", "title: Jeff Booth Warning"):
++            rec = SP.check(verdict("Jeff Booth", basis), LINES, self.clip, self.around)
++            self.assertEqual(rec["name"], "unknown", basis)
++            self.assertIn("not 3+ words found in the clip", rec["why"])
++            self.assertEqual([p["name"] for p in rec["people"]], ["Jeff Booth", "Natalie Brunell"])   # still tagged
++
++    def test_a_short_basis_an_unnamed_person_or_an_invented_quote_is_unknown(self):
++        for name, basis in (("Jeff Booth", "I wrote"), ("Saifedean Ammous", "When I wrote The Price of Tomorrow"),
++                            ("Jeff Booth", "As I said on my own podcast yesterday")):
++            rec = SP.check(verdict(name, basis), LINES, self.clip, self.around)
++            self.assertEqual((rec["name"], rec["basis"], rec["line"]), ("unknown", None, None), (name, basis))
++
++    def test_a_verdict_out_of_contract_raises(self):
++        for bad in ([], {"people": {}, "speaker": {}}, {"people": [], "speaker": "Jeff"}):
++            with self.assertRaises(ValueError):
++                SP.check(bad, LINES, self.clip, self.around)
++
++
++class TestAttribute(unittest.TestCase):
++    seg = {"video_id": "vidA", "k0": 2, "k1": 2}
++
++    def test_a_named_speaker_with_its_evidence_and_the_backend(self):
++        r = Canned(json.dumps(verdict("Jeff Booth", "When I wrote The Price of Tomorrow")))
++        rec = SP.attribute(r, self.seg, source(SENTS), META)
++        self.assertEqual((rec["name"], rec["measured"], rec["backend"]), ("Jeff Booth", True, "xai:grok"))
++        self.assertEqual(r.calls[0][0], "speaker_verdict")
++        self.assertIn("<clip>" + SENTS[2] + "</clip>", r.calls[0][1])
++
++    def test_a_reply_out_of_contract_is_unknown_not_measured_and_rejected(self):
++        r = Canned("Jeff Booth, probably")
++        rec = SP.attribute(r, self.seg, source(SENTS), META)
++        self.assertEqual((rec["name"], rec["measured"]), ("unknown", False))
++        self.assertTrue(rec["why"].startswith("not measured"))
++        self.assertEqual(len(r.rejected), 1)
++
++    def test_no_source_lines_or_no_word_record_is_unknown_with_why(self):
++        r = Canned("{}")
++        self.assertEqual(SP.attribute(r, self.seg, source(SENTS), {})["why"],
++                         "the source's title, channel and description are not in the store")
++        self.assertEqual(SP.attribute(r, self.seg, None, META)["why"], "no word record for the clip's context")
++        self.assertEqual(r.calls, [])                                # nothing to ask: no call is paid
++
++
++class TestPinCarriesTheSpeaker(unittest.TestCase):
++    def pk(self, sp):
++        g = {k: {"status": "PASS", "replayed": False} for k in package_pin.REQUIRED_GATES}
++        return {"schema": "pp.package/1", "type": "moments", "title": "T", "caption": "C", "hook_first_words": "Bitcoin is",
++                "runtime_s_estimate": 62.0, "vo_kind": "written", "gates": g,
++                "vo": {"intro": "I", "bridges": ["B"], "bridges_after_clip": [1], "signoff": "S"},
++                "lines": [{"slot": "intro", "text": "I"}, {"slot": "bridge_1", "text": "B"},
++                          {"slot": "title", "text": "T"}, {"slot": "caption", "text": "C"}],
++                "segments": [{"video_id": v, "channel": "ch", "start": 1.0, "end": 9.0, "text": f"Bitcoin is {v}.",
++                              "transcript_sha256": "t", "url_30s_before": "u", "time_sensitive": False,
++                              "source_published_at": "2026-11-12T01:00:00Z", **({"speaker": sp} if sp else {})}
++                             for v in ("aaaaaaaaaaa", "bbbbbbbbbbb")]}
++
++    def test_the_pin_refuses_a_segment_without_a_speaker_record_or_a_named_one_without_evidence(self):
++        named = {"name": "Jeff Booth", "role": "guest", "line": "Jeff Booth joins me", "basis": "When I wrote it",
++                 "why": "", "people": [], "measured": True}
++        for sp in (None, {"name": ""}, {"name": "unknown", "people": []}, dict(named, basis=""), dict(named, line=None)):
++            with self.assertRaises(package_pin.PinRefused, msg=sp):
++                package_pin.to_pin(self.pk(sp), "r")
++        pin = package_pin.to_pin(self.pk(named), "r")
++        self.assertEqual([s["speaker"]["name"] for s in pin["segments"]], ["Jeff Booth", "Jeff Booth"])
++
++    def test_the_speaker_is_inside_the_seal(self):
++        unknown = {"name": "unknown", "role": None, "line": None, "basis": None, "why": "", "people": [],
++                   "measured": True}
++        pin = package_pin.to_pin(self.pk(unknown), "r")
++        mp = pin["moments_package"]
++        self.assertEqual(mp["package_sha256"], package_pin.seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"],
++                                                                 mp["title"], mp["caption"], mp["gates"]))
++        segs = [dict(s, speaker=dict(s["speaker"], name="Jeff Booth")) for s in pin["segments"]]
++        self.assertNotEqual(mp["package_sha256"], package_pin.seal(segs, mp["edl_vo"], mp["signoff_expected"],
++                                                                    mp["title"], mp["caption"], mp["gates"]))
++
++
++if __name__ == "__main__":
++    unittest.main()

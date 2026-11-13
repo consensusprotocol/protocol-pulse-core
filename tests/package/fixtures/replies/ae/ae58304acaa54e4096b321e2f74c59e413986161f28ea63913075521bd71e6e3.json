@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: The crowd feels. The structure holds.\nCAPTION: the crowd trades feeling. the structure keeps its value.\nCLIP label=\"hook\" (on screen: Stephan Livera): \"When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.\"\nCLIP label=\"clip_01\" (on screen: Saifedean Ammous): \"Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed.\"\nVOICE-OVER: Coin Bureau, on rates and how markets treat Bitcoin.\nCLIP label=\"clip_02\" (on screen: Coin Bureau): \"Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.\"\nVOICE-OVER: The structure does not move with the mood. Most people still price it by the mood.\nVOICE-OVER: Clips today from Stephan Livera, Saifedean Ammous, and Coin Bureau. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Crowd emotions drive Bitcoin price volatility in bull and bear markets, but its underlying structure holds value independent of mood.\", \"clips\": {\"hook\": 5, \"clip_01\": 4, \"clip_02\": 4}, \"vo_point\": 4}",
+ "usage": {
+  "in": 657,
+  "out": 1344,
+  "usd_reported": 0.00404685
+ },
+ "usd": 0.036885,
+ "seconds": 15.33,
+ "recorded_at": "2026-11-13T05:15:35Z"
+}

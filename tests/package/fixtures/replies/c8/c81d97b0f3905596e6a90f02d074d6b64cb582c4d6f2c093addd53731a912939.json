@@ -1,0 +1,344 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "57ca28230a72438511bcab0f122613e37cc58dc77d4783e1d92bdedcffd65bf9",
+ "result": {
+  "text": "I think has an exchange rate with everything else People store Bitcoin in value the way they would might store, you know, uh, you know, gold. You know, that is, it is not money. Uh- Gold is money. It is- Gold became money ... it's just not money",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 1.28,
+    "text": "I think has an exchange rate with everything else"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.32,
+    "end": 8.34,
+    "text": "People store Bitcoin in value the way they would might store, you know, uh, you know, gold. You know, that is, it is not money. Uh-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 8.38,
+    "end": 8.96,
+    "text": "Gold is money."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 9.02,
+    "end": 9.28,
+    "text": "It is-"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 9.34,
+    "end": 9.64,
+    "text": "Gold became money"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 9.64,
+    "end": 10.2,
+    "text": "... it's just not money"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 0.0,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 0.06,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 0.2,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 0.32,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exchange",
+    "start": 0.4,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate",
+    "start": 0.72,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 0.82,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything",
+    "start": 0.94,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 1.16,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 1.32,
+    "end": 1.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "store",
+    "start": 1.32,
+    "end": 1.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.36,
+    "end": 1.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 1.56,
+    "end": 1.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "value",
+    "start": 1.7,
+    "end": 2.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 2.26,
+    "end": 2.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "way",
+    "start": 2.38,
+    "end": 2.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "they",
+    "start": 2.56,
+    "end": 2.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "would",
+    "start": 2.74,
+    "end": 2.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "might",
+    "start": 2.94,
+    "end": 3.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "store,",
+    "start": 3.26,
+    "end": 3.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 3.66,
+    "end": 3.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 3.74,
+    "end": 4.019,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 4.12,
+    "end": 4.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 4.44,
+    "end": 4.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 4.5,
+    "end": 4.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "gold.",
+    "start": 5.22,
+    "end": 5.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "You",
+    "start": 5.98,
+    "end": 6.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know,",
+    "start": 6.06,
+    "end": 6.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 6.28,
+    "end": 6.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is,",
+    "start": 6.46,
+    "end": 6.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 6.78,
+    "end": 6.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 6.88,
+    "end": 7.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 7.14,
+    "end": 7.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "money.",
+    "start": 7.4,
+    "end": 7.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Uh-",
+    "start": 8.24,
+    "end": 8.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Gold",
+    "start": 8.38,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 8.62,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 8.82,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 9.02,
+    "end": 9.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is-",
+    "start": 9.16,
+    "end": 9.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Gold",
+    "start": 9.34,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "became",
+    "start": 9.42,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 9.64,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "...",
+    "start": 9.64,
+    "end": 9.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 9.66,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "just",
+    "start": 9.78,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 9.8,
+    "end": 10.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "money",
+    "start": 10.04,
+    "end": 10.2,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.44
+ },
+ "usd": 0.002088,
+ "seconds": 1.27,
+ "recorded_at": "2026-11-13T05:04:57Z"
+}

@@ -1,0 +1,50 @@
+You are auditing a diff on branch pp-selectid (Protocol Pulse: moments-first packaging under law L-y, the MEDLEY of
+real clips). It implements the builder's part of the orchestrator's order of 00:05 ET Nov 13: a BATCH of up to three
+novel medleys, and item 3, "every pin carries, per segment, the SPEAKER'S NAME where the source's title/description
+names the guest, with its evidence (the description line) ... Unknown speaker = say unknown, never guess."
+
+Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+
+Standing laws:
+- nothing measured is never a pass (L-m); fail closed (L-j);
+- never change what a check accepts in order to make something pass;
+- no clip span already delivered is used again (L-p);
+- time-sensitive words only from a source <= 24 h old, judged on the RENDER clock (L-v 3);
+- every pin is sealed: package_sha256 over its segments, VO, title, caption and gate inventory.
+
+The files:
+1. pipeline/speakers.py (new): who speaks each pin segment.
+   - source_lines(meta): the source's own title / channel / description lines (the store's meta.json).
+   - context(src, k0, k1): the word record's sentences around the clip.
+   - One verdict call (new role speaker_verdict in model_providers.json) proposes the people the source names and the
+     clip's speaker, with quotes.
+   - check() keeps only what the text shows:
+     - a person needs a source line that names them;
+     - a named speaker needs a basis of 3+ words found in the clip or the transcript around it (never a source line
+       alone: a title naming a guest does not show who speaks a given clip).
+   - Otherwise the speaker is "unknown", with why, and the people the source names stay listed for tagging.
+2. pipeline/package_pin.py:
+   - speaker_problems(): to_pin refuses a segment without a speaker record, or a named speaker without its line and
+     basis;
+   - the speaker record is carried on each pin segment and is inside the seal.
+3. tests/package/proof_batch.py (new): the batch driver.
+   - build: one saved universe's medley, built by the packager on the render clock, with every clip span of the
+     delivered pins and of the batch's kept packages passed as delivered, and the kept source videos avoided where
+     possible.
+   - seal: speakers, then the pin.
+4. tests/package/proof_ledger.py and proof_ly.py: speakers are attributed before a pin is written.
+5. Tests: tests/package/test_speakers.py (new); fixture updates in test_medley.py / test_angles.py (each pin fixture
+   now carries a speaker record, as the real flow attaches it before sealing).
+
+Check, concretely:
+(a) Can a WRONG speaker name reach a pin? For example: a title naming a guest while the host speaks the clip; a quote
+    that is not in the text; a person the source does not name; a reply out of contract.
+(b) Is any failure silent or counted as a pass? A failed call must be "unknown" with measured false, never a name.
+(c) Is the speaker record really inside the seal, and does to_pin refuse every malformed record?
+(d) Does the batch build keep delivered spans and the batch's kept spans out, on the render clock?
+(e) Do the tests fail on the defect each one names?
+
+Output:
+- Findings ranked P0 / P1 / P2, each with file:line and a concrete failure scenario (inputs -> wrong result).
+- Only state what you can verify from the diff provided. If uncertain, say so; do not guess.
+- End with a verdict line: "SHIP: yes | yes with conditions | no".

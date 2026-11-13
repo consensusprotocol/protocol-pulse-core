@@ -1,0 +1,350 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "127186abbf92dda71627a7d3cce02793b43377526c99bbf15c32157d983fc5e1",
+ "result": {
+  "text": "That is real progress. But committee chairs are the ones who decide what gets a hearing, and so you can have hundreds of lawmakers who call themselves pro-Bitcoin, but it won't mean much if the two people holding the gavels never let a bill out of the room. We're gonna be following the changes",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.14,
+    "text": "That is real progress. But committee chairs are the ones who decide what gets a hearing, and so you can have hundreds of lawmakers who call themselves pro-Bitcoin, but it won't mean much if the two people holding the gavels never let a bill out of the room. We're gonna be following the changes"
+   }
+  ],
+  "words": [
+   {
+    "text": "That",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.14,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 0.48,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "progress.",
+    "start": 0.76,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 1.38,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "committee",
+    "start": 1.58,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chairs",
+    "start": 2.1,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.58,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.7,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ones",
+    "start": 2.84,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 3.04,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decide",
+    "start": 3.18,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 3.66,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 3.88,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.1,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hearing,",
+    "start": 4.2,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.72,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 4.84,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.98,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 5.08,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 5.22,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundreds",
+    "start": 5.48,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.86,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lawmakers",
+    "start": 6.0,
+    "end": 6.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 6.7,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "call",
+    "start": 7.02,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "themselves",
+    "start": 7.32,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pro-Bitcoin,",
+    "start": 7.9,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 9.04,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.14,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't",
+    "start": 9.24,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean",
+    "start": 9.48,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 9.72,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 10.04,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.16,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 10.28,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 10.46,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holding",
+    "start": 10.9,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.24,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gavels",
+    "start": 11.36,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "never",
+    "start": 12.18,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 12.52,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.76,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bill",
+    "start": 12.88,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 13.16,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.26,
+    "end": 13.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.34,
+    "end": 13.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "room.",
+    "start": 13.48,
+    "end": 13.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 13.82,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 13.94,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 14.06,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "following",
+    "start": 14.24,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.64,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changes",
+    "start": 14.76,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.18
+ },
+ "usd": 0.003036,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-13T05:05:25Z"
+}

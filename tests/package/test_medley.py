@@ -58,6 +58,15 @@ def medley_pk(n=3, bridge=None, after=None, flagged=(), measured=True, chans=Non
             "supply_exception": supply}
 
 
+
+def spk(pk):
+    """speakers.attribute's record on every segment, as the real flow attaches it before the pin is sealed (the
+    00:05 ET Nov 13 order, item 3): an unknown speaker, measured, no person named."""
+    for s in pk.get("segments") or []:
+        s.setdefault("speaker", {"name": "unknown", "role": None, "line": None, "basis": None, "why": "test",
+                                 "people": [], "measured": True})
+    return pk
+
 class TestMedleyArithmetic(unittest.TestCase):
     def test_the_medley_seconds_let_one_takeaway_land_60_to_70(self):
         lo, hi = PK.medley_content_range()
@@ -361,7 +370,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
         pk = self.build()
         self.assertEqual(package_pin.required_gates(pk)[-3:], ("medley", "ly_shape", "house_style"))
         pk["gates"] = self.gates(pk)
-        pin = package_pin.to_pin(pk, "test")
+        pin = package_pin.to_pin(spk(pk), "test")
         mp = pin["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
@@ -370,16 +379,16 @@ class TestMedleyPackageAndPin(unittest.TestCase):
             g = self.gates(pk)
             g.pop(missing)
             with self.assertRaises(package_pin.PinRefused):
-                package_pin.to_pin(dict(pk, gates=g), "test")
+                package_pin.to_pin(spk(dict(pk, gates=g)), "test")
         with self.assertRaises(package_pin.PinRefused):
-            package_pin.to_pin(dict(pk, gates=self.gates(pk, ly_shape={"status": "FAIL", "replayed": False})), "test")
+            package_pin.to_pin(spk(dict(pk, gates=self.gates(pk, ly_shape={"status": "FAIL", "replayed": False}))), "test")
 
     def test_the_gated_takeaway_must_be_the_spoken_one(self):
         pk = self.build()
         pk["gates"] = self.gates(pk)
         pk["vo"] = dict(pk["vo"], bridges=["A different closing line."])
         with self.assertRaises(package_pin.PinRefused) as cm:
-            package_pin.to_pin(pk, "test")
+            package_pin.to_pin(spk(pk), "test")
         self.assertIn("bridges", str(cm.exception))
 
     def test_the_old_shape_keeps_its_slots(self):
@@ -396,7 +405,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
         b = {"text": "Next, on keys.", "cites": ["x"], "why": "no referent"}
         pk0 = self.build(bridge=b, k=0)                   # audit 2030 C1 (grok P2-2): the intro slot pins as intro
         pk0["gates"] = self.gates(pk0)
-        mp = package_pin.to_pin(pk0, "test")["moments_package"]
+        mp = package_pin.to_pin(spk(pk0), "test")["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": "Next, on keys.",
                                         "bridges": [{"text": pk0["vo"]["bridges"][0], "after_clip": 2}]})
         self.assertEqual(mp["vo_jobs"], {"intro": "connection", "takeaway": "takeaway"})
@@ -530,7 +539,7 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(pk["bridge"]["confirmed_by"]["join"], "clip_01 -> clip_02")
         self.assertEqual(pk["vo"]["bridges_after_clip"], [1, 2])
         self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
-        package_pin.to_pin(pk, "test")                    # every required row exactly PASS: the pin is allowed
+        package_pin.to_pin(spk(pk), "test")                    # every required row exactly PASS: the pin is allowed
 
     def test_a_clip_the_second_recogniser_cannot_cut_is_never_offered_to_the_angles(self):
         rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None], uncuttable={"y"})
@@ -543,7 +552,7 @@ class TestBuildLoop(unittest.TestCase):
         self.assertEqual(rig.medley_calls, [["h", "x", "z"]])
         pk = out["package"]
         self.assertEqual(pk["gates"]["cuttable"]["status"], "PASS")
-        package_pin.to_pin(pk, "test")                    # build() returns only a package its pin accepts
+        package_pin.to_pin(spk(pk), "test")                    # build() returns only a package its pin accepts
 
     def test_an_excluded_moment_stays_out_of_every_later_angle(self):
         ms = self.MS + [pm("w", "E", 14.0)]
@@ -572,7 +581,7 @@ class TestBuildLoop(unittest.TestCase):
         self.assertAlmostEqual(pk["runtime_s_estimate"], 52.0 + PK.FINAL_TAIL_S, places=2)
         self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
         self.assertIn("no VO line", pk["checks"]["coherence"]["note"])
-        mp = package_pin.to_pin(pk, "test")["moments_package"]
+        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
 
     def test_no_voice_never_ships_a_join_the_blind_check_flagged(self):
@@ -667,7 +676,7 @@ class TestNoVoiceRealGates(unittest.TestCase):
         pk["gates"] = PK.inventory(fid, dup, rt_ok, r4_res, cx, a_lab, exc, tru, True, coh, medley=(True, med),
                                    shape=PK.ly_shape(pk), style=HS.lint_lines(pk["lines"]))
         self.assertEqual(package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk)), [])
-        mp = package_pin.to_pin(pk, "test")["moments_package"]
+        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
         self.assertEqual((mp["edl_vo"], mp["no_voice"]["added_clip"]), ({"intro": None, "bridges": []}, None))
 
     def test_a_published_time_without_an_offset_fails_before_any_paid_verdict(self):

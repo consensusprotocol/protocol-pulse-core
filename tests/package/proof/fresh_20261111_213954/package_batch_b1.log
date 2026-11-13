@@ -1,0 +1,16 @@
+=== 00:01:55 EST BATCH medley build b1, code 0453f171, delivered ['moments-fresh_20261112_050611-37c5b5f5', 'moments-fresh_20261112_050611-41f29b1f'], kept [], avoid []
+  69 moments, 0 on avoided videos out; 6 delivered or kept spans out; now (render clock) 2026-11-13T05:02:00+00:00
+  34 usable, 17 cleared step A (151 s)
+  7 of them pass the second recognition pass and CUTTABLE (172 s)
+  3 angles from heimdall:qwen/qwen3.8-27b (569 s)
+  angle 1 line-up 1 (3 clips, 39.4 s): clips alone PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} flagged ['clip_01 -> clip_02'] (593 s)
+  angle 1 line-up 1 write 1 (heimdall:deepseek/deepseek-v4.1-flash, takeaway 16 words, 65.74 s): cheap PASS (661 s)
+    fidelity PASS (takeaway PASS), context PASS (799 s)
+    coherence with the takeaway PASS {'hook': 5, 'clip_01': 4, 'clip_02': 4} vo 4 (814 s)
+PACKAGE (814.3 s, $1.8777 estimate, $0.1838 best known): Sjb6lUiL0m4 3090.8-3109.9; vgsSZ4mAHfQ 4664.6-4673.2; UJFQBaMh3yg 191.4-203.1
+=== 00:19:03 EST SEAL b1: speakers, then the pin
+    speaker 0: Sjb6lUiL0m4 -> unknown (both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is); the source names ['Stephan Livera', 'Joe Burnett']
+    speaker 1: vgsSZ4mAHfQ -> unknown (multiple people speak in this episode, and nothing in or around the clip shows which one this is); the source names ['Saifedean Ammous', 'Jason Hickel', 'Pavlina Tcherneva']
+    speaker 2: UJFQBaMh3yg -> unknown (the transcript does not address anyone by name, the clip has no first-person tie to own work/role/company, and nothing shows which person is speaking); the source names []
+PIN tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json 1b4a63d0c78005dc768a245959025feaf9636c08746f7711fd8654197cbd9c86
+  speakers: $0.2841 estimate, $0.0311 best known

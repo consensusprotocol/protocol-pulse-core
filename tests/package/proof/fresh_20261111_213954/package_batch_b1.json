@@ -1,0 +1,1879 @@
+{
+ "shape": "medley",
+ "packages": [
+  {
+   "schema": "pp.package/1",
+   "type": "moments",
+   "angle": "Bitcoin's real value is structural, but the crowd only trades on sentiment.",
+   "vo_kind": "medley (L-y), written, attempt 1",
+   "style": "medley",
+   "segments": [
+    {
+     "label": "hook",
+     "moment_id": "0c751a33022013fb3086",
+     "video_id": "Sjb6lUiL0m4",
+     "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+     "channel": "Stephan Livera",
+     "k0": 584,
+     "k1": 586,
+     "words": [
+      9335,
+      9403
+     ],
+     "start": 3090.75,
+     "end": 3109.87,
+     "duration_s": 19.12,
+     "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.",
+     "published_at": "2026-11-11T18:03:23+00:00",
+     "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+     "time_sensitive": false,
+     "source_published_at": "2026-11-11T18:03:23Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=3060s"
+    },
+    {
+     "label": "clip_01",
+     "moment_id": "9eb4b93bfebabd2c853c",
+     "video_id": "vgsSZ4mAHfQ",
+     "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+     "channel": "Saifedean Ammous",
+     "k0": 1083,
+     "k1": 1085,
+     "words": [
+      15105,
+      15138
+     ],
+     "start": 4664.57,
+     "end": 4673.21,
+     "duration_s": 8.64,
+     "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed.",
+     "published_at": "2026-11-10T08:21:50+00:00",
+     "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+     "time_sensitive": false,
+     "source_published_at": "2026-11-10T08:21:50Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=4634s"
+    },
+    {
+     "label": "clip_02",
+     "moment_id": "01154f025a00f40132a7",
+     "video_id": "UJFQBaMh3yg",
+     "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+     "channel": "Coin Bureau",
+     "k0": 28,
+     "k1": 28,
+     "words": [
+      516,
+      545
+     ],
+     "start": 191.38,
+     "end": 203.06,
+     "duration_s": 11.68,
+     "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.",
+     "published_at": "2026-11-10T11:33:20+00:00",
+     "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+     "time_sensitive": false,
+     "source_published_at": "2026-11-10T11:33:20Z",
+     "url_30s_before": "https://www.youtube.com/watch?v=UJFQBaMh3yg&t=161s"
+    }
+   ],
+   "vo": {
+    "intro": null,
+    "bridges": [
+     "Coin Bureau, on rates and how markets treat Bitcoin.",
+     "The structure does not move with the mood. Most people still price it by the mood."
+    ],
+    "bridges_after_clip": [
+     1,
+     2
+    ],
+    "signoff": "Clips today from Stephan Livera, Saifedean Ammous, and Coin Bureau. Go follow them for more. Links are below."
+   },
+   "title": "The crowd feels. The structure holds.",
+   "caption": "the crowd trades feeling. the structure keeps its value.",
+   "hook_first_words": "When Bitcoin and an asset is going up",
+   "lines": [
+    {
+     "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+     "cites": [
+      "01154f025a00f40132a7"
+     ],
+     "why": "The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.",
+     "slot": "bridge_1"
+    },
+    {
+     "text": "The structure does not move with the mood. Most people still price it by the mood.",
+     "cites": [],
+     "slot": "takeaway"
+    },
+    {
+     "text": "The crowd feels. The structure holds.",
+     "cites": [],
+     "slot": "title"
+    },
+    {
+     "text": "the crowd trades feeling. the structure keeps its value.",
+     "cites": [],
+     "slot": "caption"
+    }
+   ],
+   "runtime_s_estimate": 65.74,
+   "runtime_note": "segments 39.44 s (word timing) + VO 25 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+   "shape": "medley",
+   "bridge": {
+    "after": "clip_01",
+    "after_clip": 1,
+    "join": "clip_01 -> clip_02",
+    "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+    "why": "The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.",
+    "confirmed_by": {
+     "join": "clip_01 -> clip_02",
+     "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets",
+     "backend": "xai:grok-4.20-0309-reasoning"
+    }
+   },
+   "supply_exception": null,
+   "no_voice": null,
+   "medley": {
+    "through_line": "Bitcoin's price fluctuates due to investor sentiment in bull and bear markets, its fixed supply increasing purchasing power, and higher interest rates impacting it as a risky asset.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "moves from hate and avoiding exposure at bottom to benefits of holding for rising value"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "gates": {
+    "vo_fidelity_deterministic": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.check_deterministic)",
+     "replayed": false,
+     "n": 1
+    },
+    "vo_fidelity_verdict": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "duplicate": {
+     "status": "PASS",
+     "by": "code (package.duplicates)",
+     "replayed": false,
+     "n": 1
+    },
+    "price_now": {
+     "status": "PASS",
+     "by": "code (vo_fidelity.price_now)",
+     "replayed": false,
+     "n": 1
+    },
+    "runtime": {
+     "status": "PASS",
+     "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+     "replayed": false,
+     "n": 1
+    },
+    "r4": {
+     "status": "PASS",
+     "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+     "replayed": false,
+     "n": 1
+    },
+    "context_a": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "context_b": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "context_c": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "exclusion": {
+     "status": "PASS",
+     "by": [
+      "xai:grok-4.20-0309-reasoning"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "second_pass": {
+     "status": "PASS",
+     "by": [
+      "elevenlabs_stt:scribe_v1"
+     ],
+     "replayed": false,
+     "n": 3
+    },
+    "cuttable": {
+     "status": "PASS",
+     "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+     "replayed": false,
+     "n": 3
+    },
+    "coherence": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1
+    },
+    "medley": {
+     "status": "PASS",
+     "by": "xai:grok-4.20-0309-reasoning",
+     "replayed": false,
+     "n": 1,
+     "flagged": [
+      "clip_01 -> clip_02"
+     ]
+    },
+    "ly_shape": {
+     "status": "PASS",
+     "by": "code (package.ly_shape, L-y)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    },
+    "house_style": {
+     "status": "PASS",
+     "by": "code (house_style.lint_lines, ruling 6)",
+     "replayed": false,
+     "n": 1,
+     "why": []
+    }
+   },
+   "models": {
+    "angle": "heimdall:qwen/qwen3.8-27b",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   },
+   "checks": {
+    "fidelity": {
+     "deterministic": {
+      "ok": true,
+      "violations": [],
+      "price_now_measured": true
+     },
+     "verdict": {
+      "ok": true,
+      "claims": [
+       {
+        "line": "bridge_1",
+        "words": "Coin Bureau, on rates and how markets treat Bitcoin.",
+        "class": "attribution",
+        "claim": "Coin Bureau spoke on rates and how markets treat Bitcoin.",
+        "supported": "yes",
+        "support": [
+         {
+          "segment": "01154f025a00f40132a7",
+          "words": "higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky"
+         }
+        ],
+        "tests": {}
+       },
+       {
+        "line": "takeaway",
+        "words": "The structure does not move with the mood.",
+        "class": "commentary",
+        "claim": "The structure does not move with the mood.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "takeaway",
+        "words": "Most people still price it by the mood.",
+        "class": "commentary",
+        "claim": "Most people still price it by the mood.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "The crowd feels.",
+        "class": "commentary",
+        "claim": "The crowd feels.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "title",
+        "words": "The structure holds.",
+        "class": "commentary",
+        "claim": "The structure holds.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "the crowd trades feeling.",
+        "class": "commentary",
+        "claim": "the crowd trades feeling.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       },
+       {
+        "line": "caption",
+        "words": "the structure keeps its value.",
+        "class": "commentary",
+        "claim": "the structure keeps its value.",
+        "supported": "n/a",
+        "support": [],
+        "tests": {
+         "fact": "no",
+         "speaker_view": "no",
+         "imperative_or_prediction": "no",
+         "accusation": "no",
+         "sounds_like_a_speaker": "no"
+        }
+       }
+      ],
+      "violations": [],
+      "classes": {
+       "bridge_1": [
+        "attribution"
+       ],
+       "takeaway": [
+        "commentary",
+        "commentary"
+       ],
+       "title": [
+        "commentary",
+        "commentary"
+       ],
+       "caption": [
+        "commentary",
+        "commentary"
+       ]
+      }
+     },
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false,
+     "seed": 7,
+     "violations": [],
+     "ok": true
+    },
+    "context": {
+     "segments": {
+      "hook": {
+       "A": {
+        "label": "0c751a33022013fb3086",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [
+         {
+          "word": "it",
+          "refers_to": "Bitcoin",
+          "inside": true,
+          "changes_assertion": "yes"
+         },
+         {
+          "word": "that",
+          "refers_to": "everyone loving Bitcoin at the top and hating it at the bottom",
+          "inside": true,
+          "changes_assertion": "yes"
+         }
+        ],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "When Bitcoin and assets rise in a hot bull market everyone loves it, but when they fall in a bear market everyone hates it, which is why the price rises at the top and falls at the bottom.",
+        "certainty": "certain",
+        "speaker_is": "guest",
+        "speaker_evidence": "Like, if Bitcoin falls 50%, you're like, what were you doing for the last year?",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "hook",
+        "asserts": "When Bitcoin is going up in a bull market everyone loves it, and everyone hates it when going down in a bear market; this is why the price gets high and low because of demand for exposure at the top and lack of it at the bottom.",
+        "certainty": "certain",
+        "polarity": "neutral"
+       },
+       "B0": {
+        "label": "hook",
+        "asserts": "Bull markets happen because everyone loves Bitcoin and seeks exposure (driving prices high), while bear markets happen because everyone hates it and avoids exposure (driving prices low)",
+        "certainty": "certain",
+        "polarity": "neutral"
+       },
+       "C": {
+        "label": "hook",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        553,
+        600
+       ]
+      },
+      "clip_01": {
+       "A": {
+        "label": "9eb4b93bfebabd2c853c",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Bitcoin shows that purchasing power can increase without supply increasing, so those who hold it do not get robbed.",
+        "certainty": "certain",
+        "speaker_is": "host",
+        "speaker_evidence": "You wrote the Bitcoin Standard. You are a very public advocate of Bitcoin. How do you think, first of all, how does Bitcoin essentially operate and why does it solve the problems that you've put on the table?",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_01",
+        "asserts": "Bitcoin shows that you can increase purchasing power without increasing its supply, so people who hold Bitcoin don't get robbed.",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "B0": {
+        "label": "clip_01",
+        "asserts": "Bitcoin increases purchasing power without increasing supply so its holders are not robbed",
+        "certainty": "certain",
+        "polarity": "positive"
+       },
+       "C": {
+        "label": "clip_01",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        1048,
+        1104
+       ]
+      },
+      "clip_02": {
+       "A": {
+        "label": "01154f025a00f40132a7",
+        "speaker_changes_inside": "no",
+        "view": "own_sincere",
+        "referents": [],
+        "conditions": [],
+        "retraction": "none",
+        "time_ok": "yes",
+        "proposition": "Higher interest rates make cash more attractive and borrowing more expensive, a bad combination for risky assets like Bitcoin which the market views as risky.",
+        "certainty": "certain",
+        "speaker_is": "host",
+        "speaker_evidence": "",
+        "backend": "xai:grok-4.20-0309-reasoning",
+        "replayed": false,
+        "speaker_verified": false
+       },
+       "B": {
+        "label": "clip_02",
+        "asserts": "Higher rates make cash more attractive and borrowed money more expensive, the wrong combo for anything risky, and the market definitely sees Bitcoin as risky (attributed: on rates and how markets treat Bitcoin).",
+        "certainty": "certain",
+        "polarity": "negative"
+       },
+       "B0": {
+        "label": "clip_02",
+        "asserts": "Higher rates make cash attractive and borrowing expensive (a bad combination for risky assets like Bitcoin, which the market sees as risky)",
+        "certainty": "certain",
+        "polarity": "negative"
+       },
+       "C": {
+        "label": "clip_02",
+        "entails": "yes",
+        "dropped_limit": "",
+        "added_by": "",
+        "same_polarity": "yes",
+        "stronger_certainty": "no",
+        "raising_words": ""
+       },
+       "window": [
+        10,
+        40
+       ]
+      }
+     },
+     "relations": [
+      {
+       "labels": [
+        "hook",
+        "clip_01"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "hook",
+        "clip_02"
+       ],
+       "relation": "none"
+      },
+      {
+       "labels": [
+        "clip_01",
+        "clip_02"
+       ],
+       "relation": "none"
+      }
+     ],
+     "violations": [],
+     "backends": {
+      "A": {
+       "hook": "xai:grok-4.20-0309-reasoning",
+       "clip_01": "xai:grok-4.20-0309-reasoning",
+       "clip_02": "xai:grok-4.20-0309-reasoning"
+      },
+      "B0": "xai:grok-4.20-0309-reasoning",
+      "B": "xai:grok-4.20-0309-reasoning",
+      "C": "xai:grok-4.20-0309-reasoning"
+     },
+     "measured": true,
+     "replayed": false,
+     "judged": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "ok": true
+    },
+    "coherence": {
+     "through_line": "Crowd emotions drive Bitcoin price volatility in bull and bear markets, but its underlying structure holds value independent of mood.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "vo_point": 4,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    },
+    "medley": {
+     "through_line": "Bitcoin's price fluctuates due to investor sentiment in bull and bear markets, its fixed supply increasing purchasing power, and higher interest rates impacting it as a risky asset.",
+     "clips": {
+      "hook": 5,
+      "clip_01": 4,
+      "clip_02": 4
+     },
+     "joins": {
+      "hook -> clip_01": {
+       "followable": true,
+       "why": "moves from hate and avoiding exposure at bottom to benefits of holding for rising value"
+      },
+      "clip_01 -> clip_02": {
+       "followable": false,
+       "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets"
+      }
+     },
+     "flagged": [
+      "clip_01 -> clip_02"
+     ],
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "measured": true,
+     "replayed": false
+    }
+   },
+   "seconds": 814.3,
+   "usd": 1.8777,
+   "usd_best_known": 0.1838
+  }
+ ],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin's real value is structural, but the crowd only trades on sentiment.",
+   "lineup": [
+    "0c751a33022013fb3086",
+    "9eb4b93bfebabd2c853c",
+    "01154f025a00f40132a7"
+   ],
+   "supply_exception": null,
+   "attempts": [
+    {
+     "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+     "writer_tried": [],
+     "runtime": 65.74,
+     "bridge": {
+      "after": "clip_01",
+      "after_clip": 1,
+      "join": "clip_01 -> clip_02",
+      "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+      "why": "The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.",
+      "confirmed_by": {
+       "join": "clip_01 -> clip_02",
+       "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets",
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "takeaway_budget": [
+      12,
+      19
+     ],
+     "lines": [
+      {
+       "slot": "bridge_1",
+       "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+       "cites": [
+        "01154f025a00f40132a7"
+       ]
+      },
+      {
+       "slot": "takeaway",
+       "text": "The structure does not move with the mood. Most people still price it by the mood.",
+       "cites": []
+      },
+      {
+       "slot": "title",
+       "text": "The crowd feels. The structure holds.",
+       "cites": []
+      },
+      {
+       "slot": "caption",
+       "text": "the crowd trades feeling. the structure keeps its value.",
+       "cites": []
+      }
+     ],
+     "violations": [],
+     "verdict_classes": {
+      "bridge_1": [
+       "attribution"
+      ],
+      "takeaway": [
+       "commentary",
+       "commentary"
+      ],
+      "title": [
+       "commentary",
+       "commentary"
+      ],
+      "caption": [
+       "commentary",
+       "commentary"
+      ]
+     },
+     "exclusion": {
+      "0c751a33022013fb3086": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "General observation on Bitcoin market sentiment and price cycles",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "9eb4b93bfebabd2c853c": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "Explains Bitcoin's fixed supply raising purchasing power without risks listed",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      },
+      "01154f025a00f40132a7": {
+       "measured": true,
+       "replayed": false,
+       "verdict": "keep",
+       "why": "General market analysis of rates impact on BTC as risky asset",
+       "risks": [],
+       "backend": "xai:grok-4.20-0309-reasoning"
+      }
+     },
+     "second_pass": {
+      "0c751a33022013fb3086": {
+       "video_id": "Sjb6lUiL0m4",
+       "start": 3090.75,
+       "end": 3109.87,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "When, when Bitcoin and, and an asset is going up and the bull market is super hot, everyone loves it. When the bear market's happening and Bitcoin is going down, everyone hates it. And like that's, that's why the bull-- That's why the price got high and the why-- that's why the price got low, because everyone loved it at the top and everyone wanted exposure, and everyone hated it and w- and didn't want exposure at the bottom.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "didn't"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "Sjb6lUiL0m4_3089250_3111370.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "When,",
+         "before": "markets.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "bottom.",
+         "after": "And",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "9eb4b93bfebabd2c853c": {
+       "video_id": "vgsSZ4mAHfQ",
+       "start": 4664.57,
+       "end": 4673.21,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [
+         "don't"
+        ],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "vgsSZ4mAHfQ_4663070_4674710.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Bitcoin",
+         "before": "activity.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "robbed.",
+         "after": "So",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      },
+      "01154f025a00f40132a7": {
+       "video_id": "UJFQBaMh3yg",
+       "start": 191.38,
+       "end": 203.06,
+       "model": "elevenlabs_stt:scribe_v1",
+       "replayed": false,
+       "second_pass_text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.",
+       "self_repair": null,
+       "transcript_ok": true,
+       "disagree": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "critical": {
+        "numbers": [],
+        "negations": [],
+        "names": []
+       },
+       "speakers": {
+        "labels": [
+         "speaker_0"
+        ],
+        "turn_change_inside": false
+       },
+       "audio": "UJFQBaMh3yg_189880_204560.wav",
+       "edges": {
+        "in": {
+         "ok": true,
+         "word": "Now,",
+         "before": "slim.",
+         "why": "a sentence ends before the clip"
+        },
+        "out": {
+         "ok": true,
+         "word": "risky.",
+         "after": "Now,",
+         "why": "a sentence ends at the clip's last word"
+        },
+        "cuttable": true
+       },
+       "ok": true
+      }
+     },
+     "coherence": {
+      "through_line": "Crowd emotions drive Bitcoin price volatility in bull and bear markets, but its underlying structure holds value independent of mood.",
+      "clips": {
+       "hook": 5,
+       "clip_01": 4,
+       "clip_02": 4
+      },
+      "vo_point": 4,
+      "backend": "xai:grok-4.20-0309-reasoning",
+      "measured": true,
+      "replayed": false
+     }
+    }
+   ],
+   "medley": {
+    "through_line": "Bitcoin's price fluctuates due to investor sentiment in bull and bear markets, its fixed supply increasing purchasing power, and higher interest rates impacting it as a risky asset.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "moves from hate and avoiding exposure at bottom to benefits of holding for rising value"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": true,
+   "result": "PACKAGE"
+  }
+ ],
+ "unusable": {
+  "f216541bd2f9e5eb672d": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "0990b99129499373816b": "20.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7228c100eebac9ff2d80": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7c46bca70309e1f05c2f": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3b3050f4afd6f3c011e7": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "500fcb95a3b0519c81f8": "20.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "91ca972a48f7ce95d11b": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "a9b44bc541d18b8378ba": "22.22 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b0b787f8a62d97d81dbb": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "ec76d3ba5033f86461cd": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "3a42a132b57aa0902899": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7605290f4214546e1fd0": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "7bb7f7d4ad16f88b819a": "32.45 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "83fbf1f4e09cb79baa84": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "c38aec1a984e418619d5": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "0d83edc292566d44a6f7": "24.43 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6be02607c83590d280db": "23.67 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "85e40a4fdf17e2f794ed": "not eligible on screen: hook: opener; clip: opener",
+  "a5c0719876e5cf6ee160": "not eligible on screen: hook: not_statement, opener; clip: not_statement",
+  "b00b92d65670c4402ae6": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "b472bc84989dfbe7ac2d": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "f6645c9ad4109de35828": "25.44 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "35a2c1a8744795e870df": "40.35 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3e369b77ef5c3dc70792": "hard exclusion (L-u): ['single_source_breaking']",
+  "4f4996633385a1aa71a0": "23.92 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4f9d38e1d86556b36d9c": "delivered in the previous 24 h (or overlaps a delivered moment)",
+  "93a72a73ccc6c44ed897": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9d6b467cd59d5988decb": "hard exclusion (L-u): ['guaranteed_return']",
+  "bf1d09d20f7b2fbba5d9": "38.03 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "df8c617a00a53552c002": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "a746ada209ac1c17a521": "time-sensitive words from a source older than 24.0 h (L-v 3)",
+  "9cb329e18466e54edca1": "hard exclusion (L-u): ['imperative']",
+  "bcd37ecdc57447149a39": "37.47 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cf7681ff0a45df38713e": "20.99 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92cb01ed12e93b548805": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 34,
+ "current_levels": [],
+ "prescreen": {
+  "screened": 24,
+  "cleared": 17,
+  "failed": {
+   "f3777190a2ef934d854f": [
+    "REFERENT_OUTSIDE"
+   ],
+   "316f66f81603ea55899a": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "5d5e163125435e85061a": [
+    "NOT_OWN_SINCERE"
+   ],
+   "f81db985a39acf8dcc8e": [
+    "NOT_OWN_SINCERE"
+   ],
+   "1df196cbd1858b330e38": [
+    "STALE_TIME"
+   ],
+   "1dd835fcfbdcc4cba847": [
+    "NOT_OWN_SINCERE"
+   ],
+   "39cb7d2a1a661ba699e2": [
+    "REFERENT_OUTSIDE"
+   ]
+  },
+  "second_pass": {
+   "8055c5252b61b9639cbe": "PASS",
+   "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
+   "01154f025a00f40132a7": "PASS",
+   "c8827879545a98fdec4e": "PASS",
+   "9b5e0af2287788a52dfc": "not cuttable at an edge (ruling C / 7)",
+   "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "0c751a33022013fb3086": "PASS",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
+   "9a9ed680fa64a4ae7305": "not cuttable at an edge (ruling C / 7)",
+   "c49cd35dfd86efb624e0": "L-v 2 FAIL",
+   "98148a8112d2b2a996d6": "L-v 2 FAIL",
+   "8b0e448545f495ae298d": "PASS",
+   "9eb4b93bfebabd2c853c": "PASS",
+   "6596d98da9d4fe465a8e": "not cuttable at an edge (ruling C / 7)",
+   "69cd6a94f00b24cc1818": "PASS"
+  },
+  "cuttable": 7
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin's real value is structural, but the crowd only trades on sentiment.",
+   "moments": [
+    "0c751a33022013fb3086",
+    "9eb4b93bfebabd2c853c",
+    "01154f025a00f40132a7"
+   ],
+   "hook": "0c751a33022013fb3086"
+  },
+  {
+   "angle": "Bitcoin is building a new global monetary system, not just a tradeable asset.",
+   "moments": [
+    "8055c5252b61b9639cbe",
+    "0c751a33022013fb3086",
+    "9eb4b93bfebabd2c853c",
+    "01154f025a00f40132a7"
+   ],
+   "hook": "8055c5252b61b9639cbe"
+  },
+  {
+   "angle": "Bitcoin functions as a global monetary index, not a speculative asset.",
+   "moments": [
+    "9eb4b93bfebabd2c853c",
+    "c8827879545a98fdec4e",
+    "8055c5252b61b9639cbe",
+    "01154f025a00f40132a7"
+   ],
+   "hook": "9eb4b93bfebabd2c853c"
+  }
+ ],
+ "takeaways": [
+  {
+   "angle": 1,
+   "lineup": 1,
+   "write": 1,
+   "text": "The structure does not move with the mood. Most people still price it by the mood.",
+   "words": 16,
+   "cheap_fail": [],
+   "other_cheap_fail": [],
+   "verdict_fail": [],
+   "passed": true,
+   "context_framing": []
+  }
+ ],
+ "package": {
+  "schema": "pp.package/1",
+  "type": "moments",
+  "angle": "Bitcoin's real value is structural, but the crowd only trades on sentiment.",
+  "vo_kind": "medley (L-y), written, attempt 1",
+  "style": "medley",
+  "segments": [
+   {
+    "label": "hook",
+    "moment_id": "0c751a33022013fb3086",
+    "video_id": "Sjb6lUiL0m4",
+    "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+    "channel": "Stephan Livera",
+    "k0": 584,
+    "k1": 586,
+    "words": [
+     9335,
+     9403
+    ],
+    "start": 3090.75,
+    "end": 3109.87,
+    "duration_s": 19.12,
+    "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "transcript_sha256": "35e92bd340faea9f742c05ad06e39bbca29bfd48bdc446239e0ed6292c1c4b5b",
+    "time_sensitive": false,
+    "source_published_at": "2026-11-11T18:03:23Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=3060s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+     "people": [
+      {
+       "name": "Stephan Livera",
+       "role": "host",
+       "line": "channel: Stephan Livera"
+      },
+      {
+       "name": "Joe Burnett",
+       "role": "guest",
+       "line": "title: Joe Burnett: Your Wealth Is Melting in the Age of AI | SLP788"
+      }
+     ],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   },
+   {
+    "label": "clip_01",
+    "moment_id": "9eb4b93bfebabd2c853c",
+    "video_id": "vgsSZ4mAHfQ",
+    "channel_id": "UCPsCJ1j0G45FnRGqJhCHLiA",
+    "channel": "Saifedean Ammous",
+    "k0": 1083,
+    "k1": 1085,
+    "words": [
+     15105,
+     15138
+    ],
+    "start": 4664.57,
+    "end": 4673.21,
+    "duration_s": 8.64,
+    "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed.",
+    "published_at": "2026-11-10T08:21:50+00:00",
+    "transcript_sha256": "d736482a826e24dcabbffc505d3dc962a8a1ac2f69a1a85f2c7f0bff585b6b74",
+    "time_sensitive": false,
+    "source_published_at": "2026-11-10T08:21:50Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=4634s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "multiple people speak in this episode, and nothing in or around the clip shows which one this is",
+     "people": [
+      {
+       "name": "Saifedean Ammous",
+       "role": "host",
+       "line": "channel: Saifedean Ammous"
+      },
+      {
+       "name": "Jason Hickel",
+       "role": "guest",
+       "line": "The Doha Debates hosts Saifedean to debate the nature of money with two MMT economists, Jason Hickel and Pavlina Tcherneva."
+      },
+      {
+       "name": "Pavlina Tcherneva",
+       "role": "guest",
+       "line": "The Doha Debates hosts Saifedean to debate the nature of money with two MMT economists, Jason Hickel and Pavlina Tcherneva."
+      }
+     ],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   },
+   {
+    "label": "clip_02",
+    "moment_id": "01154f025a00f40132a7",
+    "video_id": "UJFQBaMh3yg",
+    "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+    "channel": "Coin Bureau",
+    "k0": 28,
+    "k1": 28,
+    "words": [
+     516,
+     545
+    ],
+    "start": 191.38,
+    "end": 203.06,
+    "duration_s": 11.68,
+    "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "transcript_sha256": "78c2fb1eee588f01d19cd2956a6a44b41a7a8e515632bc267d761d4004421c25",
+    "time_sensitive": false,
+    "source_published_at": "2026-11-10T11:33:20Z",
+    "url_30s_before": "https://www.youtube.com/watch?v=UJFQBaMh3yg&t=161s",
+    "speaker": {
+     "name": "unknown",
+     "role": null,
+     "line": null,
+     "basis": null,
+     "why": "the transcript does not address anyone by name, the clip has no first-person tie to own work/role/company, and nothing shows which person is speaking",
+     "people": [],
+     "measured": true,
+     "backend": "xai:grok-4.20-0309-reasoning",
+     "replayed": false
+    }
+   }
+  ],
+  "vo": {
+   "intro": null,
+   "bridges": [
+    "Coin Bureau, on rates and how markets treat Bitcoin.",
+    "The structure does not move with the mood. Most people still price it by the mood."
+   ],
+   "bridges_after_clip": [
+    1,
+    2
+   ],
+   "signoff": "Clips today from Stephan Livera, Saifedean Ammous, and Coin Bureau. Go follow them for more. Links are below."
+  },
+  "title": "The crowd feels. The structure holds.",
+  "caption": "the crowd trades feeling. the structure keeps its value.",
+  "hook_first_words": "When Bitcoin and an asset is going up",
+  "lines": [
+   {
+    "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+    "cites": [
+     "01154f025a00f40132a7"
+    ],
+    "why": "The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.",
+    "slot": "bridge_1"
+   },
+   {
+    "text": "The structure does not move with the mood. Most people still price it by the mood.",
+    "cites": [],
+    "slot": "takeaway"
+   },
+   {
+    "text": "The crowd feels. The structure holds.",
+    "cites": [],
+    "slot": "title"
+   },
+   {
+    "text": "the crowd trades feeling. the structure keeps its value.",
+    "cites": [],
+    "slot": "caption"
+   }
+  ],
+  "runtime_s_estimate": 65.74,
+  "runtime_note": "segments 39.44 s (word timing) + VO 25 words at 2.5 w/s + 1.0 s pre-roll per line + tail 14.3 s (sign-off, credits, outro, edges): the factory's own R4 estimate; the render measures the final",
+  "shape": "medley",
+  "bridge": {
+   "after": "clip_01",
+   "after_clip": 1,
+   "join": "clip_01 -> clip_02",
+   "text": "Coin Bureau, on rates and how markets treat Bitcoin.",
+   "why": "The first clip is about supply and purchasing power, while the next shifts to macro rates and risk sentiment, so the referent is unclear without a bridge.",
+   "confirmed_by": {
+    "join": "clip_01 -> clip_02",
+    "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets",
+    "backend": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "supply_exception": null,
+  "no_voice": null,
+  "medley": {
+   "through_line": "Bitcoin's price fluctuates due to investor sentiment in bull and bear markets, its fixed supply increasing purchasing power, and higher interest rates impacting it as a risky asset.",
+   "clips": {
+    "hook": 5,
+    "clip_01": 4,
+    "clip_02": 4
+   },
+   "joins": {
+    "hook -> clip_01": {
+     "followable": true,
+     "why": "moves from hate and avoiding exposure at bottom to benefits of holding for rising value"
+    },
+    "clip_01 -> clip_02": {
+     "followable": false,
+     "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets"
+    }
+   },
+   "flagged": [
+    "clip_01 -> clip_02"
+   ],
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "measured": true,
+   "replayed": false
+  },
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": [
+     "clip_01 -> clip_02"
+    ]
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   }
+  },
+  "models": {
+   "angle": "heimdall:qwen/qwen3.8-27b",
+   "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+   "medley": "xai:grok-4.20-0309-reasoning",
+   "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+   "context": {
+    "A": {
+     "hook": "xai:grok-4.20-0309-reasoning",
+     "clip_01": "xai:grok-4.20-0309-reasoning",
+     "clip_02": "xai:grok-4.20-0309-reasoning"
+    },
+    "B0": "xai:grok-4.20-0309-reasoning",
+    "B": "xai:grok-4.20-0309-reasoning",
+    "C": "xai:grok-4.20-0309-reasoning"
+   },
+   "coherence": "xai:grok-4.20-0309-reasoning"
+  },
+  "checks": {
+   "fidelity": {
+    "deterministic": {
+     "ok": true,
+     "violations": [],
+     "price_now_measured": true
+    },
+    "verdict": {
+     "ok": true,
+     "claims": [
+      {
+       "line": "bridge_1",
+       "words": "Coin Bureau, on rates and how markets treat Bitcoin.",
+       "class": "attribution",
+       "claim": "Coin Bureau spoke on rates and how markets treat Bitcoin.",
+       "supported": "yes",
+       "support": [
+        {
+         "segment": "01154f025a00f40132a7",
+         "words": "higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky"
+        }
+       ],
+       "tests": {}
+      },
+      {
+       "line": "takeaway",
+       "words": "The structure does not move with the mood.",
+       "class": "commentary",
+       "claim": "The structure does not move with the mood.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "takeaway",
+       "words": "Most people still price it by the mood.",
+       "class": "commentary",
+       "claim": "Most people still price it by the mood.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "The crowd feels.",
+       "class": "commentary",
+       "claim": "The crowd feels.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "title",
+       "words": "The structure holds.",
+       "class": "commentary",
+       "claim": "The structure holds.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "the crowd trades feeling.",
+       "class": "commentary",
+       "claim": "the crowd trades feeling.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      },
+      {
+       "line": "caption",
+       "words": "the structure keeps its value.",
+       "class": "commentary",
+       "claim": "the structure keeps its value.",
+       "supported": "n/a",
+       "support": [],
+       "tests": {
+        "fact": "no",
+        "speaker_view": "no",
+        "imperative_or_prediction": "no",
+        "accusation": "no",
+        "sounds_like_a_speaker": "no"
+       }
+      }
+     ],
+     "violations": [],
+     "classes": {
+      "bridge_1": [
+       "attribution"
+      ],
+      "takeaway": [
+       "commentary",
+       "commentary"
+      ],
+      "title": [
+       "commentary",
+       "commentary"
+      ],
+      "caption": [
+       "commentary",
+       "commentary"
+      ]
+     }
+    },
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false,
+    "seed": 7,
+    "violations": [],
+    "ok": true
+   },
+   "context": {
+    "segments": {
+     "hook": {
+      "A": {
+       "label": "0c751a33022013fb3086",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [
+        {
+         "word": "it",
+         "refers_to": "Bitcoin",
+         "inside": true,
+         "changes_assertion": "yes"
+        },
+        {
+         "word": "that",
+         "refers_to": "everyone loving Bitcoin at the top and hating it at the bottom",
+         "inside": true,
+         "changes_assertion": "yes"
+        }
+       ],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "When Bitcoin and assets rise in a hot bull market everyone loves it, but when they fall in a bear market everyone hates it, which is why the price rises at the top and falls at the bottom.",
+       "certainty": "certain",
+       "speaker_is": "guest",
+       "speaker_evidence": "Like, if Bitcoin falls 50%, you're like, what were you doing for the last year?",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "hook",
+       "asserts": "When Bitcoin is going up in a bull market everyone loves it, and everyone hates it when going down in a bear market; this is why the price gets high and low because of demand for exposure at the top and lack of it at the bottom.",
+       "certainty": "certain",
+       "polarity": "neutral"
+      },
+      "B0": {
+       "label": "hook",
+       "asserts": "Bull markets happen because everyone loves Bitcoin and seeks exposure (driving prices high), while bear markets happen because everyone hates it and avoids exposure (driving prices low)",
+       "certainty": "certain",
+       "polarity": "neutral"
+      },
+      "C": {
+       "label": "hook",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       553,
+       600
+      ]
+     },
+     "clip_01": {
+      "A": {
+       "label": "9eb4b93bfebabd2c853c",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Bitcoin shows that purchasing power can increase without supply increasing, so those who hold it do not get robbed.",
+       "certainty": "certain",
+       "speaker_is": "host",
+       "speaker_evidence": "You wrote the Bitcoin Standard. You are a very public advocate of Bitcoin. How do you think, first of all, how does Bitcoin essentially operate and why does it solve the problems that you've put on the table?",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_01",
+       "asserts": "Bitcoin shows that you can increase purchasing power without increasing its supply, so people who hold Bitcoin don't get robbed.",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "B0": {
+       "label": "clip_01",
+       "asserts": "Bitcoin increases purchasing power without increasing supply so its holders are not robbed",
+       "certainty": "certain",
+       "polarity": "positive"
+      },
+      "C": {
+       "label": "clip_01",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       1048,
+       1104
+      ]
+     },
+     "clip_02": {
+      "A": {
+       "label": "01154f025a00f40132a7",
+       "speaker_changes_inside": "no",
+       "view": "own_sincere",
+       "referents": [],
+       "conditions": [],
+       "retraction": "none",
+       "time_ok": "yes",
+       "proposition": "Higher interest rates make cash more attractive and borrowing more expensive, a bad combination for risky assets like Bitcoin which the market views as risky.",
+       "certainty": "certain",
+       "speaker_is": "host",
+       "speaker_evidence": "",
+       "backend": "xai:grok-4.20-0309-reasoning",
+       "replayed": false,
+       "speaker_verified": false
+      },
+      "B": {
+       "label": "clip_02",
+       "asserts": "Higher rates make cash more attractive and borrowed money more expensive, the wrong combo for anything risky, and the market definitely sees Bitcoin as risky (attributed: on rates and how markets treat Bitcoin).",
+       "certainty": "certain",
+       "polarity": "negative"
+      },
+      "B0": {
+       "label": "clip_02",
+       "asserts": "Higher rates make cash attractive and borrowing expensive (a bad combination for risky assets like Bitcoin, which the market sees as risky)",
+       "certainty": "certain",
+       "polarity": "negative"
+      },
+      "C": {
+       "label": "clip_02",
+       "entails": "yes",
+       "dropped_limit": "",
+       "added_by": "",
+       "same_polarity": "yes",
+       "stronger_certainty": "no",
+       "raising_words": ""
+      },
+      "window": [
+       10,
+       40
+      ]
+     }
+    },
+    "relations": [
+     {
+      "labels": [
+       "hook",
+       "clip_01"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "hook",
+       "clip_02"
+      ],
+      "relation": "none"
+     },
+     {
+      "labels": [
+       "clip_01",
+       "clip_02"
+      ],
+      "relation": "none"
+     }
+    ],
+    "violations": [],
+    "backends": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "measured": true,
+    "replayed": false,
+    "judged": [
+     "hook",
+     "clip_01",
+     "clip_02"
+    ],
+    "ok": true
+   },
+   "coherence": {
+    "through_line": "Crowd emotions drive Bitcoin price volatility in bull and bear markets, but its underlying structure holds value independent of mood.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "vo_point": 4,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley": {
+    "through_line": "Bitcoin's price fluctuates due to investor sentiment in bull and bear markets, its fixed supply increasing purchasing power, and higher interest rates impacting it as a risky asset.",
+    "clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": true,
+      "why": "moves from hate and avoiding exposure at bottom to benefits of holding for rising value"
+     },
+     "clip_01 -> clip_02": {
+      "followable": false,
+      "why": "abrupt shift from Bitcoin's supply benefits to unrelated macro rates hurting risky assets"
+     }
+    },
+    "flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   }
+  },
+  "seconds": 814.3,
+  "usd": 1.8777,
+  "usd_best_known": 0.1838
+ },
+ "angle_backend": "heimdall:qwen/qwen3.8-27b",
+ "angle_tried": [
+  [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "refused this request: an empty reply"
+  ]
+ ],
+ "seconds": 814.3,
+ "usd": 1.8777,
+ "run": "fresh_20261111_213954",
+ "tag": "b1",
+ "usd_estimate": 1.8777,
+ "usd_best_known": 0.1838,
+ "code": "0453f171+afbea8f7b750",
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "at": "2026-11-13 00:15:35 EST",
+ "as_of": "2026-11-13T05:02:00.808872+00:00",
+ "avoid_videos": [],
+ "delivered_spans": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5"
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f"
+  }
+ ],
+ "full": {
+  "est": 1.7087,
+  "best": 0.2203,
+  "model_s": 652.79,
+  "calls": 31
+ }
+}

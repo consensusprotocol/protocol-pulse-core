@@ -1,0 +1,206 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "a462a0fad3e60f10e3095b74f6c57abc84c2e76b26199d3a7eab21aeb068d9bd",
+ "result": {
+  "text": "Yeah, that's a great question. I'd say the simple answer would be is, um, the simple answer is that Bitcoin just completely changes the game of public finance. Because before-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 9.64,
+    "text": "Yeah, that's a great question. I'd say the simple answer would be is, um, the simple answer is that Bitcoin just completely changes the game of public finance. Because before-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yeah,",
+    "start": 0.18,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.32,
+    "end": 0.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.46,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 0.52,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question.",
+    "start": 0.7,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'd",
+    "start": 1.48,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "say",
+    "start": 1.64,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.86,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simple",
+    "start": 2.14,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "answer",
+    "start": 2.48,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 2.78,
+    "end": 2.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 3.04,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 3.58,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 4.12,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.38,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simple",
+    "start": 4.48,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "answer",
+    "start": 4.66,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.84,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.92,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.1,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 5.7,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 6.22,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changes",
+    "start": 6.74,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.08,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "game",
+    "start": 7.18,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.34,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "public",
+    "start": 7.46,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finance.",
+    "start": 7.8,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Because",
+    "start": 8.64,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before-",
+    "start": 9.4,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.68
+ },
+ "usd": 0.001936,
+ "seconds": 1.18,
+ "recorded_at": "2026-11-13T05:06:01Z"
+}

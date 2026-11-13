@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0f3a419e7b63e182b227750841b8f77963796295c0a89822df4845e04085bacf",
+ "result": {
+  "text": "Yes. And, and certainly if you wanna have confidence that any purchases of Bitcoin, um, are going to be, uh, legal, then yeah, you would need authorization from Congress. Um, you know, Congress",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.9,
+    "end": 12.9,
+    "text": "Yes. And, and certainly if you wanna have confidence that any purchases of Bitcoin, um, are going to be, uh, legal, then yeah, you would need authorization from Congress. Um, you know, Congress"
+   }
+  ],
+  "words": [
+   {
+    "text": "Yes.",
+    "start": 0.9,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 1.38,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.58,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "certainly",
+    "start": 1.76,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 2.24,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.36,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 2.48,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.7,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confidence",
+    "start": 2.96,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 3.56,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchases",
+    "start": 4.64,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 5.58,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 6.7,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.0,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 7.18,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 7.5,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 7.64,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 8.26,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "legal,",
+    "start": 8.46,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 9.16,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 9.4,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.62,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 9.68,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 9.8,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "authorization",
+    "start": 10.02,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 10.74,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Congress.",
+    "start": 10.98,
+    "end": 11.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 11.74,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.36,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.42,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Congress",
+    "start": 12.6,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.94
+ },
+ "usd": 0.002588,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-13T05:05:04Z"
+}

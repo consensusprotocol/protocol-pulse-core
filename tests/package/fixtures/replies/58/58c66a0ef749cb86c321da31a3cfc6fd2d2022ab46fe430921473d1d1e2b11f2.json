@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6f107a31a86e92bdb9a30e6557dc1c4fab94a07917920c736c9742634b38f87d",
+ "result": {
+  "text": "economic activity. Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed. So essentially",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.6,
+    "text": "economic activity. Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed. So essentially"
+   }
+  ],
+  "words": [
+   {
+    "text": "economic",
+    "start": 0.0,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "activity.",
+    "start": 0.44,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.46,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shows",
+    "start": 1.88,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.16,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.26,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.38,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 2.46,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 2.58,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "increase",
+    "start": 2.8,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.12,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 3.24,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power.",
+    "start": 3.62,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 4.08,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.22,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 4.38,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.7,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.8,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 5.14,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 5.36,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "without",
+    "start": 5.5,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.74,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "supply",
+    "start": 5.84,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.16,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.28,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 6.64,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 6.98,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 8.039,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.58,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 8.68,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 8.88,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 8.96,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.18,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 9.52,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 9.72,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "robbed.",
+    "start": 9.9,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.62,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "essentially",
+    "start": 11.2,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.64
+ },
+ "usd": 0.002328,
+ "seconds": 0.71,
+ "recorded_at": "2026-11-13T05:04:47Z"
+}
