@@ -1,0 +1,84 @@
+{
+ "question": "Batch 65 = the 9:16 colour-tag fix (law Section 2 format lock; ruling 26 (a) \"tag every final explicitly\", which ruling 30 left out because it took the BT.601 source to be the only cause). G9 (the tail luma gate) measures through RGB, so a final's colour tags enter its number. Its floor and its measure are NOT changed here.\nMeasured (Nov 13, four runs, ffprobe of every 9:16 part): every 9:16 part is made by render_vertical.reframe_auto (layout 'auto' in all four runs). A part whose shot plan includes a stack2 shot (split, crop, scale, vstack, pad) comes out with all four tags unknown (range, space, transfer, primaries). A single-crop part keeps its source's tags. A safe-frame part already re-declares its matrix (the Nov 11 fix). The 9:16 final takes its FIRST part's tags:\n- run 191409: the hook opens on stack2, the final is untagged, G9 9:16 13.6 vs 14.73 FAIL, with every source BT.709 tv;\n- run 031328 (the medley): the hook opens on stack2, untagged, 13.6 FAIL;\n- run 165629: the hook is single (bt709), the final bt709, 14.8 PASS (although its clip_02 part was untagged);\n- run 054035: the hook was BT.601 (smpte170m), 14.5 FAIL (ruling 30's case, converted at prepare now).\nThe change: _input_matrix (colorspace only) becomes _input_colour. It probes the input's color_range, color_primaries, color_transfer and color_space, keeps only whitelisted values, and returns setparams options. reframe_auto appends \",setparams=<those>\" after EVERY shot (it did so only after the safe frame, and only for colorspace). Metadata only: setparams rewrites frame properties, not pixels.\nTests: test_safe_frame_colour.py. The NVENC class gains test_a_part_opening_on_a_stack2_keeps_bt709_and_its_range (run on GPU0 under the lease: must fail on the old code, pass on the new). New CPU tests: every shot's chain ends on the input's colour, and the probe keeps known values only.\nFIND: a pixel change (anything but tag metadata); a wrong or untruthful tag (a declared colour the pixels are not in); a filtergraph that breaks for any shot class (single, stack2, stack3, screen / safe frame) or for several shots in one part; a tag still lost on some 9:16 path the final can open on; a change to G9 or its floor; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 26.6,
+   "cost": 0.0014618205,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 8.7,
+   "cost": 0.000162316,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 6.5,
+   "cost": 0.00039835,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 7.3,
+   "cost": 0.000141453,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/test_safe_frame_colour.py",
+   "line": 0,
+   "issue": "The stack2 GPU test's 'must fail on the old code' claim is not enforced: it only asserts the new behaviour, so it cannot itself prove the old code failed (no regression check against the old path).",
+   "evidence": "def test_a_part_opening_on_a_stack2_keeps_bt709_and_its_range(self):\n        self.assertEqual(self._render(\"stack2\"), \"bt709,bt709,bt709\")\n        self.assertEqual(_range(os.path.join(self.tmp, \"out_stack2.mp4\")), \"tv\")",
+   "fix": "Acceptable as a regression test; optionally note in the docstring that the old-code failure was verified manually (runs 191409/031328).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/test_safe_frame_colour.py",
+   "line": 0,
+   "issue": "The CPU graph test mocks subprocess.run globally, so the ffprobe call inside _input_colour is also mocked via the _input_colour patch \u2014 fine \u2014 but the encode/ffmpeg command's returncode Mock(returncode=0) means the test would pass even if the real filtergraph were rejected by ffmpeg; it only checks the graph string, not that ffmpeg accepts it.",
+   "evidence": "ok = mock.Mock(returncode=0, stderr=b\"\")\n        with mock.patch.object(RV, \"_input_colour\", lambda p: colour), \\\n                mock.patch.object(RV.subprocess, \"run\", lambda cmd, **k: ran.append(cmd) or ok), ...",
+   "fix": "Optionally add one integration run (the GPU test covers this) or assert the graph parses; the GPU test does exercise the real encode, so coverage is adequate.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0021639395000000003,
+ "out_dir": "/home/ultron/worktrees/g9tags/docs/audits/pulse-sentence-law/batch65_vert_colour_tags/cycle1/heimdall"
+}
