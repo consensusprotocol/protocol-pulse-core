@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "9c29c6fe744e13230d01a1fe2a7fa2c27927b3acc73b24731007b0c2b98ecc83",
+ "result": {
+  "text": "If Bitcoin and digital assets are of geopolitical importance, we, the smartest people understand the precarious nature that the financial system is in. And so there is a reason where Bitcoin and digital assets sit as this like sh- uh, sponge for dollar velocity and the things that need to happen to maintain the debt. But at the same time-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.04,
+    "end": 18.12,
+    "text": "If Bitcoin and digital assets are of geopolitical importance, we, the smartest people understand the precarious nature that the financial system is in. And so there is a reason where Bitcoin and digital assets sit as this like sh- uh, sponge for dollar velocity and the things that need to happen to maintain the debt. But at the same time-"
+   }
+  ],
+  "words": [
+   {
+    "text": "If",
+    "start": 0.04,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.32,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.68,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 0.78,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets",
+    "start": 1.14,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 1.7,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.96,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "geopolitical",
+    "start": 2.14,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "importance,",
+    "start": 2.72,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we,",
+    "start": 3.76,
+    "end": 3.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.42,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "smartest",
+    "start": 4.56,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.86,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 5.1,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.66,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "precarious",
+    "start": 5.76,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nature",
+    "start": 6.14,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.46,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.58,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 6.68,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system",
+    "start": 7.08,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.4,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in.",
+    "start": 7.54,
+    "end": 7.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 8.18,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 8.42,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 8.74,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.02,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.16,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 9.26,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 9.6,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.82,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.16,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 10.24,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets",
+    "start": 10.54,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sit",
+    "start": 10.88,
+    "end": 11.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 11.08,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 11.18,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 11.36,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sh-",
+    "start": 11.56,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 11.84,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sponge",
+    "start": 12.14,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.78,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollar",
+    "start": 13.34,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "velocity",
+    "start": 13.64,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.28,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.38,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 14.5,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.7,
+    "end": 14.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 14.82,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.96,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happen",
+    "start": 15.18,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.62,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maintain",
+    "start": 15.82,
+    "end": 16.219,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.26,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "debt.",
+    "start": 16.42,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 17.16,
+    "end": 17.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 17.28,
+    "end": 17.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.36,
+    "end": 17.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 17.5,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time-",
+    "start": 17.76,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.16
+ },
+ "usd": 0.003632,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-13T18:07:05Z"
+}

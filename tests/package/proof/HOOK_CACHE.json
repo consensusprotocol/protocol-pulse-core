@@ -119,5 +119,16 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "a693c226f9e5fd697418:b89a3605f2528b1683b3ddcfc7a5f2b146d33e70378ec0af87106c20f14b7749:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 2,
+   "rating": 2,
+   "why": "bland price quotes lack hook or intrigue",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

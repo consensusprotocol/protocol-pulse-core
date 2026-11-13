@@ -1,0 +1,315 @@
+{
+ "schema": "protocol_pulse.pinned_story.v1",
+ "story_id": "moments-ledger_20261113_183302-61fd55d0",
+ "label": "bitcoin",
+ "headline": "No single owner controls the bitcoin network",
+ "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
+ "approved_at": "2026-11-13T18:38:53+00:00",
+ "approval_ref": "docs/audits/parallel/pp-selectid_STATE.md (top package, ledger_20261113_183302)",
+ "machine_cuts": true,
+ "segments": [
+  {
+   "role": "hook",
+   "video_id": "DcUbBkyeh9M",
+   "channel": "Simply Bitcoin",
+   "start": 236.688,
+   "end": 253.308,
+   "approved_text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+   "transcript_sha256": "858d451b33f4074e942db058123e57580a0fe838d280868a24fcdf3ea704e215",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-10T22:55:16Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "both the host and the guests speak in this episode, and nothing in or around the clip shows which one this is",
+    "people": [
+     {
+      "name": "Michael Saylor",
+      "role": "guest",
+      "line": "Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosive allegations surrounding Nvidia CEO Jensen Huang, a bigger question emerges: What happens when one person's actions threaten an entire market? Michael Saylor and Arthur Hayes offer competing perspectives on the AI trade, while Bitwise outlines a potential path to $1.6 million Bitcoin. Discover why key man risk matters, how concentrated your 401(k) might be, and why Bitcoin offers a fundamentally different model of ownership."
+     },
+     {
+      "name": "Arthur Hayes",
+      "role": "guest",
+      "line": "Your retirement could be dangerously exposed to Nvidia, the AI boom, and decisions made by a handful of powerful executives. Amid explosive allegations surrounding Nvidia CEO Jensen Huang, a bigger question emerges: What happens when one person's actions threaten an entire market? Michael Saylor and Arthur Hayes offer competing perspectives on the AI trade, while Bitwise outlines a potential path to $1.6 million Bitcoin. Discover why key man risk matters, how concentrated your 401(k) might be, and why Bitcoin offers a fundamentally different model of ownership."
+     }
+    ],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "GXWj2JO9bz8",
+   "channel": "CNBC Television",
+   "start": 124.157,
+   "end": 138.097,
+   "approved_text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+   "transcript_sha256": "fd873aad7d48ae920412200c79f9af874d325d3f73d42313992863f0ac9467f6",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-12T20:55:09Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "source lines name only Phong Le but a title or description naming a guest does NOT show who speaks a given clip; transcript does not address as Phong Le or tie clip content in first person to that name",
+    "people": [
+     {
+      "name": "Phong Le",
+      "role": "guest",
+      "line": "Phong Le, Strategy CEO, joins 'Power Lunch' to discuss Jensen Huang's resignation, the midterm elections, crypto, and more."
+     }
+    ],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  },
+  {
+   "role": "clip",
+   "video_id": "mKNAcOFMYD4",
+   "channel": "Scott Melker",
+   "start": 755.454,
+   "end": 764.214,
+   "approved_text": "My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.",
+   "transcript_sha256": "f63af3a354bcf557e5799f5daada7ed96420f7fda7a601fbf540a07b214452bd",
+   "time_sensitive": false,
+   "source_published_at": "2026-11-12T14:05:19Z",
+   "speaker": {
+    "name": "unknown",
+    "role": null,
+    "line": null,
+    "basis": null,
+    "why": "both the host and the guest speak in this episode, and nothing in or around the clip shows which one this is",
+    "people": [
+     {
+      "name": "Scott Melker",
+      "role": "host",
+      "line": "channel: Scott Melker"
+     },
+     {
+      "name": "Mark Yusko",
+      "role": "guest",
+      "line": "title: Wall Street's Bitcoin Bet Has A Hidden Problem l Mark Yusko"
+     }
+    ],
+    "measured": true,
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "replayed": false
+   },
+   "time_coords": "youtube",
+   "source": {
+    "kind": "youtube"
+   }
+  }
+ ],
+ "moments_package": {
+  "schema": "pp.package/1",
+  "package_sha256": "61fd55d013b3e190c28663d1a0d49be129ce8a1c24d667eae90a0aba59de5c83",
+  "type": "moments",
+  "vo_kind": "medley (L-y), written, attempt 1; the caption rewritten alone (ruling 65 a)",
+  "edl_vo": {
+   "intro": null,
+   "bridges": [
+    {
+     "text": "No single owner means value tracks what people build together. That is liberty, and it keeps working quietly.",
+     "after_clip": 2
+    }
+   ]
+  },
+  "signoff_expected": "Clips today from Simply Bitcoin, CNBC Television, and Scott Melker. Go follow them for more. Links are below.",
+  "title": "No single owner controls the bitcoin network",
+  "caption": "bitcoin is not a partisan issue. no ceo or committee keeps its rules, thousands of computers do, and that is financial freedom.",
+  "hook_first_words": "A CEO makes a personal mistake in shareholders",
+  "vo_jobs": {
+   "takeaway": "takeaway"
+  },
+  "shape": "medley",
+  "bridge": null,
+  "supply_exception": null,
+  "no_voice": null,
+  "caption_fallback": false,
+  "gates": {
+   "vo_fidelity_deterministic": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.check_deterministic)",
+    "replayed": false,
+    "n": 1
+   },
+   "vo_fidelity_verdict": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning; the caption alone: xai:grok-4.20-0309-reasoning (ruling 65)",
+    "replayed": false,
+    "n": 1
+   },
+   "duplicate": {
+    "status": "PASS",
+    "by": "code (package.duplicates)",
+    "replayed": false,
+    "n": 1
+   },
+   "price_now": {
+    "status": "PASS",
+    "by": "code (vo_fidelity.price_now)",
+    "replayed": false,
+    "n": 1
+   },
+   "runtime": {
+    "status": "PASS",
+    "by": "code (the factory's R4 estimate: 2.5 w/s + 1.0 s a VO line + 14.3 s tail)",
+    "replayed": false,
+    "n": 1
+   },
+   "r4": {
+    "status": "PASS",
+    "by": "package.r4 (moments-first R4, orchestrator 06:00)",
+    "replayed": false,
+    "n": 1
+   },
+   "context_a": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "context_b": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "context_c": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "exclusion": {
+    "status": "PASS",
+    "by": [
+     "xai:grok-4.20-0309-reasoning"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "second_pass": {
+    "status": "PASS",
+    "by": [
+     "elevenlabs_stt:scribe_v1"
+    ],
+    "replayed": false,
+    "n": 3
+   },
+   "cuttable": {
+    "status": "PASS",
+    "by": "transcript_truth.edges: the independent recogniser's sentence boundary at every IN and OUT (orchestrator 06:45 ruling C / 7)",
+    "replayed": false,
+    "n": 3
+   },
+   "coherence": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1
+   },
+   "medley": {
+    "status": "PASS",
+    "by": "xai:grok-4.20-0309-reasoning",
+    "replayed": false,
+    "n": 1,
+    "flagged": []
+   },
+   "ly_shape": {
+    "status": "PASS",
+    "by": "code (package.ly_shape, L-y)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "house_style": {
+    "status": "PASS",
+    "by": "code (house_style.lint_lines, ruling 6)",
+    "replayed": false,
+    "n": 1,
+    "why": []
+   },
+   "hook_onset": {
+    "status": "PASS",
+    "by": "hook_onset.measure (sentence_law.edge_plan + head_tail on the source audio: G17a at the pin stage)",
+    "replayed": false,
+    "n": 1,
+    "lead_ms": 90,
+    "cut_in": 236.488,
+    "why": "ok"
+   },
+   "stand_alone": {
+    "status": "PASS",
+    "by": "stand_alone.check_edl (the render's STAND_ALONE at the pin stage, moments=True: the render's clip scorer's verdicts as the integrator's service gave them, stand-alone only, the score alone (rulings 56, 60); without an affirming one a conjunction, reply-fragment or trimmed opener fails closed)",
+    "replayed": false,
+    "n": 1,
+    "rows": [
+     "hook: PASS opener: opens on 'a' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_01: PASS opener: opens on 'i' | topic: about Bitcoin by the miner's screen ('Bitcoin')",
+     "clip_02: PASS opener: opens on 'my' | topic: about Bitcoin by the miner's screen ('Bitcoin')"
+    ],
+    "medley_names_bitcoin": {
+     "pass": true,
+     "segments": [
+      "hook",
+      "clip_01",
+      "clip_02"
+     ],
+     "why": "named by hook, clip_01, clip_02"
+    },
+    "screen": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b"
+   }
+  },
+  "btc_screen": {
+   "pattern": "\\b(bitcoins?|btc|sats|satoshis?|halving|hash ?rate|lightning network|self[- ]custody|cold storage|microstrategy|mstr|ibit|saylor)\\b",
+   "source": "pp-ingest pipeline/ingest/mine.py@8e6afb61"
+  },
+  "checks": {
+   "vo_fidelity_ok": true,
+   "context_integrity_ok": true,
+   "derived_from": "gates (every required row exactly PASS, checked above)",
+   "models": {
+    "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+    "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+    "medley": "xai:grok-4.20-0309-reasoning",
+    "fidelity_verdict": "xai:grok-4.20-0309-reasoning; the caption alone: xai:grok-4.20-0309-reasoning (ruling 65)",
+    "context": {
+     "A": {
+      "hook": "xai:grok-4.20-0309-reasoning",
+      "clip_01": "xai:grok-4.20-0309-reasoning",
+      "clip_02": "xai:grok-4.20-0309-reasoning"
+     },
+     "B0": "xai:grok-4.20-0309-reasoning",
+     "B": "xai:grok-4.20-0309-reasoning",
+     "C": "xai:grok-4.20-0309-reasoning"
+    },
+    "coherence": "xai:grok-4.20-0309-reasoning"
+   }
+  },
+  "runtime_s_estimate": 61.82,
+  "cut_evidence": null,
+  "sources_30s_before": [
+   "https://www.youtube.com/watch?v=DcUbBkyeh9M&t=206s",
+   "https://www.youtube.com/watch?v=GXWj2JO9bz8&t=94s",
+   "https://www.youtube.com/watch?v=mKNAcOFMYD4&t=725s"
+  ]
+ }
+}

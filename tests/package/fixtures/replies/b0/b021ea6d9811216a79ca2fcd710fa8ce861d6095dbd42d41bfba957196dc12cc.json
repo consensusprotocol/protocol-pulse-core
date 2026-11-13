@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: No single owner controls the bitcoin network\nCAPTION: bitcoin is not a partisan issue. no ceo or committee keeps its rules, thousands of computers do, and that is financial freedom.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.\"\nCLIP label=\"clip_01\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_02\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\nVOICE-OVER: No single owner means value tracks what people build together. That is liberty, and it keeps working quietly.\nVOICE-OVER: Clips today from Simply Bitcoin, CNBC Television, and Scott Melker. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin provides financial freedom and liberty as no single owner, CEO, or central authority controls it unlike banks or governments.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 4}, \"vo_point\": 4}",
+ "usage": {
+  "in": 700,
+  "out": 2256,
+  "usd_reported": 0.0063806
+ },
+ "usd": 0.0599,
+ "seconds": 24.74,
+ "recorded_at": "2026-11-13T18:37:28Z"
+}

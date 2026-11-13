@@ -1,0 +1,440 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "bd1084f35117521da6d6f41277a5ea06b692f9821321401f8c3097e6dbca70ee",
+ "result": {
+  "text": "Just like- Yeah ... in a perpetual state of that You're a scary org. You're a scary org. All right, Bankless Nation, we will see you in one week, one week from today. Hopefully, Bitcoin is at a higher price from where it is now. But until then, crypto is risky. You can lose what you put in. This is a frontier. It's not for everyone",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.02,
+    "end": 0.38,
+    "text": "Just like-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 0.62,
+    "end": 0.74,
+    "text": "Yeah"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 0.9,
+    "end": 2.0,
+    "text": "... in a perpetual state of that"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 2.0,
+    "end": 15.82,
+    "text": "You're a scary org. You're a scary org. All right, Bankless Nation, we will see you in one week, one week from today. Hopefully, Bitcoin is at a higher price from where it is now. But until then, crypto is risky. You can lose what you put in. This is a frontier. It's not for everyone"
+   }
+  ],
+  "words": [
+   {
+    "text": "Just",
+    "start": 0.02,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like-",
+    "start": 0.2,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah",
+    "start": 0.62,
+    "end": 0.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 0.9,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.94,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.02,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perpetual",
+    "start": 1.1,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "state",
+    "start": 1.52,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.76,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.82,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You're",
+    "start": 2.0,
+    "end": 2.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 2.0,
+    "end": 2.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "scary",
+    "start": 2.0,
+    "end": 2.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "org.",
+    "start": 2.0,
+    "end": 2.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "You're",
+    "start": 2.62,
+    "end": 2.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 2.74,
+    "end": 2.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "scary",
+    "start": 2.84,
+    "end": 3.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "org.",
+    "start": 3.16,
+    "end": 3.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "All",
+    "start": 4.6,
+    "end": 4.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "right,",
+    "start": 4.88,
+    "end": 5.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bankless",
+    "start": 5.16,
+    "end": 5.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Nation,",
+    "start": 5.5,
+    "end": 5.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "we",
+    "start": 6.32,
+    "end": 6.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "will",
+    "start": 6.4,
+    "end": 6.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "see",
+    "start": 6.54,
+    "end": 6.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 6.72,
+    "end": 6.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 7.1,
+    "end": 7.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "one",
+    "start": 7.72,
+    "end": 7.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "week,",
+    "start": 7.9,
+    "end": 8.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "one",
+    "start": 8.52,
+    "end": 8.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "week",
+    "start": 8.64,
+    "end": 8.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "from",
+    "start": 8.78,
+    "end": 8.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "today.",
+    "start": 8.9,
+    "end": 9.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Hopefully,",
+    "start": 9.18,
+    "end": 9.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.42,
+    "end": 9.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 9.7,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "at",
+    "start": 9.8,
+    "end": 9.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 9.88,
+    "end": 9.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "higher",
+    "start": 9.94,
+    "end": 10.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "price",
+    "start": 10.12,
+    "end": 10.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "from",
+    "start": 10.34,
+    "end": 10.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "where",
+    "start": 10.48,
+    "end": 10.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 10.64,
+    "end": 10.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 10.74,
+    "end": 10.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "now.",
+    "start": 10.9,
+    "end": 11.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "But",
+    "start": 11.2,
+    "end": 11.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "until",
+    "start": 11.38,
+    "end": 11.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "then,",
+    "start": 11.74,
+    "end": 11.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "crypto",
+    "start": 11.96,
+    "end": 12.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 12.36,
+    "end": 12.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "risky.",
+    "start": 12.5,
+    "end": 12.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "You",
+    "start": 12.78,
+    "end": 12.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "can",
+    "start": 12.86,
+    "end": 12.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "lose",
+    "start": 13.04,
+    "end": 13.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what",
+    "start": 13.62,
+    "end": 13.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 13.82,
+    "end": 13.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "put",
+    "start": 13.94,
+    "end": 14.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in.",
+    "start": 14.16,
+    "end": 14.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "This",
+    "start": 14.74,
+    "end": 14.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 14.88,
+    "end": 14.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 14.96,
+    "end": 14.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "frontier.",
+    "start": 15.02,
+    "end": 15.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "It's",
+    "start": 15.36,
+    "end": 15.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 15.48,
+    "end": 15.58,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 15.6,
+    "end": 15.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "everyone",
+    "start": 15.74,
+    "end": 15.82,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.84
+ },
+ "usd": 0.003168,
+ "seconds": 1.25,
+ "recorded_at": "2026-11-13T18:07:14Z"
+}

@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "62876fd400695fb3d19d712892e1d88194507bf9c485faa74093b89f3315e519",
+ "result": {
+  "text": "of it. Yeah And Bitcoin is scarcer. It's, it's absolutely scarce. Mm-hmm. So over time, um, I came to the conclusion that real estate will most likely replace, uh, or will be replaced, or real estate will most likely be replaced by Bitcoin in its function as a savings account. Sure. Right? That's the-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 0.22,
+    "text": "of it."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 0.44,
+    "end": 0.5,
+    "text": "Yeah"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 0.56,
+    "end": 3.02,
+    "text": "And Bitcoin is scarcer. It's, it's absolutely scarce."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.04,
+    "end": 3.2,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 3.88,
+    "end": 16.62,
+    "text": "So over time, um, I came to the conclusion that real estate will most likely replace, uh, or will be replaced, or real estate will most likely be replaced by Bitcoin in its function as a savings account."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 16.8,
+    "end": 16.98,
+    "text": "Sure."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 17.38,
+    "end": 18.04,
+    "text": "Right? That's the-"
+   }
+  ],
+  "words": [
+   {
+    "text": "of",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 0.12,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Yeah",
+    "start": 0.44,
+    "end": 0.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "And",
+    "start": 0.56,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 0.66,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.02,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarcer.",
+    "start": 1.18,
+    "end": 1.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's,",
+    "start": 1.8,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 2.02,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "absolutely",
+    "start": 2.18,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scarce.",
+    "start": 2.68,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 3.04,
+    "end": 3.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 3.88,
+    "end": 4.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 4.24,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 4.54,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 5.24,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.1,
+    "end": 6.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 6.22,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.46,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.54,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conclusion",
+    "start": 6.66,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.14,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 8.0,
+    "end": 8.119,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 8.16,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 8.6,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 8.84,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "likely",
+    "start": 9.16,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "replace,",
+    "start": 9.68,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.72,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 10.84,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 11.0,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 11.22,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "replaced,",
+    "start": 11.34,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 11.88,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 11.98,
+    "end": 12.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 12.14,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 12.46,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 12.6,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "likely",
+    "start": 12.9,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 13.6,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "replaced",
+    "start": 13.78,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 14.3,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 14.48,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.98,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 15.08,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "function",
+    "start": 15.3,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 15.7,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.82,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "savings",
+    "start": 15.92,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account.",
+    "start": 16.32,
+    "end": 16.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Sure.",
+    "start": 16.8,
+    "end": 16.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Right?",
+    "start": 17.38,
+    "end": 17.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 17.64,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the-",
+    "start": 17.88,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.14
+ },
+ "usd": 0.003628,
+ "seconds": 1.26,
+ "recorded_at": "2026-11-13T18:07:22Z"
+}

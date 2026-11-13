@@ -5902,5 +5902,616 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "5b8effa74a967fb0ebed:13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd:d5568864a7bd80833fb7fb328463c60b5c4e89182b245e231497a1744ae1c480:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "5b8effa74a967fb0ebed",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin (its performance vs S&P 500)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "On a one-year basis right now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is down 28% on a one-year basis while the S&P 500 is up 11%, showing significant divergent weakness.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "2018 I called for Bitcoin to drop a zero from 10,000 dropped to 3000. Okay. So I was 70% right 2020. I called it to add a zero from 10,000.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6058ee583d6fb7dce57c:59cea7f0f472eb02be900427a758da2ba5c0d3f6f68929d500520a5ef0009277:73a97fc585c129dc1e132e7dcb43308e7f841f1d2de35e5fb1cab56e937f2837:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6058ee583d6fb7dce57c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "real estate",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over time",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over time real estate will most likely be replaced by Bitcoin in its function as a savings account.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "I operate in real estate. We are a real estate development company. I grew up as a real estate operator, real estate developer",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "6058ee583d6fb7dce57c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Leon Wankum, the guest)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "real estate",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over time",
+     "inside": true
+    },
+    {
+     "text": "in its function as a savings account",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over time, the speaker concluded that real estate will most likely be replaced by Bitcoin in its function as a savings account.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "you are real estate operator ... I operate in real estate. We are a real estate development company. I grew up as a real estate operator",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "87a6e1d0bb27b87b8fb3:20a3455feac429a0baeca5f85b4e98a5f3d13e7b90030190fd4c27bae08f5fb9:258b5183d2fdef9e7b2aa5b305083c6aae6db3d84f39a0c8c5c01c0f0011eb1c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "87a6e1d0bb27b87b8fb3",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "owning Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Viewing Bitcoin as digital real estate or digital property, its emergence creates new opportunities for value creation in the digital space since owning Bitcoin is like owning a plot of land in a vastly expanding digital economy.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I do like the example [clears throat] you just gave by the way because um what Henry Ford did by the way and and also we talked about mobility the emergence of cities and cities as like a place for economic activity",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "94ca04cde8d0380acfe8:7dfa8d1e62c67b823dbe070898eca69f3a450616c55eeaba7e51e6145b8355d6:49278bf33be85f86eecedf444f2c54287ce272d647419687d2cccd71522698f8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "94ca04cde8d0380acfe8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "for the year",
+     "inside": true
+    },
+    {
+     "text": "Recent rapid redemptions",
+     "inside": true
+    },
+    {
+     "text": "on Friday, the lowest since August",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin ETFs are down over 1.5 billion in net outflows for the year with recent rapid redemptions explaining the market swoon as the Bitcoin spot price fell below 70,000 on Friday, the lowest since August.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "with our beloved Bitcoin ETFs",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "94ca04cde8d0380acfe8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "now",
+     "refers_to": "current time (2026-11-13)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the year",
+     "refers_to": "current year (2026)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "Recent",
+     "refers_to": "recent period before the show date",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the market swoon",
+     "refers_to": "the recent market decline, likely the Bitcoin price drop",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "Friday",
+     "refers_to": "the Friday of the show date (2026-11-13)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the lowest",
+     "refers_to": "the Bitcoin spot price level",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "August",
+     "refers_to": "August of the current year (2026)",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now",
+     "inside": true
+    },
+    {
+     "text": "for the year",
+     "inside": true
+    },
+    {
+     "text": "Recent",
+     "inside": true
+    },
+    {
+     "text": "on Friday",
+     "inside": true
+    },
+    {
+     "text": "since August",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin ETFs have year-to-date net outflows over $1.5 billion, recent rapid redemptions explain the market swoon, and Bitcoin spot price fell below $70,000 on Friday, the lowest since August.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Can you can you finally answer for me once and for all are these following price or are they leading price?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f2af9efdc1b09cace5ab:f0ad9dda9fd8cdc8595f3a00887b8ced69fcd09444eb2366c913aa13578463bb:d23f51f9abbba8496d8d7e6085a463e30cbbda112c0242d7584eaefefbee6bd2:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f2af9efdc1b09cace5ab",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "on October 6th this year",
+     "inside": true
+    },
+    {
+     "text": "October 6th last year",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The NASDAQ peaked on October 6th this year and Bitcoin peaked on October 6th last year.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I started making that call. So it's removed. Reiterate some of my calls. 2018 I called for Bitcoin to drop a zero from 10,000 dropped to 3000.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f2af9efdc1b09cace5ab",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the stock market / the market",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this year",
+     "refers_to": "2026",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "last year",
+     "refers_to": "2025",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "October 6th",
+     "refers_to": "the date October 6th",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "on October 6th this year",
+     "inside": true
+    },
+    {
+     "text": "October 6th last year",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The market (or stock market) peaked and the NASDAQ peaked on October 6th this year, while Bitcoin peaked on October 6th last year.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Do you see this as a as a sustainable recovery or as a dead cat bounce before a prolonged bear market for stocks? Much more. The latter I don't know how long it's going to last",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9b6a6243b23d830d9b5d:db6255932924dd0aecdce8562889976f90afcac88e71ed20120f81f718421339:e6d3609059cce40b0f115dc837a5ed8b16e8ef7609e6647f39ff4137c665ac28:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9b6a6243b23d830d9b5d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "their",
+     "refers_to": "projects that changed to Bitcoin L2 only to raise capital",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Certain projects are using the Bitcoin label to raise money without pure intent while the speaker's intent is to preserve Bitcoin as an immutable fixed-supply asset for future users without a voice so it can enable long-term planning.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Mine is to look after Bitcoin for, you know, to do whatever I can to make it live as long as possible for all the cunts, bottom my language, sorry, for all the cats that are, that don't have a voice yet.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ca3ba862f70a2bc31abb:bc6a858b8432074ca9561dd687568dbe6081f26cf2ce303853cd0280dc5d460f:ccb8781e44fae02938a317ac5176025fc84b6fd319c5706e26d2ebcc5eb16a3a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ca3ba862f70a2bc31abb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in one week from today",
+     "inside": true
+    },
+    {
+     "text": "until then",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "We will see you in one week from today hopefully with Bitcoin at a higher price than it is now but until then remember crypto is risky and you can lose what you put in.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "All right, Bankless Nation, we will see you in one week, one week from today.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "ca3ba862f70a2bc31abb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the speaker/host and the Bankless team or co-hosts",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "you",
+     "refers_to": "Bankless Nation / the audience",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "today",
+     "refers_to": "the show date, 2026-11-13",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin's price",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the current time/price at the time of speaking",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "then",
+     "refers_to": "the time one week from today when they will see the audience again",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "you",
+     "refers_to": "Bankless Nation / the audience",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "what",
+     "refers_to": "the money or crypto that the audience puts in",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in one week, one week from today",
+     "inside": true
+    },
+    {
+     "text": "until then",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The host signs off to Bankless Nation, says they will see them in one week, hopes Bitcoin will be at a higher price then, and warns that until then crypto is risky and you can lose what you put in.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "All right, Bankless Nation, we will see you in one week",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "709daeb6d66aabbeaa63:d30d2127ab088b725677ff7921b5bc111886009c4083cfa3e5548f14ec1e2313:620b9ac074e3f1d7f3e423a4fe33cd2c373b759a093e069ee246711459764d04:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "709daeb6d66aabbeaa63",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they're",
+     "refers_to": "the companies or Bitcoin CO behind the upront change",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "the companies pursuing the Bitcoin treasury route",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the bitcoin treasury route/tokenization system",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "down the track",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "What they are actually trying to do is open capacity but the real goal down the track is to tokenize stocks via the bitcoin treasury route turning this into an NFT tokenization system.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "I know it's 100% with absolute certainty it's true. This is the well the whole play was we do data we can do the crypto",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7fd5c5660dbfdec4b1f8:6194df2c5c36760f01ee5d70bea8db820816d585483e015de2e6e7e80fe72430:2e0d66af9d5cbc62c949fe9391c4ff35803ee27bc2ca7361278913da06e809f4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7fd5c5660dbfdec4b1f8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "This",
+     "refers_to": "the K-shaped economy with market gains, hot inflation, and rising household debt/delinquencies",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "asset holders (speaker and similar Bitcoin owners)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "our",
+     "refers_to": "asset holders (speaker and similar Bitcoin owners)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The current economy is a K-shaped one where asset holders like the speaker would prefer Bitcoin to have performed better recently than it has.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Walker?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a693c226f9e5fd697418:b89a3605f2528b1683b3ddcfc7a5f2b146d33e70378ec0af87106c20f14b7749:ef434bc15421a453d1ae5e93d5461e08a375d7153df7815cd7ef2c2e2012389b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a693c226f9e5fd697418",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin trading below $70,000",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if that is an indication of anything",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Gold stands at $3,800 with little change while Bitcoin trades below $70,000 per coin, if that indicates anything about markets.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "A CHECK ON MARKETS. WE HAVE FUTURES POINTED HIGHER TODAY.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "a693c226f9e5fd697418",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin being below $70,000 a coin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if that is an indication of anything",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Gold is at 3,800 change and Bitcoin is below $70,000 per coin, which may be an indication of something.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "MICHAEL, THANK YOU SO MUCH. MICHAEL BALL WILL BE BACK WITH US LATER. THOSE ARE YOUR MORNING MOVERS, VONNIE.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

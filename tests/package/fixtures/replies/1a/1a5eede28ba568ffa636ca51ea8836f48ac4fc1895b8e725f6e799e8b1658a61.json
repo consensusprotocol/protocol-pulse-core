@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d274df7d5224caaa54f57ecac4af6f950b4a89e6757fee454e506e590a06d2d3",
+ "result": {
+  "text": "And out just ever so slightly those interest rate expectations. Gold, 3,800 and change, and Bitcoin, well, that's below $70,000 a coin if that is an indication of anything. All right, let's get a look-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.34,
+    "text": "And out just ever so slightly those interest rate expectations. Gold, 3,800 and change, and Bitcoin, well, that's below $70,000 a coin if that is an indication of anything. All right, let's get a look-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 0.2,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.44,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ever",
+    "start": 0.86,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 1.06,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "slightly",
+    "start": 1.24,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 2.04,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interest",
+    "start": 2.42,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate",
+    "start": 2.68,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expectations.",
+    "start": 2.86,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Gold,",
+    "start": 3.96,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "3,800",
+    "start": 5.24,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.8,
+    "end": 5.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change,",
+    "start": 5.92,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.38,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.52,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 7.02,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 7.16,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 7.38,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$70,000",
+    "start": 7.72,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.9,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coin",
+    "start": 9.0,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 9.36,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.48,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.84,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 9.92,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indication",
+    "start": 10.02,
+    "end": 10.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 10.56,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anything.",
+    "start": 10.72,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "All",
+    "start": 11.66,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right,",
+    "start": 11.74,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 11.88,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 12.06,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.18,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look-",
+    "start": 12.24,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.44
+ },
+ "usd": 0.002488,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-13T18:07:17Z"
+}

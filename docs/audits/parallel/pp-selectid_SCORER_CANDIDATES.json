@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-13T17:22:46+00:00",
- "build": "ledger_20261113_172217",
+ "generated_at": "2026-11-13T18:33:30+00:00",
+ "build": "ledger_20261113_183302",
  "kind": "moments",
  "candidates": [
   {
@@ -319,30 +319,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "200a76f4b8c47098ed10",
-   "video_id": "WghTi5Ep4ro",
-   "channel": "Bitcoin Mechanic",
-   "duration": 15.46,
-   "text": "And Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to... change in relation to that.",
-   "text_sha256": "5d0245747ed96a300fba228adf6330eb74db8407b1007b4f014adaa813e4b58f",
-   "trimmed_leading": null
-  },
-  {
    "pid": "2128c2a13781d829e372",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
    "duration": 9.46,
    "text": "And I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
    "text_sha256": "c8f9b6d53c9d685eab56ef3b1410221447e05a43de843e60297cac5546d13421",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "2a56cf7819d2557cfffc",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 14.6,
-   "text": "And really, like, I'm not seeing anything in particular in Bitcoin that is necessarily showing me that this is a Bitcoin problem in particular. Like, it's not really... There's no real big bad news in Bitcoin.",
-   "text_sha256": "5126badbf9ce21564898b37f1bae562a57d39cbfb17034f137ff251e66409f33",
    "trimmed_leading": null
   },
   {
@@ -445,24 +427,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "2f68e5280cc16138df28",
-   "video_id": "acxge3Orsv8",
-   "channel": "What Bitcoin Did",
-   "duration": 14.09,
-   "text": "So we could never realize, by the way, this is an interesting thing. When Bitcoin started, we never realized. the problems of inflation. People thought about it and stuff, but we'd never felt it. yeah it's only now, 2026, where we're like, way like our country's fucked too.",
-   "text_sha256": "1c9494a3f689575b57feb02c7c9c37598bdbcffb5de136387e8df400587dff27",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "36a956726efa1bdb5bec",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 16.72,
-   "text": "So I would the way I would propose or thinking about Bitcoin is in the short order, we can go down or up 10 to 20%. I think we naturally hang out there. I think we probably did bottom out in the summer. But it's not until there's real market forces that move with the liquidity cycle that we will see this.",
-   "text_sha256": "0a15f3e5178c2d3344e6dd6a291541b280dd6abad936ced0d2b9d287ab3b35ea",
-   "trimmed_leading": null
-  },
-  {
    "pid": "6cb7f3e130127c6463f3",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
@@ -505,15 +469,6 @@
    "duration": 18.08,
    "text": "And it's interesting, too, in that way, because I think part of it, You know, because in Bitcoin, you can get canceled for opinions on every damn thing. Like, I feel like I was getting railed against by Bip 1 -10ers when I said one thing. And then I was getting railed against quartards when I said the next thing.",
    "text_sha256": "8afe98ec6132029719a49495cd394b4b45d7547a57b53b1631d2c30d5ead4b25",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c8eb0aab13c9782495cd",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 11.16,
-   "text": "But looking at the liquidations, again, the liquidation chart isn't even that crazy. It looks in the last 24 hours, about $282 million got liquidated. Long's got liquidated in Bitcoin.",
-   "text_sha256": "dcea733241572ac479fba8bea5b72c8202d0bb8ac7399749439785ff3cb59572",
    "trimmed_leading": null
   },
   {
@@ -967,30 +922,12 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "200a76f4b8c47098ed10~trim",
-   "video_id": "WghTi5Ep4ro",
-   "channel": "Bitcoin Mechanic",
-   "duration": 15.3,
-   "text": "Bitcoin might be great for savings, but it doesn't make your salary higher because we don't live on a Bitcoin standard. Even if you get paid in Bitcoin, if you're getting paid $10,000 a month, that $10,000 worth of Bitcoin is going to... change in relation to that.",
-   "text_sha256": "19a6760de431a9a48c33ca3062d1eb1603f2eed7e13b78e6f9018004bffdfca7",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "2128c2a13781d829e372~trim",
    "video_id": "OGI3nIsnXF8",
    "channel": "Digital Asset News",
    "duration": 9.4,
    "text": "I know people say, well, that's not what Bitcoin is, really. Bitcoin is essentially gold 2.0. And that's pretty much it. No one's using it for peer -to -peer transactions.",
    "text_sha256": "4f4d1bb8f2cd7ff31799138fd125691af179211f9c3cfef852e769f7dece2390",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "2a56cf7819d2557cfffc~trim",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 14.56,
-   "text": "really, like, I'm not seeing anything in particular in Bitcoin that is necessarily showing me that this is a Bitcoin problem in particular. Like, it's not really... There's no real big bad news in Bitcoin.",
-   "text_sha256": "22de68399c65c38292b911fa10b1bfdbc185e48fd8aca1347bb27f1995200a74",
    "trimmed_leading": "And"
   },
   {
@@ -1093,24 +1030,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "2f68e5280cc16138df28~trim",
-   "video_id": "acxge3Orsv8",
-   "channel": "What Bitcoin Did",
-   "duration": 14.05,
-   "text": "we could never realize, by the way, this is an interesting thing. When Bitcoin started, we never realized. the problems of inflation. People thought about it and stuff, but we'd never felt it. yeah it's only now, 2026, where we're like, way like our country's fucked too.",
-   "text_sha256": "2e4b09d32055f267ace70660881243102c78b9cf13541d50cf94f4861f7d1a76",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "36a956726efa1bdb5bec~trim",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 16.7,
-   "text": "I would the way I would propose or thinking about Bitcoin is in the short order, we can go down or up 10 to 20%. I think we naturally hang out there. I think we probably did bottom out in the summer. But it's not until there's real market forces that move with the liquidity cycle that we will see this.",
-   "text_sha256": "ad9ca74c3e39f920270e1785eda0c7a1853fe5a03c9c815a7a12f0d9807cb867",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "6cb7f3e130127c6463f3~trim",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
@@ -1154,15 +1073,6 @@
    "text": "it's interesting, too, in that way, because I think part of it, You know, because in Bitcoin, you can get canceled for opinions on every damn thing. Like, I feel like I was getting railed against by Bip 1 -10ers when I said one thing. And then I was getting railed against quartards when I said the next thing.",
    "text_sha256": "1ae63e824119f1e8a8c379a560db45976cc5953961d96b1431bd6512c8a68326",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "c8eb0aab13c9782495cd~trim",
-   "video_id": "WTCwyxW-lHk",
-   "channel": "Simply Bitcoin",
-   "duration": 10.98,
-   "text": "looking at the liquidations, again, the liquidation chart isn't even that crazy. It looks in the last 24 hours, about $282 million got liquidated. Long's got liquidated in Bitcoin.",
-   "text_sha256": "6f6fffc4fcdcd2f7673758f988a4b574a2b8d030dcec15bddb73d6eb6441cb65",
-   "trimmed_leading": "But"
   },
   {
    "pid": "d1c65df64564079537d5~trim",

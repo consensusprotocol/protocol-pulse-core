@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2beae86367d3e0d54173da45a320c68e1357e5d79b4ff92ad84e3beb22e777fa",
+ "result": {
+  "text": "here, unfortunately, with our beloved Bitcoin ETFs, right? So Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August. I mean, it's so funny",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.94,
+    "text": "here, unfortunately, with our beloved Bitcoin ETFs, right? So Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August. I mean, it's so funny"
+   }
+  ],
+  "words": [
+   {
+    "text": "here,",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "unfortunately,",
+    "start": 0.12,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 0.74,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 0.92,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "beloved",
+    "start": 1.14,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.98,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs,",
+    "start": 2.6,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.72,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.94,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.12,
+    "end": 4.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 4.44,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.78,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 4.88,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 5.08,
+    "end": 5.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 5.32,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "1.5",
+    "start": 5.62,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 6.28,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.68,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "net",
+    "start": 6.8,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outflows",
+    "start": 7.02,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 7.68,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.82,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 7.96,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Recent",
+    "start": 8.82,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rapid",
+    "start": 9.14,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "redemptions",
+    "start": 9.42,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "explain",
+    "start": 9.96,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.26,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 10.34,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "swoon.",
+    "start": 10.72,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.54,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 11.92,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 12.14,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fell",
+    "start": 12.42,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 12.58,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "70,000",
+    "start": 12.96,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 13.42,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Friday,",
+    "start": 13.56,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.94,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lowest",
+    "start": 14.08,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 14.66,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "August.",
+    "start": 15.16,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.64,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 15.72,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 16.48,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 16.6,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funny",
+    "start": 16.78,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.97
+ },
+ "usd": 0.003394,
+ "seconds": 1.07,
+ "recorded_at": "2026-11-13T18:07:23Z"
+}
