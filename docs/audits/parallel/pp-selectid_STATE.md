@@ -1,4 +1,46 @@
-17:34 ET: 13949b7c HELD AT THE RENDER'S PREPARE STAGE (17:23 ET, run pinned_20261113_221758). The edge-word check failed for the hook and clip_01. Both are the RENDER's edge placement; ruling 17 passed on my texts. HOOK: the speaker says '... re-denominated, or [130 ms pause] reissued.'; the sentence law ended the cut at that pause, so the clip ends on 'or'. CLIP_01 (CZ): the IN cut landed in dead air 3.47 s before 'I' (4.58 s with no words). The integrator proposes render-side fixes to you (OUT never before the last word's decoded end; IN never more than a set lead before the first onset) and will not re-render it as it stands. THE LIVERA CANDIDATE OPENS ON THE SAME HOOK SPAN (82473bb, 216.054-228.674), so it would hold the same way at the render until that is ruled: trying it now cannot ship. QUESTION: RULE THE RENDER EDGE FIX (THEN 13949b7c RE-RENDERS AS SEALED), OR TRY THE LIVERA CANDIDATE ANYWAY (ITS TAKEAWAY WRITTEN ALONE; THE SAME HOOK HOLD EXPECTED)? DONE 17:34 ET: the takeaway-alone / title change (17:02, 17:20) is committed. Audit 1735, 2 cycles, no P0 or P1. A line-up whose takeaway alone failed gets up to two writes of the takeaway alone, the second on the other writer model; a failed title gets the same two writes, then is held; the full write's prompt and the takeaway-alone prompt carry the two refused patterns. NEXT: ruling 72's precheck at the pin stage; no pin is sealed without it. The pool has no other hook >= 4. SPEND (ruling 48): $8.08 of $12.00.
+17:59 ET: ORDER 18:01 RECEIVED. Ruling 73 is with the integrator; 13949b7c re-renders as sealed once it is merged. Its texts are right below this line. The LIVERA CANDIDATE gets prepared and is NOT sent: its takeaway written alone, ruling 72's pre-check, its pin sealed and held. Ruling 72's pre-check is in its audit (1744, cycle 1 done: grok and qwen SHIP yes; glm's two real findings are fixed); the commit comes before the candidate runs. QUESTION: THE LIVERA CANDIDATE OPENS ON 13949b7c'S HOOK SPAN (DcUbBkyeh9M 216.054-228.674). IF 13949b7c PASSES AND SHIPS, SENDING THE CANDIDATE TOO SHIPS THE SAME HOOK TWICE (L-p: a delivered span is out). IS IT A FALLBACK ONLY (SENT IF 13949b7c FAILS ELSEWHERE), OR DO YOU WANT BOTH? I hold it until you say. SPEND (ruling 48): $8.08 of $12.00; I stop and tell you at $10.
+
+### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
+
+**HOOK.** Simply Bitcoin, DcUbBkyeh9M, 216.054-228.674 s.
+
+- Text: "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+- Speaker: unknown (no address by name, no self-introduction, no first-person role).
+- Visual (grok-4.7), 0 flags:
+  - third person: none ("No person other than the speaker appears as a still, photo, or graphic in any frame, and no on-screen text names anyone.");
+  - on-screen text: 'Bitcoin Genesis Block' and 'Raw Hex Version' (a title card over a hex graphic; asserts nothing beyond the words);
+  - lower third: none.
+
+**CLIP 1.** Yahoo Finance, MqVqfEDXgLo, 937.971-957.291 s (CZ answering Brian Sozzi).
+
+- Text: "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+- Speaker: unknown (the caption turn opens at the clip's first words, but no name is addressed).
+- Visual, 0 flags:
+  - third person: none ("Only the live speaker is visible ...");
+  - on-screen text: none;
+  - lower third: none.
+
+**CLIP 2.** Altcoin Daily, HWuMai_mAug, 1691.139-1698.069 s.
+
+- Text: "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+- Speaker: unknown ('Ben Cowen' is in the episode title, but no 3-word basis in the clip or around it).
+- Visual, 0 flags:
+  - third person: none ("Both people visible are live video participants ...");
+  - on-screen text: none;
+  - lower third: none.
+
+**LINES.**
+
+- Bridge: none.
+- Takeaway (after clip 2): "Durability matters more than speed. A market that survives every cycle earns trust without asking. That is real maturation."
+- Title: "A maturing asset outlasts the tech trade"
+- Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
+- Runtime estimate: 61.77 s. All 19 gates PASS.
+
+
+## 17:59 ET: 13949b7c held at prepare (line 1 as it stood at 17:34)
+
+> 17:34 ET: 13949b7c HELD AT THE RENDER'S PREPARE STAGE (17:23 ET, run pinned_20261113_221758). The edge-word check failed for the hook and clip_01. Both are the RENDER's edge placement; ruling 17 passed on my texts. HOOK: the speaker says '... re-denominated, or [130 ms pause] reissued.'; the sentence law ended the cut at that pause, so the clip ends on 'or'. CLIP_01 (CZ): the IN cut landed in dead air 3.47 s before 'I' (4.58 s with no words). The integrator proposes render-side fixes to you (OUT never before the last word's decoded end; IN never more than a set lead before the first onset) and will not re-render it as it stands. THE LIVERA CANDIDATE OPENS ON THE SAME HOOK SPAN (82473bb, 216.054-228.674), so it would hold the same way at the render until that is ruled: trying it now cannot ship. QUESTION: RULE THE RENDER EDGE FIX (THEN 13949b7c RE-RENDERS AS SEALED), OR TRY THE LIVERA CANDIDATE ANYWAY (ITS TAKEAWAY WRITTEN ALONE; THE SAME HOOK HOLD EXPECTED)? DONE 17:34 ET: the takeaway-alone / title change (17:02, 17:20) is committed. Audit 1735, 2 cycles, no P0 or P1. A line-up whose takeaway alone failed gets up to two writes of the takeaway alone, the second on the other writer model; a failed title gets the same two writes, then is held; the full write's prompt and the takeaway-alone prompt carry the two refused patterns. NEXT: ruling 72's precheck at the pin stage; no pin is sealed without it. The pool has no other hook >= 4. SPEND (ruling 48): $8.08 of $12.00.
 
 ## 17:29 ET: the 17:20 order and the conflict (line 1 as it stood)
 
