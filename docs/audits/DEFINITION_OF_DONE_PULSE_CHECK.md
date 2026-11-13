@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:06 E-FAIL-081 A/B: THE DECODER IS THE CAUSE, NOT THE WINDOW. Same audio, the run's own 39 s acquired window of mKNAcOFMYD4 (runs/pinned_20261113_184605/sources/mKNAcOFMYD4.mp4):
+- The WORD PASS's verbatim decode (word_pass_worker.decode_verbatim: faster-whisper 1.2.1 distil-large-v3 float16 batched16 lang=en, run 14:05 on GPU0 under the lease):
+  - reads 'I punch you my code' and 'And that's why we Bitcoin.' (both of the pin's errors);
+  - also drops the speaker's other repeats: 'it it's', 'of of', 'and and', 'and then'.
+- The RENDER's decode (select_passages._whisper_transcribe: large-v3, beam 5, unbatched) reads 'punch in my code' and "that's why that's why", and keeps every repeat. scribe_v1 agrees with it.
+- WHY THEY DISAGREE, ONE LINE: distil-large-v3 is a distilled model that writes a cleaned-up transcript (it drops repeats and disfluencies and is less exact on short function words); large-v3 at beam 5 writes what was said. So on identical audio the two decoders disagree, and ruling 17 compares the pin's text with large-v3's.
+- SHOULD THE WORD PASS SIMPLY USE THE RENDER'S DECODER FOR THE WINDOW TEXT? Not for the approved text. Ruling 68's pre-check gives that text from the render's own decoder on the render's own acquisition window, which is exact. Switching the word pass to large-v3 beam 5 would remove the model cause but not the window difference, at several times the GPU1 time per window (to be measured with ruling 68). The word pass's distil text stays the SELECTION read, where its speed (about 49x realtime batched) pays.
+- Result file: /tmp/claude-1000/-home-ultron-protocol-pulse/a288b50a-7284-41cb-a419-afb572273e11/scratchpad/e081/ab_result.json. A first attempt on GPU1 (13:53-14:03) never got the GPU1 lease (stage_broadcast_service holds it for minutes at a time) and was stopped by its own 600 s timeout.
+- GPU0 NOTE, L-r: an Ollama gemma3:27b runner (PID 3943029, 19.2 GB) loaded onto GPU0 at about 14:00 ET without the GPU0 lease, caller not yet identified. It expired at 14:05:40, and the A/B's swap_to waited it out (30.9 s). If it is resident when the pin arrives, the render's preflight gpu0 check (needs 23424 MiB free) would hold.
+
 ## 13:48 HOLD AT STAGE PINNED (ruling 17: lock text not adjudicated). The builder's pin ledger_20261113_183302 (seal 61fd55d013b3e190), run runs/pinned_20261113_184605, run_fresh exit 3 at 13:48:33 ET. Not delivered; nothing published.
 - Clip 3, Scott Melker mKNAcOFMYD4 words 32-73: the pin's approved text differs from the run decode at 2 places, and at both the second recogniser reads what the run decoded:
   - 'punch in my code' (the pin: 'punch you my code');
