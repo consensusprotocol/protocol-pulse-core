@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:26 RULING 73 READY TO MERGE, AUDITED TWICE (batch 69; branch r73-cut-follows-lock 9599e54e, pushed). ONLY the medley reference's re-baseline ruling is outstanding.
+- Cycle 1's consensus (low, every accepted_cut path clamped into the ranges): FIXED.
+- Cycle 2's consensus (medium, 'an emptied IN range stays cuttable'): DISPROVED. The reviewers' exact example reproduces as cuttable False with the ruling-73 reason, and it is kept as a test.
+- Tests: test_ruling73 + test_lock_precheck, 33 passed.
+- MUST-FAIL: on the OLD sentence_law both of 13949b7c's spans fail (hook OUT 27.09 < 'reissued.' end 27.54; clip_01 IN 10.97, 3.47 s before 'I'); on the fix both pass.
+- The delivered-pins test asserts ruling 73 on every recomputed cut.
+- WHAT MOVES: unchanged from the 18:08 entry. Only the 'Bitcoin ... ever.' span's IN moves (the medley reference's hook +190 ms). The NEW first-pass reference (0c68b589) does not move.
+- On a re-baseline ruling: the medley reference's expectation is updated as ruled, then ruling 73 merges with both regressions green, the pre-check restarts, and the builder gets the new decoder_sha and rules ('ruling 17 + ruling 72 + ruling 73').
+
 ## 18:22 PBX APPROVED AND THE ORCHESTRATOR PUBLISHED pin 0c68b589 (run pinned_20261113_211048) as a YouTube Short at 18:10:52 ET: https://www.youtube.com/watch?v=9Sj7PpFNeCA, 'No CEO. No Compromise. No Committee.' (YT_POST.json). PBX, 18:10, verbatim as relayed: "I just reviewed the video that passed at 5 o'clock and I'm genuinely impressed! Excellent work! ... Go ahead and publish that ... throw it up on YouTube". PBX posts X himself. The pipeline published nothing.
 - ORDER '18:20' 1, DONE: PROTECTED REFERENCE references/pulse_fresh_2026-11-13, tag ref-pulse-fresh-2026-11-13 (8a5bb9b1; the commit and the tag are on the remote).
   - 430 files under SHA256SUMS: the whole run, the frozen pin as PIN.json, PBX_VERDICT.md, YT_POST.json, TELEGRAM_DELIVERY.json. The records are tracked as the medley reference's are.
