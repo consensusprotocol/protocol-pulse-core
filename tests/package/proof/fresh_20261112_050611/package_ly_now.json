@@ -191,6 +191,51 @@
     "replayed": false
    },
    "medley_ok": true
+  },
+  {
+   "angle": 2,
+   "text": "Bitcoin builds its own economic system that no government can control.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  },
+  {
+   "angle": 3,
+   "text": "No one controls Bitcoin's value; it is set by free individual choice and open market forces.",
+   "lineup": [
+    "3b3050f4afd6f3c011e7",
+    "0c751a33022013fb3086",
+    "01154f025a00f40132a7"
+   ],
+   "supply_exception": null,
+   "attempts": [],
+   "medley": {
+    "through_line": "Bitcoin has no central authority to seize wealth so holding is voluntary, but its price and appeal fluctuate with investor sentiment and interest rates.",
+    "clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "joins": {
+     "hook -> clip_01": {
+      "followable": false,
+      "why": "shifts from voluntary holding to bull/bear sentiment with no referent link"
+     },
+     "clip_01 -> clip_02": {
+      "followable": true,
+      "why": "continues reasons for avoiding exposure, now via rates and risk"
+     }
+    },
+    "flagged": [
+     "hook -> clip_01"
+    ],
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "measured": true,
+    "replayed": false
+   },
+   "medley_ok": false,
+   "why": "the clips alone have no through-line a viewer can state (or it was not measured)"
   }
  ],
  "unusable": {
@@ -254,23 +299,23 @@
   "second_pass": {
    "55722e7365cc43558d7e": "not cuttable at an edge (ruling C / 7)",
    "3b3050f4afd6f3c011e7": "PASS",
-   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
-   "40ffa6e345a223d30429": "PASS",
-   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
    "c49cd35dfd86efb624e0": "L-v 2 FAIL",
    "f216541bd2f9e5eb672d": "PASS",
+   "316f66f81603ea55899a": "not cuttable at an edge (ruling C / 7)",
+   "5e38ec62aa36eae80132": "not cuttable at an edge (ruling C / 7)",
+   "40ffa6e345a223d30429": "PASS",
    "4f9d38e1d86556b36d9c": "PASS",
+   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
    "f91c4a6b4a5ea9388c32": "not cuttable at an edge (ruling C / 7)",
    "01154f025a00f40132a7": "PASS",
-   "5d5e163125435e85061a": "PASS",
-   "128b99b7a2487f58d3ba": "not cuttable at an edge (ruling C / 7)",
    "863cc95ab7c5e0c11482": "PASS",
    "5314289c424298d950c4": "PASS",
    "0c751a33022013fb3086": "PASS",
-   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
    "8055c5252b61b9639cbe": "PASS",
-   "876662b7dc4e961d47e1": "not cuttable at an edge (ruling C / 7)",
-   "c6cdbadebbac52e4e623": "L-v 2 FAIL"
+   "9c14612153405f8983e4": "not cuttable at an edge (ruling C / 7)",
+   "c6cdbadebbac52e4e623": "L-v 2 FAIL",
+   "5d5e163125435e85061a": "PASS"
   },
   "cuttable": 10
  },
@@ -336,19 +381,12 @@
   }
  ],
  "package": null,
- "why_none": "stopped after angle 1 of 3: 1135 s of the 720 s / $2.63 of the $3.00 (estimate) per-package budget (05:25 item 5, twice)",
- "budget_stop": {
-  "seconds": 1135.4,
-  "usd_estimate": 2.6306,
-  "angles_tried": 1,
-  "angles": 3
- },
- "seconds": 1135.4,
- "usd": 2.6306,
+ "seconds": 384.0,
+ "usd": 0.3474,
  "run": "fresh_20261112_050611",
- "usd_estimate": 2.6306,
- "usd_best_known": 0.2425,
- "code": "cf0dcaf5+eb79e9262e3a",
+ "usd_estimate": 0.3474,
+ "usd_best_known": 0.0138,
+ "code": "40938e34+34512053c5af",
  "chains": {
   "mine": [
    "heimdall:qwen/qwen3.8-27b"
@@ -391,12 +429,12 @@
    "elevenlabs_stt:scribe_v1"
   ]
  },
- "at": "2026-11-12 21:55:15 EST",
- "as_of": "2026-11-13T02:36:20.397772+00:00",
+ "at": "2026-11-12 22:20:28 EST",
+ "as_of": "2026-11-13T03:14:04.465084+00:00",
  "full": {
-  "est": 2.5672,
-  "best": 0.3062,
-  "model_s": 990.76,
-  "calls": 37
+  "est": 1.9701,
+  "best": 0.232,
+  "model_s": 849.62,
+  "calls": 35
  }
 }

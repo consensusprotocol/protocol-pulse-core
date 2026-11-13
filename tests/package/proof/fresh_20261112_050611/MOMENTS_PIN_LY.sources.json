@@ -1,0 +1,69 @@
+{
+ "schema": "pp.pin_sources/1",
+ "what": "Per-segment source facts for the integrator's option (c) (time-sensitive flag + source publish time in the caption). OUTSIDE the seal: the pin is unchanged. time_sensitive is package.time_sensitive(), the packager's own L-v 3 test (miner flag, a recency word, or a current-kind price in the clip's words).",
+ "pin": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+ "pin_sha256": "bbd09ab07dd09286515b1ad00bf46d73c62bf2e9a00874147559d22763d31be5",
+ "story_id": "moments-fresh_20261112_050611-41f29b1f",
+ "package_sha256": "41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70",
+ "universe": "fresh_20261112_050611",
+ "universe_now": "2026-11-12T05:06:13.234375Z",
+ "written_at": "2026-11-13T03:21:04Z",
+ "l_v3_limit_h": 24.0,
+ "segments": [
+  {
+   "label": "hook",
+   "moment_id": "f216541bd2f9e5eb672d",
+   "video_id": "wdk5JZ9hPzs",
+   "channel": "Natalie Brunell",
+   "start": 3218.14,
+   "end": 3221.64,
+   "time_sensitive": false,
+   "time_sensitive_why": {
+    "miner_risk_flag": false,
+    "time_words": [],
+    "current_price_mentions": []
+   },
+   "source_published_at": "2026-11-10T13:45:51Z",
+   "age_h_at_universe": 39.3,
+   "age_h_at_writing": 61.6
+  },
+  {
+   "label": "clip_01",
+   "moment_id": "4f9d38e1d86556b36d9c",
+   "video_id": "c1JGheQBPH4",
+   "channel": "What Bitcoin Did",
+   "start": 2403.23,
+   "end": 2422.07,
+   "time_sensitive": false,
+   "time_sensitive_why": {
+    "miner_risk_flag": false,
+    "time_words": [],
+    "current_price_mentions": []
+   },
+   "source_published_at": "2026-11-09T17:00:09Z",
+   "age_h_at_universe": 60.1,
+   "age_h_at_writing": 82.3
+  },
+  {
+   "label": "clip_02",
+   "moment_id": "b0b787f8a62d97d81dbb",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "start": 1826.54,
+   "end": 1843.48,
+   "time_sensitive": true,
+   "time_sensitive_why": {
+    "miner_risk_flag": true,
+    "time_words": [
+     "right now"
+    ],
+    "current_price_mentions": [
+     1400000.0
+    ]
+   },
+   "source_published_at": "2026-11-11T18:03:23Z",
+   "age_h_at_universe": 11.0,
+   "age_h_at_writing": 33.3
+  }
+ ]
+}

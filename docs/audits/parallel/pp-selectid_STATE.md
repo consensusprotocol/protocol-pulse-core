@@ -53,8 +53,8 @@ found the package. Both records are kept: package_ly_budget_stop.json and packag
 - **This order's spend:**
   - No budget was stated at 20:30. I capped this order's own ledger (tests/package/proof/SPEND_LY.json) at $40 by
     the estimate.
-  - Used: $22.92 by the estimate, which is $2.07 vendor-reported + $0.13 STT estimate. That includes the runs
-    restarted after the fixes below.
+  - Used: $23.26 by the estimate, which is $2.08 vendor-reported + $0.13 STT estimate. That includes the runs
+    restarted after the fixes below and the 22:14 as-of-now build.
   - The 4 audit cycles add about $3.0, at upper-bound prices.
 
 **The READY pin** (fresh_20261112_050611, angle "Bitcoin is the most undervalued asset because it is a global free
@@ -87,13 +87,22 @@ market outside government control"):
   - Writer: Heimdall deepseek-v4.1-flash. Every verdict: xai grok-4.20-0309-reasoning.
 - **RISK, for the orchestrator before rendering (L-v 3):**
   - clip_02 is flagged time_sensitive ("right now", a $1.4M gold-parity figure). Its source was published Nov 11
-    18:03 UTC: 16 h old at the universe's time (inside L-v 3's 24 h, so packaging allowed it). At a render tonight it
-    is about 33 h old.
+    18:03 UTC: 11.0 h old at the universe's time (the universe started 05:06 UTC = 00:06 ET Nov 12; inside L-v 3's
+    24 h, so packaging allowed it). At a render tonight it is about 33 h old.
   - Nothing in the deployed render path re-checks recency.
-  - I built the alternative with L-v 3 checked against tonight's clock (--as-of-now, package_ly_now.json): no package.
-    The budget stopped it after angle 1 (the angle call failed over to qwen after 11 min, and the 2 takeaway writes
-    failed COMMENTARY).
-  - Your call: render this pin, or have me re-run the as-of-now build with the budget lifted.
+  - The alternative with L-v 3 checked against tonight's clock (--as-of-now) gives NO package:
+    - the first live build was stopped by the budget after angle 1 (package_ly_now_budget_stop.json);
+    - a second live build at 22:14 ET, with that angle call recorded, tried all 3 angles (package_ly_now.json).
+      Angle 1's takeaways failed COMMENTARY twice and context once; angle 2 had no line-up; angle 3's clips alone
+      rated the hook 3.
+  - So the integrator's option (b) has nothing behind it.
+  - For option (c), the per-segment source facts are ready OUTSIDE the seal (the pin is unchanged):
+    tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.sources.json, schema pp.pin_sources/1. clip_02:
+    time_sensitive true, source_published_at 2026-11-11T18:03:23Z, 11.0 h at the universe, 33.3 h at 22:20 ET. The
+    hook and clip_01 are not time-sensitive.
+  - The integrator holds the DELIVERY (the render runs) until you choose: (a) deliver as is; (b) the as-of-now
+    alternative, now known to be empty; (c) carry the flag and publish time into the caption (their code, audited),
+    then deliver.
 - **NOTE (context step C, by ruling 3 a note, not STRONGER):** a viewer may take clip_02 as firmer than Livera's
   speculative tone in context. No words of the video raise it, and the clip alone already reads as certain.
 
@@ -125,7 +134,9 @@ pp-ingest's pipeline.ingest.ledger.best_unused_moments, tested. It does not supp
 - The live ledger held 2,063 moments from 228 videos at 20:28 ET. All have caption timing (yt_auto 1,883, yt_manual
   180), and 0 are on-screen eligible: eligibility "not_sentence_ready", law L-e needs a Whisper word record.
 - That word pass runs on GPU0, which this builder does not use.
-- The main store has no Whisper word record newer than 05:06 ET.
+- The main store's newest Whisper word record is from 01:13 ET Nov 12. It was written by the fresh_20261112_050611
+  run itself, which started 00:06 ET (05:06 UTC); all 11 videos with a word record after its start belong to that
+  universe.
 - So the newest universe that can be packaged is fresh_20261112_050611, tonight's.
 
 **Code** (pipeline/package.py, package_pin.py, providers.py; tests/package/test_medley.py, proof_ly.py,

@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.\"\nCLIP label=\"clip_02\" (on screen: Coin Bureau): \"Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin has no central authority to seize wealth so holding is voluntary, but its price and appeal fluctuate with investor sentiment and interest rates.\",\n  \"clips\": {\n    \"hook\": 3,\n    \"clip_01\": 5,\n    \"clip_02\": 4\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": false,\n      \"why\": \"shifts from voluntary holding to bull/bear sentiment with no referent link\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": true,\n      \"why\": \"continues reasons for avoiding exposure, now via rates and risk\"\n    }\n  }\n}",
+ "usage": {
+  "in": 632,
+  "out": 4025,
+  "usd_reported": 0.0107181
+ },
+ "usd": 0.103785,
+ "seconds": 27.9,
+ "recorded_at": "2026-11-13T03:20:28Z"
+}

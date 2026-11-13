@@ -23,4 +23,4 @@
 - Line-ups judged on the clips alone: 10; of those that passed, 0 had one join a viewer could not follow (the bridge offered).
 - Universes without a package because the per-package budget (05:25 item 5, twice) stopped the search before every angle was tried: 0 ; in a LIVE build: fresh_20261111_190259: a first live build stopped after angle 1 of 3: 869 s of the 720 s / $0.79 of the $3.00 (estimate) per-package budget (05:25 item 5, twice); a second live build (its own angle call) is the row above.
 - Per package (every reply its build used, cached or live; step A, a once-per-moment screen, excluded): 716 s of model calls mean, $1.22 estimate, $0.17 best known.
-- This order's ledger: $22.92 estimate; vendor-reported $2.0669 + unreported calls' estimate $0.13.
+- This order's ledger: $23.26 estimate; vendor-reported $2.0807 + unreported calls' estimate $0.13.
