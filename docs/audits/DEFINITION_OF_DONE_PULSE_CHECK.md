@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 01:01 GPU1 ORDER '22:50' ITEM 3 DONE: THE WEBSITE'S OLLAMA FALLBACK IS OFF GPU0 (8278f45a); THE BATCH IS ONE PIN.
+ITEM 3, the change: core/services/ai_service.generate_content_ollama asks the same model (deepseek-coder-v2:16b, the same options and 180 s timeout) through services/gpu_lease_client.chat_gpu1, loaded by its absolute path. It holds the GPU1 lease (a wait of up to 300 s), uses keep_alive 0, and confirms the unload. Every failure still raises, so the article chain moves to its next provider as before. Before, it posted to :11434 (GPU0) with no lease; the live site set no OLLAMA_URL.
+ITEM 3, verified live during the render:
+- 00:57 a forced call of the site's own fallback waited out the stage broadcast's lease, then held it as 'website article fallback (core ai_service)';
+- deepseek loaded on GPU1 (19.7 GB), answered 828 characters in 14.4 s, and unloaded: GPU1 503 MiB, nothing resident;
+- GPU0's process list was identical before and after (only the render, run_fresh PID 204562), and GPU0's Ollama stayed empty.
+ITEM 3, Waitress only was restarted: TERM 00:59:13 to PID 2272803; the crontab's own keeper line started PID 321797 at 01:00:03 with the canonical command; /health 200 at 01:00:35, / 200. The 01:00 article trigger may have found the site starting (one cycle). Audits batch 50, two cycles (one documentation-only consensus, implemented).
+THE BATCH (order '00:05'), the builder at 00:5x: tonight's supply gives ONE pin, #1 (1b4a63d0, rendering). Every rebuild had both delivered pins' spans and pin #1's out. 050611, 190259 and 013452 kept 4-6 moments past L-v 2 + CUTTABLE, but their line-ups fail the clips-alone check or do not fit. The ingest ledger's one clips-alone pass failed writer fidelity and then coherence. The builder's spend is $1.55 of $6. The next new medley needs NEW videos: the word-pass worker on GPU1 (item 5), next.
+Pin #1's delivery will carry the builder's sealed speakers. The change is built and audited (batch 49 x2; branch speaker-tags f3878290) and merges right after the run ends, before the delivery: the delivery does not check the code revision, and a merge during the run would change the pipeline tree it is bound to.
+
 ## 00:49 RULING 24 (a) MEASURED; RULING 26 (G9) FACTS, for the orchestrator to rule.
 24 (a), WHETHER THE VOICE SAYS 'LIVERA'. The medley's CLEAN sign-off stem (references/pulse_medley_2026-11-12/vo_audio/vo_signoff_pp2_v1_0f32f697d950.wav; ElevenLabs eleven_v4, voice cbQ4bUP6OYwI7yEUTYaM).
 - The second recogniser (scribe_v1), 3 decodes: '... and Stephan Livera.', '... and Stefan Livera.', '... and Stephan Livera.' The surname is LIVERA every time.
