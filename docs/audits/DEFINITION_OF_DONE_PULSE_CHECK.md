@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:36 ITEM 56 RESULT: THE SCORER AFFIRMS 0 OF 145. The builder's first 72 h candidates (ledger_20261113_145246: 93 untrimmed openers + 52 trimmed variants of 94 moments), event 'Pinned: bitcoin', scorer_sha f19aab6cc5cc, rated 10:17-10:35 ET, 0 errors. verdicts/verdicts_20261113T1516070000.json (= latest.json).
+- Affirmed: untrimmed 0 / 93; trimmed 0 / 52. No moment has an affirmed variant.
+- Scores: 1.0 x 77, 3.0 x 68 (none above 3.0; the bar is 3.5).
+- Faults: off_topic 75, ends_mid_thought 36, starts_mid_thought 28, other 6.
+- WHAT THIS MEASURES: the same judge, asked earlier, refuses this whole supply.
+  - The one render that asked it with a REAL headline also refused: run pinned_20261113_075638 (pin d2657bbe), event 'Pinned: Open code, rough weeks, small allocations'. Its two 'But ...' clips scored 3.0 / other each, below 3.5.
+  - CAVEAT, measured not guessed: 75 of 145 refusals are 'off_topic' under the pre-filter event 'Pinned: bitcoin'. A topic-free event may read as 'not this event' to the prompt ('off_topic when it does not state this event'). The 64 mid-thought faults do not depend on the event.
+- NEXT: a small sensitivity probe of the event (a labelled measurement, below), then the builder's first pin when it comes.
+
 ## 10:18 ITEM 56: THE PIN-STAGE SCORER IS RUNNING (merge d1254c99, audits batch 62 x2, pushed da063525); the builder told at once. tmux pipeline_pp_scorer: stand_alone_scorer.py serve --candidates <the builder's file>; scorer_sha f19aab6cc5cc; event 'Pinned: bitcoin'.
 - ONE CODE PATH: run_fresh.stage_validate now calls stand_alone.clip_scorer (its rate() moved there unchanged). opener / trimmed_opener read stand_alone.affirmed (score >= 3.5, fault != starts_mid_thought). The service calls the same two. A test proves the service's prompt equals validate's for the same passages and event.
 - THE EVENT (the open point, decided): before a line-up there is no headline. The pre-filter uses 'Pinned: bitcoin', validate's own event for a moments pin without a headline (its label is 'bitcoin'). Validate re-asks at render with the real angle, as now. The builder may send an EXACT request per line-up before sealing; byte-identical to validate, it is served from the same reply cache.
