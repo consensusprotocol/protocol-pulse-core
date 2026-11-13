@@ -76,10 +76,35 @@ def _passage_overlap(clip_a, clip_b):
 # R1: NO_QUESTION_HOOK
 # ==============================================================
 
+QUESTION_HOOK_JOIN = "hook -> clip_01"     # the join that follows the hook, as the packager names joins
+
+
+def question_hook_join(edl):
+    """Ruling 37 (orchestrator 2026-11-13 '03:42'): (ok, why) for the join that follows a question hook, from the
+    package's SEALED gate rows (moments_gates): the clips-alone verdict (gates.medley) measured, exactly PASS, not
+    replayed, its "flagged" a list WITHOUT that join; the blind coherence check (gates.coherence) exactly PASS, not
+    replayed. Anything else fails closed."""
+    gates = edl.get("moments_gates")
+    med = gates.get("medley") if isinstance(gates, dict) else None
+    coh = gates.get("coherence") if isinstance(gates, dict) else None
+    if not isinstance(med, dict) or med.get("status") != "PASS" or med.get("replayed") is not False \
+            or not isinstance(med.get("flagged"), list):
+        return False, "the clips-alone verdict is not on the pin (moments_gates.medley: PASS, live, with its flagged joins)"
+    if QUESTION_HOOK_JOIN in med["flagged"]:
+        return False, f"the clips-alone verdict flagged the join that follows it ({QUESTION_HOOK_JOIN})"
+    if not isinstance(coh, dict) or coh.get("status") != "PASS" or coh.get("replayed") is not False:
+        return False, "the blind coherence check did not pass (moments_gates.coherence: PASS, live)"
+    return True, (f"the clips-alone verdict passes the join that follows it ({QUESTION_HOOK_JOIN} not flagged) and the "
+                  f"blind coherence check passes")
+
+
 def rule_r1(edl):
     """Hook passage must be a statement, not a question.
     A passage that contains both a question AND an answer (ending on a statement)
-    is acceptable — the rule targets pure-question hooks only."""
+    is acceptable — the rule targets pure-question hooks only.
+    Ruling 37 (orchestrator 2026-11-13 '03:42'), moments packages only: a hook may end on a question when the clips-alone
+    verdict and the blind coherence check pass the join that follows it (question_hook_join); a question ending stays
+    refused for every non-hook clip. Every other EDL: unchanged."""
     hook = edl.get("hook", {})
     text = hook.get("text", "")
     if not text:
@@ -89,8 +114,18 @@ def rule_r1(edl):
     sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
     last_sentence = sentences[-1] if sentences else text
 
+    moments = edl.get("package_type") == "moments" and "moments_package_sha256" in edl
+    if moments:
+        asked = [f"clip_{c.get('index')}" for c in edl.get("clips") or []
+                 if isinstance(c, dict) and str(c.get("text") or "").rstrip().endswith("?")]
+        if asked:
+            return False, f"R1 FAIL (ruling 37): a question ending is refused for every non-hook clip: {asked}"
+
     # Check if the passage ENDS on a question (last meaningful sentence)
     if text.rstrip().endswith("?"):
+        if moments:
+            ok, why = question_hook_join(edl)
+            return ok, f"R1 {'PASS' if ok else 'FAIL'} (ruling 37): the hook ends on a question and {why}"
         # Pure question ending — fail
         return False, f"R1 FAIL: hook ends with question: '{text[:60]}...'"
 
