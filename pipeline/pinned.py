@@ -511,7 +511,8 @@ def build_edl(pin, acq, registry=None, log=print):
                    moments_package_pin_sha256=hashlib.sha256(json.dumps(mp, sort_keys=True).encode()).hexdigest(),
                    moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
                    moments_sources_30s_before=list(mp["sources_30s_before"]),
-                   moments_bridge=mp.get("bridge"))               # law L-y 2: the one bridge's record, read by R11
+                   moments_bridge=mp.get("bridge"),               # law L-y 2: the one bridge's record, read by R11
+                   moments_btc_screen=mp.get("btc_screen"))       # ruling 34: the miner's screen, read by validate
     overrides = build_vertical_overrides(hook, clips, registry)
     return edl, overrides, report
 

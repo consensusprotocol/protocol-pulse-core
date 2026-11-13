@@ -396,6 +396,25 @@ def stage_review(run):
     print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
 
 
+def moments_screen(edl):
+    """Ruling 34: (compiled screen or None, why) for a moments EDL. The miner's about-Bitcoin screen carried on the
+    pin (moments_package.btc_screen = {"pattern", "source"}, copied by pinned.build_edl as moments_btc_screen), only
+    for a moments package stand_alone_subject binds to the subject 'bitcoin'. Absent, malformed (not a str of at most
+    500 characters) or not compiling: None, so every segment must name Bitcoin, as before (never looser)."""
+    if "moments_package_sha256" not in edl or not stand_alone_subject(edl, {}):   # the story path: never a screen
+        return None, "not a bound moments package"
+    sc = edl.get("moments_btc_screen")
+    if sc is None:
+        return None, "the pin carries no btc_screen: every segment names Bitcoin"
+    pat = sc.get("pattern") if isinstance(sc, dict) else None
+    if not isinstance(pat, str) or not pat.strip() or len(pat) > 500:
+        return None, f"btc_screen malformed ({type(sc).__name__}): every segment names Bitcoin"
+    try:
+        return re.compile(pat, re.I), f"the pin's btc_screen ({sc.get('source') or 'source not stated'})"
+    except re.error as e:
+        return None, f"btc_screen does not compile ({e}): every segment names Bitcoin"
+
+
 def stand_alone_subject(edl, story):
     """The words every segment must use (stand_alone.subject_terms). A moments-first package (law L-q; pp-selectid
     REQUESTS R7 item 4, 'its subject for a Bitcoin package is Bitcoin'): its pin label, never its written title (the
@@ -464,15 +483,22 @@ def stage_validate(run):
         with open(os.path.join(run.dir, "passages.json")) as f:
             story = json.load(f).get("story") or {}
     subject = stand_alone_subject(edl, story)
-    sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
+    screen, screen_why = moments_screen(edl)                            # ruling 34: moments packages only
+    sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen)
+    sa["screen_why"] = screen_why
     run.prov["stand_alone"] = sa
     for r in sa["rows"]:
         print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
               f"topic: {r['topic']['why']}")
+    if "medley_names_bitcoin" in sa:
+        print(f"  STAND_ALONE medley: [{'PASS' if sa['medley_names_bitcoin']['pass'] else 'FAIL'}] "
+              f"{sa['medley_names_bitcoin']['why']} | screen: {screen_why}")
     if not sa["ok"]:
         raise Hold("stand-alone/topic: " + "; ".join(
-            f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
-            for r in sa["rows"] if not r["pass"]) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
+            [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
+             for r in sa["rows"] if not r["pass"]]
+            + ([f"medley: {sa['medley_names_bitcoin']['why']}"] if not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
+               else [])) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
 
     # layout compatibility: approved channels use tested crop; pending channels
     # use the existing safe letterbox fallback. Unknown channels still fail closed.
