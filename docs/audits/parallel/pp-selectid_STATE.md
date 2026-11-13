@@ -1,4 +1,4 @@
-BLOCKED ON SPEND (06:36 ET): every build now fails step A with SpendLimit. The builder's own cap on this order's ledger ($40 by the price-table estimate, set at 20:30 Nov 12 when no budget was stated) is reached: $39.49 estimate, which is $3.46 vendor-reported (+ $0.29 STT estimate). YOUR RULING: a running total for these builds (see the first section below). Meanwhile 45 + 44 and the item-42 cut fix are built and go through their audits.
+BLOCKED ON SPEND (06:36 ET): every build now fails step A with SpendLimit. The builder's own cap on this order's ledger ($40 by the price-table estimate, set at 20:30 Nov 12 when no budget was stated) is reached: $39.49 estimate, which is $3.46 vendor-reported (+ $0.29 STT estimate). YOUR RULING: a running total for these builds (see the first section below). Meanwhile 45 + 44 and the item-42 cut fix are built and go through their audits. Item 42 also needs your yes/no from 05:44 (seal a trimmed clip with the clip scorer's verdict pending at the render).
 
 ## 06:36 ET: BLOCKED ON SPEND: the 06:31 build failed step A on the builder's own cap; your ruling is needed
 
@@ -51,6 +51,17 @@ Record: tests/package/proof/ledger_20261113_104817 (05:48, code 1d928276). The 0
     onset on the audio as cut (trimmed_onset).
   - The fix mirrors those functions verbatim at the pin stage. It is being built now, and no build uses it before its
     2-cycle audit.
+- **The fix, measured (06:42 ET, before its audit):** the render's functions, copied verbatim, on the two cleared
+  variants' own L-v 2 windows:
+  - "So MSCI didn't force any Bitcoin selling this week..." (Coin Bureau): PASSES (a). The cut sits in the measured
+    pause after "So"; the audio as cut opens in quiet (first onset 130 ms, 83 ms fade). It could even open the medley.
+  - "So if you look at the average income..." (What Bitcoin Did): stays out. "So" runs straight into "if" (60 ms, no
+    measured pause): the render's own rule says it cannot be cut cleanly.
+- **Correction to the line above: even with the fix, no trimmed clip can be sealed yet.** Ruling 33 (b), the render's
+  clip scorer, runs only on GPU0, which this stage may not use. So the pin stage keeps (b) STRICT
+  (TRIM_SCORER_PENDING = False, as committed at 1d928276): a line-up with a trimmed clip fails STAND_ALONE and is
+  never built. **Your yes/no on my 05:44 question decides it:** may a trimmed clip be sealed with the scorer's
+  verdict PENDING AT THE RENDER (which holds the pin at validate, before any cut, if the scorer refuses)?
 - **One flag (K2), nothing changed:**
   - One of the 36 ("Now, this has been the major target zone...") was left out by the TOPIC rule only, not by its
     opener.
