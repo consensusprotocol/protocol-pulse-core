@@ -1,0 +1,618 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 5c3e9e7b..04c95585 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -466,18 +466,7 @@ def stage_validate(run):
+     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
+     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
+     import stand_alone
+-
+-    def rate(passages):
+-        import story_semantics as sm
+-        llm = sm.LocalLLM().start()
+-        try:
+-            ratings, err = sm.rate_passages(llm, {"underlying_event": edl.get("angle") or edl.get("topic", "")},
+-                                            passages)
+-        finally:
+-            llm.stop()
+-        if err:
+-            raise RuntimeError(f"clip scorer reply unparseable: {err}")
+-        return ratings
++    rate = stand_alone.clip_scorer(edl.get("angle") or edl.get("topic", ""))   # one code path with the pin stage
+     story = {}
+     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
+         with open(os.path.join(run.dir, "passages.json")) as f:
+diff --git a/pipeline/stand_alone.py b/pipeline/stand_alone.py
+index 76bb890e..0d3440f6 100644
+--- a/pipeline/stand_alone.py
++++ b/pipeline/stand_alone.py
+@@ -37,6 +37,33 @@ def _words(text):
+     return canon.canon_tokens(text, heads=True)
+ 
+ 
++def affirmed(score, fault):
++    """The clip scorer's affirmation, the ONE threshold (CLIP_MIN_SCORE, no starts_mid_thought fault): opener,
++    trimmed_opener and the pin-stage scorer (stand_alone_scorer.py, order '09:58' item 56) all read it here."""
++    return score is not None and score >= CLIP_MIN_SCORE and fault != "starts_mid_thought"
++
++
++def clip_scorer(event, llm=None):
++    """The clip scorer stage_validate asks: rate(passages) -> {pid: (score, reason, fault)} by
++    story_semantics.rate_passages on the GPU0 LocalLLM (gemma3:27b, temperature 0), with {"underlying_event": event}.
++    ONE code path for the render's validate and the pin-stage scorer (order '09:58' item 56). Without `llm` it starts
++    the model and stops it after the call (validate's way); with one, the caller owns its life. An unparseable reply
++    raises (no verdict, never invented)."""
++    def rate(passages):
++        import story_semantics as sm
++        own = llm is None
++        m = sm.LocalLLM().start() if own else llm
++        try:
++            ratings, err = sm.rate_passages(m, {"underlying_event": event}, passages)
++        finally:
++            if own:
++                m.stop()
++        if err:
++            raise RuntimeError(f"clip scorer reply unparseable: {err}")
++        return ratings
++    return rate
++
++
+ def opener(kind, text, score=None, fault=None):
+     """(ok, reason) for the first word of a hook or a clip."""
+     ws = _words(text)
+@@ -51,7 +78,7 @@ def opener(kind, text, score=None, fault=None):
+     if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
+         if score is None:
+             return False, f"clip opens on {w!r} and no clip-scorer verdict is available (fail closed)"
+-        if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
++        if affirmed(score, fault):
+             return True, f"clip opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault})"
+         return False, f"clip opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
+     return True, f"opens on {w!r}"
+@@ -123,7 +150,7 @@ def trimmed_opener(word, score, fault):
+     when the clip scorer affirms the TRIMMED text stands alone at the unchanged threshold, whatever its first word."""
+     if score is None:
+         return False, f"{word!r} trimmed and no clip-scorer verdict on the trimmed text (fail closed, ruling 33 part 2)"
+-    if score >= CLIP_MIN_SCORE and fault != "starts_mid_thought":
++    if affirmed(score, fault):
+         return True, f"{word!r} trimmed; the clip scorer affirms the trimmed text stands alone ({score}, fault {fault})"
+     return False, f"{word!r} trimmed; the clip scorer does not affirm the trimmed text stands alone ({score}, fault {fault})"
+ 
+diff --git a/pipeline/stand_alone_scorer.py b/pipeline/stand_alone_scorer.py
+new file mode 100644
+index 00000000..dcd40e31
+--- /dev/null
++++ b/pipeline/stand_alone_scorer.py
+@@ -0,0 +1,292 @@
++#!/usr/bin/env python3
++"""pipeline/stand_alone_scorer.py: the render's own STAND_ALONE clip scorer at the PIN STAGE (orchestrator 2026-11-13
++'09:58' item 56). The builder may use no GPU, so moments that open on a word the scorer must affirm (a conjunction, a
++reply fragment, a trimmed leading word) were left out unjudged. This asks THE SAME judge earlier: stand_alone.clip_scorer
++(the one code path run_fresh.stage_validate uses: story_semantics.rate_passages on the GPU0 LocalLLM, gemma3:27b,
++temperature 0) and stand_alone.affirmed (the one threshold). Validate re-checks at render as now. Nothing is loosened.
++
++CONTRACT (the builder):
++- REQUEST: write data/stand_alone_scorer/requests/<request_id>.json (write <name>.tmp, then rename):
++  {"request_id": str, "event": str, "passages": [{"moment_id": str, "pid": str, "channel": str, "duration": number,
++  "text": str}, ...]}. ONE scorer call per request, exactly validate's shape: the passages are scored together, as
++  validate scores every segment of an EDL that needs the scorer in one call. To be byte-identical with validate:
++  event "Pinned: <the pin's headline, else its label>", pid "hook" / "clip_NN" by position, channel the registry
++  display name, duration the locked words' span (seconds; the prompt rounds it), text the approved text.
++- RESULT: data/stand_alone_scorer/results/<moment_id>.<sha256(text)[:16]>.<SCORER_SHA[:12]>.json: a list of verdicts
++  for that moment and text under this scorer code, one per distinct prompt: {request_id, event, pid, channel,
++  duration, prompt_sha256, score, reason, fault, affirmed, threshold, model, digest, scorer_sha, at}. score None with
++  an error = the reply was unparseable: NOT affirmed.
++- The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed.
++- SCORER_SHA: sha256 over pipeline/stand_alone.py + pipeline/story_semantics.py (the threshold, the prompt, the model
++  call). A verdict under another SCORER_SHA is not this code's.
++- The model's validated replies are cached by their exact prompt (story_semantics.chat_json), so validate asking the
++  byte-identical prompt reads the same answer.
++GPU0 (law L-r): local_judge's discipline. The lease is taken per batch of BATCH requests, gpu0.release_all at every batch
++end; local_judge.YIELD_FLAG is checked before taking the lease, once it is held, and before every request (a render
++always first).
++Usage: CUDA_VISIBLE_DEVICES=0 python3 pipeline/stand_alone_scorer.py serve | once"""
++import argparse
++import glob
++import hashlib
++import json
++import os
++import re
++import sys
++import time
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import local_judge as LJ  # noqa: E402  (the yield flag)
++import stand_alone as SA  # noqa: E402
++
++ROOT = os.environ.get("PP_SCORER_DIR", os.path.join(REPO, "data", "stand_alone_scorer"))
++OWNER = "pin-stage clip scorer (integrator, GPU0)"
++BATCH = 8
++SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
++PRE_FILTER_EVENT = "Pinned: bitcoin"   # validate's own event for a moments pin ('Pinned: ' + its headline, else its
++                                       # label 'bitcoin'); before a line-up there is no headline. Validate re-asks.
++
++
++def scorer_sha():
++    h = hashlib.sha256()
++    for name in ("stand_alone.py", "story_semantics.py"):
++        with open(os.path.join(PIPELINE, name), "rb") as f:
++            h.update(f.read())
++    return h.hexdigest()
++
++
++class Recording:
++    """The model, with every prompt it is asked recorded (prompt_sha256 comes from the call itself, never rebuilt)."""
++
++    def __init__(self, llm):
++        self.llm, self.prompts = llm, []
++
++    def chat_json(self, prompt, **kw):
++        self.prompts.append(prompt)
++        return self.llm.chat_json(prompt, **kw)
++
++
++def problems(r):
++    """[why] for a malformed request (empty = well formed)."""
++    out = []
++    if not isinstance(r, dict):
++        return ["not an object"]
++    if not isinstance(r.get("request_id"), str) or not SAFE.match(r["request_id"]):
++        out.append("request_id must be 1-120 of [A-Za-z0-9_.:-]")
++    if not isinstance(r.get("event"), str) or not r["event"].strip():
++        out.append("event must be a non-empty string")
++    ps = r.get("passages")
++    if not isinstance(ps, list) or not 1 <= len(ps) <= 16:
++        return out + ["passages must be a list of 1-16"]
++    for i, p in enumerate(ps):
++        if not isinstance(p, dict):
++            out.append(f"passage {i}: not an object")
++            continue
++        for k in ("moment_id", "pid", "channel", "text"):
++            if not isinstance(p.get(k), str) or not p[k].strip():
++                out.append(f"passage {i}: {k} must be a non-empty string")
++        if isinstance(p.get("moment_id"), str) and not SAFE.match(p["moment_id"]):
++            out.append(f"passage {i}: moment_id must be 1-120 of [A-Za-z0-9_.:-]")
++        d = p.get("duration")
++        if not isinstance(d, (int, float)) or isinstance(d, bool) or not 0 <= d < 600:
++            out.append(f"passage {i}: duration must be a number of seconds")
++    if len({p.get("pid") for p in ps if isinstance(p, dict)}) != len(ps):
++        out.append("pids must be distinct")
++    return out
++
++
++def result_path(moment_id, text, sha):
++    return os.path.join(ROOT, "results",
++                        f"{moment_id}.{hashlib.sha256(text.encode()).hexdigest()[:16]}.{sha[:12]}.json")
++
++
++def answer(path, llm, sha, log=print):
++    """One request: one scorer call; every passage's verdict appended to its result file; the request moved."""
++    import gpu0
++    with open(path) as f:
++        try:
++            r = json.load(f)
++        except ValueError as e:
++            r, why = None, [f"not JSON: {e}"]
++    why = problems(r) if r is not None else why
++    name = os.path.basename(path)
++    if why:
++        os.makedirs(os.path.join(ROOT, "requests", "failed"), exist_ok=True)
++        with open(os.path.join(ROOT, "requests", "failed", name), "w") as f:
++            json.dump({"request": r, "why": why}, f, indent=1)
++        os.remove(path)
++        log(f"  {name}: malformed: {'; '.join(why)}")
++        return
++    rec, err = Recording(llm), None
++    try:
++        ratings = SA.clip_scorer(r["event"], llm=rec)([dict(p) for p in r["passages"]])
++    except gpu0.Gpu0Stop:
++        raise
++    except Exception as e:                                       # no verdict, never invented: NOT affirmed
++        ratings, err = {}, f"{type(e).__name__}: {str(e)[:300]}"
++    psha = hashlib.sha256(rec.prompts[-1].encode()).hexdigest() if rec.prompts else None
++    for p in r["passages"]:
++        score, reason, fault = ratings.get(p["pid"], (None, None, None))
++        entry = {"request_id": r["request_id"], "event": r["event"], "pid": p["pid"], "channel": p["channel"],
++                 "duration": p["duration"], "prompt_sha256": psha, "score": score, "reason": reason, "fault": fault,
++                 "affirmed": SA.affirmed(score, fault), "threshold": SA.CLIP_MIN_SCORE, "model": getattr(llm, "model", None),
++                 "digest": getattr(llm, "digest", None), "scorer_sha": sha,
++                 "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
++                 **({"error": err or "no rating for this pid in the reply"} if score is None else {})}
++        out = result_path(p["moment_id"], p["text"], sha)
++        os.makedirs(os.path.dirname(out), exist_ok=True)
++        prev = []
++        if os.path.exists(out):
++            with open(out) as f:
++                prev = json.load(f)
++        tmp = out + ".tmp"
++        with open(tmp, "w") as f:
++            json.dump(prev + [entry], f, indent=1)
++        os.replace(tmp, out)
++    os.makedirs(os.path.join(ROOT, "requests", "done"), exist_ok=True)
++    os.replace(path, os.path.join(ROOT, "requests", "done", name))
++    log(f"  {name}: {len(r['passages'])} passage(s), affirmed "
++        f"{sum(SA.affirmed(*ratings.get(p['pid'], (None, None, None))[::2]) for p in r['passages'])}"
++        f"{' ERROR ' + err if err else ''}")
++
++
++def pending():
++    return sorted(glob.glob(os.path.join(ROOT, "requests", "*.json")))
++
++
++def serve_once(log=print):
++    """Answer up to BATCH pending requests under one GPU0 lease. -> how many were answered (0: none pending, a render
++    asked, or the lease is held)."""
++    import gpu0
++    import story_semantics as sm
++    todo = pending()
++    if not todo or LJ.render_wants_gpu0():
++        return 0
++    sha, n = scorer_sha(), 0
++    try:
++        with gpu0.lease(OWNER, wait_s=0):
++            if LJ.render_wants_gpu0():                           # it asked while the lease was being taken
++                return 0
++            llm = sm.LocalLLM().start()
++            try:
++                for path in todo[:BATCH]:
++                    if LJ.render_wants_gpu0():
++                        break
++                    answer(path, llm, sha, log=log)
++                    n += 1
++            finally:
++                gpu0.release_all()                               # GPU0 left as found before the lease goes
++    except gpu0.LeaseBusy as e:
++        log(f"  GPU0 lease busy ({e})")
++    return n
++
++
++def latest(moment_id, text, sha, event):
++    """The newest entry WITH a score for this moment, text, scorer code and event (an entry without one is not a
++    verdict: batch 62 c1, glm), else the newest for that event, else None."""
++    p = result_path(moment_id, text, sha)
++    if not os.path.exists(p):
++        return None
++    with open(p) as f:
++        es = [e for e in json.load(f) if e.get("event") == event]
++    return next((e for e in reversed(es) if e.get("score") is not None), es[-1] if es else None)
++
++
++def enqueue_candidates(path, sha):
++    """The builder's candidates file (docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json: {generated_at, build,
++    candidates: [{pid, video_id, channel, duration, text, text_sha256, trimmed_leading}]}): one single-passage request
++    per candidate not yet rated under this scorer code with PRE_FILTER_EVENT. -> (candidates, refused {pid: why})."""
++    with open(path) as f:
++        c = json.load(f)
++    refused = {}
++    for x in c.get("candidates") or []:
++        pid, text = str(x.get("pid")), x.get("text")
++        if not isinstance(text, str) or hashlib.sha256(text.encode()).hexdigest() != x.get("text_sha256"):
++            refused[pid] = "text_sha256 is not the sha256 of text"
++            continue
++        if latest(pid, text, sha, PRE_FILTER_EVENT) is not None and latest(pid, text, sha, PRE_FILTER_EVENT)["score"] is not None:
++            continue                                                 # rated before: reused, never asked twice
++        r = {"request_id": f"cand.{pid}.{x['text_sha256'][:12]}", "event": PRE_FILTER_EVENT,
++             "passages": [{"moment_id": pid, "pid": "clip_01", "channel": x.get("channel"), "duration": x.get("duration"),
++                           "text": text}]}
++        why = problems(r)
++        if why:
++            refused[pid] = "; ".join(why)
++            continue
++        q = os.path.join(ROOT, "requests", r["request_id"] + ".json")
++        if not os.path.exists(q):
++            with open(q + ".tmp", "w") as f:
++                json.dump(r, f)
++            os.replace(q + ".tmp", q)
++    return c, refused
++
++
++def write_verdicts(c, refused, sha, src):
++    """The builder's verdicts file: {rated_at, build, candidates_generated_at, scorer, verdicts: {pid: {text_sha256,
++    score, reason, fault, affirmed, prompt_sha256} | {text_sha256, error}}}. -> its path."""
++    v = {}
++    for x in c.get("candidates") or []:
++        pid = str(x.get("pid"))
++        if pid in refused:
++            v[pid] = {"text_sha256": x.get("text_sha256"), "affirmed": False, "error": refused[pid]}
++            continue
++        e = latest(pid, x["text"], sha, PRE_FILTER_EVENT) or {}
++        v[pid] = {"text_sha256": x["text_sha256"], "score": e.get("score"), "reason": e.get("reason"),
++                  "fault": e.get("fault"), "affirmed": bool(e.get("affirmed")), "prompt_sha256": e.get("prompt_sha256"),
++                  **({"error": e.get("error") or "not rated"} if e.get("score") is None else {})}
++    out = {"rated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "build": c.get("build"),
++           "candidates_file": src, "candidates_generated_at": c.get("generated_at"),
++           "scorer": {"model": "gemma3:27b", "prompt": "story_semantics.CLIP_PROMPT via stand_alone.clip_scorer",
++                      "threshold": SA.CLIP_MIN_SCORE, "rule": "stand_alone.affirmed: score >= threshold and fault != "
++                      "starts_mid_thought", "event": PRE_FILTER_EVENT, "scorer_sha": sha},
++           "affirmed": sum(1 for x in v.values() if x.get("affirmed")), "verdicts": v}
++    d = os.path.join(ROOT, "verdicts")
++    os.makedirs(d, exist_ok=True)
++    stamp = re.sub(r"[^0-9A-Za-z]", "", str(c.get("generated_at") or "unknown"))[:20]
++    path = os.path.join(d, f"verdicts_{stamp}.json")
++    for p in (path, os.path.join(d, "latest.json")):
++        with open(p + ".tmp", "w") as f:
++            json.dump(out, f, indent=1)
++        os.replace(p + ".tmp", p)
++    return path
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("cmd", choices=["serve", "once"])
++    ap.add_argument("--poll", type=float, default=10.0)
++    ap.add_argument("--candidates", default=None, help="the builder's candidates file, watched while serving")
++    a = ap.parse_args(argv)
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++        sys.exit("the pin-stage scorer runs on GPU0: CUDA_VISIBLE_DEVICES=0 (law L-r)")
++    os.makedirs(os.path.join(ROOT, "requests"), exist_ok=True)
++    sha, seen, open_ = scorer_sha(), None, None
++    log = lambda m: print(time.strftime("%H:%M:%S"), m, flush=True)
++    print(f"pin-stage scorer: {ROOT} | scorer_sha {sha[:12]}", flush=True)
++    while True:
++        if a.candidates and os.path.exists(a.candidates):
++            try:
++                with open(a.candidates) as f:
++                    gen = json.load(f).get("generated_at")
++            except (OSError, ValueError):
++                gen = None                                       # being written: read on the next poll
++            if gen and gen != seen:
++                c, refused = enqueue_candidates(a.candidates, sha)
++                seen, open_ = gen, (c, refused)
++                log(f"candidates {gen}: {len(c.get('candidates') or [])}, refused {len(refused)}, queued "
++                    f"{len(pending())}")
++        n = serve_once(log=log)
++        if open_ is not None and not any(os.path.basename(p).startswith("cand.") for p in pending()):
++            path = write_verdicts(*open_, sha, a.candidates)
++            log(f"verdicts written: {path} (affirmed {json.load(open(path))['affirmed']} of "
++                f"{len(open_[0].get('candidates') or [])})")
++            open_ = None
++        if a.cmd == "once" and not pending() and open_ is None:
++            return 0
++        if n == 0:
++            time.sleep(a.poll)
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pipeline/test_stand_alone_scorer.py b/pipeline/test_stand_alone_scorer.py
+new file mode 100644
+index 00000000..eed9cfdf
+--- /dev/null
++++ b/pipeline/test_stand_alone_scorer.py
+@@ -0,0 +1,234 @@
++#!/usr/bin/env python3
++"""The pin-stage clip scorer (orchestrator 2026-11-13 '09:58' item 56), without a GPU: validate and the pin stage share
++ONE code path (stand_alone.clip_scorer / affirmed); a request gets one scorer call, the same prompt validate builds, and
++one verdict per passage in a file keyed by moment id + text sha256 + scorer code sha; malformed requests and
++unparseable replies are never affirmed; GPU0 is taken per batch of 8 and given back to a render."""
++import hashlib
++import inspect
++import json
++import os
++import shutil
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import run_fresh as rf  # noqa: E402
++import stand_alone as SA  # noqa: E402
++import stand_alone_scorer as SS  # noqa: E402
++
++
++class FakeLLM:
++    model, digest = "gemma3:27b", "dg"
++
++    def __init__(self, scores=None, broken=False):
++        self.scores, self.broken, self.prompts = scores or {}, broken, []
++
++    def chat_json(self, prompt, max_tokens=700, validate=None):
++        self.prompts.append(prompt)
++        if self.broken:
++            raise __import__("story_semantics").LLMParseError("unparseable", ["x"])
++        out = {"ratings": [{"id": pid, "score": s, "reason": "r", "fault": f} for pid, (s, f) in self.scores.items()]}
++        if validate:
++            validate(out)
++        return out
++
++
++def req(rid="r1", event="Pinned: Bitcoin holds", **kw):
++    ps = kw["passages"] if "passages" in kw else [{"moment_id": "m1", "pid": "clip_01", "channel": "A", "duration": 9.4,
++                                                  "text": "But we have rarely seen six red weeks."},
++                                                 {"moment_id": "m2", "pid": "clip_02", "channel": "B", "duration": 12.0,
++                                                  "text": "So the cycle repeats."}]
++    return {"request_id": rid, "event": event, "passages": ps}
++
++
++class TestOneCodePath(unittest.TestCase):
++    def test_validate_asks_the_shared_scorer_and_threshold(self):
++        src = inspect.getsource(rf.stage_validate)
++        self.assertIn("stand_alone.clip_scorer(", src)
++        self.assertNotIn("rate_passages(", src)                       # nothing of its own left in validate
++        for f in (SA.opener, SA.trimmed_opener):
++            self.assertIn("affirmed(score, fault)", inspect.getsource(f))
++
++    def test_the_threshold(self):
++        self.assertEqual([SA.affirmed(s, f) for s, f in ((3.5, "none"), (3.4, "none"), (5, "starts_mid_thought"),
++                                                         (None, None), (4.0, "unspecified"))],
++                         [True, False, False, False, True])
++
++    def test_the_service_asks_the_byte_identical_prompt_validate_asks(self):
++        r = req()
++        ps = [{k: p[k] for k in ("pid", "channel", "duration", "text")} for p in r["passages"]]
++        validate_llm = FakeLLM({"clip_01": (4.0, "none")})
++        SA.clip_scorer(r["event"], llm=validate_llm)(ps)               # what stage_validate's rate() sends
++        svc = FakeLLM({"clip_01": (4.0, "none")})
++        rec = SS.Recording(svc)
++        SA.clip_scorer(r["event"], llm=rec)([dict(p) for p in r["passages"]])
++        self.assertEqual(rec.prompts, validate_llm.prompts)          # moment_id never reaches the prompt
++
++
++class TestService(unittest.TestCase):
++    def setUp(self):
++        self.root = tempfile.mkdtemp(prefix="sas_")
++        self.addCleanup(shutil.rmtree, self.root)
++        os.makedirs(os.path.join(self.root, "requests"))
++        self.p = mock.patch.object(SS, "ROOT", self.root)
++        self.p.start()
++        self.addCleanup(self.p.stop)
++
++    def put(self, r, name=None):
++        path = os.path.join(self.root, "requests", (name or r["request_id"]) + ".json")
++        with open(path, "w") as f:
++            json.dump(r, f)
++        return path
++
++    def test_one_call_one_verdict_per_passage_keyed_and_the_request_done(self):
++        llm = FakeLLM({"clip_01": (4.0, "none"), "clip_02": (3.0, "starts_mid_thought")})
++        SS.answer(self.put(req()), llm, "ab" * 32, log=lambda *a: None)
++        self.assertEqual(len(llm.prompts), 1)                          # the passages scored together
++        t1 = "But we have rarely seen six red weeks."
++        path = os.path.join(self.root, "results", f"m1.{hashlib.sha256(t1.encode()).hexdigest()[:16]}.{'ab' * 6}.json")
++        v = json.load(open(path))
++        self.assertEqual(len(v), 1)
++        self.assertEqual((v[0]["score"], v[0]["affirmed"], v[0]["threshold"], v[0]["pid"], v[0]["event"]),
++                         (4.0, True, 3.5, "clip_01", "Pinned: Bitcoin holds"))
++        self.assertEqual(v[0]["prompt_sha256"], hashlib.sha256(llm.prompts[0].encode()).hexdigest())
++        v2 = json.load(open(SS.result_path("m2", "So the cycle repeats.", "ab" * 32)))
++        self.assertEqual((v2[0]["score"], v2[0]["affirmed"]), (3.0, False))
++        self.assertTrue(os.path.exists(os.path.join(self.root, "requests", "done", "r1.json")))
++        SS.answer(self.put(req(rid="r2", event="Pinned: another headline")), llm, "ab" * 32, log=lambda *a: None)
++        self.assertEqual([e["event"] for e in json.load(open(path))], ["Pinned: Bitcoin holds", "Pinned: another headline"])
++
++    def test_an_unparseable_reply_or_a_missing_rating_is_never_affirmed(self):
++        SS.answer(self.put(req()), FakeLLM(broken=True), "cd" * 32, log=lambda *a: None)
++        v = json.load(open(SS.result_path("m1", "But we have rarely seen six red weeks.", "cd" * 32)))
++        self.assertEqual((v[0]["score"], v[0]["affirmed"]), (None, False))
++        self.assertIn("unparseable", v[0]["error"])
++        SS.answer(self.put(req(rid="r3")), FakeLLM({"clip_01": (5.0, "none")}), "cd" * 32, log=lambda *a: None)
++        v = json.load(open(SS.result_path("m2", "So the cycle repeats.", "cd" * 32)))
++        self.assertEqual((v[-1]["score"], v[-1]["affirmed"], v[-1]["error"]),
++                         (None, False, "no rating for this pid in the reply"))
++
++    def test_a_malformed_request_is_refused_with_why_and_never_scored(self):
++        bad = [({"request_id": "../x", "event": "e", "passages": req()["passages"]}, "request_id"),
++               (req(event=""), "event"), (req(passages=[]), "passages"),
++               (req(passages=[dict(req()["passages"][0], duration="9")]), "duration"),
++               (req(passages=[req()["passages"][0], req()["passages"][0]]), "pids must be distinct"),
++               (req(passages=[dict(req()["passages"][0], moment_id="a/b")]), "moment_id")]
++        llm = FakeLLM()
++        for i, (r, why) in enumerate(bad):
++            with self.subTest(why=why):
++                SS.answer(self.put(r, name=f"bad{i}"), llm, "ef" * 32, log=lambda *a: None)
++                got = json.load(open(os.path.join(self.root, "requests", "failed", f"bad{i}.json")))
++                self.assertIn(why, " ".join(got["why"]))
++        self.assertEqual(llm.prompts, [])
++        self.assertFalse(os.path.exists(os.path.join(self.root, "results")))
++
++
++class TestCandidates(unittest.TestCase):
++    """The builder's file contract (pp-selectid 09:59): their candidates in, their verdicts shape out."""
++
++    def setUp(self):
++        self.root = tempfile.mkdtemp(prefix="sas_c_")
++        self.addCleanup(shutil.rmtree, self.root)
++        os.makedirs(os.path.join(self.root, "requests"))
++        self.p = mock.patch.object(SS, "ROOT", self.root)
++        self.p.start()
++        self.addCleanup(self.p.stop)
++        sha = lambda t: hashlib.sha256(t.encode()).hexdigest()
++        self.texts = {"m1": "But we hold.", "m1~trim": "we hold.", "m2": "So it goes.", "m3": "And then."}
++        self.c = {"generated_at": "2026-11-13T15:00:00Z", "build": "ledger_x", "candidates": [
++            {"pid": "m1", "channel": "A", "duration": 4.0, "text": self.texts["m1"], "text_sha256": sha(self.texts["m1"])},
++            {"pid": "m1~trim", "channel": "A", "duration": 3.6, "text": self.texts["m1~trim"],
++             "text_sha256": sha(self.texts["m1~trim"]), "trimmed_leading": "But"},
++            {"pid": "m2", "channel": "B", "duration": 5.0, "text": self.texts["m2"], "text_sha256": "0" * 64},
++            {"pid": "m3", "channel": "C", "duration": 2.0, "text": self.texts["m3"], "text_sha256": sha(self.texts["m3"])}]}
++        self.path = os.path.join(self.root, "cands.json")
++        with open(self.path, "w") as f:
++            json.dump(self.c, f)
++
++    def test_one_request_per_candidate_with_the_pre_filter_event_a_bad_sha_refused_a_rated_one_reused(self):
++        prior = SS.result_path("m3", self.texts["m3"], "ab" * 32)
++        os.makedirs(os.path.dirname(prior))
++        with open(prior, "w") as f:
++            json.dump([{"event": SS.PRE_FILTER_EVENT, "score": 4.5, "fault": "none", "affirmed": True}], f)
++        c, refused = SS.enqueue_candidates(self.path, "ab" * 32)
++        self.assertEqual(refused, {"m2": "text_sha256 is not the sha256 of text"})
++        reqs = {json.load(open(p))["passages"][0]["moment_id"]: json.load(open(p)) for p in SS.pending()}
++        self.assertEqual(sorted(reqs), ["m1", "m1~trim"])                 # m3 rated before: reused
++        self.assertEqual({r["event"] for r in reqs.values()}, {"Pinned: bitcoin"})
++        self.assertEqual(reqs["m1~trim"]["passages"][0]["pid"], "clip_01")
++        self.assertEqual(SS.problems(reqs["m1~trim"]), [])
++
++    def test_the_verdicts_file_in_the_builders_shape(self):
++        c, refused = SS.enqueue_candidates(self.path, "ab" * 32)
++        llm = FakeLLM({"clip_01": (4.0, "none")})
++        for p in SS.pending():
++            if ".m3." not in p:                                       # m3 left unanswered: "not rated"
++                SS.answer(p, llm, "ab" * 32, log=lambda *a: None)
++        out = json.load(open(SS.write_verdicts(c, refused, "ab" * 32, self.path)))
++        v = out["verdicts"]
++        self.assertEqual((v["m1"]["affirmed"], v["m1"]["score"], v["m1~trim"]["affirmed"]), (True, 4.0, True))
++        self.assertEqual((v["m2"]["affirmed"], v["m2"]["error"]), (False, "text_sha256 is not the sha256 of text"))
++        self.assertEqual((v["m3"]["affirmed"], v["m3"]["error"]), (False, "not rated"))
++        self.assertEqual((out["affirmed"], out["scorer"]["event"], out["scorer"]["threshold"]), (2, "Pinned: bitcoin", 3.5))
++        self.assertEqual(v["m1"]["text_sha256"], self.c["candidates"][0]["text_sha256"])
++        self.assertTrue(os.path.exists(os.path.join(self.root, "verdicts", "latest.json")))
++
++    def test_latest_prefers_a_scored_entry_for_the_event(self):
++        p = SS.result_path("m1", "t", "ab" * 32)
++        os.makedirs(os.path.dirname(p))
++        with open(p, "w") as f:
++            json.dump([{"event": "Pinned: bitcoin", "score": 4.0}, {"event": "Pinned: bitcoin", "score": None},
++                       {"event": "Pinned: other", "score": 2.0}], f)
++        self.assertEqual(SS.latest("m1", "t", "ab" * 32, "Pinned: bitcoin")["score"], 4.0)
++        self.assertEqual(SS.latest("m1", "t", "ab" * 32, "Pinned: other")["score"], 2.0)
++        self.assertIsNone(SS.latest("m1", "t", "ab" * 32, "Pinned: none"))
++
++
++class TestGpu0(unittest.TestCase):
++    def setUp(self):
++        self.root = tempfile.mkdtemp(prefix="sas_g_")
++        self.addCleanup(shutil.rmtree, self.root)
++        os.makedirs(os.path.join(self.root, "requests"))
++        self.flag = os.path.join(self.root, "yield")
++        import gpu0
++        self.gpu0, self.released, self.loaded = gpu0, [], []
++        llm = FakeLLM({"clip_01": (4.0, "none"), "clip_02": (4.0, "none")})
++        llm.start = lambda: llm
++        for x in [mock.patch.object(SS, "ROOT", self.root), mock.patch.object(SS.LJ, "YIELD_FLAG", self.flag),
++                  mock.patch.object(gpu0, "lease", mock.MagicMock()),
++                  mock.patch.object(gpu0, "release_all", lambda: self.released.append(1)),
++                  mock.patch("story_semantics.LocalLLM", lambda: self.loaded.append(1) or llm)]:
++            x.start()
++            self.addCleanup(x.stop)
++        for i in range(10):
++            with open(os.path.join(self.root, "requests", f"r{i:02d}.json"), "w") as f:
++                json.dump(req(rid=f"r{i:02d}"), f)
++
++    def test_eight_per_lease_then_gpu0_released(self):
++        self.assertEqual(SS.serve_once(log=lambda *a: None), 8)
++        self.assertEqual((len(self.released), len(SS.pending())), (1, 2))
++        self.assertEqual(SS.serve_once(log=lambda *a: None), 2)
++        self.assertEqual(len(self.released), 2)
++
++    def test_a_render_asking_gets_gpu0_first(self):
++        open(self.flag, "w").close()
++        self.assertEqual(SS.serve_once(log=lambda *a: None), 0)       # not even the lease
++        self.assertEqual(self.loaded, [])
++        os.remove(self.flag)
++
++        class Lease:                                                   # the render asks while the lease is taken
++            def __enter__(s):
++                open(self.flag, "w").close()
++
++            def __exit__(s, *a):
++                return False
++        with mock.patch.object(self.gpu0, "lease", lambda owner, wait_s=0: Lease()):
++            self.assertEqual(SS.serve_once(log=lambda *a: None), 0)
++        self.assertEqual((self.loaded, self.released), ([], []))     # nothing loaded, nothing to release
++
++
++if __name__ == "__main__":
++    unittest.main()

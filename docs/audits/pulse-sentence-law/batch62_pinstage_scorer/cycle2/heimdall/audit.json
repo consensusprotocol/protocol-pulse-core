@@ -1,0 +1,109 @@
+{
+ "question": "Batch 62 cycle 2 (verification). Cycle 1 timed out in glm's cross-examination; its findings read from the raw files: no code defect; glm F1 taken as a contract point (read the newest entry WITH a score). Added: the builder's file contract (their candidates in, their verdicts shape out; PRE_FILTER_EVENT 'Pinned: bitcoin' = validate's own event for a moments pin whose headline is absent, its label 'bitcoin'; validate re-asks with the real angle at render).\n\nBatch 62 = ORDER '09:58' ITEM 56 (orchestrator), verbatim: \"The builder leaves out about 105 of 158 usable moments because they open on a word 'the clip scorer would have to affirm', and the builder may use no GPU, so the scorer is never asked and two thirds of the supply is discarded unjudged. The scorer is YOUR render's own STAND_ALONE scorer (gemma3:27b, temperature 0, run_fresh.stage_validate -> story_semantics.LocalLLM). Give the builder a pin-stage way to get that exact verdict: a small command or queue (same prompt, same model, same threshold, byte-identical code path to validate), run under the GPU0 lease with your yield flag, batch of 8, results written to a file keyed by moment id + text sha256 + scorer code sha. The builder submits the excluded moments (untrimmed AND trimmed variants), reads the verdicts, and seals only affirmed ones; validate re-checks at render as now. Nothing is loosened: the same judge, asked earlier.\"\nBackground: run_fresh.stage_validate had a nested rate(passages) that started story_semantics.LocalLLM, called rate_passages(llm, {\"underlying_event\": edl angle or topic}, passages) (the prompt: CLIP_PROMPT + one <excerpt id=pid channel seconds=round(duration)> per passage; the reply validated and cached by the exact prompt in chat_json) and stopped it; stand_alone.check_edl reads the verdict with score >= CLIP_MIN_SCORE (3.5) and fault != starts_mid_thought (opener / trimmed_opener). GPU0 discipline (law L-r): the lease is an exclusive flock a render takes non-blocking (exit 75 if held); local_judge.YIELD_FLAG is the render's 'I need GPU0' flag; gpu0.release_all unloads everything this process loaded.\nThe change:\n- stand_alone.clip_scorer(event, llm=None): validate's rate() moved here unchanged (without llm it starts and stops the model as validate did; with llm the caller owns its life); stand_alone.affirmed(score, fault): the one threshold; opener and trimmed_opener call it. run_fresh.stage_validate: rate = stand_alone.clip_scorer(edl angle or topic). Nothing else in validate changes.\n- pipeline/stand_alone_scorer.py: requests (JSON files: request_id, event, passages [{moment_id, pid, channel, duration, text}]) validated (problems()); one clip_scorer call per request through a Recording proxy (the prompt's sha256 taken from the call itself); per passage a verdict appended to results/<moment_id>.<sha256(text)[:16]>.<scorer_sha[:12]>.json with score, reason, fault, affirmed (stand_alone.affirmed), threshold, event, pid, prompt_sha256, model digest; an unparseable reply or a missing rating = score None + error, never affirmed; the request moves to done/ (or failed/ with why). scorer_sha = sha256 of stand_alone.py + story_semantics.py. serve_once: up to 8 requests per GPU0 lease, the yield flag checked before the lease, once held and before every request, gpu0.release_all in a finally; LeaseBusy waited out.\n- Tests: test_stand_alone_scorer.py 8 (validate uses the shared function and threshold; the service sends the byte-identical prompt validate sends; keyed results; unparseable and missing ratings; malformed requests; 8 per lease and release; a render asking first).\nFIND: anything still open; a pin-stage verdict that can differ from validate's for the same inputs; a candidate affirmed without a rating or with a mismatched text sha; a verdict read from the wrong entry; a moment asked twice; the GPU0 discipline broken; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 282.6,
+   "cost": 0.009619517,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 30.6,
+   "cost": 0.00041106,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 24.6,
+   "cost": 0.0019917903,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 56.9,
+   "cost": 0.000533479,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "high",
+   "file": "pipeline/stand_alone_scorer.py",
+   "line": null,
+   "issue": "A missing rating for a pid is silently treated as a verdict with score None and written as a permanent keyed result; the builder's verdicts file then reports it as a final 'not affirmed' verdict, so a candidate can be sealed out (or, conversely, a later re-ask is skipped) without the error being surfaced as a failure \u2014 the request is moved to done/ regardless.",
+   "evidence": "score, reason, fault = ratings.get(p[\"pid\"], (None, None, None)) ... **({\"error\": err or \"no rating for this pid in the reply\"} if score is None else {}) ... os.replace(path, os.path.join(ROOT, \"requests\", \"done\", name))",
+   "fix": "Move the request to failed/ (or leave it pending for retry) when any passage's rating is missing or the reply was unparseable, so the builder's verdicts distinguish 'not yet rated' from 'judged not affirmed'.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "medium",
+   "file": "pipeline/stand_alone_scorer.py",
+   "line": null,
+   "issue": "enqueue_candidates skips re-asking whenever any prior entry exists for (moment, text, scorer_sha, PRE_FILTER_EVENT), even if that entry has score None (unparseable reply / missing rating); the 'rated before: reused, never asked twice' check only tests the returned entry's score, but latest() falls back to the newest entry without a score, so a failed scoring is never retried and the candidate stays unjudged forever.",
+   "evidence": "if latest(pid, text, sha, PRE_FILTER_EVENT) is not None and latest(pid, text, sha, PRE_FILTER_EVENT)[\"score\"] is not None: continue  # rated before: reused, never asked twice",
+   "fix": "Skip only when the latest entry has a non-None score (or track a retry counter); otherwise leave the candidate queued so the scorer re-asks.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "medium",
+   "file": "pipeline/stand_alone_scorer.py",
+   "line": null,
+   "issue": "The result file is keyed by moment_id + text sha + scorer_sha but NOT by event, yet entries for different events are appended to the same file; latest() filters by event, but the builder's verdicts (write_verdicts) read with PRE_FILTER_EVENT while validate at render reads the same keyed file path \u2014 any reader that does not filter by event (or that trusts the last entry) can read a verdict scored under a different event/prompt, i.e. a verdict from the wrong entry.",
+   "evidence": "def result_path(moment_id, text, sha): return os.path.join(ROOT, \"results\", f\"{moment_id}.{hashlib.sha256(text.encode()).hexdigest()[:16]}.{sha[:12]}.json\")  # no event component; latest() filters: es = [e for e in json.load(f) if e.get(\"event\") == event]",
+   "fix": "Include the event (or its sha) in the result filename, or guarantee every reader of results/ filters entries by event as latest() does.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/stand_alone_scorer.py",
+   "line": null,
+   "issue": "serve_once counts a request as answered (n += 1) even when answer() moved it to failed/ for being malformed, and \u2014 worse \u2014 when the scorer call raises, answer() catches it, writes score-None results, and moves the request to done/; but if the exception happens BEFORE any result is written (e.g. the result file's prev read raises, or json.dump fails), the request is still moved to done/ with no results written, silently losing the batch slot. Also, if answer() raises gpu0.Gpu0Stop, serve_once's finally calls gpu0.release_all() but the exception propagates out of the with-lease block, leaving n counted for prior requests while the loop's caller (main) treats n>0 as 'no sleep' \u2014 minor. The concrete verifiable defect: answer() catches ALL exceptions from the scorer call except Gpu0Stop, but the result-file I/O (open/prev-read/json.dump/os.replace) is NOT inside the try, so an I/O error there aborts the whole serve_once batch, leaving remaining requests pending but the lease released \u2014 acceptable, yet the partially-written .tmp file is left behind. Minor. The sharper one: in answer(), if the SAME pid appears twice in one request's passages, problems() rejects it ('pids must be distinct'), so that's guarded. The genuinely missed one: enqueue_candidates writes the request file WITHOUT the .tmp+rename dance being atomic against the scorer's pending() glob \u2014 no, it does use .tmp+os.replace. Actually the missed finding: main() writes verdicts when no pending request starts with 'cand.', but pending() globs requests/*.json which includes non-cand. requests; if a non-cand. request (e.g. 'r1.json' from a test or another writer) is pending, the verdicts file is written while cand. results are still... no, the condition is 'not any(startswith cand.)', which correctly waits only for cand. requests. The real missed defect: in test_the_service_asks_the_byte_identical_prompt_validate_asks, FakeLLM.chat_json's validate kwarg is called but the test never exercises story_semantics.rate_passages' actual prompt construction, so 'byte-identical prompt' is only tested at the Recording-vs-FakeLLM level, not against the real CLIP_PROMPT \u2014 the test's claim exceeds what it verifies.",
+   "evidence": "stamp = re.sub(...)(...)[:20] on generated_at; verdicts_{stamp}.json overwritten on collision; latest.json always overwritten",
+   "fix": "Include a hash of the candidates file (or its full generated_at + build) in the verdicts filename, or fail the write when the target exists with a different candidates_generated_at."
+  }
+ ],
+ "total_cost": 0.0125558463,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch62_pinstage_scorer/cycle2/heimdall"
+}
