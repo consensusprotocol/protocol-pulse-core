@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:09 ORDER '11:01' B, RULING 60 BUILT (worktree r60, now in audit), PROVED BEFORE IT COUNTS: the 9 delivered spans PASS 9 / 9; tonight's step-A REFERENT_OUTSIDE clips FAIL 27 / 29 (93 %, bar 80 %).
+- THE MOMENTS SCORER: story_semantics.ALONE_PROMPT + rate_alone.
+  - It asks ONE thing: "does a viewer who hears only this clip understand what is being claimed, with nothing in it depending on words outside the clip?"
+  - No event, no topic, importance, accuracy or style. Topicality stays ruling 34's.
+  - All five scores are described (no 5 / 3 / 1 anchors).
+  - "an opening word or phrase alone ('but', 'and', 'so', 'well', 'now', 'however', 'I mean', 'yeah') is never" the starts_mid_thought fault.
+  - The same model (gemma3:27b), temperature 0, bar 3.5. The story path (CLIP_PROMPT, rate_passages, its threshold) is unchanged.
+- THE AFFIRMATION FOR A MOMENTS PIN is the score alone (stand_alone.affirmed(moments=True): score >= 3.5); the fault is recorded, not ruling. MEASURED WHY, on the first proof run:
+  - with the story rule (score >= 3.5 AND fault != starts_mid_thought), the delivered spans passed only 6 / 9;
+  - the 3 refused were 4.0 'understood alone', labelled starts_mid_thought only for an opening 'I mean' / 'However' / 'Now';
+  - a second wording ('never this fault') did not stop the label: still 6 / 9;
+  - every REFERENT_OUTSIDE refusal scored <= 3 by its SCORE; none was refused by the label alone. The label was a fixed opener penalty, which ruling 60 rules out.
+- WIRING: stand_alone.clip_scorer(..., moments=True) -> rate_alone. run_fresh.stage_validate passes moments = ('moments_package_sha256' in edl) to clip_scorer and check_edl; opener / trimmed_opener read affirmed(score, fault, moments). The pin-stage service: requests carry kind 'moments' (no event) or 'story' (an event). The builder's candidates are rated as kind 'moments'; the verdicts file states kind, rubric, rule 'score >= 3.5', event null.
+- THE PROOF, the final prompt:
+  - DELIVERED: 37c5b5f5 hook 5 / clip_01 4 / clip_02 5; 41f29b1f hook 5 / clip_01 4 / clip_02 4; 1b4a63d0 hook 5 / clip_01 5 / clip_02 5. 9 / 9 PASS.
+  - REFERENT_OUTSIDE: 29 distinct moments step A rejected tonight across 11 ledger builds (the builder's records, read with its own a_failures). Scores: 22 x 2.0, 3 x 1.0, 2 x 3.0, 1 x 4.0, 1 x 5.0. 27 / 29 FAIL (93 %).
+  - The 2 that pass: 'Every Bitcoiner eventually has to answer one question. If something happened to me ...' (step A's outside referent: 'me' = 'a generic Bitcoiner'); 'Days like today are when people get shaken out ...' (4.0).
+- NEXT: audits batch 63 x2, merge, re-rate the builder's 145 with the moments scorer, tell the builder.
+
 ## 10:59 ORDER '11:01' A, FACTS: THE CLIP SCORER IS THE OLD STORY TEST. Delivered PBX-approved clips fail it: 2 of 9 pass.
 (1) THE PROMPT, verbatim (story_semantics.CLIP_PROMPT; {note} = the UNTRUSTED_NOTE security paragraph; {passages} = one <excerpt id channel seconds> per clip):
 "You pick clips for a short Bitcoin news video about this event:\nEVENT: {event}\n\n{note}\nRate each candidate passage 1-5 for use as a standalone clip:\n5 = complete, strong, specific statement about this event that makes sense on its own;\n3 = relevant but weak, partial or dependent on missing context;\n1 = off-topic, a question, filler, an ad, or starts/ends mid-thought.\nAlso name each passage's main fault: "none"; "starts_mid_thought" or "ends_mid_thought" ONLY when\nthe passage states this event and its only problem is that it begins or ends in the middle of a\nthought; "off_topic" when it does not state this event; "other" for anything else.\n{passages}\nReturn ONLY JSON: {"ratings": [{"id": passage id, "score": 1-5, "fault": one of the five, "reason": short}]}"
