@@ -6,6 +6,26 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:53 ORDER '07:28' ITEM 2 RESULT: THE LOCAL JUDGE'S REPLAY. It is NOT a time saver for any of the three verdicts (L-aa: a measured proposal). The orchestrator accepted this at 09:58: the local judge is not used for the clips-alone verdict or the angle step. Report: docs/audits/local_judge/REPLAY_2026-11-13.md / .json (every disagreement listed). Local answers: data/local_judge/replay_answers.jsonl.
+- The run: 92 prompts (48 step A, 27 clips-alone, 17 angle), all the builder recorded from 04:00Z. gemma3:27b on GPU0: 92 answers, 0 failed calls, done 08:19 ET; GPU0 released after every batch of 8. Read with the builder's own rules at pp-selectid 88aa6d9c.
+- STEP A, per moment (116 moments in 19 in-contract prompts):
+  - the same pass / fail 59/116 (51 %); the same failing rules 57/116 (49 %);
+  - local FAIL / vendor PASS (lost): 9; local PASS / vendor FAIL (harmless): 48;
+  - 29 of 48 local answers out of contract, ALL 'step A must answer exactly the labels', all on 7-8-excerpt prompts (about 30K characters); every 2-5-excerpt prompt answered in contract;
+  - mean 43.4 s per prompt (max 79.6).
+- THE CLIPS-ALONE VERDICT (27):
+  - the same ok 19/27 (70 %); the same flagged joins 2/27 (7 %); the same followable per join 27/65 (42 %); mean rating difference 1.15;
+  - lost 7, harmless 1;
+  - 9.9 s mean.
+- THE ANGLE STEP (17, a writer: overlap):
+  - local angles valid by the prompt's rules 23/42;
+  - mean best moment-set Jaccard 0.54 (first angles 0.59); a shared hook 11/17; the same first hook 5/17;
+  - 26.9 s mean.
+- PRE-FILTER RULES (saved / lost on the recorded cases): NO SAFE RULE in any verdict type.
+  - step A: local fails NOT_OWN_SINCERE 6 / 8; STALE_TIME 1 / 1; CONDITION_OUTSIDE 0 / 1;
+  - clips-alone: a local rating <= 1: 0 / 0; <= 2: 5 / 2; <= 3: 19 / 7; no local through-line: 0 / 0.
+- PROPOSALS, not done: step A in local batches of <= 5 excerpts (the contract failures were all 7-8-excerpt prompts); a stronger local model measured the same way.
+
 ## 07:44 ORDER '07:28': (1) LAW L-aa WRITTEN; (2) THE GPU0 LOCAL JUDGE BUILT AND MERGED (dd2feef9, audits batch 61 x2, pushed e1d07f7b), its replay running (clips-alone and angle done, step A until about 08:30); (3) the builder's contract waits for the replay.
 (1) L-aa TIME SAVERS ARE AUTOMATIC (422cf435): PIPELINE_LAWS.md, the gospel, this file's law table and the bible, PBX's words verbatim. LETTER: L-z stays reserved for the hardening branch's drafted law (re-lettered 20:34), so the alphabet continues: L-aa.
 (2) THE MODEL: gemma3:27b on the GPU0 Ollama (num_ctx 16384, temperature 0, JSON).
