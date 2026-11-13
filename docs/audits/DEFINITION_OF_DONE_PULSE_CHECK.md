@@ -6,6 +6,13 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 03:35 ORDER '22:40' ITEM 3, THE NO-VOICE FALLBACK: VERIFIED STATICALLY; a full render waits for a no-voice pin (GPU0 stays free for the fresh batch).
+On the medley reference's EDL with vo = {intro: null, bridges: []}:
+- edl_rules R11 PASSES ('0 bridge ... 0 takeaway line(s)');
+- R4 FAILS only on RUNTIME: the estimate is 54.78 s against 60-70 s (hook + clips 40.48 + VO 0 + tail 14.3). So a no-voice package needs about 45.7 s of clip content: a content condition, sent to the builder, not a code defect.
+The release inventory's REQUIRED rows (16:9: G5, G17, G8, G16, V1, outro_locked, G15, G4s, G9, G12, G19, G3b, G14, G20, G3c, G18) include no bridge / takeaway VO gate: G1 / G6 / G13 are not REQUIRED, and G20 still measures the sign-off. visual_check / verify_pack ask nothing about VO cards. No render code indexes into the bridge list in a way that breaks on an empty one.
+NOT PROVEN WITHOUT A RENDER: the mix and the timeline with zero VO cards. That is proven by the first no-voice pin rendered, at the next GPU0 gap.
+
 ## 03:24 RULING 28 MERGED (cd7e3bbd, audits batch 56 x2); PIN #1's HOOK CANNOT OPEN A VIDEO AS IT STANDS; RULING 31's PLAN.
 RULING 28: for a hook not at a file head, sentence_law.hook_lead decides the lead AT THE CUT with G17a's own measure (head_tail on the audio as cut, the clip's own fade applied, prepare's order):
 (1) the planned cut stands if it keeps >= 80 ms;
