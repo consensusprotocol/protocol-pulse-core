@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 17:12 PASS: EVERY RELEASE GATE PASSED in both formats, the FIRST FULL PASS. Pin 0c68b589, run runs/pinned_20261113_211048 (stamp 20261113_211009), run_fresh exit 0, verdict 'CANDIDATE FOR HUMAN REVIEW WITH FLAGS | RELEASE STATE: HOLD_FOR_HUMAN_APPROVAL'. DELIVERED ON THE PASS PATH as a candidate for PBX's approval, labelled 'HOLD FOR APPROVAL - all release gates passed, no waivers': Telegram 67844 (16:9 video), 67845 (9:16 video), 67846 / 67847 (contact sheets), 67848 (the publishing kit), status complete at 17:12, authorised (attestation ALL_PASS, 9:16 G14_frame_similarity LIMITED as always).
+- The two holds of 15:18 are gone:
+  - G9_tail 9:16: 14.8 against 14.7315. The 9:16 final, vert_hook and the 16:9 are all tagged tv / bt709 (the colour fix).
+  - G19_edge_shots 9:16 PASS: prepare held the hook's frame 406 (the 9:16 crop scored 0.317) on frame 405, held_tail_frames 1 (ruling 71). G19 PASSES in both formats.
+- The flag behind 'WITH FLAGS' is the hook's 9:16 safe frame (10.21-14.00 s, the source's b-roll), flagged as always.
+
+## 16:10 RE-RENDER OF 0c68b589 LAUNCHED under rulings 71 + the 9:16 colour fix (orchestrator '15:45'): run stamp 20261113_211009, tmux pipeline_pulse_check_20261113_211009, HEAD 3395c61f.
+- The GPU0 lease has been held by PID 350507 since 16:10:09. The yield flag went up at 16:10:04 (the lease was free, GPU0 at 18 MiB, no Ollama model resident) and came down at 16:10:10.
+- The same frozen pin: data/moments_pins/MOMENTS_PIN_ATTESTED_183302.json (sha256 5dfcbe8f...8c25b). check_pin_only: READY 0c68b589371297c0, with the builder's worktree at 1a65b374.
+- A builder pin arriving meanwhile queues behind this render.
+- This entry is written to disk and committed after the run ends.
+
 ## 16:09 RULING 71 MERGED (37cd2aa8; audits batch 66 x2, cycle 2's consensus fixed). regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (preview + medley references reproduced). The 0c68b589 re-render launches next.
 - WHAT CHANGED: prepare's shot snap now scores BOTH the 16:9 prepared clip and its 9:16 crop, in the head (before the first word) and the tail (after the last). A change is snapped when either scores >= 0.3. The crop is the renderer's own 9:16 picture: render_vertical.auto_graph on vertical_layout.classify's plan, colour included, scored before any encode. G19 and its 0.3 threshold are unchanged.
 - INTERPRETATION, for the orchestrator to correct if it is wrong: 'the clip's out point moves back to the last frame before it' is implemented as prepare's existing VISUAL snap (orchestrator 08:30, 'audio stays on the sentence').
