@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 00:49 RULING 24 (a) MEASURED; RULING 26 (G9) FACTS, for the orchestrator to rule.
+24 (a), WHETHER THE VOICE SAYS 'LIVERA'. The medley's CLEAN sign-off stem (references/pulse_medley_2026-11-12/vo_audio/vo_signoff_pp2_v1_0f32f697d950.wav; ElevenLabs eleven_v4, voice cbQ4bUP6OYwI7yEUTYaM).
+- The second recogniser (scribe_v1), 3 decodes: '... and Stephan Livera.', '... and Stefan Livera.', '... and Stephan Livera.' The surname is LIVERA every time.
+- G20's own decoder (faster-whisper medium on the final mix, under the music bed) wrote 'stefan lavera'.
+- The phoneme-level look is INCONCLUSIVE, said plainly: the LPC window 50-110 ms into 'Livera' (scribe times 3.92-4.38 s) is still in the /l/ (F1 198 Hz, F2 1350 Hz). The Whisper forced-scoring step crashed in torch on CPU (c10::Error) and was not measured.
+- The CTC letter model in the cache lacks its feature extractor (not used).
+VERDICT ON THE EVIDENCE: no sign of a mispronunciation, so 24 (c) (a registry pronunciation hint, the sign-off regenerated) is NOT applied. G20's phonetic match (24 (b), merged) covers the decoder's spelling.
+26, G9 9:16, the medley 13.6 against the floor 14.73 (the review video: 14.8, PASS). Measured (scratchpad g9_tail_facts.json):
+(1) WHICH FRAMES: gate_g9 samples 3 frames in the final's last 1.0 s. In all three finals (the medley, the Nov 12 review video, v2f) they fall at the SAME places, 3.62 / 3.96 / 4.29 s into the SAME locked 9:16 outro (conformed sha256 1af99ca7, from master 48d114da; both runs recorded it hash-identical). Readings: medley 13.62 / 13.64 / 13.65; review 14.76 / 14.78 / 14.78.
+(2) WHAT IS DIFFERENT IS NOT THE LUMA: the Y plane of the sampled frame is the same in all three finals (13.73 as gray read straight from Y, through either matrix). G9 measures through RGB (ffmpeg PNG, then OpenCV grayscale), so color tags and chroma enter its number. The medley's 9:16 final is UNTAGGED (range / space / transfer / primaries unknown). The review video's and v2f's 9:16 finals, and every 16:9 final including the medley's, are tagged tv / bt709. Decoding the medley frame as BT.709 gives 13.98; decoding the review frame as BT.601 gives 14.49. The remaining ~0.8 is chroma that differs in the encoded frames.
+(3) WHY: the medley's clip_02 is the only prepared clip, in either video, from a BT.601 source: Stephan Livera's Sjb6lUiL0m4 is tv / smpte170m, and its prepared final_clip_02 kept smpte170m. Every other prepared clip in both videos is BT.709. The 9:16 concat of mixed color spaces produced an untagged final. The 16:9 stayed tagged; its G9 is 14.3 in both videos. The 9:16 render code did not change between the two launches (59068f44 -> 1f50a0ca touched only qa_gates.py and scene_shoutout.py).
+(4) PIN #1 IS EXPOSED to the same row: its hook is from the same BT.601 source (Sjb6lUiL0m4).
+PROPOSAL, NOT APPLIED (the orchestrator rules):
+(a) prepare every clip to BT.709 tv, tagged, and tag every final explicitly; a Section 2 format-lock gap;
+(b) G9 reads the Y plane, or decodes with the file's own tagged matrix, so that a tag cannot move a luma gate. Its floor was calibrated through the same RGB path, so changing the measure means re-measuring the floor (DEC-1), never lowering it.
+
 ## 00:43 BATCH (order '00:05'): PIN #1 RENDERING, run pinned_20261113_054035, started 00:40:35. RULINGS 24 (b) AND 27 MERGED FIRST.
 PIN #1:
 - the builder's seal 1b4a63d0 (fresh_20261111_213954), frozen as data/moments_pins/MOMENTS_PIN_BATCH_B1.json (sha256 53cb1eff...); checked on its own content: READY, with the builder's package_pin.py identical to their commit 5ecd5500, the file that sealed it;
