@@ -1,4 +1,40 @@
-16:49 ET: NO BUILD RUNNING; THE NEXT BUILD WAITS ON ONE AUDITED FIX. Ruling 70's cost report is committed (bc516e8e, audit 1635: the vendor's figure, an estimate labelled as one). The registry gap (the 16:30 build's search re-formed and re-wrote the resting candidate, free from its recordings) is fixed in a scratch copy: the search now leaves every registered line-up to the registry (neither judged nor written; next angle). All 14 suites OK; its 2-cycle audit (1655) is running; then the next build. THE BINDING CONSTRAINT IS STILL HOOKS: one moment rates >= 4 (Simply Bitcoin DcUbBkyeh9M 216-229 s), so every line-up opens on Simply Bitcoin and your variety preference cannot be met yet. The only line-up whose clips pass (Simply Bitcoin -> BTC Sessions -> Stephan Livera) RESTS until 22:29 ET. SPEND (ruling 48): $7.84 of $12.00. QUESTION (STILL OPEN): KEEP BUILDING (each build judges 8 NEW line-ups around the one hook, about $0.07-0.33), OR TRY THE RESTING CANDIDATE WITH FRESH WRITES NOW?
+16:56 ET: THE REGISTRY GAP FIX IS COMMITTED (audit 1655, 2 cycles: grok, qwen and glm SHIP yes; the cycle-1 consensus found and closed a second path, ruling 3's no-voice fallback). The search now leaves every registered line-up to the registry. The next build starts now: 8 judged line-ups around the one hook >= 4 (Simply Bitcoin DcUbBkyeh9M 216-229 s), so your variety preference cannot be met yet. The only line-up whose clips pass (Simply Bitcoin -> BTC Sessions -> Stephan Livera) RESTS until 22:29 ET. SPEND (ruling 48): $7.84 of $12.00 (audit 1655: about $0.47 at upper-bound prices, direct HTTP, not on the ledger). QUESTION (STILL OPEN): KEEP BUILDING (each build judges 8 NEW line-ups around the one hook, about $0.07-0.33), OR TRY THE RESTING CANDIDATE WITH FRESH WRITES NOW?
+
+## 16:56 ET: ruling 66's registry gap, fixed and audited (1655)
+
+**The gap.** In the 16:30 build (ledger_20261113_212949):
+- the registry tried the candidate (Simply Bitcoin -> BTC Sessions -> Stephan Livera); its line failed again, so it
+  rests until 22:29 ET;
+- the normal search then re-formed the same line-up (angle 1, line-up 6) and wrote it again.
+
+It was free (recorded replies), but it was a try inside the 6 h. With other seeds it would have been a paid verdict
+and paid writes.
+
+**The fix.**
+- candidates.registered(reg) lists every registered line-up, whatever its state.
+- package.build(registered=) never judges or writes one; the angle ends there, as after a passing line-up whose line
+  fails.
+- The driver reads it in the refusal block (a malformed entry: exit 2, nothing written) and passes it to the search
+  after the candidate tries.
+- A build from a candidate ignores it.
+
+**The audit.**
+- Cycle 1: grok and glm asked whether every path that forms a line-up meets the check. Tracing it found a second
+  one: ruling 3's no-voice fallback adds one clip and judges the new line-up. It now never adds the clip that would
+  form a registered line-up.
+- Cycle 2: grok, qwen and glm all SHIP yes, with no P0 or P1.
+- Tests cover the first-formed, swapped, reordered, pool-filled and no-voice paths. Each new check was removed in a
+  mutation run, and its test failed.
+
+**Hardening.** The driver's two refusal tests now run under refused_only() (urlopen and os.makedirs raise):
+- a mutation check of the refusal test had run the driver on in a scratch copy;
+- replayed with the network blocked, it made 0 HTTP calls and 0 yt-dlp calls;
+- but only because that copy lacked a directory.
+
+**Verification.**
+- 14 suites OK in the worktree (medley 141, candidates 10, ledger_build 35, ...).
+- regression_test.sh 26 PASS | 0 FAIL | 5 WARN.
+- Audit spend: about $0.47 at upper-bound prices, direct HTTP, not on the ledger.
 
 ## 15:07 ET: ORDER 15:03 (A, B, C), from records already held
 

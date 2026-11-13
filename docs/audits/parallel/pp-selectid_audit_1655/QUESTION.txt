@@ -1,0 +1,53 @@
+You are auditing a SMALL search fix on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins).
+Only state what you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- package.build searches for a medley: per angle, a line-up (a hook + 2-4 clips, by moment id, in order) is judged
+  on the clips alone (one model verdict); only a line-up that passes gets writes (the takeaway / title / caption),
+  then paid gates. Line-ups judged in a build are capped at 8 (a recorded verdict is free and not counted).
+- When a passing line-up's writes fail (its LINE fails) and no clip was dropped, the angle ends:
+  `if out["packages"] or not relined: break` (next angle).
+- RULING 66 (orchestrator 13:18 + 14:02 Nov 13): a line-up that passed the clips-alone verdict is a CANDIDATE, kept in
+  a registry (pipeline/candidates.py; the driver tests/package/proof_ledger.py reads and writes it). Every build
+  first tries the due candidates (run_due): open ones with their recorded calls; a candidate whose clips pass but whose
+  LINE fails again is "CLOSED for 6 hours, then may be tried once more with fresh writes"; it is closed for good when
+  a clip is delivered, ages out or fails a gate (or its fresh try fails too). States: open / resting / closed.
+
+The defect (found in the 16:30 ET build's record, ledger_20261113_212949):
+- The registry tried the candidate H+A+B; its line failed again, so it became "resting" until 22:29 ET.
+- The normal search that followed in the same build re-formed H+A+B (angle 1, its 6th line-up, through the same
+  swaps as before) and wrote it again. Every call was served from its recordings (free), but it was a try inside the
+  6 h all the same, and with other seeds it could have been a paid verdict and paid writes.
+
+The fix:
+1. candidates.registered(reg) -> {tuple(line-up): {key, state, until, source, index}} for EVERY registered line-up,
+   whatever its state. It raises ValueError on an entry whose line-up is not a non-empty list of non-empty strings
+   matching its key.
+2. package.build(registered=...): after a line-up is formed (first formed, swapped, reordered or pool-filled: all pass
+   through the same point at the top of the loop) and before any verdict, a registered line-up is recorded in
+   out["tried"] (rec["registered"], rec["why"] "ruling 66: a registered candidate (...): ... next angle"), neither
+   judged nor written, and the angle ends (break), as it ends after a passing line-up whose line fails. It is not a
+   judged line-up. A build FROM a candidate (candidate is not None) ignores registered.
+3. The driver: CA.registered(reg) is evaluated in the refusal block (a malformed entry: exit 2, nothing written), and
+   the normal search after run_due gets registered=CA.registered(reg) (the states after this build's candidate tries).
+4. Decided, not an oversight (challenge it if you disagree): the key is the clips AND their order, as ruling 66 defines
+   a candidate ("clips, order, verdict, ..."); the same clips in another order are another line-up and may be judged.
+   Every registered line-up is skipped, open ones included: in practice an open one reaches the search only when its
+   own try ended on a budget, and the registry tries it again next build.
+5. Tests: test_candidates (registered: every state; malformed entries raise), test_medley (the search skips a
+   registered line-up first formed and one formed by a swap; a candidate build still tries its own), test_ledger_build
+   (malformed entries refuse the run). Hardening: both driver refusal tests now run under refused_only(), which makes
+   urllib.request.urlopen and os.makedirs raise, so a run that slips past the refusal block fails the test before it
+   can write a proof dir or reach the network. (A mutation check of the refusal test, with the new check removed, had
+   run the driver on in a scratch copy; replayed with the network blocked, it made 0 HTTP calls, but only because
+   that copy lacked a directory.)
+
+Check, against the diff only:
+- that a registered line-up can never be judged or written by the search, on any path that forms a line-up;
+- that the skip never counts as a judged line-up and cannot loop;
+- that nothing here changes what any gate, verdict or the seal accepts (law: never change what a check accepts to
+  make something pass);
+- that the candidate's own try is never skipped;
+- that the refusal guard cannot leak into other tests (os.makedirs / urlopen patched only inside its with-block).
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

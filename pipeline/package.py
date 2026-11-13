@@ -2033,7 +2033,7 @@ def candidate_lineup(router, candidate, cleared, now):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
-          visual_cache=None):
+          visual_cache=None, registered=None):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -2060,9 +2060,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["candidate"]["class"]: "package", "clip" (closed for good), "line" (its clips passed, a line failed) or
     "budget". candidate["write_seed"] (ruling 66 at 14:02: a candidate's one more try "with fresh writes") is added to
     every write's seed, so no recorded write is served again; 0 (the default) keeps the recorded ones.
+    registered (candidates.registered): every line-up the registry holds, by its moment ids in order. The search never
+    re-forms one: the registry tries it (open first; resting once after its 6 h, with fresh writes; closed never). A
+    line-up the search forms that is registered is recorded ("registered") and neither judged nor written, and the angle
+    ends there, as it ends after a passing line-up whose line fails; ruling 3's no-voice fallback never adds the clip
+    that would form one (audit 1655). A build from a candidate ignores it.
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
+    held_map = dict(registered or {}) if candidate is None else {}   # ruling 66: the registry's line-ups, by moment ids
     import visual_pin as VP                            # ruling 70
     vcache = VP.load_cache(visual_cache) if visual_cache else {}
     out_visual = {"calls": 0, "cached": 0, "usd_reported": 0.0, "usd_estimate": 0.0, "estimated_calls": 0,
@@ -2370,10 +2376,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         sum(bool(x.get("trimmed_leading")) for x in cand) > TRIMMED_PER_LINEUP_MAX or \
                         not nv_lo <= sum(x["duration_s"] for x in cand) <= nv_hi:
                     continue
+                if tuple(x["moment_id"] for x in cand) in held_map:   # ruling 66: the registry's, never this search's
+                    note.setdefault("registered_skipped", []).append(held_map[tuple(x["moment_id"] for x in cand)]["key"])
+                    continue
                 order, added = cand, mid
                 break
             if added is None:
-                note["why_not"] = f"{content:.1f} s of clips and no one clip of the angle lands {nv_lo:.1f}-{nv_hi:.1f} s"
+                note["why_not"] = (f"{content:.1f} s of clips and no one clip of the angle lands {nv_lo:.1f}-{nv_hi:.1f} s"
+                                   + (f" (ruling 66: {note['registered_skipped']} left to the registry)"
+                                      if note.get("registered_skipped") else ""))
                 return None
             ok2, nv_med = medley(router, order, ctx, writers_v, seed=50 + n_lineup + 10 * ai, writer_family=writers_f)
             note["medley"] = nv_med
@@ -2472,6 +2483,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                 out["tried"].append(rec)
                 if segs is None:
                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+                    break
+                held = held_map.get(tuple(m["moment_id"] for m in segs))
+                if held is not None:                      # RULING 66 (14:02): the registry's line-up, never the search's
+                    rec["registered"] = dict(held)
+                    rec["why"] = (f"ruling 66: a registered candidate ({held.get('state')}" +
+                                  (f" until {held['until']}" if held.get("until") else "") +
+                                  f"; {held.get('source')} tried[{held.get('index')}]): the registry tries it, the "
+                                  f"search never re-forms it; not judged, nothing written: next angle")
+                    log(f"  angle {ai + 1}: {rec['why']} ({time.time() - t0:.0f} s)")
                     break
                 n_lineup += 1
                 spins += 1

@@ -1,0 +1,253 @@
+diff --git a/pipeline/candidates.py b/pipeline/candidates.py
+index d89ed67..ea38cca 100644
+--- a/pipeline/candidates.py
++++ b/pipeline/candidates.py
+@@ -88,6 +88,22 @@ def seed(reg, record, source):
+     return added
+ 
+ 
++def registered(reg):
++    """The line-ups the registry holds, whatever their state, for the search to leave alone (the 16:30 Nov 13 build's
++    search re-formed the resting candidate and re-wrote it: free from its recordings, but a try inside its 6 h all the
++    same). The registry tries a candidate: open first; resting, once after its 6 h with fresh writes; closed, never.
++    -> {tuple(line-up): {"key", "state", "until", "source", "index"}}. Raises ValueError on a malformed line-up (the
++    driver reads it before it writes anything)."""
++    out = {}
++    for k, e in reg["candidates"].items():
++        lu = e.get("lineup")
++        if not isinstance(lu, list) or not lu or not all(isinstance(x, str) and x for x in lu) or key(lu) != k:
++            raise ValueError(f"the candidate {k!r} holds no line-up of moment ids matching its key ({lu!r})")
++        out[tuple(lu)] = {"key": k, "state": e["state"], "until": e.get("until"), "source": e["source"],
++                          "index": e["index"]}
++    return out
++
++
+ def due(reg, now):
+     """The candidates to try now, newest first (by the time their line-up passed): every open one (its recorded
+     verdicts and writes, free), and every resting one whose 6 h are over (fresh writes). -> [(key, entry, fresh)]."""
+diff --git a/pipeline/package.py b/pipeline/package.py
+index dc2f3fc..24992fa 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2033,7 +2033,7 @@ def candidate_lineup(router, candidate, cleared, now):
+ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
+           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
+           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
+-          visual_cache=None):
++          visual_cache=None, registered=None):
+     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
+     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
+     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
+@@ -2060,6 +2060,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     out["candidate"]["class"]: "package", "clip" (closed for good), "line" (its clips passed, a line failed) or
+     "budget". candidate["write_seed"] (ruling 66 at 14:02: a candidate's one more try "with fresh writes") is added to
+     every write's seed, so no recorded write is served again; 0 (the default) keeps the recorded ones.
++    registered (candidates.registered): every line-up the registry holds, by its moment ids in order. The search never
++    re-forms one: the registry tries it (open first; resting once after its 6 h, with fresh writes; closed never). A
++    line-up the search forms that is registered is recorded ("registered") and neither judged nor written, and the angle
++    ends there, as it ends after a passing line-up whose line fails. A build from a candidate ignores it.
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+@@ -2473,6 +2477,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 if segs is None:
+                     rec["why"] = "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+                     break
++                held = (registered or {}).get(tuple(m["moment_id"] for m in segs)) if candidate is None else None
++                if held is not None:                      # RULING 66 (14:02): the registry's line-up, never the search's
++                    rec["registered"] = dict(held)
++                    rec["why"] = (f"ruling 66: a registered candidate ({held.get('state')}" +
++                                  (f" until {held['until']}" if held.get("until") else "") +
++                                  f"; {held.get('source')} tried[{held.get('index')}]): the registry tries it, the "
++                                  f"search never re-forms it; not judged, nothing written: next angle")
++                    log(f"  angle {ai + 1}: {rec['why']} ({time.time() - t0:.0f} s)")
++                    break
+                 n_lineup += 1
+                 spins += 1
+                 if spins > 4 * lineups:                   # a guard: free (cached) line-ups never turn forever
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 63f93ab..02585be 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -125,6 +125,7 @@ def main(argv=None):
+             with open(p) as f:
+                 CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
+         CA.due(reg, now)                                 # every stored time reads (audit 1420 C1), or exit 2
++        CA.registered(reg)                               # and every line-up (the search leaves them alone), or exit 2
+     except (OSError, ValueError, KeyError, TypeError) as e:
+         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
+               f"({type(e).__name__}: {e})", file=sys.stderr)
+@@ -207,8 +208,8 @@ def main(argv=None):
+         say(f"  RULING 66: {len(tries)} candidate(s) tried: " + "; ".join(
+             f"{t['source']}[{t['index']}] {t['class']} -> {t['state']}" for t in tries) if tries else
+             "  RULING 66: no candidate is due")
+-        if res is None and left > 0:
+-            res = PK.build(router, moments, sources, ctx, lineups=left, **kw)
++        if res is None and left > 0:                     # the search never re-forms a registered line-up
++            res = PK.build(router, moments, sources, ctx, lineups=left, registered=CA.registered(reg), **kw)
+         elif res is None:                                # every judged line-up went to candidates: no angle asked
+             res = dict(last.get("out") or {"usable": None, "prescreen": {}, "tried": []}, package=None, packages=[],
+                        why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")
+diff --git a/tests/package/test_candidates.py b/tests/package/test_candidates.py
+index 14bcc8b..7c06985 100644
+--- a/tests/package/test_candidates.py
++++ b/tests/package/test_candidates.py
+@@ -100,6 +100,23 @@ class TestRegistry(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             CA.due(reg, T0)
+ 
++    def test_registered_is_every_line_up_whatever_its_state(self):
++        """The search leaves every registered line-up to the registry (the 16:30 Nov 13 gap)."""
++        reg = CA.new_registry()
++        CA.seed(reg, record(T0, [t(["a", "b", "c"]), t(["d", "e", "f"]), t(["g", "h", "i"])]), "r")
++        CA.outcome(reg["candidates"]["d+e+f"], "line", T0.isoformat(), "b")
++        CA.outcome(reg["candidates"]["g+h+i"], "clip", T0.isoformat(), "b")
++        got = CA.registered(reg)
++        self.assertEqual({k: v["state"] for k, v in got.items()},
++                         {("a", "b", "c"): "open", ("d", "e", "f"): "resting", ("g", "h", "i"): "closed"})
++        self.assertEqual((got[("d", "e", "f")]["until"], got[("d", "e", "f")]["key"], got[("d", "e", "f")]["index"]),
++                         ((T0 + timedelta(hours=6)).isoformat(), "d+e+f", 1))
++        self.assertEqual(CA.registered(CA.new_registry()), {})
++        for bad in (["a", "b"], None, "abc", ["a", "", "c"], ["a", 2, "c"]):          # not a line-up matching its key
++            reg["candidates"]["a+b+c"]["lineup"] = bad
++            with self.assertRaises(ValueError):
++                CA.registered(reg)
++
+     def test_run_due_stops_at_a_package_inside_the_judged_line_ups(self):
+         reg = CA.new_registry()
+         for h, lu in enumerate((["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"])):
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 076c82d..74817cb 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -4,6 +4,7 @@
+ - reading the store's word record (its sha checked, sentence-ready only);
+ - turning rows into the packager's moments (counted drops, no duplicate spans);
+ - the adapter's failures are raised, never read as an empty ledger."""
++import contextlib
+ import hashlib
+ import io
+ import json
+@@ -27,6 +28,16 @@ SENTS = ["Bitcoin is a global free market.", "Nobody can stop Bitcoin from settl
+          "In 2009 Bitcoin started as a quiet experiment."]
+ 
+ 
++@contextlib.contextmanager
++def refused_only():
++    """A refusal test's guard: a driver run that gets past its refusal block fails here, before it can write a proof
++    dir or reach the network (16:45 Nov 13: a mutation check of a refusal test ran the driver on, in a scratch copy;
++    it spent nothing, but only because that copy lacked a directory)."""
++    with mock.patch("urllib.request.urlopen", side_effect=AssertionError("a refused run reached the network")), \
++            mock.patch("os.makedirs", side_effect=AssertionError("a refused run went on to write a proof dir")):
++        yield
++
++
+ def row(text, start=None, end=None, mid="L1", vid="vidA"):
+     return {"moment_id": mid, "video_id": vid, "channel_id": "UCdd", "channel_name": "DataDash", "text": text,
+             "start": start, "end": end, "published_at": NOW.isoformat(), "title": "t",
+@@ -691,7 +702,7 @@ class TestDriverRefuses(unittest.TestCase):
+         self.assertEqual(len(spans), sum(i["clips"] for i in info))
+         proof = os.path.join(HERE, "proof")
+         before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_"))
+-        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()):
++        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()), refused_only():
+             with open(pins[1]) as f:
+                 pin = json.load(f)
+             for name, bad in (("naive.json", dict(pin, approved_at="2026-11-13T03:01:09")),
+@@ -723,7 +734,7 @@ class TestDriverRefuses(unittest.TestCase):
+                                                                                  "MOMENTS_PIN_LY.json")]
+         proof = os.path.join(HERE, "proof")
+         before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json")
+-        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err:
++        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err, refused_only():
+             reg = os.path.join(d, "CANDIDATES.json")
+             with open(reg, "w") as f:
+                 json.dump({"records": [], "candidates": {"x+y+z": {
+@@ -736,6 +747,18 @@ class TestDriverRefuses(unittest.TestCase):
+             self.assertIn("registry", err.getvalue())
+             with open(reg) as f:
+                 self.assertEqual(f.read(), was)                                     # never rewritten
++            for bad in (None, ["x", "y"]):                      # a line-up the search could not leave alone
++                with open(reg, "w") as f:
++                    json.dump({"records": [], "candidates": {"x+y+z": {
++                        "lineup": bad, "source": "r", "index": 0, "found_at": "2026-11-13T19:00:00+00:00",
++                        "state": "open", "until": None, "fresh_used": False, "history": []}}}, f)
++                with open(reg) as f:
++                    was = f.read()
++                with mock.patch.object(PLG, "REGISTRY", reg):
++                    self.assertEqual(PLG.main(["--delivered", *pins]), 2, bad)
++                self.assertIn("matching its key", err.getvalue())
++                with open(reg) as f:
++                    self.assertEqual(f.read(), was)
+         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
+                          before)
+ 
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index dea7ca8..7eb3ed2 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -523,7 +523,7 @@ class Rig:
+     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
+-                 cached=False, candidate=None, visuals=None):
++                 cached=False, candidate=None, visuals=None, registered=None):
+         import providers as P
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+@@ -533,6 +533,7 @@ class Rig:
+         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
+         self.medley_calls, self.write_calls, self.prompts = [], [], []
+         self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
++        self.registered = registered                        # ruling 66: the registry's line-ups (candidates.registered)
+         self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
+         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
+         self.screens, self.events, self.a_seen = [], [], []
+@@ -663,6 +664,8 @@ class Rig:
+                                                              "replayed": False}),
+         }
+         kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
++        if self.registered is not None:
++            kw["registered"] = self.registered
+         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
+             import tempfile
+             fd, path = tempfile.mkstemp(suffix=".json")
+@@ -1773,6 +1776,38 @@ class TestRuling66Candidate(unittest.TestCase):
+         self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108), ("write", 1109)])   # fresh writes, the verdict
+                                                                                           # still its recorded seed
+ 
++    def test_the_search_never_re_forms_a_registered_line_up(self):
++        """RULING 66 (14:02; the 16:30 Nov 13 build's search re-formed the resting candidate and re-wrote it from its
++        recordings): a line-up the registry holds is neither judged nor written by the search, first formed or swapped
++        in, and the angle ends there; a build from the candidate itself still tries it."""
++        two = [["h", "x", "y", "z"], ["x", "h", "y", "z"]]
++        held = lambda lu, st, until=None: {tuple(lu): {"key": "+".join(lu), "state": st, "until": until,
++                                                       "source": "proof/ledger_x", "index": 0}}
++        rig = Rig(self.MS, two, [(True, [], None, Rig.LINE)], [None],
++                  registered=held(["h", "x", "y"], "resting", "2026-11-14T03:29:49+00:00"))
++        out = rig.run()
++        self.assertIsNotNone(out["package"])
++        self.assertEqual(out["tried"][0]["lineup"], ["h", "x", "y"])           # formed, then left alone
++        self.assertEqual(out["tried"][0]["registered"]["state"], "resting")
++        self.assertTrue(out["tried"][0]["why"].startswith("ruling 66: a registered candidate (resting until "
++                                                          "2026-11-14T03:29:49+00:00; proof/ledger_x tried[0])"))
++        self.assertNotIn("medley_ok", out["tried"][0])                          # never a new candidate (CA.seed)
++        self.assertEqual([c[0] for c in rig.medley_calls], ["x"])                # only angle 2's line-up is judged
++        self.assertEqual([w[0][0] for w in rig.write_calls], ["x"])              # and written
++        self.assertEqual(out["search"]["lineups"], 1)                           # the skip is no judged line-up
++        rig = Rig(self.MS, two, [(False, [], {"clip_02": 2}, Rig.LINE), (True, [], None, Rig.LINE)], [None],
++                  registered=held(["h", "x", "z"], "closed"))
++        out = rig.run()                                                          # a swap that forms it: the same
++        self.assertEqual(rig.medley_calls[0], ["h", "x", "y"])
++        self.assertEqual((out["tried"][1]["lineup"], out["tried"][1]["registered"]["state"]),
++                         (["h", "x", "z"], "closed"))
++        self.assertEqual([c[0] for c in rig.medley_calls[1:]], ["x"])
++        self.assertIsNotNone(out["package"])
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
++                  candidate=PK.load_candidate(self.record()), registered=held(["h", "x", "y"], "resting"))
++        out = rig.run()                                                          # its own try: never skipped
++        self.assertEqual((rig.medley_calls, out["candidate"]["class"]), ([["h", "x", "y"]], "package"))
++
+     def test_exactly_its_clips_never_a_subset(self):
+         ms = [pm("h", "A", 13.0), pm("x", "B", 13.0), pm("y", "C", 13.0), pm("z", "D", 11.0)]
+         rec = self.record(tried=[{"angle": 1, "text": self.TEXT, "lineup": ["h", "x", "y", "z"],

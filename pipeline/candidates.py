@@ -88,6 +88,22 @@ def seed(reg, record, source):
     return added
 
 
+def registered(reg):
+    """The line-ups the registry holds, whatever their state, for the search to leave alone (the 16:30 Nov 13 build's
+    search re-formed the resting candidate and re-wrote it: free from its recordings, but a try inside its 6 h all the
+    same). The registry tries a candidate: open first; resting, once after its 6 h with fresh writes; closed, never.
+    -> {tuple(line-up): {"key", "state", "until", "source", "index"}}. Raises ValueError on a malformed line-up (the
+    driver reads it before it writes anything)."""
+    out = {}
+    for k, e in reg["candidates"].items():
+        lu = e.get("lineup")
+        if not isinstance(lu, list) or not lu or not all(isinstance(x, str) and x for x in lu) or key(lu) != k:
+            raise ValueError(f"the candidate {k!r} holds no line-up of moment ids matching its key ({lu!r})")
+        out[tuple(lu)] = {"key": k, "state": e["state"], "until": e.get("until"), "source": e["source"],
+                          "index": e["index"]}
+    return out
+
+
 def due(reg, now):
     """The candidates to try now, newest first (by the time their line-up passed): every open one (its recorded
     verdicts and writes, free), and every resting one whose 6 h are over (fresh writes). -> [(key, entry, fresh)]."""

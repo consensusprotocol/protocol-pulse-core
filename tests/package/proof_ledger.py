@@ -125,6 +125,7 @@ def main(argv=None):
             with open(p) as f:
                 CA.seed(reg, json.load(f), os.path.relpath(os.path.dirname(p), REPO))
         CA.due(reg, now)                                 # every stored time reads (audit 1420 C1), or exit 2
+        CA.registered(reg)                               # and every line-up (the search leaves them alone), or exit 2
     except (OSError, ValueError, KeyError, TypeError) as e:
         print(f"REFUSED: the delivered pins, 'since', the candidate or the candidate registry cannot be read "
               f"({type(e).__name__}: {e})", file=sys.stderr)
@@ -207,8 +208,8 @@ def main(argv=None):
         say(f"  RULING 66: {len(tries)} candidate(s) tried: " + "; ".join(
             f"{t['source']}[{t['index']}] {t['class']} -> {t['state']}" for t in tries) if tries else
             "  RULING 66: no candidate is due")
-        if res is None and left > 0:
-            res = PK.build(router, moments, sources, ctx, lineups=left, **kw)
+        if res is None and left > 0:                     # the search never re-forms a registered line-up
+            res = PK.build(router, moments, sources, ctx, lineups=left, registered=CA.registered(reg), **kw)
         elif res is None:                                # every judged line-up went to candidates: no angle asked
             res = dict(last.get("out") or {"usable": None, "prescreen": {}, "tried": []}, package=None, packages=[],
                        why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")

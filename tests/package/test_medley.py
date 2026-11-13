@@ -523,7 +523,7 @@ class Rig:
     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
-                 cached=False, candidate=None, visuals=None):
+                 cached=False, candidate=None, visuals=None, registered=None):
         import providers as P
         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
         self.takeaways, self.spend = list(takeaways or []), spend
@@ -533,6 +533,7 @@ class Rig:
         self.hooks, self.hook_err, self.hook_calls = dict(hooks or {}), hook_err, []   # ruling 59 (a): {id: (s, a, u)}
         self.medley_calls, self.write_calls, self.prompts = [], [], []
         self.candidate, self.seeds = candidate, []          # ruling 66: build from a candidate; the seeds asked with
+        self.registered = registered                        # ruling 66: the registry's line-ups (candidates.registered)
         self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
         self.screens, self.events, self.a_seen = [], [], []
@@ -663,6 +664,8 @@ class Rig:
                                                              "replayed": False}),
         }
         kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
+        if self.registered is not None:
+            kw["registered"] = self.registered
         if self.verdicts is not None:                      # ruling 56: the integrator's file, read by the real reader
             import tempfile
             fd, path = tempfile.mkstemp(suffix=".json")
@@ -1772,6 +1775,75 @@ class TestRuling66Candidate(unittest.TestCase):
         self.assertEqual((out["candidate"]["class"], out["candidate"]["fresh"]), ("line", True))
         self.assertEqual(rig.seeds, [("medley", 8), ("write", 1108), ("write", 1109)])   # fresh writes, the verdict
                                                                                           # still its recorded seed
+
+    def test_the_search_never_re_forms_a_registered_line_up(self):
+        """RULING 66 (14:02; the 16:30 Nov 13 build's search re-formed the resting candidate and re-wrote it from its
+        recordings): a line-up the registry holds is neither judged nor written by the search, first formed or swapped
+        in, and the angle ends there; a build from the candidate itself still tries it."""
+        two = [["h", "x", "y", "z"], ["x", "h", "y", "z"]]
+        held = lambda lu, st, until=None: {tuple(lu): {"key": "+".join(lu), "state": st, "until": until,
+                                                       "source": "proof/ledger_x", "index": 0}}
+        rig = Rig(self.MS, two, [(True, [], None, Rig.LINE)], [None],
+                  registered=held(["h", "x", "y"], "resting", "2026-11-14T03:29:49+00:00"))
+        out = rig.run()
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(out["tried"][0]["lineup"], ["h", "x", "y"])           # formed, then left alone
+        self.assertEqual(out["tried"][0]["registered"]["state"], "resting")
+        self.assertTrue(out["tried"][0]["why"].startswith("ruling 66: a registered candidate (resting until "
+                                                          "2026-11-14T03:29:49+00:00; proof/ledger_x tried[0])"))
+        self.assertNotIn("medley_ok", out["tried"][0])                          # never a new candidate (CA.seed)
+        self.assertEqual([c[0] for c in rig.medley_calls], ["x"])                # only angle 2's line-up is judged
+        self.assertEqual([w[0][0] for w in rig.write_calls], ["x"])              # and written
+        self.assertEqual(out["search"]["lineups"], 1)                           # the skip is no judged line-up
+        rig = Rig(self.MS, two, [(False, [], {"clip_02": 2}, Rig.LINE), (True, [], None, Rig.LINE)], [None],
+                  registered=held(["h", "x", "z"], "closed"))
+        out = rig.run()                                                          # a swap that forms it: the same
+        self.assertEqual(rig.medley_calls[0], ["h", "x", "y"])
+        self.assertEqual((out["tried"][1]["lineup"], out["tried"][1]["registered"]["state"]),
+                         (["h", "x", "z"], "closed"))
+        self.assertEqual([c[0] for c in rig.medley_calls[1:]], ["x"])
+        self.assertIsNotNone(out["package"])
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  candidate=PK.load_candidate(self.record()), registered=held(["h", "x", "y"], "resting"))
+        out = rig.run()                                                          # its own try: never skipped
+        self.assertEqual((rig.medley_calls, out["candidate"]["class"]), ([["h", "x", "y"]], "package"))
+
+    def test_a_reordered_or_pool_filled_line_up_is_skipped_too(self):
+        """Audit 1655 C1 (grok P2-1, glm P1-1): every path that forms a line-up meets the check: ruling 63's reorder
+        (through `swapped`) and PROPOSAL 1's pool fill (an angle that forms none of its own)."""
+        held = lambda lu, st: {tuple(lu): {"key": "+".join(lu), "state": st, "until": None,
+                                           "source": "proof/ledger_x", "index": 0}}
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
+        rig = Rig(ms, ["h", "x", "y"], [(False, ["hook -> clip_01", "clip_01 -> clip_02"], None, Rig.LINE)], [],
+                  registered=held(["h", "y", "x"], "closed"))
+        out = rig.run()
+        self.assertIn("ruling 63", out["tried"][0]["why"])                   # the same clips reordered...
+        self.assertEqual((out["tried"][1]["lineup"], out["tried"][1]["registered"]["key"]), (["h", "y", "x"], "h+y+x"))
+        self.assertEqual((rig.medley_calls, rig.write_calls), ([["h", "x", "y"]], []))   # ...and never judged
+        ms = [pm("h", "A", 8.8), pm("x", "B", 13.9), pm("s", "C", 6.9), pm("y", "D", 13.8), pm("z", "E", 9.5)]
+        filled = Rig(ms, ["h", "x", "s", "y"], [(True, [], None, Rig.LINE)], [None], no_hook={"s", "y"}).run()
+        lu = filled["tried"][0]["lineup"]
+        self.assertEqual(filled["tried"][0]["pool_filled"], ["z"])
+        rig = Rig(ms, ["h", "x", "s", "y"], [], [], no_hook={"s", "y"}, registered=held(lu, "open"))
+        out = rig.run()
+        self.assertEqual((out["tried"][0]["pool_filled"], out["tried"][0]["registered"]["state"]), (["z"], "open"))
+        self.assertEqual((rig.medley_calls, rig.write_calls, out["package"]), ([], [], None))
+        self.assertTrue(out["why_none"].startswith("no angle gave a package: angle 1: ruling 66: a registered "
+                                                   "candidate (open; proof/ledger_x tried[0])"), out["why_none"])
+
+    def test_the_no_voice_fallback_never_adds_the_clip_that_forms_a_registered_line_up(self):
+        """Audit 1655: ruling 3's no-voice fallback adds one clip and judges the new line-up; a registered one is left
+        to the registry (here the only clip that lands it, so no package)."""
+        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None, None], takeaways=bad,
+                  registered={("h", "x", "y", "z"): {"key": "h+x+y+z", "state": "resting", "until": None,
+                                                     "source": "proof/ledger_x", "index": 0}})
+        out = rig.run()
+        self.assertIsNone(out["package"])
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])                 # h+x+y+z never judged
+        nv = out["tried"][0]["no_voice"]
+        self.assertEqual(nv["registered_skipped"], ["h+x+y+z"])
+        self.assertIn("ruling 66: ['h+x+y+z'] left to the registry", nv["why_not"])
 
     def test_exactly_its_clips_never_a_subset(self):
         ms = [pm("h", "A", 13.0), pm("x", "B", 13.0), pm("y", "C", 13.0), pm("z", "D", 11.0)]

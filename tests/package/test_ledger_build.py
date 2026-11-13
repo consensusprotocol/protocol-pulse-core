@@ -4,6 +4,7 @@
 - reading the store's word record (its sha checked, sentence-ready only);
 - turning rows into the packager's moments (counted drops, no duplicate spans);
 - the adapter's failures are raised, never read as an empty ledger."""
+import contextlib
 import hashlib
 import io
 import json
@@ -25,6 +26,16 @@ from test_eligibility import NOW, REG, source, tokens  # noqa: E402
 SENTS = ["Bitcoin is a global free market.", "Nobody can stop Bitcoin from settling a payment.",
          "That is the whole design and it works every day.", "Bitcoin does not ask for permission.",
          "In 2009 Bitcoin started as a quiet experiment."]
+
+
+@contextlib.contextmanager
+def refused_only():
+    """A refusal test's guard: a driver run that gets past its refusal block fails here, before it can write a proof
+    dir or reach the network (16:45 Nov 13: a mutation check of a refusal test ran the driver on, in a scratch copy;
+    it spent nothing, but only because that copy lacked a directory)."""
+    with mock.patch("urllib.request.urlopen", side_effect=AssertionError("a refused run reached the network")), \
+            mock.patch("os.makedirs", side_effect=AssertionError("a refused run went on to write a proof dir")):
+        yield
 
 
 def row(text, start=None, end=None, mid="L1", vid="vidA"):
@@ -691,7 +702,7 @@ class TestDriverRefuses(unittest.TestCase):
         self.assertEqual(len(spans), sum(i["clips"] for i in info))
         proof = os.path.join(HERE, "proof")
         before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_"))
-        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()):
+        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()), refused_only():
             with open(pins[1]) as f:
                 pin = json.load(f)
             for name, bad in (("naive.json", dict(pin, approved_at="2026-11-13T03:01:09")),
@@ -723,7 +734,7 @@ class TestDriverRefuses(unittest.TestCase):
                                                                                  "MOMENTS_PIN_LY.json")]
         proof = os.path.join(HERE, "proof")
         before = sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json")
-        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err:
+        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new=io.StringIO()) as err, refused_only():
             reg = os.path.join(d, "CANDIDATES.json")
             with open(reg, "w") as f:
                 json.dump({"records": [], "candidates": {"x+y+z": {
@@ -736,6 +747,18 @@ class TestDriverRefuses(unittest.TestCase):
             self.assertIn("registry", err.getvalue())
             with open(reg) as f:
                 self.assertEqual(f.read(), was)                                     # never rewritten
+            for bad in (None, ["x", "y"]):                      # a line-up the search could not leave alone
+                with open(reg, "w") as f:
+                    json.dump({"records": [], "candidates": {"x+y+z": {
+                        "lineup": bad, "source": "r", "index": 0, "found_at": "2026-11-13T19:00:00+00:00",
+                        "state": "open", "until": None, "fresh_used": False, "history": []}}}, f)
+                with open(reg) as f:
+                    was = f.read()
+                with mock.patch.object(PLG, "REGISTRY", reg):
+                    self.assertEqual(PLG.main(["--delivered", *pins]), 2, bad)
+                self.assertIn("matching its key", err.getvalue())
+                with open(reg) as f:
+                    self.assertEqual(f.read(), was)
         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
                          before)
 

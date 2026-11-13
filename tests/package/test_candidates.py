@@ -100,6 +100,23 @@ class TestRegistry(unittest.TestCase):
         with self.assertRaises(ValueError):
             CA.due(reg, T0)
 
+    def test_registered_is_every_line_up_whatever_its_state(self):
+        """The search leaves every registered line-up to the registry (the 16:30 Nov 13 gap)."""
+        reg = CA.new_registry()
+        CA.seed(reg, record(T0, [t(["a", "b", "c"]), t(["d", "e", "f"]), t(["g", "h", "i"])]), "r")
+        CA.outcome(reg["candidates"]["d+e+f"], "line", T0.isoformat(), "b")
+        CA.outcome(reg["candidates"]["g+h+i"], "clip", T0.isoformat(), "b")
+        got = CA.registered(reg)
+        self.assertEqual({k: v["state"] for k, v in got.items()},
+                         {("a", "b", "c"): "open", ("d", "e", "f"): "resting", ("g", "h", "i"): "closed"})
+        self.assertEqual((got[("d", "e", "f")]["until"], got[("d", "e", "f")]["key"], got[("d", "e", "f")]["index"]),
+                         ((T0 + timedelta(hours=6)).isoformat(), "d+e+f", 1))
+        self.assertEqual(CA.registered(CA.new_registry()), {})
+        for bad in (["a", "b"], None, "abc", ["a", "", "c"], ["a", 2, "c"]):          # not a line-up matching its key
+            reg["candidates"]["a+b+c"]["lineup"] = bad
+            with self.assertRaises(ValueError):
+                CA.registered(reg)
+
     def test_run_due_stops_at_a_package_inside_the_judged_line_ups(self):
         reg = CA.new_registry()
         for h, lu in enumerate((["a", "b", "c"], ["d", "e", "f"], ["g", "h", "i"])):
