@@ -33,6 +33,28 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 23:20 Nov 13 RULING 92: HOOK v2 (mine-hook/2) IS LIVE; the 12 h window re-asked. The builder's 22:13 build showed
+  where the 22 conversation hooks stopped: Bitcoin Magazine's 16 at a channel-level layout rule (burned-in chyron, no
+  miner change helps); BTC Sessions' 6 at step A's REFERENT_OUTSIDE, openers on 'and' / 'but' / 'so', a second
+  recognition, no quiet before the first onset ("the useful change is DIFFERENT rows rather than more"). Ruling 92's
+  text (to the builder, relayed verbatim): "... tell pp-ingest that the hook pass should favour conversations for this
+  purpose (role_hint stays 'hook')".
+  - v2: the hook prompt states the builder's OPENER rule with the builder's own word sets (pronouns, conjunctions,
+    reply words; a test compares them with pp-selectid stand_alone.py), "names who or what it is about", "a new
+    thought", and "in a conversation, ONE speaker's complete claim, number or question a stranger understands at
+    once"; a hook whose first word breaks the rule is never written; every new row carries `episode` (the caption
+    turn measure: speaker markers, minutes, turns per minute, unmarked). Audited 2 cycles (no P0 / P1; the '>>' P1
+    refuted by measurement; glm's conditions in: the re-run idempotent per question version), commit c66494a0, the
+    watcher restarted 23:03.
+  - THE RE-RUN (82 mined videos of the window, newest first; $0.044, 92 calls): 19 v2 hook rows: >= 1 turn / min 9
+    (BTC Sessions nvEftLDdab4 5; Bitcoin Magazine 2 + 1 + 1), < 1 turn / min 7 (Simply Bitcoin L6H7538ogGs 4, CNBC 1,
+    Altcoin Daily 1, Digital Asset News 1), unmarked captions 3 (Yahoo); 40 candidates not written by the OPENER rule
+    (pronoun 18, conjunction 14, reply word 8), 9 outside 4-14 s. Simply Bitcoin NtaQGnfWRR8 waits a retry (2 windows;
+    its 23 v1 hooks stand). v1 hooks v2 did not find again stay in the ledger (append-only; the builder's OPENER check
+    rejects the bad ones). Live: live.json `hooks_12h.rows_by_episode`. The builder was told at each step.
+  - NOT BUILT (the orchestrator's choice, on this STATE since 23:10): more hook candidates per window, or a
+    spotlight-length (12-35 s) question for conversation episodes.
+
 - 23:10 Nov 13 RULING 92 (orchestrator 22:52, relayed by the builder, NOT RECEIVED HERE DIRECTLY): spotlights (ruling
   90: one 12-35 s moment, >= 4 as a cold opener and >= 4 standing alone) only from a CONVERSATION (two or more
   speakers by the caption turn structure) or a first-hand statement; "the hook pass should favour conversations for
