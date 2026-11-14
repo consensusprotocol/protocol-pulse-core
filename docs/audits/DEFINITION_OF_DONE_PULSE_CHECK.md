@@ -11,7 +11,7 @@ Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fa
 - The pre-check had no request after 21:23:14. Its answers stood as measured (see 21:29).
 - RULING 87 (orchestrator 21:18, to the builder; the builder relayed it verbatim): "if only ONE outside family answers, step A's second verdict is the local gemma3:27b on GPU0 through the integrator's judge service".
   - No such service exists today: local_judge.py is the 07:28 replay tool, and stand_alone_scorer builds its own prompt.
-  - DECIDED (logged, not asked): I build it now under ruling 87 on the contract I proposed to the builder 21:3x. Requests are read-only in the builder's judge_requests/; results go to data/local_judge/results/<request_id>.<prompt_id>.json; an error is no verdict; GPU0 is taken under the lease and yields to renders.
+  - DECIDED (logged, not asked): I build it now under ruling 87 on the contract I proposed to the builder (sent before 21:40, the time read right after the reply that followed it). Requests are read-only in the builder's judge_requests/; results go to data/local_judge/results/<request_id>.<prompt_id>.json; an error is no verdict; GPU0 is taken under the lease and yields to renders.
   - The builder has wired its side against that contract, waits up to 40 min, and its single-family Plan B fails closed until the service is live.
   - Measured for it (07:28 replay, gemma3:27b on GPU0, digest a418f5838eaf): step A median 43.3 s, p90 62.2 s, max 79.6 s, n 48, 0 errors.
 
