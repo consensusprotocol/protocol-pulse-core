@@ -184,15 +184,25 @@ def mode(path=STATE, now=None, evidence=None, state_md=None, who=""):
         return s["mode"]
 
 
-def probe_due(path=STATE, now=None):
-    """True when a probe is due: calls are failing (or the mode is plan_b) and the last probe is PROBE_EVERY_S old."""
+def probe_due(path=STATE, now=None, who=""):
+    """True when a probe is due: calls are failing (or the mode is plan_b) and the last probe is PROBE_EVERY_S old.
+    A True CLAIMS the slot (last_probe_utc and last_probe_by stamped under the lock), so with several probers (this
+    builder's router, pp-ingest's watcher) there is ONE probe per PROBE_EVERY_S slot, and "BACK_AFTER answers in a
+    row" means that many slots (pp-ingest REQUESTS R12, 02:3x ET Nov 14). The next probe is due PROBE_EVERY_S after the
+    later stamp: probe_result re-stamps last_probe_utc when the probe reports (answer-anchored), and a claimer that
+    never reports leaves the slot spent from its claim (claim-anchored) (audit 0230 C1, glm). who names the claimer
+    (pp-ingest's watcher passes it from its next restart; "" until then)."""
     now = _now(now)
     with _Locked(path):
         s = _load(path)
         if s["mode"] != "plan_b" and not s.get("failing_since_utc"):
             return False
         lp = _t(s.get("last_probe_utc"))
-        return lp is None or (now - lp).total_seconds() >= PROBE_EVERY_S
+        if lp is not None and (now - lp).total_seconds() < PROBE_EVERY_S:
+            return False
+        s["last_probe_utc"], s["last_probe_by"] = _iso(now), who
+        _save(path, s)
+        return True
 
 
 def probe_result(answered, path=STATE, now=None, evidence=None, state_md=None, who=""):

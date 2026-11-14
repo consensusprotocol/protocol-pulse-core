@@ -1,0 +1,76 @@
+diff --git a/pipeline/heimdall_health.py b/pipeline/heimdall_health.py
+index 510725f..c0b25a2 100644
+--- a/pipeline/heimdall_health.py
++++ b/pipeline/heimdall_health.py
+@@ -184,15 +184,23 @@ def mode(path=STATE, now=None, evidence=None, state_md=None, who=""):
+         return s["mode"]
+ 
+ 
+-def probe_due(path=STATE, now=None):
+-    """True when a probe is due: calls are failing (or the mode is plan_b) and the last probe is PROBE_EVERY_S old."""
++def probe_due(path=STATE, now=None, who=""):
++    """True when a probe is due: calls are failing (or the mode is plan_b) and the last probe is PROBE_EVERY_S old.
++    A True CLAIMS the slot (last_probe_utc and last_probe_by stamped under the lock), so with several probers (this
++    builder's router, pp-ingest's watcher) there is ONE probe per PROBE_EVERY_S slot, and "BACK_AFTER answers in a
++    row" means that many slots (pp-ingest REQUESTS R12, 02:3x ET Nov 14). A claimer that never reports leaves the slot
++    spent: the next probe is due PROBE_EVERY_S later."""
+     now = _now(now)
+     with _Locked(path):
+         s = _load(path)
+         if s["mode"] != "plan_b" and not s.get("failing_since_utc"):
+             return False
+         lp = _t(s.get("last_probe_utc"))
+-        return lp is None or (now - lp).total_seconds() >= PROBE_EVERY_S
++        if lp is not None and (now - lp).total_seconds() < PROBE_EVERY_S:
++            return False
++        s["last_probe_utc"], s["last_probe_by"] = _iso(now), who
++        _save(path, s)
++        return True
+ 
+ 
+ def probe_result(answered, path=STATE, now=None, evidence=None, state_md=None, who=""):
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index aa5474b..1161323 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -1036,7 +1036,7 @@ class Router:
+         def loop():
+             while True:
+                 try:
+-                    if HH.probe_due(self.health):
++                    if HH.probe_due(self.health, who="pp-selectid probe"):     # claims the slot (one prober each)
+                         HH.probe_result(self.probe_once(fams), self.health, evidence=self.deadline_log,
+                                         state_md=self.state_md, who="pp-selectid probe")
+                 except Exception:                      # noqa: BLE001 (the probe never stops a build)
+diff --git a/tests/providers/test_heimdall_health.py b/tests/providers/test_heimdall_health.py
+index e47a60c..8cfeff4 100644
+--- a/tests/providers/test_heimdall_health.py
++++ b/tests/providers/test_heimdall_health.py
+@@ -73,6 +73,27 @@ class TestHealth(unittest.TestCase):
+         self.assertIn("BACK TO HEIMDALL-FIRST (THE PROBE ANSWERED 3 TIMES IN A ROW)",
+                       open(self.md).read().split("\n")[0])
+ 
++    def test_two_probers_share_one_probe_per_slot(self):
++        """pp-ingest REQUESTS R12 (02:3x ET Nov 14): this router's probe and pp-ingest's watcher probe the same state;
++        a due probe is CLAIMED, so one slot gives one probe and 3 in a row is 3 slots."""
++        k = lambda m: self.kw(T0 + timedelta(minutes=m))
++        HH.note(False, **k(0))
++        HH.note(False, **k(15))                                          # down: plan_b
++        at = lambda m: T0 + timedelta(minutes=m)
++        self.assertEqual([HH.probe_due(self.state, at(16), who=w) for w in ("pp-selectid", "pp-ingest")],
++                         [True, False])                                  # the second prober finds the slot taken
++        self.assertEqual(json.load(open(self.state))["last_probe_by"], "pp-selectid")
++        HH.probe_result(True, **k(16))
++        self.assertEqual([HH.probe_due(self.state, at(17), who=w) for w in ("pp-selectid", "pp-ingest")],
++                         [False, False])
++        rounds = 1
++        for m in (18, 20):
++            claims = [HH.probe_due(self.state, at(m), who=w) for w in ("pp-ingest", "pp-selectid")]
++            self.assertEqual(claims, [True, False])
++            rounds += 1
++            mode = HH.probe_result(True, **k(m))
++        self.assertEqual((rounds, mode), (3, "heimdall_first"))         # three slots, three answers
++
+     def test_a_drill_is_recorded_never_counted_and_answers_write_once_per_heartbeat(self):
+         HH._SEEN.clear()
+         for m in range(0, 40, 5):                                        # 40 minutes of drill failures

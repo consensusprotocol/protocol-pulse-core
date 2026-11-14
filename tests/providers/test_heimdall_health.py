@@ -73,6 +73,29 @@ class TestHealth(unittest.TestCase):
         self.assertIn("BACK TO HEIMDALL-FIRST (THE PROBE ANSWERED 3 TIMES IN A ROW)",
                       open(self.md).read().split("\n")[0])
 
+    def test_two_probers_share_one_probe_per_slot(self):
+        """pp-ingest REQUESTS R12 (02:3x ET Nov 14): this router's probe and pp-ingest's watcher probe the same state;
+        a due probe is CLAIMED, so one slot gives one probe and 3 in a row is 3 slots."""
+        k = lambda m: self.kw(T0 + timedelta(minutes=m))
+        HH.note(False, **k(0))
+        HH.note(False, **k(15))                                          # down: plan_b
+        at = lambda m: T0 + timedelta(minutes=m)
+        self.assertEqual([HH.probe_due(self.state, at(16), who=w) for w in ("pp-selectid", "pp-ingest")],
+                         [True, False])                                  # the second prober finds the slot taken
+        self.assertEqual(json.load(open(self.state))["last_probe_by"], "pp-selectid")
+        HH.probe_result(True, **k(16))
+        self.assertEqual([HH.probe_due(self.state, at(17), who=w) for w in ("pp-selectid", "pp-ingest")],
+                         [False, False])
+        rounds = 1
+        for m in (18, 20):
+            claims = [HH.probe_due(self.state, at(m), who=w) for w in ("pp-ingest", "pp-selectid")]
+            self.assertEqual(claims, [True, False])
+            rounds += 1
+            mode = HH.probe_result(True, **k(m))
+            self.assertEqual(json.load(open(self.state))["last_probe_by"], "pp-ingest")   # the claimer, kept by the
+            #   report (probe_result never writes last_probe_by) (audit 0230 C2: glm, grok)
+        self.assertEqual((rounds, mode), (3, "heimdall_first"))         # three slots, three answers
+
     def test_a_drill_is_recorded_never_counted_and_answers_write_once_per_heartbeat(self):
         HH._SEEN.clear()
         for m in range(0, 40, 5):                                        # 40 minutes of drill failures

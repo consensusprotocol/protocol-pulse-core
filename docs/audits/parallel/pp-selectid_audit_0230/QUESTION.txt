@@ -1,0 +1,21 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse). Only state what you can verify from the diff;
+if uncertain, say so; do not guess. Be specific: file:line and a concrete input that breaks it.
+
+Background (static): RULING 87 (Plan B): Heimdall is "down" after 15 minutes with no Heimdall family answering;
+while calls fail or the mode is plan_b, a cheap health probe runs every 2 minutes (PROBE_EVERY_S); "Return to
+Heimdall-first when its probe has answered 3 times in a row" (BACK_AFTER). pipeline/heimdall_health.py keeps the
+state in one JSON file under an flock; TWO processes now probe it: this builder's Router probe thread and pp-ingest's
+watcher (another repo, loading this module by path).
+
+The defect (pp-ingest's REQUESTS R12): probe_due() only READ the slot, so both probers could probe in one 2-minute
+slot. Then "3 in a row" could come from fewer than 3 slots, and one prober's failure reset the other's streak.
+
+The change: probe_due(path, now, who="") CLAIMS the slot when it returns True: under the same lock, last_probe_utc =
+now and last_probe_by = who are saved, so a second prober in the same slot gets False. probe_result (unchanged) still
+stamps last_probe_utc when the probe ends. The router's probe thread passes who="pp-selectid probe". A test has two
+probers share one slot and needs three slots for three answers in a row.
+
+Check: that one slot yields exactly one True across callers (the read and the stamp are under one lock); that the
+existing 15-minute rule and the 3-in-a-row return are unchanged; that a claimer that never reports cannot block
+probing for more than one slot; that nothing else in the state changes. Answer with findings tagged <critical>,
+<high>, <medium> (file:line, a concrete scenario), then "SHIP: yes / no / yes with conditions".

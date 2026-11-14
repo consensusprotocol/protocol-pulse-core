@@ -1036,7 +1036,7 @@ class Router:
         def loop():
             while True:
                 try:
-                    if HH.probe_due(self.health):
+                    if HH.probe_due(self.health, who="pp-selectid probe"):     # claims the slot (one prober each)
                         HH.probe_result(self.probe_once(fams), self.health, evidence=self.deadline_log,
                                         state_md=self.state_md, who="pp-selectid probe")
                 except Exception:                      # noqa: BLE001 (the probe never stops a build)
