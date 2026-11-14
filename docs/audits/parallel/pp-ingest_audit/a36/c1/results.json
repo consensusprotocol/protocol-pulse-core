@@ -1,0 +1,71 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 165306,
+    "completion_tokens": 2094,
+    "total_tokens": 167400,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.0226332426
+   },
+   "cost_usd": 0.0226332426,
+   "seconds": 226.2,
+   "finish_reason": "stop"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 147205,
+    "completion_tokens": 5879,
+    "total_tokens": 153084,
+    "prompt_tokens_details": {
+     "cached_tokens": 128,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 22
+    },
+    "cost": 0.03173625
+   },
+   "cost_usd": 0.03173625,
+   "seconds": 570.9,
+   "finish_reason": "stop"
+  },
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 149382,
+    "completion_tokens": 24000,
+    "total_tokens": 173382,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.007606842
+   },
+   "cost_usd": 0.007606842,
+   "seconds": 811.4,
+   "finish_reason": "length"
+  }
+ },
+ "errors": {},
+ "error_costs": {},
+ "skipped": {},
+ "earlier_attempts": [
+  {
+   "reviewer": "heimdall_glm",
+   "error": "BackendError: server: {\"error\":{\"code\":503,\"message\":\"The marketplace is restarting before this response could finish. Try again in 5 seconds.\",\"metadata\":{\"error_type\":\"server\"}}}",
+   "error_cost": {
+    "usage": {},
+    "cost_usd": null,
+    "kind": "server",
+    "seconds": 647.3
+   },
+   "result": null
+  }
+ ]
+}

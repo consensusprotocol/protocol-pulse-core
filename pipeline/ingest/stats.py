@@ -114,11 +114,15 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
                         "hook_rows": hk["rows_"] or 0, "usd": round(hk["usd"] or 0.0, 4),
                         "spotlight_asked_videos": hk["asked"] or 0,   # the 08:15 ruling 2 / 09:02 A36: (b) + (c) asked
                         "spotlight_rows": hk["spots"] or 0}
+    from . import mine             # (lazy) the hook pass's own threshold: the 09:02 ruling A36 (audit a36 c1, muse)
+    lim = mine.CONVERSATION_TPM
     by_ep = {}                     # ruling 92's feedback (audit r92 c1, glm): the hook rows by the episode's turn measure
     for r in q.rows("SELECT episode_markers AS m, episode_tpm AS t, COALESCE(hook_rows,0) AS n FROM videos WHERE "
                     "state IN (?, ?) AND published_ts >= ? AND hook_ts IS NOT NULL", (Q.MINED, Q.MINED_PARTIAL, h0)):
-        b = ("not measured" if r["m"] is None else "unmarked captions" if r["m"] == 0 else
-             ">= 1 turn / min" if (r["t"] or 0) >= 1.0 else "< 1 turn / min")
+        m, t = r["m"], r["t"]
+        b = ("not measured" if m is None else "unmarked captions (asked)" if m == 0 else
+             "marked, its rate not measured (asked)" if t is None else
+             f">= {lim:g} turns / min (asked)" if t >= lim else f"< {lim:g} turns / min (a marked solo episode)")
         by_ep[b] = by_ep.get(b, 0) + r["n"]
     out["hooks_12h"]["rows_by_episode"] = by_ep
     ck = {"rows_checked": 0, "answers": {}, "released": 0}            # ruling 40 P1: the second-model check

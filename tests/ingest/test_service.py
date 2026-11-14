@@ -661,6 +661,8 @@ def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question
     assert c["hook_cost_usd"] == pytest.approx(sum(r["usd"] for r in calls if r["video_id"] == conv))
     hk = s.health_once()["hooks_12h"]
     assert hk["spotlight_asked_videos"] == 1 and hk["spotlight_rows"] == len(spots)
+    assert set(hk["rows_by_episode"]) == {">= 0.3 turns / min (asked)",               # audit a36 c1 (muse): the
+                                          "< 0.3 turns / min (a marked solo episode)"}  # buckets are the threshold
     # audit hk3 c1 (muse): end to end, the packager's read returns the spotlight rows (no filter drops them)
     since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
     out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"],
