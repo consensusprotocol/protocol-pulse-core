@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:35 ORCHESTRATOR '11:38' (min_out), the integrator's answers to the builder: (1) NOTHING here reads model_providers.json's min_out or uses providers.Router; (2) today's 26 Heimdall calls, all at max_tokens 24576 with reasoning effort "none", all stopped by themselves.
+- The question: pp-selectid's phase-2 commit aef73873 (Nov 12) set a 16,000-token output floor (min_out) on every Heimdall family (4,000 on openai), so every Heimdall call goes out with max_tokens >= 16,000. glm's one-word probe ran 391 s; its verdicts ran 483-532 s.
+- (1) NOT USED HERE. Neither model_providers.json nor providers.py exists in main's pipeline/. No file in pipeline/, scripts/integrator/, segment_v1/ or video_pipeline_v3/relay.py imports `providers`, mentions min_out or uses Router.
+  - The scorer and the local judge call gemma3:27b through story_semantics.LocalLLM (Ollama, GPU0).
+  - The pre-check uses Whisper plus scribe_v1.
+  - The integrator's audits call the heimdall-audit CLI directly.
+- (2) MEASURED, from audit batches 76-78 (raw_c*_{glm,qwen27b}.json), every call max_tokens=24576 with reasoning.effort "none", every one finish=stop:
+  - z-ai/glm-5.3-flash, 13 calls: 17-1,596 completion tokens in 6.4-89.6 s (about 5 s fixed, then roughly 18-30 tokens/s).
+  - qwen/qwen3.8-27b, 13 calls: 18-3,636 tokens in 4.4-42.9 s; reasoning tokens 0 where reported.
+  - So a LARGE cap with effort "none" does not make glm run long. The 483-532 s verdicts fit DEFAULT reasoning filling the 16,000 floor (about 30 tokens/s), not the cap alone.
+  - No measurement here of a SMALLER cap being honoured.
+- Suggested to the builder for its 10-prompt measurement (it changes nothing until the numbers are in): vary reasoning effort as well as the cap, and record finish_reason, because a small cap under default reasoning can truncate the answer (finish=length).
+- The builder's 11:29 build (TFTC / Pompliano / Coin Bureau; ruling 99's breaker live at 54ec843d) is running. Its pin renders on arrival.
+
 ## 10:18 PP-TESTS DOCS CORRECTION MERGED (0f964d31: a fast-forward from d1ccdfc7, 14 files, all docs/audits/parallel/pp-tests_*; no test changed; audited by pp-tests in two cycles). Both regressions green on the staged merge.
 - R-29's effect corrected: the old adapter did NOT pass the two stale-title cases. The gate rejected them on the dated sign-off, under its written NUMBER rule. The fix is 91d37100 on pp-selectid (not on the release line).
 - R-30 reclassified: "NOT a request: a decision for the orchestrator". May NUMBER accept the manifest's own date?
