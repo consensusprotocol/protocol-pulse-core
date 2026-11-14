@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T06:01:49+00:00",
- "build": "ledger_20261114_060140",
+ "generated_at": "2026-11-14T10:41:07+00:00",
+ "build": "ledger_20261114_104059",
  "kind": "moments",
  "candidates": [
   {
@@ -19,15 +19,6 @@
    "duration": 10.96,
    "text": "But here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
    "text_sha256": "5c65b0fe2e247888f39c43a5c026968ee30f092c4fc13ac2839a74473284704f",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "6456822a886ae264adb2",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 6.58,
-   "text": "And I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5.",
-   "text_sha256": "23b975e018add3b4bfc841b5b29fcf1d50de62adedb0b7dcbe9b01e72ded752b",
    "trimmed_leading": null
   },
   {
@@ -58,24 +49,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "e45a6a45301c1fb40bb5",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 5.96,
-   "text": "So the notion that Bitcoin can't move on a dime and you can't see capital flooding back in, I reject that wholeheartedly.",
-   "text_sha256": "137d096e63789607f19d06ccab24c4bc2986e3c4d399c94c6d6b4f458e470b0f",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "5f5b3e653c908e75cf85",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 13.21,
-   "text": "But now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago.",
-   "text_sha256": "90245a354d68a8094b08b63124086cda30622c9b859a772933c637bdda42aad4",
-   "trimmed_leading": null
-  },
-  {
    "pid": "be86cfbb5bfd3f37541e",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -91,24 +64,6 @@
    "duration": 9.28,
    "text": "But understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
    "text_sha256": "cf51bb308c9b62bf39178763110899ac82a66c9d7fb87db8e48dc54f834425f2",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "10eececcc25860334b4f",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 11.49,
-   "text": "So when people ask me that question, my just... you know, where's Bitcoin going and when? I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years.",
-   "text_sha256": "c2cf35bb14ffda35fb2c9b0a5a2800e246ee0447a0de9b38ba33dbd818d6ffdf",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "3465caacf939425298e9",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 13.5,
-   "text": "So John, Bitcoin briefly falling below $68,000 earlier today. Breaking through its closely watched 200 -week moving average, it is now down 17 % in the past month and on track for a six straight weekly loss.",
-   "text_sha256": "7bf029888505ab3d8822c297a154b47f6a76afe3b77a004ca70967a44a3e4235",
    "trimmed_leading": null
   },
   {
@@ -139,24 +94,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "b86abddfd86cc00a9a49",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 17.58,
-   "text": "And if you get us back up to 100K or even the 90s, right, the instant narrative flips. The narrative flips says this is the time to run. Bitcoin is stabilized. You've gotten rid of the dead wood. You have ability. to go much higher this cycle because you had a lot of the OG selling that really kept the lid on our price action in 2025. That's gone.",
-   "text_sha256": "039d773c9e554619017c2184b18ea9d7442af95bc4883e3158104991e2949693",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "0cbbf6ae9b76e96be958",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 7.35,
-   "text": "But there is a better way, I think, to account for capital. Now that would be Bitcoin. than there has been in the past.",
-   "text_sha256": "3ca6276618401e5e2b875d26e31b1923bfc5cc15c35343d1ec5aaf4c80d10717",
-   "trimmed_leading": null
-  },
-  {
    "pid": "77d1ff81caaa3145a815",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -182,15 +119,6 @@
    "text": "here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
    "text_sha256": "20018e3838b693fe28c2e84848cba1197af5a59280ae7899cd9b7c8e6210ef93",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "6456822a886ae264adb2~trim",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 6.4,
-   "text": "I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5.",
-   "text_sha256": "c6587d9b45fcecde9fe2db321d6931e1159b4076a75af3e54f391655e922ad36",
-   "trimmed_leading": "And"
   },
   {
    "pid": "72e9a3529c27be3eb69d~trim",
@@ -220,24 +148,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "e45a6a45301c1fb40bb5~trim",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 5.66,
-   "text": "the notion that Bitcoin can't move on a dime and you can't see capital flooding back in, I reject that wholeheartedly.",
-   "text_sha256": "3e8152136982460e8c673cbe418817bc7dcb39f4c8aa86f223fe855b1352a7d7",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "5f5b3e653c908e75cf85~trim",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 13.05,
-   "text": "now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago.",
-   "text_sha256": "c7899c9b360fdb0dd0eac9991910882b4135a5fcccbfb961d62fe7403425a9c3",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "be86cfbb5bfd3f37541e~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -254,24 +164,6 @@
    "text": "understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
    "text_sha256": "873ebe6552da466f8932df2847771fa3f2bf97769aa49aa4baf5fe2573c8aec0",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "10eececcc25860334b4f~trim",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 11.43,
-   "text": "when people ask me that question, my just... you know, where's Bitcoin going and when? I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years.",
-   "text_sha256": "aa29a2fd84ad31409840c547915ecf0c34a837d4fc6d30bcf4be5dee89372d19",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "3465caacf939425298e9~trim",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 13.34,
-   "text": "John, Bitcoin briefly falling below $68,000 earlier today. Breaking through its closely watched 200 -week moving average, it is now down 17 % in the past month and on track for a six straight weekly loss.",
-   "text_sha256": "ca7be9f06c7a4ad08aafa996ce8634b575a6ab6818a9e7293d630c257c450659",
-   "trimmed_leading": "So"
   },
   {
    "pid": "45d9b39296c39a885ab5~trim",
@@ -301,24 +193,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "b86abddfd86cc00a9a49~trim",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 17.48,
-   "text": "if you get us back up to 100K or even the 90s, right, the instant narrative flips. The narrative flips says this is the time to run. Bitcoin is stabilized. You've gotten rid of the dead wood. You have ability. to go much higher this cycle because you had a lot of the OG selling that really kept the lid on our price action in 2025. That's gone.",
-   "text_sha256": "709309294cfa428d12614f3faf731b73d1e41d58bb1b4900928d6feed7a03440",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "0cbbf6ae9b76e96be958~trim",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 7.27,
-   "text": "there is a better way, I think, to account for capital. Now that would be Bitcoin. than there has been in the past.",
-   "text_sha256": "6bc0706efa5f044aeeed40e1d7d2e64ecbc12cb0631244f6edff9dcc1074b1ad",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "77d1ff81caaa3145a815~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -337,15 +211,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "7689ae39f60b552e18cc",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 6.12,
-   "text": "It would imply a value of roughly $1.3 million for Bitcoin if the world properly contextualize the technology.",
-   "text_sha256": "62adc53c54694f2091a6a7af10aae0861fee6df96cdd7ff3c9a23f5a8bb1f8e4",
-   "trimmed_leading": null
-  },
-  {
    "pid": "19ba6bd39cf325bf46c3",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -355,57 +220,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "719a3eda97f6ae7fc757",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 19.07,
-   "text": "It's, I know it's. You know, it feels like it's just dragon, but, you know, the people that use the opportunity, you know, if do you ever think Bitcoin will ever even just reattain its previous top price? If so, I mean, you got a 50 % discount right now.",
-   "text_sha256": "e0410987dbf10534b755f8f587281d8c739b0d5e7fff0cf7f5146278d96965d2",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d7578b88ff8e0129064f",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 16.86,
-   "text": "There is, though, one potential bright spot here. Traders are increasingly betting against Bitcoin with funding rates in the futures market turning negative for the first time in a month. That kind of pessimism has in the past marked a short -term bottom, raising hopes that the worst of the selling may be over here.",
-   "text_sha256": "fb829abc0286e340be0c48c3f9f513214d007da4dced2cf0e68d750a05d20628",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "45f6f496824c3a028375",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 7.36,
-   "text": "It's like in times like these, the bulls get like the bears get way too overzealous. And so I'm sure you guys are seeing people call for like 40K.",
-   "text_sha256": "8f8d83231603062d8daf88ea473672d6b1f2c0808cdd430cceea94ab694353d4",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "8fce1a797169f12c25ec",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 19.7,
-   "text": "Those folks that sold and there's a lot of on -chain data to support this, a lot of like Jordy Visser calls it the IPO moment. Those folks that sold coins and distributed them, that's good. That's a healthy thing. You want to see that. You want to see that psychological 100K level become the floor. And once people get used to the six -figure Bitcoin, that's going to be a great catalyst moving forward.",
-   "text_sha256": "d427bd78936b8609a8aa7028832baabe455288ac4b4657bbb771efb602cdd1e9",
-   "trimmed_leading": null
-  },
-  {
    "pid": "495baf5b615338e88454",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
    "duration": 13.93,
    "text": "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitcoin. They can talk about quantum all they want. These cyber attacks are going to continue to pop up.",
    "text_sha256": "366cc96074a4c036edc254568823dff9a9fc1b3e69b1dd0b29d06e76fb76d0ec",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "201ab34d26468340e80e",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 14.05,
-   "text": "You know, if you look at the overall debt situation in every developed country around the world, there is only one path out, and it's to continue to print money. And that's not going to end. They're not printing more Bitcoin, though.",
-   "text_sha256": "d2465d68d4f4d5665bbe85083929eafaf663a415016ec42f0655c3825ecb4297",
    "trimmed_leading": null
   },
   {
@@ -436,15 +256,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "4106354b7a5f192ea274",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 23.72,
-   "text": "The good news is this doesn't really matter for Bitcoin, all things considered, even if they do wind up hiking some more. Here is a chart of Bitcoin and the Fed funds rate. We go over the last five years. So we could see the last cycle as well. When the Fed was on hold, actually, and this is another strange coincidence in addition to the coincidence that happened earlier with this officially, if we make a new low, this officially being the longest Bitcoin bear market by one day as we record this.",
-   "text_sha256": "cc9446624ff434535cbe6e9151233f8f773a1509d7ac12ccc788161a52c984e5",
-   "trimmed_leading": null
-  },
-  {
    "pid": "615f6acc1ba7bfe5a139",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -472,33 +283,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "42613c14bb116338d8d8~trim",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 22.99,
-   "text": "I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5. So we're talking an extremely steep correction, right? At 25 to 30 % correction underneath the 200 week. before recover. But all things considered, typically speaking, Bitcoin ranges about 5 -10 % within the 200 week, as you can see here as well.",
-   "text_sha256": "b54f53e1bc082e544ee05914991f72d34105ed2160b75a77220d4cd8dcc3b864",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "2eac136611eefcd5868f",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 14.32,
-   "text": "Say, come what may with price action in Bitcoin for the next six months. I don't care. I'm going to be a buyer here or I'm just going to hold. And I'm going to see what happens. There have been fortunes that have been lost because people have decided they're going to be smart. They're going to sell.",
-   "text_sha256": "20df8ca3c4735c16fc4a6c0b7a04a95c3b6971ab09fc3c7466cb02632f3003b1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "ab188c3e3941fd069eaf",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 17.05,
-   "text": "More than half a billion dollars has slowed out of those U.S. spot Bitcoin ETFs this week, most of it from BlackRock's fund. There is, though, one potential bright spot here. Traders are increasingly betting against Bitcoin with funding rates in the futures market turning negative for the first time in a month.",
-   "text_sha256": "f16e2e5680d3ecb37f9a5da09578349590489e2e50748017abe5a1839ec378fa",
-   "trimmed_leading": null
-  },
-  {
    "pid": "ab72c96d18f352cd82fa~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -514,33 +298,6 @@
    "duration": 15.94,
    "text": "The second group is like, no, it's going to go down even lower. And we could see a 10K Bitcoin, 20K, maybe a 40K. And there's me who's like, I don't know. I think the 200 -week moving average is a pretty good one to just buy below that and double or quadruple or 8X up, which you usually buy.",
    "text_sha256": "90abc525c48f62e1a02df6032340f5e52edf52e88c9faec6cbd7cc4bed002d69",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "078ba65616fa0da8f3c4~trim",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 15.82,
-   "text": "the notion that Bitcoin can't move on a dime and you can't see capital flooding back in, I reject that wholeheartedly. Personally, I think that with Bitcoin in the coming months, if you can get back, stabilize, get into the 80s, 90s, you're going to have all the technical traders, all the momentum traders say, we've tested the bottom.",
-   "text_sha256": "e4527fbd5af02f07d44d8aa63a8847467dbdb38b19ffd126e7bdcb65f0a97cd0",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "b1b8e9151eb8b448d12d~trim",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 16.55,
-   "text": "now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago. You know, you have your black rocks involved now.",
-   "text_sha256": "31c7db6437a43e9bf863f031ed1273d4ad7e61ba0c83b09a5e7ca4a66ba08ed4",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "948666d3052f144f9ca0",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 21.05,
-   "text": "The economy adjusted to a 5.5 % cost of capital up here, just like it adjusted to a 0 % cost of capital down here. And so in the same way, markets adjust the same way. What Bitcoin cares about. is that the Fed is no longer hiking. And so until that happens, and I believe that that will happen beginning around March, Bitcoin will sort of be in this awkward in between chopping around phase, right?",
-   "text_sha256": "f65735863566f4f27e3869fe5d1b6af7cac1d7009874e7b47dbc88b225c8dc03",
    "trimmed_leading": null
   },
   {
@@ -562,33 +319,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "7004b98d5ef71d120f1a",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 13.82,
-   "text": "As far as their average purchase price, now that they're... Now that their leverage ratio is, let me look at these site, 3.1%. Their average purchase price doesn't really matter because they're never going to be forced to sell their Bitcoin.",
-   "text_sha256": "fc22a9715124d55f29914918f192c78df09ec7d428150a5180fb20ed29b1e829",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "8c33889b6aa101221312~trim",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 27.31,
-   "text": "when people ask me that question, my just... you know, where's Bitcoin going and when? I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years. And it goes back to the fundamental and conceptual wise for me more so than it does for just basic, you know, math or control C, control V on your Kager based upon certain things.",
-   "text_sha256": "008111c23a4d810aae822c9371da31509ecd4f063abdd2583276a8859095fc35",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "7e97fff2f17bf5a4dac8~trim",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 21.68,
-   "text": "John, Bitcoin briefly falling below $68,000 earlier today. Breaking through its closely watched 200 -week moving average, it is now down 17 % in the past month and on track for a six straight weekly loss. Adding to the pressure, MSCI says it will drop strategy, the largest corporate holder of Bitcoin from its major stock indexes at the end of this month, effectively.",
-   "text_sha256": "7b65a2bad9e0a26f53e7d0c733a4da5fc5488c349940256b571242c51e13577a",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "558ddf87fe4ab2156038~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -607,57 +337,12 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "6688f89bbbe5f8cde2da",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 14.26,
-   "text": "The only reason you really saw this, it wasn't a leverage flush. There's just people selling their Bitcoin for whatever reason, right? They were sort of catching up to the equity sell off that occurred. But for some reason, in typical Bitcoin fashion, correlated on the way down, not correlated on the way up. These things are sort of inexplainable.",
-   "text_sha256": "9dea83c478551b932b16eafa402912579c826bee6a869620789125bd592499a6",
-   "trimmed_leading": null
-  },
-  {
    "pid": "2184e3ea5900463421f8",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
    "duration": 17.75,
    "text": "You want to find something where money goes into that's growing. Bitcoin doesn't have the hurdles. that stocks do. So you've got to remember, you've been doing this for a long time with Bitcoin. It's been under attack for the entire time. Correct.",
    "text_sha256": "173ec93f303fd406ccac8cecc86d93557106f68c8c2ef7cd0a7a3abca242d981",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "6c6c686c21aa7c68db80~trim",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 20.63,
-   "text": "I think Bitcoin is primed here at this level. with almost no retail interest with panic and fear across the timeline on X and other social media. I think Bitcoin's in a really nice place here to make a bottom over the next several months, if it hasn't already bottomed like it did in July is my belief, and then really run higher. I don't think there's a lot of hot air in Bitcoin.",
-   "text_sha256": "3087197ad7f1733dd6290b15d2d5b663d3ff34f453572dbffbdd4133b36855d7",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "376def79159acfa49e33",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 15.68,
-   "text": "This is an energy story. Once energy decelerates, the Fed stops hiking. You see Bitcoin take off like a rocket chip, even with rates at... Where are they going to land? 4.5%, 4.75%. It's nothing Bitcoin hasn't been able to kick off a bull market with before.",
-   "text_sha256": "0afece87ba684af9e157fe9d6b4fd71d028c815c4681238bcf711daec5b8addf",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "202c6f3850185a64ef78~trim",
-   "video_id": "3kV3nWC5SAY",
-   "channel": "Bitcoin Magazine",
-   "duration": 15.39,
-   "text": "there is a better way, I think, to account for capital. Now that would be Bitcoin. than there has been in the past. So, you know, that's why we're optimistic about the technology. But from an interest rate perspective, yes, they may raise it.",
-   "text_sha256": "719737031897f2945b2e8d91c6a6ab9e90c57be4b34c2cd1bf53c51f07786cde",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "fd9217f29c14e57f7af5",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 19.81,
-   "text": "Adding to the pressure, MSCI says it will drop strategy, the largest corporate holder of Bitcoin from its major stock indexes at the end of this month, effectively. forcing funds that track those benchmarks to sell. CEO Fong Lee telling CNBC yesterday that the move is immaterial since only about 3 % of strategy shares are tied to those indexes.",
-   "text_sha256": "316bc3fca78e80ae551cafc83d059250a6a9b56619f66db312768a8318916993",
    "trimmed_leading": null
   },
   {
@@ -679,33 +364,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "9178e9bad3afb0371e0d",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 25.32,
-   "text": "I think a lot of times Bitcoiners in the 2020, 2021, 2022, maybe even before guys like Rochard and Bittstein, you know, that era of Bitcoin thinker. We always had to deal with criticism about volatility. And one of the things we said was that we were going to experience less volatility as the asset class became more liquid and more mature. And we're seeing that now.",
-   "text_sha256": "98b869332c1ec608cfcf94e15b5513b9c9bd39bf1dad00ed8136b6acaf07751c",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d101ef08558730c3bfc7",
-   "video_id": "Zgm4Vck6bVw",
-   "channel": "Bloomberg Television",
-   "duration": 14.38,
-   "text": "You know, the ETF bridged, the DeFi world and the Tradfai world, and the ETF kind of is in the middle of the sort of merger of these two worlds, whether it's Bitcoin as a store of value or tokenization as a sort of new financial rails. This is an interesting, fascinating topic.",
-   "text_sha256": "e52a1557adfa7a441e767dc3cee4de1214dc5ffe088b2314053244615075b310",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "0162cab4e48de543af44",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 18.9,
-   "text": "It's like in times like these, the bulls get like the bears get way too overzealous. And so I'm sure you guys are seeing people call for like 40K. They're like, yep, I knew it. 40K is on the way. And in the same way that like when we were closing in on 126K where we were topped last year, people were saying, guys, quarter million dollars is just a hop, skip, and jump away.",
-   "text_sha256": "1da429a5803d485f4960e3fbe8499a6d87581f388acca17bfe58446a17e5f67f",
-   "trimmed_leading": null
-  },
-  {
    "pid": "b24c401091919954acc7~trim",
    "video_id": "m83V9Xl9wLg",
    "channel": "Digital Asset News",
@@ -713,42 +371,6 @@
    "text": "I know everybody just says like, everybody says one of two things. First of all, we're going to keep going higher. Bull run starts today. It's going to be awesome. The second group is like, no. it's going to go down even lower and we could see a 10k bitcoin 20k maybe a 40k and there's me who's like i don't know i think the 200 week moving average is a pretty good one to just buy below that and double or quadruple or 8x up what you usually buy that's what i do and just write things out over time anyhow so now we're all crystal clear where i stand anyhow Let me know what you think about that in the comment section.",
    "text_sha256": "63b1f8f3834f88dfec27c29407efc5f4db1d6f8f77156cae43c7f9ff46b025b0",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "c7753dad8a9408e75148",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 13.8,
-   "text": "I had, and again, Going back to last year, right, I had people telling me they were selling Bitcoin to buy gold. How has that worked out for you? I mean, gold, I'm just looking right now, gold's at $3,800 roughly. You know, it's had a very rough year.",
-   "text_sha256": "77ee0d3e96fbf7f95a2b270f926ab5fbd5cc7de017f77d14b84a48ad7d7cc7c4",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "a2ff8db25e3a80a93f98",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 17.96,
-   "text": "I suspect we're close, but... You know, there was a time in like 2017, 18, 19, where you could buy Bitcoin with the expectation that you were going to get rich, quickish, right? This thing was on the come up. Everyone was sort of understanding that wealth preservation was important and not necessarily limited to equities and real estate and all that stuff.",
-   "text_sha256": "82594878d948676f11dac25f6661228e9d6e7ffd1555ab51e69fd3c991888481",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b4dd43e49587e46b4a27",
-   "video_id": "nvEftLDdab4",
-   "channel": "BTC Sessions",
-   "duration": 19.63,
-   "text": "We are so, I don't want to say tightly correlated, but certainly correlated with markets on the way down. And unfortunately, it's just not the same on the way up. I had a conversation today with a friend of mine who will remain nameless about how there is, I think. There's a transitional moment happening for Bitcoin and Bitcoiners right now, especially guys who have been in it for a long time.",
-   "text_sha256": "21cf7c4024389c8ebdf5b891d81b2420208c5915dd0cdc2b6f67a5166c2c3a9b",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b0feab0cb1a2b3a0bb14",
-   "video_id": "QlieBet41X0",
-   "channel": "Bitcoin Magazine",
-   "duration": 15.64,
-   "text": "Personally, I think that with Bitcoin in the coming months, if you can get back, stabilize, get into the 80s, 90s, you're going to have all the technical traders, all the momentum traders say, we've tested the bottom. It's in for sure. We're very confident at deploying capital. And I think you can have a nice run and move into 2027.",
-   "text_sha256": "62f7da5ff17a4f09e7d04aa29e0b2dd4ee098f8f636c74750c8690b804898333",
-   "trimmed_leading": null
   }
  ]
 }
