@@ -1,0 +1,135 @@
+{
+ "89d5c05be258c4069a4e~trim:9d43580c729b": {
+  "label": "89d5c05be258c4069a4e~trim",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the hypothetical scenario of public miners leaving Bitcoin for AI",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if public miners leave Bitcoin for AI",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks what it would mean and what would happen to hash rate and network security if public miners left Bitcoin for AI.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "704fa6e1af4a86ff1d07:9d43580c729b": {
+  "label": "704fa6e1af4a86ff1d07",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "The total",
+    "refers_to": "the combined value of the stolen assets just listed (Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and smaller tokens) taken from Binance's hot wallets",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "On the 29th of October",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On 29 October, Binance's hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and a long tail of smaller tokens, altogether worth roughly $6.3 billion.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "05f1e4a9f750546eb83a:9d43580c729b": {
+  "label": "05f1e4a9f750546eb83a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is one of the most beautiful unforeseen aspects of Bitcoin that miners in sub-Saharan Africa are electrifying rural villages using stranded energy to mine profitably.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "what would excite me the most in the next 10 years would be to go on a grand tour of the world",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4d9418596b2fdd0a0a88~trim:9d43580c729b": {
+  "label": "4d9418596b2fdd0a0a88~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the video",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "right now",
+    "refers_to": "the time the video is being made",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the money",
+    "refers_to": "the $6.3 billion stolen from Binance hot wallets",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as I make this video",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "As the speaker makes this video, estimates put about $3.3 billion of the stolen funds still in addresses controlled by the thieves, mostly Bitcoin and Ether, with the FBI alert naming 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "as I make this video",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "d0adae88e4f7b5354a72:9d43580c729b": {
+  "label": "d0adae88e4f7b5354a72",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "On the 29th of October",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On the 29th of October, Binance hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and smaller tokens for a total of about $6.3 billion, with the speed enabled by the Ethereum feature EIP-7702.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

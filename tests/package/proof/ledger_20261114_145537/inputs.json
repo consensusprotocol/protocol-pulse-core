@@ -1,0 +1,3744 @@
+{
+ "since": "2026-11-13T03:01:09+00:00",
+ "publish_window_h": 12.0,
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "adapter_report": {
+  "lines": 3087,
+  "bad_lines": 0,
+  "bad": [],
+  "excluded": {
+   "expired (rulings 76 + 77: 12 h after its video's publish time)": 877,
+   "hard exclusion flag (L-u)": 3,
+   "altcoin or not about Bitcoin": 3
+  },
+  "drift_checked": 0,
+  "expiry_h": 12,
+  "released_by_the_second_model": 0,
+  "returned": 44
+ },
+ "inputs": {
+  "rows": 44,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "wLJ_jy3wyN8": [
+    "transcripts/wLJ_jy3wyN8/windows/2002.169-2099.140.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1958.809-2066.388.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2002.169-2100.149.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1896.120-1992.509.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1374.371-1478.577.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2108.280-2209.630.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1341.455-1441.051.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2143.022-2241.885.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1942.870-2059.126.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1672.960-1772.137.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2425.508-2525.671.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1325.630-1423.394.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1728.914-1829.775.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2303.119-2407.950.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2458.221-2570.906.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1880.360-1976.240.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1915.884-2032.779.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1285.635-1389.397.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1521.781-1618.195.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1739.829-1836.110.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1242.679-1337.149.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1234.172-1332.669.whisper_words_punct.json"
+   ],
+   "jeKD85EPlAc": [
+    "transcripts/jeKD85EPlAc/windows/436.695-536.747.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/670.968-768.000.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/493.297-592.610.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/557.770-659.289.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/404.795-509.783.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/559.603-665.343.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/158.978-264.807.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/144.192-247.048.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/580.587-681.388.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/37.400-140.894.whisper_words_punct.json"
+   ],
+   "7po5mnYMAjM": [
+    "transcripts/7po5mnYMAjM/windows/230.714-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/216.706-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/0.000-53.070.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/144.574-272.489.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/196.948-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/86.123-205.516.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/0.000-89.150.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/182.578-285.816.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 4,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "c84194a144c71d1a1740": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1974-2051 s)",
+   "3f28da689ac78f891cda": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1389-1464 s)",
+   "e915f8790ce35634e1b7": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1688-1757 s)",
+   "3b2a4e7b757b63404b23": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1744-1815 s)",
+   "8a3d89b04ed7e30f6738": "snapped outward to whole sentences (0 word(s) before the anchored text, 28 after) it runs 23.05 s > 20 s (ruling 32: the clip length limit)",
+   "70215c87fd5f5f4ef933": "the row's text does not anchor in the word record (sentence_law.anchor, searched 246-317 s)"
+  },
+  "malformed": {},
+  "duplicates": 2,
+  "duplicates_of": {
+   "69cd4f8950cd4b1d7d44": "9358f471ea97b1616f4b",
+   "f94527e9fb5a4777810f": "a94a85627c8babee4fe7"
+  },
+  "moments": 32,
+  "videos": 3,
+  "sources": 32,
+  "word_records": {},
+  "word_pass": {
+   "rows": 2008,
+   "unreadable": 0,
+   "ready": 1482,
+   "not_ready": 196,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "delivered": [
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 5144.99,
+   "end": 5153.37,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2412.85,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-37c5b5f5",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "wdk5JZ9hPzs",
+   "start": 3218.14,
+   "end": 3221.64,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "Bitcoin imposes a global free market for the first time ever."
+  },
+  {
+   "video_id": "c1JGheQBPH4",
+   "start": 2403.23,
+   "end": 2422.07,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 1826.54,
+   "end": 1843.48,
+   "pin": "moments-fresh_20261112_050611-41f29b1f",
+   "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued."
+  },
+  {
+   "video_id": "Sjb6lUiL0m4",
+   "start": 3090.75,
+   "end": 3109.87,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom."
+  },
+  {
+   "video_id": "vgsSZ4mAHfQ",
+   "start": 4664.57,
+   "end": 4673.21,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Bitcoin shows you that you can just increase the purchasing power. So the value of Bitcoin goes up without the supply of Bitcoin going up. So the people who hold Bitcoin don't get robbed."
+  },
+  {
+   "video_id": "UJFQBaMh3yg",
+   "start": 191.38,
+   "end": 203.06,
+   "pin": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky."
+  },
+  {
+   "video_id": "BS0XC_tixa8",
+   "start": 994.329,
+   "end": 1005.909,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "Bitcoin is the one piece of open source technology that can't be shut down, silenced or removed. If Bitcoin wins, open source wins. And every stat you hold is a vote against the digital prison being built around all of us."
+  },
+  {
+   "video_id": "WTCwyxW-lHk",
+   "start": 1685.968,
+   "end": 1695.698,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But we have very rarely in Bitcoin's history seen six negative weeks back to back to back to back to back. to back. I think that was six."
+  },
+  {
+   "video_id": "mJviDNOhIyw",
+   "start": 1614.601,
+   "end": 1630.831,
+   "pin": "moments-ledger_20261113_073738-d2657bbe",
+   "text": "But then if someone doesn't understand Bitcoin and you drop... 25 % of their portfolio in Bitcoin and Bitcoin goes down 50%. You get fired and they sell their Bitcoin. And so that is, I think, why you've seen people like BlackRock, I think, logically walk that back to one, five percent allocation."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 236.688,
+   "end": 253.308,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies. and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate."
+  },
+  {
+   "video_id": "GXWj2JO9bz8",
+   "start": 124.157,
+   "end": 138.097,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world."
+  },
+  {
+   "video_id": "mKNAcOFMYD4",
+   "start": 755.454,
+   "end": 764.214,
+   "pin": "moments-ledger_20261113_183302-0c68b589",
+   "text": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin."
+  },
+  {
+   "video_id": "DcUbBkyeh9M",
+   "start": 216.054,
+   "end": 228.674,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued."
+  },
+  {
+   "video_id": "MqVqfEDXgLo",
+   "start": 937.971,
+   "end": 957.291,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think, well, what we've seen in the market is on Thursday, Friday, there was actually a much bigger drop in traditional stock prices, especially tech stock. There's like 10, 20%, like Intel dropped 29%. Whereas Bitcoin only dropped like five, six percent."
+  },
+  {
+   "video_id": "HWuMai_mAug",
+   "start": 1691.139,
+   "end": 1698.069,
+   "pin": "moments-ledger_20261113_215708-13949b7c",
+   "text": "I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin."
+  }
+ ],
+ "moments": [
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4effcd61b4b012e82945",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "e1365e56c70e9756c8e67a71adaa8097b2d5f164a159d6c777c3fb792ed0fc20",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    157
+   ],
+   "sentences": [
+    15,
+    15
+   ],
+   "text": "Once you start moving things on chain, Bitcoin is the collateral backing of the digital system.",
+   "start": 2047.109,
+   "end": 2053.869,
+   "duration_s": 6.76,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 5,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong declarative stance on Bitcoin's role in the digital economy. Clear, concise, and high-stakes for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.76 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.76 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:40.473972+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "42410412efaf3be39291dcb26f1f3bc583614e61d466627eb66b7983316a192d",
+    "prompt_version": "mine-hook/3",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "26ffda64653f5fda5dd5875639766abb64d301a2f28e5381b6fce950da4cc97b",
+    "window": {
+     "start_s": 2002.169,
+     "end_s": 2099.14,
+     "record": "transcripts/wLJ_jy3wyN8/windows/2002.169-2099.140.whisper_words_punct.json",
+     "words_sha256": "5b653ea86f6d7148c1c39d8816c0bc011833f74041335af0c9b3c9aff0dc075a",
+     "record_sha256": "0adf0b61f5c47dd999622f389d2f56dcc56ff4452a115f09e8d29f3997a059c9",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "9358f471ea97b1616f4b",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      15,
+      15
+     ],
+     "offset_s": [
+      -0.06,
+      -0.27
+     ]
+    },
+    "ledger_text": "Once you start moving things on chain, Bitcoin is the collateral backing of the digital system."
+   },
+   "rank_score": 25,
+   "source_key": "wLJ_jy3wyN8@2002.169-2099.140"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "3fb31e595944d69f711f",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "f9369dc76de3878729a61516ac350370955842b671095d2e6d16c6078ba26224",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    114,
+    158
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "When a bridge rejected a deposit, the transfer was simply sent again, automatically, so this isn't a person hiding the money by hand. The attackers had set up software to split the trail into thousands of branches, and every branch had to be followed separately.",
+   "start": 476.695,
+   "end": 491.495,
+   "duration_s": 14.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 5,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong stance that this is automated software, not manual hiding, explaining the difficulty of tracking.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "14.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "e3e90726f59b35ac5bbc59a2f45da894cd3ba1b396bcf292a03c5eeebfc57942",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2cae79c7ae386073276ae4b60792950c34ca8f55e968f0ac723eef19903d10ad",
+    "window": {
+     "start_s": 436.695,
+     "end_s": 536.747,
+     "record": "transcripts/jeKD85EPlAc/windows/436.695-536.747.whisper_words_punct.json",
+     "words_sha256": "54fa1194245eaf1fa50744e8d7f9159ff23762ee849588ba95814fc1a2856ef5",
+     "record_sha256": "5de789aaff04bdc38c76b39ec07668fa2867f6b816f5f90154efa0ee1bf59d38",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "16ca1f37026e3d90d01b",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      13,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "added": {
+      "before": "When a bridge rejected a deposit, the transfer was simply sent again, automatically,",
+      "after": ""
+     },
+     "offset_s": [
+      0.18,
+      -0.25
+     ]
+    },
+    "ledger_text": "So, this isn't a person hiding the money by hand. The attackers had set up software to split the trail into thousands of branches, and every branch had to be followed separately."
+   },
+   "rank_score": 24,
+   "source_key": "jeKD85EPlAc@436.695-536.747"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "05f1e4a9f750546eb83a",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "30e3ab75b3a0f5c15e4f9176176a0cfde4599abaeafcd0438f5491831bd2e5fe",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    151,
+    235
+   ],
+   "sentences": [
+    9,
+    13
+   ],
+   "text": "I think it's one of the most beautiful things about Bitcoin as a network. And one of the most beautiful things that I think that Satoshi could have never envisioned was that you would have, and I think he knew, he knew people are going to run computers. Maybe you can heat a room. But you could have never imagined that somebody would pop up in sub -Saharan Africa and start electrifying a rural village because Bitcoin mining exists. You could have never imagined that.",
+   "start": 261.616,
+   "end": 286.996,
+   "duration_s": 25.38,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong emotional stance on Bitcoin's real-world impact, specifically electrification in Africa, which is a compelling narrative hook.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "25.38 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "25.38 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "9bdb7772ef63563300ae79a340d600abce0a2adbb13f64eae7fd0f44a4500b0e",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "50f004176d32d6fc6cca131a453c0caa431897dc0a872ce7469422028f4e7544",
+    "window": {
+     "start_s": 216.706,
+     "end_s": 297.0,
+     "record": "transcripts/7po5mnYMAjM/windows/216.706-297.000.whisper_words_punct.json",
+     "words_sha256": "ad3a2445b77de3190e16652de42334ea6146294a10686595d0996db56f28f64d",
+     "record_sha256": "e5ace54f959a2fe1e61ffbb735761695c3f00594254df4548aacfbdc65cd7659",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "25a91f1ef2e22434ef94",
+    "reanchored": {
+     "anchor_ratio": 0.971,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      13
+     ],
+     "offset_s": [
+      -0.09,
+      -0.43
+     ]
+    },
+    "ledger_text": "I think it's it's one of the most beautiful things about Bitcoin as a network. And one of the most beautiful things that I think that Satoshi could have never envisioned was that you would have and I think he knew he knew people are going to run computers. Maybe you can heat a room. But you could have never imagined that somebody would pop up in Subsahara and Africa and start electrifying a rural village because Bitcoin mining exists. You could have never imagined that."
+   },
+   "rank_score": 22,
+   "source_key": "7po5mnYMAjM@216.706-297.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1f42e788a93fa09117a9",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "8eb7302d9835a4aaf37e683918963a0ff452f60371275712bf27eaf32fee89f8",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    138,
+    159
+   ],
+   "sentences": [
+    15,
+    15
+   ],
+   "text": "Anytime micro strategy isn't doing well, it has issues for Bitcoin and for no other reason that people view them the same.",
+   "start": 1941.09,
+   "end": 1947.29,
+   "duration_s": 6.2,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear stance linking MicroStrategy's performance directly to Bitcoin's health.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.2 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6.2 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:40.473972+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "8825223745fdf91a2a0ed45c6dfe324d71f5eb6dfebdb843f529a4298cbecfff",
+    "prompt_version": "mine-hook/3",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a2cf5b8d7922e5383b3632864a60c83dda9efb3c31d6f609265545b00f162b09",
+    "window": {
+     "start_s": 1896.12,
+     "end_s": 1992.509,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1896.120-1992.509.whisper_words_punct.json",
+     "words_sha256": "8f5726bc86e62082e60c756014ee4673d617bfd38739eb5915cc367f7a1c479b",
+     "record_sha256": "74abdc999ff9ec2c7a26546efed5553b4899e89ec6ce48d4d429bcada6b6703e",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "498de8a585fa4b5121e4",
+    "reanchored": {
+     "anchor_ratio": 0.977,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      15,
+      15
+     ],
+     "offset_s": [
+      -0.03,
+      -0.22
+     ]
+    },
+    "ledger_text": ">> Anytime Micro Strategy isn't doing well, it has issues for Bitcoin for no other reason that people view them the same."
+   },
+   "rank_score": 22,
+   "source_key": "wLJ_jy3wyN8@1896.120-1992.509"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2a28293eeaec93916947",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "b146a165add3b56b2ceed58571abec2b5c699b037cae1a7c5d235506058ddef2",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    116,
+    167
+   ],
+   "sentences": [
+    6,
+    8
+   ],
+   "text": "So about $3.3 billion is still moving. The scripts behind it run on hourly schedules across 11 blockchains, and one of the leading tools that banks and agencies rely on to follow it is switched off. The longer that money keeps moving, the harder it becomes to untangle wherever it's going.",
+   "start": 715.918,
+   "end": 732.388,
+   "duration_s": 16.47,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 5,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "High stakes: $3.3B moving while the primary tracking tool is offline. Strong narrative tension and urgency.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "16.47 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "2d027d089e720fb3f3c71f18e4b547e25cccc0fabf0fd2e7904b9b843361e2dc",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a87e7c1e71828aaec9112063930075f193591e15c5bf86a50c767780ee27ca75",
+    "window": {
+     "start_s": 670.968,
+     "end_s": 768.0,
+     "record": "transcripts/jeKD85EPlAc/windows/670.968-768.000.whisper_words_punct.json",
+     "words_sha256": "9e5f753eb44ff3de848de758a4229c6c826c6ffe7b64682b0c566e999a62da5d",
+     "record_sha256": "aa515792445dfbbffa841963008591dccf9efd0edde8001c6dc812b019497e67",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d34441e07e022f09b66e",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      8
+     ],
+     "offset_s": [
+      -0.05,
+      -0.13
+     ]
+    },
+    "ledger_text": "So about $3.3 billion dollars is still moving. The scripts behind it run on hourly schedules across 11 blockchains, and one of the leading tools that banks and agencies rely on to follow it is switched off. The longer that money keeps moving, the harder it becomes to untangle wherever it's going."
+   },
+   "rank_score": 22,
+   "source_key": "jeKD85EPlAc@670.968-768.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "78bee9e19c4b9012f7e7",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "30af9c879c341ae4676f0d6286dff9c98ce3a1bd2f754cb5e0100a33b7e510c7",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    126,
+    151
+   ],
+   "sentences": [
+    6,
+    7
+   ],
+   "text": "But believe it or not, Thorchain stopped anyway. On the 31st of October, a one -block reorganization on Ethereum caused a refund error of 10 -Eth.",
+   "start": 538.377,
+   "end": 547.217,
+   "duration_s": 8.84,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Surprising narrative twist where a technical error (refund) inadvertently stopped the laundering.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "8.84 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "e3e90726f59b35ac5bbc59a2f45da894cd3ba1b396bcf292a03c5eeebfc57942",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2cae79c7ae386073276ae4b60792950c34ca8f55e968f0ac723eef19903d10ad",
+    "window": {
+     "start_s": 493.297,
+     "end_s": 592.61,
+     "record": "transcripts/jeKD85EPlAc/windows/493.297-592.610.whisper_words_punct.json",
+     "words_sha256": "18cde5a5df1dae93a712fbee4d161e08613a18e0a0d9fce620224870f9fd4eb1",
+     "record_sha256": "72e8a13c439e4005bb76ac8c8a5ea98b8590fdda32798430f3030b0447fa14e2",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "3f5ec92fdf9f07f8218a",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      6,
+      7
+     ],
+     "offset_s": [
+      0.08,
+      -0.39
+     ]
+    },
+    "ledger_text": "But believe it or not, Thorchain stopped anyway. On the 31st of October, a one-block reorganization on Ethereum caused a refund error of 10 ETH."
+   },
+   "rank_score": 21,
+   "source_key": "jeKD85EPlAc@493.297-592.610"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "89d5c05be258c4069a4e",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "b2bd0bfd854908e930475f3a8a222c278e4ab9b49878fd14989634d462b7f6af",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    0,
+    20
+   ],
+   "sentences": [
+    0,
+    1
+   ],
+   "text": "And broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
+   "start": 0.0,
+   "end": 7.24,
+   "duration_s": 7.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Poses a high-stakes question about miner migration to AI and its impact on network security, standing alone as a compelling opener.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "7.24 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "7.24 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:34.780770+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "hook",
+    "prompt_sha256": "20ff977b1df6a71e6386518ffa3b172cbfaa4cea46a8fbd6a902defd4737eba3",
+    "prompt_version": "mine-hook/1",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "d836d75bf81fc765b5ab3d2413985f65b013e7e49c8ec2c6f4e27311f2014951",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 53.07,
+     "record": "transcripts/7po5mnYMAjM/windows/0.000-53.070.whisper_words_punct.json",
+     "words_sha256": "7274dd04e16719b0b9ca7758ffa681c00b192f3f4755fb352e6ab0b6f2f1a6c6",
+     "record_sha256": "241e967fe0c7a9482c08338d3f494b815eb326f53be70ccbecfb16d752d35558",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "64306ee1b0a46ba5737f",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      0,
+      1
+     ],
+     "offset_s": [
+      -2.71,
+      -0.83
+     ]
+    },
+    "ledger_text": "And broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?"
+   },
+   "rank_score": 21,
+   "source_key": "7po5mnYMAjM@0.000-53.070"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "aaf0c78b19cace153444",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "730e9eb7a95d27e028a7e4016e2cdd814c16c57e136b8f02610707e9a7a4d63c",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    141,
+    185
+   ],
+   "sentences": [
+    7,
+    7
+   ],
+   "text": "And he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off.",
+   "start": 2153.1,
+   "end": 2164.36,
+   "duration_s": 11.26,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Contradicts the narrative that hacks kill confidence; shows people rushing to buy the dip during a hack, a strong bullish signal.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'and'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "11.26 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "659693e8cf3688e8f6e40defbc73ae5b20b8822cf90231958d4dab160dd78944",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "19ae5f19a33b4757b999f6dadce4292043ddff638872edc7c3ead1dbabd66684",
+    "window": {
+     "start_s": 2108.28,
+     "end_s": 2209.63,
+     "record": "transcripts/wLJ_jy3wyN8/windows/2108.280-2209.630.whisper_words_punct.json",
+     "words_sha256": "e1882999d0f1f51221fd089df7de48af1a858a10c15750005ae311fb73e9a8a0",
+     "record_sha256": "5b0837470b12a23f04d0e5f5c96e7d4556ceae80fe0b3634955f148dfe194b93",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bb10733a193ee63e06e4",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      7
+     ],
+     "offset_s": [
+      -0.18,
+      -0.27
+     ]
+    },
+    "ledger_text": "And he said what was very interesting is that they were still getting a lot of deposits even while the hack was going on because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off."
+   },
+   "rank_score": 21,
+   "source_key": "wLJ_jy3wyN8@2108.280-2209.630"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "ec4c0ff49fdb895ef08e",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "7bdb9c8328d1cc55cbe182e6aa0b6e11aae5620db847824a4376f0d5597347c5",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    125,
+    165
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing.",
+   "start": 1383.275,
+   "end": 1396.185,
+   "duration_s": 12.91,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 4,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear framework explaining Bitcoin's dual nature (innovation vs liquidity) and its correlation with gold.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "12.91 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "dc0bf37d7673120168451c1506c97346973cbb943702a8dafd7e988bff6e24ba",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ec81ff5f0edcb02d90b4b5d667573a1a2db9296d258a8947f8cb7cec242f22a6",
+    "window": {
+     "start_s": 1341.455,
+     "end_s": 1441.051,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1341.455-1441.051.whisper_words_punct.json",
+     "words_sha256": "4cc1f50cd9286473c243ee49697b97debaf68c2d7574e6443020c41f11434b57",
+     "record_sha256": "2393604693d127df580e8845ed79cc1fb6686b9144e7d835c0519bec1b45af4f",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "bb4211ddf46860e8b0e8",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      12,
+      0
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "added": {
+      "before": "Now, the reason I mentioned that AI had an impact last week,",
+      "after": ""
+     },
+     "offset_s": [
+      0.06,
+      0.13
+     ]
+    },
+    "ledger_text": "I think of Bitcoin as being two separate parts. One is the innovation side and the other one is the liquidity side. So it has a gold type thing."
+   },
+   "rank_score": 21,
+   "source_key": "wLJ_jy3wyN8@1341.455-1441.051"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "2b151301328f73972f91",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "29c6c810fee3fe38df110a8142126e625e52e56711d2cba17e8cf80a60d63dfb",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    145,
+    247
+   ],
+   "sentences": [
+    8,
+    13
+   ],
+   "text": "Another example are the team at Gridless Compute. So the team at Gridless Compute, they're based out of Kenya. And what they're doing is they're going around and they're finding all of these stranded energy assets. Essentially, through a revenue share type model, they're going and pulling these things from 20 % operation up to 80, 90 % operation, and this from a development standpoint has been unbelievably good for these remote towns. Megawad is never going to be interested in the sub -Saharan Africa mining market. They don't have the background, the connections, the technical skills to know how to operate there.",
+   "start": 189.234,
+   "end": 227.134,
+   "duration_s": 37.9,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 4
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [],
+   "reason": "Describes Gridless Compute's model in Kenya, showing how private miners unlock stranded energy and aid local development.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "37.9 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "37.9 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "5486ae86f063d5426a0a8faa83244f8d5150016b16c539415f09904440998b9a",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "b9674c4e8d1b2699aecbc6b1723ec361443011349b8b006eadc86267caac42c4",
+    "window": {
+     "start_s": 144.574,
+     "end_s": 272.489,
+     "record": "transcripts/7po5mnYMAjM/windows/144.574-272.489.whisper_words_punct.json",
+     "words_sha256": "ce4f0d335c271404e6524eaef61755c4b3fbf27ea034fccaa3ff46832d3ce923",
+     "record_sha256": "e91dae356cdd5eaff5f38a8f95c861d60a99404e12680f3adc8b3f8ded0e29da",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "4ef9293e639b64868fa5",
+    "reanchored": {
+     "anchor_ratio": 0.962,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      13
+     ],
+     "offset_s": [
+      -0.34,
+      -0.36
+     ]
+    },
+    "ledger_text": "Another example are the uh the team at Gridless Compute. So the team at Gridless Compute, they're based out of Kenya and what they're doing is they're going around and they're finding all of these stranded energy assets and essentially through a revenue share type model, they're going and pulling these things from 20% operation up to 80 90% operation. And this from a development standpoint has been unbelievably good for these remote towns. Megawatt is never going to be interested in the subsaharan Africa mining market. They don't have the background, the connections, the technical skills to know how to operate there."
+   },
+   "rank_score": 20,
+   "source_key": "7po5mnYMAjM@144.574-272.489"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "97377deae3a6683c32b9",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "61fdd3f5482f8fbce4ef6dce60b4e47f66ec72c010820626eb10cc1a7de1f34c",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    132,
+    153
+   ],
+   "sentences": [
+    8,
+    8
+   ],
+   "text": "I mean, that might be one of the most bullish data points that I've heard in a long time about crypto, right?",
+   "start": 2188.452,
+   "end": 2193.092,
+   "duration_s": 4.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 4,
+    "stakes": 3,
+    "stance": 5,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Strong opinion labeling the event as a major bullish data point for crypto, engaging for holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "4.64 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "4.64 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": false,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "659693e8cf3688e8f6e40defbc73ae5b20b8822cf90231958d4dab160dd78944",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "19ae5f19a33b4757b999f6dadce4292043ddff638872edc7c3ead1dbabd66684",
+    "window": {
+     "start_s": 2143.022,
+     "end_s": 2241.885,
+     "record": "transcripts/wLJ_jy3wyN8/windows/2143.022-2241.885.whisper_words_punct.json",
+     "words_sha256": "c9e8c688b5d7060d6476c1f109449aee9ba416326762ddb3e4f2a0542e333c57",
+     "record_sha256": "c31b4cbad45c19a3350af09a33c01d7ba08f082ff6cb048ba27726168dd3e7c6",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "06d798e38e49d3f8af66",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      8
+     ],
+     "offset_s": [
+      0.43,
+      -3.79
+     ]
+    },
+    "ledger_text": "I mean that might be one of the most bullish data points that I've heard in a long time about crypto, right?"
+   },
+   "rank_score": 20,
+   "source_key": "wLJ_jy3wyN8@2143.022-2241.885"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "da0ff8d5b2a224b380fa",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "9faaafe93e2635ddf4163f6f645af905c5e07c25fac9610974ab563ba033ce94",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    124,
+    160
+   ],
+   "sentences": [
+    7,
+    9
+   ],
+   "text": "But where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
+   "start": 603.14,
+   "end": 614.09,
+   "duration_s": 10.95,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 4,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 5,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly answers the title question with a current estimate of where the money is.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "10.95 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "e3e90726f59b35ac5bbc59a2f45da894cd3ba1b396bcf292a03c5eeebfc57942",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2cae79c7ae386073276ae4b60792950c34ca8f55e968f0ac723eef19903d10ad",
+    "window": {
+     "start_s": 557.77,
+     "end_s": 659.289,
+     "record": "transcripts/jeKD85EPlAc/windows/557.770-659.289.whisper_words_punct.json",
+     "words_sha256": "4c43afbdc5a008723aebf6d39c02a6351c8d67dfe45cae8c99356fad7d96972f",
+     "record_sha256": "2fbe3aa393f07d49b02d864fb494c12478e0dd3af38c7158a5332a0db334b755",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a94a85627c8babee4fe7",
+    "reanchored": {
+     "anchor_ratio": 0.986,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      9
+     ],
+     "offset_s": [
+      0.37,
+      -0.2
+     ]
+    },
+    "ledger_text": "But where is the money right now? Well, as I make this video, estimates have about $3.3 billion dollars in addresses controlled by the thieves, mostly Bitcoin and Ether, with the rest spread across other assets."
+   },
+   "rank_score": 20,
+   "source_key": "jeKD85EPlAc@557.770-659.289"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "04942cb2ddc65b287b8f",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "2d7c6f5b51368900ba440c9a3a4ab05fbb676568087bc8983c8bb0652364f8ff",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    135,
+    179
+   ],
+   "sentences": [
+    9,
+    11
+   ],
+   "text": "The stolen funds moved through about 12,000 wallets across 11 blockchains in under 4 days in more than 40,000 transactions. Now, for a sense of scale. And that's roughly 10,000 transactions a day, or about seven, every single minute, around the clock.",
+   "start": 449.955,
+   "end": 464.655,
+   "duration_s": 14.7,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 4,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Concrete, massive numbers (12k wallets, 40k txs) illustrating the scale of the laundering machine.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "14.7 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "e3e90726f59b35ac5bbc59a2f45da894cd3ba1b396bcf292a03c5eeebfc57942",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2cae79c7ae386073276ae4b60792950c34ca8f55e968f0ac723eef19903d10ad",
+    "window": {
+     "start_s": 404.795,
+     "end_s": 509.783,
+     "record": "transcripts/jeKD85EPlAc/windows/404.795-509.783.whisper_words_punct.json",
+     "words_sha256": "0e95cf604d6dcc1e592ccf13b58227de4e5ec7beceaceed6c508196a585fec6c",
+     "record_sha256": "1d694dbf8405f3b8d02f6a6f118c2a8dd185bdd6dde95225f4926c163c271cc1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "c7c05b146597eea13b2d",
+    "reanchored": {
+     "anchor_ratio": 0.988,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      11
+     ],
+     "offset_s": [
+      0.16,
+      -0.13
+     ]
+    },
+    "ledger_text": "The stolen funds moved through about 12,000 wallets across 11 blockchains in under four days in more than 40,000 transactions. Now, for a sense of scale, that's roughly 10,000 transactions a day or about seven every single minute around the clock."
+   },
+   "rank_score": 19,
+   "source_key": "jeKD85EPlAc@404.795-509.783"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "23caa285d4cbeb43e51c",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "073a34b53211211885fb716b15e0962312b8e5abc00866212a56a491894b3a74",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    137,
+    226
+   ],
+   "sentences": [
+    7,
+    9
+   ],
+   "text": "So micro strategy has a trading impact, but if we're going to get Bitcoin up to the levels that we think it's going to go to, there needs to be the fiat money that's coming into it. And the only way that's going to happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important um theme for what we've always talked about, which is, hey, there's 900 trillion dollars over here in this uh in this fiat system.",
+   "start": 1987.51,
+   "end": 2013.67,
+   "duration_s": 26.16,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the need for fiat inflow to reach higher Bitcoin levels, contrasting with MicroStrategy's impact.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "26.16 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "26.16 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "c2f27ac4312f449ea57bf64f10a568205916fda2db1c5d81a001e4f87fd85a96",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "77aa7c3ff8cb09fbcbac6f019a1e6022e6a38c808d46f0f8e9d52cf6497c3c7d",
+    "window": {
+     "start_s": 1942.87,
+     "end_s": 2059.126,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1942.870-2059.126.whisper_words_punct.json",
+     "words_sha256": "68bd9271855d62c65634f3da0f80d3ff02ae9b59d56613ddeb0264aab118d479",
+     "record_sha256": "abfc4db9cdfa97fe99fc8104892540de7004e0990dd5b0223464034fad9cc841",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "dbca8aece2293e2c9887",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      9
+     ],
+     "offset_s": [
+      -0.36,
+      -0.46
+     ]
+    },
+    "ledger_text": "So micro strategy has a trading impact, but if we're going to get Bitcoin up to the levels that we think it's going to go to, there needs to be the fiat money that's coming into it. And the only way that's going to happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important um theme for what we've always talked about which is hey there's $900 trillion over here in this uh in this fiat system."
+   },
+   "rank_score": 19,
+   "source_key": "wLJ_jy3wyN8@1942.870-2059.126"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "eb402a210905c778432d",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "a2921ee809f59084a3d56a733619d9b6d208d25a13ce5bf7bfc66df0cb067cd9",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    149,
+    190
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce.",
+   "start": 2470.488,
+   "end": 2480.548,
+   "duration_s": 10.06,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear thesis linking AI abundance to Bitcoin scarcity and value gain.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "hook_lead"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.06 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "24fe2328de33ba15e4db710d06325528d8ec5b381f3ad7a7ae9a30a22f158075",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "5cf9c1952e5ad198f0fefc66917e726c9355b4d0cf79764f28c97d77fcf600ed",
+    "window": {
+     "start_s": 2425.508,
+     "end_s": 2525.671,
+     "record": "transcripts/wLJ_jy3wyN8/windows/2425.508-2525.671.whisper_words_punct.json",
+     "words_sha256": "816a1e50a97ac4d3b4bad0620ca13ae850ec1b68dfb44973ae0e24ebcb58a2c5",
+     "record_sha256": "c06e99e1fc44c8c81056d36170d0d4cfab618aca26b4b970c06e3e46e6836784",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "93937dc8e86b5315f5e5",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      -0.02,
+      -0.12
+     ]
+    },
+    "ledger_text": "You and I have spent a lot of time talking about as AI becomes more popular Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce."
+   },
+   "rank_score": 18,
+   "source_key": "wLJ_jy3wyN8@2425.508-2525.671"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "912152e845c0c1f486b9",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "d3b53b78b41d3b548a507e2cfd3564619ad8590b22f5a06a6c742e1898d89e09",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    205
+   ],
+   "sentences": [
+    8,
+    13
+   ],
+   "text": "I think what would excite me the most in the next 10 years would be to go on a grand tour of the world. and find the ways in which these various operators have optimized for their own locations. They're optimizing for the jurisdiction. They're optimizing for the power. They're optimizing for the heat and the humidity or the cold of wherever they happen to be. And I think this is amazing.",
+   "start": 241.828,
+   "end": 261.468,
+   "duration_s": 19.64,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 4,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Describes the global optimization of mining operations, highlighting the technical and geographical diversity of the network.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "19.64 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "9bdb7772ef63563300ae79a340d600abce0a2adbb13f64eae7fd0f44a4500b0e",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "50f004176d32d6fc6cca131a453c0caa431897dc0a872ce7469422028f4e7544",
+    "window": {
+     "start_s": 196.948,
+     "end_s": 297.0,
+     "record": "transcripts/7po5mnYMAjM/windows/196.948-297.000.whisper_words_punct.json",
+     "words_sha256": "a0972ac59717600bf02c1f6b0ce0444fa19819fe1b54263fd444a92f55b3f740",
+     "record_sha256": "bb950e7ae991646a384df099a23ea273d95c26456f54170347ab1279661b34ee",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b724137dffb19fbd1666",
+    "reanchored": {
+     "anchor_ratio": 0.986,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      13
+     ],
+     "offset_s": [
+      -0.12,
+      -0.19
+     ]
+    },
+    "ledger_text": "I think uh what would excite me the most in the next 10 years would be to go on a grand tour of the world and find the ways in which these various operators have optimized for their own locations. They're optimizing for the jurisdiction. They're optimizing for the power. They're optimizing for the heat and the humidity or the cold of wherever they happen to be. Uh and I think this is amazing."
+   },
+   "rank_score": 17,
+   "source_key": "7po5mnYMAjM@196.948-297.000"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "9e63b39a556c9ed33ed7",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "a46a23e0a3524e3518c2c38b821f00a3c5f5c1a53d1118a846a8633e13192b39",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    162,
+    235
+   ],
+   "sentences": [
+    10,
+    12
+   ],
+   "text": "He's like, if you just look at a couple of these companies, he's like, there's literally not enough money in the system to go and buy all of this equity. And therefore, the government is going to have to print money over time so that you can kind of balance out how much equity value there is versus the money in the system. And therefore, if they're printing money, then Bitcoin becomes more valuable.",
+   "start": 2503.501,
+   "end": 2525.351,
+   "duration_s": 21.85,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "price_prediction"
+   ],
+   "topics": [],
+   "reason": "Explains the mechanism of why AI valuations force money printing, directly benefiting Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "opener"
+     ],
+     "targets_missed": [
+      "21.85 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "21.85 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "24fe2328de33ba15e4db710d06325528d8ec5b381f3ad7a7ae9a30a22f158075",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "5cf9c1952e5ad198f0fefc66917e726c9355b4d0cf79764f28c97d77fcf600ed",
+    "window": {
+     "start_s": 2458.221,
+     "end_s": 2570.906,
+     "record": "transcripts/wLJ_jy3wyN8/windows/2458.221-2570.906.whisper_words_punct.json",
+     "words_sha256": "f83c02b137919bb3ac79992818fe903b0ee36ad4612c2b872c5b56b40ea739e6",
+     "record_sha256": "4a031a7c7bd92120f31bb5f27ba35c76c0c50a883b073b3ac004006cf3e62b67",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a22a17c9d2835064b325",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      12
+     ],
+     "offset_s": [
+      0.28,
+      -0.55
+     ]
+    },
+    "ledger_text": "He's like, if you just look at a couple of these companies, he's like, there's literally not enough money in the system to go and buy all of this equity and therefore the government is going to have to print money over time so that you can kind of balance out how much equity value there is versus the money in the system. And therefore, if they're printing money, then Bitcoin becomes more valuable."
+   },
+   "rank_score": 17,
+   "source_key": "wLJ_jy3wyN8@2458.221-2570.906"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c931a4f668731b60de7f",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "ad15e76dbae616866152100b61e6dd86229080a0d7b8a27f1d1a54578667f2cc",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    134,
+    212
+   ],
+   "sentences": [
+    12,
+    14
+   ],
+   "text": "And I just know for this to work every time I say that tokenization is inevitable and that agenda commerce is inevitable. That's the only thing I care about when it comes to Bitcoin. I need to have the people that I know at pension funds and at insurance companies and at hedge funds and at mutual funds and everywhere else that start to get interested in the fundamentals behind moving things on chain and the transactions on chain.",
+   "start": 1960.924,
+   "end": 1986.864,
+   "duration_s": 25.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 4,
+    "stands_alone": 4,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Clear thesis that tokenization and agentic commerce are the key drivers for Bitcoin's future.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "25.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'and'",
+      "25.94 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "c2f27ac4312f449ea57bf64f10a568205916fda2db1c5d81a001e4f87fd85a96",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "77aa7c3ff8cb09fbcbac6f019a1e6022e6a38c808d46f0f8e9d52cf6497c3c7d",
+    "window": {
+     "start_s": 1915.884,
+     "end_s": 2032.779,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1915.884-2032.779.whisper_words_punct.json",
+     "words_sha256": "65a72db129225d8759711dfdecb74535eb57d69e1fc8ffe5ff7fd6cdb09259a3",
+     "record_sha256": "dc54e73ceac3af1e3b7b2e518c5f06f8ddd9ddc2b6863e7bef5a8da917846eb8",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "e2e84322d03eabfe6dcd",
+    "reanchored": {
+     "anchor_ratio": 0.981,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      14
+     ],
+     "offset_s": [
+      0.04,
+      -0.91
+     ]
+    },
+    "ledger_text": "And I just know for this to work, every time I say that tokenization is inevitable and that agentic commerce is inevitable, that's the only thing I care about when it comes to Bitcoin. I need to have the people that I know at pension funds and at insurance companies and at hedge funds and at mutual funds and everywhere else that start to get interested in the fundamentals behind moving things on chain and the the transactions on chain."
+   },
+   "rank_score": 17,
+   "source_key": "wLJ_jy3wyN8@1915.884-2032.779"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "eb0fd778800d99d16559",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "23b4ee93bee8792a1b9a33154708f2da6356c65141ecbe88657c293d51c14067",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    126,
+    149
+   ],
+   "sentences": [
+    10,
+    11
+   ],
+   "text": "We just had the largest rise in two -year yields in a week, 35 basis points since 2022. So that's why Bitcoin is down.",
+   "start": 1370.6,
+   "end": 1378.34,
+   "duration_s": 7.74,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 4
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Concrete data point (35 bps rise) explaining the current price action, though slightly time-sensitive.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.74 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "7.74 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "dc0bf37d7673120168451c1506c97346973cbb943702a8dafd7e988bff6e24ba",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ec81ff5f0edcb02d90b4b5d667573a1a2db9296d258a8947f8cb7cec242f22a6",
+    "window": {
+     "start_s": 1325.63,
+     "end_s": 1423.394,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1325.630-1423.394.whisper_words_punct.json",
+     "words_sha256": "4e855e4635af0a11c2f51558bbb17044c24e956a06a99dc9de7765501fc67b19",
+     "record_sha256": "c6e55f9f80571389f2fbec877c1f5500eef3e3cbf93e0f6702653ff7424eca26",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "2cc6b172cfcbebd4b505",
+    "reanchored": {
+     "anchor_ratio": 0.98,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      10,
+      11
+     ],
+     "offset_s": [
+      -0.03,
+      -0.05
+     ]
+    },
+    "ledger_text": "We just had the largest rise in two-year yields in a week, 35 basis points, uh since 2022. So, that's why Bitcoin is down."
+   },
+   "rank_score": 17,
+   "source_key": "wLJ_jy3wyN8@1325.630-1423.394"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "f631e39fa4c8b7892dab",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "1c27beaa62ccaacb41e8ef422ada2a99b055a3c715e7250349015efd9a2a3bbd",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    138,
+    153
+   ],
+   "sentences": [
+    12,
+    13
+   ],
+   "text": "Micro strategy is being removed from some of the indexes. It feels like they were eligible.",
+   "start": 1925.15,
+   "end": 1930.77,
+   "duration_s": 5.62,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 2,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "States a significant market event (index removal) and poses the question of its impact on Bitcoin.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "5.62 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.62 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "fd4188f3ec9772e2b462ebb971b402f789f6805b575fd487df0f1500aeb16f3f",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "4aac02a57e8c01254eadd5bf95740d0dcd9bfb86479f3d7580ae5bf23f814c2d",
+    "window": {
+     "start_s": 1880.36,
+     "end_s": 1976.24,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1880.360-1976.240.whisper_words_punct.json",
+     "words_sha256": "f4f4c2ffcc5bb7e28cc8ceae187ee8d9422ba238b5f0d31964e209c44c2c8e20",
+     "record_sha256": "ea0fb00cdc91b0f7f9d67d1b7ae6acbb962d47152b905a0d89e2b43f699dfe4f",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "c475b64c1491cd909384",
+    "reanchored": {
+     "anchor_ratio": 0.97,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      12,
+      13
+     ],
+     "offset_s": [
+      -0.21,
+      -0.47
+     ]
+    },
+    "ledger_text": "Micro Strategy is being removed from some of the indexes. um it feels like they were eligible."
+   },
+   "rank_score": 17,
+   "source_key": "wLJ_jy3wyN8@1880.360-1976.240"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "1d7fc70670874da7113b",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "29bc438e08cbec5fabfb034ac1b9de52d694d414677989cab3b8578ae960b192",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    142,
+    182
+   ],
+   "sentences": [
+    9,
+    10
+   ],
+   "text": "So in a window of about three minutes, one wallet deposited $60 million of USDT into the lending protocol Ave and borrowed 19,762 wrapped eth. Wrapped ETH being Ethereum and token form, but we'll just call it ETH for simplicity.",
+   "start": 203.758,
+   "end": 219.478,
+   "duration_s": 15.72,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 0,
+    "stands_alone": 3,
+    "surprising_fact": 5
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Specific, surprising detail about the speed and scale of the laundering operation using Aave, demonstrating the complexity of the theft.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "15.72 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "f7da1f751695ac1b9ef753bc71bcc0d521e0bcb5caf4dea18192dffab238afeb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2d15ecde5054465d81de09067f5651e08e7ea6463d9188b4e8417137012b52d0",
+    "window": {
+     "start_s": 158.978,
+     "end_s": 264.807,
+     "record": "transcripts/jeKD85EPlAc/windows/158.978-264.807.whisper_words_punct.json",
+     "words_sha256": "d321deacb2d35de783ac817bf9a682fb4411053707aa8ec9fc1fe3c22bb1fea6",
+     "record_sha256": "a5030f46d0f35c4ff9628a4f98b72e8db1c4f0ad82192f871d18a322f5ced917",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "34226f06e68807c81075",
+    "reanchored": {
+     "anchor_ratio": 0.95,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      10
+     ],
+     "offset_s": [
+      -0.22,
+      -0.33
+     ]
+    },
+    "ledger_text": "So in a window of about three minutes, one wallet deposited $60 million of USDT into the lending protocol Aave and borrowed 19,762 wrapped ETH. Wrapped ETH being Ethereum in token form, but we'll just call it ETH for simplicity."
+   },
+   "rank_score": 16,
+   "source_key": "jeKD85EPlAc@158.978-264.807"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "4a9263e5bef5c9d5086d",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "a93f2874459ca5e1c773baba662aea4962a51f4bcf73610bb474109d970e1b71",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    136,
+    224
+   ],
+   "sentences": [
+    8,
+    13
+   ],
+   "text": "One of my favorite examples of this, well, two of them maybe. megawatt, so the guys in Indiana who are doing some really, really cool work on sites that are anywhere from megawatt, megawatt, and a half, which might only be a couple hundred machines, up to five, ten megawatts. They're doing some really, really interesting work, trading on the markets and operating from these more local smaller substations. which is net positive. It's sort of a this bespoke kind of mining. It's sort of mom and pop mining.",
+   "start": 131.203,
+   "end": 160.703,
+   "duration_s": 29.5,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Introduces the concept of 'mom and pop' mining in Indiana, emphasizing agility and local market response over corporate bureaucracy.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "29.5 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "6 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "29.5 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "5486ae86f063d5426a0a8faa83244f8d5150016b16c539415f09904440998b9a",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "b9674c4e8d1b2699aecbc6b1723ec361443011349b8b006eadc86267caac42c4",
+    "window": {
+     "start_s": 86.123,
+     "end_s": 205.516,
+     "record": "transcripts/7po5mnYMAjM/windows/86.123-205.516.whisper_words_punct.json",
+     "words_sha256": "72b6232b36703d092cca748b13f02465bad4421485da6e2b90d20121aa7ce716",
+     "record_sha256": "f54759d56319ffa8d18963fba0599efc9eec1e1e49903a19ee737f6b9c3c3ec9",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "d50c4818457fa24dd41f",
+    "reanchored": {
+     "anchor_ratio": 0.962,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      13
+     ],
+     "offset_s": [
+      0.08,
+      0.19
+     ]
+    },
+    "ledger_text": "One of my favorite examples of this uh well two of them maybe uh Megawatt. So the guys in Indiana who are doing some really really cool work on sites that are anywhere from a megawatt megawatt and a half which might only be a couple hundred machines up to 5 10 megawws. They're doing some really really interesting work trading on the markets and operating from these these more local smaller substations which is net positive. It's it's sort of a this bespoke kind of mining. It's sort of mom and pop mining."
+   },
+   "rank_score": 16,
+   "source_key": "7po5mnYMAjM@86.123-205.516"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "592fb862d38093a5d8a4",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "75887c8ed4b667c87cb659d6c8c819eeca97d9f81522b9c06867f746429fd70a",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    23,
+    116
+   ],
+   "sentences": [
+    3,
+    6
+   ],
+   "text": "I, from a network security perspective, I don't think that changes in the least, right? If it does, it would be very marginal. From a hash rate perspective, obviously we're seeing the roll off from a bunch of these mega miners as they mothball their fleets and go into... building out these large data centers that can facilitate GPUs. From a sort of physical on the ground perspective, what's happening is that you're winding up with these multi -100 megawatt sites, of which there are tons of, are now starting to geographically decentralize, right?",
+   "start": 8.92,
+   "end": 43.97,
+   "duration_s": 35.05,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 4,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Directly addresses the core question of whether public miner exit threatens network security, asserting it is marginal.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "35.05 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "4 sentences > 3 (T9, retired by ruling 35: the 20 s clip limit and the per-source limit govern length)",
+      "35.05 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "5486ae86f063d5426a0a8faa83244f8d5150016b16c539415f09904440998b9a",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "b9674c4e8d1b2699aecbc6b1723ec361443011349b8b006eadc86267caac42c4",
+    "window": {
+     "start_s": 0.0,
+     "end_s": 89.15,
+     "record": "transcripts/7po5mnYMAjM/windows/0.000-89.150.whisper_words_punct.json",
+     "words_sha256": "03c7cfb9fa0f0ea4e52af4ee0faf35cb53981560ce0ad27821be0edf9286625a",
+     "record_sha256": "4a18335d523bcd05c66ccf34ec371c84ad19f976cc40635088cd76fbb4b81edb",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "f56becffa7e919be7828",
+    "reanchored": {
+     "anchor_ratio": 0.968,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      3,
+      6
+     ],
+     "offset_s": [
+      -0.37,
+      -0.18
+     ]
+    },
+    "ledger_text": "I from a network security perspective, I don't think that changes in the least, right? If it does, it would be very marginal. From a hash rate perspective, obviously we're seeing the the roll off from a bunch of these mega miners as they mothball their fleets and go into building out these large large data centers that can facilitate GPUs. From a sort of physical on the ground perspective, what's happening is that you're winding up with these multiund megawatt sites of which there are tons of are now starting to geographically decentralize. Right?"
+   },
+   "rank_score": 16,
+   "source_key": "7po5mnYMAjM@0.000-89.150"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "63e84dd53de85f9e6337",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "66b722248785d2a42fa3c829ae78d479be099eaa65f280085d16279fe49f05e5",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    108,
+    145
+   ],
+   "sentences": [
+    8,
+    10
+   ],
+   "text": "I've shown this in my videos, but gold is at the lows. And Bitcoin and gold have been moving together since March. And the reason they've moved together is because of the liquidity headwinds that have been there.",
+   "start": 1330.795,
+   "end": 1344.035,
+   "duration_s": 13.24,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the correlation between Bitcoin and gold due to liquidity headwinds.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.24 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "dc0bf37d7673120168451c1506c97346973cbb943702a8dafd7e988bff6e24ba",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "ec81ff5f0edcb02d90b4b5d667573a1a2db9296d258a8947f8cb7cec242f22a6",
+    "window": {
+     "start_s": 1285.635,
+     "end_s": 1389.397,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1285.635-1389.397.whisper_words_punct.json",
+     "words_sha256": "bec759cc912a792755dea72380fcb94aaae6b0d86dc02b393261c7cef464ed20",
+     "record_sha256": "518694c8438b44fa0b592d6c4d8caddfc9562a26f5858d89de1ceee853af29c2",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b40629c3c236761727a7",
+    "reanchored": {
+     "anchor_ratio": 0.974,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      10
+     ],
+     "offset_s": [
+      0.16,
+      -0.36
+     ]
+    },
+    "ledger_text": "I've I've shown this in my videos, but um gold is at the lows and Bitcoin and gold have been moving together since March. And the reason they've moved together is because of the liquidity headwinds that have been there."
+   },
+   "rank_score": 16,
+   "source_key": "wLJ_jy3wyN8@1285.635-1389.397"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "dbeb521230267fb17bdb",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "7c4a5dd2a364d971e71bb3c12d1c5eff30682f1bc682a482b58847ab87538620",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    141,
+    182
+   ],
+   "sentences": [
+    7,
+    9
+   ],
+   "text": "But ether's different. There is no issuer and no blacklist. So every single dollar of USCT and USCC was on a countdown and the only way to keep it was to swap it into something without a blacklist before the freeze came.",
+   "start": 189.232,
+   "end": 201.912,
+   "duration_s": 12.68,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 3,
+    "stakes": 4,
+    "stance": 0,
+    "stands_alone": 4,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Explains the critical difference between Ethereum and stablecoins regarding blacklisting, highlighting the urgency for Bitcoin holders.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "12.68 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "f7da1f751695ac1b9ef753bc71bcc0d521e0bcb5caf4dea18192dffab238afeb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2d15ecde5054465d81de09067f5651e08e7ea6463d9188b4e8417137012b52d0",
+    "window": {
+     "start_s": 144.192,
+     "end_s": 247.048,
+     "record": "transcripts/jeKD85EPlAc/windows/144.192-247.048.whisper_words_punct.json",
+     "words_sha256": "c61421267ffa945dbf18838d6ef921331631728142ef746a0681c81ef1e88695",
+     "record_sha256": "a831825ef2b215f77ac0fc472a26769718adc4f2112a3e26c579289c08dc3096",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "72f4255f02d445944cf1",
+    "reanchored": {
+     "anchor_ratio": 0.916,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      7,
+      9
+     ],
+     "offset_s": [
+      0.04,
+      -0.14
+     ]
+    },
+    "ledger_text": "But Ether's different. There's no issuer and no blacklist. So every single dollar of USDT and USDC was on a countdown, and the only way to keep it was to swap it into something without a blacklist before the freeze came."
+   },
+   "rank_score": 16,
+   "source_key": "jeKD85EPlAc@144.192-247.048"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "07c844d922fa6dddf59e",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "01ffbfeea6e9a7ff704fdc1054ab6ddab2652e8b9038d2a1886efd247ade086f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    160,
+    179
+   ],
+   "sentences": [
+    11,
+    11
+   ],
+   "text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin?",
+   "start": 1567.261,
+   "end": 1573.201,
+   "duration_s": 5.94,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Directly links geopolitical conflict and inflation to Bitcoin, providing a clear causal framework for the asset's price action.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "5.94 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "5.94 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "d57052f3cb9585d71136cf82a4b410ab3c4e27e28220ac0b23f55765e601d792",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "13589f9ddd5f39ee067436248bc0c5567f6d519289bb34afc67a692b4de57ce9",
+    "window": {
+     "start_s": 1521.781,
+     "end_s": 1618.195,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1521.781-1618.195.whisper_words_punct.json",
+     "words_sha256": "1bc0ba3c7334cf02dac701b25c4b35cb9619bb0893268fcb0c64531b0650b2f6",
+     "record_sha256": "e46a313664fa4e1b4685bc74b8070b1aab5d1f0aae177aa295b9976618f044c1",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "b438eeaea0a0e2e6a8ec",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      11,
+      11
+     ],
+     "offset_s": [
+      0.48,
+      0.01
+     ]
+    },
+    "ledger_text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin?"
+   },
+   "rank_score": 15,
+   "source_key": "wLJ_jy3wyN8@1521.781-1618.195"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "7898eebe798bead550ee",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "3f63a2ea050e877da9ddff44e4eed09c1757c5058a89d833f1372f9bf90c614e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    127,
+    158
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "Now, as soon as that money tries to touch a bank, trackers are supposed to spot it. But as it turns out, the company tasked with doing the spotting was also breached.",
+   "start": 625.507,
+   "end": 635.987,
+   "duration_s": 10.48,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "Highlights the irony that the tracking company was breached. Good narrative hook.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "10.48 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "2d027d089e720fb3f3c71f18e4b547e25cccc0fabf0fd2e7904b9b843361e2dc",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "a87e7c1e71828aaec9112063930075f193591e15c5bf86a50c767780ee27ca75",
+    "window": {
+     "start_s": 580.587,
+     "end_s": 681.388,
+     "record": "transcripts/jeKD85EPlAc/windows/580.587-681.388.whisper_words_punct.json",
+     "words_sha256": "e2a4529997a4179bbe0a72de37cad14c9a425ee2b735724fee0be5b182626716",
+     "record_sha256": "fd2edb17057b66d190a8db4550b96323be89bab53a3c2f6e5113e6e19f44ec14",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "7aeacbad6787953b767e",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      -0.08,
+      -0.4
+     ]
+    },
+    "ledger_text": "Now, as soon as that money tries to touch a bank, trackers are supposed to spot it. But as it turns out, the company tasked with doing the spotting was also breached."
+   },
+   "rank_score": 15,
+   "source_key": "jeKD85EPlAc@580.587-681.388"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "8a76383821dc0ec556a0",
+   "video_id": "7po5mnYMAjM",
+   "channel_id": "UCDqPIrJSzHyyJpmH6wnxVxA",
+   "channel_name": "Stephan Livera",
+   "published_at": "2026-11-14T03:17:45+00:00",
+   "title": "Is Bitcoin Hashrate Rotating to Private Miners? | Robert Warren",
+   "transcript_sha256": "64f87825d97fc43113c908056f996de83a63dd0ec1055830aac7f229ee79c81e",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    138,
+    181
+   ],
+   "sentences": [
+    9,
+    9
+   ],
+   "text": "But Eric Hurstman and his team, who are Kenyan natives... can go out there and actually know the people, they know the language, they know how to operate, they know the culture, and so they can create a really robust hyper -local mining network.",
+   "start": 227.698,
+   "end": 240.668,
+   "duration_s": 12.97,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": true,
+   "risk": [],
+   "topics": [],
+   "reason": "Highlights the specific advantage of local operators in Sub-Saharan Africa, providing context for why mining is moving there.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": [
+      "opens on the conjunction 'but'",
+      "12.97 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'but'"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T03:22:23.220734+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T0321Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "9bdb7772ef63563300ae79a340d600abce0a2adbb13f64eae7fd0f44a4500b0e",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "50f004176d32d6fc6cca131a453c0caa431897dc0a872ce7469422028f4e7544",
+    "window": {
+     "start_s": 182.578,
+     "end_s": 285.816,
+     "record": "transcripts/7po5mnYMAjM/windows/182.578-285.816.whisper_words_punct.json",
+     "words_sha256": "9c11afb47b9c55e13b7a2c8a962a54ccf5254f7515fc483b3c589c6d118d8ead",
+     "record_sha256": "5ac94505fdc85513ced12faeaf0c0d372db737350e2c80c80ee026ee60cc9959",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "a71d3db5216b7551e7c1",
+    "reanchored": {
+     "anchor_ratio": 0.943,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      9
+     ],
+     "offset_s": [
+      0.12,
+      -0.15
+     ]
+    },
+    "ledger_text": "But Eric Hman and his team who are Kenyan natives can go out there and actually know the people. They know the language. They know how to operate. They know the culture. And so they can create a really robust hyperlocal mining network."
+   },
+   "rank_score": 15,
+   "source_key": "7po5mnYMAjM@182.578-285.816"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "c6d0463e5d4eccafe587",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "71cf695d0d27424fed440a6288454c2057206c5c622ec907a9e5931c95201824",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    137,
+    151
+   ],
+   "sentences": [
+    9,
+    9
+   ],
+   "text": "So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
+   "start": 1784.839,
+   "end": 1790.639,
+   "duration_s": 5.8,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 1,
+    "quotable": 2,
+    "stakes": 4,
+    "stance": 3,
+    "stands_alone": 3,
+    "surprising_fact": 1
+   },
+   "names_person": false,
+   "risk": [],
+   "topics": [],
+   "reason": "States a specific condition (inflation headwind lessening) required for Bitcoin to benefit from the current market environment.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "5.8 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "opens on the conjunction 'so'",
+      "5.8 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "2d26f1d83dd840a7c28e6d7fe09f4134061b520af186d5d64080fe67b1c53b94",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "93be5e1b2c0f4ed1d270b020c403ec258d83e19d349390ff3b395fceea8fa0ef",
+    "window": {
+     "start_s": 1739.829,
+     "end_s": 1836.11,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1739.829-1836.110.whisper_words_punct.json",
+     "words_sha256": "391f85b898738d57be776b7267a7a25ff7550b9bdfc4d98500216a9031b4cf0f",
+     "record_sha256": "89791ac9951d90c18771d7360b46ace591ba8d43314cc6bf949c614f2940206b",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "8e398a383f65b47d6551",
+    "reanchored": {
+     "anchor_ratio": 0.938,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      9,
+      9
+     ],
+     "offset_s": [
+      0.01,
+      -0.47
+     ]
+    },
+    "ledger_text": "So, Bitcoin will benefit, but it needs to have the uh, the inflation headwind start to lessen."
+   },
+   "rank_score": 14,
+   "source_key": "wLJ_jy3wyN8@1739.829-1836.110"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "905eb833edd34ec62a88",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "7e0b81cedc1770f53380cc6af015bd525bc29ec9697449830ccbf139ea5bd3ff",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    160,
+    183
+   ],
+   "sentences": [
+    5,
+    7
+   ],
+   "text": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry.",
+   "start": 1279.562,
+   "end": 1287.562,
+   "duration_s": 8.0,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 2,
+    "stands_alone": 3,
+    "surprising_fact": 2
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "States the current price and links the drop to AI industry collateral damage, providing context for the Bitcoin segment.",
+   "eligibility": {
+    "hook": {
+     "ok": false,
+     "reasons": [
+      "no_bitcoin"
+     ],
+     "targets_missed": []
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "8.0 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "bfae63bc32e7d46d336537b7ead5c21ca06b63017035a95dc11be26e989bd6f8",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "75444bb244a05d83bb59f043025897bf55f267c995a0020e0501e050ea16c7e5",
+    "window": {
+     "start_s": 1234.172,
+     "end_s": 1332.669,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1234.172-1332.669.whisper_words_punct.json",
+     "words_sha256": "eed86f43116a51f70deb6ad7a958c71fadc1ffb1f98a654c72f6f8e664776c3a",
+     "record_sha256": "1723a3a2810413057234d829fa42ba6fde329eb49516ae4ba791f3e084839405",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "73a7d187164585a5914f",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      5,
+      7
+     ],
+     "offset_s": [
+      0.39,
+      -0.11
+     ]
+    },
+    "ledger_text": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry."
+   },
+   "rank_score": 13,
+   "source_key": "wLJ_jy3wyN8@1234.172-1332.669"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "b4831bdba3bc73769a7d",
+   "video_id": "wLJ_jy3wyN8",
+   "channel_id": "UCevXpeL8cNyAnww-NqJ4m2w",
+   "channel_name": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15+00:00",
+   "title": "Can Nvidia Survive Without Jensen Huang?",
+   "transcript_sha256": "5cf032b2f763261f62f4fedb95d55e4b3c2b983aec99c4380bb4e7556f8c47db",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    149,
+    162
+   ],
+   "sentences": [
+    15,
+    16
+   ],
+   "text": "Are these two things connected? Is that what's applying so much pressure to Bitcoin?",
+   "start": 1287.799,
+   "end": 1290.719,
+   "duration_s": 2.92,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 3,
+    "quotable": 2,
+    "stakes": 3,
+    "stance": 1,
+    "stands_alone": 4,
+    "surprising_fact": 0
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Poses the central question of the segment: whether AI industry pressure is causing the Bitcoin drop.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "2.92 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": false,
+     "reasons": [
+      "not_statement"
+     ],
+     "targets_missed": [
+      "2.92 s outside the clip target 12.0-20.0 s"
+     ]
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:45:17.258317+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1435Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "bfae63bc32e7d46d336537b7ead5c21ca06b63017035a95dc11be26e989bd6f8",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "75444bb244a05d83bb59f043025897bf55f267c995a0020e0501e050ea16c7e5",
+    "window": {
+     "start_s": 1242.679,
+     "end_s": 1337.149,
+     "record": "transcripts/wLJ_jy3wyN8/windows/1242.679-1337.149.whisper_words_punct.json",
+     "words_sha256": "a34f9cbd2390cfc7e1c2815d32495f0417c49fcbadcdb403b62179224f13e2db",
+     "record_sha256": "5186fe2a4020020b510aa99e1604e61c257ecb5f448c627411c59ce854ce0d49",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "20f55f743c556745dca3",
+    "reanchored": {
+     "anchor_ratio": 0.933,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      15,
+      16
+     ],
+     "offset_s": [
+      0.12,
+      -1.43
+     ]
+    },
+    "ledger_text": "Are these two things connected? Is that is that what's applying so much pressure to Bitcoin?"
+   },
+   "rank_score": 13,
+   "source_key": "wLJ_jy3wyN8@1242.679-1337.149"
+  },
+  {
+   "schema": "pp.moment/1",
+   "moment_id": "704fa6e1af4a86ff1d07",
+   "video_id": "jeKD85EPlAc",
+   "channel_id": "UCqK_GSMbpiV8spgD3ZGloSw",
+   "channel_name": "Coin Bureau",
+   "published_at": "2026-11-14T14:00:11+00:00",
+   "title": "Where Did Binance's Stolen $6 Billion Go?",
+   "transcript_sha256": "a4d5bb7d5e5dd62a15020751abdf1a491ef9955593a0910df803f8471fb6329f",
+   "transcript_method": "whisper_words_punct",
+   "timing": "word",
+   "words": [
+    144,
+    176
+   ],
+   "sentences": [
+    8,
+    9
+   ],
+   "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth.",
+   "start": 82.47,
+   "end": 95.81,
+   "duration_s": 13.34,
+   "duration_estimate_s": null,
+   "speaker": {
+    "turn_change_inside": null,
+    "label": null,
+    "confidence": null,
+    "named": null,
+    "named_source": null
+   },
+   "scores": {
+    "contempt_outrage": 0,
+    "hook_first_2s": 2,
+    "quotable": 1,
+    "stakes": 3,
+    "stance": 0,
+    "stands_alone": 3,
+    "surprising_fact": 3
+   },
+   "names_person": false,
+   "risk": [
+    "time_sensitive"
+   ],
+   "topics": [],
+   "reason": "Lists the specific assets stolen, including Bitcoin, providing concrete context for the scale of the event.",
+   "eligibility": {
+    "hook": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": [
+      "13.34 s outside the hook target 8.0-12.0 s"
+     ]
+    },
+    "clip": {
+     "ok": true,
+     "reasons": [],
+     "targets_missed": []
+    }
+   },
+   "on_screen_ok": true,
+   "excluded": [],
+   "mined": {
+    "at": "2026-11-14T14:25:17.051913+00:00",
+    "attempt": 1,
+    "backend": "heimdall_qwen27b",
+    "by": "qwen/qwen3.8-27b@heimdall_qwen27b",
+    "cached": false,
+    "contract_fp": "40f1d65a6e12a70cf0175254",
+    "cycle": "ingest-20261114T1424Z",
+    "model": "qwen/qwen3.8-27b",
+    "observations": 1,
+    "pass": "moment",
+    "prompt_sha256": "f7da1f751695ac1b9ef753bc71bcc0d521e0bcb5caf4dea18192dffab238afeb",
+    "prompt_version": "mine/2",
+    "provider": "Consensus Protocol",
+    "reply_sha256": "2d15ecde5054465d81de09067f5651e08e7ea6463d9188b4e8417137012b52d0",
+    "window": {
+     "start_s": 37.4,
+     "end_s": 140.894,
+     "record": "transcripts/jeKD85EPlAc/windows/37.400-140.894.whisper_words_punct.json",
+     "words_sha256": "245ee9971263bb939a164fc8887883eaab7aa4cc05f21966de38ec19570889ec",
+     "record_sha256": "2054781ab33706115698d395b8096de0b82fb2fb251e40f0c73b1db7e45ef4fd",
+     "context_record": "yt_auto:en-orig"
+    },
+    "ledger_moment_id": "ed8373080bcbfac6d972",
+    "reanchored": {
+     "anchor_ratio": 1.0,
+     "snapped_words": [
+      0,
+      0
+     ],
+     "sentences": [
+      8,
+      9
+     ],
+     "offset_s": [
+      0.07,
+      -0.08
+     ]
+    },
+    "ledger_text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth."
+   },
+   "rank_score": 12,
+   "source_key": "jeKD85EPlAc@37.400-140.894"
+  }
+ ]
+}

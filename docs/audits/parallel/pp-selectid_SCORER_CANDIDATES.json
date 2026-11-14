@@ -1,17 +1,8 @@
 {
- "generated_at": "2026-11-14T11:33:54+00:00",
- "build": "ledger_20261114_113351",
+ "generated_at": "2026-11-14T14:55:42+00:00",
+ "build": "ledger_20261114_145537",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "72e9a3529c27be3eb69d",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 11.4,
-   "text": "So in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
-   "text_sha256": "040e83c0beaf6b43f2fb289d71c31715796be0638468ff393d71e5af716bebe1",
-   "trimmed_leading": null
-  },
   {
    "pid": "89d5c05be258c4069a4e",
    "video_id": "7po5mnYMAjM",
@@ -22,40 +13,31 @@
    "trimmed_leading": null
   },
   {
-   "pid": "c0b10dbdc0b9dbadfac2",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 9.28,
-   "text": "But understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
-   "text_sha256": "cf51bb308c9b62bf39178763110899ac82a66c9d7fb87db8e48dc54f834425f2",
+   "pid": "aaf0c78b19cace153444",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 11.26,
+   "text": "And he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off.",
+   "text_sha256": "fe2d6ce832188f061f2df0984c1e457978b9c55c311aa9ab8ead28b0d0883d23",
    "trimmed_leading": null
   },
   {
-   "pid": "6251a82fa63ed051ea3f",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 5.3,
-   "text": "And by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
-   "text_sha256": "8a225af0bb8646228b7584131490dfe9be24de4e3d3b4a4b4c45f5ff313d0278",
+   "pid": "da0ff8d5b2a224b380fa",
+   "video_id": "jeKD85EPlAc",
+   "channel": "Coin Bureau",
+   "duration": 10.95,
+   "text": "But where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
+   "text_sha256": "254dc32af8fc2a00f4ae537e2821847c1fcb86c2e2356f8b7b40689255d30180",
    "trimmed_leading": null
   },
   {
-   "pid": "b05aed91079ce64702e4",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 16.76,
-   "text": "And investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
-   "text_sha256": "214b081a061f83e64bc110ef0f681d8ea7f245cb5e7de5fd830a8927301ab80b",
+   "pid": "c6d0463e5d4eccafe587",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 5.8,
+   "text": "So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
+   "text_sha256": "1efdc1d04c4430a705e1f36a59f5748303117e4b1a081d25a88511bc8d6c1137",
    "trimmed_leading": null
-  },
-  {
-   "pid": "72e9a3529c27be3eb69d~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 11.28,
-   "text": "in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
-   "text_sha256": "8d1ecc96f033866ed3f03c70fa49647ad882142958df1024864c312826471b35",
-   "trimmed_leading": "So"
   },
   {
    "pid": "89d5c05be258c4069a4e~trim",
@@ -67,39 +49,48 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "c0b10dbdc0b9dbadfac2~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 9.26,
-   "text": "understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
-   "text_sha256": "873ebe6552da466f8932df2847771fa3f2bf97769aa49aa4baf5fe2573c8aec0",
+   "pid": "aaf0c78b19cace153444~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 10.86,
+   "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off.",
+   "text_sha256": "697915c3762f9a3a36ca037c7dc4fa2124e98f1f9bfb5b07f00f48c0ef92a177",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "ec4c0ff49fdb895ef08e~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 12.73,
+   "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing.",
+   "text_sha256": "ecb8f8a3fae49d1e9df85f6792d6bdf5a7470a2b0d4938e085ef34b8ba54a066",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "da0ff8d5b2a224b380fa~trim",
+   "video_id": "jeKD85EPlAc",
+   "channel": "Coin Bureau",
+   "duration": 10.85,
+   "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
+   "text_sha256": "4837f58466f89f40888c18ceec8f62041fc78e6da9a1c5ef6cfb41b50e2a0d3b",
    "trimmed_leading": "But"
   },
   {
-   "pid": "6251a82fa63ed051ea3f~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 5.28,
-   "text": "by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
-   "text_sha256": "e9fd101f3240d7b54f17fee6fd4a56d1d218a874f6b816ad94df82a80f803b8f",
-   "trimmed_leading": "And"
+   "pid": "c6d0463e5d4eccafe587~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 5.72,
+   "text": "Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
+   "text_sha256": "cf1f638e8e64e41931f745cc8d23514e1c3cd5d6890cde617c11502e6337c92e",
+   "trimmed_leading": "So"
   },
   {
-   "pid": "b05aed91079ce64702e4~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 16.74,
-   "text": "investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
-   "text_sha256": "af9ab03578fa34f8096fc05df26b472762bd7ca9c0ce15738e082d0547401726",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "6aad8f2f278340a46449",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 17.88,
-   "text": "Buying crypto today at the price of around $67,000 is like buying Bitcoin over five years ago, but completely derisked. So again, the Bitcoin price. is around the same price that it was in 2021.",
-   "text_sha256": "13ac9b6aa8a98bd140a2e28393b6be874fa1fb36d492cf9ef328e108323c0bae",
+   "pid": "7c0121c6c14b8b930a2a",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 19.51,
+   "text": "Once you start moving things on chain, Bitcoin is the collateral backing of the digital system. It just is. It's been chosen. So we need to get there. I'm hopeful that we'll get through this little AI kind of puking that happened on the hedge fund side.",
+   "text_sha256": "22030beb008a3ffcd9fb69eec612b354a7c85de68b7ed5b7e6f06fb3f77c2de8",
    "trimmed_leading": null
   },
   {
@@ -112,31 +103,139 @@
    "trimmed_leading": null
   },
   {
-   "pid": "ab72c96d18f352cd82fa~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 23.79,
-   "text": "in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto. The SEC. and the CFTC have now regulated crypto, and the technicals, specifically the 200 -month moving average, now sits at around the price we currently are, versus way underneath.",
-   "text_sha256": "f19f4b78d32b6b7382aea1e0a2a8c7fb358ac1c8854e6615404abd85c43c7c2c",
-   "trimmed_leading": "So"
+   "pid": "98f8c426a874add381bf",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 15.77,
+   "text": "Anytime micro strategy isn't doing well, it has issues for Bitcoin and for no other reason that people view them the same. Again, you've been involved in this for a long time, and I've got to know the community, For the most part, the community is already long Bitcoin.",
+   "text_sha256": "589c83137a72fbc61b73a86ad3c28173c88f350994ffea5d0c47072e2898302c",
+   "trimmed_leading": null
   },
   {
-   "pid": "a5438e7235bf6e4aaa84~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 15.38,
-   "text": "understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good. Apathy. When everybody doesn't care about crypto, when nobody cares about crypto, And everybody's apathetic.",
-   "text_sha256": "ce933d1b99d696425f1970c62b8eb7e56c1f0d178e8b298aba5ae059e3a735b3",
+   "pid": "5b159ce6a40b1251f0fe~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 15.76,
+   "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off. And I thought that was fascinating psychology of there's a hack going on.",
+   "text_sha256": "4c35e186636c68ff6930411d33de4ba8e34bc05cdc2732dfb7e4fb0c7d0fd124",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "a7ed3a348a7136992e88~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 17.77,
+   "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing. So if gold is trading down because there's worries that interest rates are going higher than Bitcoin usually trades with that.",
+   "text_sha256": "913bcf31b6084fbe9e4c328e00230deb9e4a7d22277c537e68a9ff1d2b2edfd9",
+   "trimmed_leading": "Now"
+  },
+  {
+   "pid": "4d9418596b2fdd0a0a88~trim",
+   "video_id": "jeKD85EPlAc",
+   "channel": "Coin Bureau",
+   "duration": 17.09,
+   "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets. The FBI's alert names 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address.",
+   "text_sha256": "94c3a129052826d25dbfe13e5e794792228693b541525d04f1c028c0ae0f7d0b",
    "trimmed_leading": "But"
   },
   {
-   "pid": "58fe56ce50d3cb5626a7~trim",
-   "video_id": "WJL2Ta9ZNDg",
-   "channel": "Altcoin Daily",
-   "duration": 18.31,
-   "text": "by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower. We had apathy. We had chop around, meaning prices aren't going to go parabolic yet. When I say these are the top alt coins that I think will do very, very well in 2027, that doesn't mean January.",
-   "text_sha256": "8e01ee07218f8822eea56ceda1a3bda70ad9a8c9f8b52032eccbe963c616e7ae",
+   "pid": "23caa285d4cbeb43e51c~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 26.04,
+   "text": "micro strategy has a trading impact, but if we're going to get Bitcoin up to the levels that we think it's going to go to, there needs to be the fiat money that's coming into it. And the only way that's going to happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important um theme for what we've always talked about, which is, hey, there's 900 trillion dollars over here in this uh in this fiat system.",
+   "text_sha256": "256b53f6894af6d7f058a6efc38549f5e7e632a0ab49b43817fa1b9b3b2ce115",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "93fca317d9fe229b4001",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 14.54,
+   "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce. But one of the things that he said to me that I found a unique way of looking at it.",
+   "text_sha256": "5857bdd48a86aca0a2913f88233edd785fda4be4982d58a4f05384a2f3a99d32",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9e63b39a556c9ed33ed7",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 21.85,
+   "text": "He's like, if you just look at a couple of these companies, he's like, there's literally not enough money in the system to go and buy all of this equity. And therefore, the government is going to have to print money over time so that you can kind of balance out how much equity value there is versus the money in the system. And therefore, if they're printing money, then Bitcoin becomes more valuable.",
+   "text_sha256": "f7f12866daef58ae4d332eb65c5266585de40caaa2f14909ddf0b40e394038be",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c931a4f668731b60de7f~trim",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 25.94,
+   "text": "I just know for this to work every time I say that tokenization is inevitable and that agenda commerce is inevitable. That's the only thing I care about when it comes to Bitcoin. I need to have the people that I know at pension funds and at insurance companies and at hedge funds and at mutual funds and everywhere else that start to get interested in the fundamentals behind moving things on chain and the transactions on chain.",
+   "text_sha256": "6feaf3cc5108cfab74fa1fa416363164c366866be29b6962a4b56447801168da",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "2de8e757031888803e1e",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 18.48,
+   "text": "We just had the largest rise in two -year yields in a week, 35 basis points since 2022. So that's why Bitcoin is down. It's down. It's following gold. we need the liquidity side to turn around. Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts.",
+   "text_sha256": "7b0c7d663227e0ca0dd33863250e23d12e603fa39e21f96912b012b38d6a12f2",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3fc97f3afec6a4386667",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 14.14,
+   "text": "Micro strategy is being removed from some of the indexes. It feels like they were eligible. There was a kind of active decision or discretionary decision to put them in. Now they're being removed. Does that cause issues for Bitcoin?",
+   "text_sha256": "bf92b20ab3b24e97dc2c0e8f65122ae4b5f1327648f3ca02fc83710ab5aae2f5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "da859ee356c68c74ce2f",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 18.8,
+   "text": "I've shown this in my videos, but gold is at the lows. And Bitcoin and gold have been moving together since March. And the reason they've moved together is because of the liquidity headwinds that have been there. We've had... inflation go higher on the back of the Iran war.",
+   "text_sha256": "4658d029fb97167982dc861cdaa97179fbda636dc8827a39ac5f6ba7a18477a7",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "cbf391e7523ac232206a",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 15.26,
+   "text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin? And so actually, there's like a much tighter correlation there. Or it is just... everything combined in U.S. and the war may be a little small piece of it, but that's not actually the driver.",
+   "text_sha256": "2c21da4f9a62fc6978f961b594c3ed44f19bb9f504bea2217ce998678e9bbfff",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ccdb0097bea1f57a6348",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 16.82,
+   "text": "The S &P 500 as of yesterday was about 2.5 % below the all -time highs. So despite everything that's gone on, the Jensen stuff, the Fed raising rates, we're still sitting near the all -time highs in stock. So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
+   "text_sha256": "f7202045873806dca6ce605a068d64e90f10954ea05a1cc06ce0a9e01c4a6c4b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9a2febf853f2761ea0f6",
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "duration": 13.8,
+   "text": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that what's applying so much pressure to Bitcoin? Not right now.",
+   "text_sha256": "d01a1016ac6995eff688a6375a9a7e95a186a6d5fe804bdcdb80ee3b235b8f15",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d0adae88e4f7b5354a72",
+   "video_id": "jeKD85EPlAc",
+   "channel": "Coin Bureau",
+   "duration": 17.83,
+   "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. The speed came from an Ethereum feature called EIP -7702.",
+   "text_sha256": "42f969f068e9f87dbf88faef24247151f8f95b486732fa71da68e42672eaf000",
+   "trimmed_leading": null
   }
  ]
 }

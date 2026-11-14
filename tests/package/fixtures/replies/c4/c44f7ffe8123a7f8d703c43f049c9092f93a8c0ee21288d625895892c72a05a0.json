@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "11df6a7c24d7b95f9e53dd98eadb887367245f616de79f9cb78b14d3316967cd",
+ "result": {
+  "text": "That makes them fast to use, and it makes them the obvious target. On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. Now, the speed came from an Ethereum feature called EIP-7702. It lets an ordinary wallet",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 23.26,
+    "text": "That makes them fast to use, and it makes them the obvious target. On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. Now, the speed came from an Ethereum feature called EIP-7702. It lets an ordinary wallet"
+   }
+  ],
+  "words": [
+   {
+    "text": "That",
+    "start": 0.18,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 0.34,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 0.56,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fast",
+    "start": 0.74,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.98,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use,",
+    "start": 1.16,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.64,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.74,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 1.84,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 2.12,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.46,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obvious",
+    "start": 2.6,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "target.",
+    "start": 2.96,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "On",
+    "start": 3.96,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.059,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "29th",
+    "start": 4.28,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.76,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "October,",
+    "start": 4.88,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Binance's",
+    "start": 5.5,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hot",
+    "start": 5.98,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wallets",
+    "start": 6.2,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gave",
+    "start": 6.64,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.9,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ethereum,",
+    "start": 7.1,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 7.72,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "USDT,",
+    "start": 8.26,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "USDC,",
+    "start": 8.98,
+    "end": 9.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 9.7,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "233",
+    "start": 10.16,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 11.14,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "XRP,",
+    "start": 11.54,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.34,
+    "end": 12.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.46,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 12.66,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tail",
+    "start": 13.0,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.44,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "smaller",
+    "start": 13.58,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tokens.",
+    "start": 13.92,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 14.78,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "total",
+    "start": 14.92,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 15.38,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 15.52,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$6.3",
+    "start": 15.76,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 16.62,
+    "end": 16.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worth.",
+    "start": 17.2,
+    "end": 17.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 17.58,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.08,
+    "end": 18.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "speed",
+    "start": 18.24,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 18.66,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 18.86,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 18.98,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ethereum",
+    "start": 19.1,
+    "end": 19.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feature",
+    "start": 19.64,
+    "end": 19.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "called",
+    "start": 19.96,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "EIP-7702.",
+    "start": 20.3,
+    "end": 21.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 22.0,
+    "end": 22.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lets",
+    "start": 22.1,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 22.4,
+    "end": 22.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ordinary",
+    "start": 22.6,
+    "end": 22.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wallet",
+    "start": 23.06,
+    "end": 23.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.33
+ },
+ "usd": 0.004666,
+ "seconds": 1.55,
+ "recorded_at": "2026-11-14T14:53:02Z"
+}

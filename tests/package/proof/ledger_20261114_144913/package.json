@@ -1,0 +1,490 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "05f1e4a9f750546eb83a": "25.38 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2b151301328f73972f91": "37.9 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4a9263e5bef5c9d5086d": "29.5 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "592fb862d38093a5d8a4": "35.05 s: over the 20.0 s per source video (L-u) or unmeasured"
+ },
+ "usable": 12,
+ "current_levels": [],
+ "no_role": {
+  "3fb31e595944d69f711f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "2a28293eeaec93916947": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "78bee9e19c4b9012f7e7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "89d5c05be258c4069a4e": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "da0ff8d5b2a224b380fa": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "04942cb2ddc65b287b8f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "912152e845c0c1f486b9": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "1d7fc70670874da7113b": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "dbeb521230267fb17bdb": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "7898eebe798bead550ee": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "8a76383821dc0ec556a0": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
+ },
+ "ad_read": {},
+ "trimmed": {
+  "89d5c05be258c4069a4e": "89d5c05be258c4069a4e~trim"
+ },
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-14T11:53:59Z",
+  "build": "ledger_20261114_113351",
+  "candidates_generated_at": "2026-11-14T11:33:54+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "threshold": 3.5,
+  "verdicts": 15,
+  "affirmed": 3,
+  "disagree_with_the_rule": [],
+  "candidates": 7,
+  "candidates_written": true,
+  "admitted": [],
+  "trims_affirmed": [
+   "89d5c05be258c4069a4e"
+  ],
+  "trims_out": {
+   "da0ff8d5b2a224b380fa": "'But' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)"
+  }
+ },
+ "prescreen": {
+  "screened": 2,
+  "cleared": 1,
+  "failed": {
+   "89d5c05be258c4069a4e~trim": [
+    "NOT_OWN_SINCERE"
+   ]
+  }
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "why_none": "1 moments cleared step A from fewer than 3 channels",
+ "candidate_tries": [],
+ "spotlight": {
+  "package": null,
+  "why_none": "no moment passes rulings 90-92 now",
+  "finalists": [],
+  "near": [
+   {
+    "channel": "Stephan Livera",
+    "video_id": "7po5mnYMAjM",
+    "seconds": 25.38,
+    "text": "I think it's one of the most beautiful things about Bitcoin as a network. And one of the most beautiful things that I think that Satoshi could have never envisioned was that you would have, and I thin",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge",
+    "moment_id": "05f1e4a9f750546eb83a",
+    "passed": [
+     "step A"
+    ]
+   },
+   {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.83,
+    "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. The speed came fr",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees",
+    "moment_id": "d0adae88e4f7b5354a72",
+    "passed": [
+     "step A"
+    ]
+   },
+   {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.09,
+    "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other as",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE",
+    "moment_id": "4d9418596b2fdd0a0a88~trim",
+    "passed": []
+   }
+  ],
+  "moments": {
+   "05f1e4a9f750546eb83a": {
+    "channel": "Stephan Livera",
+    "video_id": "7po5mnYMAjM",
+    "seconds": 25.38,
+    "text": "I think it's one of the most beautiful things about Bitcoin as a network. And one of the most beautiful things that I think that Satoshi could have never envisioned was that you would have, and I thin",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "4d9418596b2fdd0a0a88~trim": {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.09,
+    "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other as",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "d0adae88e4f7b5354a72": {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.83,
+    "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. The speed came fr",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   }
+  },
+  "pool": {
+   "may": 3,
+   "out": {
+    "2b151301328f73972f91": "37.9 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "592fb862d38093a5d8a4": "35.05 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "3fb31e595944d69f711f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "2a28293eeaec93916947": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "78bee9e19c4b9012f7e7": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "89d5c05be258c4069a4e": "ruling 90: 7.24 s is under 14.7 s and the snap fails: 8.58 s and no whole sentence can be added (the next sentence: a caption speaker-change marker at 8.08 s; the sentence before: the word record ends)",
+    "04942cb2ddc65b287b8f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "912152e845c0c1f486b9": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "1d7fc70670874da7113b": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "4a9263e5bef5c9d5086d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "dbeb521230267fb17bdb": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "7898eebe798bead550ee": "ruling 94 (a): it opens on ['now'] and has no trim variant",
+    "8a76383821dc0ec556a0": "ruling 94 (a): it opens on ['but'] and has no trim variant"
+   },
+   "snapped": {
+    "4d9418596b2fdd0a0a88~trim": {
+     "from": "da0ff8d5b2a224b380fa",
+     "sentences": [
+      7,
+      10
+     ],
+     "was": [
+      7,
+      9
+     ],
+     "seconds": [
+      10.95,
+      17.19
+     ],
+     "added": {
+      "before": "",
+      "after": "The FBI's alert names 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "d0adae88e4f7b5354a72": {
+     "from": "704fa6e1af4a86ff1d07",
+     "sentences": [
+      8,
+      10
+     ],
+     "was": [
+      8,
+      9
+     ],
+     "seconds": [
+      13.34,
+      17.83
+     ],
+     "added": {
+      "before": "",
+      "after": "The speed came from an Ethereum feature called EIP -7702."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    }
+   }
+  },
+  "scorer_waited_s": 0.0,
+  "lock_stop": null,
+  "scorer": {
+   "read": true,
+   "rated_at": "2026-11-14T14:50:00Z",
+   "build": "ledger_20261114_144913",
+   "candidates_generated_at": "2026-11-14T14:49:16+00:00",
+   "model": "gemma3:27b",
+   "kind": "moments",
+   "rubric": "ruling 60: stand-alone only",
+   "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+   "threshold": 3.5,
+   "verdicts": 7,
+   "affirmed": 1,
+   "disagree_with_the_rule": []
+  }
+ },
+ "next_attempt": {
+  "conversation": {
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15Z",
+   "expires_at": "2026-11-15T02:00:15Z",
+   "age_h": 0.8,
+   "turns_per_min": 0.72,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 25,
+   "passes": {
+    "hook/mine-hook/3": 2,
+    "moment/mine/2": 23
+   },
+   "word_pass_ready": 0,
+   "word_pass_waiting": 25
+  },
+  "newest_upload": {
+   "video_id": "wLJ_jy3wyN8",
+   "channel": "Anthony Pompliano",
+   "published_at": "2026-11-14T14:00:15Z",
+   "expires_at": "2026-11-15T02:00:15Z",
+   "age_h": 0.8,
+   "turns_per_min": 0.72,
+   "unmarked": false,
+   "turns_from": "pp-ingest episode",
+   "rows": 25,
+   "passes": {
+    "hook/mine-hook/3": 2,
+    "moment/mine/2": 23
+   },
+   "word_pass_ready": 0,
+   "word_pass_waiting": 25
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ },
+ "seconds": 227.5,
+ "usd_estimate": 0.2862,
+ "usd_best_known": 0.0581,
+ "full": {
+  "est": 0.2636,
+  "best": 0.0355,
+  "model_s": 110.41,
+  "calls": 7
+ },
+ "code": "91d37100+d7e88172cffb",
+ "now": "2026-11-14T14:49:13.435255+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ],
+  "context_verdict:step_a_first": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict:step_a_second": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict:step_c": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict:hook": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:clips_alone": [
+   "xai:grok-4.20-0309-reasoning",
+   "google:gemini-2.5-pro"
+  ],
+  "coherence_verdict:coherence": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash"
+  ],
+  "shadow86:context_verdict": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "probe87:heimdall:qwen/qwen3.8-27b": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": [
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "probe87:heimdall:z-ai/glm-5.3-flash": [
+   "heimdall:z-ai/glm-5.3-flash"
+  ]
+ },
+ "inputs": {
+  "rows": 44,
+  "no_word_record": 25,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 25
+  },
+  "no_word_record_videos": {
+   "wLJ_jy3wyN8": {
+    "rows": 25,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "jeKD85EPlAc": [
+    "transcripts/jeKD85EPlAc/windows/436.695-536.747.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/670.968-768.000.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/493.297-592.610.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/557.770-659.289.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/404.795-509.783.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/559.603-665.343.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/158.978-264.807.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/144.192-247.048.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/580.587-681.388.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/37.400-140.894.whisper_words_punct.json"
+   ],
+   "7po5mnYMAjM": [
+    "transcripts/7po5mnYMAjM/windows/230.714-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/216.706-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/0.000-53.070.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/144.574-272.489.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/196.948-297.000.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/86.123-205.516.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/0.000-89.150.whisper_words_punct.json",
+    "transcripts/7po5mnYMAjM/windows/182.578-285.816.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 1,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "70215c87fd5f5f4ef933": "the row's text does not anchor in the word record (sentence_law.anchor, searched 246-317 s)"
+  },
+  "malformed": {},
+  "duplicates": 1,
+  "duplicates_of": {
+   "f94527e9fb5a4777810f": "a94a85627c8babee4fe7"
+  },
+  "moments": 16,
+  "videos": 2,
+  "sources": 16,
+  "word_records": {},
+  "word_pass": {
+   "rows": 1983,
+   "unreadable": 0,
+   "ready": 1460,
+   "not_ready": 193,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 16,
+  "cleared": 1,
+  "cuttable": null,
+  "hooks_4": null
+ },
+ "routing": "heimdall_first",
+ "mode_at_end": "heimdall_first",
+ "shadow86": {
+  "verdicts": 1,
+  "compared_units": 1,
+  "differ": 0,
+  "on_pin_differ": 0,
+  "not_compared": 0,
+  "missing": 0,
+  "shadow_usd_reported": 0.0081,
+  "pin": false,
+  "would_seal_under_grok": null,
+  "summary": "1 verdicts shadowed, 1 decisions compared, 0 differ (0 on the pin's clips); 0 not compared; 0 still running; shadow cost $0.0081 reported"
+ },
+ "spend_ruling_48": {
+  "before": 13.8334,
+  "after": 13.8916,
+  "cap": 20.0,
+  "stop": 16.0,
+  "basis": "reported"
+ },
+ "registry": true
+}

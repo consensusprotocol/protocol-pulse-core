@@ -1,0 +1,614 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "85fd45d68b99ba181e3bc9dbab6e1c530afd9c7c775b742272bb748b60f10040",
+ "result": {
+  "text": "On-chain and the, the, the transactions on-chain. So MicroStrategy has a trading impact, but if we're gonna get Bitcoin up to the levels that we think it's gonna go to, there needs to be the fiat money that's coming into it. And the only way that's gonna happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important, um, theme for what we've always talked about, which is, \"Hey, there's nine hundred trillion dollars over here in this, uh, in this fiat system. Hey, the crypto world-\"",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 31.52,
+    "text": "On-chain and the, the, the transactions on-chain. So MicroStrategy has a trading impact, but if we're gonna get Bitcoin up to the levels that we think it's gonna go to, there needs to be the fiat money that's coming into it. And the only way that's gonna happen is for people to believe fundamentally that tokenization is going to change the world. I believe tokenization is the most important, um, theme for what we've always talked about, which is, \"Hey, there's nine hundred trillion dollars over here in this, uh, in this fiat system. Hey, the crypto world-\""
+   }
+  ],
+  "words": [
+   {
+    "text": "On-chain",
+    "start": 0.0,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.84,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 1.08,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 1.44,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.88,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "transactions",
+    "start": 2.06,
+    "end": 2.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on-chain.",
+    "start": 2.8,
+    "end": 3.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.82,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MicroStrategy",
+    "start": 4.2,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 5.88,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.08,
+    "end": 6.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trading",
+    "start": 6.22,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact,",
+    "start": 6.58,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 7.26,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 8.22,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 8.36,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 8.5,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 8.74,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.98,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 9.36,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.5,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.62,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "levels",
+    "start": 9.78,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.18,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 10.34,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 10.5,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.74,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 10.92,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 11.12,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to,",
+    "start": 11.36,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 12.14,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "needs",
+    "start": 12.36,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.74,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.88,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.06,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fiat",
+    "start": 13.24,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 13.62,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 13.88,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coming",
+    "start": 14.1,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 14.4,
+    "end": 14.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 14.68,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 14.8,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.86,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 15.02,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 15.22,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 15.34,
+    "end": 15.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 15.52,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happen",
+    "start": 15.72,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 16.02,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 16.16,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 16.36,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.62,
+    "end": 16.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 16.72,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fundamentally",
+    "start": 17.0,
+    "end": 17.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.66,
+    "end": 17.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tokenization",
+    "start": 17.84,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 18.64,
+    "end": 18.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 18.76,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 19.0,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change",
+    "start": 19.18,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.5,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world.",
+    "start": 19.6,
+    "end": 19.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 20.38,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 20.44,
+    "end": 20.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tokenization",
+    "start": 20.68,
+    "end": 21.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 21.32,
+    "end": 21.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 21.44,
+    "end": 21.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 21.58,
+    "end": 21.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important,",
+    "start": 21.86,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 22.7,
+    "end": 22.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "theme",
+    "start": 23.16,
+    "end": 23.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 24.36,
+    "end": 24.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 25.04,
+    "end": 25.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 25.2,
+    "end": 25.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "always",
+    "start": 25.4,
+    "end": 25.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talked",
+    "start": 25.66,
+    "end": 25.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about,",
+    "start": 25.92,
+    "end": 26.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 26.22,
+    "end": 26.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 26.42,
+    "end": 26.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Hey,",
+    "start": 26.54,
+    "end": 26.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 26.72,
+    "end": 26.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nine",
+    "start": 26.9,
+    "end": 27.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundred",
+    "start": 27.08,
+    "end": 27.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion",
+    "start": 27.34,
+    "end": 27.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 27.62,
+    "end": 27.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 27.96,
+    "end": 28.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 28.14,
+    "end": 28.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 28.28,
+    "end": 28.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 28.38,
+    "end": 28.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 28.84,
+    "end": 28.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 29.12,
+    "end": 29.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 29.2,
+    "end": 29.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fiat",
+    "start": 29.4,
+    "end": 29.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 29.74,
+    "end": 30.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Hey,",
+    "start": 30.52,
+    "end": 30.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 30.82,
+    "end": 30.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 30.96,
+    "end": 31.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world-\"",
+    "start": 31.38,
+    "end": 31.52,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 31.54
+ },
+ "usd": 0.006308,
+ "seconds": 0.93,
+ "recorded_at": "2026-11-14T15:04:53Z"
+}

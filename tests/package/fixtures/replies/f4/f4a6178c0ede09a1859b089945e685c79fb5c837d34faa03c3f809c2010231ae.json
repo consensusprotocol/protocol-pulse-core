@@ -1,0 +1,470 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "114a27cd0ca907a7816a766207f8af92958396a87194f1ca0fac1508f03f39ac",
+ "result": {
+  "text": "liquidity headwinds were gonna become tailwinds next year. Well, we're not there yet. We just had the largest rise in two-year yields in a week, 35 basis points, uh, since 2022. So that's why Bitcoin is down. It's down. It's following gold. Um, we need the liquidity side to turn around. Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 23.18,
+    "text": "liquidity headwinds were gonna become tailwinds next year. Well, we're not there yet. We just had the largest rise in two-year yields in a week, 35 basis points, uh, since 2022. So that's why Bitcoin is down. It's down. It's following gold. Um, we need the liquidity side to turn around. Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is"
+   }
+  ],
+  "words": [
+   {
+    "text": "liquidity",
+    "start": 0.0,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "headwinds",
+    "start": 0.58,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 1.1,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 1.22,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 1.38,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tailwinds",
+    "start": 1.72,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 2.26,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 2.52,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Well,",
+    "start": 3.02,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 3.26,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 3.38,
+    "end": 3.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 3.6,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yet.",
+    "start": 3.8,
+    "end": 3.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 3.96,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 4.24,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.38,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "largest",
+    "start": 4.52,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rise",
+    "start": 4.98,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.3,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two-year",
+    "start": 5.48,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yields",
+    "start": 5.88,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.22,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.32,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 6.44,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "35",
+    "start": 6.82,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basis",
+    "start": 7.16,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "points,",
+    "start": 7.56,
+    "end": 7.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 8.44,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 9.0,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2022.",
+    "start": 9.52,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.64,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 10.76,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 10.96,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.12,
+    "end": 11.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.42,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down.",
+    "start": 11.54,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 11.92,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down.",
+    "start": 12.08,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 12.28,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "following",
+    "start": 12.44,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 12.82,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 13.74,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 14.22,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 14.5,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.74,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity",
+    "start": 14.86,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "side",
+    "start": 15.52,
+    "end": 15.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 15.88,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turn",
+    "start": 16.02,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around.",
+    "start": 16.239,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 16.64,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.84,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 16.94,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 17.24,
+    "end": 17.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mentioned",
+    "start": 17.32,
+    "end": 17.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.84,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 18.14,
+    "end": 18.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "had",
+    "start": 18.42,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 18.58,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "impact",
+    "start": 18.7,
+    "end": 19.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 19.12,
+    "end": 19.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 19.4,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 20.24,
+    "end": 20.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 20.32,
+    "end": 20.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 20.5,
+    "end": 20.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 20.66,
+    "end": 21.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 21.04,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 21.2,
+    "end": 21.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "two",
+    "start": 21.5,
+    "end": 21.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "separate",
+    "start": 21.76,
+    "end": 22.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "parts.",
+    "start": 22.14,
+    "end": 22.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "One",
+    "start": 22.8,
+    "end": 22.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 23.02,
+    "end": 23.18,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.98
+ },
+ "usd": 0.004796,
+ "seconds": 0.95,
+ "recorded_at": "2026-11-14T15:04:49Z"
+}

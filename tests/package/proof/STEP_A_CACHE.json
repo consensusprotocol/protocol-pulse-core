@@ -13013,5 +13013,998 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "704fa6e1af4a86ff1d07:0ee211cfb364bb90fcd2cfb0179c6c86a418f8ed3472b73abb5c6a8edbf082fa:4be1e5f64cb706df7fe2852930c59ede09cc1d88380a55c0c0163d8181c25b4d:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "704fa6e1af4a86ff1d07",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "The total",
+     "refers_to": "the combined value of the stolen assets just listed (Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and smaller tokens) taken from Binance's hot wallets",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "On the 29th of October",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "On 29 October, Binance's hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and a long tail of smaller tokens, altogether worth roughly $6.3 billion.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4d9418596b2fdd0a0a88~trim:94c3a129052826d25dbfe13e5e794792228693b541525d04f1c028c0ae0f7d0b:740eef33349cc7187b1b766337022fd44e63652581979ca3ab9b3746671effeb:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4d9418596b2fdd0a0a88~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the video",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "right now",
+     "refers_to": "the time the video is being made",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "the money",
+     "refers_to": "the $6.3 billion stolen from Binance hot wallets",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "as I make this video",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "As the speaker makes this video, estimates put about $3.3 billion of the stolen funds still in addresses controlled by the thieves, mostly Bitcoin and Ether, with the FBI alert naming 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "as I make this video",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "d0adae88e4f7b5354a72:42f969f068e9f87dbf88faef24247151f8f95b486732fa71da68e42672eaf000:03b71ec7441b69003aff4680468381125bbd01bae609c67fe93466e0af396e5d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d0adae88e4f7b5354a72",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "On the 29th of October",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "On the 29th of October, Binance hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and smaller tokens for a total of about $6.3 billion, with the speed enabled by the Ethereum feature EIP-7702.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4effcd61b4b012e82945:bc2485bd273351e075ecef92e95804a715b8235c1286f0f7182230cab6cd2f7a:b1b5f1b04197b7724a04e2207c2908d128d39881d4bab3e83a95a48205d192e3:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "4effcd61b4b012e82945",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Once",
+     "refers_to": "general condition, not a specific referent",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "things",
+     "refers_to": "assets/transactions being moved on chain (tokenization)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Once you start moving things on chain",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Once assets are moved on chain, Bitcoin serves as the collateral backing of the digital financial system.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "which is why I said I put, you know, a good amount of money last week into uh the semiconductor names that I had",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1f42e788a93fa09117a9:ea5cae82e481517789f71a156714436970e9919468d1e96ccc9c8774d07eb986:c9d9ab60163019d5b9164e666487f79ae326fdd6d9fe6491410e24fc7813b70e:9d43580c729b": {
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "1f42e788a93fa09117a9",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Anytime",
+     "refers_to": "general condition, not a specific referent",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "them",
+     "refers_to": "Micro Strategy (and Bitcoin) being viewed the same by people",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Anytime micro strategy isn't doing well",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Whenever Micro Strategy performs poorly, it causes problems for Bitcoin because people view the two as the same.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Today's episode is brought to you by Abra. ... What do you think the ramifications are?",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ec4c0ff49fdb895ef08e:b187318da62e98f58f0741fcad58668c44b4a515a27dc6f05b2ff8b3079270aa:0778b5f64ff8fccc45fad9f67fd3e433811a5cccf4319c213211315d1f1fac9c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ec4c0ff49fdb895ef08e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Now",
+     "refers_to": "current point in the conversation",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "AI having an impact last week",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin can be thought of as having two separate parts, an innovation side and a liquidity side, giving it a gold-type aspect.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "So I did I did a video this week for my subscribers. Um and I'm starting to do these more now where I'm connecting them back to macro.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "eb402a210905c778432d:c238cfcfb39ed88950812d93d3e2afa77a2355fef7b3eafcdca93a3cc049500e:ca4e3d9456660f28fa96915da60e1be62415388b87958c6ae413a9b8fc6ee8ee:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "eb402a210905c778432d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "You",
+     "refers_to": "the guest being addressed",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "there",
+     "refers_to": "the idea that AI popularity leads to Bitcoin gaining value",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the world created by widespread AI",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "as AI becomes more popular",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "You and I have discussed how Bitcoin should gain more value as AI becomes more popular because AI creates a world of abundance while Bitcoin is scarce.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "when I asked him about the hack on stage uh first words he says were we had some deficiencies.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "eb0fd778800d99d16559:f4be17400545e9a7e5531267b48128a4dbd78f5a277fe6171e9426e941c286aa:d4e910b5b4e6774050a86fa1ca7f34f5ef2bd4e9bd931bdf3cea0d9d6294b824:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "eb0fd778800d99d16559",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the largest rise in two-year yields in a week, 35 basis points since 2022",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "since 2022",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The largest rise in two-year yields in a week since 2022 (35 basis points) is why Bitcoin is down, as it follows gold amid liquidity headwinds.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that is that what's applying so much pressure to Bitcoin? \u203a\u203a Not right now.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "63e84dd53de85f9e6337:ac469cfb51659460266d15dfd5691d3611f0e6e3400b83b5197c77b42a281782:2b5fb62777200733af4916f339ad5e255f75cefab4e3d2513614eac06243916b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "63e84dd53de85f9e6337",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the correlation between Bitcoin, gold, and macro liquidity headwinds or the largest rise in yields",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Bitcoin and gold",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "since March",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Gold is at the lows, Bitcoin and gold have been moving together since March because of liquidity headwinds, as the speaker has shown in videos.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that is that what's applying so much pressure to Bitcoin? \u203a\u203a Not right now.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "07c844d922fa6dddf59e:6a19875fd90c812eedc8d3c5533a19b5f11a67c06bb60a0fea73c3074880b3cb:f2aa70b2005a98b6bc9c45ba151c08aded33836ef27eb3854f544d43a99d51ce:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "07c844d922fa6dddf59e",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the guest/expert being interviewed",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the war and conflict playing into inflation",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asks how much the war and conflict is playing into inflation and thereby leading to Bitcoin.",
+   "certainty": "uncertain",
+   "speaker_is": "host",
+   "speaker_evidence": "You said Iran war. Um I don't even sometimes remember which you know I should but when I am looking at the market there are many days where I'm just like oh yeah I forgot that there is this conflict going on cuz we kind of don't hear about it for multiple days in a row.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b4831bdba3bc73769a7d:6067e3b1909ec5eb609270f2e8e36fd65b2c1339f1784b4ed37201659b37382d:054b265b367db817e95771fde3cebd5102446a84c0453049e837e24da5270a28:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b4831bdba3bc73769a7d",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "these two things",
+     "refers_to": "Bitcoin falling/declining and collateral damage in the AI industry",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "these two things being connected",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asks whether the collateral damage in the AI industry and Bitcoin's decline are connected and if that is applying so much pressure to Bitcoin.",
+   "certainty": "uncertain",
+   "speaker_is": "host",
+   "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7c0121c6c14b8b930a2a:22030beb008a3ffcd9fb69eec612b354a7c85de68b7ed5b7e6f06fb3f77c2de8:3e79239f2d6019e25d3634c03351d4ae3705e9b855cf78513c4e998142d4404f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7c0121c6c14b8b930a2a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin being the collateral backing of the digital system",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "there",
+     "refers_to": "Bitcoin serving as the collateral backing of the digital system",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the recent AI market correction or downturn affecting hedge funds",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Once you start moving things on chain",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Once assets begin moving on chain, Bitcoin is the chosen collateral backing the digital system, and the speaker is hopeful the recent AI-related market correction on the hedge fund side will be overcome.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "your fundamental analysis did not predict the uh three affair uh black swan. That's I'm surprised you missed that. You know, you're pretty smart guy. \u203a\u203a Yeah, \u203a\u203a it was definitely shocking.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "98f8c426a874add381bf:589c83137a72fbc61b73a86ad3c28173c88f350994ffea5d0c47072e2898302c:eea93fbd19691ea67aa4b1eb72cba64fbb43a8a6277583e78d1858867c450be0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "98f8c426a874add381bf",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "MicroStrategy not doing well",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "them",
+     "refers_to": "MicroStrategy and Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin or the crypto space",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "you",
+     "refers_to": "the host Anthony Pompliano",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Anytime micro strategy isn't doing well",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "When MicroStrategy performs poorly it negatively impacts Bitcoin solely because people equate the two, and the Bitcoin community is already mostly long Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Does that cause issues for Bitcoin? What do you think the ramifications are?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "5b159ce6a40b1251f0fe~trim:4c35e186636c68ff6930411d33de4ba8e34bc05cdc2732dfb7e4fb0c7d0fd124:4b415bcb4c1e30581c6a2a507481872809ee86a21f0790fa00e288d5a9c48eb8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "5b159ce6a40b1251f0fe~trim",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "he",
+     "refers_to": "CZ (founder of Binance)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Binance",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the continued deposits during the hack as people bought the dip",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "while the hack was going on",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "CZ said that Binance continued receiving many deposits during the hack because people rushed to buy the Bitcoin dip on the platform, and the speaker found that psychology fascinating.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Yesterday I was at the uh Caner Fitzgerald conference down in uh Miami and uh I did a little fireside chat with my friend CZ",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a7ed3a348a7136992e88~trim:913bcf31b6084fbe9e4c328e00230deb9e4a7d22277c537e68a9ff1d2b2edfd9:77b86fcca09b81b74884f1a037e9adab36ba9c45a19a7b1124ba3fa51292477f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a7ed3a348a7136992e88~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "gold trading down due to interest rate worries",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if gold is trading down because there's worries that interest rates are going higher",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker thinks of Bitcoin as having an innovation side and a liquidity side like gold, which is why AI impacted it last week and why Bitcoin trades down when gold does on interest-rate worries.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I did I did a video this week for my subscribers. Um and I'm starting to do these more now where I'm connecting them back to macro.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "23caa285d4cbeb43e51c~trim:256b53f6894af6d7f058a6efc38549f5e7e632a0ab49b43817fa1b9b3b2ce115:a7477016213e3e2d45e6bd422c825f258b05229b44c8adf7335e606398d2db15:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "23caa285d4cbeb43e51c~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "fiat money coming into Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "fiat system",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if we're going to get Bitcoin up to the levels that we think it's going to go to",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy's performance has a trading impact on Bitcoin, but reaching much higher Bitcoin prices will require inflows of fiat money that only occur if people fundamentally believe tokenization will change the world by moving value from the $900T fiat system into crypto.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "What do you think the ramifications are? \u203a\u203a Anytime Micro Strategy isn't doing well, it has issues for Bitcoin for no other reason that people view them the same.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "93fca317d9fe229b4001:5857bdd48a86aca0a2913f88233edd785fda4be4982d58a4f05384a2f3a99d32:062347254e6595491b02f8686189466b45549c9e7d0d1255943e355c08369862:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "93fca317d9fe229b4001",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "You",
+     "refers_to": "the person being addressed (guest)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the connection between AI popularity and Bitcoin value",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "he",
+     "refers_to": "the person asked about the hack on stage",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the unique perspective described next",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "as AI becomes more popular",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker and guest have discussed how Bitcoin should gain value as AI grows in popularity due to its scarcity versus AI-driven abundance, but the speaker found a unique perspective from what another person said on the topic.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "the second thing that he talked about which I thought was very uh interesting way to frame it.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2de8e757031888803e1e:7b0c7d663227e0ca0dd33863250e23d12e603fa39e21f96912b012b38d6a12f2:d5cc945eaf46cdd5accf89d9d289bc12f652c40d8ef8b8e2aa6de6770b774ab5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2de8e757031888803e1e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the largest rise in two-year yields in a week, 35 basis points since 2022",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "AI had an impact last week",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "liquidity side needs to turn around",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The largest rise in two-year yields in a week since 2022 (35 basis points) is why Bitcoin is down as it follows gold, the liquidity side needs to turn around, the speaker mentioned AI's impact last week, and Bitcoin consists of two separate parts.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Not right now. Um it was uh last week. I I'm surprised that people So I did I did a video this week for my subscribers.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3fc97f3afec6a4386667:bf92b20ab3b24e97dc2c0e8f65122ae4b5f1327648f3ca02fc83710ab5aae2f5:8217352b860551c3d33dec56c8aed3030a1639402dd4a670c0028256f20ba548:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3fc97f3afec6a4386667",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the situation with MicroStrategy and the indexes",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "MicroStrategy",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "them",
+     "refers_to": "MicroStrategy",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "MicroStrategy",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "MicroStrategy being removed from some of the indexes",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy is being removed from some indexes after what feels like an active or discretionary decision to include them when eligible, and this might cause issues for Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Today's episode is brought to you by Abra.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9e63b39a556c9ed33ed7:f7f12866daef58ae4d332eb65c5266585de40caaa2f14909ddf0b40e394038be:dda84210761a4cb1b8e4d6e0e93bd295632e9c9d83c61a57a32a721b20ffd60d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9e63b39a556c9ed33ed7",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "He",
+     "refers_to": "the interviewee who discussed this on stage",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "these companies",
+     "refers_to": "SpaceX, Anthropic, and OpenAI",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this equity",
+     "refers_to": "equity in the AI companies mentioned",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they're",
+     "refers_to": "the government",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if they're printing money then Bitcoin becomes more valuable",
+     "inside": true
+    }
+   ],
+   "retraction": "Um I actually don't subscribe to any of that",
+   "time_ok": "yes",
+   "proposition": "Looking at companies like SpaceX, Anthropic, and OpenAI, there is not enough money in the system to purchase all their equity so the government must print money over time, making Bitcoin more valuable.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "You and I have spent a lot of time talking about as AI becomes more popular Bitcoin should gain more value.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c931a4f668731b60de7f~trim:6feaf3cc5108cfab74fa1fa416363164c366866be29b6962a4b56447801168da:571062a2b7fd236c3b2fa3ef86049aaafdb7c2d0043383782bf78cf73fc7a0e9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c931a4f668731b60de7f~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin gaining adoption and value via new institutional buyers",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That's",
+     "refers_to": "tokenization and agent commerce being inevitable",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "for this to work",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Tokenization and agent commerce are inevitable and represent the only thing that matters for Bitcoin, as institutions like pension funds, insurers, hedge funds, and mutual funds must become interested in the fundamentals of moving assets and transactions on chain.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "What do you think the ramifications are? \u203a\u203a Anytime Micro Strategy isn't doing well, it has issues for Bitcoin for no other reason that people view them the same.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "da859ee356c68c74ce2f:4658d029fb97167982dc861cdaa97179fbda636dc8827a39ac5f6ba7a18477a7:522a2c5d1c585c1c4f1444b5cb85a64c7d7dff149117f03edf1a2454cc1dbf3d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "da859ee356c68c74ce2f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the macro setup/charts about yields gold lows and Bitcoin correlation",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they've",
+     "refers_to": "Bitcoin and gold",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "since March",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker has shown in videos that gold is at its lows and Bitcoin has moved together with gold since March due to liquidity headwinds including inflation rising from the Iran war.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "So I did I did a video this week for my subscribers",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "cbf391e7523ac232206a:2c21da4f9a62fc6978f961b594c3ed44f19bb9f504bea2217ce998678e9bbfff:22111a68fff1d636d84046eb08fc77d524edbf1f49d6025cbcfcb517786b1c25:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "cbf391e7523ac232206a",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the guest being addressed",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "inflation",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "there",
+     "refers_to": "between the war inflation and Bitcoin",
+     "inside": false,
+     "changes_assertion": "uncertain"
+    },
+    {
+     "word": "it",
+     "refers_to": "the cause of inflation or pressure on Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the war",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if the war is only a small piece of combined U.S. factors",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "How much is the war and conflict playing into inflation that leads to Bitcoin moves, suggesting there may be a tighter correlation or that the war is only a small piece of combined U.S. factors and not the actual driver.",
+   "certainty": "uncertain",
+   "speaker_is": "host",
+   "speaker_evidence": "You said Iran war",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ccdb0097bea1f57a6348:f7202045873806dca6ce605a068d64e90f10954ea05a1cc06ce0a9e01c4a6c4b:fe72d7176d27a5dfac370e96230a78db31cf54e064fc83b2e762298e32b8c972:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ccdb0097bea1f57a6348",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "yesterday",
+     "refers_to": "the day before the show/recording",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the Jensen stuff, the Fed raising rates",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "inflation headwind starts to lessen",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The S&P 500 is only 2.5% below all-time highs despite Jensen news and Fed rate hikes, so Bitcoin will benefit once the inflation headwind lessens.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "Today's episode is brought to you by Fit Nexa.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9a2febf853f2761ea0f6:d01a1016ac6995eff688a6375a9a7e95a186a6d5fe804bdcdb80ee3b235b8f15:6e946caf69e86d791f9333cd8e4f1bac784defef968ab399593ad1b689bf3ac3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9a2febf853f2761ea0f6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "the asset",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "these two things",
+     "refers_to": "Bitcoin's price fall and collateral damage in the AI industry",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the collateral damage in the AI industry or its connection to Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "not right now (at present)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is currently at $69,000 amid its continued fall and AI industry collateral damage, but the two are not connected right now.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "So I did I did a video this week for my subscribers.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
