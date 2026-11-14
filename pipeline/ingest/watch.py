@@ -1,9 +1,10 @@
 """pipeline/ingest/watch.py: list every registered partner / guest channel for new uploads.
 
-RSS first (feeds/videos.xml with If-None-Match / If-Modified-Since); it answered 404 for every channel on 2026-11-07
-and 2026-11-12, so one canary channel decides each 30 min whether RSS is in use. The fallback is the channel's uploads
-playlist (UU + id[2:]): one request lists regular uploads, livestreams and Shorts with live_status and duration
-(INGEST-FAIL-02: the /videos tab has neither streams nor Shorts). Every yt-dlp process goes through YouTubeGate: at
+The channel's uploads playlist first (UU + id[2:]): one request lists regular uploads, livestreams and Shorts with
+live_status and duration (INGEST-FAIL-02: the /videos tab has neither streams nor Shorts), and it lists a new upload
+minutes before the RSS feed (config.PLAYLIST_FIRST; the A/B of Nov 14). RSS (feeds/videos.xml with If-None-Match /
+If-Modified-Since) is the fallback; it answered 404 for every channel on 2026-11-07 and 2026-11-12, so one canary
+channel decides each 30 min whether RSS is in use. Every yt-dlp process goes through YouTubeGate: at
 most YTDLP_CONCURRENCY at once, and a rate-limit / bot-check answer pauses all of them (10, 20, 40, 60 min).
 """
 import json
@@ -173,8 +174,11 @@ def optouts():
     return set(ids), None
 
 
-def poll_channel(q, gate, chan, rss_mode, now_ts=None, backfill_h=BACKFILL_H):
-    """List one channel and queue its new uploads. Returns {'new': n, 'source': ..., 'error': ...}."""
+def poll_channel(q, gate, chan, rss_mode, now_ts=None, backfill_h=BACKFILL_H, playlist_first=None):
+    """List one channel and queue its new uploads. The uploads playlist first (config.PLAYLIST_FIRST: it lists a new
+    upload minutes before the RSS feed), RSS the fallback while the canary says it answers; with playlist_first False,
+    RSS first and the playlist the fallback (as before Nov 14). Returns {'new': n, 'source': ..., 'error': ...}."""
+    playlist_first = config.PLAYLIST_FIRST if playlist_first is None else playlist_first
     cid = chan["channel_id"]
     q.ensure_channel(chan)
     row = q.channel(cid)
@@ -184,23 +188,27 @@ def poll_channel(q, gate, chan, rss_mode, now_ts=None, backfill_h=BACKFILL_H):
     first_sight = row["listed"] == 0
     entries, source, upd = None, None, {}
     err = None
-    if rss_mode:
+
+    def rss():
+        status, ents, headers = rss_list(cid, row.get("etag"), row.get("last_modified"))
+        upd.update(etag=headers.get("ETag") or row.get("etag"),
+                   last_modified=headers.get("Last-Modified") or row.get("last_modified"))
+        return ([] if status == "not_modified" else [
+            {"video_id": e["video_id"], "title": e["title"], "ts": _parse_iso(e["published"]).timestamp(),
+             "published": e["published"], "live_status": None, "duration": None, "url": e["url"]}
+            for e in ents]), "rss"
+
+    def playlist():
+        return playlist_list(gate, cid), "uploads_playlist"
+
+    for get in ((playlist, rss) if playlist_first else (rss, playlist)):
+        if get is rss and not rss_mode:
+            continue
         try:
-            status, ents, headers = rss_list(cid, row.get("etag"), row.get("last_modified"))
-            source = "rss"
-            upd.update(etag=headers.get("ETag") or row.get("etag"),
-                       last_modified=headers.get("Last-Modified") or row.get("last_modified"))
-            entries = [] if status == "not_modified" else [
-                {"video_id": e["video_id"], "title": e["title"], "ts": _parse_iso(e["published"]).timestamp(),
-                 "published": e["published"], "live_status": None, "duration": None, "url": e["url"]}
-                for e in ents]
+            entries, source = get()
+            break
         except ListError as e:
-            err = f"{e.kind}"
-    if entries is None:
-        try:
-            entries, source = playlist_list(gate, cid), "uploads_playlist"
-        except ListError as e:
-            err = f"{err + '; ' if err else ''}{e.kind}: {e.detail[:160]}"
+            err = f"{err + '; ' if err else ''}{e.kind}" + (f": {e.detail[:160]}" if get is playlist else "")
     if entries is None:
         n = (row["consecutive_errors"] or 0) + 1
         q.channel_update(cid, last_poll_at=config.iso(), consecutive_errors=n, last_error=err,

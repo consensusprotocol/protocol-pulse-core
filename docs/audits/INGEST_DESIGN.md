@@ -48,14 +48,20 @@ root before any write (fail closed).
 ## 3. Watching and fetching
 
 Listing, per channel, every ~10 min (600 s, jitter +-60 s), at most 3 yt-dlp processes at once:
-- RSS first: `feeds/videos.xml?channel_id=` (conditional headers are sent when a feed returns validators; YouTube's
-  return none). RSS answered HTTP 404 for every channel on 2026-11-07 and at 02:45 ET Nov 12, and 200 for all 64 from
-  03:26 ET; a one-channel canary is retried every 30 min and RSS is used for all channels only while it answers 200.
-  The feeds are a 15-minute cache (`Cache-Control: public, max-age=900`), so discovery takes up to ~25 min after
-  publish (INGEST-FAIL-07).
-- Fallback: the uploads playlist `playlist?list=UU<id[2:]>` (`--flat-playlist --playlist-end 30`, approximate dates):
-  one request lists regular uploads, livestream VODs, live / upcoming streams and Shorts (INGEST-FAIL-02: the /videos
-  tab misses streams and Shorts).
+- The uploads playlist FIRST (`config.PLAYLIST_FIRST`, Nov 14; L-aa, a measured time saver): `playlist?list=UU<id[2:]>`
+  (`--flat-playlist --playlist-end 30`, approximate dates): one request lists regular uploads, livestream VODs, live /
+  upcoming streams and Shorts (INGEST-FAIL-02: the /videos tab misses streams and Shorts). Measured (an A/B on 6 busy
+  channels every 2 min for 3 h from 08:31 ET Nov 14, read-only): 25 new uploads listed by both sources,
+  RSS later by a median 6 min (up to 18; 2 in the same round),
+  1 listed by the playlist only, 0 by RSS only, 0 errors. Its cost, from the
+  watcher's own 102 cycles on the playlist (between 19:33 ET Nov 12 and 03:20 ET Nov 14, about 6,500 listings): a cycle takes 76 s
+  on average (at most 253 s, against 7 s on RSS) through the 3-slot yt-dlp gate it shares with the captions, and no
+  rate limit or bot check was met. The publish time is not the listing's: it is yt-dlp's own per video at fetch.
+- Fallback: RSS `feeds/videos.xml?channel_id=` (conditional headers are sent when a feed returns validators; YouTube's
+  return none), when the playlist listing fails and while the canary says RSS answers: RSS answered HTTP 404 for every
+  channel on 2026-11-07 and at 02:45 ET Nov 12, and 200 for all 64 from 03:26 ET; a one-channel canary is retried
+  every 30 min. The feeds are a 15-minute cache (`Cache-Control: public, max-age=900`), so discovery on RSS takes up
+  to ~25 min after publish (INGEST-FAIL-07).
 - Per-channel backoff on errors (2^n min, max 60 min); a YouTube rate-limit / bot-check answer opens a global yt-dlp
   breaker (10, 20, 40, 60 min).
 - Last-seen ledger per channel: last poll, last success, source, ETag / Last-Modified, newest published, errors.

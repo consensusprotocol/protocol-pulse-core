@@ -66,15 +66,38 @@ class TestWatch:
     def test_rss_falls_back_to_the_playlist(self, q, monkeypatch):
         monkeypatch.setattr(watch, "rss_list", lambda *a, **k: (_ for _ in ()).throw(watch.ListError("rss_http_404")))
         gate = H.FakeGate(listing={H.CHAN["channel_id"]: listing([entry(H.vid(), NOW - 60)])})
-        r = watch.poll_channel(q, gate, H.CHAN, rss_mode=True, now_ts=NOW)
+        r = watch.poll_channel(q, gate, H.CHAN, rss_mode=True, now_ts=NOW, playlist_first=False)   # the old order
         assert r["source"] == "uploads_playlist" and r["new"] == 1
+
+    def test_the_uploads_playlist_is_listed_first_and_rss_is_not_asked(self, q, monkeypatch):
+        """L-aa (the A/B of Nov 14: the playlist lists a new upload minutes before RSS): with both answering, the
+        playlist's listing is the one used and RSS is never asked."""
+        asked = []
+        monkeypatch.setattr(watch, "rss_list", lambda *a, **k: asked.append(a) or ("ok", [], {}))
+        gate = H.FakeGate(listing={H.CHAN["channel_id"]: listing([entry(H.vid(), NOW - 60)])})
+        r = watch.poll_channel(q, gate, H.CHAN, rss_mode=True, now_ts=NOW)
+        assert config.PLAYLIST_FIRST is True and r["source"] == "uploads_playlist" and r["new"] == 1 and asked == []
+        assert q.channel(H.CHAN["channel_id"])["last_source"] == "uploads_playlist"
+
+    def test_a_playlist_that_fails_falls_back_to_rss_while_rss_answers(self, q, monkeypatch):
+        """The playlist fails (a listing error): RSS lists the channel while the canary says it answers; when RSS is
+        not in use the channel backs off with both reasons recorded."""
+        v = H.vid()
+        monkeypatch.setattr(watch, "rss_list", lambda *a, **k: ("ok", [
+            {"video_id": v, "title": "t", "published": "2026-11-14T08:00:00+00:00",
+             "url": f"https://www.youtube.com/watch?v={v}"}], {}))
+        r = watch.poll_channel(q, H.FakeGate(listing={}), H.CHAN, rss_mode=True, now_ts=NOW)
+        assert r["source"] == "rss" and r["new"] == 1 and r["error"] is None and q.video(v) is not None
+        r = watch.poll_channel(q, H.FakeGate(listing={}), dict(H.CHAN, channel_id="UC" + "z" * 22), rss_mode=False,
+                               now_ts=NOW)                            # RSS not in use: the playlist's failure stands
+        assert r["error"] and r["source"] is None
 
     def test_rss_is_parsed_with_its_exact_publish_time(self, q, monkeypatch):
         v = H.vid()
         monkeypatch.setattr(watch, "rss_list", lambda *a, **k: ("ok", [
             {"video_id": v, "title": "t", "published": "2026-11-12T08:00:00+00:00",
              "url": f"https://www.youtube.com/watch?v={v}"}], {"ETag": "abc"}))
-        r = watch.poll_channel(q, H.FakeGate(), H.CHAN, rss_mode=True, now_ts=NOW)
+        r = watch.poll_channel(q, H.FakeGate(), H.CHAN, rss_mode=True, now_ts=NOW, playlist_first=False)
         assert r["source"] == "rss" and q.channel(H.CHAN["channel_id"])["etag"] == "abc"
         from datetime import datetime, timezone
         assert q.video(v)["listing_ts"] == datetime(2026, 11, 12, 8, 0, tzinfo=timezone.utc).timestamp()

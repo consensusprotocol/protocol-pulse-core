@@ -27,6 +27,10 @@ POLL_JITTER_S = 60
 YTDLP_CONCURRENCY = 3        # yt-dlp processes at once (listing, probe, captions)
 LIST_N = 30                  # uploads listed per channel per poll
 RSS_CANARY_S = 1800          # RSS answered 404 for every channel (2026-11-07, 2026-11-12): one canary per 30 min
+PLAYLIST_FIRST = True        # list the uploads playlist first, RSS the fallback (L-aa, a measured time saver): the
+                             # playlist lists a new upload before the RSS feed (A/B Nov 14, 3 h from 08:31 ET, 6 busy
+                             # channels: 25 uploads, RSS later by a median 6 min, up to 18; 102 overnight cycles on
+                             # the playlist: no rate limit). Design 3.
 VOD_MAX_S = 6 * 3600         # captions cost nothing to fetch; the selector keeps its own 3 h ceiling
 CAPTION_DEADLINE_H = 48      # no English captions 48 h after publish: no_captions (the pipeline's Whisper can do it)
 CAPTION_RETRY_S = (600, 1200, 2400, 4800)    # then every 2 h
