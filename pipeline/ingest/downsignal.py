@@ -146,12 +146,13 @@ class DownSignal:
         if self.hh is None:
             return
         self._flush()
-        now = self.clock()
+        self._report_probe()                         # a finished probe is reported before another can be due
+        now = self.clock()                           # (audit r87 C1-3: else a second probe in its slot)
         if now >= self.next_mode:
             self.next_mode = now + SIGNAL_MODE_S
             m = self._call("mode", now=_utc(now), evidence=self.evidence, who=WHO)
             self.mode = m if m is not None else self.mode
-            if self.probe_thread is None or not self.probe_thread.is_alive():
+            if not self._probing():
                 drills = [b for b in self.router.chain(self.probe_role) if self._drill(b)]
                 if drills:
                     if not self.drill_logged:
@@ -163,8 +164,15 @@ class DownSignal:
                         self._start_probe()
         if wait and self.probe_thread is not None:
             self.probe_thread.join()
-        self._report_probe()
+            self._report_probe()
         self._seen()
+
+    def _probing(self):
+        """A probe in flight, or finished and not yet reported (its thread leaves the outcome before it ends)."""
+        if self.probe_thread is not None and self.probe_thread.is_alive():
+            return True
+        with self.lock:
+            return self.probe_out is not None
 
     def _call(self, fn, *a, **kw):
         self.busy_since = self.clock()
@@ -243,15 +251,18 @@ class DownSignal:
             if self.error is None:                   # the module's own calls already said so otherwise
                 self._fail(f"{type(e).__name__}: {str(e)[:240]}", where="reading the switches")
             return
-        seen = self.q.kv_get("signal_switches_seen")
-        if seen in (None, "") or int(seen) > len(sw):
+        try:
+            seen = int(self.q.kv_get("signal_switches_seen"))
+        except (TypeError, ValueError):              # none yet, or unreadable: recorded again (audit r87 C1-4)
+            seen = None
+        if seen is None or seen > len(sw):
             self.q.kv_set("signal_switches_seen", str(len(sw)))
             self.log(f"RULING 87: wired to {self.state_path} (mode {s.get('mode')}); {len(sw)} earlier switch(es) "
                      "there are not announced here")
             self._evidence({"kind": "wired", "utc": _iso(self.clock()), "mode": s.get("mode"),
                             "switches_before": len(sw), "by": WHO})
             return
-        for i in range(int(seen), len(sw)):
+        for i in range(seen, len(sw)):
             rec = sw[i] if isinstance(sw[i], dict) else {}
             h = head(rec, self.clock(), self.up)
             if h is not None:
@@ -277,7 +288,8 @@ class DownSignal:
             if self.error is None:
                 self._evidence({"kind": "unreadable", "utc": _iso(self.clock()), "why": why, "by": WHO})
                 self.q.event("down_signal_unreadable", None, None, why=why)
-        self.error, self.error_since = why, self.error_since or self.clock()
+        self.error_since = self.error_since or self.clock()   # first: the health thread never sees an error
+        self.error = why                                       # without its time (audit r87 C1-2)
 
     def _recovered(self):
         if self.error is not None:
@@ -300,9 +312,9 @@ class DownSignal:
     def check_notice(self):
         """The signal not read (or a call into it not returned) for SIGNAL_NOTICE_S: one line at the top of STATE;
         removed when it is read again (the queue remembers it across restarts)."""
-        now, busy = self.clock(), self.busy_since
-        if self.error:
-            why, since = self.error, self.error_since
+        now, busy, err, err_since = self.clock(), self.busy_since, self.error, self.error_since   # one snapshot
+        if err:
+            why, since = err, err_since if err_since is not None else now
         elif busy is not None and now - busy >= SIGNAL_NOTICE_S:
             why, since = "a call into the shared state has not returned (its lock held?)", busy
         else:

@@ -579,8 +579,12 @@ class Service:
         now = self.clock()
         if why is None:
             if self.q.kv_get("purge_blocked_since"):
+                try:                                      # the notice goes first, then the record (a STATE file
+                    spend.write_purge_notice(None, None, notify_path=self.p["notify"])   # that cannot be read keeps
+                except OSError as e:                      # both, tried again next pass: audit r87 C1-5)
+                    self.log(f"purge: the STATE notice could not be removed: {type(e).__name__}: {e}")
+                    return
                 self.q.kv_set("purge_blocked_since", "")
-                spend.write_purge_notice(None, None, notify_path=self.p["notify"])
             return
         since = float(self.q.kv_get("purge_blocked_since") or 0) or now
         self.q.kv_set("purge_blocked_since", str(since))
@@ -627,15 +631,18 @@ class Service:
             self.q.event("outage_over", None, None, lasted_s=round(now - float(since)))
             self.log(f"outage over after {now - float(since):.0f} s: every waiting video is being mined")
         noticed = self.q.kv_get("outage_noticed") == "1"
-        if n and since and now - float(since) >= OUTAGE_NOTICE_S:
-            line = spend.write_outage_notice(n, datetime.fromtimestamp(float(since), timezone.utc).strftime(
-                "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])
-            if not noticed:
-                self.log(line)
-                self.q.kv_set("outage_noticed", "1")
-        elif not n and noticed:
-            spend.write_outage_notice(0, None, notify_path=self.p["notify"])
-            self.q.kv_set("outage_noticed", "0")
+        try:                                              # a STATE file that cannot be read is never rewritten:
+            if n and since and now - float(since) >= OUTAGE_NOTICE_S:      # logged, tried again next minute
+                line = spend.write_outage_notice(n, datetime.fromtimestamp(float(since), timezone.utc).strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])
+                if not noticed:
+                    self.log(line)
+                    self.q.kv_set("outage_noticed", "1")
+            elif not n and noticed:
+                spend.write_outage_notice(0, None, notify_path=self.p["notify"])
+                self.q.kv_set("outage_noticed", "0")
+        except OSError as e:
+            self.log(f"the outage notice could not be written: {type(e).__name__}: {e}")
 
     # ── run ──
 

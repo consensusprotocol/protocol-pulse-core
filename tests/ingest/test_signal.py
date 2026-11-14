@@ -383,3 +383,92 @@ def test_run_starts_the_signal_loop_only_when_configured(sig, monkeypatch):
     s.run()
     assert loops["signal"] == downsignal.SIGNAL_EVERY_S and {"watch", "mine", "hook", "check", "purge"} <= set(loops)
     assert any("ruling 87: the shared down signal wired to" in m for m in msgs)
+
+
+# ── audit r87 cycle 1 ──
+
+def test_a_switch_head_is_written_once_even_when_sent_again(tmp_path):
+    """qwen P0: a restart between the STATE write and the count of switches seen re-sends the head: one copy."""
+    doc, notify = tmp_path / "STATE.md", tmp_path / "ingest" / "NOTIFY.txt"
+    doc.write_text("# STATE\n")
+    h = "01:02 ET: SWITCHED TO PLAN B (X; BY PP-INGEST) |"
+    spend.write_switch_head(h, str(doc), str(notify))
+    spend.write_switch_head(h, str(doc), str(notify))
+    assert doc.read_text() == h + "\n# STATE\n"
+
+
+def test_a_restart_before_the_count_was_kept_announces_nothing_twice(sig):
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    s.hsig.noted(rec(kind="timeout"))
+    s.hsig.tick(wait=True)
+    t[0] = T0 + 15 * 60
+    s.hsig.noted(rec(kind="timeout"))
+    s.hsig.tick(wait=True)
+    first = doc.read_text()
+    assert first.startswith("02:15 ET: SWITCHED TO PLAN B")
+    s.q.kv_set("signal_switches_seen", "0")                           # as if the process died before the count
+    t[0] += 5
+    s.hsig.tick(wait=True)
+    assert doc.read_text() == first
+
+
+def test_a_state_file_that_cannot_be_read_is_never_rewritten_from_nothing(tmp_path):
+    """glm D21: only a missing STATE file starts empty; an unreadable one raises and keeps every line."""
+    doc, notify = tmp_path / "STATE.md", tmp_path / "ingest" / "NOTIFY.txt"
+    doc.write_text("# STATE\nevery line of the session\n")
+    os.chmod(doc, 0)
+    try:
+        with pytest.raises(OSError):
+            spend.write_switch_head("01:02 ET: SWITCHED TO PLAN B (X; BY PP-INGEST) |", str(doc), str(notify))
+        with pytest.raises(OSError):
+            spend.write_outage_notice(2, "t", doc=str(doc), notify_path=str(notify))
+    finally:
+        os.chmod(doc, 0o644)
+    assert doc.read_text() == "# STATE\nevery line of the session\n"
+    missing = tmp_path / "NEW.md"
+    spend.write_signal_notice("x", "t", doc=str(missing), notify_path=str(notify), label="HV")
+    assert missing.read_text().startswith("HV DOWN SIGNAL NOT READ since t: x")
+
+
+def test_a_signal_notice_under_an_earlier_label_is_still_removed(tmp_path):
+    """glm D48: only the signal writes this notice, so any label's line is its own."""
+    doc, notify = tmp_path / "STATE.md", tmp_path / "ingest" / "NOTIFY.txt"
+    doc.write_text("# STATE\n")
+    spend.write_signal_notice("x", "t", doc=str(doc), notify_path=str(notify), label="OLD")
+    spend.write_signal_notice(None, None, doc=str(doc), notify_path=str(notify), label="NEW")
+    assert doc.read_text() == "# STATE\n"
+
+
+def test_a_finished_probe_is_reported_before_another_is_started(sig):
+    """glm D18: a probe that finished after the last tick is reported first; no second probe in its slot."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    s.hsig.noted(rec(kind="timeout"))
+    s.hsig.tick()                                                     # a probe is due: started, not waited for
+    s.hsig.probe_thread.join(timeout=10)                              # it finished between two ticks
+    t[0] += downsignal.SIGNAL_MODE_S                                  # the next tick asks probe_due again
+    s.hsig.tick()
+    s.hsig.probe_thread.join(timeout=10)
+    assert len(b["hv_p1"].calls) == 1 and s.hsig.n["probes"] == 1 and state(tmp)["last_probe_utc"] == iso(T0)
+
+
+def test_an_unreadable_count_of_switches_seen_is_recorded_again(sig):
+    """glm D19: a count that is not a number never raises on every tick."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    s.hsig.noted(rec(kind="timeout"))
+    s.hsig.tick(wait=True)
+    s.q.kv_set("signal_switches_seen", "abc")
+    t[0] += 5
+    s.hsig.tick(wait=True)
+    assert s.q.kv_get("signal_switches_seen") == "0"
+
+
+def test_an_error_seen_before_its_time_never_breaks_the_health_loop(sig):
+    """muse Q6: the health thread reads the error and its time without the signal thread's lock."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    s.hsig.error, s.hsig.error_since = "HealthUnreadable: x", None   # the moment between the two assignments
+    s.hsig.check_notice()                                             # no TypeError; not yet 30 minutes
+    assert doc.read_text() == "# STATE\nbody\n"

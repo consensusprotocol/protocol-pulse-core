@@ -22,6 +22,7 @@ PURGE_PREFIX = "PURGE NOT RUNNING"
 SIGNAL_SUFFIX = "DOWN SIGNAL NOT READ"        # ruling 87: "<label> DOWN SIGNAL NOT READ since ..." (the label from
 SWITCH_PATTERN = r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRST)"   # providers.json down_signal)
 SWITCH_RE = re.compile("^" + SWITCH_PATTERN)
+SIGNAL_RE = re.compile(r"^[A-Z0-9_-]+ " + SIGNAL_SUFFIX)    # any label's: only the signal writes this notice
 NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + "|" +
                        r"[A-Z0-9_-]+ " + SIGNAL_SUFFIX + "|" + SWITCH_PATTERN + ")")
 
@@ -33,13 +34,15 @@ def notice_prefixes(label):
 def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
     """The STATE file's leading block of notice lines (NOTICE_RE): this writer's lines (mine) are replaced by `line`
     (None: removed; one of them kept where keep(h); a callable: line(this writer's lines) -> the line), every other
-    notice stays; ruling 87's switch line is always the first. Rewritten only when the text changes, under an flock."""
+    notice stays; ruling 87's switch line is always the first. Rewritten only when the text changes, under an flock.
+    Only a MISSING file starts empty: a STATE file that exists and cannot be read raises (OSError) and is never
+    rewritten from nothing (audit r87 C1-5: it would have lost the whole file)."""
     with open(lock_path, "a") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         try:
             with open(doc) as f:
                 text = f.read()
-        except OSError:
+        except FileNotFoundError:
             text = ""
         lines = text.split("\n") if text else []
         head = []
@@ -205,7 +208,10 @@ def write_switch_head(head, doc=None, notify_path=None):
         os.makedirs(os.path.dirname(notify_path), exist_ok=True)
         with open(notify_path, "a") as f:
             f.write(json.dumps({"at": config.iso(), "down_signal_switch": head}) + "\n")
-    _rewrite_top(doc, lock_path, lambda h: bool(SWITCH_RE.match(h)), lambda old: " ".join([head] + old))
+    def merged(old):                    # idempotent (audit r87 C1-1): a head already there is not added again (a
+        cur = " ".join(old)             # restart between this write and the count of switches seen re-sends it)
+        return cur if head in cur else " ".join([head] + old)
+    _rewrite_top(doc, lock_path, lambda h: bool(SWITCH_RE.match(h)), merged)
     return head
 
 
@@ -218,5 +224,7 @@ def write_signal_notice(why, since, doc=None, notify_path=None, label="GATEWAY")
     line = (f"{prefix} since {since}: {why} (this watcher's notes and probes wait; the miner does not depend on the "
             "signal: its chain as it is, else the videos wait)") if why else None
     lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
-    _rewrite_top(doc, lock_path, lambda h: h.startswith(prefix), line)
+    if notify_path:
+        os.makedirs(os.path.dirname(notify_path), exist_ok=True)
+    _rewrite_top(doc, lock_path, lambda h: bool(SIGNAL_RE.match(h)), line)   # any label's (audit r87 C1-6)
     return line
