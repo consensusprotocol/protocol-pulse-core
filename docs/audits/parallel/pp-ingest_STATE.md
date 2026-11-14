@@ -33,6 +33,31 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 19:50 Nov 13 RULING 40 P2 MEASURED: THE SHARPENED DEFINITION DOES NOT MAKE THE SECOND MODEL SAFE ON ACCUSATION.
+  ACCUSATION STAYS HARD AS THE MINER LABELS IT; I recommend no release path for it with this checker.
+  - WHAT: the same 200 rows as this morning's table, the accusation question asked again under the sharpened
+    definition ("alleges or insinuates wrongdoing (crime, fraud, market manipulation, corruption, self-dealing,
+    dishonesty or abuse of office) by a person or organisation named in the clip or identifiable from its words, its
+    title or its channel; criticism of a strategy, an opinion or a policy alleges no wrongdoing"), the checker
+    calibrated first on this morning's accusation quotes plus 6 insinuation quotes (fictional names). $0.024.
+  - CALIBRATION: glm-5.3-flash 10/12 (2 unmeasured): it answered NO to 2 of the 3 insinuation quotes ("Every time Dan
+    Mercer tweets something bullish, the price dumps an hour later. Funny how that keeps happening."; "Ever since the
+    hack, that exchange has been clearing the order book to refill its insurance fund."); muse 9/10, the second one
+    missed too. Under P1's own rule (a checker answers only after EVERY calibration quote right) neither would be
+    allowed to answer accusation.
+  - THE TABLE: precision 66 / 129 = 51 % (95 % CI 43-60 %), the same as the first definition's 52 %. But the answers
+    MOVED: of the 130 the miner flagged, 10 went no -> yes and 12 went yes -> no (17 % churn between two definitions
+    of nearly the same meaning). Of the 9 insinuations the first definition let through, it now catches 3 (the
+    Binance "book being cleared to refill the fund", CZ "the wealthiest man in crypto ... the price absolutely dumps",
+    "one venue keeps forcing liquidations"); 6 are still "no" (CZ "does a bullish tweet and then the price absolutely
+    dumps", "liquidate as many people as possible ... the Safu fund", CZ "is going to liquidate the market", "the
+    venue that's been leaning on price", Susie Wiles' children's lobbyist jobs, MCI "picking winners and losers").
+    Among the new "no": "99% of people depositing to Coinbase ... are fraudsters".
+  - CONCLUSION: on accusation this checker is neither accurate on insinuation nor stable; a release would let through
+    exactly "the one error we cannot afford". Unless you rule otherwise: accusation is never released; a future checker
+    would first have to answer every insinuation calibration quote right before accusation is even measured again.
+    Evidence: pp-ingest_audit/flagcheck_20261113/remeasure_accusation_sharpened.json.
+
 - 19:25 Nov 13 RULING 80: THE HOOK PASS IS LIVE; THE 12 h BACKFILL IS DONE; THE BUILDER WAS TOLD AT 00:11:52 UTC (the
   first batch's minute). Audited 2 cycles first (qwen, glm, muse on Heimdall: no P0; pp-ingest_audit/r80/), deployed
   d4a15215 at 19:11 ET (the watcher restarted on it).
