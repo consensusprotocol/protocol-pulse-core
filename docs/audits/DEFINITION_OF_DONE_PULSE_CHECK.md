@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 06:34 RULING 91's MEDLEY HALF: BOTH SIDES IN, PROVEN END TO END. The builder's half is committed and pushed: 6626c45d on pp-selectid (its audit 0608, two cycles). The render side is c55ffe14.
+- The builder's side:
+  - every medley pin with a takeaway carries gates.takeaway_value {status PASS, by, replayed false, n 1, text = the exact line, answers, why, words, cap 20};
+  - its to_pin refuses a missing row or a text that differs by one character (package_pin.takeaway_problems);
+  - a lost verdict ships the no-voice shape (when the clips meet the seconds) or one rewrite, else no package;
+  - seal() is unchanged.
+- Through scripts/integrator/check_pin_only.py, with the builder's new package_pin.py loaded:
+  - 13949b7c (no row): refused, "ruling 91 (medley): the takeaway has no sealed value verdict";
+  - the same pin plus a live PASS row on its line, resealed with the builder's seal(): READY;
+  - the row with another draft's text: refused.
+- The builder never resends 13949b7c. Its next pin comes the moment it seals.
+- Open with the orchestrator, from the builder; no change on either side meanwhile: (A) whether ruling 91 also ends ruling 3's added clip; (B) glm as the value verdict's last fallback.
+- NEXT (handoff items 4 / 5): pp-tests is built on hardening-redteam's c1451047 (law L-l), so L-l merges first, then pp-tests' four test / doc commits, then the exam.
+  - The L-l merge changes pipeline/story_semantics.py, so scorer_sha and judge_sha move; the scorer and the judge are stopped while it is staged and restarted after, and the builder is told the new shas. decoder_sha does not move.
+  - A dry run on git 2.34 (merge-tree, three-argument form): the code auto-merges; 6 conflict hunks, all in docs (PIPELINE_LAWS.md 1, QWEN_CONTEXT_BIBLE.md 2, this file 2, PULSE_SENTENCE_LAW_GOSPEL.md 1).
+
 ## 06:31 RULING 91's MEDLEY HALF MERGED, the render side (branch ruling91-medley-takeaway, ef602580; the row agreed with the builder; audits batch 76 x2: cycle 1 had no consensus finding, cycle 2 clean on qwen27b, glm and Grok; both regressions green on the staged merge). From now on, a medley's takeaway renders only with the builder's sealed value verdict on THAT line.
 - THE RULE (law L-ab (91): "The same value verdict also applies to a MEDLEY's takeaway going forward"):
   - The agreed row: moments_package.gates.takeaway_value {status exactly "PASS", replayed exactly false, text = the line judged}.
