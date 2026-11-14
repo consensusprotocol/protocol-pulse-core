@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:56 PP-TESTS MERGE, batch 78 cycle 2: cycle 1's two consensus findings FIXED (d7ed4ff8, verified in the code); ONE NEW CONSENSUS FINDING (the key-rule test pins configuration, not behaviour) sent to pp-tests; MERGE STILL HELD.
+- FIXED (pp-tests d7ed4ff8):
+  - frontier_blind._key returns relay.get_key, the main tree's loader, loaded by path with no sys.path change and no bytecode written; the key-file constant and its parser are gone.
+  - The three network guards (conftest, child guard, exam runner) share ONE list, child_guard/netguard_names.py, so gethostbyaddr and getnameinfo are refused everywhere. The runner's test requires the runner's own refusal.
+- Checked here: d7ed4ff8 is one commit on 621604bb; nothing outside tests/adversarial or docs/audits/parallel/pp-tests_*; 0 conflicts against HEAD 1c0a5154.
+- My wall run on the merge (4d9fe3f6, 08:52-08:56): 381 passed, 40 xfailed, 3 skipped, 0 failed.
+- NEW CONSENSUS (qwen27b, glm, Grok): test_f0's key-rule test asserts the loader path constant, and a source substring for _key. Asked of pp-tests:
+  - a behavioural check: a stub loader's get_key returns a sentinel for the name asked, and no file is opened during _key;
+  - a scratch mutation showing it fails on a file-parsing _key;
+  - the AST scan for key-file strings stays.
+- REFUTED: "the loader's absolute path can be printed" (qwen F1 critical, Grok F1). It is the key-loading CODE's path, not a key, as in grok_audit.py.
+- Records: worktree /home/ultron/worktrees/merge-pp-tests, docs/audits/pulse-sentence-law/batch78_merge_pp_tests/cycle{1,2}/; they are committed with the merge.
+
 ## 08:11 PP-TESTS MERGE, integrator audit batch 78 cycle 1: TWO CONSENSUS FINDINGS, both verified in the code; MERGE HELD until pp-tests fixes them. The L-r test failures are FIXED (621604bb); the wall is green on the merge.
 - 621604bb (pp-tests' answer to the 07:00 entry), verified here:
   - every changed path is under tests/adversarial or docs/audits/parallel/pp-tests_*, nothing under pipeline/;
