@@ -1,0 +1,582 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__later_retraction__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/AiEB4AT2IdU/transcript.whisper.json",
+  "record_sha256": "7ad691221b5af0df0c08ef3eeea27028926488dc560bfcdb028c31fd20af652f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "actually,? no",
+  "mined": "2026-11-12",
+  "selected_k": [
+   144,
+   145
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "later_retraction",
+  "why": "Reversed in the next breath: 'Actually, no, it doesn't happen. This is incredible.' (k146-147).",
+  "also": [
+   "unresolved_referent: 'this one big game' (garbled in the record)"
+  ]
+ },
+ "source": {
+  "video_id": "AiEB4AT2IdU",
+  "channel": "CNBC Television",
+  "title": "Sometimes you need a reality check, even if you are a huge believer in something: Cramer on Nvidia",
+  "description": "'Mad Money' host Jim Cramer reflects on the latest out of Nvidia as the stock stumbles in extended trading.",
+  "description_truncated": false,
+  "published_at": "2026-11-12T01:15:24+00:00",
+  "url": "https://www.youtube.com/watch?v=AiEB4AT2IdU"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 114,
+    "start": 587.26,
+    "end": 601.835,
+    "text": "And I've made a lot of money off that stock over the years, but I was trying to get back in it, and that didn't play out well, but I want to know if it's a good, now is a good time to jump back into that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 115,
+    "start": 601.906,
+    "end": 603.121,
+    "text": "I like Meta here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 116,
+    "start": 603.192,
+    "end": 611.408,
+    "text": "I probably maybe out as if I'm talking, and that could be such a big stock, and you get a chance to buy it cheaper.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 117,
+    "start": 611.48,
+    "end": 612.694,
+    "text": "I would go do it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 118,
+    "start": 612.766,
+    "end": 615.623,
+    "text": "Let's go to Gus in Georgia, please, Gus.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 119,
+    "start": 615.695,
+    "end": 617.695,
+    "text": "Jim, this is Gus in Atlanta.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 120,
+    "start": 617.767,
+    "end": 618.41,
+    "text": "Hey, Gus.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 121,
+    "start": 618.481,
+    "end": 629.447,
+    "text": "Jim, I'm a... I'm a proud investing club member, and I've had the honor of meeting you and Jensen Wong last fall at your investment club meeting at the New York Stock Exchange.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 122,
+    "start": 629.508,
+    "end": 631.925,
+    "text": "What an incredible experience that was.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 123,
+    "start": 631.987,
+    "end": 632.606,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 124,
+    "start": 632.668,
+    "end": 633.288,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 125,
+    "start": 633.35,
+    "end": 636.881,
+    "text": "And, Jim, I start and end every day watching you on CNBC.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 126,
+    "start": 636.943,
+    "end": 640.041,
+    "text": "I love your book, How to Make Money in any market.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 127,
+    "start": 640.103,
+    "end": 640.722,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 128,
+    "start": 640.784,
+    "end": 642.643,
+    "text": "And you truly changed my life.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 129,
+    "start": 642.705,
+    "end": 644.377,
+    "text": "My family and I, thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 130,
+    "start": 644.439,
+    "end": 645.059,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 131,
+    "start": 645.121,
+    "end": 646.67,
+    "text": "I really appreciate that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 132,
+    "start": 646.732,
+    "end": 647.971,
+    "text": "Thank you very much.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 133,
+    "start": 648.033,
+    "end": 648.9,
+    "text": "Oh, thank you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 134,
+    "start": 648.9,
+    "end": 658.771,
+    "text": "So my question is about Jersey mics with former Wingstop CEO Charlie Morrison at the helm, aggressive U.S. expansion, and international growth beginning in London last week.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 135,
+    "start": 658.828,
+    "end": 660.026,
+    "text": "I love its potential.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 136,
+    "start": 660.083,
+    "end": 663.164,
+    "text": "Jim, the stock's been down but is starting to rebound.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 137,
+    "start": 663.221,
+    "end": 664.191,
+    "text": "What's your take?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 138,
+    "start": 664.248,
+    "end": 665.389,
+    "text": "Yeah, it's starting.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 139,
+    "start": 665.446,
+    "end": 667.386,
+    "text": "I think it's an inexpensive stock.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 140,
+    "start": 667.443,
+    "end": 678.74,
+    "text": "To what I think Charlie's going to be able to do, I was not happy, you know, right out of shoot the first numbers were not what I wanted, but I think they can get better because Charlie's that good.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 141,
+    "start": 678.74,
+    "end": 682.98,
+    "text": "All right, typically I just talk about what's going to be on Man Money tonight.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 142,
+    "start": 683.034,
+    "end": 684.966,
+    "text": "We're reading the chances out, okay?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 143,
+    "start": 685.019,
+    "end": 688.508,
+    "text": "Now, I got to tell you, I have to scramble, you have to scramble.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 144,
+    "start": 688.562,
+    "end": 691.352,
+    "text": "I feel terrible that I didn't cut this one big game.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 145,
+    "start": 691.406,
+    "end": 691.997,
+    "text": "It happens.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 146,
+    "start": 692.05,
+    "end": 693.768,
+    "text": "Actually, no, it doesn't happen.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 147,
+    "start": 693.821,
+    "end": 694.841,
+    "text": "This is incredible.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 148,
+    "start": 694.895,
+    "end": 698.222,
+    "text": "And sometimes incredible things happen, and it's just too bad.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 149,
+    "start": 698.276,
+    "end": 704.77,
+    "text": "We are going to talk about the upcoming Anthropic.io, we're focusing one of the more convoluted aspects of profitability.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 150,
+    "start": 704.77,
+    "end": 706.774,
+    "text": "And don't miss my analysis.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 151,
+    "start": 706.848,
+    "end": 712.785,
+    "text": "Then are the restaurant stocks poised for a comeback amid a tough tape for tech?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 152,
+    "start": 712.859,
+    "end": 715.531,
+    "text": "We'll go off the charts to find out.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 153,
+    "start": 715.605,
+    "end": 717.312,
+    "text": "Have the far as farmer.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 40,
+    "k": 154,
+    "start": 717.386,
+    "end": 719.761,
+    "text": "It's got some really good stuff.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 41,
+    "k": 155,
+    "start": 719.835,
+    "end": 722.581,
+    "text": "We're going to sit down with the CEO.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 42,
+    "k": 156,
+    "start": 722.655,
+    "end": 725.03,
+    "text": "And again, look, am I broken up?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 43,
+    "k": 157,
+    "start": 725.104,
+    "end": 729.557,
+    "text": "Eh, nothing's in my life that's broken up, but not this one.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 44,
+    "k": 158,
+    "start": 729.631,
+    "end": 731.635,
+    "text": "This one's just disgusting.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 45,
+    "k": 159,
+    "start": 731.709,
+    "end": 733.045,
+    "text": "Stay over crammer.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 46,
+    "k": 160,
+    "start": 733.119,
+    "end": 735.568,
+    "text": "Don't miss a second of mad money.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 47,
+    "k": 161,
+    "start": 735.642,
+    "end": 737.572,
+    "text": "Follow at Jim Kramer on X.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 48,
+    "k": 162,
+    "start": 737.646,
+    "end": 738.833,
+    "text": "Have a question?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 49,
+    "k": 163,
+    "start": 738.907,
+    "end": 739.872,
+    "text": "Tweet Kramer.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 50,
+    "k": 164,
+    "start": 739.946,
+    "end": 740.54,
+    "text": "Hashtag.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 51,
+    "k": 165,
+    "start": 740.54,
+    "end": 741.846,
+    "text": "Mad mentions.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 52,
+    "k": 166,
+    "start": 741.946,
+    "end": 749.882,
+    "text": "Send Jim an email to Mad Money at CNBC.com or give us a call at 1-800-743 CNBC.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 53,
+    "k": 167,
+    "start": 749.982,
+    "end": 753.9,
+    "text": "Miss something, head to madmoney.c.com.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   30,
+   31
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "CNBC Television: 'I Feel Terrible That I Didn't Cut This One Big Game. It Happens.'",
+  "caption": "Clips: CNBC Television (2026-11-12); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "CNBC Television first.",
+   "bridges": [
+    "Now Swan Bitcoin."
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "AiEB4AT2IdU",
+    "channel": "CNBC Television",
+    "published_at": "2026-11-12T01:15:24+00:00",
+    "text": "I feel terrible that I didn't cut this one big game. It happens.",
+    "start": 688.562,
+    "end": 691.997,
+    "provenance": {
+     "record": "transcripts/AiEB4AT2IdU/transcript.whisper.json",
+     "record_sha256": "7ad691221b5af0df0c08ef3eeea27028926488dc560bfcdb028c31fd20af652f",
+     "k": [
+      144,
+      145
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+    "start": 77.21,
+    "end": 81.67,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      13,
+      13
+     ]
+    }
+   }
+  ]
+ }
+}

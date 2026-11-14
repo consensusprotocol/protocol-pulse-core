@@ -1,0 +1,1711 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "openai",
+  "model": "gpt-6.1-sol",
+  "price": [
+   15.0,
+   120.0
+  ],
+  "effort": "low"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:16:41-0500",
+ "seed": 2412062051,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "steelman": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "unresolved_referent": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "sarcasm": {
+      "expected": "fail",
+      "n": 4,
+      "rejected": 4,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "title_adds_thesis": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_assertion": {
+      "expected": "pass",
+      "n": 13,
+      "rejected": 2,
+      "accepted": 11,
+      "error": 0,
+      "absent": 0
+     },
+     "answer_without_question": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "hypothetical": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "reading_aloud": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 9,
+      "rejected": 2,
+      "accepted": 6,
+      "error": 1,
+      "absent": 0
+     },
+     "false_dialogue": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "stale_time_reference": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "some_people_say": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "conditional_split": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "quoting_opponent": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "wrong_speaker": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 3,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     },
+     "later_retraction": {
+      "expected": "fail",
+      "n": 2,
+      "rejected": 2,
+      "accepted": 0,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 42,
+     "rejected": 42,
+     "missed": 0,
+     "must_accept": 22,
+     "accepted": 17,
+     "false_rejects": 4,
+     "false_reject_rate": null,
+     "errors": 1,
+     "absent": 0,
+     "ok": false
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__steelman__03",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Taylor explicitly presents competing for the best engineers worldwide as Big Tech\u2019s counterargument, not her own unqualified assertion. The title elevates that attributed argument into a standalone Fox Business position.",
+     "seconds": 10.952
+    },
+    {
+     "id": "context_integrity__unresolved_referent__02",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip leaves \u201cit\u201d unresolved: in context, Bitcoin Mechanic is criticizing identity-linked, permissioned Bitcoin payments, not Bitcoin generally. Following Brunell\u2019s broad claim with this isolated line makes it appear to rebut her and broadens his criticism beyond its stated scope.",
+     "seconds": 11.119
+    },
+    {
+     "id": "context_integrity__sarcasm__02",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is David's sarcastic characterization of Bernie Sanders's views, not a sincere assertion that the government is doing well. The clip and package also leave 'he' unidentified, while the title presents the sarcastic phrase as a standalone thesis.",
+     "seconds": 11.489
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__01",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title attributes a prediction that Bitcoin will fall below $70K to Coin Bureau, but neither clip states that prediction. The moment reports a historical drop and closing price, not a forecast of further losses.",
+     "seconds": 3.031
+    },
+    {
+     "id": "context_integrity__unresolved_referent__03",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment's \u201cIt\u201d refers to the historical cause of the Rust Belt, but neither the clip nor the package resolves that referent. Placing it after Bitcoin selling footage risks presenting over-regulation as the cause of that selling, which the source does not assert.",
+     "seconds": 3.657
+    },
+    {
+     "id": "context_integrity__clean_assertion__10",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is a sincere, standalone assertion, with no unresolved referents, external conditions, or subsequent retraction in the window. The package preserves its meaning and certainty, attributes it to TFTC, and implies no dialogue or causal relationship with the Coin Bureau clip.",
+     "seconds": 3.718
+    },
+    {
+     "id": "context_integrity__answer_without_question__03",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is a hypothetical answer to what would make Scaramucci abandon Bitcoin, not a sincere assertion that electricity has been lost. Removing the governing question presents that hypothetical as a standalone claim.",
+     "seconds": 2.678
+    },
+    {
+     "id": "context_integrity__hypothetical__01",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is part of a hypothetical worked example about leveraged Bitcoin holdings, not an unconditional prediction or assertion of actual outperformance. The clip and title omit the governing conditions, making the statement sound more certain than it is in context.",
+     "seconds": 4.743
+    },
+    {
+     "id": "context_integrity__clean_assertion__01",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title drops \u201cin the buildout,\u201d broadening the speaker\u2019s warning from investors in AI infrastructure to investors generally. The clip itself is a sincere assertion, and the package does not imply a dialogue between the two sources.",
+     "seconds": 2.972
+    },
+    {
+     "id": "context_integrity__reading_aloud__02",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment continues a quotation explicitly introduced with \u201cHe wrote on X,\u201d so it is not the speaker\u2019s own sincere assertion. The package omits that attribution and presents the statement as Bitcoin Magazine\u2019s own analysis.",
+     "seconds": 2.953
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__01",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own assertion, with its condition included and no retraction or reversal in the source window. The title preserves its meaning, and the dated, separately introduced clips imply neither a cross-video dialogue nor that the November 5 market move is current.",
+     "seconds": 4.272
+    },
+    {
+     "id": "context_integrity__false_dialogue__03",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment answers what would prevent Bitcoin from capturing a 1% allocation, not whether midterm losses would halt Bitcoin policy. Placing it after the other video's question implies a cross-video reply and strips away the condition governing the assertion.",
+     "seconds": 3.376
+    },
+    {
+     "id": "context_integrity__sarcasm__03",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is sarcastic commentary on investors funding OpenAI despite its reported losses, not a sincere assertion that there is nothing to see. The clip also omits that referent, and the package does not supply it.",
+     "seconds": 2.74
+    },
+    {
+     "id": "context_integrity__stale_time_reference__01",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip\u2019s \u201cright now\u201d describes the source broadcast\u2019s market conditions, but the November 12 package repeats it in the title and clip without explicitly anchoring it to that earlier broadcast. Listing source dates in the caption does not resolve the presentation of the time-sensitive assertion as current.",
+     "seconds": 3.768
+    },
+    {
+     "id": "context_integrity__clean_assertion__04",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Guy\u2019s own unqualified historical assertion, with its date and subject explicit, and nothing in the window retracts or reverses it. The title accurately repeats the claim, and the neutral introductions do not imply a dialogue or other relationship between the two sources.",
+     "seconds": 3.432
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "uncertain",
+     "why": "The moment immediately follows \u201cJameson Lopp posted about exactly that this week\u201d and a summary of alternating parties. It is unclear whether the debt claim is the speaker\u2019s own assertion or a continuation of the paraphrase of Lopp\u2019s post.",
+     "seconds": 6.415
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__09",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Kai-Fu Lee\u2019s own recommendation, supported rather than qualified or reversed by the surrounding discussion of European AI applications. The title preserves its tentative wording, and the neutral introductions imply no reply, agreement or other relationship between the two speakers.",
+     "seconds": 3.251
+    },
+    {
+     "id": "context_integrity__clean_assertion__12",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own qualified opinion, with no external condition or subsequent retraction in the window, and the title preserves that qualification. The package dates the sources, makes no claim of a relationship between the speakers, and does not present a source-relative time reference as current.",
+     "seconds": 4.695
+    },
+    {
+     "id": "context_integrity__some_people_say__03",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip reports other people's belief that it is a scam, not the speaker's own assertion that it is. The title drops that distinction, and the package never resolves what 'it' refers to.",
+     "seconds": 3.173
+    },
+    {
+     "id": "context_integrity__clean_assertion__06",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is a standalone assertion supported by the preceding bipartisan examples, with no qualification or reversal in the window. The title repeats that assertion, and the neutral introductions do not imply a relationship between the two sources.",
+     "seconds": 3.023
+    },
+    {
+     "id": "context_integrity__clean_assertion__11",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own qualified assessment, with the Democrat-controlled Congress condition included and no retraction in the window. The title preserves that uncertainty, and the package clearly separates the two sources without implying a reply or presenting a time-sensitive claim as current.",
+     "seconds": 5.342
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__04",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own qualified assertion, and the surrounding discussion neither conditions nor reverses it. The title preserves that qualification, the dated caption anchors \u201cnow\u201d to the source publication, and the neutral transitions imply no relationship between the two videos.",
+     "seconds": 3.694
+    },
+    {
+     "id": "context_integrity__reading_aloud__03",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is part of a Square promotional ad read, as shown by the ensuing product claims and call to visit squareup.com/Bitcoin. Presenting it as Bitcoin Magazine's own assertion violates the requirement excluding ad reads.",
+     "seconds": 2.986
+    },
+    {
+     "id": "context_integrity__conditional_split__02",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip omits the governing condition that tokenized stocks become the primary way things are traded, turning a conditional prediction into an unconditional assertion. Its referent, tokenized-stock trading, is also absent from the clip and package, leaving viewers unable to resolve what \u201cit\u201d means.",
+     "seconds": 8.613
+    },
+    {
+     "id": "context_integrity__hypothetical__03",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is the conclusion of a hypothetical about switching an oil well on and off with a day's notice, a condition omitted from the clip. Placing it after Bitcoin price news leaves \u201cin that case\u201d unresolved and misleadingly suggests the statement concerns Bitcoin volatility rather than oil production.",
+     "seconds": 3.929
+    },
+    {
+     "id": "context_integrity__quoting_opponent__01",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "Melker is paraphrasing doomers\u2019 claims, not making his own assertion; immediately afterward he calls those claims bottom signals and says doomers are usually wrong. The isolated clip and title misrepresent his rejected argument as his own view.",
+     "seconds": 33.731
+    },
+    {
+     "id": "context_integrity__wrong_speaker__02",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment continues the interviewer's question about politicians' fear that Europe is late, rather than expressing Kai-Fu Lee's own assertion. The title misattributes that claim to Lee, whose subsequent answer emphasizes European opportunities in applications and locally adapted models.",
+     "seconds": 3.19
+    },
+    {
+     "id": "context_integrity__clean_assertion__09",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Bitcoin Mechanic\u2019s own assertion, with its referents resolved within the clip and no external condition or subsequent reversal in the window. The title quotes it accurately, and the neutral introductions imply no dialogue or agreement with Brunell and make no misleading claim of currency.",
+     "seconds": 3.25
+    },
+    {
+     "id": "context_integrity__sarcasm__01",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment paraphrases Masayoshi Son's investment thesis, not the speaker's own sincere bullish assertion; the surrounding commentary is critical. The package removes that attribution and leaves 'they' unresolved, presenting the paraphrase as BTC Sessions' own forecast.",
+     "seconds": 3.059
+    },
+    {
+     "id": "context_integrity__clean_assertion__05",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Coin Bureau\u2019s own historical assertion, with November 3 and Bitcoin explicitly identified, and the surrounding window neither conditions nor retracts it. The title accurately reflects the clip, and the neutral transition from Swan Bitcoin implies no dialogue or agreement between the speakers.",
+     "seconds": 3.636
+    },
+    {
+     "id": "context_integrity__clean_assertion__03",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own assertion, with no unresolved referents, omitted governing condition, or subsequent reversal. The title preserves its uncertainty, the caption dates the sources, and the neutral transitions imply no relationship between the speakers.",
+     "seconds": 23.698
+    },
+    {
+     "id": "context_integrity__answer_without_question__01",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment\u2019s \u201cit\u201d refers specifically to Bitair, an air purifier with a single-chip Bitcoin miner, but neither the clip nor the package identifies that product. Removing that referent makes the statement appear broader than the speaker\u2019s product-specific explanation.",
+     "seconds": 5.911
+    },
+    {
+     "id": "context_integrity__quoting_opponent__02",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is read from Matt Cratter's tweet, not the speaker's own sincere assertion, and the surrounding discussion mocks its predictions. The title and isolated clip misattribute that prediction to BTC Sessions as an endorsed view.",
+     "seconds": 5.699
+    },
+    {
+     "id": "context_integrity__steelman__01",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment voices an opposing argument introduced by \u201cOr you could argue on my side, he's delusional,\u201d not the speaker\u2019s own sincere assertion. The package removes that framing and leaves \u201cthis\u201d and \u201cit\u201d unresolved, presenting the opposing claim as an on-record assertion.",
+     "seconds": 3.033
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__03",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title asserts that the AI bubble is about to pop, but the clip only states that AI can succeed while investors in its buildout suffer huge losses. The title adds an imminent-collapse thesis and stronger certainty that the source does not support.",
+     "seconds": 2.914
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__05",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is a sincere historical assertion about gold ETFs, with its referents resolved within the clip and no governing condition or retraction in the window. The title preserves that claim, and the package labels the separate sources without implying a reply or agreement between speakers.",
+     "seconds": 3.611
+    },
+    {
+     "id": "context_integrity__conditional_split__03",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip omits the subject\u2014Jensen Huang and Nvidia\u2014and the surrounding condition about whether he appears before Congress. The package does not restore that context, leaving \u201cit\u201d unresolved and presenting a conditional prospect as an unqualified assertion.",
+     "seconds": 3.505
+    },
+    {
+     "id": "context_integrity__some_people_say__02",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment predicts what other people will say, rather than asserting that Vance is done, and Short immediately calls that view \u201cway premature.\u201d The package omits that correction, leaves \u201che\u201d unidentified, and uses a title that misleadingly foregrounds the rejected claim.",
+     "seconds": 3.591
+    },
+    {
+     "id": "context_integrity__clean_assertion__08",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The source identifies Jeff Booth as the guest making the assertion, but the package introduces the clip with \u201cNatalie Brunell first\u201d and labels it as Natalie Brunell, misleading viewers about who is speaking.",
+     "seconds": 3.797
+    },
+    {
+     "id": "context_integrity__wrong_speaker__03",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is Joe\u2019s paraphrase of Haley\u2019s remarks, not Haley\u2019s own assertion, but the title presents it as her statement. The clip also leaves \u201csuch a critical issue\u201d unresolved by the package.",
+     "seconds": 3.53
+    },
+    {
+     "id": "context_integrity__clean_assertion__07",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The statement is the speaker\u2019s own assertion, supported by the surrounding discussion of Coinbase\u2019s federal trust charter and not retracted or conditioned elsewhere in the window. The title repeats that assertion without strengthening it, the caption identifies the source date, and the bridge implies no relationship between the two speakers.",
+     "seconds": 4.61
+    },
+    {
+     "id": "context_integrity__clean_assertion__02",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s sincere personal investment thesis, and the surrounding remarks support rather than qualify or reverse it. The title preserves that framing, and the neutral transitions imply no dialogue between sources or misleading current-time claim.",
+     "seconds": 3.57
+    },
+    {
+     "id": "context_integrity__stale_time_reference__03",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title and clip present \u201ctoday\u201d without anchoring it to the source recording, although the show date is six days after publication. Listing the source date in the caption does not clearly resolve that time reference.",
+     "seconds": 3.016
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__08",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s sincere assessment of the Bitcoin strategic reserve, and the surrounding remarks reinforce rather than qualify or retract it. The package preserves that retrospective opinion, identifies the source and date, and implies no dialogue or agreement between the separate videos.",
+     "seconds": 3.646
+    },
+    {
+     "id": "context_integrity__conditional_split__01",
+     "class": "conditional_split",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip omits the governing condition about Mike Johnson pursuing a bipartisan vote, turning a conditional statement into an unconditional prediction. It also leaves \u201cthat\u201d unresolved: the package never identifies the bill.",
+     "seconds": 2.729
+    },
+    {
+     "id": "context_integrity__some_people_say__01",
+     "class": "some_people_say",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The selected clip voices other people's supposed argument, not Oakley's own assertion, and he immediately rejects it: 'No, you can't.' The title and omission of that rejection turn his warning against hiding in an industry into the opposite takeaway.",
+     "seconds": 3.851
+    },
+    {
+     "id": "context_integrity__false_dialogue__02",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The bridge \u201cNot everyone is convinced\u201d falsely frames Oakley\u2019s comments about big-tech stocks as a rebuttal to the other clip\u2019s Bitcoin outlook. The package also leaves \u201cthem\u201d unresolved and misrepresents what he thinks is \u201cjust a bounce.\u201d",
+     "seconds": 3.378
+    },
+    {
+     "id": "context_integrity__hypothetical__02",
+     "class": "hypothetical",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is part of an explicitly hypothetical exchange example, not a factual assertion that an accountant verified actual holdings. The package omits that setup and the subsequent limitations, presenting the 100,000 Bitcoin confirmation as a standalone fact.",
+     "seconds": 3.921
+    },
+    {
+     "id": "context_integrity__answer_without_question__02",
+     "class": "answer_without_question",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment answers a question about Bitcoin reaching new all-time highs in 2027, but the package omits that question and never resolves what 'we wouldn't' refers to. The standalone quote therefore does not preserve the meaning of the speaker's assertion.",
+     "seconds": 3.124
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__07",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker's own explanatory assertion, with its subject resolved within the clip and no outside condition or subsequent reversal. The title accurately frames it as an explanation on Stephan Livera's show, and the package neither strengthens the claim nor implies a relationship between the separate videos.",
+     "seconds": 3.278
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__06",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The gold-mining assertion is the guest Joe Burnett's, but the VO introduces the clip as \u201cStephan Livera first\u201d and the clip label attributes it to Stephan Livera. Although the title identifies the show, the finished package misidentifies the speaker.",
+     "seconds": 3.104
+    },
+    {
+     "id": "context_integrity__false_dialogue__01",
+     "class": "false_dialogue",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip omits what \u201cyou can't\u201d and \u201cthey\u201d refer to and the governing condition: Oakley is discussing hiding in an industry when markets fall sharply, not asserting that everything always declines. The package does not restore that context and identifies the speaker only as Kitco NEWS rather than Ted Oakley.",
+     "seconds": 3.833
+    },
+    {
+     "id": "context_integrity__sarcasm__04",
+     "class": "sarcasm",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment voices a market narrative sarcastically, not the speaker\u2019s sincere advice: he subsequently says, \u201cI don\u2019t believe it. None of us believe it.\u201d Isolating the sell instructions and highlighting \u201cBecause You Don\u2019t Need It\u201d removes that reversal and misrepresents his position.",
+     "seconds": 3.434
+    },
+    {
+     "id": "context_integrity__unresolved_referent__01",
+     "class": "unresolved_referent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The package never identifies who \u201che\u201d refers to or that the praise concerns applying financial pressure on Iran. Removing that context leaves the clip\u2019s referent unresolved and its specific praise presented as an unqualified endorsement.",
+     "seconds": 2.9
+    },
+    {
+     "id": "context_integrity__later_retraction__02",
+     "class": "later_retraction",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The source immediately reverses \u201cIt happens\u201d with \u201cActually, no, it doesn't happen,\u201d but the package omits that correction and foregrounds the reversed statement in its title. The referent of \u201cthis one\u201d is also not clearly resolved by the clip or package.",
+     "seconds": 2.902
+    },
+    {
+     "id": "context_integrity__title_adds_thesis__02",
+     "class": "title_adds_thesis",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title turns a bipartisan case for holding Bitcoin into a definite claim that both parties will fund a U.S. Bitcoin reserve, which neither clip states. The source context describes individual politicians supporting different reserves, not a commitment by both parties to fund a national reserve.",
+     "seconds": 4.459
+    },
+    {
+     "id": "context_integrity__stale_time_reference__02",
+     "class": "stale_time_reference",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The title presents Bitcoin as up 'Today' on a November 12 show, although the market update was published November 6. The caption dates the source but does not clearly anchor the title's 'Today' to that earlier date.",
+     "seconds": 3.176
+    },
+    {
+     "id": "context_integrity__wrong_speaker__01",
+     "class": "wrong_speaker",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment is an interviewer's question paraphrasing Wilson's position, not Wilson's own assertion, yet the title attributes it to him. Wilson responds only 'Maybe' and offers an alternative explanation, so the package also overstates his certainty.",
+     "seconds": 2.974
+    },
+    {
+     "id": "context_integrity__clean_assertion__13",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is the speaker\u2019s own assertion, and the clip and title preserve both its decentralization/security condition and its qualified certainty. Bitcoin is identified within the clip, the window does not retract the assertion, and the package neither presents a dated time claim as current nor implies a relationship between the two speakers.",
+     "seconds": 6.051
+    },
+    {
+     "id": "context_integrity__steelman__02",
+     "class": "steelman",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment offers possible explanations that the speaker immediately sets aside in favor of simple hesitation about something new; the title turns that speculation into a firm assertion. The clip also leaves what 'it' refers to unresolved, and the window does not verify the package's attribution of these words to Scott Melker.",
+     "seconds": 3.829
+    },
+    {
+     "id": "context_integrity__later_retraction__01",
+     "class": "later_retraction",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The speaker explicitly corrects the MOMENT later in the window: \u201cI misspoke. The Shenzhen summit is next week.\u201d The clip and title preserve the retracted \u201cnext month\u201d timing instead.",
+     "seconds": 3.136
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__02",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 214, in context_integrity\n    return _verdict(_call(f\"{COMMON}\\n\\n{CI_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.338
+    },
+    {
+     "id": "context_integrity__quoting_opponent__03",
+     "class": "quoting_opponent",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment continues the speaker\u2019s paraphrase of what figureheads say about Bitcoin, not his own sincere assertion. The title and isolated clip falsely attribute that position to Bitcoin Mechanic.",
+     "seconds": 3.164
+    },
+    {
+     "id": "context_integrity__reading_aloud__01",
+     "class": "reading_aloud",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The moment reads a tweet from Dumerified, not the speaker\u2019s own assertion, and the speaker immediately rejects it, stating that no outflows from Satoshi-attributed wallets have occurred since 2010. The title and isolated clip present the rejected claim as BTC Sessions\u2019 assertion.",
+     "seconds": 3.03
+    }
+   ]
+  },
+  "vo_fidelity": {
+   "table": {
+    "per_class": {
+     "stance_flip": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "financial_imperative": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "manifest_language": {
+      "expected": "pass",
+      "n": 7,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 7,
+      "absent": 0
+     },
+     "faithful_paraphrase": {
+      "expected": "pass",
+      "n": 6,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 6,
+      "absent": 0
+     },
+     "fact_not_in_clips": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "could_to_will": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "number_rounded": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "absent_name": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "banned_framing": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "number_swapped": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "invented_agreement": {
+      "expected": "fail",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 27,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 13,
+     "accepted": 0,
+     "false_rejects": 0,
+     "false_reject_rate": null,
+     "errors": 40,
+     "absent": 0,
+     "ok": false
+    }
+   },
+   "rows": [
+    {
+     "id": "vo_fidelity__stance_flip__02",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.208
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__02",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.675
+    },
+    {
+     "id": "vo_fidelity__manifest_language__01",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.036
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__03",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.112
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__02",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 4.841
+    },
+    {
+     "id": "vo_fidelity__could_to_will__02",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.482
+    },
+    {
+     "id": "vo_fidelity__manifest_language__06",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.275
+    },
+    {
+     "id": "vo_fidelity__number_rounded__02",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.667
+    },
+    {
+     "id": "vo_fidelity__absent_name__01",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 5.366
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__01",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 109, in _call\n    resp = _client().responses.create(model=cfg[\"model\"], instructions=system, input=user,\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/resources/responses/responses.py\", line 898, in create\n    return self._post(\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1297, in post\n    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))\n  File \"/home/ultron/.local/lib/python3.10/site-packages/openai/_base_client.py\", line 1070, in request\n    raise self._make_status_error_from_response(err.response) from None\nopenai.RateLimitError: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}\n",
+     "seconds": 4.804
+    },
+    {
+     "id": "vo_fidelity__manifest_language__07",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.024
+    },
+    {
+     "id": "vo_fidelity__banned_framing__02",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.023
+    },
+    {
+     "id": "vo_fidelity__number_rounded__03",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.023
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__02",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.022
+    },
+    {
+     "id": "vo_fidelity__manifest_language__03",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.01
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__05",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__banned_framing__01",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__absent_name__03",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.015
+    },
+    {
+     "id": "vo_fidelity__could_to_will__01",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.021
+    },
+    {
+     "id": "vo_fidelity__manifest_language__05",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.024
+    },
+    {
+     "id": "vo_fidelity__number_rounded__01",
+     "class": "number_rounded",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.021
+    },
+    {
+     "id": "vo_fidelity__stance_flip__01",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.017
+    },
+    {
+     "id": "vo_fidelity__manifest_language__04",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__number_swapped__03",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__stance_flip__03",
+     "class": "stance_flip",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.008
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__03",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__02",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__banned_framing__03",
+     "class": "banned_framing",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__number_swapped__01",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__manifest_language__02",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__03",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__01",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__fact_not_in_clips__03",
+     "class": "fact_not_in_clips",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__number_swapped__02",
+     "class": "number_swapped",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__06",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__financial_imperative__01",
+     "class": "financial_imperative",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__absent_name__02",
+     "class": "absent_name",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__04",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__invented_agreement__01",
+     "class": "invented_agreement",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    },
+    {
+     "id": "vo_fidelity__could_to_will__03",
+     "class": "could_to_will",
+     "expected": "fail",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 224, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.49 > budget $15.00\n",
+     "seconds": 0.009
+    }
+   ]
+  },
+  "exclusions": {
+   "table": {
+    "per_class": {
+     "altcoin": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "partner_attack": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 2,
+      "absent": 0
+     },
+     "neutral_company": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 4,
+      "absent": 0
+     },
+     "framed_prediction": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 4,
+      "absent": 0
+     },
+     "ad_read": {
+      "expected": "exclude",
+      "n": 5,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 5,
+      "absent": 0
+     },
+     "policy_criticism": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 4,
+      "absent": 0
+     },
+     "imperative": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "guaranteed_return": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 2,
+      "absent": 0
+     },
+     "third_party_media": {
+      "expected": "exclude",
+      "n": 2,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 2,
+      "absent": 0
+     },
+     "accusation": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     },
+     "single_source_breaking": {
+      "expected": "exclude",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 3,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 23,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 12,
+     "accepted": 0,
+     "false_rejects": 0,
+     "false_reject_rate": null,
+     "errors": 35,
+     "absent": 0,
+     "ok": false
+    }
+   },
+   "rows": [
+    {
+     "id": "exclusions__altcoin__01",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.018
+    },
+    {
+     "id": "exclusions__partner_attack__01",
+     "class": "partner_attack",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.025
+    },
+    {
+     "id": "exclusions__neutral_company__03",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.048
+    },
+    {
+     "id": "exclusions__framed_prediction__03",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.053
+    },
+    {
+     "id": "exclusions__ad_read__02",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.072
+    },
+    {
+     "id": "exclusions__policy_criticism__01",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.077
+    },
+    {
+     "id": "exclusions__ad_read__03",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.088
+    },
+    {
+     "id": "exclusions__ad_read__05",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.085
+    },
+    {
+     "id": "exclusions__policy_criticism__02",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.105
+    },
+    {
+     "id": "exclusions__neutral_company__02",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.104
+    },
+    {
+     "id": "exclusions__imperative__03",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.102
+    },
+    {
+     "id": "exclusions__guaranteed_return__01",
+     "class": "guaranteed_return",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.118
+    },
+    {
+     "id": "exclusions__guaranteed_return__02",
+     "class": "guaranteed_return",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.117
+    },
+    {
+     "id": "exclusions__ad_read__04",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.118
+    },
+    {
+     "id": "exclusions__third_party_media__01",
+     "class": "third_party_media",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.087
+    },
+    {
+     "id": "exclusions__neutral_company__04",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.091
+    },
+    {
+     "id": "exclusions__imperative__01",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.091
+    },
+    {
+     "id": "exclusions__altcoin__03",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.098
+    },
+    {
+     "id": "exclusions__framed_prediction__01",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.096
+    },
+    {
+     "id": "exclusions__accusation__03",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.096
+    },
+    {
+     "id": "exclusions__accusation__02",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.092
+    },
+    {
+     "id": "exclusions__single_source_breaking__01",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.089
+    },
+    {
+     "id": "exclusions__imperative__02",
+     "class": "imperative",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.092
+    },
+    {
+     "id": "exclusions__neutral_company__01",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.084
+    },
+    {
+     "id": "exclusions__altcoin__02",
+     "class": "altcoin",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.088
+    },
+    {
+     "id": "exclusions__partner_attack__02",
+     "class": "partner_attack",
+     "expected": "exclude",
+     "origin": "CONSTRUCTED",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.086
+    },
+    {
+     "id": "exclusions__accusation__01",
+     "class": "accusation",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.081
+    },
+    {
+     "id": "exclusions__single_source_breaking__03",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.082
+    },
+    {
+     "id": "exclusions__framed_prediction__04",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.081
+    },
+    {
+     "id": "exclusions__ad_read__01",
+     "class": "ad_read",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.08
+    },
+    {
+     "id": "exclusions__policy_criticism__04",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.076
+    },
+    {
+     "id": "exclusions__third_party_media__02",
+     "class": "third_party_media",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.084
+    },
+    {
+     "id": "exclusions__single_source_breaking__02",
+     "class": "single_source_breaking",
+     "expected": "exclude",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.082
+    },
+    {
+     "id": "exclusions__framed_prediction__02",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.51 > budget $15.00\n",
+     "seconds": 0.081
+    },
+    {
+     "id": "exclusions__policy_criticism__03",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 152, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 233, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 94, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.68 + estimate $0.50 > budget $15.00\n",
+     "seconds": 0.074
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:18:48-0500",
+ "salt": "c4e860231d307359"
+}

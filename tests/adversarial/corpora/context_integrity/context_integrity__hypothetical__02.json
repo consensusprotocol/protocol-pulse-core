@@ -1,0 +1,372 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__hypothetical__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+  "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^so imagine",
+  "mined": "2026-11-12",
+  "selected_k": [
+   63,
+   63
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "hypothetical",
+  "why": "Inside an imagined exchange ('So imagine an exchange that owes its customers 100,000 Bitcoin', k61; 'At midnight ... it takes its snapshot', k62): no real exchange or accountant is described."
+ },
+ "source": {
+  "video_id": "OhRh81S7B2g",
+  "channel": "Coin Bureau",
+  "title": "Where Should You REALLY Keep Your Bitcoin.",
+  "description": "👥 Join CBC Lite 👉 https://go.coinbureau.com/CBC-Lite-CB-Des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n♣️ Join The Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter ",
+  "description_truncated": true,
+  "published_at": "2026-11-08T12:45:18+00:00",
+  "url": "https://www.youtube.com/watch?v=OhRh81S7B2g"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 43,
+    "start": 230.5,
+    "end": 240.16,
+    "text": "Full members can question that team directly in our private Discord, dig into its research across crypto and traditional markets, and get a daily briefing on what's actually moving prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 44,
+    "start": 240.5,
+    "end": 247.06,
+    "text": "So if you want the team in your corner, the link is down in the description below, or you can scan the QR code on screen now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 45,
+    "start": 248.86,
+    "end": 249.84,
+    "text": "Back to the exchanges.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 46,
+    "start": 250.28,
+    "end": 256.54,
+    "text": "So, if an exchange balance is only as good as its reserves, how can anyone actually check them?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 47,
+    "start": 257.04,
+    "end": 261.28,
+    "text": "Well, the industry's answer is what's known as proof of reserves, or P -O -R.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 48,
+    "start": 261.74,
+    "end": 266.24,
+    "text": "First, the exchange takes a snapshot of every customer's balance at a specific moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 49,
+    "start": 266.88,
+    "end": 272.48,
+    "text": "Each balance is then turned into a unique string of characters using a mathematical process called hashing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 50,
+    "start": 273.26,
+    "end": 277.2,
+    "text": "Change even one digit in the balance, and that string changes entirely.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 51,
+    "start": 277.56,
+    "end": 281.8,
+    "text": "Those strings are then combined step by step until there's just one left.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 52,
+    "start": 282.04,
+    "end": 285.54,
+    "text": "This is called a Merkel tree, and that final string is known as its root.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 53,
+    "start": 286.18,
+    "end": 290.86,
+    "text": "The exchange publishes the route and gives each customer a way to check that their balance was included.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 54,
+    "start": 291.22,
+    "end": 293.4,
+    "text": "If the numbers match up, their balance was counted.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 55,
+    "start": 293.88,
+    "end": 295.82,
+    "text": "If they don't, well, something's wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 56,
+    "start": 296.56,
+    "end": 301.74,
+    "text": "Then an accountant can compare the wallets the exchange controls against the total it says it owes.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 57,
+    "start": 302.28,
+    "end": 304.04,
+    "text": "But there's one important distinction here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 58,
+    "start": 304.62,
+    "end": 306.32,
+    "text": "That accountant isn't doing an audit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 59,
+    "start": 306.56,
+    "end": 313.58,
+    "text": "It's doing an attestation, an engagement where it checks only what the exchange asks it to check at one point in time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 60,
+    "start": 314.04,
+    "end": 317.56,
+    "text": "It gives no opinion on internal controls, total debts or solvency.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 61,
+    "start": 317.82,
+    "end": 321.16,
+    "text": "So imagine an exchange that owes its customers 100,000 Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 62,
+    "start": 321.74,
+    "end": 324.76,
+    "text": "At midnight, on the last day of the quarter, it takes its snapshot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 63,
+    "start": 325.02,
+    "end": 329.28,
+    "text": "The accountant confirms that at midnight, its wallets held at least 100,000 Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 64,
+    "start": 329.74,
+    "end": 330.7,
+    "text": "But that's it?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 65,
+    "start": 331.18,
+    "end": 335.48,
+    "text": "It says nothing about debts left off the list like a loan from a lender who is a customer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 66,
+    "start": 335.76,
+    "end": 340.94,
+    "text": "you won't see anything about coins borrowed at 11 p.m. and hand it back at 9 a.m. the next morning.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 67,
+    "start": 341.44,
+    "end": 346.16,
+    "text": "And it says absolutely nothing about reserves already pledged as collateral elsewhere.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 68,
+    "start": 346.34,
+    "end": 349.34,
+    "text": "So the same coins are promised to two people at once.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 69,
+    "start": 349.6,
+    "end": 354.24,
+    "text": "So a proof of reserves report is great, but it's still just a snapshot in time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 70,
+    "start": 354.68,
+    "end": 359.68,
+    "text": "In December 2022, Mazares, the firm behind reports for Binance, Crypto.com, and Q.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 71,
+    "start": 360.14,
+    "end": 368.05,
+    "text": "Coin paused its crypto proof of reserves work and pulled its portal citing concerns regarding the way these reports are understood by the public.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 72,
+    "start": 368.75,
+    "end": 384.11,
+    "text": "FTX had just collapsed on billions in customer funds went to its sister trading firm Alameda research, and Quadriga CX's founder had died back in 2018, holding the keys with about 169 million Canadian dollars lost to fake accounts and his trading of customer money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 73,
+    "start": 384.67,
+    "end": 391.41,
+    "text": "Since then, Binance and OkX have adopted zero knowledge proofs, which prove something is true without revealing the data behind it.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   20,
+   20
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: 'At Midnight, Its Wallets Held at Least 100,000 Bitcoin'",
+  "caption": "Clips: Coin Bureau (2026-11-08); Simply Bitcoin (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Coin Bureau.",
+   "bridges": [
+    "And on Simply Bitcoin:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "OhRh81S7B2g",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-08T12:45:18+00:00",
+    "text": "The accountant confirms that at midnight, its wallets held at least 100,000 Bitcoin.",
+    "start": 325.02,
+    "end": 329.28,
+    "provenance": {
+     "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+     "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+     "k": [
+      63,
+      63
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "l987bgGZjS0",
+    "channel": "Simply Bitcoin",
+    "published_at": "2026-11-05T22:00:19+00:00",
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "start": 615.08,
+    "end": 618.8,
+    "provenance": {
+     "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+     "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+     "k": [
+      135,
+      135
+     ]
+    }
+   }
+  ]
+ }
+}

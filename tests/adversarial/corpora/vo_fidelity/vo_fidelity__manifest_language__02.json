@@ -1,0 +1,95 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__manifest_language__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "manifest_language",
+  "why": "Channel names only.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "Simply Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+     "start": 147.27,
+     "end": 153.85
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     20,
+     20
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "l987bgGZjS0",
+   "channel": "Simply Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-05T22:00:19+00:00",
+   "sentences": [
+    {
+     "k": 135,
+     "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+     "start": 615.08,
+     "end": 618.8
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+    "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+    "k": [
+     135,
+     135
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From Coin Bureau and Simply Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "From Coin Bureau and Simply Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

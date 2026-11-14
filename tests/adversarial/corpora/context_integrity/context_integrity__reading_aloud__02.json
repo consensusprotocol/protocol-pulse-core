@@ -1,0 +1,309 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__reading_aloud__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/spZdfbq_6eA/transcript.whisper_words.json",
+  "record_sha256": "1e48d1f9b6cc8a4bb296d0b404ebe9c59f60db205da2c40f876cef0fbf87b079",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "he wrote on X",
+  "mined": "2026-11-12",
+  "selected_k": [
+   167,
+   169
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "reading_aloud",
+  "why": "Continues a post being read aloud ('He wrote on X, a wide range of indicators confirms ...', k166); the words are the post's author's, not the host's."
+ },
+ "source": {
+  "video_id": "spZdfbq_6eA",
+  "channel": "Bitcoin Magazine",
+  "title": "Election Recap, Franklin Crypto & Miners Pivoting to AI | BMTV Nov. 4, 2026",
+  "description": "Grace Remington and Sean Hagan break down #ElectionRecap, #FranklinCrypto, and #BitcoinMining on #BitcoinMagazine TV (BMTV). Live Monday through Friday at 9:30am ET.\n\nGuests:\nZack Cohen – Managing Associate, Bitcoin Policy Institute\nChris Perkins – Head of Franklin Crypto, Franklin Templeton\nand more!\n\nTo learn more and get the latest news on BMTV, visit: https://bitcoinmagazine.com/bmtv\n\nThank you to our BMTV Founding Sponsors! 🎺\n\n🟩 Cash App: For a limited time, new customers can get $21 added to their balance. Just use the code BMTV21 when you sign up, and send at least $5 to a friend in the",
+  "description_truncated": true,
+  "published_at": "2026-11-05T05:00:53+00:00",
+  "url": "https://www.youtube.com/watch?v=spZdfbq_6eA"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 157,
+    "start": 1578.84,
+    "end": 1584.7,
+    "text": "And so, you know, it's, to sailors point, you know, it's Bitcoin, not crypto.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 158,
+    "start": 1585.46,
+    "end": 1620.48,
+    "text": "And we have seen that... you know people on both sides of the aisle in particular on the bitcoin issue it's becoming increasingly bipartisan and i think that's a good thing for bitcoin uh because money is political bitcoin is money and so you want to make sure you're in a position where um our elected officials who it's their job to be political they are politicians understand the true nature of Bitcoin, why it's good for their constituency, why it's good for America, and why it's different than what they hear about for crypto more broadly.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 159,
+    "start": 1621.1,
+    "end": 1625.88,
+    "text": "Yesterday, you mentioned we were both wearing purple for the elections, but should have been wearing orange for Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 160,
+    "start": 1626.08,
+    "end": 1628.04,
+    "text": "I felt inspired today and brought the orange out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 161,
+    "start": 1628.24,
+    "end": 1641.88,
+    "text": "And while it's great to see both of these politicians we just mentioned and their pro -Bitcoin stance, one thing we know is it's hard to trust either party that gains power to not print money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 162,
+    "start": 1642.04,
+    "end": 1643.96,
+    "text": "And so that just strengthens the case for Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 163,
+    "start": 1644.38,
+    "end": 1646.22,
+    "text": "But let's move on to the next reaction here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 164,
+    "start": 1649.77,
+    "end": 1655.33,
+    "text": "at multinational insurance firm Alliance noted that affordability was the key driver of the results.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 165,
+    "start": 1655.75,
+    "end": 1661.19,
+    "text": "In particular, pointing to energy's impact on the cost of living for the average voter.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 166,
+    "start": 1661.35,
+    "end": 1670.17,
+    "text": "He wrote on X, a wide range of indicators confirms the economy has been the number one issue for voters in the U.S. midterm elections.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 167,
+    "start": 1670.61,
+    "end": 1673.37,
+    "text": "Within the economy, it's primarily about affordability.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 168,
+    "start": 1673.71,
+    "end": 1676.17,
+    "text": "And within affordability, a major focus remains.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 169,
+    "start": 1676.44,
+    "end": 1677.18,
+    "text": "gas prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 170,
+    "start": 1677.56,
+    "end": 1679.86,
+    "text": "Yeah, and that's the crack spreads we've been doing analysis on, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 171,
+    "start": 1680.18,
+    "end": 1685.22,
+    "text": "It's not just the Iran war causing that, it's also Ukraine blowing up refining facilities as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 172,
+    "start": 1685.5,
+    "end": 1690.94,
+    "text": "And, you know, I don't think it can be understated how, you know, everyone around the world has our election clock.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 173,
+    "start": 1691.14,
+    "end": 1694.38,
+    "text": "They know when the elections are and they know which party they prefer to be in office.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 174,
+    "start": 1695.22,
+    "end": 1700.1,
+    "text": "And so, you know, if you can do anything you can to persuade that, they're going to do it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 175,
+    "start": 1700.38,
+    "end": 1710.88,
+    "text": "And so, yeah, look, at the end of the day, like I said, you know, you have this strategic disadvantage coming in, being in control of all of the aspects of government.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 176,
+    "start": 1712.08,
+    "end": 1717.08,
+    "text": "And then on top of it, you have a very unpopular war, and then on top of it, you have this affordability crisis, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 177,
+    "start": 1717.24,
+    "end": 1720.52,
+    "text": "Where, you know, Americans vote based on their checkbook.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 178,
+    "start": 1720.76,
+    "end": 1722.98,
+    "text": "That is just something that's been proven time and time again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 179,
+    "start": 1723.14,
+    "end": 1726.38,
+    "text": "So you have all these social issues, you have all of these ideas.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 180,
+    "start": 1727.16,
+    "end": 1740.92,
+    "text": "But at the end of the day, the people voting on those are largely kind of on the margin, where the kind of core of the voter base, it seems like time and time and again, at least since I've been observing politics, has just been voting based on their wallets.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   10,
+   12
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bitcoin Magazine: 'Within the Economy, It's Primarily About Affordability'",
+  "caption": "Clips: Bitcoin Magazine (2026-11-05); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Bitcoin Magazine first.",
+   "bridges": [
+    "Next, Swan Bitcoin."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "spZdfbq_6eA",
+    "channel": "Bitcoin Magazine",
+    "published_at": "2026-11-05T05:00:53+00:00",
+    "text": "Within the economy, it's primarily about affordability. And within affordability, a major focus remains. gas prices.",
+    "start": 1670.61,
+    "end": 1677.18,
+    "provenance": {
+     "record": "transcripts/spZdfbq_6eA/transcript.whisper_words.json",
+     "record_sha256": "1e48d1f9b6cc8a4bb296d0b404ebe9c59f60db205da2c40f876cef0fbf87b079",
+     "k": [
+      167,
+      169
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   }
+  ]
+ }
+}

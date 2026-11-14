@@ -1,0 +1,417 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__unresolved_referent__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^it was",
+  "mined": "2026-11-12",
+  "selected_k": [
+   662,
+   662
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "unresolved_referent",
+  "why": "'It' is what caused the Rust Belt (k661), outside the clip; after a clip about Bitcoin's selling it reads as the cause of that."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 638,
+    "start": 2924.59,
+    "end": 2930.89,
+    "text": "A lot of it has to do with the big, beautiful bill, with the tax cuts for businesses that were put in place there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 639,
+    "start": 2931.63,
+    "end": 2939.13,
+    "text": "And so by making it less expensive up front to build these factories, you're encouraging production here in the United States.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 640,
+    "start": 2939.97,
+    "end": 2953.63,
+    "text": "If you look at things, though, and this is completely bipartisan, whether it was what Biden did or what Trump did to so -called invest in these American companies to get them to build more semiconductors here, for example, hasn't worked at all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 641,
+    "start": 2953.85,
+    "end": 2956.75,
+    "text": "Again, bipartisan there just hasn't worked.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 642,
+    "start": 2956.87,
+    "end": 2957.49,
+    "text": "Look at the numbers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 643,
+    "start": 2957.63,
+    "end": 2959.41,
+    "text": "They haven't been increasing chip production.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 644,
+    "start": 2960.49,
+    "end": 2962.83,
+    "text": "We just haven't seen the effect that we wanted there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 645,
+    "start": 2962.99,
+    "end": 2964.77,
+    "text": "So again, what has actually helped?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 646,
+    "start": 2964.85,
+    "end": 2966.03,
+    "text": "It's been the tax cuts.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 647,
+    "start": 2966.37,
+    "end": 2969.45,
+    "text": "And maybe even more than that, it's been the deregulatory effort.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 648,
+    "start": 2970.13,
+    "end": 2974.51,
+    "text": "You know, we forget that the rust belt was primarily a self -inflicted wound.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 649,
+    "start": 2975.03,
+    "end": 2975.87,
+    "text": "Did China help?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 650,
+    "start": 2976.03,
+    "end": 2976.65,
+    "text": "Yeah, absolutely.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 651,
+    "start": 2977.17,
+    "end": 2981.11,
+    "text": "You know, when they subsidize product and it results in our manufacturers not being able to compete.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 652,
+    "start": 2981.23,
+    "end": 2982.23,
+    "text": "Yeah, I'd say that's a problem.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 653,
+    "start": 2982.79,
+    "end": 2987.31,
+    "text": "Even more so, though, was the tax and regulatory policy here at home.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 654,
+    "start": 2987.51,
+    "end": 2994.27,
+    "text": "And this president's deregulatory efforts, I mean, that is one place where they have, forget, you know, not like.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 655,
+    "start": 2994.4,
+    "end": 2995.58,
+    "text": "Forget breaking a promise.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 656,
+    "start": 2995.74,
+    "end": 3001.3,
+    "text": "Not only have they kept the promise, they have done even better than they did in the first administration, and they set records back then.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 657,
+    "start": 3001.88,
+    "end": 3005.22,
+    "text": "The regulatory rollback that we have seen has been really incredible.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 658,
+    "start": 3005.96,
+    "end": 3007.9,
+    "text": "It's taking time to have its effects, though.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 659,
+    "start": 3009.04,
+    "end": 3013.14,
+    "text": "Conversely, what did you see in the era that, you know, in the 70s and whatnot?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 660,
+    "start": 3013.74,
+    "end": 3015.48,
+    "text": "Some in the 60s and some of the 80s, too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 661,
+    "start": 3015.54,
+    "end": 3018.46,
+    "text": "But look at the time period that caused the rust belt in this country.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 662,
+    "start": 3018.96,
+    "end": 3021.2,
+    "text": "It was massive over -regulation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 663,
+    "start": 3021.76,
+    "end": 3034.69,
+    "text": "You went from... A regulatory compliance cost on a per worker basis in manufacturing being a few hundred dollars, maybe a few thousand dollars to being tens of thousands of dollars per worker.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 664,
+    "start": 3035.52,
+    "end": 3044.04,
+    "text": "So when a manufacturer here faces a regulatory compliance costs of $50,000 per worker on average and then virtually nothing in China, what do you think they're going to do?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 665,
+    "start": 3044.56,
+    "end": 3046.8,
+    "text": "Combine that with horrible tax policy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 666,
+    "start": 3047.44,
+    "end": 3053.04,
+    "text": "Ohio doesn't even have an income tax until late 19... 70s, I think.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 667,
+    "start": 3054.68,
+    "end": 3058.68,
+    "text": "12 years later, it's 9.5 % after they first enacted it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 668,
+    "start": 3059.06,
+    "end": 3061.58,
+    "text": "What do you think that's going to do to investment in your state?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 669,
+    "start": 3061.9,
+    "end": 3064.94,
+    "text": "What do you think that's going to do to the high earners, to the business owners?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 670,
+    "start": 3065.3,
+    "end": 3066.46,
+    "text": "They're going to get the heck out of there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 671,
+    "start": 3066.6,
+    "end": 3067.8,
+    "text": "And that's exactly what they did.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 672,
+    "start": 3068.79,
+    "end": 3075.91,
+    "text": "So by, again, by I think giving some semblance of stability to tax policy by making.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 673,
+    "start": 3076.37,
+    "end": 3082.87,
+    "text": "tax cuts that would have otherwise expired by making those permanent and then also creating additional tax cuts via full expensing.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   24,
+   24
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On TFTC: 'It Was Massive Over-Regulation'",
+  "caption": "Clips: Coin Bureau (2026-11-05); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From Coin Bureau.",
+   "bridges": [
+    "TFTC:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "start": 184.93,
+    "end": 198.36,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      27,
+      27
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "It was massive over -regulation.",
+    "start": 3018.96,
+    "end": 3021.2,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      662,
+      662
+     ]
+    }
+   }
+  ]
+ }
+}

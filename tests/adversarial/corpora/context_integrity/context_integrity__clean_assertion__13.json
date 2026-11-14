@@ -1,0 +1,498 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__13",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   432,
+   432
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "One sentence, the speaker's own view, developed next (k433-434)."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 415,
+    "start": 1887.45,
+    "end": 1889.91,
+    "text": "Everybody's got their pet projects, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 416,
+    "start": 1890.51,
+    "end": 1891.67,
+    "text": "Everyone's got their goodies.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 417,
+    "start": 1891.93,
+    "end": 1893.31,
+    "text": "They want to bring home to their constituents.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 418,
+    "start": 1894.17,
+    "end": 1900.89,
+    "text": "And in this kind of horse trading system of, I'm going to let you do this for your constituents, if you let me do this from mine.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 419,
+    "start": 1901.47,
+    "end": 1907.07,
+    "text": "then it allows all these politicians to go home and to say, look at all the goodies I brought you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 420,
+    "start": 1907.39,
+    "end": 1918.27,
+    "text": "But what they don't tell you is my concession was I had to give all these other goodies to other folks, which now you, my voters, have to pay for in higher taxes or higher inflation, which is another tax.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 421,
+    "start": 1918.39,
+    "end": 1919.09,
+    "text": "I repeat myself.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 422,
+    "start": 1919.73,
+    "end": 1929.22,
+    "text": "So, yeah, I just, I don't, I don't buy that explanation of, of there were these kind of selfless motives there, I suppose.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 423,
+    "start": 1930.64,
+    "end": 1937.16,
+    "text": "I do think, though, sticking with monetary policy for a moment, I do think we're actually making improvements there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 424,
+    "start": 1937.62,
+    "end": 1940.54,
+    "text": "I think Warsh is the right man at the right time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 425,
+    "start": 1942.36,
+    "end": 1945.34,
+    "text": "You know, he's got a very, very good head on his shoulders.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 426,
+    "start": 1946.16,
+    "end": 1954.9,
+    "text": "And I think he is not willing to go along with what we had under Powell, which was basically just, we're going to cover all these government deficits.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 427,
+    "start": 1955.12,
+    "end": 1963.31,
+    "text": "And if the government increases the demand for loanable funds sufficiently, then we're just going to flood the system with more reserves.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 428,
+    "start": 1963.91,
+    "end": 1971.95,
+    "text": "In other words, we're going to basically buy up those, buy up off the run debt to free up banks to buy more on the run debt, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 429,
+    "start": 1972.51,
+    "end": 1974.05,
+    "text": "That's not what we've seen.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 430,
+    "start": 1974.65,
+    "end": 1977.47,
+    "text": "And I don't think we're going to see that out of him.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 431,
+    "start": 1977.79,
+    "end": 1979.31,
+    "text": "I think that's a welcomed relief.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 432,
+    "start": 1979.43,
+    "end": 1985.33,
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 433,
+    "start": 1985.84,
+    "end": 1990.54,
+    "text": "And if you don't have that, it's very, very difficult to have the other positive outcomes that you want.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 434,
+    "start": 1990.72,
+    "end": 1992.62,
+    "text": "So I think it's good that we at least have that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 435,
+    "start": 1992.9,
+    "end": 1996.88,
+    "text": "Is it problematic that Powell is staying on and kind of being a shadow Fed chair?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 436,
+    "start": 1997.02,
+    "end": 1997.58,
+    "text": "Yeah, it is.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 437,
+    "start": 1998.1,
+    "end": 2000.12,
+    "text": "You know, we need to get those board seats filled up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 438,
+    "start": 2000.3,
+    "end": 2009.06,
+    "text": "Although at this point, you know, having lost the Senate for the foreseeable future, I mean, forget judges or heaven forbid a Supreme Court justice.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 439,
+    "start": 2009.16,
+    "end": 2011.52,
+    "text": "How are you going to get the person you want on the Fed?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 440,
+    "start": 2011.92,
+    "end": 2013.7,
+    "text": "Democrats aren't going to let that by.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 441,
+    "start": 2014.47,
+    "end": 2015.19,
+    "text": "So freaks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 442,
+    "start": 2015.41,
+    "end": 2017.45,
+    "text": "This was brought to you by the motherfucking Cash.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 443,
+    "start": 2020.81,
+    "end": 2023.55,
+    "text": "We all know the fees quietly eat into a Bitcoin stack.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 444,
+    "start": 2023.73,
+    "end": 2024.27,
+    "text": "We've been there before.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 445,
+    "start": 2024.43,
+    "end": 2025.63,
+    "text": "We've been DCA for years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 446,
+    "start": 2026.11,
+    "end": 2027.25,
+    "text": "You're sending to cold storage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 447,
+    "start": 2027.65,
+    "end": 2028.77,
+    "text": "You're buying on a set cadence.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 448,
+    "start": 2028.93,
+    "end": 2031.75,
+    "text": "You know that fees can eat into the sats that you're purchasing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 449,
+    "start": 2032.11,
+    "end": 2033.07,
+    "text": "A little on every buy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 450,
+    "start": 2033.41,
+    "end": 2034.81,
+    "text": "A little more every time you move it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 451,
+    "start": 2035.15,
+    "end": 2036.27,
+    "text": "And over the years, that's Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 452,
+    "start": 2036.41,
+    "end": 2036.99,
+    "text": "You never get the key.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 453,
+    "start": 2037.39,
+    "end": 2038.83,
+    "text": "Cash app takes that out of the question.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 454,
+    "start": 2039.29,
+    "end": 2039.53,
+    "text": "Guess what?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 455,
+    "start": 2039.67,
+    "end": 2040.19,
+    "text": "Recurring buys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 456,
+    "start": 2040.55,
+    "end": 2040.93,
+    "text": "Fee free.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 457,
+    "start": 2041.59,
+    "end": 2042.85,
+    "text": "Standard on chain withdrawals.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 43,
+    "k": 458,
+    "start": 2043.25,
+    "end": 2043.71,
+    "text": "Be free.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 44,
+    "k": 459,
+    "start": 2044.33,
+    "end": 2045.79,
+    "text": "Buying Bitcoin for your Bit key.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   17,
+   17
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On TFTC: 'Sound Money Is One of the Fundamental Foundations of Good Economic Growth'",
+  "caption": "Clips: Coin Bureau (2026-11-10); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's Coin Bureau.",
+   "bridges": [
+    "And on TFTC:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "start": 1979.43,
+    "end": 1985.33,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      432,
+      432
+     ]
+    }
+   }
+  ]
+ }
+}

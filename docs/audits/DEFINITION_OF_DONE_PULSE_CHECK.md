@@ -6,6 +6,29 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:02 PP-TESTS MERGED (handoff item 4): the adversarial test wall + the moments-first exam, tests and docs only. Integrator audit batch 78, four cycles: every consensus finding fixed by pp-tests and verified; cycle 4 has no consensus finding. Both regressions green on the staged merge.
+- WHAT ARRIVES (tests/adversarial, tests/fixtures/adversarial, docs/audits/parallel/pp-tests_*; nothing under pipeline/, so no service sha moves):
+  - phase 1, the wall: c35a2bde, plus the answers to the integrator's Nov 12 cycle 1 B1-B4 in 7a9a3555;
+  - phase 2, the exam: 5ca1c4b9, 188 cases with the harness and the blind baseline;
+  - the L-r alignment: 621604bb;
+  - batch 78's fixes: d7ed4ff8, a55e4dcf, 12c7e48d.
+- BATCH 78 (records: docs/audits/pulse-sentence-law/batch78_merge_pp_tests/cycle1-4):
+  - c1: two consensus findings, both fixed in d7ed4ff8:
+    - the paid baseline read a hard-coded key-file path; it now reads by name through relay.get_key;
+    - the exam runner did not refuse gethostbyaddr; one shared list now serves the three network guards, getnameinfo included.
+  - c2: one, fixed in a55e4dcf: the key-rule test pinned configuration; it is now behavioural (a stub loader; open / io.open / os.open denied).
+  - c3: one, fixed in 12c7e48d: process starts are denied too. Three side-read mutations that passed before fail now.
+  - c4: none. Grok's "os.fork1" is false (absent on Python 3.10.12); its restore-leak note is not agreed and needs a setattr on a module to raise.
+- CHECKS ON THE STAGED MERGE:
+  - regression_test.sh 26 PASS / 0 FAIL;
+  - pipeline/regression.sh exit 0 (finished 10:01:34), every protected reference reproduced;
+  - the wall on main (CUDA_VISIBLE_DEVICES=, 09:56-10:00): 382 passed, 40 xfailed, 3 skipped, 0 failed (the same in the worktree, 09:52-09:56).
+- THE 40 STRICT XFAILS are pipeline defects pinned as REQUESTS. Each XPASSes, so the wall fails, the day its defect is fixed.
+  - Among them R-27: select raises KeyError at select_passages.py:314 after a failed transcription, instead of a STOP. It is on the AUTO (story-first) path, which is retired from the live render.
+- THE EXAM (item 4's "then run it") is the builder's to run, with its R-29-fixed adapter (91d37100: heimdall_first, vendor-reported dollars), on its own ledger, hard stop $4.00. CAVEATS, from pp-tests, for reading its result:
+  - the builder's NUMBER rule falsely rejects the sign-off "Pulse Check for 2026-11-12.", which appears in 16 of 40 must-pass VO cases and in 14 of 52 must-fail cases. Must-fail recall can read up to 14 cases too high unless each rejection's `why` names the case's own bad line, or the rule is fixed first;
+  - a decision for the orchestrator: the PRICE_NOW tolerance (the builder's 5 % would accept "still holding 76K" against $73,500 news).
+
 ## 09:50 ORCHESTRATOR '09:03' (R-29 and ruling 92 amended), as relayed by the builder (91d37100 on pp-selectid, its audit 0915, two cycles): NO RENDER CHANGE; seal and package_pin.py unchanged.
 - Ruling 92 amended (the builder's spotlight.py only):
   - the layout verdict alone decides a spotlight's source test;

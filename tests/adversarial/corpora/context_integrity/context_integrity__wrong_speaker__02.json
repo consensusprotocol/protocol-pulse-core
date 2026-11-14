@@ -1,0 +1,372 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__wrong_speaker__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/4cfjpf_IDwU/transcript.yt_manual.json",
+  "record_sha256": "a362f9925b874488e852d071cd15ab64fb6c3b78e192c73993d9ae94824f5c08",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "so you're telling me",
+  "mined": "2026-11-12",
+  "selected_k": [
+   174,
+   174
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "wrong_speaker",
+  "why": "The interviewer's framing (after 'So you're telling me that it's not too late?', k173); Lee answers against it (k175-177). The record has no speaker labels."
+ },
+ "source": {
+  "video_id": "4cfjpf_IDwU",
+  "channel": "Bloomberg Television",
+  "title": "Kai-Fu Lee Questions Soaring AI Valuations",
+  "description": "AI pioneer Kai-Fu Lee discusses whether trillion-dollar AI valuations can be justified, the risks of circular funding, and the impact of cheaper Chinese and open-source models. The Sinovation Ventures Chairman and CEO and 01.AI CEO also explains why businesses need to reinvent themselves around AI, and why Europe’s biggest opportunity may be in AI applications rather than foundation models. Lee appeared on “The Pulse with Francine Lacqua”.\r\n--------\r\nMore on Bloomberg Television and Markets\r\n \r\nLike this video? Subscribe and turn on notifications so you don't miss any videos from Bloomberg Mar",
+  "description_truncated": true,
+  "published_at": "2026-11-11T11:06:16+00:00",
+  "url": "https://www.youtube.com/watch?v=4cfjpf_IDwU"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 155,
+    "start": 674.85,
+    "end": 685.68,
+    "text": "Because the investment is larger, perhaps even than the companies, you know, a large part of the the cash reserves.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 156,
+    "start": 682.83,
+    "end": 693.15,
+    "text": "Um, and then the pressure from open source models, will that cause businesses to shift along with the benefits of on premise?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 157,
+    "start": 689.67,
+    "end": 696.33,
+    "text": "So I just gave the pros and cons, and I'm not a stock analyst.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 158,
+    "start": 693.15,
+    "end": 696.33,
+    "text": "I don't know if I would buy or sell.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 159,
+    "start": 696.57,
+    "end": 699.87,
+    "text": "I'm certainly not compelled to buy and I'm not compelled to sell.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 160,
+    "start": 700.35,
+    "end": 705.46,
+    "text": "What's your, um, very diplomatic as is.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 161,
+    "start": 700.35,
+    "end": 710.35,
+    "text": "What's your advice to AI developers in London, in Europe?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 162,
+    "start": 705.46,
+    "end": 714.31,
+    "text": "Uh, embrace open source and build your European this on top of open source.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 163,
+    "start": 710.35,
+    "end": 714.31,
+    "text": "And that will always be owned by you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 164,
+    "start": 714.67,
+    "end": 719.65,
+    "text": "Uh, UK may be less of an issue because of the language in the other countries.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 165,
+    "start": 719.68,
+    "end": 724.81,
+    "text": "Um, one could build different, um, better models that fits their language.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 166,
+    "start": 725.11,
+    "end": 733.6,
+    "text": "And, um, it's I mean, the top American models have decent coverage for European languages, but you can always do better.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 167,
+    "start": 730.93,
+    "end": 733.6,
+    "text": "Where?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 168,
+    "start": 733.6,
+    "end": 738.28,
+    "text": "Working in Central Asia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 169,
+    "start": 733.6,
+    "end": 741.07,
+    "text": "And we find that while the best American models are still best for coding and tasks like that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 170,
+    "start": 741.28,
+    "end": 744.55,
+    "text": "But there is a need to, um, additionally train.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 171,
+    "start": 744.82,
+    "end": 757.96,
+    "text": "Take a look at the nice thing about open source model is you can take it and train in on more local data, whether it's your language in your country or more business data, medical data, it gets better that way.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 172,
+    "start": 758.14,
+    "end": 766.56,
+    "text": "So I think that is the most economical way to expand the sphere of influence of open source and contributing to it from each country.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 173,
+    "start": 766.77,
+    "end": 768.45,
+    "text": "So you're telling me that it's not too late?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 174,
+    "start": 768.45,
+    "end": 776.19,
+    "text": "There is a fear amongst politicians and actually Europe is just is just late to the game because they don't have a lot of these big shiny models.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 175,
+    "start": 776.22,
+    "end": 778.74,
+    "text": "Well, I think these models aren't going to be that big shiny.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 176,
+    "start": 778.74,
+    "end": 786.36,
+    "text": "They're just going to solve problems for countries in which the language is not big enough.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 177,
+    "start": 783.45,
+    "end": 795.12,
+    "text": "You know, like for French, German, uh, Spanish, Italian, English, UK, English, there is enough data that's not a compelling thing to do.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 178,
+    "start": 792.0,
+    "end": 800.16,
+    "text": "What is compelling then, for all of Europe is to build applications, right?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 179,
+    "start": 795.12,
+    "end": 803.76,
+    "text": "You look at a couple of the, the UK, um, uh, unicorns.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 180,
+    "start": 800.16,
+    "end": 806.55,
+    "text": "They're basically largely application companies.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 181,
+    "start": 803.76,
+    "end": 806.55,
+    "text": "So I think 11 labs, great company.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 182,
+    "start": 806.88,
+    "end": 819.86,
+    "text": "Uh, but, you know, their technologies are not necessarily better than every other company, but they build a good brand and platform and, and show value to customers.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 183,
+    "start": 816.0,
+    "end": 823.88,
+    "text": "So I think there can be a lot more, um, unicorns as well as big companies adopting AI in, in Europe.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 184,
+    "start": 824.15,
+    "end": 833.66,
+    "text": "If you look at the pyramid of, uh, any technology stack, semiconductor is always the first to get invested in, you know, Intel, uh, as an example.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 185,
+    "start": 834.08,
+    "end": 837.17,
+    "text": "Um, and also the second is the platform layer.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   19,
+   19
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Kai-Fu Lee: Europe Is 'Just Late to the Game'",
+  "caption": "Clips: Stephan Livera's show (2026-11-11); Bloomberg Television (2026-11-11). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Stephan Livera's show.",
+   "bridges": [
+    "Also on the record, Bloomberg Television:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "But as technology improves, we're able to mine more gold.",
+    "start": 315.43,
+    "end": 319.33,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      54,
+      54
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "4cfjpf_IDwU",
+    "channel": "Bloomberg Television",
+    "published_at": "2026-11-11T11:06:16+00:00",
+    "text": "There is a fear amongst politicians and actually Europe is just is just late to the game because they don't have a lot of these big shiny models.",
+    "start": 768.45,
+    "end": 776.19,
+    "provenance": {
+     "record": "transcripts/4cfjpf_IDwU/transcript.yt_manual.json",
+     "record_sha256": "a362f9925b874488e852d071cd15ab64fb6c3b78e192c73993d9ae94824f5c08",
+     "k": [
+      174,
+      174
+     ]
+    }
+   }
+  ]
+ }
+}

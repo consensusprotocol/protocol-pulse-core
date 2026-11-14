@@ -1,0 +1,193 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__neutral_company__04",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+  "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "per its latest filing",
+  "mined": "2026-11-12",
+  "selected_k": [
+   100,
+   100
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "neutral_company",
+  "why": "A company's purchase per its filing, stated neutrally."
+ },
+ "source": {
+  "video_id": "UJFQBaMh3yg",
+  "channel": "Coin Bureau",
+  "title": "Bitcoin's Midterm CRASH. Is The Worst Over?",
+  "description": "♣️ Join the Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter 👉 https://www.coinbureau.com/newsletters/ \n\nOther Channels:\n",
+  "description_truncated": true,
+  "published_at": "2026-11-10T11:33:20+00:00",
+  "url": "https://www.youtube.com/watch?v=UJFQBaMh3yg"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 100,
+    "start": 611.59,
+    "end": 619.49,
+    "text": "Last week, sitting right at its own break -even, Strategy bought 1,036 BTC per its latest filing.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 91,
+    "start": 550.19,
+    "end": 554.71,
+    "text": "But that's not quite how it works, so let's focus on the details here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 92,
+    "start": 555.37,
+    "end": 564.29,
+    "text": "For one thing, according to Strategies count, funds tracking those indexes hold about 30 million of its shares, which is roughly 3 % of the company.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 93,
+    "start": 564.81,
+    "end": 570.69,
+    "text": "But the key distinction here is that those funds would be selling Strategies stock, not Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 94,
+    "start": 571.37,
+    "end": 575.81,
+    "text": "A removal wouldn't force strategy to sell any of its BTC stack.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 95,
+    "start": 576.15,
+    "end": 581.99,
+    "text": "Sailor's view is that the capital MSCI controls is, quote, day minimis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 96,
+    "start": 581.99,
+    "end": 587.61,
+    "text": "He's hardly a neutral party, of course, but on strategy's figures, it isn't a lot of stock.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 97,
+    "start": 588.01,
+    "end": 595.99,
+    "text": "So MSCI could knock strategy's share price around, but it can't push Bitcoin through its 200 -day moving average on its own.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 98,
+    "start": 596.37,
+    "end": 605.75,
+    "text": "However, we then have to ask, if no forced seller is coming for Bitcoin, why is that 200 -day still in danger, and who's actually left buying?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 99,
+    "start": 606.09,
+    "end": 610.93,
+    "text": "Well, the one big buyer that hasn't blinked is the company that we've just been talking about.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 101,
+    "start": 620.13,
+    "end": 628.23,
+    "text": "And how it paid for them is significant, because those coins were bought with money raised by Strategy selling more of its own shares.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 102,
+    "start": 628.55,
+    "end": 634.47,
+    "text": "So, its buying only keeps going for as long as investors keep wanting Strategy's stock.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 103,
+    "start": 634.81,
+    "end": 638.73,
+    "text": "which is the stock MSCI could knock around later this month.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 104,
+    "start": 639.21,
+    "end": 643.41,
+    "text": "And indeed, Bitcoin wasn't even the biggest thing that it spent money on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 105,
+    "start": 643.89,
+    "end": 651.59,
+    "text": "Strategy bought about $82 million of Bitcoin last week, but more than twice that was spent on its own preferred shares.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 106,
+    "start": 652.29,
+    "end": 655.17,
+    "text": "So, Strategy is looking vulnerable right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 107,
+    "start": 655.5,
+    "end": 666.74,
+    "text": "BTC's price is closing in on the company's average purchase price, its financing needs aren't going away, and an MSCI exclusion could make raising fresh money even harder.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 108,
+    "start": 667.12,
+    "end": 674.44,
+    "text": "Meanwhile, Bitcoin ETFs are bleeding billions and the broader market is still reeling from the midterm sell -off.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 109,
+    "start": 674.56,
+    "end": 683.38,
+    "text": "And yet, with all of those complex issues ongoing, it comes back to something simple on the chart, Bitcoin's 200 -day moving average.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

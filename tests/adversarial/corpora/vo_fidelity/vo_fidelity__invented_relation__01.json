@@ -1,0 +1,149 @@
+{
+ "schema": "pp.vo_case/1.1",
+ "id": "vo_fidelity__invented_relation__01",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences (v1.1)",
+  "mined": "2026-11-12",
+  "universe": {
+   "record": "runs/fresh_20261112_050611/TOPIC_SELECTION.json",
+   "record_sha256": "c8a653868366a587f204a70f8a27e4b29d57138dceac966929d90d89f0c5cb18"
+  }
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "invented_relation",
+  "why": "Two videos; the BTC Sessions speaker answers nobody in the TFTC clip.",
+  "bad_line": 2,
+  "bad_title": false,
+  "rule": "D(ii) fails -> A: invented relation",
+  "line_classes": [
+   "C",
+   "D",
+   "A",
+   "C"
+  ],
+  "title_class": "C"
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "TFTC",
+   "BTC Sessions"
+  ]
+ },
+ "title": "Pulse Check: TFTC and BTC Sessions",
+ "universe": {
+  "date": "2026-11-12",
+  "built_at": "2026-11-12T05:06:13.234375+00:00",
+  "news": [
+   {
+    "headline": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+    "source": "bitcoinmagazine.com",
+    "published_at": "2026-11-10T14:28:12.195473+00:00",
+    "summary": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets. Bitcoin Magazine\n\nBitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets\nBitcoin price slipped to $73,500 Tuesday morning after October consumer prices rose 0.4%, topping forecasts and pushing traders toward a bigger Federal Reserve rate hike in December.\nThis post Bitcoin Pr"
+   },
+   {
+    "headline": "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T10:08:12.195473+00:00",
+    "summary": "Bitcoin price action and stock futures trended lower after Fed governor Christopher Waller said that he would vote to raise interest rates by 0.25% at the December FOMC meeting."
+   },
+   {
+    "headline": "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T08:02:12.195473+00:00",
+    "summary": "US spot Bitcoin ETFs shed $201 million Monday, with seven straight sessions of net withdrawals from BlackRock’s IBIT totaling $1.66 billion."
+   },
+   {
+    "headline": "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'",
+    "source": "decrypt.co",
+    "published_at": "2026-11-11T21:46:12.195473+00:00",
+    "summary": "Stablecoin supply fell $14.2 billion in 30 days, the fastest contraction since June 2022, amid weak ETF demand."
+   }
+  ],
+  "use": "staleness only: the VO's facts come from the selected sentences, never from this news"
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "W2LIxB2kAH0",
+   "channel": "TFTC",
+   "speaker": null,
+   "published_at": "2026-11-07T15:00:39+00:00",
+   "sentences": [
+    {
+     "k": 432,
+     "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+     "start": 1979.43,
+     "end": 1985.33
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+    "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+    "k": [
+     432,
+     432
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "jTuJ8PXhRV4",
+   "channel": "BTC Sessions",
+   "speaker": null,
+   "published_at": "2026-11-05T16:00:38+00:00",
+   "sentences": [
+    {
+     "k": 531,
+     "text": "I mean, all of the currencies, in my opinion, are on their way out.",
+     "start": 2371.43,
+     "end": 2374.45
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+    "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+    "k": [
+     531,
+     531
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "TFTC, then BTC Sessions.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "Now, a bigger question: what is money for?",
+   "cites": [],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "And BTC Sessions answers him.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": "A"
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": [],
+   "after": "B"
+  }
+ ]
+}

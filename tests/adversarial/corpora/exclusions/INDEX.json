@@ -1,0 +1,171 @@
+{
+ "schema": "pp.corpus_index/1",
+ "corpus": "exclusions",
+ "cases": [
+  {
+   "id": "exclusions__third_party_media__02",
+   "file": "exclusions__third_party_media__02.json",
+   "sha256": "a093e4081ab18505f7f471aed664930fc4c4460857b2a0902985de1a7a56c147"
+  },
+  {
+   "id": "exclusions__neutral_company__02",
+   "file": "exclusions__neutral_company__02.json",
+   "sha256": "610b2c976aad1a9e19405f80cf99cfdc1beab026ba75aa4decfc65f73260ab88"
+  },
+  {
+   "id": "exclusions__altcoin__03",
+   "file": "exclusions__altcoin__03.json",
+   "sha256": "56ecfc1e4c15e95a00a809abfb6ab94d8b6af142cba795dd94015e04e7d08af2"
+  },
+  {
+   "id": "exclusions__framed_prediction__02",
+   "file": "exclusions__framed_prediction__02.json",
+   "sha256": "cfa96849bc3b1930e786a11227fafe66f35642150d94aa391d5d8a61b433fc8a"
+  },
+  {
+   "id": "exclusions__policy_criticism__02",
+   "file": "exclusions__policy_criticism__02.json",
+   "sha256": "057f105f77d600d35d51d5691266338846862b443be80e543fce3d90a8c7d066"
+  },
+  {
+   "id": "exclusions__altcoin__02",
+   "file": "exclusions__altcoin__02.json",
+   "sha256": "8730f26e3d71c331d8eb00d21ce1612b0e5d20e9de5ee6104e669ca3f6792deb"
+  },
+  {
+   "id": "exclusions__ad_read__04",
+   "file": "exclusions__ad_read__04.json",
+   "sha256": "cfe6d1918386ff8f8cc8fd9ed84a43a36eee75c34c73968f738daf3a9da9e17c"
+  },
+  {
+   "id": "exclusions__third_party_media__01",
+   "file": "exclusions__third_party_media__01.json",
+   "sha256": "a9b608126529c64dfd76682e4c5fc8b1996f1580ae79ed57c2c3933577df9186"
+  },
+  {
+   "id": "exclusions__partner_attack__02",
+   "file": "exclusions__partner_attack__02.json",
+   "sha256": "0d7c10d841564433c54306cc71a226ad4b942f66bd358a41e63e5f4d28c5e9ab"
+  },
+  {
+   "id": "exclusions__policy_criticism__03",
+   "file": "exclusions__policy_criticism__03.json",
+   "sha256": "2e9e28a66c5c1a885a031b844a63f590d5087c29d58dde0cdbbee4457ac5bf68"
+  },
+  {
+   "id": "exclusions__imperative__01",
+   "file": "exclusions__imperative__01.json",
+   "sha256": "7975668b5f8e4b1cacb5dfb7bdfa8403faa010a8565b925ade43627ebae5786b"
+  },
+  {
+   "id": "exclusions__neutral_company__01",
+   "file": "exclusions__neutral_company__01.json",
+   "sha256": "2409578c0326195c09a6b51cb08afe629e483914c00dbadb8b3d872baf7a5095"
+  },
+  {
+   "id": "exclusions__policy_criticism__01",
+   "file": "exclusions__policy_criticism__01.json",
+   "sha256": "299605a0543f515585233fc91cfbd26c7fa3c62c832ddfe09f892d9cd47d17ea"
+  },
+  {
+   "id": "exclusions__single_source_breaking__02",
+   "file": "exclusions__single_source_breaking__02.json",
+   "sha256": "fbec9676a47d537c991e59d9d33d4f18ae0c34cc71d40bf1628e5a5115df6be0"
+  },
+  {
+   "id": "exclusions__altcoin__01",
+   "file": "exclusions__altcoin__01.json",
+   "sha256": "728d0a6af8da8f0d2ca713440bc64a9fe1397798238050212887e33db0f1a7c3"
+  },
+  {
+   "id": "exclusions__neutral_company__04",
+   "file": "exclusions__neutral_company__04.json",
+   "sha256": "51a9ab65e0b312ef37dcd2f15bff7ef860b2840423e38f2633e4031014141ba1"
+  },
+  {
+   "id": "exclusions__accusation__01",
+   "file": "exclusions__accusation__01.json",
+   "sha256": "cb7eaaef3d6b1ec66d7ce96c3c55fdeedc38a961be2265c97a18f16e20af5fe7"
+  },
+  {
+   "id": "exclusions__accusation__02",
+   "file": "exclusions__accusation__02.json",
+   "sha256": "d2505c0e0de6958f0ae22e38a186f1e0d7a16e451a1cac783a55694147d66144"
+  },
+  {
+   "id": "exclusions__guaranteed_return__02",
+   "file": "exclusions__guaranteed_return__02.json",
+   "sha256": "a46b564886a7a3ee597936b110c40daaed55286e67233f9a11201a0276110add"
+  },
+  {
+   "id": "exclusions__imperative__02",
+   "file": "exclusions__imperative__02.json",
+   "sha256": "8bdd5bfd0eaefd3adab8dbed75acba99eb2d496d7c78c9b83ecf8a4397dd313b"
+  },
+  {
+   "id": "exclusions__partner_attack__01",
+   "file": "exclusions__partner_attack__01.json",
+   "sha256": "774b7539da2cecda849a2f5773c011586b533ae28be108b01e0359a36d7f9662"
+  },
+  {
+   "id": "exclusions__ad_read__01",
+   "file": "exclusions__ad_read__01.json",
+   "sha256": "bd323408d07da2e66581b475d9c13d5edfc729d60553aa5195b5b082ef327978"
+  },
+  {
+   "id": "exclusions__accusation__03",
+   "file": "exclusions__accusation__03.json",
+   "sha256": "85d0debcad4d4e9063fd77ca711125a665ac8e7e47523f9a6e1dddf2b64a6750"
+  },
+  {
+   "id": "exclusions__ad_read__05",
+   "file": "exclusions__ad_read__05.json",
+   "sha256": "3fe32d5ad7140eb04ec02653cc527e0fd09be57d34cd9906f104c5e7c2a5a5c4"
+  },
+  {
+   "id": "exclusions__ad_read__02",
+   "file": "exclusions__ad_read__02.json",
+   "sha256": "99559de7e0042d39d695cf9386007d7dcec0dc76a484c71884733b3cc33eaae3"
+  },
+  {
+   "id": "exclusions__ad_read__03",
+   "file": "exclusions__ad_read__03.json",
+   "sha256": "9dbc8b4a495e2b1c4815e8b94da57f19397386e98d2d3fbf6dff1e4b96250bfa"
+  },
+  {
+   "id": "exclusions__framed_prediction__01",
+   "file": "exclusions__framed_prediction__01.json",
+   "sha256": "b068280543cc902c5ac922456926294e810621d45dc46c504f9e23f8c6d7d392"
+  },
+  {
+   "id": "exclusions__single_source_breaking__01",
+   "file": "exclusions__single_source_breaking__01.json",
+   "sha256": "7e8813c6159ec8e0a953e7476a95271c767550366de0812b24f4b39a928bc3ad"
+  },
+  {
+   "id": "exclusions__neutral_company__03",
+   "file": "exclusions__neutral_company__03.json",
+   "sha256": "b6fb516931d5f009a3d365c3053f3885bcbad668a68dd998b3a1531da357d394"
+  },
+  {
+   "id": "exclusions__guaranteed_return__01",
+   "file": "exclusions__guaranteed_return__01.json",
+   "sha256": "08ba708de022afa482f1c3bda8d99ea12138867445928ac2424ddb32f2e3724f"
+  },
+  {
+   "id": "exclusions__framed_prediction__04",
+   "file": "exclusions__framed_prediction__04.json",
+   "sha256": "c10aa0f607c2353b38d71869ccb254d5f2a19dedb840119e5a48b0eefc13237e"
+  },
+  {
+   "id": "exclusions__framed_prediction__03",
+   "file": "exclusions__framed_prediction__03.json",
+   "sha256": "6e8d5403491b17a059d0855c4744bcf54e26f83240d669343721001da983fba6"
+  },
+  {
+   "id": "exclusions__policy_criticism__04",
+   "file": "exclusions__policy_criticism__04.json",
+   "sha256": "133be55759db66acedb6d543a883799575be9371fa904c45a1e46df3ecbced17"
+  }
+ ]
+}

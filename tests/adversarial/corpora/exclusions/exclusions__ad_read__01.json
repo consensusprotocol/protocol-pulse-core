@@ -1,0 +1,225 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__ad_read__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Irt0jKj7ISw/transcript.whisper_words_punct.json",
+  "record_sha256": "18fbae0770e6a77780c2a2b70677d75cd33f10021d9fff6023e63e894e62badb",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "promo code (context)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   201,
+   202
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "ad_read",
+  "why": "The opening lines of a Trezor ad read (k203-214); the moment itself has no ad marker."
+ },
+ "source": {
+  "video_id": "Irt0jKj7ISw",
+  "channel": "BTC Sessions",
+  "title": "Security Expert: Hack Yourself With AI Before Somebody Else Does | Jameson Lopp",
+  "description": "Mentor Sessions EP 110: Jameson Lopp on AI Cyberattacks, Security Debt, Multisig Self-Custody & Wrench Attacks\n\nJameson Lopp, co-founder and Chief Security Officer of Casa, says the safest way to use a computer is to never turn it on. With Binance losing $6.3 billion and AI tools finding holes faster than anyone can patch them, decades of security debt are coming due, and Bitcoin was only the first target.\n\nIn this Mentor Sessions interview, Nathan and Jameson break down why builders need to attack their own systems with AI before somebody else does, how AI-driven worms and swarms could become",
+  "description_truncated": true,
+  "published_at": "2026-11-10T16:00:34+00:00",
+  "url": "https://www.youtube.com/watch?v=Irt0jKj7ISw"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 201,
+    "start": 1450.31,
+    "end": 1452.27,
+    "text": "Bitcoin is not a set at and forget an asset.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 202,
+    "start": 1452.43,
+    "end": 1453.97,
+    "text": "Hoddling is an active process.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 195,
+    "start": 1387.79,
+    "end": 1391.71,
+    "text": "Make sure you have multiple backups of those keys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 196,
+    "start": 1392.09,
+    "end": 1398.59,
+    "text": "Because once you go into self -custody, generally the biggest risk is yourself just losing access to it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 197,
+    "start": 1399.39,
+    "end": 1400.53,
+    "text": "If you're using cold storage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 198,
+    "start": 1402.9,
+    "end": 1443.41,
+    "text": "And then, you know, beyond that, once it becomes more of a large investment or a, you know, a... significant portion of your net worth or you call it like a generational level investment you know that's when i think you want to get to the point where you go to the extreme and you you look at every possible thing that could go wrong including of course you dying and inheritance and stuff around that and that's when you go to the effort to eliminate every possible point of failure The number of people that I talk to that haven't taken Bitcoin off the exchange is honestly quite frightening.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 199,
+    "start": 1443.59,
+    "end": 1446.75,
+    "text": "And those that do, a lot of them buy one device, get it set up, and never look at it again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 200,
+    "start": 1447.15,
+    "end": 1449.81,
+    "text": "Their security ends up becoming a snapshot of whatever the hell they knew that day.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 203,
+    "start": 1454.17,
+    "end": 1457.33,
+    "text": "I've helped a lot of people build their way to multi -vender multi -six setups.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 204,
+    "start": 1457.51,
+    "end": 1460.11,
+    "text": "And almost every time, Trezer was one of those devices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 205,
+    "start": 1460.37,
+    "end": 1462.95,
+    "text": "Intuitive, secure, Bitcoin -only firmware available, and open source.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 206,
+    "start": 1463.07,
+    "end": 1464.29,
+    "text": "And that last one's really important.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 207,
+    "start": 1464.59,
+    "end": 1469.95,
+    "text": "They've always been open source since the very beginning, since 2014 when they built the very first hardware wallet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 208,
+    "start": 1470.35,
+    "end": 1474.35,
+    "text": "And those recovery words they got stamped into metal, that standard was co -authored by Trezor's founders.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 209,
+    "start": 1474.55,
+    "end": 1478.99,
+    "text": "This is a company that the industry has literally been building on for over a decade.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 210,
+    "start": 1479.33,
+    "end": 1483.55,
+    "text": "But there's one thing that nobody could open up, the secure element, the place where you actually store your keys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 211,
+    "start": 1484.09,
+    "end": 1490.43,
+    "text": "The Treasor Safe 7 has two of them, and Tropico 1 is the first open source secure element that security researchers can actually audit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 212,
+    "start": 1490.61,
+    "end": 1496.69,
+    "text": "So if you're taking self -custy for the first time or you're building something a little bit more robust, level up, get a Treasor Safe 7 today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 213,
+    "start": 1496.89,
+    "end": 1499.63,
+    "text": "Use promo code BTC Sessions 10 for 10 % off any model.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 214,
+    "start": 1499.89,
+    "end": 1502.43,
+    "text": "Scan the QR code on the screen or click the link in the description down below.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 215,
+    "start": 1503.2,
+    "end": 1507.86,
+    "text": "Unless for some reason you think they're about to stop printing and stop borrowing, you know exactly where Bitcoin is going.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 216,
+    "start": 1508.04,
+    "end": 1512.8,
+    "text": "And whether your stack is already at the size, where you know you should do something about it, or it's headed there, it's time your security caught up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 217,
+    "start": 1513.12,
+    "end": 1514.6,
+    "text": "That's why you need CASA premium.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

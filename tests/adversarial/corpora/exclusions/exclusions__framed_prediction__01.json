@@ -1,0 +1,329 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__framed_prediction__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+  "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "I expect",
+  "mined": "2026-11-12",
+  "selected_k": [
+   730,
+   732
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "framed_prediction",
+  "why": "'to me', 'I could easily see', 'I expect': a framed personal forecast."
+ },
+ "source": {
+  "video_id": "jTuJ8PXhRV4",
+  "channel": "BTC Sessions",
+  "title": "Markets Just Realized How Wrong They Are | Lepard & Valek",
+  "description": "Mentor Sessions EP 109: Lawrence Lepard & Mark Valek on the Sovereign Debt Crisis, the Fed Trap, Gold, Silver & Bitcoin\n\nAmerica's debt just blew past $40 trillion, interest now costs more than the entire military budget, and yet gold and Bitcoin are both down on the year. Larry Lepard of Equity Management Associates and Mark Valek of Incrementum explain why the debasement trade stalled and what sets it off again.\n\nIn this conversation you'll learn why Valek sees a melting system against Lawrence Lepard's Big Print, why higher short-term rates trap the Fed under fiscal dominance, and which str",
+  "description_truncated": true,
+  "published_at": "2026-11-05T16:00:38+00:00",
+  "url": "https://www.youtube.com/watch?v=jTuJ8PXhRV4"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 730,
+    "start": 3364.82,
+    "end": 3368.54,
+    "text": "Bitcoin to me is set up to lead the next lug up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 731,
+    "start": 3368.54,
+    "end": 3370.96,
+    "text": "I mean, I could easily see gold going to six or seven thousand.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 732,
+    "start": 3371.74,
+    "end": 3373.74,
+    "text": "I expect Bitcoin to go to 180.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 711,
+    "start": 3303.48,
+    "end": 3306.62,
+    "text": "We just had, of course, Binance with $6.3 billion in hacks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 712,
+    "start": 3306.98,
+    "end": 3312.42,
+    "text": "Liquid, funny enough, got fully refunded one -to -one, which was good to see, we had BTC pay server again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 713,
+    "start": 3312.96,
+    "end": 3326.12,
+    "text": "And so with all this kind of, we'll say, infrastructure attacks going on and even self -custody attacks going on, it's only sitting at 77,000, which for the magnitude of the shit that we've had to deal with, It's not that bad, but what are your thoughts?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 714,
+    "start": 3326.22,
+    "end": 3327.26,
+    "text": "Where are we in Bitcoin right now?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 715,
+    "start": 3327.32,
+    "end": 3329.16,
+    "text": "So I would agree with you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 716,
+    "start": 3329.3,
+    "end": 3330.12,
+    "text": "I mean, it's disappointing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 717,
+    "start": 3330.34,
+    "end": 3332.6,
+    "text": "I mean, cold card and, you know, most recent finance stuff.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 718,
+    "start": 3332.74,
+    "end": 3335.24,
+    "text": "I mean, these things are all shots over the bow.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 719,
+    "start": 3335.66,
+    "end": 3338.4,
+    "text": "And, of course, they allow the skeptics to say, see, I told you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 720,
+    "start": 3338.56,
+    "end": 3339.38,
+    "text": "You should never be in that area.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 721,
+    "start": 3340.18,
+    "end": 3345.48,
+    "text": "I personally think we hit our bottom at 58 or 7 or whatever it hit on that last down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 722,
+    "start": 3345.58,
+    "end": 3348.78,
+    "text": "It was 124 in October of last year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 723,
+    "start": 3348.84,
+    "end": 3352.0,
+    "text": "We hit the low, I think, and the 50, just below 60.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 724,
+    "start": 3352.08,
+    "end": 3353.62,
+    "text": "We hung around 60 for a long time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 725,
+    "start": 3354.04,
+    "end": 3355.58,
+    "text": "Then we started coming out of there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 726,
+    "start": 3355.72,
+    "end": 3357.54,
+    "text": "I think Bitcoin is cheap in gold terms.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 727,
+    "start": 3357.7,
+    "end": 3358.8,
+    "text": "I'm guessing Mark agrees.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 728,
+    "start": 3359.02,
+    "end": 3362.8,
+    "text": "I'm sure he looks at the chart that shows the ratio of those two quite a bit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 729,
+    "start": 3362.9,
+    "end": 3364.7,
+    "text": "I mean, gold had a much bigger run than Bitcoin.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 733,
+    "start": 3374.26,
+    "end": 3376.72,
+    "text": "So, I mean, in the next up leg, maybe more.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 734,
+    "start": 3377.82,
+    "end": 3379.84,
+    "text": "So I think the bottom is in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 735,
+    "start": 3380.46,
+    "end": 3383.0,
+    "text": "But as always, you know, it trades in sentiment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 736,
+    "start": 3383.24,
+    "end": 3384.96,
+    "text": "It trades like, you know, a wild animal.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 737,
+    "start": 3385.16,
+    "end": 3387.78,
+    "text": "And you can never predict what it's going to do.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 738,
+    "start": 3388.26,
+    "end": 3408.42,
+    "text": "But, you know, back to our earlier discussion, I think once the tenor changes and everyone realizes that Warsh doesn't have any levers to pull that would allow him to keep money tight, that eventually they have to make money looser, the outcome of that is going to be for all these things to, you know, catch on and run like a scalded dog again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 739,
+    "start": 3408.54,
+    "end": 3408.96,
+    "text": "And so.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 740,
+    "start": 3409.3,
+    "end": 3411.84,
+    "text": "You know, silver, I think Michael Oliver's going to be right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 741,
+    "start": 3411.96,
+    "end": 3413.08,
+    "text": "I mean, silver's going to go to 200.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 742,
+    "start": 3413.32,
+    "end": 3414.88,
+    "text": "Gold's going to go to 6,000 or 7,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 743,
+    "start": 3415.52,
+    "end": 3421.78,
+    "text": "And Bitcoin, the power law shows it could go to 300 or 400, I don't know if it'll get there, but I think 180 to 200 is a no -brainer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 744,
+    "start": 3422.02,
+    "end": 3427.4,
+    "text": "So, you know, my view is it's all constructive and it's moving up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 745,
+    "start": 3428.48,
+    "end": 3430.8,
+    "text": "So I'm very positive on Bitcoin right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 746,
+    "start": 3431.81,
+    "end": 3435.95,
+    "text": "Before I have Mark jump in there, I just want to quickly check something with you, Larry, because I'm trying to remember.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

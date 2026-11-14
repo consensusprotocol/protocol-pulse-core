@@ -1,0 +1,12 @@
+# Batch 78 cycle 1: TWO CONSENSUS FINDINGS, both verified in the code and sent to pp-tests (the owner); MERGE HELD until fixed (panel qwen27b FAIL 0.95, glm PASS 0.72 with three notes; Grok FAIL 0.8 with one)
+- CONSENSUS 1 (qwen27b F1, agreed by glm): tests/adversarial/baselines/frontier_blind.py:22 hard-codes ENV_FILE = the main tree's key file, and _key(name) (l.67) parses it.
+  - VERIFIED; severity lower than "high": it reads ONE key by name, prints nothing, and the script is opt-in (paid, run by hand).
+  - Still a defect against the house rule: keys are read by name through the pipeline's loader (video_pipeline_v3/relay.get_key, as scripts/integrator/grok_audit.py does), never by a path hard-coded in a test directory.
+- CONSENSUS 2 (qwen27b F2, agreed by glm): tests/adversarial/moments_exam.py:92 refuse_network patches getaddrinfo / gethostbyname / gethostbyname_ex but NOT socket.gethostbyaddr.
+  - VERIFIED: a reverse lookup still leaves the box. The suite's child guard covers it; the exam runner's own guard does not. Fix: patch gethostbyaddr too.
+- Raised, not agreed:
+  - Grok F1: "assert not issubclass(gpu0.LeaseMissing, Exception)" is a static assertion. NO DEFECT: LeaseMissing's MRO is LeaseMissing -> Gpu0Stop -> BaseException (checked), and that property is why every `except Exception` passes it to the stage runner, i.e. why select stops cleanly. The behavioural assertions follow it in the same test.
+  - glm F1: frontier_blind's preflight estimates cost per case while _call reserves per token, so a run preflight admits can still stop mid-run on the budget. Sent to pp-tests as a note.
+  - glm F2: the child guard's import-time binding caveat is undocumented. Sent as a note.
+  - glm F3: the import resolver drops a module without __file__ silently. Sent as a note: make an unscanned module visible.
+- Added in cross-examination, unvoted: glm's claim that no_resolve returns None is FALSE (it raises NetworkRefused, l.87-88).

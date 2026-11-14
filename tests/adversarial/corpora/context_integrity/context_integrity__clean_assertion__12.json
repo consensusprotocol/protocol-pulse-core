@@ -1,0 +1,372 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__12",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+  "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   411,
+   411
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "One sentence, the speaker's own thesis, quoted, show credited."
+ },
+ "source": {
+  "video_id": "NM_WPezsI0I",
+  "channel": "Bitcoin Mechanic",
+  "title": "The State Of Payments In \"Bitcoin\"",
+  "description": null,
+  "description_truncated": false,
+  "published_at": "2026-11-04T22:36:21+00:00",
+  "url": "https://www.youtube.com/watch?v=NM_WPezsI0I"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 392,
+    "start": 1944.38,
+    "end": 1949.8,
+    "text": "Outside of those things, I don't see evidence of stuff that would affect your average day -to -day Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 393,
+    "start": 1950.04,
+    "end": 1952.08,
+    "text": "They can still send Bitcoins to any address.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 394,
+    "start": 1952.78,
+    "end": 1957.92,
+    "text": "And provided they pay a very low transaction fee, it's going to go in the chain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 395,
+    "start": 1958.5,
+    "end": 1962.3,
+    "text": "And there's not going to be a reorg and there's not going to be the ability to double spend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 396,
+    "start": 1962.71,
+    "end": 1968.87,
+    "text": "I admit that the protocol still functions well enough for people to try and build infrastructure on top of it and do all this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 397,
+    "start": 1969.41,
+    "end": 1975.85,
+    "text": "But again, the point of this video is for me to highlight that protocol capture does not mean changing the protocol.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 398,
+    "start": 1976.33,
+    "end": 1977.63,
+    "text": "It doesn't have to do that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 399,
+    "start": 1977.75,
+    "end": 1981.47,
+    "text": "It just has to change our behavior and the way we interact with it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 400,
+    "start": 1982.05,
+    "end": 1992.54,
+    "text": "When I use platforms that take Bitcoin, I can't spend certain coins with them, even though the network itself doesn't care about the origin of my coins.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 401,
+    "start": 1992.78,
+    "end": 1994.02,
+    "text": "It treats all coins.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 402,
+    "start": 1994.42,
+    "end": 1995.7,
+    "text": "All UTX are the same.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 403,
+    "start": 1995.8,
+    "end": 1997.78,
+    "text": "They are all fungible by the protocol.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 404,
+    "start": 1998.26,
+    "end": 2001.34,
+    "text": "When you get down into tiny amounts, you have dust limits and stuff like that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 405,
+    "start": 2001.4,
+    "end": 2004.86,
+    "text": "We don't need to go into that kind of hair -splitting pedantry here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 406,
+    "start": 2005.4,
+    "end": 2015.3,
+    "text": "The point is, why am I not sending coins that were coin -joined and choosing instead to send coins that were withdrawn from some squeaky clean?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 407,
+    "start": 2015.69,
+    "end": 2017.89,
+    "text": "licensed Canadian Bitcoin Exchange.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 408,
+    "start": 2018.47,
+    "end": 2022.57,
+    "text": "Why am I making a distinction between the two when the protocol doesn't care about the difference?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 409,
+    "start": 2023.29,
+    "end": 2027.53,
+    "text": "Because the merchant does, or the third -party payment provider they're using, does.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 410,
+    "start": 2028.37,
+    "end": 2037.41,
+    "text": "And as long as our behavior gets modified, it doesn't matter if the protocol remains neutral or not, because our behavior is already limited.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 411,
+    "start": 2038.07,
+    "end": 2050.95,
+    "text": "The amount of freedom Bitcoin offers us is something we voluntarily limit in response to the impositions placed on us and restrictions placed on us by the financial system itself.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 412,
+    "start": 2051.57,
+    "end": 2057.03,
+    "text": "And the fact that the only way to stand up to that is refuse to engage with it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 413,
+    "start": 2057.29,
+    "end": 2059.33,
+    "text": "Don't use KYC exchanges.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 414,
+    "start": 2059.65,
+    "end": 2067.93,
+    "text": "If a platform says it accept Bitcoin and they won't give you a Bitcoin address to send the money to, then don't use it because they don't accept Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 415,
+    "start": 2068.19,
+    "end": 2073.57,
+    "text": "They accept payments from a third -party payment processor that allows payments to it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 416,
+    "start": 2074.17,
+    "end": 2082.31,
+    "text": "from a person that has an account with them that it will only grant them if they have government ID and aren't on any blacklist.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 417,
+    "start": 2082.69,
+    "end": 2084.13,
+    "text": "That's not accepting Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 418,
+    "start": 2084.51,
+    "end": 2086.09,
+    "text": "Nothing about that is accepting Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 419,
+    "start": 2086.67,
+    "end": 2100.99,
+    "text": "When a platform comes out and says, hi, we now accept Bitcoin for our products and services, if there is no asterisk there, but you go on to read the website and you find out that you cannot actually pay them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 420,
+    "start": 2101.18,
+    "end": 2106.34,
+    "text": "in a way that you need to be able to pay them to actually claim use of the protocol properly.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 421,
+    "start": 2107.14,
+    "end": 2108.96,
+    "text": "They need to get absolutely trashed for it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 422,
+    "start": 2109.34,
+    "end": 2115.1,
+    "text": "And when have you ever heard anyone in the suit coin space come up with any sort of complaint about any of this?",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   19,
+   19
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Bitcoin Mechanic's Show: 'The Amount of Freedom Bitcoin Offers Us Is Something We Voluntarily Limit'",
+  "caption": "Clips: Bitcoin Mechanic's show (2026-11-04); Coin Bureau (2026-11-08). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Bitcoin Mechanic's show first.",
+   "bridges": [
+    "Also on the record, Coin Bureau:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "NM_WPezsI0I",
+    "channel": "Bitcoin Mechanic",
+    "published_at": "2026-11-04T22:36:21+00:00",
+    "text": "The amount of freedom Bitcoin offers us is something we voluntarily limit in response to the impositions placed on us and restrictions placed on us by the financial system itself.",
+    "start": 2038.07,
+    "end": 2050.95,
+    "provenance": {
+     "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+     "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+     "k": [
+      411,
+      411
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "OhRh81S7B2g",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-08T12:45:18+00:00",
+    "text": "A loan signed in an office will not appear in a Merkel tree.",
+    "start": 406.82,
+    "end": 410.1,
+    "provenance": {
+     "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+     "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+     "k": [
+      77,
+      77
+     ]
+    }
+   }
+  ]
+ }
+}

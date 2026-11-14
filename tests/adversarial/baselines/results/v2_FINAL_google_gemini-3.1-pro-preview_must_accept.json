@@ -1,0 +1,641 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "google",
+  "model": "gemini-3.1-pro-preview",
+  "price": [
+   2.5,
+   15.0
+  ],
+  "effort": "default"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:47:33-0500",
+ "seed": 1753832756,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 6,
+      "rejected": 0,
+      "accepted": 6,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_assertion": {
+      "expected": "pass",
+      "n": 16,
+      "rejected": 0,
+      "accepted": 16,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 22,
+     "accepted": 22,
+     "false_rejects": 0,
+     "false_reject_rate": 0.0,
+     "errors": 0,
+     "absent": 0,
+     "ok": true,
+     "apart": {
+      "n": 0,
+      "rejected": 0,
+      "ids": []
+     }
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a direct, self-contained assertion by the speaker, contains no unresolved referents, and the package presents it straightforwardly without adding an unsupported thesis or implying a false relationship with the other clip.",
+     "seconds": 19.466
+    },
+    {
+     "id": "context_integrity__clean_assertion__07",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a straightforward, sincere assertion with no unresolved referents. The package preserves the speaker's meaning and certainty, uses neutral transitions that avoid implying a false dialogue, and correctly handles the absolute dates without issue.",
+     "seconds": 23.147
+    },
+    {
+     "id": "context_integrity__clean_assertion__15",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere expression of the speaker's opinion, contains no unresolved pronouns or referents, and is presented accurately in the package without implying any false dialogue or altering its original context.",
+     "seconds": 21.634
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__06",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere, standalone explanation of what the stock-to-flow model charts. All referents are resolved, and the package accurately frames it without altering its original meaning or implying a false relation between the clips.",
+     "seconds": 39.977
+    },
+    {
+     "id": "context_integrity__clean_assertion__10",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip accurately presents the speaker's sincere assertion summarizing Coinbase's new regulatory status, and the package does not imply any prohibited dialogue between the speakers.",
+     "seconds": 23.77
+    },
+    {
+     "id": "context_integrity__clean_assertion__01",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip captures a complete, sincere assertion by the speaker that stands alone without missing context, and the package presents it without adding any unsupported thesis or implying a false dialogue with the other clip.",
+     "seconds": 9.566
+    },
+    {
+     "id": "context_integrity__clean_assertion__11",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a direct, sincere assertion that contains no unresolved referents or dependent conditions. The package accurately contextualizes it without implying any artificial dialogue between the clips.",
+     "seconds": 18.288
+    },
+    {
+     "id": "context_integrity__clean_assertion__13",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a general, sincere assertion that requires no external context to be understood. The package presents it neutrally without altering its original polarity or certainty, and does not imply an artificial relation between the two videos.",
+     "seconds": 36.422
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__02",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, contains no unresolved referents, and the package accurately reflects its meaning without adding any unstated thesis or implying a relationship between the clips.",
+     "seconds": 10.496
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__04",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a direct, sincere assertion with no unresolved referents. The package preserves the original meaning and implies no dialogue or relationship between the clips.",
+     "seconds": 10.498
+    },
+    {
+     "id": "context_integrity__clean_assertion__04",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a self-contained, sincere assertion where the pronoun 'that' is resolved internally. The package correctly preserves the speaker's meaning without implying any artificial dialogue between the speakers.",
+     "seconds": 24.158
+    },
+    {
+     "id": "context_integrity__clean_assertion__14",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is the speaker's own sincere prediction, requires no further context to be understood, and is presented accurately in the package without implying any false connections.",
+     "seconds": 7.778
+    },
+    {
+     "id": "context_integrity__clean_assertion__12",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, contains no unresolved referents, and the package presents it in a neutral way that matches its original meaning and context.",
+     "seconds": 8.871
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__05",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is the speaker's sincere assertion with no unresolved referents, and the package presents it with its original meaning without implying any relations between the different clips.",
+     "seconds": 15.542
+    },
+    {
+     "id": "context_integrity__clean_assertion__02",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, contains no unresolved referents, and the package transitions between clips without implying a dialogue or relation between the speakers.",
+     "seconds": 11.242
+    },
+    {
+     "id": "context_integrity__clean_assertion__03",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is the speaker's sincere assertion about market sentiment with no unresolved referents, and the package respects the original context without implying any false relation to the other clip.",
+     "seconds": 14.254
+    },
+    {
+     "id": "context_integrity__clean_assertion__08",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a standalone, sincere assertion that resolves all referents internally, and the package presents it without adding an unsupported thesis or implying a false relationship with the other clip.",
+     "seconds": 7.978
+    },
+    {
+     "id": "context_integrity__clean_assertion__09",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker with all referents resolved internally, and the package preserves its original meaning without implying an artificial dialogue between the featured videos.",
+     "seconds": 23.672
+    },
+    {
+     "id": "context_integrity__clean_assertion__05",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion with all referents clearly resolved. The package maintains the original context and certainty without implying any direct interaction between the speakers.",
+     "seconds": 20.266
+    },
+    {
+     "id": "context_integrity__clean_assertion__16",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion by the speaker, with the pronoun 'it' clearly referring back to Bitcoin within the same sentence. The package preserves the original context and certainty without implying any false relationships between the clips.",
+     "seconds": 14.34
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__01",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a sincere assertion with no unresolved referents. The package preserves the original context and meaning without implying any false dialogue or relationship with the other speaker.",
+     "seconds": 11.705
+    },
+    {
+     "id": "context_integrity__clean_assertion__06",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "The clip is a straightforward statement of factual price history, its referents are clear, and the package frames it neutrally without implying any relationship with the preceding clip.",
+     "seconds": 9.02
+    }
+   ]
+  },
+  "vo_fidelity": {
+   "table": {
+    "per_class": {
+     "manifest_language": {
+      "expected": "pass",
+      "n": 7,
+      "rejected": 0,
+      "accepted": 2,
+      "error": 5,
+      "absent": 0
+     },
+     "faithful_paraphrase": {
+      "expected": "pass",
+      "n": 6,
+      "rejected": 0,
+      "accepted": 1,
+      "error": 5,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 13,
+     "accepted": 3,
+     "false_rejects": 0,
+     "false_reject_rate": null,
+     "errors": 10,
+     "absent": 0,
+     "ok": false,
+     "apart": {
+      "n": 0,
+      "rejected": 0,
+      "ids": []
+     }
+    }
+   },
+   "rows": [
+    {
+     "id": "vo_fidelity__manifest_language__06",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "All lines are built entirely from the manifest, which is explicitly allowed.",
+     "seconds": 3.503
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__02",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "All lines are either built directly from the manifest or accurately reflect the cited clips without adding facts, changing certainty, or using forbidden framing.",
+     "seconds": 7.919
+    },
+    {
+     "id": "vo_fidelity__manifest_language__04",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.395
+    },
+    {
+     "id": "vo_fidelity__manifest_language__05",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "pass",
+     "why": "All lines are built exclusively from the manifest, such as channel names, ordering words, 'two voices', and the show name, which is explicitly allowed.",
+     "seconds": 5.463
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__06",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.057
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__01",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.056
+    },
+    {
+     "id": "vo_fidelity__manifest_language__01",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.041
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__04",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.023
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__05",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.015
+    },
+    {
+     "id": "vo_fidelity__manifest_language__07",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.033
+    },
+    {
+     "id": "vo_fidelity__manifest_language__02",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.024
+    },
+    {
+     "id": "vo_fidelity__manifest_language__03",
+     "class": "manifest_language",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.028
+    },
+    {
+     "id": "vo_fidelity__faithful_paraphrase__03",
+     "class": "faithful_paraphrase",
+     "expected": "pass",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 252, in vo_fidelity\n    return _verdict(_call(f\"{COMMON}\\n\\n{VO_RULES}\", user, case[\"id\"]), (\"pass\", \"fail\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.98 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.025
+    }
+   ]
+  },
+  "exclusions": {
+   "table": {
+    "per_class": {
+     "policy_criticism": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 1,
+      "error": 3,
+      "absent": 0
+     },
+     "neutral_company": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 1,
+      "error": 3,
+      "absent": 0
+     },
+     "framed_prediction": {
+      "expected": "keep",
+      "n": 4,
+      "rejected": 0,
+      "accepted": 0,
+      "error": 4,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 12,
+     "accepted": 2,
+     "false_rejects": 0,
+     "false_reject_rate": null,
+     "errors": 10,
+     "absent": 0,
+     "ok": false,
+     "apart": {
+      "n": 0,
+      "rejected": 0,
+      "ids": []
+     }
+    }
+   },
+   "rows": [
+    {
+     "id": "exclusions__policy_criticism__02",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "keep",
+     "why": "The segment is a general discussion about the economic impact of tariffs and does not violate any of the hard exclusion rules.",
+     "seconds": 5.925
+    },
+    {
+     "id": "exclusions__neutral_company__03",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "keep",
+     "why": "The clip reports on the pre-market stock price of CoreWeave and does not contain altcoin content or violate any other hard exclusions.",
+     "seconds": 8.541
+    },
+    {
+     "id": "exclusions__policy_criticism__03",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.355
+    },
+    {
+     "id": "exclusions__framed_prediction__04",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.317
+    },
+    {
+     "id": "exclusions__neutral_company__02",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.183
+    },
+    {
+     "id": "exclusions__framed_prediction__01",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.171
+    },
+    {
+     "id": "exclusions__framed_prediction__02",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.067
+    },
+    {
+     "id": "exclusions__neutral_company__01",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.252
+    },
+    {
+     "id": "exclusions__policy_criticism__04",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.277
+    },
+    {
+     "id": "exclusions__neutral_company__04",
+     "class": "neutral_company",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.085
+    },
+    {
+     "id": "exclusions__policy_criticism__01",
+     "class": "policy_criticism",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.069
+    },
+    {
+     "id": "exclusions__framed_prediction__03",
+     "class": "framed_prediction",
+     "expected": "keep",
+     "origin": "REAL",
+     "stratum": null,
+     "verdict": "ERROR",
+     "why": "BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00",
+     "traceback": "Traceback (most recent call last):\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/moments_exam.py\", line 162, in _judge\n    res = fn(blind(case, salt))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 261, in exclusion\n    return _verdict(_call(f\"{COMMON}\\n\\n{EX_RULES()}\", user, case[\"id\"]), (\"keep\", \"exclude\", \"uncertain\"))\n  File \"/home/ultron/worktrees/pp-tests/tests/adversarial/baselines/frontier_blind.py\", line 111, in _call\n    raise BudgetExhausted(f\"spent ${spent:.2f} + estimate ${est:.2f} > budget ${BUDGET:.2f}\")\nbaselines.frontier_blind.BudgetExhausted: spent $14.89 + estimate $0.12 > budget $15.00\n",
+     "seconds": 0.145
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:49:29-0500",
+ "salt": "e37573c6aed81661"
+}

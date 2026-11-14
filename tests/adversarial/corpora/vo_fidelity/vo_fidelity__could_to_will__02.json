@@ -1,0 +1,101 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__could_to_will__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "could_to_will",
+  "why": "The clip says Congress 'might be able to'.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "TFTC",
+   "Coin Bureau"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "W2LIxB2kAH0",
+   "channel": "TFTC",
+   "speaker": null,
+   "published_at": "2026-11-07T15:00:39+00:00",
+   "sentences": [
+    {
+     "k": 526,
+     "text": "I think actually Congress, with being all Democrat controlled, might be able to bring a speedier end to the war in Iran.",
+     "start": 2340.16,
+     "end": 2349.68
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+    "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+    "k": [
+     526,
+     526
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+     "start": 147.27,
+     "end": 153.85
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     20,
+     20
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "TFTC, then Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "On TFTC: Congress will bring a speedier end to the war in Iran.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Here is Coin Bureau.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": []
+  }
+ ]
+}

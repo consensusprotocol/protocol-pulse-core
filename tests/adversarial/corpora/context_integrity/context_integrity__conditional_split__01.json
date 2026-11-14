@@ -1,0 +1,420 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__conditional_split__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/ALXQRknFwr4/transcript.yt_manual.json",
+  "record_sha256": "12364704ffe730180d579ed70b7a61180e2db5e92561daee625ae0602d046775",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^IF .* \\.$ followed by a consequence sentence",
+  "mined": "2026-11-12",
+  "selected_k": [
+   156,
+   156
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "conditional_split",
+  "why": "The promise depends on the previous sentence: 'IF MIKE JOHNSON WANTS TO GET SOMETHING BIG IN A BIPARTISAN VOTE.' (k155); the clip drops the condition.",
+  "also": [
+   "unresolved_referent: 'THAT' is the roads-and-bridges bill (k153-154), as a consequence clause's object"
+  ]
+ },
+ "source": {
+  "video_id": "ALXQRknFwr4",
+  "channel": "Bloomberg Television",
+  "title": "Trump Backs Nvidia CEO Amid Spy Tie",
+  "description": "On the early edition of Balance of Power, Bloomberg Washington Correspondent Kailey Leinz discusses the latest news from DC. On today’s show, Rep. Greg Stanton (D-AZ), Stonecourt Capital Partner Rick Davis, Harvard Kennedy School Ash Center Visiting Democracy Fellow Jeanne Sheehan Zaino and US Labor Secretary Keith Sonderling.\n\nChapters:\n00:00:00 Radio Balance of Power: Early Edition\n00:01:04 Markets Rally as Nvidia Falls\n00:03:00 Jensen Huang, China & National Security\n00:04:13 Trump, Qatar & Iran Diplomacy\n00:07:39 Congress Investigates Nvidia & Jensen Huang\n00:11:01 Pete Hegseth Impeachment",
+  "description_truncated": true,
+  "published_at": "2026-11-09T20:17:20+00:00",
+  "url": "https://www.youtube.com/watch?v=ALXQRknFwr4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 135,
+    "start": 812.545,
+    "end": 824.857,
+    "text": "THAT PISSED PEOPLE OFF TREMENDOUSLY AND THAT IS WHY YOU SAW SUCH A DUMB AND BY THE DEMOCRATS.",
+    "speaker": "REP. STANTON",
+    "turn": 20
+   },
+   {
+    "n": 1,
+    "k": 136,
+    "start": 818.717,
+    "end": 819.594,
+    "text": "REP.",
+    "speaker": "REP. STANTON",
+    "turn": 20
+   },
+   {
+    "n": 2,
+    "k": 137,
+    "start": 819.813,
+    "end": 832.131,
+    "text": "STANTON: OBVIOUSLY, YOU WILL HAVE THE MAJORITY COME JANUARY BUT THERE IS 20 LEGISLATIVE DAYS BETWEEN NOW AND THEN THAT REPUBLICANS WOULD TRY TO GET THROUGH AS MUCH AS THEY CAN.",
+    "speaker": "REP. STANTON",
+    "turn": 20
+   },
+   {
+    "n": 3,
+    "k": 138,
+    "start": 832.131,
+    "end": 839.338,
+    "text": "KAILEY: WHAT IS YOUR EXPECTATION, ESPECIALLY KNOWING FUNDING WILL LAPSE ON DECEMBER 11?",
+    "speaker": "KAILEY",
+    "turn": 21
+   },
+   {
+    "n": 4,
+    "k": 139,
+    "start": 839.338,
+    "end": 845.411,
+    "text": "HAVE YOU BEEN IN DISCUSSIONS WITH YOUR COLLEAGUES AND LEADERSHIP ABOUT WHAT EXACTLY THE DEMOCRATIC GAME PLAN IS?",
+    "speaker": "KAILEY",
+    "turn": 21
+   },
+   {
+    "n": 5,
+    "k": 140,
+    "start": 845.411,
+    "end": 850.516,
+    "text": "IS IT A CONTINUING RESOLUTION UNTIL YOU ARE IN CHARGE OF APPROPRIATIONS, A POTENTIAL SHUTDOWN?",
+    "speaker": "KAILEY",
+    "turn": 21
+   },
+   {
+    "n": 6,
+    "k": 141,
+    "start": 850.516,
+    "end": 850.801,
+    "text": "REP.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 7,
+    "k": 142,
+    "start": 850.873,
+    "end": 852.585,
+    "text": "STANTON: I WILL TELL YOU WHAT IT'S ALWAYS BEEN.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 8,
+    "k": 143,
+    "start": 852.585,
+    "end": 856.622,
+    "text": "YOU HAVE TO WORK IN A BIPARTISAN WAY.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 9,
+    "k": 144,
+    "start": 856.622,
+    "end": 862.795,
+    "text": "THIS ADMINISTRATION THOUGHT THEY COULD ALWAYS RUN ROUGHSHOD OVER CONGRESS, IGNORING THE DEMOCRATS IN CONGRESS.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 10,
+    "k": 145,
+    "start": 862.795,
+    "end": 870.002,
+    "text": "IF THEY COME TO US IN A GOOD-FAITH ATTEMPT TO REACH A BIPARTISAN COMPROMISE, WE WILL BE SUPPORTIVE OF IT.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 11,
+    "k": 146,
+    "start": 870.002,
+    "end": 877.076,
+    "text": "IF THEY TRY TO JAM SOMETHING DOWN OUR THROATS AND NOT TAKE SUPPORTIVE.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 12,
+    "k": 147,
+    "start": 874.039,
+    "end": 882.147,
+    "text": "WE HAVE THE FUNDING FIGHT WHICH ENDS ON DECEMBER 11.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 13,
+    "k": 148,
+    "start": 877.076,
+    "end": 885.217,
+    "text": "THERE WILL BE A VIGOROUS SENATE RIGHT NOW.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 14,
+    "k": 149,
+    "start": 882.147,
+    "end": 889.288,
+    "text": "THE NATIONAL DEFENSE BUILT, THE NDAA.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 15,
+    "k": 150,
+    "start": 885.217,
+    "end": 889.288,
+    "text": "WE NEED TO GET A VOTE ON THAT.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 16,
+    "k": 151,
+    "start": 889.288,
+    "end": 893.359,
+    "text": "WE NEED TO MAKE SURE IT IS DONE IN A BIPARTISAN WAY.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 17,
+    "k": 152,
+    "start": 893.359,
+    "end": 897.429,
+    "text": "I AM ON THE TRANSPORTATION INFRASTRUCTURE COMMITTEE.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 18,
+    "k": 153,
+    "start": 897.429,
+    "end": 903.535,
+    "text": "I AM A FORMER MAYOR, I'M A BIG BELIEVER IN FINDING OUR ROADS AND BRIDGES.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 19,
+    "k": 154,
+    "start": 898.464,
+    "end": 903.535,
+    "text": "THAT IS A GREAT BIPARTISAN BILL.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 20,
+    "k": 155,
+    "start": 903.535,
+    "end": 912.745,
+    "text": "IF MIKE JOHNSON WANTS TO GET SOMETHING BIG IN A BIPARTISAN VOTE.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 21,
+    "k": 156,
+    "start": 908.641,
+    "end": 914.78,
+    "text": "WE WILL PASS THAT AND IT WILL BE A STRONG BILL FOR AMERICA.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 22,
+    "k": 157,
+    "start": 912.745,
+    "end": 917.816,
+    "text": "THERE WILL ALSO BE A DISCUSSION OF COLLEGE SPORTS.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 23,
+    "k": 158,
+    "start": 914.78,
+    "end": 919.919,
+    "text": "THAT IS A BILL THAT IS COMING OVER TO THE HOUSE.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 24,
+    "k": 159,
+    "start": 917.816,
+    "end": 922.955,
+    "text": "WE WILL HAVE A HEALTHY DEBATE ABOUT THAT.",
+    "speaker": "REP. STANTON",
+    "turn": 22
+   },
+   {
+    "n": 25,
+    "k": 160,
+    "start": 919.919,
+    "end": 924.957,
+    "text": "KAILEY: DO YOU SEE YOURSELF INCLINED TO SUPPORT IT AS IT STANDS?",
+    "speaker": "KAILEY",
+    "turn": 23
+   },
+   {
+    "n": 26,
+    "k": 161,
+    "start": 924.957,
+    "end": 925.829,
+    "text": "REP.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 27,
+    "k": 162,
+    "start": 926.047,
+    "end": 936.268,
+    "text": "STANTON: IN TERMS OF MY CONSIDERATION, I WANT TO MAKE SURE THE BILL FUNDS MEN'S AND WOMEN'S SPORTS WHICH ARE CONSISTENT WITH TITLE IX.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 28,
+    "k": 163,
+    "start": 932.064,
+    "end": 947.479,
+    "text": "WOMEN'S SPORTS IN TERMS OF SCHOLARSHIPS, IN TERMS OF HOUSING, IN TERMS OF THE ATHLETIC FACILITIES AND N.I.L., WE CANNOT PASS A BILL THAT KNOWINGLY VIOLATES THE REQUIREMENTS OF TITLE IX.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 29,
+    "k": 164,
+    "start": 947.479,
+    "end": 950.582,
+    "text": "IT IS THE LAW.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 30,
+    "k": 165,
+    "start": 947.479,
+    "end": 953.752,
+    "text": "THAT WILL BE MY CONSIDERATION AS WE MOVE FORWARD.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 31,
+    "k": 166,
+    "start": 950.582,
+    "end": 961.961,
+    "text": "THAT'S TREATED FAIRLY IN THE PROCESS.",
+    "speaker": "REP. STANTON",
+    "turn": 24
+   },
+   {
+    "n": 32,
+    "k": 167,
+    "start": 953.752,
+    "end": 964.496,
+    "text": "KAILEY: I WANT TO GO BACK DO WHAT YOU WERE TALKING ABOUT WITH BIPARTISAN CONFERENCE.",
+    "speaker": "KAILEY",
+    "turn": 25
+   },
+   {
+    "n": 33,
+    "k": 168,
+    "start": 964.496,
+    "end": 970.135,
+    "text": "THE PRESIDENT WAS ON 60 MINUTES TALKING ABOUT THE OPPORTUNITY TO IMMIGRATION.",
+    "speaker": "KAILEY",
+    "turn": 25
+   },
+   {
+    "n": 34,
+    "k": 169,
+    "start": 967.566,
+    "end": 974.707,
+    "text": "LET'S REMIND OURSELVES OF WHAT PRESIDENT TRUMP SAID.",
+    "speaker": "KAILEY",
+    "turn": 25
+   },
+   {
+    "n": 35,
+    "k": 170,
+    "start": 970.135,
+    "end": 976.208,
+    "text": ">> WHAT IS ONE THING THAT YOU LIKE TO WORK WITH A DEMOCRATIC MAJORITY ON?",
+    "speaker": null,
+    "turn": 26
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bloomberg Television: 'We Will Pass That and It Will Be a Strong Bill for America'",
+  "caption": "Clips: TFTC (2026-11-07); Bloomberg Television (2026-11-09). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with TFTC.",
+   "bridges": [
+    "Now Bloomberg Television."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "start": 1979.43,
+    "end": 1985.33,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      432,
+      432
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "ALXQRknFwr4",
+    "channel": "Bloomberg Television",
+    "published_at": "2026-11-09T20:17:20+00:00",
+    "text": "WE WILL PASS THAT AND IT WILL BE A STRONG BILL FOR AMERICA.",
+    "start": 908.641,
+    "end": 914.78,
+    "provenance": {
+     "record": "transcripts/ALXQRknFwr4/transcript.yt_manual.json",
+     "record_sha256": "12364704ffe730180d579ed70b7a61180e2db5e92561daee625ae0602d046775",
+     "k": [
+      156,
+      156
+     ]
+    }
+   }
+  ]
+ }
+}

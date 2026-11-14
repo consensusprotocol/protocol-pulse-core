@@ -1,0 +1,453 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__some_people_say__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/FNtU6qj11b8/transcript.yt_manual.json",
+  "record_sha256": "1f4bcfd6fa6dce23247ef4adbab3bc862f2566dd9692fbb18dcbee5406dcbec4",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "people will say",
+  "mined": "2026-11-12",
+  "selected_k": [
+   54,
+   54
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "some_people_say",
+  "why": "'people will say that he's done' is followed by 'I think that's way premature.' (k55)."
+ },
+ "source": {
+  "video_id": "FNtU6qj11b8",
+  "channel": "Bloomberg Television",
+  "title": "Short Says Huang China Trip Would Be a Big Mistake",
+  "description": "Marc Short, former Chief of Staff to former Vice President Mike Pence, says President Donald Trump is “terrific at changing headlines” and says announcing Stephen Miller as White House Chief of Staff helped turn the page from Republicans’ midterm losses. Short says politics on both sides will make bipartisan deals difficult even where the Trump administration’s economic policies overlap with positions held by Sens. Bernie Sanders and Elizabeth Warren. Short calls Vice President JD Vance’s post-election analysis “foolish” and says it “diminishes his role,” arguing the administration should inst",
+  "description_truncated": true,
+  "published_at": "2026-11-09T23:32:00+00:00",
+  "url": "https://www.youtube.com/watch?v=FNtU6qj11b8"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 32,
+    "start": 126.94,
+    "end": 129.729,
+    "text": "And so I think it would be a similar dynamic this time.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 33,
+    "start": 129.85,
+    "end": 135.91,
+    "text": "So is there an area in which you see this white House working with a Democratic Congress?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 34,
+    "start": 133.0,
+    "end": 144.46,
+    "text": "I mean, look, Kayleigh, I think that the first this this the first two years of the second Trump administration, the economic policies, president's embrace are more similar to Bernie Sanders and Elizabeth Warren than traditional Republicans.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 35,
+    "start": 144.7,
+    "end": 146.98,
+    "text": "He's he wants to have a higher minimum wage.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 36,
+    "start": 147.13,
+    "end": 150.13,
+    "text": "He's basically taken over now is lost on Election day coverage.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 37,
+    "start": 150.13,
+    "end": 155.23,
+    "text": "But 41 companies now the government has taken a stake in which is shocking.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 38,
+    "start": 155.44,
+    "end": 157.96,
+    "text": "And so yeah, there's actually places where they could work.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 39,
+    "start": 157.96,
+    "end": 161.26,
+    "text": "He also wants his, you know, price controls on pharmaceuticals.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 40,
+    "start": 161.26,
+    "end": 164.17,
+    "text": "And so so there are places.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 41,
+    "start": 161.26,
+    "end": 171.22,
+    "text": "But I still think the politics are not going to make that possible because I think that both bases would be upset of seeing that sort of thing happen.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 42,
+    "start": 168.04,
+    "end": 175.48,
+    "text": "Well, yeah, I mean, you could point to some of the things Elizabeth Warren is now talking about as she braces to become the chair of the Banking committee.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 43,
+    "start": 175.49,
+    "end": 181.13,
+    "text": "She's looking at things like caps on credit card interest rates, something President Trump has talked about.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 44,
+    "start": 177.98,
+    "end": 181.63,
+    "text": "Well, and certainly JD Vance has gone along.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 45,
+    "start": 181.13,
+    "end": 181.63,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 46,
+    "start": 181.7,
+    "end": 189.38,
+    "text": "And so so there again that you've seen in the in the second Trump administration, uh, much more comfort in government intervention in the economy.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 47,
+    "start": 189.8,
+    "end": 200.18,
+    "text": "But I think what you also see is that Democrats, as they move these, uh, it begin to move through, they'll put poison pills in to make sure it actually doesn't become what becomes something.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 48,
+    "start": 197.36,
+    "end": 200.18,
+    "text": "That's a political rallying point.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 49,
+    "start": 200.54,
+    "end": 210.32,
+    "text": "Just because you raise JD Vance, what becomes of him now we all saw the SC he posted after the results blaming the war, uh, in Iran for the midterm losses.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 50,
+    "start": 210.32,
+    "end": 213.11,
+    "text": "Many saw that as him trying to triage for 2028.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 51,
+    "start": 213.92,
+    "end": 216.77,
+    "text": "But I think it was you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 52,
+    "start": 213.92,
+    "end": 218.66,
+    "text": "Look, he's still the sitting vice president.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 53,
+    "start": 216.77,
+    "end": 220.13,
+    "text": "He still has a huge microphone a huge platform.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 54,
+    "start": 218.66,
+    "end": 221.75,
+    "text": "And I think people will say that he's done.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 55,
+    "start": 220.13,
+    "end": 221.75,
+    "text": "I think that's way premature.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 56,
+    "start": 221.99,
+    "end": 226.34,
+    "text": "But I thought it was really foolish because I think it really was diminishing.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 57,
+    "start": 224.36,
+    "end": 229.07,
+    "text": "It's like, do you want the vice president to be a pundit?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 58,
+    "start": 226.34,
+    "end": 233.72,
+    "text": "Do you want it to be an election analysis person, or do you want him to say, you know what, we heard you loud and clear.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 59,
+    "start": 232.37,
+    "end": 236.4,
+    "text": "Here's we're going to need to address affordability.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 60,
+    "start": 233.73,
+    "end": 238.14,
+    "text": "Here's what we're going to do to address corruption.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 61,
+    "start": 238.14,
+    "end": 240.27,
+    "text": "the war in Iran.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 62,
+    "start": 238.14,
+    "end": 244.01,
+    "text": "And I don't think they're looking for him to put out his his long essay on what happened on Election Day.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 63,
+    "start": 244.02,
+    "end": 249.36,
+    "text": "So I think it diminishes his role and what he should be doing as vice president.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 64,
+    "start": 247.23,
+    "end": 260.25,
+    "text": "I'd say it's well in for someone who worked for a former vice president who ended up running against Trump in the primary in the last cycle, how hard would it be for Vance to create any real kind of separation from President Trump, having just served with him?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 65,
+    "start": 260.279,
+    "end": 264.87,
+    "text": "Well, I think it would be a mistake, because I think the reality is you've got to stick with them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 66,
+    "start": 262.89,
+    "end": 266.84,
+    "text": "Well, I think it's the best thing he has going for them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 67,
+    "start": 264.87,
+    "end": 269.16,
+    "text": "I know in the first administration and it different.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 68,
+    "start": 266.85,
+    "end": 275.01,
+    "text": "But I think that for Vice President Pence, whenever you disagree with the president, he took it to the president, had a one on one conversation and never discuss it more than once.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 69,
+    "start": 275.01,
+    "end": 276.81,
+    "text": "He actually learned that, he said.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 70,
+    "start": 275.01,
+    "end": 276.81,
+    "text": "For Mondale spoke.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 71,
+    "start": 277.05,
+    "end": 287.12,
+    "text": "Mondale said that was my advice as the vice president states that this is the president, to disagree with them and tell them one time what your opinion is, if you if you disagree.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   22,
+   22
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bloomberg Television: 'He's Done'",
+  "caption": "Clips: Bloomberg Television (2026-11-09); Stephan Livera's show (2026-11-11). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with Bloomberg Television.",
+   "bridges": [
+    "Now Stephan Livera's show."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "FNtU6qj11b8",
+    "channel": "Bloomberg Television",
+    "published_at": "2026-11-09T23:32:00+00:00",
+    "text": "And I think people will say that he's done.",
+    "start": 218.66,
+    "end": 221.75,
+    "provenance": {
+     "record": "transcripts/FNtU6qj11b8/transcript.yt_manual.json",
+     "record_sha256": "1f4bcfd6fa6dce23247ef4adbab3bc862f2566dd9692fbb18dcbee5406dcbec4",
+     "k": [
+      54,
+      54
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "But as technology improves, we're able to mine more gold.",
+    "start": 315.43,
+    "end": 319.33,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      54,
+      54
+     ]
+    }
+   }
+  ]
+ }
+}

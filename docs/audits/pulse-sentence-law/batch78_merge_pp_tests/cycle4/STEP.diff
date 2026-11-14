@@ -1,0 +1,109 @@
+diff --git a/tests/adversarial/test_f0_cpu_guard.py b/tests/adversarial/test_f0_cpu_guard.py
+index 40bb8eb4..21689ab6 100644
+--- a/tests/adversarial/test_f0_cpu_guard.py
++++ b/tests/adversarial/test_f0_cpu_guard.py
+@@ -193,8 +193,17 @@ def test_no_file_of_this_suite_names_the_key_file():
+     assert named == [], f"a key file is named in the suite (read keys by name through relay.get_key): {named}"
+ 
+ 
+-class _FileOpened(BaseException):
+-    """open() inside the code under test: a BaseException, so its own `except Exception` cannot hide the attempt."""
++class _Denied(BaseException):
++    """A denied effect inside the code under test (a file opened, a process started): a BaseException, so its own
++    `except Exception` cannot hide the attempt."""
++
++
++# every way the code under test could start a process during the calls (batch 78 cycle 3, glm F1 + qwen27b: a _key
++# that ALSO read the key file through a child, result discarded, passed). subprocess.run / check_output / call and
++# os.popen all go through subprocess.Popen; on POSIX, os.spawn* go through os.fork
++_OS_PROCESS_STARTERS = ("system", "popen", "posix_spawn", "posix_spawnp", "fork", "forkpty",
++                        "execl", "execle", "execlp", "execlpe", "execv", "execve", "execvp", "execvpe",
++                        "spawnl", "spawnle", "spawnlp", "spawnlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe")
+ 
+ 
+ _KEY_STUB = '''import sys
+@@ -221,19 +230,34 @@ def _load_frontier_blind(path=None):
+ 
+ def _check_key_behaviour(fb, stub_dir):
+     """frontier_blind._key with its KEY_LOADER pointed at a STUB loader file: every key comes from the loader's
+-    get_key, by the name asked, and nothing else happens. Raises AssertionError on a violation, and never shows a
+-    value _key returned (a broken _key could return a real key)."""
++    get_key, by the name asked, and nothing else happens: no file opened, no process started. Raises AssertionError
++    on a violation, and never shows a value _key returned (a broken _key could return a real key)."""
+     stub = os.path.join(stub_dir, "relay_stub.py")
+     with open(stub, "w") as f:
+         f.write(_KEY_STUB)
+     rec = types.ModuleType("_pp_key_stub_record")
+     rec.SEEN, rec.LOADS = [], 0
+     fb.KEY_LOADER = stub
+-    opened, got, real_open, real_io_open, real_os_open = [], [], builtins.open, io.open, os.open
+-
+-    def no_open(file, *a, **k):
+-        opened.append(str(file))
+-        raise _FileOpened(f"open({file!r})")
++    # denied during the calls: a file opened (open, io.open: both names, a module may hold either; os.open: cycle 2)
++    # and a process started (subprocess.Popen and every os starter: cycle 3). The import machinery reads source
++    # through io.open_code, which calls _io.open, so loading the stub still works. NOT denied:
++    # - _io.open, which cannot be (denying it breaks that load, measured), and therefore a reference to open bound
++    #   before the call, such as tokenize.open;
++    # - io.FileIO, which could be (measured) but is outside this fix's scope: an audit-hook follow-up was offered;
++    # - C-level calls (ctypes).
++    # Such a _key fails only if what it returns is not the loader's value
++    missing = [n for n in _OS_PROCESS_STARTERS if not hasattr(os, n)]
++    H.control(not missing, f"every listed process starter exists here (a typo would silently skip one): {missing}")
++    denials = [(builtins, "open"), (io, "open"), (os, "open"), (subprocess, "Popen")] + \
++        [(os, n) for n in _OS_PROCESS_STARTERS]
++    real = [(m, n, getattr(m, n)) for m, n in denials]
++    denied, got = [], []
++
++    def deny(what):                                  # process-wide patches, for the two calls only (not thread-safe)
++        def f(*a, **k):
++            denied.append(f"{what}({a[0]!r})" if a else f"{what}()")
++            raise _Denied(what)
++        return f
+     path_before, flag_env, flag_after = list(sys.path), sys.dont_write_bytecode, None
+     try:
+         sys.modules[rec.__name__] = rec
+@@ -241,21 +265,20 @@ def _check_key_behaviour(fb, stub_dir):
+         # no-__pycache__ check would otherwise test nothing). _key must turn it OFF while it loads the loader (else
+         # bytecode lands beside the stub) and put it back after (else flag_after is True)
+         sys.dont_write_bytecode = False
+-        # denied: open, io.open (both names: a module may hold either) and os.open (glm, cycle 2). The import
+-        # machinery reads source through io.open_code, so loading the stub still works. Not denied: a subprocess or a
+-        # C-level read; such a _key fails only if what it returns is not the loader's value
+-        builtins.open = io.open = os.open = no_open
++        for m, n in denials:
++            setattr(m, n, deny(f"{m.__name__}.{n}"))
+         for name in ("XAI_API_KEY", "OPENAI_API_KEY"):
+             try:
+                 got.append(fb._key(name))
+-            except _FileOpened:
++            except _Denied:
+                 got.append(None)
+         flag_after = sys.dont_write_bytecode
+     finally:                                         # plain assignments only: nothing here can mask the original error
+-        builtins.open, io.open, os.open = real_open, real_io_open, real_os_open
++        for m, n, v in real:
++            setattr(m, n, v)
+         sys.dont_write_bytecode = flag_env
+         sys.modules.pop(rec.__name__, None)
+-    assert opened == [], f"_key opened a file: {opened}"
++    assert denied == [], f"_key opened a file or started a process: {denied}"
+     assert got == ["SENTINEL-not-a-key"] * 2, \
+         f"_key did not return the loader's value: {[type(g).__name__ for g in got]}"     # the types, never the values
+     assert rec.SEEN == ["XAI_API_KEY", "OPENAI_API_KEY"] and rec.LOADS == 1, f"loader saw {rec.SEEN}, loads {rec.LOADS}"
+@@ -269,8 +292,12 @@ def test_the_baseline_reads_a_key_only_by_name_through_its_loader(tmp_path):
+     source and restated a constant). With its KEY_LOADER pointed at a stub loader file, frontier_blind._key returns
+     the stub's get_key value for each name asked:
+     - the stub saw exactly those names and was loaded once;
+-    - no file is opened by open() / io.open() / os.open() during the calls (patched to raise; the import machinery
+-      reads source through io.open_code, so loading the stub is not affected);
++    - no file is opened by open() / io.open() / os.open() and no process is started (subprocess.Popen, os.system,
++      os.posix_spawn[p], os.fork / forkpty, os.exec*, os.spawn*) during the calls: each is patched to raise and the
++      attempt recorded (cycle 3: a SIDE read through a child, result discarded, passed before). The import machinery
++      reads source through io.open_code, so loading the stub is not affected. Not denied, and caught only through the
++      value: _io.open and a reference to open bound earlier (tokenize.open), which cannot be; io.FileIO (outside this
++      fix's scope); C-level calls;
+     - sys.path and the bytecode flag are as before, and no bytecode lands beside the loader.
+     Labelled control, a configuration pin and not the behaviour: the production loader is the main tree's
+     video_pipeline_v3/relay.py, as scripts/integrator/grok_audit.py uses it."""

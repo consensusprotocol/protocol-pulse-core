@@ -1,0 +1,354 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__stale_time_reference__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/MJzWDJf4thg/transcript.whisper_words.json",
+  "record_sha256": "851ebf13cf5ef8db000c496febc7a48b500e8c5ad7e57c2fff1f8952e0604584",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "right now",
+  "mined": "2026-11-12",
+  "selected_k": [
+   60,
+   60
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "stale_time_reference",
+  "why": "Said on the Nov 3 election-day show (published 2026-11-04); the title presents 'right now' on 2026-11-12. A time word the title presents as current on the show date is a FAIL even though the caption dates the clip (L-v (3))."
+ },
+ "source": {
+  "video_id": "MJzWDJf4thg",
+  "channel": "Bitcoin Magazine",
+  "title": "Bitcoin and Election Day 2026 | BMTV Nov. 3, 2026",
+  "description": "Grace Remington and Sean Hagan break down #ElectionDay, the #CryptoVote, and #BitcoinPolicy on #BitcoinMagazine TV (BMTV). Live Monday through Friday at 9:30am ET.\n\nGuests:\nMason Lynaugh — Executive Director, Stand With Crypto\nCory Klippsten — CEO, Swan Bitcoin\nTyler Stevens — Founder & CEO, Exergy\nand more!\n\nTo learn more and get the latest news on BMTV, visit: https://bitcoinmagazine.com/bmtv\n\nThank you to our BMTV Founding Sponsors! 🎺\n\n🟩 Cash App: For a limited time, new customers can get $21 added to their balance. Just use the code BMTV21 when you sign up, and send at least $5 to a friend",
+  "description_truncated": true,
+  "published_at": "2026-11-04T06:09:20+00:00",
+  "url": "https://www.youtube.com/watch?v=MJzWDJf4thg"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 41,
+    "start": 337.4,
+    "end": 340.86,
+    "text": "following the latest earnings reports from those companies.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 42,
+    "start": 341.08,
+    "end": 350.6,
+    "text": "And of course, another big story is election day today with control of Congress up for grabs and potential implications for taxes, regulations, and government.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 43,
+    "start": 351.02,
+    "end": 351.48,
+    "text": "spending.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 44,
+    "start": 351.68,
+    "end": 353.16,
+    "text": "So let's go over to the bond market now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 45,
+    "start": 353.34,
+    "end": 358.7,
+    "text": "The 10 -year yield up to basis points on the day, trading at 4.93%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 46,
+    "start": 358.7,
+    "end": 367.96,
+    "text": "And looking at the entire curve here, the three -month yield at 413, the 5 -year at 471, and the 30 -year at 529.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 47,
+    "start": 368.32,
+    "end": 375.5,
+    "text": "Gold under pressure this morning down 3 tenths of a percent, trading at $3,941 per ounce.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 48,
+    "start": 375.7,
+    "end": 376.74,
+    "text": "And finally, oil.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 49,
+    "start": 378.25,
+    "end": 388.13,
+    "text": "WTI trading in the mid -90 range at 9620 with Brent crude just over 100 at about 103.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 50,
+    "start": 388.69,
+    "end": 391.51,
+    "text": "Sean, what do you what are you looking at this morning?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 51,
+    "start": 392.05,
+    "end": 394.63,
+    "text": "I'd like to see oil continue to trade down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 52,
+    "start": 395.03,
+    "end": 401.42,
+    "text": "I think that obviously there's been a lot of tension building up to the midterms, especially with the Iran situation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 53,
+    "start": 402.2,
+    "end": 404.9,
+    "text": "Obviously, they do not want President Trump in office.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 54,
+    "start": 405.16,
+    "end": 406.48,
+    "text": "He's now kicked them out of the world.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 55,
+    "start": 406.96,
+    "end": 409.7,
+    "text": "Economic order twice now in both of his terms.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 56,
+    "start": 410.88,
+    "end": 416.44,
+    "text": "So now that we're kind of getting past that phase, hopefully we can get some sort of resolution there in the energy markets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 57,
+    "start": 416.64,
+    "end": 417.96,
+    "text": "Obviously, that's not going to alleviate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 58,
+    "start": 418.57,
+    "end": 423.95,
+    "text": "what we see with crack spreads for refined products due to the loss of several refineries.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 59,
+    "start": 424.35,
+    "end": 428.41,
+    "text": "I'm also going to be watching Apple and Palantir today to see how they trade post earnings.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 60,
+    "start": 429.53,
+    "end": 432.05,
+    "text": "But again, Bitcoin looking incredibly strong right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 61,
+    "start": 432.93,
+    "end": 438.77,
+    "text": "We've come back down where we're a much closer to our 50 week moving average than we have been in several weeks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 62,
+    "start": 439.27,
+    "end": 444.65,
+    "text": "This has now been our seventh weekly close just above that 50 week moving average.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 63,
+    "start": 444.95,
+    "end": 461.33,
+    "text": "I'd like to see continued resilience here as we see selloffs in the broader equity market to show us put in our eighth consecutive week above that 50 week would be really, really good news and a continued sign of momentum that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 64,
+    "start": 461.64,
+    "end": 467.96,
+    "text": "This bull market is truly here, and this isn't some sort of, you know, bull trap shakeout.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 65,
+    "start": 468.38,
+    "end": 472.36,
+    "text": "But of course, we've yet to actually come down and properly test that line yet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 66,
+    "start": 472.46,
+    "end": 474.62,
+    "text": "Right now, it's actually down closer to 75.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 67,
+    "start": 474.8,
+    "end": 478.22,
+    "text": "Last time we talked to is up just a hair above 76.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 68,
+    "start": 478.6,
+    "end": 487.14,
+    "text": "You know, each weekly close that we trade at these levels, if we continue to fall down, it actually kind of has this push -down effect as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 69,
+    "start": 488.14,
+    "end": 492.18,
+    "text": "Again, better to test it now than to test it in January when it's going to be even lower.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   19,
+   19
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bitcoin Magazine: Bitcoin 'Looking Incredibly Strong Right Now'",
+  "caption": "Clips: Bitcoin Magazine (2026-11-04); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Bitcoin Magazine.",
+   "bridges": [
+    "Also on the record, Swan Bitcoin:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "MJzWDJf4thg",
+    "channel": "Bitcoin Magazine",
+    "published_at": "2026-11-04T06:09:20+00:00",
+    "text": "But again, Bitcoin looking incredibly strong right now.",
+    "start": 429.53,
+    "end": 432.05,
+    "provenance": {
+     "record": "transcripts/MJzWDJf4thg/transcript.whisper_words.json",
+     "record_sha256": "851ebf13cf5ef8db000c496febc7a48b500e8c5ad7e57c2fff1f8952e0604584",
+     "k": [
+      60,
+      60
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   }
+  ]
+ }
+}

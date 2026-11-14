@@ -1,0 +1,95 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__invented_agreement__01",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "invented_agreement",
+  "why": "Two videos; neither speaker responds to the other.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "BTC Sessions",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "jTuJ8PXhRV4",
+   "channel": "BTC Sessions",
+   "speaker": null,
+   "published_at": "2026-11-05T16:00:38+00:00",
+   "sentences": [
+    {
+     "k": 796,
+     "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+     "start": 3668.82,
+     "end": 3675.46
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+    "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+    "k": [
+     796,
+     796
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 11,
+     "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+     "start": 61.8,
+     "end": 66.5
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     11,
+     11
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "BTC Sessions, then Swan Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Swan Bitcoin agrees.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check for November 12.",
+   "cites": []
+  }
+ ]
+}

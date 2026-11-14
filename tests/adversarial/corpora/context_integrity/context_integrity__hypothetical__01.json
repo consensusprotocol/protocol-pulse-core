@@ -1,0 +1,462 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__hypothetical__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+  "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "if I were to|so for example",
+  "mined": "2026-11-12",
+  "selected_k": [
+   473,
+   474
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "hypothetical",
+  "why": "A worked example of leverage ('So for example, if you and I both buy one Bitcoin and Bitcoin goes to a million', k471; 'if I were to leverage', k472), not a forecast."
+ },
+ "source": {
+  "video_id": "L9tzgg6PXi8",
+  "channel": "CoinTelegraph",
+  "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+  "description": "Is Bitcoin's bottom finally in? Could BTC reach $1 MILLION by 2030? Investor and Bitcoin Opportunity Fund partner Mark Moss explains why he believes Bitcoin is entering one of the biggest buying opportunities in its history, despite recent crypto hacks and market uncertainty. He breaks down why Bitcoin could hit new all-time highs in 2027, how Wall Street adoption could push BTC to $1 million, and whether Strategy (MSTR) could outperform Bitcoin itself. Plus, Moss explains why he believes AI has killed the altcoin market and where investors should position themselves for the next bull run.\n\n00",
+  "description_truncated": true,
+  "published_at": "2026-11-06T14:30:20+00:00",
+  "url": "https://www.youtube.com/watch?v=L9tzgg6PXi8"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 449,
+    "start": 1689.83,
+    "end": 1698.17,
+    "text": "I built up a high -tech medical equipment company that I had a big exit from, sold to a Fortune 500 company, the largest company in medical distribution, an internet company.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 450,
+    "start": 1699.05,
+    "end": 1700.73,
+    "text": "And I put it all on the line.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 451,
+    "start": 1700.87,
+    "end": 1702.59,
+    "text": "I put it all into Southern California real estate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 452,
+    "start": 1702.79,
+    "end": 1704.93,
+    "text": "The 2008 crash came and I got wiped out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 453,
+    "start": 1705.33,
+    "end": 1713.67,
+    "text": "And what I learned, unfortunately, the hard way and I'll pass on to the listeners today is that the reward of being right is not worth the risk of getting it wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 454,
+    "start": 1716.23,
+    "end": 1723.93,
+    "text": "The potential upside of being right of going all in on that is not worth the risk of getting it wrong and losing it all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 455,
+    "start": 1725.06,
+    "end": 1730.99,
+    "text": "So you don't, you know, the first rule in, well, Warren Buff would say the number one rule in investing is don't lose money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 456,
+    "start": 1731.79,
+    "end": 1733.29,
+    "text": "Second rule is don't, don't forget rule number one.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 457,
+    "start": 1733.67,
+    "end": 1735.21,
+    "text": "But of course, you're always going to lose money along the way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 458,
+    "start": 1736.13,
+    "end": 1738.71,
+    "text": "I say, number one, don't be a forced seller and just don't die.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 459,
+    "start": 1739.57,
+    "end": 1739.81,
+    "text": "Don't die.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 460,
+    "start": 1739.99,
+    "end": 1740.57,
+    "text": "Keep some money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 461,
+    "start": 1740.83,
+    "end": 1742.21,
+    "text": "Like break the portfolio apart.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 462,
+    "start": 1742.43,
+    "end": 1743.83,
+    "text": "So I think Bitcoin is that hurdle rate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 463,
+    "start": 1744.29,
+    "end": 1747.35,
+    "text": "If you want a little bit of alpha, sure Bitcoin Treasury companies, I think are a good play.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 464,
+    "start": 1747.87,
+    "end": 1751.85,
+    "text": "But to your point, right, like strategy is, I mean, I think it was like 500.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 465,
+    "start": 1752.44,
+    "end": 1755.6,
+    "text": "$540 last year, and then it went down to like 80 or 90, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 466,
+    "start": 1755.84,
+    "end": 1758.98,
+    "text": "So securities have a lot going on with them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 467,
+    "start": 1759.54,
+    "end": 1760.64,
+    "text": "I'm a fan of them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 468,
+    "start": 1760.86,
+    "end": 1761.8,
+    "text": "I'm very bullish on them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 469,
+    "start": 1762.42,
+    "end": 1764.88,
+    "text": "I think there will be thousands of Bitcoin treasury companies.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 470,
+    "start": 1765.74,
+    "end": 1771.45,
+    "text": "And I think good ones could outperform Bitcoin because they use leverage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 471,
+    "start": 1772.31,
+    "end": 1778.23,
+    "text": "So for example, if you and I both buy one Bitcoin and Bitcoin goes to a million dollars, we both make the same amount of money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 472,
+    "start": 1778.79,
+    "end": 1783.23,
+    "text": "But if I were to leverage 30 % against my Bitcoin, then you don't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 473,
+    "start": 1783.77,
+    "end": 1784.55,
+    "text": "And Bitcoin goes to a million.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 474,
+    "start": 1785.09,
+    "end": 1787.8,
+    "text": "I outperform you because I applied leverage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 475,
+    "start": 1788.02,
+    "end": 1789.18,
+    "text": "That's what Treasury companies do.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 476,
+    "start": 1789.3,
+    "end": 1789.78,
+    "text": "They apply leverage.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 477,
+    "start": 1790.26,
+    "end": 1795.5,
+    "text": "And so if everything goes right and they run it properly and the market behaves, I think they would outperform Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 478,
+    "start": 1796.26,
+    "end": 1797.74,
+    "text": "But not all of them will.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 479,
+    "start": 1798.56,
+    "end": 1800.34,
+    "text": "And so that's the risk.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 480,
+    "start": 1800.88,
+    "end": 1805.7,
+    "text": "So then, you know, we were talking around AI before we jumped on this call today, Mark.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 481,
+    "start": 1806.7,
+    "end": 1812.6,
+    "text": "AI stocks have obviously been such a big discussion point for Bitcoiners in the broader crypto community as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 482,
+    "start": 1812.78,
+    "end": 1819.76,
+    "text": "And a lot of people blamed AI stocks as well for why the market was in a bare market state for the first half of this year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 483,
+    "start": 1820.2,
+    "end": 1823.9,
+    "text": "Now looking ahead, you know, we've got anthropic IPO on the horizon.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 484,
+    "start": 1824.12,
+    "end": 1826.8,
+    "text": "We've got open AI potentially next year as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 485,
+    "start": 1827.18,
+    "end": 1828.36,
+    "text": "How do you think that's going to impact?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 486,
+    "start": 1829.37,
+    "end": 1831.47,
+    "text": "the Bitcoin market in the short term.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 487,
+    "start": 1831.57,
+    "end": 1837.65,
+    "text": "Do you think there is going to be a suck of liquidity that's going to impact the market or what's your thoughts around that?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 488,
+    "start": 1838.62,
+    "end": 1846.44,
+    "text": "Yeah, I think, you know, in regards to that, I mean, so one, I'm not an investor into those companies and I'm not looking at being an investor into those companies.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 489,
+    "start": 1846.92,
+    "end": 1848.8,
+    "text": "So I don't have a bag and or do I plan to have a bag.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   24,
+   25
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "CoinTelegraph: 'Bitcoin Goes to a Million. I Outperform You Because I Applied Leverage.'",
+  "caption": "Clips: CoinTelegraph (2026-11-06); Stephan Livera's show (2026-11-11). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "CoinTelegraph first.",
+   "bridges": [
+    "Stephan Livera's show:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "L9tzgg6PXi8",
+    "channel": "CoinTelegraph",
+    "published_at": "2026-11-06T14:30:20+00:00",
+    "text": "And Bitcoin goes to a million. I outperform you because I applied leverage.",
+    "start": 1783.77,
+    "end": 1787.8,
+    "provenance": {
+     "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+     "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+     "k": [
+      473,
+      474
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "Sjb6lUiL0m4",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-11T18:03:23+00:00",
+    "text": "And the stock to flow model was simply charting the stock to flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate.",
+    "start": 1522.29,
+    "end": 1529.15,
+    "provenance": {
+     "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+     "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+     "k": [
+      285,
+      285
+     ]
+    }
+   }
+  ]
+ }
+}

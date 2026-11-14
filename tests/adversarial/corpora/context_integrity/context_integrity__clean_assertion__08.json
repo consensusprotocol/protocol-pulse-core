@@ -1,0 +1,363 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__08",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+  "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   77,
+   77
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "A general statement, quoted as the record spells it; single narrator."
+ },
+ "source": {
+  "video_id": "OhRh81S7B2g",
+  "channel": "Coin Bureau",
+  "title": "Where Should You REALLY Keep Your Bitcoin.",
+  "description": "👥 Join CBC Lite 👉 https://go.coinbureau.com/CBC-Lite-CB-Des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n♣️ Join The Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter ",
+  "description_truncated": true,
+  "published_at": "2026-11-08T12:45:18+00:00",
+  "url": "https://www.youtube.com/watch?v=OhRh81S7B2g"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 60,
+    "start": 314.04,
+    "end": 317.56,
+    "text": "It gives no opinion on internal controls, total debts or solvency.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 61,
+    "start": 317.82,
+    "end": 321.16,
+    "text": "So imagine an exchange that owes its customers 100,000 Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 62,
+    "start": 321.74,
+    "end": 324.76,
+    "text": "At midnight, on the last day of the quarter, it takes its snapshot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 63,
+    "start": 325.02,
+    "end": 329.28,
+    "text": "The accountant confirms that at midnight, its wallets held at least 100,000 Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 64,
+    "start": 329.74,
+    "end": 330.7,
+    "text": "But that's it?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 65,
+    "start": 331.18,
+    "end": 335.48,
+    "text": "It says nothing about debts left off the list like a loan from a lender who is a customer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 66,
+    "start": 335.76,
+    "end": 340.94,
+    "text": "you won't see anything about coins borrowed at 11 p.m. and hand it back at 9 a.m. the next morning.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 67,
+    "start": 341.44,
+    "end": 346.16,
+    "text": "And it says absolutely nothing about reserves already pledged as collateral elsewhere.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 68,
+    "start": 346.34,
+    "end": 349.34,
+    "text": "So the same coins are promised to two people at once.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 69,
+    "start": 349.6,
+    "end": 354.24,
+    "text": "So a proof of reserves report is great, but it's still just a snapshot in time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 70,
+    "start": 354.68,
+    "end": 359.68,
+    "text": "In December 2022, Mazares, the firm behind reports for Binance, Crypto.com, and Q.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 71,
+    "start": 360.14,
+    "end": 368.05,
+    "text": "Coin paused its crypto proof of reserves work and pulled its portal citing concerns regarding the way these reports are understood by the public.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 72,
+    "start": 368.75,
+    "end": 384.11,
+    "text": "FTX had just collapsed on billions in customer funds went to its sister trading firm Alameda research, and Quadriga CX's founder had died back in 2018, holding the keys with about 169 million Canadian dollars lost to fake accounts and his trading of customer money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 73,
+    "start": 384.67,
+    "end": 391.41,
+    "text": "Since then, Binance and OkX have adopted zero knowledge proofs, which prove something is true without revealing the data behind it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 74,
+    "start": 391.66,
+    "end": 398.8,
+    "text": "Here, they prove every balance is zero or above, so an exchange can't shrink what it owes with fake negative balances.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 75,
+    "start": 399.26,
+    "end": 403.48,
+    "text": "And continuous attestations run far more often leaving little room for snapshot borrowing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 76,
+    "start": 404.08,
+    "end": 406.22,
+    "text": "But neither one reaches off -chain debt.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 77,
+    "start": 406.82,
+    "end": 410.1,
+    "text": "A loan signed in an office will not appear in a Merkel tree.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 78,
+    "start": 410.56,
+    "end": 416.64,
+    "text": "So if an exchange can't be fully verified from the outside, holding the keys yourself is the obvious answer, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 79,
+    "start": 417.46,
+    "end": 419.72,
+    "text": "But self -custody has its issues too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 80,
+    "start": 420.08,
+    "end": 424.96,
+    "text": "Just imagine a crypto newbie that just moved their coins off in exchange for the very first time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 81,
+    "start": 425.22,
+    "end": 432.74,
+    "text": "Of course, they buy a hardware wallet, a small little device that keeps their private key offline and signs transactions without exposing it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 82,
+    "start": 433.12,
+    "end": 439.7,
+    "text": "It generates 24 words, and our crypto beginner writes them on the card in the box and that card goes straight into a desk drawer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 83,
+    "start": 439.94,
+    "end": 448.54,
+    "text": "Then, nervous about losing it, they photograph it on their phone, which sinks to the cloud where malware built to scan galleries for seed phrases goes looking.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 84,
+    "start": 448.96,
+    "end": 451.6,
+    "text": "Cold storage now with online backup.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 85,
+    "start": 451.9,
+    "end": 454.6,
+    "text": "And they tell nobody, not their partner, nor their family.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 86,
+    "start": 454.86,
+    "end": 457.78,
+    "text": "So if anything happens to them, the coins effectively go with them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 87,
+    "start": 458.18,
+    "end": 460.54,
+    "text": "Right away, you have three points of possible failure.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 88,
+    "start": 461.02,
+    "end": 468.56,
+    "text": "A few days later, they spot a zero -value transfer in the history from an address that starts and ends with the same characters as the one they've used before.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 89,
+    "start": 469.06,
+    "end": 471.1,
+    "text": "That's what's known as address poisoning.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   17,
+   17
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: 'A Loan Signed in an Office Will Not Appear in a Merkel Tree'",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); Coin Bureau (2026-11-08). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with Swan Bitcoin.",
+   "bridges": [
+    "Over to Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "I'm betting on more and more people choosing to hold and use scarce money over time and I think that will be the case regardless of what happens with the AI trade.",
+    "start": 118.9,
+    "end": 126.96,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      19,
+      19
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "OhRh81S7B2g",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-08T12:45:18+00:00",
+    "text": "A loan signed in an office will not appear in a Merkel tree.",
+    "start": 406.82,
+    "end": 410.1,
+    "provenance": {
+     "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+     "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+     "k": [
+      77,
+      77
+     ]
+    }
+   }
+  ]
+ }
+}

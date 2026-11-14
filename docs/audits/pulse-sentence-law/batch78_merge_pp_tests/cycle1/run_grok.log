@@ -1,0 +1,17 @@
+grok-4-0709: 12.4 s, vendor cost 0.0212856
+{
+  "verdict": "FAIL",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "file": "tests/adversarial/test_f0_cpu_guard.py",
+      "line": 210,
+      "issue": "assertion on exception class definition instead of tested behaviour",
+      "evidence": "assert not issubclass(gpu0.LeaseMissing, Exception)",
+      "fix": "remove or move to a dedicated static check; keep only behaviour assertions on lease refusal path"
+    }
+  ],
+  "confidence": 0.8
+}
+grok exit 0

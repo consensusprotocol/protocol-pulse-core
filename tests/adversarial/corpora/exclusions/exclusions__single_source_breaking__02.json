@@ -1,0 +1,217 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__single_source_breaking__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/9La50F_lmd0/transcript.whisper_words.json",
+  "record_sha256": "016757b26fe6efa30c34ee284c7709f45a43375aa05aae625c82d8d4fb27d193",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "reportedly",
+  "mined": "2026-11-12",
+  "selected_k": [
+   4,
+   5
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "single_source_breaking",
+  "why": "As aired, the claim rests on one unnamed report ('reportedly ordered shut') and adds speculation ('it seems like there might be some contagion')."
+ },
+ "source": {
+  "video_id": "9La50F_lmd0",
+  "channel": "BTC Sessions",
+  "title": "Trump Loses Both House And Senate BUT Bitcoin Rips To $81K Anyway",
+  "description": "🔴 LIVE – A Satoshi-era Bitcoin wallet dormant since 2010 just moved for the first time ever — sixteen years of silence, broken — while Bitcoin ripped to $81,000 and $320M in shorts got wiped out in thirty minutes. The real story here isn't the price, it's the wallet.\n\nIn this Bitcast live roundup you'll see exactly what the Satoshi-era wallet move means, with $1.7 million in untouched gains sitting since 2014. You'll hear Michael Saylor explain how Bitcoin reserve support just crossed party lines after the midterms — a Republican governor and a Democratic senator backing the same reserve. You'",
+  "description_truncated": true,
+  "published_at": "2026-11-04T22:55:59+00:00",
+  "url": "https://www.youtube.com/watch?v=9La50F_lmd0"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 4,
+    "start": 42.04,
+    "end": 46.96,
+    "text": "And Paraguay's sixth largest bank was reportedly ordered shut.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 5,
+    "start": 47.29,
+    "end": 51.61,
+    "text": "And it seems like there might be some contagion happening because it is a mess down there.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 0,
+    "start": 18.64,
+    "end": 22.44,
+    "text": "Democrats swept the midterms and Bitcoin didn't flitch.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 1,
+    "start": 22.76,
+    "end": 30.98,
+    "text": "In fact, it ripped over 80K, wiping out $320 million in shorts in 30 minutes.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 2,
+    "start": 31.52,
+    "end": 36.26,
+    "text": "Now, Michael Saylor says Bitcoin Reserve Support now crosses party lines.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 3,
+    "start": 36.62,
+    "end": 41.48,
+    "text": "Plus, did a Satoshi -era wallet reportedly move for the first time since 2010?",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 6,
+    "start": 52.03,
+    "end": 53.23,
+    "text": "I'm Ben with the BTC sessions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 7,
+    "start": 53.69,
+    "end": 55.15,
+    "text": "This is Bitcast.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 8,
+    "start": 60.43,
+    "end": 62.57,
+    "text": "The issue is not red or blue.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 9,
+    "start": 62.91,
+    "end": 64.81,
+    "text": "The issue is between the state and you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 10,
+    "start": 64.97,
+    "end": 66.63,
+    "text": "It can be a little bit of a warning sign.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 11,
+    "start": 66.77,
+    "end": 69.03,
+    "text": "It gives you a tool to empower.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 12,
+    "start": 69.41,
+    "end": 71.11,
+    "text": "That sounds like a utopia, my friend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 13,
+    "start": 71.59,
+    "end": 71.93,
+    "text": "It is.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 14,
+    "start": 72.07,
+    "end": 73.17,
+    "text": "It's exactly a utopia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 15,
+    "start": 73.53,
+    "end": 75.83,
+    "text": "With Bitcoin, no one can take it from you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 16,
+    "start": 82.92,
+    "end": 85.22,
+    "text": "Happy Wednesday, gentlemen.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 17,
+    "start": 87.0,
+    "end": 92.06,
+    "text": "Blue wave indeed and apparently the price liked it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 18,
+    "start": 93.08,
+    "end": 94.2,
+    "text": "Interesting, interesting.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 19,
+    "start": 95.62,
+    "end": 103.66,
+    "text": "I was, we were kind of chirping about this in the back chat for a little bit, but I initially was saying similar.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 20,
+    "start": 104.14,
+    "end": 111.42,
+    "text": "to Mr. Schiff here on all of all the market reactions to the democratic landslide.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 21,
+    "start": 111.6,
+    "end": 113.58,
+    "text": "The Bitcoin rally is the most irrational.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,1 @@
+FAILED: Budget exceeded: max_usd_per_day ($1.00) exceeded

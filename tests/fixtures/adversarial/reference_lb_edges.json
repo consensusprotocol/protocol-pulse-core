@@ -1,0 +1,109 @@
+{
+ "_doc": "Law L-b on the RECORDED EDLs of the two frozen references, measured 2026-11-12 (session pipeline_pp_tests) with sentence_law.edge_word_bounds (the acoustic word extent edge_fades itself uses; 10 ms grid) on each source around its cut, read-only. in_overlap_ms = (cut_in + fade_in) - first_word_onset; out_overlap_ms = last_word_end - (cut_out - fade_out); > 0 = the recorded fade overlaps the edge word by that much. The references are frozen: this table is their measured state (tests/adversarial/test_f5_references.py pins it; a change in the bytes or in edge_word_bounds fails there). Recorded dispositions: L-b must-fail = the preview's clip_01 OUT (Natalie Brunell '...Monday rally.'); test_edge_words.py's G17c legacy edges of v2f = clip_01 OUT and clip_03 IN. ffmpeg_version: the decoder the table was measured with (a decoder change can move a 10 ms frame: re-measure, do not edit by hand).",
+ "documented_must_fail": [
+  [
+   "pulse_preview_2026-11-11",
+   "clip_01",
+   "out"
+  ]
+ ],
+ "g17c_recorded_legacy": [
+  [
+   "v2f_2026-11-06",
+   "clip_01",
+   "out"
+  ],
+  [
+   "v2f_2026-11-06",
+   "clip_03",
+   "in"
+  ]
+ ],
+ "measured": {
+  "pulse_preview_2026-11-11": {
+   "hook": {
+    "cut_in": 0.03,
+    "cut_out": 9.33,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 0.08,
+    "last_word_end": 9.32,
+    "in_overlap_ms": -30,
+    "out_overlap_ms": 20
+   },
+   "clip_01": {
+    "cut_in": 68.38,
+    "cut_out": 80.84,
+    "fade_in_ms": 20,
+    "fade_out_ms": 83,
+    "first_word_onset": 68.5,
+    "last_word_end": 80.83,
+    "in_overlap_ms": -100,
+    "out_overlap_ms": 73
+   },
+   "clip_02": {
+    "cut_in": 38.2,
+    "cut_out": 57.37,
+    "fade_in_ms": 83,
+    "fade_out_ms": 30,
+    "first_word_onset": 38.23,
+    "last_word_end": 57.36,
+    "in_overlap_ms": 53,
+    "out_overlap_ms": 20
+   },
+   "clip_03": {
+    "cut_in": 14.94,
+    "cut_out": 31.8,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 14.95,
+    "last_word_end": 31.61,
+    "in_overlap_ms": 10,
+    "out_overlap_ms": -160
+   }
+  },
+  "v2f_2026-11-06": {
+   "hook": {
+    "cut_in": 0.0,
+    "cut_out": 9.52,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 0.03,
+    "last_word_end": 9.48,
+    "in_overlap_ms": -10,
+    "out_overlap_ms": -10
+   },
+   "clip_01": {
+    "cut_in": 238.55,
+    "cut_out": 249.63,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 238.59,
+    "last_word_end": 249.62,
+    "in_overlap_ms": -20,
+    "out_overlap_ms": 20
+   },
+   "clip_02": {
+    "cut_in": 624.63,
+    "cut_out": 636.72,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 624.78,
+    "last_word_end": 636.7,
+    "in_overlap_ms": -130,
+    "out_overlap_ms": 10
+   },
+   "clip_03": {
+    "cut_in": 998.0,
+    "cut_out": 1011.8,
+    "fade_in_ms": 20,
+    "fade_out_ms": 30,
+    "first_word_onset": 998.01,
+    "last_word_end": 1011.79,
+    "in_overlap_ms": 10,
+    "out_overlap_ms": 20
+   }
+  }
+ },
+ "ffmpeg_version": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers"
+}

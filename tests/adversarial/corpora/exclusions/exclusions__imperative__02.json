@@ -1,0 +1,481 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__imperative__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/4P8xobhkUi4/transcript.yt_manual.json",
+  "record_sha256": "bd5ae2299116a9ce5bbd2c5a7b5bc9821748d57b852dc6abd054baf3cf073be8",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "buy the dip",
+  "mined": "2026-11-12",
+  "selected_k": [
+   370,
+   371
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "imperative",
+  "why": "'Buy the dip.' and a stock 'you'd definitely buy now'."
+ },
+ "source": {
+  "video_id": "4P8xobhkUi4",
+  "channel": "TheStreet",
+  "title": "Post-Election Rally: Stocks To Buy Even At Highs",
+  "description": "The Dow is surging 1500 points post midterm elections, but Gus Scacco of Advisors Capital says investors shouldn’t fear buying stocks near their highs. He breaks down why the S&P 500 has another 5% to 7% upside into year-end and reveals the high-flying stocks that are still bargains now.\n\nRecorded: November 4, 2026\n\n00:00 Introduction\n\n00:08 Election Results and the Stock Market: What Changes for Investors?\n\n00:53 Best Sectors to Buy Under a Divided Government\n\n01:49 AI Stocks and Data Centers: How the Election Could Impact Tech\n\n02:38 Best AI-Adjacent Stocks: Opportunities Beyond Big Tech\n\n03",
+  "description_truncated": true,
+  "published_at": "2026-11-04T19:00:00+00:00",
+  "url": "https://www.youtube.com/watch?v=4P8xobhkUi4"
+ },
+ "moment": {
+  "timing": "segment",
+  "sentences": [
+   {
+    "k": 370,
+    "start": 1288.7,
+    "end": 1289.667,
+    "text": "Buy the dip.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 371,
+    "start": 1289.733,
+    "end": 1292.7,
+    "text": "One AI infrastructure stock you’d definitely buy now.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 344,
+    "start": 1228.033,
+    "end": 1230.208,
+    "text": "I think you went through a mid-cycle slowdown.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 345,
+    "start": 1230.208,
+    "end": 1232.572,
+    "text": "And we think that we're going to be seeing higher.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 346,
+    "start": 1232.572,
+    "end": 1234.7,
+    "text": "Now we're gonna see a upwardly biased market.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 347,
+    "start": 1234.7,
+    "end": 1237.589,
+    "text": "So S&P 500 by year end higher or lower.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 348,
+    "start": 1237.589,
+    "end": 1238.108,
+    "text": "Higher.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 349,
+    "start": 1238.182,
+    "end": 1239.367,
+    "text": "How much higher.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 350,
+    "start": 1239.467,
+    "end": 1240.833,
+    "text": "Say 5 to 7%.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 351,
+    "start": 1240.833,
+    "end": 1242.12,
+    "text": "From here okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 352,
+    "start": 1242.205,
+    "end": 1243.921,
+    "text": "You don't have price targets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 353,
+    "start": 1243.921,
+    "end": 1244.222,
+    "text": "No.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 354,
+    "start": 1244.322,
+    "end": 1244.824,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 355,
+    "start": 1244.924,
+    "end": 1247.833,
+    "text": "2027 bull market continues or correction ahead.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 356,
+    "start": 1247.933,
+    "end": 1252.288,
+    "text": "Third year of a presidential cycle.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 357,
+    "start": 1247.933,
+    "end": 1256.075,
+    "text": "Generally it's a positive we've never had in the last thing since 1938.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 358,
+    "start": 1256.189,
+    "end": 1258.433,
+    "text": "We've never had a three year presidential cycle that's been down okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 359,
+    "start": 1258.433,
+    "end": 1261.93,
+    "text": "So bull market continues.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 360,
+    "start": 1262.069,
+    "end": 1265.333,
+    "text": "Sounds like market leadership in 2027 Magnificent Seven or other companies.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 361,
+    "start": 1265.333,
+    "end": 1267.302,
+    "text": "I think tough.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 362,
+    "start": 1267.442,
+    "end": 1269.833,
+    "text": "But you'll have a combination of Magnificent Seven and regular ten.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 363,
+    "start": 1269.9,
+    "end": 1275.267,
+    "text": "Most upside from here beaten down stocks or stocks already hitting new highs.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 364,
+    "start": 1275.367,
+    "end": 1275.661,
+    "text": "Wow.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 365,
+    "start": 1275.735,
+    "end": 1278.16,
+    "text": "I would think you have to look at forward earnings.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 366,
+    "start": 1278.16,
+    "end": 1281.7,
+    "text": "Sorry to hedge myself, but I think it should be a combination of those.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 367,
+    "start": 1281.9,
+    "end": 1284.333,
+    "text": "Individual stocks or index funds.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 368,
+    "start": 1284.4,
+    "end": 1285.333,
+    "text": "Individual stocks.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 369,
+    "start": 1285.533,
+    "end": 1288.533,
+    "text": "AI infrastructure stocks buy the dip or stay away.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "after": [
+   {
+    "k": 372,
+    "start": 1292.767,
+    "end": 1294.842,
+    "text": "Eaton's getting hit today.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 373,
+    "start": 1294.922,
+    "end": 1295.8,
+    "text": "But I think that's a company that you want to look at.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 374,
+    "start": 1295.867,
+    "end": 1298.4,
+    "text": "One you steer clear of.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 375,
+    "start": 1298.467,
+    "end": 1303.3,
+    "text": "When we're looking at infrastructure right now, probably more on the CAT side.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 376,
+    "start": 1303.367,
+    "end": 1308.167,
+    "text": "AI's next winners, chipmakers or companies using AI to boost profits.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 377,
+    "start": 1308.3,
+    "end": 1310.307,
+    "text": "The latter ones that are using AI to boost profits.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 378,
+    "start": 1310.307,
+    "end": 1312.0,
+    "text": "That's where the money is going to be made.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 379,
+    "start": 1312.033,
+    "end": 1314.9,
+    "text": "Okay, so Nvidia or Deere.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 380,
+    "start": 1314.967,
+    "end": 1316.007,
+    "text": "Wow.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 381,
+    "start": 1316.267,
+    "end": 1317.567,
+    "text": "Both.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 382,
+    "start": 1317.633,
+    "end": 1319.306,
+    "text": "That's called hedging.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 383,
+    "start": 1319.382,
+    "end": 1319.762,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 384,
+    "start": 1319.838,
+    "end": 1320.599,
+    "text": "We'll give you one.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 385,
+    "start": 1320.599,
+    "end": 1320.908,
+    "text": "Both.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 386,
+    "start": 1320.97,
+    "end": 1321.279,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 387,
+    "start": 1321.34,
+    "end": 1322.267,
+    "text": "eBay or Amazon?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 388,
+    "start": 1322.367,
+    "end": 1323.333,
+    "text": "eBay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 389,
+    "start": 1323.4,
+    "end": 1329.365,
+    "text": "Thermo Fisher or Eli Lilly?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 390,
+    "start": 1329.586,
+    "end": 1330.912,
+    "text": "Lilly.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 391,
+    "start": 1323.4,
+    "end": 1331.9,
+    "text": "Consumer stocks buying opportunity or too much risk.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 392,
+    "start": 1331.967,
+    "end": 1334.833,
+    "text": "Buying opportunity selectively.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 393,
+    "start": 1334.9,
+    "end": 1338.567,
+    "text": "One consumer stock you'd definitely buy that's not Uber.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 394,
+    "start": 1338.667,
+    "end": 1340.567,
+    "text": "Ross Stores.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 395,
+    "start": 1340.633,
+    "end": 1345.233,
+    "text": "Biggest risks to stocks disappointing earnings or stretched valuations.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 396,
+    "start": 1345.3,
+    "end": 1347.3,
+    "text": "I am going to add a third I think debt.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 397,
+    "start": 1347.367,
+    "end": 1348.331,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 398,
+    "start": 1348.524,
+    "end": 1354.5,
+    "text": "If you could buy just one today eBay, Thermo Fisher or Deere.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ }
+}

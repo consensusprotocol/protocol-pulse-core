@@ -1,0 +1,265 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__neutral_company__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/1fq5MIOxt8k/transcript.whisper_words.json",
+  "record_sha256": "5f8862146bb543250382ba63e6475aadc16a7742c1ac8912c6984dd8b185eb07",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "pre-market",
+  "mined": "2026-11-12",
+  "selected_k": [
+   8,
+   9
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "neutral_company",
+  "why": "A stock move, stated neutrally."
+ },
+ "source": {
+  "video_id": "1fq5MIOxt8k",
+  "channel": "Bloomberg Television",
+  "title": "Open Interest 11/11/2026",
+  "description": "Get a jump start on the US trading day with Dani Burger on \"Bloomberg Open Interest.\" CoreWeave’s upbeat forecast reignites the tech trade, while Anthropic’s blockbuster IPO adds fresh fuel to AI optimism. Fed hike bets build after Austan Goolsbee sounds the alarm on inflation. Plus, Terry Haines joins us on the fallout from Nvidia’s scandal, and Ann Berry and Victoria Fernandez weigh in on  the market setup.\r\n\r\nChapters:\r\n00:00:00 - Open Interest\r\n00:01:29 - CoreWeave Earnings, AI Financing Risks & Compute Costs\r\n00:04:31 - Nvidia Leadership Crisis, Jensen Huang Probe & U.S.-China Tensions\r\n0",
+  "description_truncated": true,
+  "published_at": "2026-11-11T17:33:39+00:00",
+  "url": "https://www.youtube.com/watch?v=1fq5MIOxt8k"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 8,
+    "start": 34.11,
+    "end": 38.11,
+    "text": "Fannie, we have a lot of stocks to watch, but then I think we just have to talk about one, and that is Corweave.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 9,
+    "start": 38.25,
+    "end": 40.67,
+    "text": "It's higher by nearly 15 % in pre -market.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 0,
+    "start": 0.0,
+    "end": 3.16,
+    "text": "Corrieve comes to save the day at 30 minutes until the start of your trading.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 1,
+    "start": 3.34,
+    "end": 4.04,
+    "text": "I'm Danny Berger.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 2,
+    "start": 4.2,
+    "end": 5.04,
+    "text": "And I'm Isabel Lee.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 3,
+    "start": 5.26,
+    "end": 6.98,
+    "text": "Bloomberg Open Interest starts right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 4,
+    "start": 15.67,
+    "end": 21.05,
+    "text": "Coming up on the show, Corweaves' upbeat forecast quiets the doubters and reignites the tech trade.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 5,
+    "start": 21.41,
+    "end": 25.11,
+    "text": "Ananthropics mega IPO is said to be multiple times oversubscribed.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 6,
+    "start": 25.25,
+    "end": 26.79,
+    "text": "That's adding to the AI optimism.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 7,
+    "start": 27.11,
+    "end": 33.85,
+    "text": "And the Fed's Austin Goolsby calls the October CPI report borderline disturbing as rate hike bets build.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 10,
+    "start": 40.77,
+    "end": 47.13,
+    "text": "You can almost hear the investors really heave a sigh of relief because this has been the trade that's... got them all jittery all of last week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 11,
+    "start": 47.25,
+    "end": 48.93,
+    "text": "And now it's parting a rally across the tech.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 12,
+    "start": 49.07,
+    "end": 50.93,
+    "text": "And that's after its outlook helped quiet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 13,
+    "start": 51.09,
+    "end": 53.87,
+    "text": "A lot of those doubts about the health of the AI infrastructure boom.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 14,
+    "start": 54.05,
+    "end": 59.31,
+    "text": "Corweeb, we know that this has been the symbol of the market spheres around heavy borrowing, aggressive data center spending.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 15,
+    "start": 59.57,
+    "end": 64.51,
+    "text": "And it really put to question what neoclouds would mean, especially with all this anti -data center sentiment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 16,
+    "start": 64.73,
+    "end": 68.97,
+    "text": "And the good news there is that Nvidia is also rallying alongside it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 17,
+    "start": 68.97,
+    "end": 70.41,
+    "text": "It has been beaten up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 18,
+    "start": 70.41,
+    "end": 72.73,
+    "text": "This selling has been brutal for this company.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 19,
+    "start": 72.85,
+    "end": 74.21,
+    "text": "It's up 3.2%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 20,
+    "start": 74.61,
+    "end": 79.37,
+    "text": "Even with these questions continuing to swirl around Jensen Huang's future at the company.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 21,
+    "start": 80.21,
+    "end": 87.29,
+    "text": "For now, investors looking past leadership uncertainty, but again, it might just be caught up in the overall tech rebound this morning, Isabel.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 22,
+    "start": 87.67,
+    "end": 89.87,
+    "text": "Danny, we definitely have a lot to digest this morning.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 23,
+    "start": 90.03,
+    "end": 94.65,
+    "text": "And let's talk about all of those and all about the AI trade with Mandip Singh of Bloomberg intelligence.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 24,
+    "start": 95.17,
+    "end": 97.03,
+    "text": "Mandi, let's start with CoreWeave.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 25,
+    "start": 97.17,
+    "end": 98.49,
+    "text": "They got a relief rally.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 26,
+    "start": 98.69,
+    "end": 99.89,
+    "text": "They raised a revenue outlook.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 27,
+    "start": 100.54,
+    "end": 102.58,
+    "text": "Does that meaningfully change the investment case?",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,26 @@
+grok-4-0709: 18.8 s, vendor cost 0.0139156
+{
+  "verdict": "FAIL",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "medium",
+      "file": "tests/adversarial/baselines/frontier_blind.py",
+      "line": 24,
+      "issue": "key path still present in source (can be printed/logged)",
+      "evidence": "KEY_LOADER = \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\"",
+      "fix": "remove or hide the absolute loader path constant"
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "file": "tests/adversarial/test_f0_cpu_guard.py",
+      "line": 170,
+      "issue": "test asserts on fixture value instead of runtime behaviour",
+      "evidence": "assert FB.KEY_LOADER == \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\" and os.path.isfile(FB.KEY_LOADER)",
+      "fix": "remove the path equality assertion"
+    }
+  ],
+  "confidence": 0.8
+}
+grok exit 0

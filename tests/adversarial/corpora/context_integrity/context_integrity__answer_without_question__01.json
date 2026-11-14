@@ -1,0 +1,498 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__answer_without_question__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/P3Ga4lOMKpg/transcript.yt_manual.json",
+  "record_sha256": "e654ff5786a8cce1c00a3da41421b491435127c49f4e18c825832a2b7611cdaf",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "Q? -> Yeah, ...",
+  "mined": "2026-11-12",
+  "selected_k": [
+   57,
+   57
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "answer_without_question",
+  "why": "Answers 'what's the point?' about a small home mining heater (k53-56); without the question, 'it' reads as Bitcoin itself."
+ },
+ "source": {
+  "video_id": "P3Ga4lOMKpg",
+  "channel": "Stephan Livera",
+  "title": "Why Heat-Reuse Mining Gets Stronger Every Halving | Alex Busarov SLP787",
+  "description": "Alex Busarov, founder of Heatbit, argues that water heating, not space heating, makes home Bitcoin mining add up. His new Bitwater element replaces a water heater’s lower heating element, mines all year, and he says it adds no extra energy cost because the heat is used anyway.\n\nStephan presses him on the two-to-three-year payback claim, the hashrate and price assumptions behind it, a plan to give devices away for free while Heatbit keeps the hashrate, decentralization risk, limescale and maintenance, the Bitair purifier, and why halvings strengthen the case for heat reuse.\n\n00:00 — Intro\n00:35",
+  "description_truncated": true,
+  "published_at": "2026-11-05T15:32:34+00:00",
+  "url": "https://www.youtube.com/watch?v=P3Ga4lOMKpg"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 27,
+    "start": 100.651,
+    "end": 103.142,
+    "text": "I wasn't involved with hardware professionally that much.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 28,
+    "start": 103.312,
+    "end": 104.862,
+    "text": "And that's how Heatbit started.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 29,
+    "start": 105.013,
+    "end": 112.196,
+    "text": "And then, you know, the, the story of a standard zero to one company, you start to see, do, do people actually even need it?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 30,
+    "start": 112.216,
+    "end": 114.517,
+    "text": "So you go on Reddit and see that people actually do it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 31,
+    "start": 114.537,
+    "end": 118.849,
+    "text": "Very often, right, people would already convert their miners into, into heaters, even, even then.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 32,
+    "start": 118.919,
+    "end": 121.28,
+    "text": "And then you think, well, you know, maybe, maybe you could do it professionally.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 33,
+    "start": 121.3,
+    "end": 123.571,
+    "text": "And, and that's, that's how you start building up the company.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 34,
+    "start": 124.161,
+    "end": 124.859,
+    "text": "Got it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 35,
+    "start": 124.958,
+    "end": 129.984,
+    "text": "And so talk to us a little bit about the different, like, who should use these products?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 36,
+    "start": 130.004,
+    "end": 142.075,
+    "text": "Are you seeing this as something that people should be doing for the ROI reason, or do you see it as like something they should be doing for ideological reasons and that they should be, you know, okay to pay more for that because of the ideology aspect?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 37,
+    "start": 142.173,
+    "end": 143.74,
+    "text": "Talk to us a bit about how you see it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 38,
+    "start": 143.83,
+    "end": 147.612,
+    "text": "Or is it more like a gift that you're trying to get someone new into Bitcoin, this kind of thing?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 39,
+    "start": 148.032,
+    "end": 149.522,
+    "text": "I think depends on the product.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 40,
+    "start": 149.693,
+    "end": 152.808,
+    "text": "That's one part of the answer.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 41,
+    "start": 152.912,
+    "end": 154.225,
+    "text": "Second part of the answer would be whatever works for you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 42,
+    "start": 154.263,
+    "end": 155.394,
+    "text": "I think everyone is different.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 43,
+    "start": 155.414,
+    "end": 158.785,
+    "text": "I mean, we try to build something and then it fit for some people, but doesn't fit for the others.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 44,
+    "start": 159.415,
+    "end": 161.206,
+    "text": "So let's start with a simple one.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 45,
+    "start": 161.296,
+    "end": 164.186,
+    "text": "Something we launched this June is Bitair.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 46,
+    "start": 164.397,
+    "end": 167.147,
+    "text": "So I've got, got one here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 47,
+    "start": 164.397,
+    "end": 167.147,
+    "text": "It's an air purifier.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 48,
+    "start": 167.277,
+    "end": 171.975,
+    "text": "It's an air purifier with a single chip Bitcoin miner inside.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 49,
+    "start": 172.033,
+    "end": 175.88,
+    "text": "So this one is not about ROI, not about heat reuse.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 50,
+    "start": 175.9,
+    "end": 181.901,
+    "text": "Like you've got a single chip inside on residential rates, and you're not supposed to really use it as a heater.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 51,
+    "start": 181.921,
+    "end": 183.652,
+    "text": "You just use it as an air purifier.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 52,
+    "start": 183.702,
+    "end": 186.052,
+    "text": "So there's nothing about ROI.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 53,
+    "start": 183.702,
+    "end": 186.052,
+    "text": "There's nothing about earning from it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 54,
+    "start": 186.122,
+    "end": 187.122,
+    "text": "You can't earn much.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 55,
+    "start": 189.003,
+    "end": 189.487,
+    "text": "Gotcha.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 56,
+    "start": 189.557,
+    "end": 191.494,
+    "text": "So then the obvious question would be like, what's the point?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 57,
+    "start": 192.424,
+    "end": 197.093,
+    "text": "Yeah, it's much more about introducing other people to Bitcoin and having a bit of fun.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 58,
+    "start": 197.183,
+    "end": 199.808,
+    "text": "Get your boss to mine Bitcoin for you kind of stuff, right?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 59,
+    "start": 199.929,
+    "end": 202.457,
+    "text": "Or, or get, get, turn your wife into a Bitcoin miner.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 60,
+    "start": 202.787,
+    "end": 204.878,
+    "text": "Like, this is the whole point of this product.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 61,
+    "start": 205.088,
+    "end": 207.549,
+    "text": "Plus, it's, it's, it's a good air purifier, like using it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 62,
+    "start": 207.569,
+    "end": 209.639,
+    "text": "So, so this more about education.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 63,
+    "start": 209.81,
+    "end": 214.803,
+    "text": "Now, when it comes to Bitwater, this is where economics start to make sense.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 64,
+    "start": 214.902,
+    "end": 224.749,
+    "text": "So, the value of the product comes from ROI, which you can calculate and, you know, see with the terahashes, et cetera, normally would target two to three years ROI.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 65,
+    "start": 224.858,
+    "end": 229.796,
+    "text": "But then there are other functions that when we're launched, people seem to not see them as much.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 66,
+    "start": 229.816,
+    "end": 236.715,
+    "text": "We, we actually built in a lot of things that protect the, the water heater for the user.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 40,
+    "k": 67,
+    "start": 236.818,
+    "end": 239.959,
+    "text": "That's worth quite a lot and people don't seem to be putting it into, into their calculations.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 41,
+    "k": 68,
+    "start": 239.979,
+    "end": 242.95,
+    "text": "That's the anti-corrosion stuff, anti-limescale stuff, et cetera.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 42,
+    "k": 69,
+    "start": 243.8,
+    "end": 250.375,
+    "text": "Okay, so let's talk about, about, a bit about the prices then of these different units and compare them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 43,
+    "k": 70,
+    "start": 250.444,
+    "end": 252.995,
+    "text": "So let's just start with the Bitair because that was the product we, we spoke about first.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 44,
+    "k": 71,
+    "start": 253.245,
+    "end": 260.939,
+    "text": "Talk to us a bit about how much that Bitair costs and how much would a comparable air purifier that has nothing to do with Bitcoin, how much would that cost?",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   30,
+   30
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Stephan Livera's Show: 'It's Much More About Introducing Other People to Bitcoin and Having a Bit of Fun'",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); Stephan Livera's show (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Swan Bitcoin.",
+   "bridges": [
+    "And on Stephan Livera's show:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin.",
+    "start": 107.45,
+    "end": 112.92,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      17,
+      17
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "P3Ga4lOMKpg",
+    "channel": "Stephan Livera",
+    "published_at": "2026-11-05T15:32:34+00:00",
+    "text": "Yeah, it's much more about introducing other people to Bitcoin and having a bit of fun.",
+    "start": 192.424,
+    "end": 197.093,
+    "provenance": {
+     "record": "transcripts/P3Ga4lOMKpg/transcript.yt_manual.json",
+     "record_sha256": "e654ff5786a8cce1c00a3da41421b491435127c49f4e18c825832a2b7611cdaf",
+     "k": [
+      57,
+      57
+     ]
+    }
+   }
+  ]
+ }
+}

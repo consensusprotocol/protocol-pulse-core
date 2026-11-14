@@ -1,0 +1,161 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__neutral_company__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/36HPi9UZPOc/transcript.whisper_words.json",
+  "record_sha256": "11818b5033dc9b5e8ab3000df3dada34a5e42dae20b850543bb0202bbd3a24a3",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "Strategy purchased",
+  "mined": "2026-11-12",
+  "selected_k": [
+   1,
+   1
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "neutral_company",
+  "why": "A company's Bitcoin purchase, stated neutrally."
+ },
+ "source": {
+  "video_id": "36HPi9UZPOc",
+  "channel": "Yahoo Finance",
+  "title": "Coinbase got the charter Jamie Dimon did not want it to have.",
+  "description": "Strategy bought 1,036 Bitcoin for about $81.9 million, taking its holdings past 850,000 for the first time. Scott Melker's point is that the headlines about Michael Saylor being underwater on his average cost miss what matters, because Strategy is never getting margin called.\n\nCoinbase won full approval for a national trust bank charter from the OCC. The Treasury cut MEXC off from the US financial system over an alleged $16 billion in illicit transactions. Binance will close affected European accounts on December 31. And Circle froze $1.1 billion of USDC tied to the Binance theft.\n\nTimestamps\n",
+  "description_truncated": true,
+  "published_at": "2026-11-09T18:00:10+00:00",
+  "url": "https://www.youtube.com/watch?v=36HPi9UZPOc"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 1,
+    "start": 1.94,
+    "end": 10.18,
+    "text": "Strategy purchased 1,036 Bitcoin, taking them over 850,000 Bitcoin.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 0,
+    "start": 0.0,
+    "end": 1.8,
+    "text": "Michael Saylor is back.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 2,
+    "start": 10.64,
+    "end": 15.58,
+    "text": "Meanwhile, Coinbase just officially became a nationally chartered bank.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 3,
+    "start": 15.66,
+    "end": 17.86,
+    "text": "We've got a lot to talk about here on The Daily Wolf.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 4,
+    "start": 18.1,
+    "end": 18.38,
+    "text": "Let's go.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 5,
+    "start": 24.44,
+    "end": 25.82,
+    "text": "What is up, everybody?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 6,
+    "start": 26.24,
+    "end": 28.16,
+    "text": "Welcome to The Daily Wolf on Yahoo Finance.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 7,
+    "start": 28.42,
+    "end": 34.3,
+    "text": "I am your host, Scott Melker, also known as the Wolf of All Streets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 8,
+    "start": 34.36,
+    "end": 35.2,
+    "text": "A lot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 9,
+    "start": 35.6,
+    "end": 38.2,
+    "text": "has been happening in markets over the past few days.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 10,
+    "start": 38.38,
+    "end": 49.82,
+    "text": "Of course, Bitcoin dropped pretty massively over the weekend alongside the tech selloff that we saw, the Democrat blue wave, the Binance hack, but I don't check it on an hourly basis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 11,
+    "start": 50.06,
+    "end": 57.0,
+    "text": "It seemed to have bounced very nicely at a very key level around $74,000, around the 50 weekly MA, which we've talked about many times.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 12,
+    "start": 57.34,
+    "end": 64.06,
+    "text": "I actually take the silver lining view that Bitcoin has performed exceptionally well considering all the bad news.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 13,
+    "start": 64.16,
+    "end": 68.18,
+    "text": "Remember, it wasn't very long ago that Bitcoin was trading under $60,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 14,
+    "start": 68.58,
+    "end": 73.46,
+    "text": "So up still 25 % off the lows while all other markets seem to be rattled.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

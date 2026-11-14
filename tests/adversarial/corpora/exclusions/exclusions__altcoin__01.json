@@ -1,0 +1,209 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__altcoin__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/CM3oXmVoxWo/transcript.whisper.json",
+  "record_sha256": "306a46a74b73d0e94ffe79d967a671d434aa4ad4bd587bf1691c12672ea741cb",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "zcash",
+  "mined": "2026-11-12",
+  "selected_k": [
+   142,
+   142
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "altcoin",
+  "why": "Zcash content."
+ },
+ "source": {
+  "video_id": "CM3oXmVoxWo",
+  "channel": "Bankless",
+  "title": "How a Top 100 Hyperliquid Trader Finds the Next Big Trade",
+  "description": "📣SPOTIFY PREMIUM RSS FEED | USE CODE: SPOTIFY24\nhttps://bankless.cc/spotify-premium\n\n---\nHow does a top 100 Hyperliquid trader find opportunities without blowing up? David Hoffman sits down with KoolKrypto to unpack his risk-first approach to perps, how he spots mispriced DeFi tokens, and why buybacks change the investment case. They debate the upside of Hyperliquid versus Lighter, the bull and bear cases for Zcash, and why crypto options could become the next major growth market. Plus, how a changing macro environment could set up crypto's next inflection point.\n\n---\nBANKLESS SPONSOR TOOLS:\n\n",
+  "description_truncated": true,
+  "published_at": "2026-11-11T11:30:25+00:00",
+  "url": "https://www.youtube.com/watch?v=CM3oXmVoxWo"
+ },
+ "moment": {
+  "timing": "segment",
+  "sentences": [
+   {
+    "k": 142,
+    "start": 680.298,
+    "end": 688.749,
+    "text": "I think the problem with Zcash too is that it fixes a lot of problems that I guess... like normies or non-cryptonatives don't even necessarily know to think about or exist.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 130,
+    "start": 617.125,
+    "end": 620.709,
+    "text": "You kind of need it to have the lindiness of Bitcoin, for example.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 131,
+    "start": 620.763,
+    "end": 626.79,
+    "text": "I think that's even kind of like a problem that Zach has right now too, where it's like it's kind of different.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 132,
+    "start": 626.845,
+    "end": 629.017,
+    "text": "Like it wants to be a store value token.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 133,
+    "start": 629.071,
+    "end": 631.46,
+    "text": "But it's just it's there's just such a gulf.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 134,
+    "start": 631.46,
+    "end": 638.669,
+    "text": "between it and Bitcoin with regards to how it's perceived that it's Zekai still kind of think trades almost closer to a meme coin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 135,
+    "start": 638.724,
+    "end": 650.813,
+    "text": "Not to say that it is a meme, but it just trades closer to a meme coin with regards to sentiment and momentum as an expression as opposed to Bitcoin, which has a lot more lendiness and just kind of time hardness to it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 136,
+    "start": 650.868,
+    "end": 652.588,
+    "text": "Go into that a little bit more.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 137,
+    "start": 652.643,
+    "end": 655.915,
+    "text": "Where it contributes to the gap between Bitcoin and Zikash.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 138,
+    "start": 655.97,
+    "end": 663.376,
+    "text": "It's just like Zcash is younger and it doesn't have the same sort of recognition or like What goes into why Zcash is so far away from Bitcoin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 139,
+    "start": 663.424,
+    "end": 666.046,
+    "text": "Yeah, I mean, Bitcoin is synonymous with crypto, right?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 140,
+    "start": 666.093,
+    "end": 670.336,
+    "text": "You know, when you talk about crypto, that's what most people kind of like minds jump to.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 141,
+    "start": 670.383,
+    "end": 680.251,
+    "text": "And so, like, if there is an argument to be made that there could be this globally accepted store of value token, you know, Bitcoin is orders of magnitude more likely to be adopted than something like Zcash.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "after": [
+   {
+    "k": 143,
+    "start": 688.801,
+    "end": 700.975,
+    "text": "It's like when you talk about the fact that it's like quantum resistance or all these other things, it's like it almost just educates people to the fact that quantum is a problem for Bitcoin more so than it promotes the benefits of Zcash.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 144,
+    "start": 701.027,
+    "end": 711.36,
+    "text": "I think the interesting thing with Zcash too right now is that it is such a crowded consensus crypto trade because of the fact that it is the perfect environment for it's like if your worldview is that.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 145,
+    "start": 711.36,
+    "end": 713.115,
+    "text": "Quantum is going to be a problem.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 146,
+    "start": 713.168,
+    "end": 726.89,
+    "text": "It's that even if on a more political level, like socialism is going to be on the rise in the United States over the next couple of years and there's going to be more flight to assets that are private and I guess private and somewhat of air quotes for Zcash.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 147,
+    "start": 726.943,
+    "end": 733.006,
+    "text": "But as more of a narrative, it has kind of like the privacy, it has the quantum resistant narratives going for it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 148,
+    "start": 733.06,
+    "end": 734.655,
+    "text": "It's the perfect setup, right?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 149,
+    "start": 734.708,
+    "end": 737.953,
+    "text": "Like you couldn't ask for a better setup for Zcash right now.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "k": 150,
+    "start": 738.006,
+    "end": 769.443,
+    "text": "The problem is though is that it, as with all assets that are too crowded in crypto like you need some external capital coming into and you just don't really have like a sailor for zcash right now like obviously there's a dat or two for it but it's just not nearly like the same level of size and so you really need people to come in and so you really need people to come in and so if everybody in crypto is sitting in they're kind of like hiding in their zcash longs you really really need a lot of other people to come in and the issue is that the way to get a lot of other people to come into that trade is by just price action like you need price to go up and so if everybody's already quite long That's kind of when you run into a bit of an issue.",
+    "speaker": null,
+    "turn": 0
+   }
+  ]
+ }
+}

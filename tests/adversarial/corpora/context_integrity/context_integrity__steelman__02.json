@@ -1,0 +1,480 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__steelman__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+  "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "you could argue",
+  "mined": "2026-11-12",
+  "selected_k": [
+   95,
+   96
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "steelman",
+  "why": "The speaker lists readings he does not hold and then gives his own: 'To be honest, I think it's just, it's simple. It's just, it's a new thing' (k97-98)."
+ },
+ "source": {
+  "video_id": "-meUTTtD1Rw",
+  "channel": "Scott Melker",
+  "title": "Bitcoin's Short Squeeze Just Flipped The Market",
+  "description": "Bitcoin short squeeze and spot ETF inflows with Backpack's Armani Ferrante on tokenized stocks and what holds the Bitcoin bid. Bitcoin rebounded above $80,000 after about $560 million in short liquidations, and Wednesday's spot Bitcoin ETFs flipped to a $74.6 million net inflow after three outflow days. I ask Armani Ferrante whether the squeeze is durable, what a $657 million day of tokenized US stock trading on Solana means for Backpack Securities, and how a Democratic Congress that wants a bigger SEC changes the path for on-chain equities and stock perps. We also cover Strategy's STRC prefer",
+  "description_truncated": true,
+  "published_at": "2026-11-05T14:45:07+00:00",
+  "url": "https://www.youtube.com/watch?v=-meUTTtD1Rw"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 71,
+    "start": 321.92,
+    "end": 332.08,
+    "text": "Like to say that people would have been doing 100 million a volume or even $50 million a volume in a single day for stocks on Solana six months ago would have been unheard of.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 72,
+    "start": 332.5,
+    "end": 334.56,
+    "text": "And just the records are breaking every single day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 73,
+    "start": 334.64,
+    "end": 339.82,
+    "text": "And so although it's very low relative to traditional finance, you're already.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 74,
+    "start": 339.94,
+    "end": 345.14,
+    "text": "seeing days where symbols are flipping the NASDAQ in terms of organic trading volume.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 75,
+    "start": 346.02,
+    "end": 349.04,
+    "text": "So this is obviously isn't the case across the entire market quite yet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 76,
+    "start": 349.66,
+    "end": 351.22,
+    "text": "But we're already seeing it across symbols.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 77,
+    "start": 351.68,
+    "end": 353.34,
+    "text": "And it's like brick by brick every day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 78,
+    "start": 353.54,
+    "end": 355.12,
+    "text": "It's getting bigger and bigger and bigger.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 79,
+    "start": 355.68,
+    "end": 356.94,
+    "text": "And the charts are only up into the right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 80,
+    "start": 357.65,
+    "end": 358.11,
+    "text": "So.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 81,
+    "start": 359.14,
+    "end": 364.6,
+    "text": "It doesn't seem like a foregone conclusion yet that this is going to happen on every venue, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 82,
+    "start": 364.7,
+    "end": 374.98,
+    "text": "We've been reporting sort of on the weekly updates on OKX ICE and the NASDAQ effectively, you know, encouraging their listed companies to opt out of that form of tokenization.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 83,
+    "start": 375.26,
+    "end": 380.42,
+    "text": "Maybe it's because they want them to do it with NASDAQ and Krakken, which is sort of what people are alleging.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 84,
+    "start": 380.84,
+    "end": 384.92,
+    "text": "But what do you make of companies opting out of this?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 85,
+    "start": 385.3,
+    "end": 386.18,
+    "text": "for now, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 86,
+    "start": 386.3,
+    "end": 388.12,
+    "text": "It's not just okay excise, obviously.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 87,
+    "start": 388.36,
+    "end": 392.94,
+    "text": "You had the very public spat between Vlad from Robin Hood and the CEO of AMC.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 88,
+    "start": 393.04,
+    "end": 395.58,
+    "text": "I mean, why do you think that that's happening and what do you think that means?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 89,
+    "start": 396.56,
+    "end": 401.48,
+    "text": "Yeah, so I mean, this, you know, innovation exemption, you know, the agency called it what it is.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 90,
+    "start": 401.78,
+    "end": 402.3,
+    "text": "It's a sandbox.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 91,
+    "start": 402.66,
+    "end": 409.82,
+    "text": "It's the first crawling step to really bring these kind of new tokenization security venues.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 92,
+    "start": 410.88,
+    "end": 411.28,
+    "text": "onshore.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 93,
+    "start": 411.62,
+    "end": 412.98,
+    "text": "Now, why are people opting out?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 94,
+    "start": 413.2,
+    "end": 413.64,
+    "text": "What is it?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 95,
+    "start": 414.08,
+    "end": 416.4,
+    "text": "You know, you could argue it's a political statement.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 96,
+    "start": 416.58,
+    "end": 418.54,
+    "text": "You could all view it's a sci -op of sorts.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 97,
+    "start": 418.92,
+    "end": 420.9,
+    "text": "To be honest, I think it's just, it's simple.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 98,
+    "start": 421.14,
+    "end": 422.1,
+    "text": "It's just, it's a new thing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 99,
+    "start": 422.26,
+    "end": 423.34,
+    "text": "People don't know what to expect.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 100,
+    "start": 423.7,
+    "end": 426.24,
+    "text": "You know, onshore, the stock market is obviously booming.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 101,
+    "start": 427.26,
+    "end": 431.48,
+    "text": "We're in the middle of this huge like AI kind of, you know, super cycle if you want to call it that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 102,
+    "start": 431.96,
+    "end": 438.06,
+    "text": "And people just are obviously hesitant to try new things, especially when you're in this testing phase, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 103,
+    "start": 438.22,
+    "end": 439.64,
+    "text": "It's literally a testing sandbox.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 104,
+    "start": 440.5,
+    "end": 442.28,
+    "text": "And so I don't think it's nothing more than that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 105,
+    "start": 442.42,
+    "end": 452.44,
+    "text": "I mean, I think I don't see any coherent argument articulating how it's anything but just overtly positive for all the companies, really what this is doing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 106,
+    "start": 452.72,
+    "end": 455.74,
+    "text": "More volume and more liquidity seems like a good thing for your stock, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 107,
+    "start": 455.88,
+    "end": 456.76,
+    "text": "I mean, yeah, yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 108,
+    "start": 457.58,
+    "end": 458.66,
+    "text": "Yeah, it's net new inflows.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 109,
+    "start": 458.9,
+    "end": 463.9,
+    "text": "Every CEO around the world is going to see this as this hits scale, and they're all going to want it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 110,
+    "start": 463.98,
+    "end": 468.1,
+    "text": "We're already seeing it from the ETF issuers because this is their business, is thinking about inflows.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 111,
+    "start": 468.5,
+    "end": 471.76,
+    "text": "The CEOs of publicly traded companies don't necessarily, they're thinking about the business.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 112,
+    "start": 472.0,
+    "end": 473.34,
+    "text": "They're not thinking about the capital markets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 113,
+    "start": 473.86,
+    "end": 478.74,
+    "text": "And so I would say it'll take a bit of time for them to kind of wrap their heads around it.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   24,
+   25
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Scott Melker's Show: Opting Out Is 'a Political Statement'",
+  "caption": "Clips: Coin Bureau (2026-11-10); Scott Melker's show (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's Coin Bureau.",
+   "bridges": [
+    "Also on the record, Scott Melker's show:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "-meUTTtD1Rw",
+    "channel": "Scott Melker",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "text": "You know, you could argue it's a political statement. You could all view it's a sci -op of sorts.",
+    "start": 414.08,
+    "end": 418.54,
+    "provenance": {
+     "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+     "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+     "k": [
+      95,
+      96
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,150 @@
+{
+ "schema": "pp.vo_case/1.1",
+ "id": "vo_fidelity__hedge_matched_attribution__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences (v1.1)",
+  "mined": "2026-11-12",
+  "universe": {
+   "record": "runs/fresh_20261112_050611/TOPIC_SELECTION.json",
+   "record_sha256": "c8a653868366a587f204a70f8a27e4b29d57138dceac966929d90d89f0c5cb18"
+  }
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "hedge_matched_attribution",
+  "why": "'I think there is some truth to the fact that AI did suck some of the liquidity out of Bitcoin in this cycle.'",
+  "bad_line": null,
+  "bad_title": false,
+  "rule": null,
+  "line_classes": [
+   "C",
+   "A",
+   "C",
+   "C"
+  ],
+  "title_class": "C"
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "CoinTelegraph",
+   "Coin Bureau"
+  ]
+ },
+ "title": "Two voices on Bitcoin",
+ "universe": {
+  "date": "2026-11-12",
+  "built_at": "2026-11-12T05:06:13.234375+00:00",
+  "news": [
+   {
+    "headline": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets",
+    "source": "bitcoinmagazine.com",
+    "published_at": "2026-11-10T14:28:12.195473+00:00",
+    "summary": "Bitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets. Bitcoin Magazine\n\nBitcoin Price Trades Down Near $73,500 After Hot CPI Print Lifts Fed Hike Bets\nBitcoin price slipped to $73,500 Tuesday morning after October consumer prices rose 0.4%, topping forecasts and pushing traders toward a bigger Federal Reserve rate hike in December.\nThis post Bitcoin Pr"
+   },
+   {
+    "headline": "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T10:08:12.195473+00:00",
+    "summary": "Bitcoin price action and stock futures trended lower after Fed governor Christopher Waller said that he would vote to raise interest rates by 0.25% at the December FOMC meeting."
+   },
+   {
+    "headline": "BlackRock Bitcoin ETF outflows hit $1.66B over seven trading sessions",
+    "source": "cointelegraph.com",
+    "published_at": "2026-11-10T08:02:12.195473+00:00",
+    "summary": "US spot Bitcoin ETFs shed $201 million Monday, with seven straight sessions of net withdrawals from BlackRock’s IBIT totaling $1.66 billion."
+   },
+   {
+    "headline": "Stablecoin Drain, ETF Outflows Leave Bitcoin 'Running on Empty'",
+    "source": "decrypt.co",
+    "published_at": "2026-11-11T21:46:12.195473+00:00",
+    "summary": "Stablecoin supply fell $14.2 billion in 30 days, the fastest contraction since June 2022, amid weak ETF demand."
+   }
+  ],
+  "use": "staleness only: the VO's facts come from the selected sentences, never from this news"
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "L9tzgg6PXi8",
+   "channel": "CoinTelegraph",
+   "speaker": null,
+   "published_at": "2026-11-06T14:30:20+00:00",
+   "sentences": [
+    {
+     "k": 525,
+     "text": "So I think... I think there is some truth to the fact that AI did suck some of the liquidity out of Bitcoin in this cycle.",
+     "start": 1984.79,
+     "end": 1992.5
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+    "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+    "k": [
+     525,
+     525
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+     "start": 147.27,
+     "end": 153.85
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     20,
+     20
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices: CoinTelegraph and Coin Bureau.",
+   "cites": [
+    "A",
+    "B"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "On CoinTelegraph, the speaker thinks there is some truth to the idea that AI sucked some of the liquidity out of Bitcoin this cycle.",
+   "cites": [
+    "A"
+   ],
+   "after": null
+  },
+  {
+   "slot": "bridge",
+   "text": "Here is Coin Bureau.",
+   "cites": [
+    "B"
+   ],
+   "after": "A"
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": [],
+   "after": "B"
+  }
+ ]
+}

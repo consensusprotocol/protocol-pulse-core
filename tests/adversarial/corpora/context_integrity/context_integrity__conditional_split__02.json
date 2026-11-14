@@ -1,0 +1,510 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__conditional_split__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+  "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^but if .*\\.$",
+  "mined": "2026-11-12",
+  "selected_k": [
+   382,
+   382
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "conditional_split",
+  "why": "The consequence of a condition stated three sentences earlier ('But if in the next two years ... we end up in a position where the SEC has tokenized stocks ...', k377-379); the clip states it unconditionally.",
+  "also": [
+   "unresolved_referent: 'it' is tokenized-stock trading (k378-379), as a consequence clause's subject"
+  ]
+ },
+ "source": {
+  "video_id": "-meUTTtD1Rw",
+  "channel": "Scott Melker",
+  "title": "Bitcoin's Short Squeeze Just Flipped The Market",
+  "description": "Bitcoin short squeeze and spot ETF inflows with Backpack's Armani Ferrante on tokenized stocks and what holds the Bitcoin bid. Bitcoin rebounded above $80,000 after about $560 million in short liquidations, and Wednesday's spot Bitcoin ETFs flipped to a $74.6 million net inflow after three outflow days. I ask Armani Ferrante whether the squeeze is durable, what a $657 million day of tokenized US stock trading on Solana means for Backpack Securities, and how a Democratic Congress that wants a bigger SEC changes the path for on-chain equities and stock perps. We also cover Strategy's STRC prefer",
+  "description_truncated": true,
+  "published_at": "2026-11-05T14:45:07+00:00",
+  "url": "https://www.youtube.com/watch?v=-meUTTtD1Rw"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 352,
+    "start": 1788.12,
+    "end": 1792.1,
+    "text": "Yeah, I mean, I think our entire product is meant to work with every single chain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 353,
+    "start": 1792.9,
+    "end": 1794.84,
+    "text": "The tokenization product is currently on Solana.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 354,
+    "start": 1795.08,
+    "end": 1801.36,
+    "text": "You know, it's about liquidity and actually, you know, concentrating that within kind of, you know, venues.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 355,
+    "start": 1801.94,
+    "end": 1804.62,
+    "text": "So I would say on the tokenization front, that's what we're really focused on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 356,
+    "start": 1805.04,
+    "end": 1807.62,
+    "text": "But at the product level, obviously we support every chain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 357,
+    "start": 1807.82,
+    "end": 1812.16,
+    "text": "And I think there's, you know, tons of interesting players growing in that in that world.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 358,
+    "start": 1812.64,
+    "end": 1813.18,
+    "text": "Awesome, man.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 359,
+    "start": 1813.22,
+    "end": 1814.3,
+    "text": "I really appreciate you joining.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 360,
+    "start": 1814.6,
+    "end": 1817.44,
+    "text": "Where can people check out backpack and check out everything you're doing?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 361,
+    "start": 1817.98,
+    "end": 1827.08,
+    "text": "Yeah, so you can at Backpack, at Backpack on X and Backpack.exchange to go to our web app and sign up for an account.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 362,
+    "start": 1827.96,
+    "end": 1828.6,
+    "text": "I see how we here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 363,
+    "start": 1828.76,
+    "end": 1830.26,
+    "text": "I love Backpack, strong products.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 364,
+    "start": 1830.58,
+    "end": 1832.14,
+    "text": "You've got fans in the comments.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 365,
+    "start": 1832.64,
+    "end": 1832.76,
+    "text": "Awesome.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 366,
+    "start": 1833.32,
+    "end": 1833.68,
+    "text": "All right, Armani.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 367,
+    "start": 1833.84,
+    "end": 1834.42,
+    "text": "Thanks so much, man.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 368,
+    "start": 1834.54,
+    "end": 1837.38,
+    "text": "I really appreciate you having you on and hopefully you'll be able to come back soon.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 369,
+    "start": 1838.38,
+    "end": 1838.5,
+    "text": "Cool.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 370,
+    "start": 1838.6,
+    "end": 1839.14,
+    "text": "Thank you very much, Scott.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 371,
+    "start": 1839.78,
+    "end": 1840.04,
+    "text": "All, man.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 372,
+    "start": 1840.78,
+    "end": 1841.32,
+    "text": "Great.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 373,
+    "start": 1841.68,
+    "end": 1848.46,
+    "text": "And it's so easy to get caught up in all of the nonsensical news on a daily basis because that's our job.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 374,
+    "start": 1848.68,
+    "end": 1855.24,
+    "text": "But the reality is that, as Lynn Alden says in a different context, nothing stops this train.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 375,
+    "start": 1855.8,
+    "end": 1855.86,
+    "text": "Right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 376,
+    "start": 1855.98,
+    "end": 1863.26,
+    "text": "I mean, we can talk endlessly, I think, about what it means to have Republicans or Democrats or who's going to be driving the train.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 377,
+    "start": 1863.48,
+    "end": 1868.0,
+    "text": "But if in the next two years under the innovation exemption and otherwise.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 378,
+    "start": 1868.74,
+    "end": 1873.92,
+    "text": "we end up in a position where the DCC has tokenized stocks, as they say they will.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 379,
+    "start": 1874.14,
+    "end": 1876.34,
+    "text": "And that's the primary way that things are being traded.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 380,
+    "start": 1876.54,
+    "end": 1877.64,
+    "text": "Good luck stopping it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 381,
+    "start": 1878.3,
+    "end": 1878.4,
+    "text": "Right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 382,
+    "start": 1878.54,
+    "end": 1881.2,
+    "text": "It'll literally be impossible to stop it at all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 383,
+    "start": 1881.32,
+    "end": 1885.46,
+    "text": "So since I've got you here, let's just cook through a few of the stories of the day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 384,
+    "start": 1885.6,
+    "end": 1891.6,
+    "text": "I didn't want to bore Armani, who, you know, is an absolute expert on tokenization with all these other topics.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 385,
+    "start": 1891.8,
+    "end": 1893.62,
+    "text": "But, you know, Bitcoin price holds near 80,000.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 386,
+    "start": 1893.78,
+    "end": 1894.94,
+    "text": "I think right now it's back below.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 387,
+    "start": 1895.48,
+    "end": 1896.6,
+    "text": "As Democratic Spark.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 388,
+    "start": 1897.26,
+    "end": 1899.64,
+    "text": "Sweep sparks short squeeze.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 389,
+    "start": 1900.32,
+    "end": 1905.3,
+    "text": "You see right there, $215 million in Bitcoin shorts liquidated in just one hour short squeeze.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 390,
+    "start": 1905.56,
+    "end": 1910.14,
+    "text": "So listen, short squeeze is great news as long as we see follow through.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 391,
+    "start": 1910.4,
+    "end": 1917.88,
+    "text": "Like the scenario we do not want to see is that this was just a technical move because a bunch of people got caught off sides and got liquidated.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 392,
+    "start": 1918.59,
+    "end": 1922.95,
+    "text": "And then price just goes continually back down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 393,
+    "start": 1923.09,
+    "end": 1928.29,
+    "text": "But I think that, you know, we saw, I think, 1.2 trillion added just to the stock market or NASDAQ in one day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 394,
+    "start": 1929.09,
+    "end": 1932.41,
+    "text": "I think the reality is that markets hate uncertainty.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 43,
+    "k": 395,
+    "start": 1932.95,
+    "end": 1936.47,
+    "text": "And regardless of who won the election, they just wanted to see certainty.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 44,
+    "k": 396,
+    "start": 1936.77,
+    "end": 1937.47,
+    "text": "And now we have it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 45,
+    "k": 397,
+    "start": 1938.51,
+    "end": 1944.33,
+    "text": "I think it's going to be an ugly couple years of subpoenas and nonsense and Elizabeth Warren at the helm.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   30,
+   30
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Scott Melker's Show: 'It'll Literally Be Impossible to Stop It at All'",
+  "caption": "Clips: Scott Melker's show (2026-11-05); Coin Bureau (2026-11-08). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Scott Melker's show first.",
+   "bridges": [
+    "Next, Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "-meUTTtD1Rw",
+    "channel": "Scott Melker",
+    "published_at": "2026-11-05T14:45:07+00:00",
+    "text": "It'll literally be impossible to stop it at all.",
+    "start": 1878.54,
+    "end": 1881.2,
+    "provenance": {
+     "record": "transcripts/-meUTTtD1Rw/transcript.whisper_words.json",
+     "record_sha256": "ff018105fee1de4ddecf27e830eeacf5c40af72ffada010fc50198f42db3a506",
+     "k": [
+      382,
+      382
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "OhRh81S7B2g",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-08T12:45:18+00:00",
+    "text": "A loan signed in an office will not appear in a Merkel tree.",
+    "start": 406.82,
+    "end": 410.1,
+    "provenance": {
+     "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+     "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+     "k": [
+      77,
+      77
+     ]
+    }
+   }
+  ]
+ }
+}

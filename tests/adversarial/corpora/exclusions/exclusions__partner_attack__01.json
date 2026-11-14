@@ -1,0 +1,220 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__partner_attack__01",
+ "origin": "CONSTRUCTED",
+ "provenance": {
+  "record": null,
+  "record_sha256": null,
+  "found_by": "searched for a real instance: partner host / channel names x (grifter|shill|liar|lying|clown|idiot|dishonest|fraud|scam|wrong|stupid|garbage|nonsense|terrible) in every store record of a partner channel (config/partner_channels.json) and in the 39,999 statements of the oracle exports (/home/ultron/heimdall_probe/pp_redteam/oracle/*/BITCOIN_STATEMENTS_*.jsonl): none",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "partner_attack",
+  "why": "CONSTRUCTED: a partner channel (BTC Sessions) attacking another partner (Coin Bureau) by name; both are in config/partner_channels.json."
+ },
+ "source": {
+  "video_id": null,
+  "channel": "BTC Sessions",
+  "title": "Bitcoin, Markets and Your Questions",
+  "description": "Bitcoin news, markets and your questions, every week. In this episode we go through the week's price action, the on-chain data we watch, and your questions from the comments. Chapters: 00:00 Intro 01:12 Price action 06:40 On-chain 11:05 Your questions 18:30 Wrap-up. If you enjoy the show, subscribe and turn on notifications so you never miss an episode, and share it with a friend who is just getting started. Nothing in this video is financial advice; always do your own research before making any decision with your money. Thank you for watching, for the comments and for the support, and we will",
+  "description_truncated": true,
+  "published_at": "2026-11-10T16:42:17+00:00",
+  "url": null
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": null,
+    "start": 1312.37,
+    "end": 1317.34,
+    "text": "Honestly, I think the Coin Bureau crew have completely lost the plot on Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1317.68,
+    "end": 1321.09,
+    "text": "I stopped watching them a long time ago.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": null,
+    "start": 1250.65,
+    "end": 1255.76,
+    "text": "So, the weekly chart is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1256.75,
+    "end": 1261.61,
+    "text": "Listen, the order book deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1263.25,
+    "end": 1267.92,
+    "text": "Listen, the funding rate tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1268.87,
+    "end": 1274.0,
+    "text": "Now, the funding rate is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1274.95,
+    "end": 1280.57,
+    "text": "Well, the daily close looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1281.44,
+    "end": 1286.29,
+    "text": "Honestly, the hash rate chart tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1287.43,
+    "end": 1291.41,
+    "text": "Right, the weekly chart keeps coming up in the questions every week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1291.91,
+    "end": 1297.15,
+    "text": "Look, the daily close is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1297.68,
+    "end": 1302.32,
+    "text": "Alright, the funding rate keeps coming up in the questions every week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1303.85,
+    "end": 1309.55,
+    "text": "Right, the monthly candle is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": null,
+    "start": 1322.35,
+    "end": 1327.07,
+    "text": "Right, the miner revenue chart has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1327.67,
+    "end": 1333.45,
+    "text": "Anyway, the exchange balance chart is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1334.94,
+    "end": 1339.76,
+    "text": "Anyway, the monthly candle is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1340.38,
+    "end": 1346.03,
+    "text": "Well, the question box is still sitting in the middle of the range for now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1346.25,
+    "end": 1350.29,
+    "text": "Honestly, the comments section tells a fairly boring story at the moment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1350.9,
+    "end": 1354.96,
+    "text": "Right, the order book has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1356.64,
+    "end": 1361.12,
+    "text": "Alright, the open interest chart has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1361.76,
+    "end": 1365.7,
+    "text": "Anyway, the funding rate has not really moved since the weekend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1366.87,
+    "end": 1371.84,
+    "text": "Well, the long-term holder data is something we keep an eye on every single show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1372.39,
+    "end": 1377.84,
+    "text": "Look, the question box looks a lot like it did at this point last cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": null,
+    "start": 1379.41,
+    "end": 1384.15,
+    "text": "Right, the miner revenue chart deserves a closer look before we wrap up.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

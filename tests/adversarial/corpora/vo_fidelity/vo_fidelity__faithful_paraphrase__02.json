@@ -1,0 +1,101 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__faithful_paraphrase__02",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "faithful_paraphrase",
+  "why": "Same polarity; no relation claimed between the two.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Natalie Brunell",
+   "Bitcoin Mechanic"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "wdk5JZ9hPzs",
+   "channel": "Natalie Brunell",
+   "speaker": null,
+   "published_at": "2026-11-10T13:45:51+00:00",
+   "sentences": [
+    {
+     "k": 715,
+     "text": "Bitcoin imposes a global free market for the first time ever.",
+     "start": 3218.14,
+     "end": 3221.64
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+    "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+    "k": [
+     715,
+     715
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "NM_WPezsI0I",
+   "channel": "Bitcoin Mechanic",
+   "speaker": null,
+   "published_at": "2026-11-04T22:36:21+00:00",
+   "sentences": [
+    {
+     "k": 411,
+     "text": "The amount of freedom Bitcoin offers us is something we voluntarily limit in response to the impositions placed on us and restrictions placed on us by the financial system itself.",
+     "start": 2038.07,
+     "end": 2050.95
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+    "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+    "k": [
+     411,
+     411
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Natalie Brunell's show, then Bitcoin Mechanic's show.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "On Natalie Brunell's show: Bitcoin imposes a global free market.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "On Bitcoin Mechanic's show: we voluntarily limit Bitcoin's freedom in response to the financial system's restrictions.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

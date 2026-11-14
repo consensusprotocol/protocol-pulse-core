@@ -1,0 +1,92 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "price": [
+   4.0,
+   20.0
+  ],
+  "effort": "medium"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:30:55-0500",
+ "seed": 3972609587,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_assertion": {
+      "expected": "pass",
+      "n": 3,
+      "rejected": 0,
+      "accepted": 3,
+      "error": 0,
+      "absent": 0
+     },
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 1,
+      "rejected": 0,
+      "accepted": 1,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 4,
+     "accepted": 4,
+     "false_rejects": 0,
+     "false_reject_rate": 0.0,
+     "errors": 0,
+     "absent": 0,
+     "ok": true
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_assertion__01",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Cory Klippsten's own sincere analytical claim with no unresolved referents and no time words, and nothing in the window retracts it; the following lines extend it with the broadband and railroad comparisons. The title restates the clip with the correct attribution, and the neutral 'Over to Coin Bureau' bridge implies no reply or agreement between the two videos.",
+     "seconds": 9.035
+    },
+    {
+     "id": "context_integrity__clean_assertion__13",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The interviewer asks a devil's-advocate question, and the guest answers in his own voice, keeping the condition 'as long as Bitcoin stays decentralized and secure' and the hedge 'I don't think' inside the clip, and the rest of the window reinforces rather than retracts it. The title quotes the clip with the same hedge and adds no thesis, the clip has no stale time words, and the neutral VO implies no relation to the Simply Bitcoin clip.",
+     "seconds": 11.785
+    },
+    {
+     "id": "context_integrity__clean_assertion__14",
+     "class": "clean_assertion",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The line is the Simply Bitcoin host's own narration, a sincere general claim that follows his own Saylor point and comes before the Paraguay story and the sponsor read. 'It' clearly means inflation, and the package keeps its meaning and certainty without implying any dialogue with the Coin Bureau clip or adding a thesis.",
+     "seconds": 13.447
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The moment is Lewis's own sincere, general explanation of short-squeeze mechanics, with no unresolved referents, no governing condition and no retraction in the window. The title quotes it verbatim with the correct attribution, and the neutral VO bridge to the unrelated TFTC clip implies no relation between the two speakers.",
+     "seconds": 12.173
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:31:09-0500",
+ "salt": "f6d5b8ca563e63cc"
+}

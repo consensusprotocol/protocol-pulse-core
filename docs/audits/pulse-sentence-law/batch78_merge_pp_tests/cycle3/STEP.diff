@@ -1,0 +1,136 @@
+diff --git a/tests/adversarial/test_f0_cpu_guard.py b/tests/adversarial/test_f0_cpu_guard.py
+index 58465551..40bb8eb4 100644
+--- a/tests/adversarial/test_f0_cpu_guard.py
++++ b/tests/adversarial/test_f0_cpu_guard.py
+@@ -3,13 +3,16 @@ the network): no module this suite imports may expose a device unnoticed, no CUD
+ Whisper load is refused (at law L-r's GPU0 lease, or at the faster_whisper stub, which records it), no socket / name
+ lookup / network tool gets out, and the guards are this directory's only (conftest.py)."""
+ import ast
++import builtins
+ import importlib.util
++import io
+ import os
+ import re
+ import shutil
+ import socket
+ import subprocess
+ import sys
++import types
+ 
+ import pytest
+ 
+@@ -172,13 +175,10 @@ def test_a_python_child_refuses_the_network_too():
+             subprocess.run([sys.executable, *flags, "-c", "pass"], capture_output=True)
+ 
+ 
+-def test_keys_are_read_only_by_name_through_the_pipelines_loader():
+-    """Secrets (integrator batch 78, PP-E31; the detection glm asked for): no .py file of this suite names a key file
+-    (no string constant ends in, or contains a path to, the project's key file name), and the frontier baseline's
+-    key path is the pipeline's loader: relay.get_key of the main tree's video_pipeline_v3, opening no file itself.
+-    Nothing is loaded and no key is read here: the check is on the source."""
+-    import inspect
+-    from baselines import frontier_blind as FB
++def test_no_file_of_this_suite_names_the_key_file():
++    """Secrets (integrator batch 78, PP-E31; the detection glm asked for, kept in cycle 2): no .py file of this suite
++    names a key file (no string constant ends in, or contains a path to, the project's key file name). A static scan:
++    nothing is loaded and no key is read. The behaviour of the one key reader is the next test's subject."""
+     key_file = "." + "env"                               # spelled apart, so this file names none either
+     named, scanned = [], 0
+     for root, dirs, files in os.walk(H.HERE):
+@@ -191,9 +191,93 @@ def test_keys_are_read_only_by_name_through_the_pipelines_loader():
+                     named.append(f"{os.path.relpath(p, H.HERE)}:{node.lineno}")
+     H.control(scanned >= 20, f"the scan walked the suite's .py files ({scanned})")
+     assert named == [], f"a key file is named in the suite (read keys by name through relay.get_key): {named}"
+-    assert FB.KEY_LOADER == "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py" and os.path.isfile(FB.KEY_LOADER)
+-    src = inspect.getsource(FB._key)
+-    assert ".get_key" in src and "open(" not in src, "frontier_blind._key must only call relay.get_key"
++
++
++class _FileOpened(BaseException):
++    """open() inside the code under test: a BaseException, so its own `except Exception` cannot hide the attempt."""
++
++
++_KEY_STUB = '''import sys
++_rec = sys.modules["_pp_key_stub_record"]
++_rec.LOADS += 1
++
++
++def get_key(name, required=True):
++    _rec.SEEN.append(name)
++    return "SENTINEL-not-a-key"
++'''
++
++
++def _load_frontier_blind(path=None):
++    """A FRESH copy of baselines/frontier_blind.py (its key loader not loaded yet) under a private module name. This
++    relies on its top level only setting constants (no I/O, no lookup of itself in sys.modules); the copy is not
++    registered in sys.modules. `path` loads another file instead: the seam the scratch mutations of _key used."""
++    spec = importlib.util.spec_from_file_location(
++        "_pp_fb_under_test", path or os.path.join(H.HERE, "baselines", "frontier_blind.py"))
++    fb = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(fb)
++    return fb
++
++
++def _check_key_behaviour(fb, stub_dir):
++    """frontier_blind._key with its KEY_LOADER pointed at a STUB loader file: every key comes from the loader's
++    get_key, by the name asked, and nothing else happens. Raises AssertionError on a violation, and never shows a
++    value _key returned (a broken _key could return a real key)."""
++    stub = os.path.join(stub_dir, "relay_stub.py")
++    with open(stub, "w") as f:
++        f.write(_KEY_STUB)
++    rec = types.ModuleType("_pp_key_stub_record")
++    rec.SEEN, rec.LOADS = [], 0
++    fb.KEY_LOADER = stub
++    opened, got, real_open, real_io_open, real_os_open = [], [], builtins.open, io.open, os.open
++
++    def no_open(file, *a, **k):
++        opened.append(str(file))
++        raise _FileOpened(f"open({file!r})")
++    path_before, flag_env, flag_after = list(sys.path), sys.dont_write_bytecode, None
++    try:
++        sys.modules[rec.__name__] = rec
++        # bytecode writing ON for the calls (batch 78 cycle 2, glm: under -B or PYTHONDONTWRITEBYTECODE the
++        # no-__pycache__ check would otherwise test nothing). _key must turn it OFF while it loads the loader (else
++        # bytecode lands beside the stub) and put it back after (else flag_after is True)
++        sys.dont_write_bytecode = False
++        # denied: open, io.open (both names: a module may hold either) and os.open (glm, cycle 2). The import
++        # machinery reads source through io.open_code, so loading the stub still works. Not denied: a subprocess or a
++        # C-level read; such a _key fails only if what it returns is not the loader's value
++        builtins.open = io.open = os.open = no_open
++        for name in ("XAI_API_KEY", "OPENAI_API_KEY"):
++            try:
++                got.append(fb._key(name))
++            except _FileOpened:
++                got.append(None)
++        flag_after = sys.dont_write_bytecode
++    finally:                                         # plain assignments only: nothing here can mask the original error
++        builtins.open, io.open, os.open = real_open, real_io_open, real_os_open
++        sys.dont_write_bytecode = flag_env
++        sys.modules.pop(rec.__name__, None)
++    assert opened == [], f"_key opened a file: {opened}"
++    assert got == ["SENTINEL-not-a-key"] * 2, \
++        f"_key did not return the loader's value: {[type(g).__name__ for g in got]}"     # the types, never the values
++    assert rec.SEEN == ["XAI_API_KEY", "OPENAI_API_KEY"] and rec.LOADS == 1, f"loader saw {rec.SEEN}, loads {rec.LOADS}"
++    assert sys.path == path_before, "_key changed sys.path"
++    assert flag_after is False, "_key left the bytecode flag changed"
++    assert not os.path.exists(os.path.join(stub_dir, "__pycache__")), "bytecode was written beside the loader"
++
++
++def test_the_baseline_reads_a_key_only_by_name_through_its_loader(tmp_path):
++    """Behaviour (integrator batch 78 cycle 2, consensus of qwen27b, glm and Grok: the earlier check searched the
++    source and restated a constant). With its KEY_LOADER pointed at a stub loader file, frontier_blind._key returns
++    the stub's get_key value for each name asked:
++    - the stub saw exactly those names and was loaded once;
++    - no file is opened by open() / io.open() / os.open() during the calls (patched to raise; the import machinery
++      reads source through io.open_code, so loading the stub is not affected);
++    - sys.path and the bytecode flag are as before, and no bytecode lands beside the loader.
++    Labelled control, a configuration pin and not the behaviour: the production loader is the main tree's
++    video_pipeline_v3/relay.py, as scripts/integrator/grok_audit.py uses it."""
++    fb = _load_frontier_blind()
++    H.control(fb.KEY_LOADER == "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py" and
++              os.path.isfile(fb.KEY_LOADER), f"configuration pin: the production key loader is {fb.KEY_LOADER}")
++    _check_key_behaviour(fb, str(tmp_path))
+ 
+ 
+ def test_the_guards_are_this_directorys_only():

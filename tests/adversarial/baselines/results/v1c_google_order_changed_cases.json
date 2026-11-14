@@ -1,0 +1,93 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "google",
+  "model": "gemini-3.1-pro-preview",
+  "price": [
+   2.5,
+   15.0
+  ],
+  "effort": "default"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:28:01-0500",
+ "seed": 2888017596,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 5,
+      "rejected": 3,
+      "accepted": 2,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 5,
+     "accepted": 2,
+     "false_rejects": 3,
+     "false_reject_rate": 0.6,
+     "errors": 0,
+     "absent": 0,
+     "ok": false
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_conjunction_opener__01",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a sincere, standalone assertion of a general market principle with no unresolved referents. The package preserves its meaning and certainty perfectly, without implying an artificial dialogue with the other speaker or adding an unsupported thesis to the title.",
+     "seconds": 28.011
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__08",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "By omitting the speaker's immediate continuation that the reserve was just 'marketing slop' that never became a priority, the standalone clip misleadingly sounds like he is admitting surprise that the reserve actually did happen, reversing the polarity of his point.",
+     "seconds": 32.509
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__05",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is a standalone, sincere assertion by the speaker with no unresolved referents. The package presents it neutrally without altering its original meaning or implying a dialogue between the clips.",
+     "seconds": 27.249
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip includes the definite noun phrase 'the results', which refers to the election mentioned earlier in the source video, but this referent is not resolved within the excerpt or by the package.",
+     "seconds": 32.203
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__07",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The package attributes the clip to Stephan Livera, but the speaker is the guest, Joe Burnett.",
+     "seconds": 30.494
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:28:34-0500",
+ "salt": "ddc8d1ea9213864a"
+}

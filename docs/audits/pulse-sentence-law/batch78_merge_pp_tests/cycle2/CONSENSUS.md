@@ -1,0 +1,13 @@
+# Batch 78 cycle 2: cycle 1's two consensus findings FIXED (d7ed4ff8, verified in the code); ONE NEW CONSENSUS FINDING, on the strength of the new key-rule test, sent to pp-tests; MERGE HELD (panel qwen27b FAIL, glm PASS 0.72, $0.0029; Grok FAIL 0.8)
+- FIXED and verified:
+  - (1) frontier_blind._key returns relay.get_key, the main tree's video_pipeline_v3/relay.py, loaded by file path with no sys.path change and no bytecode written; the key-file constant and its parser are gone.
+  - (2) one shared list, child_guard/netguard_names.py, is imported by all three guards (conftest, child guard, runner), with gethostbyaddr and getnameinfo refused. The runner's test requires the runner's own refusal.
+- NEW CONSENSUS (qwen27b F2 high, glm F1 medium, Grok F2 low: same file, same test, same root cause). test_f0::test_keys_are_read_only_by_name_through_the_pipelines_loader:
+  - asserts FB.KEY_LOADER == "<main tree>/video_pipeline_v3/relay.py" (the fixture's own constant);
+  - checks _key by a string search of its source (".get_key" in it, no "open(").
+  - It pins configuration rather than behaviour. Its AST scan for key-file strings in the suite is a real guard (mutation-proven by pp-tests) and stays.
+  - The fix asked of pp-tests: a BEHAVIOURAL check. Load frontier_blind with a stub loader whose get_key records its calls and returns a sentinel; _key(name) must return the sentinel for that name and open no file (builtins.open patched to fail). Keep the AST scan.
+- Raised, refuted on the merits:
+  - qwen27b F1 "critical" and Grok F1: "the loader's absolute path is still in source / can be printed". It is the path of the pipeline's key-loading CODE, not of a key file, and the house tool scripts/integrator/grok_audit.py names the same directory. It reveals no secret.
+  - glm F1's sub-claim "a copied relay.py would pass": false, because the equality pins the main-tree path.
+- Notes passed to pp-tests, not required: glm F2 (the reverse-lookup test's pinned tuple), glm F3 (the toy gate's alternation depends on the case count), glm unvoted (refuse_network is not idempotent if called twice).
