@@ -1,0 +1,77 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence of calls that breaks it.
+
+BACKGROUND (static):
+- pipeline/heimdall_health.py keeps ONE shared "Heimdall down" signal in a JSON state file under an flock, for two
+  processes: this builder's model router (providers.Router) and another team's miner (pp-ingest's watcher, which loads
+  this module BY PATH from this worktree and calls only note, mode, probe_due, probe_result). Heimdall is a model gateway
+  with several model families (deepseek, glm, qwen, ...). "plan_b" sends the builder's verdict calls to outside vendors
+  (Grok first); "heimdall_first" uses Heimdall's families first.
+- The clock: note(False) (a call that failed) starts it (failing_since_utc); note(True) (an answered call) clears it.
+  mode() and note() apply _down_rule: when the clock has run DOWN_AFTER_S (15 min), the mode switches to plan_b and the
+  switch is written to the state, an evidence file, and STATE line 1. In plan_b, probe_result counts answers in a row;
+  BACK_AFTER (3) in a row switches back to heimdall_first. probe_due() returns True (and claims the 2-minute slot) only
+  while the clock runs or the mode is plan_b.
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- heimdall_health._Locked (class at :82) serialises every read-modify-write of the state with fcntl.flock; _load (:61)
+  raises HealthUnreadable on an unreadable state (:72), never a guess.
+- heimdall_health._t parses an ISO time and returns None for a time without a zone; _iso writes "%Y-%m-%dT%H:%M:%SZ".
+- providers.Router._note (providers.py:1009) notes ONLY HeimdallBackend calls of the verdict roles and "angle_write";
+  their chains use only the families deepseek, glm and qwen (nemotron appears only in visual_check, not a noted role).
+  On a failure it starts the probe thread (start_probe, :1026).
+- providers.Router.start_probe / probe_once (:1026-:1066): while HH.probe_due(...) (:1039) claims a slot, it asks EACH
+  of its Heimdall families deepseek, glm and qwen (:1033) a real one-word model call ("Reply with the single word OK.",
+  60 s each, never served from a recording) and reports HH.probe_result(any answered) (:1040) at the current time.
+- pp-ingest's watcher (pipeline/ingest/downsignal.py in its own worktree) reports a finished probe at its next tick
+  with the probe's OWN time: probe_result(answered, now=<probe finish time>, ...) (downsignal.py:338), up to
+  PROBE_EVERY_S late; its notes too carry their own times (:297).
+
+THE ORCHESTRATOR'S RULING (10:06 ET Nov 14), verbatim:
+"RULING 87 AMENDED (the false outage of 09:16-09:22: one 502 on a calibration call, then silence, and the clock ran while
+every probe was answering). 'Down' means NO SUCCESSFUL ANSWER of any kind for 15 minutes: any answered call OR answered
+probe resets the clock to zero. While the clock is running the probe goes every 2 minutes, so a single failed call
+followed by one good probe is never 'down'. A probe must be a real model call on the family that failed (and one
+other), not a ping. Plan B opens only when the clock reaches 15 minutes with zero answers; it closes on 3 good probes as
+now. Every switch still goes on line 1 in capitals; a switch later found false is marked so, as pp-ingest did (well
+reported). The clock lives in your module: fix it there (audited, small), tell pp-ingest when it is live."
+
+THE CHANGE (the diff follows):
+1. probe_result: an ANSWERED probe is an answer like an answered call, IN BOTH MODES: it resets the clock
+   (failing_since_utc None, failing_families []) and stamps last_answer_utc. pp-ingest's watcher opens its paid route
+   (its ruling 98) on mode == plan_b AND failing_since_utc 20 minutes old, reading that field as "no answer of any kind",
+   so a probe answer inside plan_b must restart it. A probe answer timed BEFORE the failure that started the clock (a
+   late report) does not reset that clock. A failed probe never starts the clock (only note(False) does), as before.
+   plan_b still closes only on 3 answers in a row. Before this change, a probe answer did not count while heimdall_first
+   (the clock ran on: the false outages of 09:16 and 10:12 ET).
+2. "A probe must be a real model call on the family that failed (and one other)": note(False, family=...) records the
+   failed family in the state (failing_families: the families whose failures are on the running clock; a new clock
+   starts the list afresh; any answer clears it). probe_due(families=[...]): while the clock runs in heimdall_first, a
+   prober that can ask NONE of the failed families does not claim the slot, so the prober that can (the other process)
+   does; families=None claims as before; in plan_b any prober claims (plan_b can always close). A malformed
+   failing_families field reads as none (no prober is kept out by it). The builder calls deepseek, glm and qwen; pp-ingest
+   calls qwen, glm and muse: each side's probe asks every family it calls.
+3. providers.Router passes family=b.family to note() and families=<its probe's families> to probe_due().
+4. The switch reason now reads "no answer of any kind (no call and no probe answered) for N minutes (since T)".
+5. Tests: the 09:16 outage replayed (probes answering every 2 minutes); one failed call then one good probe then 3 hours
+   of silence; failing probes leave the clock running; a late report does not reset a newer clock; inside plan_b an
+   answered probe resets the clock and plan_b still needs 3 in a row; the failed family steers the slot claim (and plan_b
+   lets any prober claim; a malformed field keeps no prober out); the Router passes its family and its probe's families.
+   20 tests pass; 14 mutations, each killed.
+
+ATTACK:
+(a) Can a single failed call followed by one good probe still end in plan_b? Can 15 minutes of failed calls AND failed
+    probes fail to open plan_b?
+(b) The late-report guard (now >= failing_since): can it drop a genuine answer, or let a stale one reset a newer clock?
+    Equal times? A state whose failing_since_utc cannot be parsed?
+(c) Any interaction with plan_b's 3-in-a-row rule, the probe slot claim (probe_due), the heartbeat cache in note()
+    (_SEEN), or the two processes writing the same file?
+(d) Does anything here let the builder or pp-ingest read 'up' or 'down' by guess, or change what pp-ingest's calls do?
+(e) "A probe must be a real model call on the family that failed (and one other)": can a slot be spent on a probe that
+    asks none of the failed families while a prober that can ask them is alive? Can the families rule leave plan_b, or
+    a running clock, with no prober at all? What must pp-ingest's side do?
+(f) An older state file (no failing_families key) or pp-ingest's current calls (no family, no families): unchanged?
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".

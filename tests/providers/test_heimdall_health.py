@@ -45,7 +45,8 @@ class TestHealth(unittest.TestCase):
             self.assertEqual([json.loads(x)["kind"] for x in f], ["switch"])
         first = open(self.md).read().split("\n")[0]
         self.assertTrue(first.endswith("| 21:00 ET: line one as it was."), first)     # one physical line, prepended
-        self.assertIn("ET: SWITCHED TO PLAN B (NO HEIMDALL FAMILY ANSWERED", first)
+        self.assertIn("ET: SWITCHED TO PLAN B (NO ANSWER OF ANY KIND (NO CALL AND NO PROBE ANSWERED) FOR 15 MINUTES",
+                      first)
 
     def test_one_answer_stops_the_clock(self):
         HH.note(False, **self.kw(T0))
@@ -53,6 +54,101 @@ class TestHealth(unittest.TestCase):
         self.assertEqual(HH.note(False, **self.kw(T0 + timedelta(minutes=20))), "heimdall_first")
         self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=34))), "heimdall_first")
         self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=35))), "plan_b")   # idle: the clock still runs
+
+    def test_ruling_87_amended_an_answered_probe_resets_the_clock(self):
+        """RULING 87 AMENDED (10:06 Nov 14), the false outage of 09:16-09:22 replayed: one 502 at 14:01:08Z, then probes
+        answering every 2 minutes and no real call. 'Down' is no answer of ANY kind for 15 minutes."""
+        k = lambda m: self.kw(T0 + timedelta(minutes=m))
+        HH.note(False, **k(0))                                           # one failed call starts the clock
+        for m in range(2, 22, 2):
+            self.assertTrue(HH.probe_due(self.state, T0 + timedelta(minutes=m)) or m > 2)
+            self.assertEqual(HH.probe_result(True, **k(m)), "heimdall_first")
+            self.assertEqual(HH.mode(**k(m + 1)), "heimdall_first")
+        st = json.load(open(self.state))
+        self.assertIsNone(st["failing_since_utc"])                       # reset by the first good probe
+        self.assertEqual(st["last_answer_utc"], "2026-11-14T02:20:00Z")   # an answer of any kind
+        self.assertEqual(st["switches"], [])
+        self.assertFalse(HH.probe_due(self.state, T0 + timedelta(minutes=30)))     # no clock: no probe
+        self.assertEqual(open(self.md).read().split("\n")[0], "21:00 ET: line one as it was.")   # no switch line
+
+    def test_one_failed_call_then_one_good_probe_then_silence_is_never_down(self):
+        HH.note(False, **self.kw(T0))
+        self.assertEqual(HH.probe_result(True, **self.kw(T0 + timedelta(minutes=2))), "heimdall_first")
+        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(hours=3))), "heimdall_first")
+
+    def test_failing_probes_leave_the_clock_running_and_a_failed_probe_never_starts_it(self):
+        self.assertEqual(HH.probe_result(False, **self.kw(T0)), "heimdall_first")
+        self.assertIsNone(json.load(open(self.state))["failing_since_utc"])   # only note(False) starts the clock
+        HH.note(False, **self.kw(T0))
+        for m in range(2, 16, 2):
+            self.assertEqual(HH.probe_result(False, **self.kw(T0 + timedelta(minutes=m))), "heimdall_first")
+        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=15))), "plan_b")   # zero answers for 15 minutes
+        self.assertIn("NO ANSWER OF ANY KIND", open(self.md).read().split("\n")[0])
+
+    def test_a_late_probe_report_does_not_reset_a_newer_clock(self):
+        """pp-ingest reports a probe at its next tick with the probe's own time (up to PROBE_EVERY_S late): an answer
+        timed before the failure that started the clock proves nothing about after it."""
+        HH.note(False, **self.kw(T0 + timedelta(minutes=10)))
+        HH.probe_result(True, **self.kw(T0 + timedelta(minutes=9)))       # answered at 9, reported after the 10 failure
+        self.assertEqual(json.load(open(self.state))["failing_since_utc"], "2026-11-14T02:10:00Z")
+        HH.probe_result(True, **self.kw(T0 + timedelta(minutes=10)))      # answered AT the failure's second: not
+        self.assertIsNone(json.load(open(self.state))["failing_since_utc"])   # before it, so it resets (audit 1008 C1)
+        HH.note(False, **self.kw(T0 + timedelta(minutes=10)))
+        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=25))), "plan_b")
+        HH.note(False, **self.kw(T0 + timedelta(minutes=40)))
+        HH.probe_result(True, **self.kw(T0 + timedelta(minutes=41)))      # in plan_b: one answer is a streak of 1,
+        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=42))), "plan_b")   # back only after 3 (as before)
+
+    def test_in_plan_b_an_answered_probe_resets_the_clock_and_plan_b_still_needs_3_in_a_row(self):
+        """pp-ingest's ruling-98 route opens on plan_b AND failing_since_utc 20 minutes old (read as 'no answer of any
+        kind'): a probe answer at minute 17 of plan_b restarts that clock; closing plan_b stays at 3 answers in a row."""
+        k = lambda m: self.kw(T0 + timedelta(minutes=m))
+        HH.note(False, **k(0))
+        self.assertEqual(HH.mode(**k(15)), "plan_b")
+        HH.note(False, **k(16))                                          # still failing inside plan_b
+        self.assertEqual(HH.probe_result(True, **k(17)), "plan_b")
+        st = json.load(open(self.state))
+        self.assertEqual((st["failing_since_utc"], st["last_answer_utc"], st["probe_streak"]),
+                         (None, "2026-11-14T02:17:00Z", 1))
+        self.assertEqual(HH.probe_result(False, **k(19)), "plan_b")      # a miss: the streak is 0, the clock stays off
+        self.assertIsNone(json.load(open(self.state))["failing_since_utc"])   # (a failed probe never starts it)
+        HH.note(False, **k(20))                                           # a failed call starts it again
+        self.assertEqual(json.load(open(self.state))["failing_since_utc"], "2026-11-14T02:20:00Z")
+        self.assertEqual([HH.probe_result(True, **k(m)) for m in (21, 23, 25)], ["plan_b", "plan_b", "heimdall_first"])
+
+    def test_the_probe_asks_the_family_that_failed(self):
+        """RULING 87 AMENDED: a probe is a real model call on the family that failed. The builder's probe asks deepseek,
+        glm and qwen; pp-ingest's asks qwen, glm and muse. While the clock runs, a prober that can ask none of the
+        failed families leaves the slot to the one that can; in plan_b any prober claims (plan_b can always close)."""
+        at = lambda m: T0 + timedelta(minutes=m)
+        mine, theirs = ["deepseek", "glm", "qwen"], ["glm", "muse", "qwen"]
+        HH.note(False, family="muse", **self.kw(at(0)))                  # pp-ingest's muse 502
+        self.assertEqual(json.load(open(self.state))["failing_families"], ["muse"])
+        self.assertFalse(HH.probe_due(self.state, at(2), who="pp-selectid", families=mine))   # cannot ask muse
+        self.assertTrue(HH.probe_due(self.state, at(2), who="pp-ingest", families=theirs))
+        HH.note(False, family="deepseek", **self.kw(at(3)))              # then the builder's deepseek fails too
+        self.assertEqual(json.load(open(self.state))["failing_families"], ["deepseek", "muse"])
+        self.assertTrue(HH.probe_due(self.state, at(4), who="pp-selectid", families=mine))    # it can ask one
+        HH.probe_result(True, **self.kw(at(4)))                          # any answer: the clock and the families reset
+        st = json.load(open(self.state))
+        self.assertEqual((st["failing_since_utc"], st["failing_families"]), (None, []))
+        self.assertFalse(HH.probe_due(self.state, at(8), families=mine))  # no clock: no probe
+        HH.note(False, family="muse", **self.kw(at(10)))
+        self.assertTrue(HH.probe_due(self.state, at(12)))                # families not named: claims as before
+        HH.note(False, family="muse", **self.kw(at(25)))                 # nobody answered for 15 minutes: plan_b
+        self.assertEqual(HH.mode(**self.kw(at(25))), "plan_b")
+        self.assertTrue(HH.probe_due(self.state, at(26), who="pp-selectid", families=mine))   # plan_b: any prober
+        st = json.load(open(self.state))
+        st["mode"], st["failing_families"], st["failing_since_utc"] = "heimdall_first", "muse", "2026-11-14T02:30:00Z"
+        json.dump(st, open(self.state, "w"))                             # a malformed field keeps no prober out
+        self.assertTrue(HH.probe_due(self.state, at(31), families=mine))
+
+    def test_a_clock_with_no_family_recorded_lets_a_named_prober_claim(self):
+        """pp-ingest's current calls name no family: a clock they start records none, and then any prober claims,
+        families named or not (audit 1008 C2, glm N4)."""
+        HH.note(False, **self.kw(T0))
+        self.assertEqual(json.load(open(self.state))["failing_families"], [])
+        self.assertTrue(HH.probe_due(self.state, T0 + timedelta(minutes=2), families=["deepseek", "glm", "qwen"]))
 
     def test_the_probe_every_2_minutes_and_back_after_3_answers_in_a_row(self):
         k = lambda m: self.kw(T0 + timedelta(minutes=m))
@@ -181,6 +277,23 @@ class TestRouterPlanB(unittest.TestCase):
         self.assertIn("heimdall:deepseek", r.down)                       # still down: marked as before
         self.assertFalse(os.path.exists(os.path.join(self.d.name, "rec")))   # a probe is never recorded
 
+    def test_the_probe_thread_names_its_families_to_the_slot_claim(self):
+        """RULING 87 AMENDED: the builder's probe asks its own Heimdall families, and says which to probe_due."""
+        import time as _t
+        from unittest import mock
+        r, seen = self.router(), []
+
+        def due(path, now=None, who="", families=None):
+            seen.append((who, families))
+            return False
+        with mock.patch.object(HH, "probe_due", due):
+            P.Router.start_probe(r, every_s=3600.0)       # one look, then an hour asleep (a daemon thread)
+            for _ in range(200):
+                if seen:
+                    break
+                _t.sleep(0.01)
+        self.assertEqual(seen, [("pp-selectid probe", ["deepseek"])])
+
     def test_a_failing_heimdall_call_is_noted_as_not_answered(self):
         r = self.router()
 
@@ -191,6 +304,7 @@ class TestRouterPlanB(unittest.TestCase):
         st = json.load(open(self.state))
         self.assertIsNotNone(st["failing_since_utc"])
         self.assertIsNone(st["last_answer_utc"])
+        self.assertEqual(st["failing_families"], ["deepseek"])          # ruling 87 amended: the family to probe
 
 
 

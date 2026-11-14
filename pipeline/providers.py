@@ -1015,7 +1015,8 @@ class Router:
             return
         import heimdall_health as HH
         try:
-            HH.note(answered, self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid")
+            HH.note(answered, self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid",
+                    family=b.family)              # ruling 87 amended: the family a probe must ask
         except (HH.HealthUnreadable, OSError) as e:
             n = f"RULING 87: the Heimdall health state cannot be read or written: {e}"
             if n not in self.notices:
@@ -1036,7 +1037,8 @@ class Router:
         def loop():
             while True:
                 try:
-                    if HH.probe_due(self.health, who="pp-selectid probe"):     # claims the slot (one prober each)
+                    if HH.probe_due(self.health, who="pp-selectid probe",      # claims the slot (one prober each),
+                                    families=sorted({self.backends[n].family for n in fams})):   # 87 amended
                         HH.probe_result(self.probe_once(fams), self.health, evidence=self.deadline_log,
                                         state_md=self.state_md, who="pp-selectid probe")
                 except Exception:                      # noqa: BLE001 (the probe never stops a build)
