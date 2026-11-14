@@ -1,6 +1,6 @@
 {
- "usd_estimate": 137.604819,
- "calls": 1588,
+ "usd_estimate": 138.386644,
+ "calls": 1618,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
    "calls": 411,
@@ -84,6 +84,18 @@
    ],
    "usd_reported": 0.00337573,
    "reported_calls": 9
+  },
+  "xai:grok-4.20-0309-non-reasoning": {
+   "calls": 30,
+   "in": 82375,
+   "out": 14798,
+   "usd_estimate": 0.781825,
+   "price_usd_per_1m": [
+    5,
+    25
+   ],
+   "usd_reported": 0.13472215,
+   "reported_calls": 30
   }
  },
  "by_role": {
@@ -142,10 +154,14 @@
   "replay85v_qwen": {
    "calls": 9,
    "usd_estimate": 0.311529
+  },
+  "replay97_nr": {
+   "calls": 30,
+   "usd_estimate": 0.781825
   }
  },
  "reserved": {},
- "usd_reported": 7.80886904,
+ "usd_reported": 7.94359119,
  "usd_unreported_estimate": 5.889849,
  "late_answers": 112
 }
