@@ -166,6 +166,44 @@
   },
   "version": "visual-1"
  },
+ "b9f62d9986a3521426b0:897.877-909.447:visual-1:a64dcebc028a0b24": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_2b056997784d9df4.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_2b056997784d9df4.jpg",
+   "sha256": "2b056997784d9df4dc5059af71791de23ad6d6da135f8f2b5d1798259cbe02d8",
+   "times": [
+    897.88,
+    899.88,
+    901.88,
+    903.88,
+    905.88,
+    907.88,
+    909.4
+   ]
+  },
+  "third_person": {
+   "finding": "No person other than the speaker appears as a still, photo, or graphic in any frame.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2754,
+   "out": 2024,
+   "usd_reported": 0.015924
+  },
+  "version": "visual-1"
+ },
  "c7646b4ee91f955cf58f:1691.139-1698.069:visual-1:12c8f5da0237510c": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],

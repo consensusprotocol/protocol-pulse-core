@@ -1,15 +1,15 @@
 {
- "generated_at": "2026-11-13T23:30:01+00:00",
- "build": "ledger_20261113_232949",
+ "generated_at": "2026-11-14T00:23:11+00:00",
+ "build": "ledger_20261114_002300",
  "kind": "moments",
  "candidates": [
   {
-   "pid": "5b8effa74a967fb0ebed",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 8.84,
-   "text": "But the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
-   "text_sha256": "13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd",
+   "pid": "79054d4b967721a77c40",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 10.96,
+   "text": "But here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
+   "text_sha256": "5c65b0fe2e247888f39c43a5c026968ee30f092c4fc13ac2839a74473284704f",
    "trimmed_leading": null
   },
   {
@@ -28,6 +28,24 @@
    "duration": 13.58,
    "text": "So if you look at as Bitcoin as digital real estate, digital property, the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right? So owning Bitcoin is like owning this plot of land and a vastly expanding digital economy.",
    "text_sha256": "20a3455feac429a0baeca5f85b4e98a5f3d13e7b90030190fd4c27bae08f5fb9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5b8effa74a967fb0ebed",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 8.84,
+   "text": "But the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
+   "text_sha256": "13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7f2bf26b73cabe67ba12",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 15.67,
+   "text": "So my whole belief has been, and this is the reason why I believe in Bitcoin is that there are no more moats and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from, a lack of government involvement. It comes from multiple expansion.",
+   "text_sha256": "014105019821f99902e93be84ac632dde117d39dfa437ea9d32ec734aae9c5a5",
    "trimmed_leading": null
   },
   {
@@ -76,6 +94,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "be86cfbb5bfd3f37541e",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 10.09,
+   "text": "And when their companies are hacked and their systems are breached, there's going to be one asset that's going to be outside of this entire realm. And this is why Jordi Visser believes that Bitcoin is valuable moving forward.",
+   "text_sha256": "8db487d1ce375bbfbd2a6b522b00ebff7f88d2e717ba26fd1da7cddc12357669",
+   "trimmed_leading": null
+  },
+  {
    "pid": "fbe26a2503b54cf9e9dc",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -100,6 +127,15 @@
    "duration": 9.98,
    "text": "And the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
    "text_sha256": "9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6b9f456a6df29f234434",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 10.16,
+   "text": "So the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
+   "text_sha256": "3e07893645ea75d24e092f5d8e88344bf3455c6084bfbda50c2f0018b7ec35ab",
    "trimmed_leading": null
   },
   {
@@ -145,15 +181,6 @@
    "duration": 9.3,
    "text": "So when people make this comparison and they say, well, nobody should mind Bitcoin. And listen, people have been saying this since 2017 when I was just starting in Bitcoin. They've been saying, oh, you'd never mind Bitcoin. You never make money.",
    "text_sha256": "7571322141e2065d6b2f4a88e2c2cdc386dcbd6ca56bb237a3379d75b15051af",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "efb6ad794d8ade618870",
-   "video_id": "h4JhXQoW6kE",
-   "channel": "Bankless",
-   "duration": 8.7,
-   "text": "So last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50 -week moving average.",
-   "text_sha256": "d390e419d3168bdad35d220a3a5786d9008b64bbcb303a79941171ed60e85c18",
    "trimmed_leading": null
   },
   {
@@ -211,15 +238,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "6b9f456a6df29f234434",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 10.16,
-   "text": "So the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
-   "text_sha256": "3e07893645ea75d24e092f5d8e88344bf3455c6084bfbda50c2f0018b7ec35ab",
-   "trimmed_leading": null
-  },
-  {
    "pid": "7043db23dcf5d4d0d04f",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
@@ -253,6 +271,15 @@
    "duration": 7.04,
    "text": "So the combination of real estate and Bitcoin is very interesting. And there can be complementary assets. They can perform different functions on the balance sheet.",
    "text_sha256": "8b05869bb3987a3ec84ab884f23b0c83ad6fe772778fdbdf77a570cc44e29542",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "77d1ff81caaa3145a815",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 6.1,
+   "text": "And when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
+   "text_sha256": "8e8ab6c2087c1ebf411e0e89d16e2876f9fca4bf798e4e9b36234066495bb3d6",
    "trimmed_leading": null
   },
   {
@@ -310,12 +337,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "5b8effa74a967fb0ebed~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 8.84,
-   "text": "the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
-   "text_sha256": "a6781110f7a6e60bd4dddaddc1c59d46933118261981a3dfc41fb24f723cbae8",
+   "pid": "79054d4b967721a77c40~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 10.9,
+   "text": "here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
+   "text_sha256": "20018e3838b693fe28c2e84848cba1197af5a59280ae7899cd9b7c8e6210ef93",
    "trimmed_leading": "But"
   },
   {
@@ -334,6 +361,24 @@
    "duration": 13.46,
    "text": "if you look at as Bitcoin as digital real estate, digital property, the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right? So owning Bitcoin is like owning this plot of land and a vastly expanding digital economy.",
    "text_sha256": "a0abe32c841113f8885e28162375d041381c985ee887b376399db948796d9031",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "5b8effa74a967fb0ebed~trim",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 8.84,
+   "text": "the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
+   "text_sha256": "a6781110f7a6e60bd4dddaddc1c59d46933118261981a3dfc41fb24f723cbae8",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "7f2bf26b73cabe67ba12~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 15.59,
+   "text": "my whole belief has been, and this is the reason why I believe in Bitcoin is that there are no more moats and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from, a lack of government involvement. It comes from multiple expansion.",
+   "text_sha256": "015b3cfde370aab8580bbe4529a07f64f9498e7ed6a7949674b452b7c7ffdcaa",
    "trimmed_leading": "So"
   },
   {
@@ -373,6 +418,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "be86cfbb5bfd3f37541e~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 10.09,
+   "text": "when their companies are hacked and their systems are breached, there's going to be one asset that's going to be outside of this entire realm. And this is why Jordi Visser believes that Bitcoin is valuable moving forward.",
+   "text_sha256": "0007d421f8ea5a387ed2941c76f8aabd2438440821a7e70ef7c4ba6c878679bc",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "fbe26a2503b54cf9e9dc~trim",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -398,6 +452,15 @@
    "text": "the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
    "text_sha256": "d0d7afa1b5cf39cc595971a312d875288357d88a8d03a650e5326c662f14373d",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "6b9f456a6df29f234434~trim",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 10.12,
+   "text": "the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
+   "text_sha256": "463709286cf44548e39de29f1df5e4730889840c3691e13a993a88dc6cef0365",
+   "trimmed_leading": "So"
   },
   {
    "pid": "94ca04cde8d0380acfe8~trim",
@@ -442,15 +505,6 @@
    "duration": 9.18,
    "text": "when people make this comparison and they say, well, nobody should mind Bitcoin. And listen, people have been saying this since 2017 when I was just starting in Bitcoin. They've been saying, oh, you'd never mind Bitcoin. You never make money.",
    "text_sha256": "7c1740e2589e6f04ea91b3593c244f5acfb5f843d3ad68437577170a14cda5e9",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "efb6ad794d8ade618870~trim",
-   "video_id": "h4JhXQoW6kE",
-   "channel": "Bankless",
-   "duration": 8.64,
-   "text": "last week we had, or two weeks ago, we had the biggest hack in crypto history with Binance. We still kept above Bitcoin's 50 -week moving average.",
-   "text_sha256": "b66b8b0f662a93074606d4c0b417ce59084e55f0fac17009068843ad3063482f",
    "trimmed_leading": "So"
   },
   {
@@ -508,15 +562,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "6b9f456a6df29f234434~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 10.12,
-   "text": "the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
-   "text_sha256": "463709286cf44548e39de29f1df5e4730889840c3691e13a993a88dc6cef0365",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "7043db23dcf5d4d0d04f~trim",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
@@ -551,6 +596,15 @@
    "text": "the combination of real estate and Bitcoin is very interesting. And there can be complementary assets. They can perform different functions on the balance sheet.",
    "text_sha256": "e7bc7b16f9c65deb3ff7c2525c829c37634b63730d61159b6b62463ce48f2691",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "77d1ff81caaa3145a815~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 6.08,
+   "text": "when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
+   "text_sha256": "7ebb2b96c275226dc94dc31b969a3153a691eda01c434d14282e0d9487297c04",
+   "trimmed_leading": "And"
   },
   {
    "pid": "83708bb3ea5d60f0130a~trim",

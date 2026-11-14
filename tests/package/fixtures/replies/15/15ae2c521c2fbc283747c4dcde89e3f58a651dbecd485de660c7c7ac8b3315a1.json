@@ -1,0 +1,308 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2bfae07f51b5d8d84cf248533185067b84aa6709dced865aa162fd9bcda9d051",
+ "result": {
+  "text": "dollars in leveraged positions over the past 24 hours, and big investors are not stepping in to buy the dip. More than half a billion dollars has flowed out of those US spot Bitcoin ETFs this week, most of it from BlackRock's fund. There is, though, one-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 15.34,
+    "text": "dollars in leveraged positions over the past 24 hours, and big investors are not stepping in to buy the dip. More than half a billion dollars has flowed out of those US spot Bitcoin ETFs this week, most of it from BlackRock's fund. There is, though, one-"
+   }
+  ],
+  "words": [
+   {
+    "text": "dollars",
+    "start": 0.14,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.94,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "leveraged",
+    "start": 1.08,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "positions",
+    "start": 1.52,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 2.16,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.3,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past",
+    "start": 2.4,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "24",
+    "start": 2.74,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hours,",
+    "start": 3.16,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.92,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 4.12,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investors",
+    "start": 4.3,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 4.92,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 5.16,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stepping",
+    "start": 5.46,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.92,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.12,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 6.28,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.48,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dip.",
+    "start": 6.68,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "More",
+    "start": 6.92,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 7.08,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "half",
+    "start": 7.32,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.52,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 7.66,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 8.02,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 8.42,
+    "end": 8.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flowed",
+    "start": 8.6,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 9.0,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 9.2,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 9.3,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "US",
+    "start": 9.64,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 10.4,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.68,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETFs",
+    "start": 11.1,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 11.62,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 11.88,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 12.14,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.4,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 12.5,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 12.9,
+    "end": 13.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock's",
+    "start": 13.1,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fund.",
+    "start": 13.72,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There",
+    "start": 14.44,
+    "end": 14.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 14.74,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though,",
+    "start": 14.94,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one-",
+    "start": 15.26,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.44
+ },
+ "usd": 0.003088,
+ "seconds": 0.78,
+ "recorded_at": "2026-11-14T00:24:36Z"
+}

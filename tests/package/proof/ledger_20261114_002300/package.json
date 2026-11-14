@@ -1,0 +1,1077 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [
+  {
+   "angle": 1,
+   "text": "Bitcoin is a conservative long-term savings asset that AI cannot copy, so you need patience and a multi-year horizon.",
+   "lineup": null,
+   "supply_exception": null,
+   "attempts": [],
+   "why": "no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules"
+  }
+ ],
+ "unusable": {
+  "861fa86782b1ddd6d61e": "not eligible on screen: hook: opener; clip: opener",
+  "3c9932d7788c55e0182f": "not eligible on screen: hook: layout_ineligible, no_bitcoin; clip: layout_ineligible",
+  "b908d06573ba4649689d": "not eligible on screen: hook: opener; clip: opener",
+  "9902d4ef8c7ff6017d03": "25.32 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f4b55a2c6618c5daaf7a": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "0ceb0e91e5c20be18ef7": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "1a8ad65da43ff31011fa": "23.83 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "287647bfb439b0818dac": "not eligible on screen: hook: layout_ineligible, no_bitcoin; clip: layout_ineligible",
+  "56f41ed7d6602653170b": "not eligible on screen: hook: layout_ineligible, no_bitcoin; clip: layout_ineligible",
+  "c392c54ce7d672012415": "26.46 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "11dcf2a3dc9d1c155ab7": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "188ef61e731712a02eea": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin, hook_lead; clip: layout_ineligible",
+  "1e5404eb60aa51550aba": "22.28 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "2d527209c40b5d6d1920": "21.4 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "cec8c7a9ae222bfafc43": "20.51 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f42b44ad4880e847a717": "25.15 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f694b7b93896dcac905f": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "23b5d495b6011cab4f10": "22.57 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "25c4cd2d9840dbfbb7ef": "41.32 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "534df84e4c62098d26fe": "22.81 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "580294ed5ef84868e7dd": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "614f03c2afd91986ab98": "not eligible on screen: hook: layout_ineligible, no_bitcoin; clip: layout_ineligible, not_statement",
+  "92ead419fe56564dba60": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "b3f69552654f7d2182a2": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "fabb777c277be11fb3af": "20.2 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "00326bc0712e2b851daa": "31.58 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "14f0613fec0f1cd12b71": "22.61 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "5fb55612612f928b73c2": "24.07 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7556dd0175071b5f4c9d": "21.94 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9216c2bfa3550638c817": "24.17 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b5dd98a87e4f83e13cf1": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "ea490da7712fa80406a3": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "06b2e1340cf2f26132ae": "30.19 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "10eececcc25860334b4f": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "180fe8ee16af8f4fa5c4": "22.28 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "264241c7e25e9d863bdf": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "4c02a7f8d82334b16aea": "21.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4c2104e8d7fd19d07977": "not eligible on screen: hook: opener, no_bitcoin; clip: opener",
+  "55b47bef94c911156e7f": "not eligible on screen: hook: opener, no_bitcoin; clip: not_statement",
+  "5c027b031e63e96d8199": "26.2 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "855bceab7b53227e0414": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "cc693b47e03170790a9b": "22.56 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "d053d95bfb075e1d21d4": "41.25 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "de8eb32695b91d32eba8": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "fcf15acd45cabd597fd2": "26.57 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "11df638c20ffedd21603": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "3ae15a2b8091f0dc7c6e": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "49a632369a02dfc08a22": "21.4 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4c3b1eb55cda357fd1f4": "24.34 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "5ccbf227987116d8da2a": "20.41 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "6c6c686c21aa7c68db80": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "8035da5a61d81d8d0154": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "99991bffc9b082186668": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, opener",
+  "b6b15aa5237aa14a0014": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, not_statement",
+  "b86abddfd86cc00a9a49": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "faf5fb233cb7b035b608": "not eligible on screen: hook: layout_ineligible; clip: layout_ineligible",
+  "fb6131689d057656289f": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "0959431e73e4db172474": "20.84 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "0cbbf6ae9b76e96be958": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "291e22bc7b0e413e0b3c": "not eligible on screen: hook: opener; clip: not_statement",
+  "38ab855181f3f11f750b": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, opener",
+  "a9b154c695e095e6bcec": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "b6272aecca98f4757454": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, opener",
+  "5842ee90e36870214d10": "21.18 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "74af88da0d8b58765204": "33.69 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "84a0fe7752c4dc898367": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible, opener",
+  "8fce1a797169f12c25ec": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible",
+  "ad3317af8ae97e6d3f1a": "not eligible on screen: hook: layout_ineligible, opener, no_bitcoin; clip: layout_ineligible",
+  "f51715fd68d8dadf8fe0": "35.12 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f59713513f573898b461": "not eligible on screen: hook: opener; clip: not_statement",
+  "1206acd6271407a3e2e6": "not eligible on screen: hook: opener, no_bitcoin; clip: opener",
+  "0cc6889c0df303ed82ba": "24.86 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "15ec187ca5107cf86bdd": "not eligible on screen: hook: layout_ineligible, opener; clip: layout_ineligible, not_statement",
+  "2555939ae2b3d5f20a35": "26.74 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a7046d7624ace3617e78": "not eligible on screen: hook: opener, no_bitcoin; clip: not_statement"
+ },
+ "usable": 121,
+ "current_levels": [
+  68850.0
+ ],
+ "no_role": {
+  "4314e026cc58ffd2d985": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "79054d4b967721a77c40": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "82a6d7b5df2b3426b49e": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b12bcda55f364cc09404": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c46b63aecc19909110ca": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "7f2bf26b73cabe67ba12": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "9e342190702c908e0051": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "b9498bcc7d277b3a4db2": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c31cf682c79b24f77505": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "d424fd07e3168bd42205": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'because'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'because': nothing is heard before a hook",
+  "f05352110ae7bfa2ea2d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "445810538f12ebf89b11": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (1.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "6fc3cfea365e1845d0b5": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "7117881d12512ebf0227": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "8320ef2829a814961b06": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "be86cfbb5bfd3f37541e": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "fbe26a2503b54cf9e9dc": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "040795ca039b3d65e0a7": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "2dcdea0c6039036cc569": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "4035a7ca47d4862b8817": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "69d421337d0aaba9ac26": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "6b9f456a6df29f234434": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "b13b5cbe04ce64f8e65b": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "dfa85cf0f1ebe25e8b62": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "e21fddc44c4027f3bccb": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "343647da768b66b9e5a1": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "3465caacf939425298e9": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (1.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "4fe6836eee270e0ff136": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "6a2c0d414b90ea4eb412": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "bb7bd0ab6dab90e5dee7": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "d4dccaa1203e4725dc05": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "dbf34cf53f96017da55f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "e66f62633c82aa57d491": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "1024348405d7d1542b5e": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "137934e80e19248e1a8b": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "191fea6ec4e0331dfead": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "23bbf4b7677bdcd0a42b": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "4170169f9347de0ee893": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "50a55b51014063e426e5": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "62dcff647168ef525ab7": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "7043db23dcf5d4d0d04f": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "7fc90b0dd64590e0be38": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "86f4857e4d729a56d307": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "b4c3623f0828eeccfc94": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "d8fae8d10cec04343e2a": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "6c0a93ba66c17db22e78": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "6cb7f3e130127c6463f3": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "6d56981a4270322dfea4": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "77d1ff81caaa3145a815": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "83708bb3ea5d60f0130a": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "a30639e3de4646990fed": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "a6d597334098a866b914": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "b9728fe6eaee07bfde11": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "bd1948336e973b0d55ea": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "eb2187cb6e1c550657c4": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "f805375d501cfdda540f": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "435aa8234dbbe059b14a": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b3b630de44ce0d247ef1": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c3b1c88bfb14b0e61b67": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "ddb5f7bf78d9af6ceef6": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "f77b9c3ec033b70d67ae": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "541bba0199681fd6563e": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "5b16a3ebf425b55fafdb": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "62c7a66945aaa478dc63": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "6d87b91ec22dfed17c68": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "ad1aa11db055f9879d53": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "da9536a5efbc2df37c43": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "304826407a10bcad8de6": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "737348afc4800f16da53": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "79deecea80d28ec0cab1": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "3cf9f1d0191067ae5050": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "081b03a09f0cb452e481": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook"
+ },
+ "ad_read": {},
+ "trimmed": {},
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-13T23:30:45Z",
+  "build": "ledger_20261113_232949",
+  "candidates_generated_at": "2026-11-13T23:30:01+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "ae7f410162d38e3b96b08bb363b14b34e94095a4ae9d9f2c5efbbd757f6739c1",
+  "threshold": 3.5,
+  "verdicts": 66,
+  "affirmed": 13,
+  "disagree_with_the_rule": [],
+  "candidates": 72,
+  "candidates_written": true,
+  "admitted": [
+   "28ebdcede4ba375f2607",
+   "5b8effa74a967fb0ebed",
+   "6058ee583d6fb7dce57c",
+   "87a6e1d0bb27b87b8fb3",
+   "94ca04cde8d0380acfe8",
+   "d6b855ab3f12b6436727",
+   "f2af9efdc1b09cace5ab"
+  ],
+  "trims_affirmed": [],
+  "trims_out": {
+   "79054d4b967721a77c40": "'But' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "7f2bf26b73cabe67ba12": "'So' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "9e342190702c908e0051": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "445810538f12ebf89b11": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (1.0, under 3.5)",
+   "6fc3cfea365e1845d0b5": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "7117881d12512ebf0227": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "be86cfbb5bfd3f37541e": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "fbe26a2503b54cf9e9dc": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "040795ca039b3d65e0a7": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "6b9f456a6df29f234434": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "3465caacf939425298e9": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (1.0, under 3.5)",
+   "d4dccaa1203e4725dc05": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "e66f62633c82aa57d491": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "1024348405d7d1542b5e": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "191fea6ec4e0331dfead": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "4170169f9347de0ee893": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "50a55b51014063e426e5": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (1.0, under 3.5)",
+   "62dcff647168ef525ab7": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "7043db23dcf5d4d0d04f": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "86f4857e4d729a56d307": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "d8fae8d10cec04343e2a": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "6cb7f3e130127c6463f3": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "77d1ff81caaa3145a815": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "83708bb3ea5d60f0130a": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "a6d597334098a866b914": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "f77b9c3ec033b70d67ae": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "79deecea80d28ec0cab1": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "081b03a09f0cb452e481": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)"
+  }
+ },
+ "prescreen": {
+  "screened": 49,
+  "cleared": 21,
+  "failed": {
+   "0fb234f62f47ba7a439a": [
+    "REFERENT_OUTSIDE"
+   ],
+   "cd54d1f66044b8c0885c": [
+    "STALE_TIME"
+   ],
+   "660722e78cd7d482bf80": [
+    "REFERENT_OUTSIDE"
+   ],
+   "24ab858ebb86e082b021": [
+    "STALE_TIME"
+   ],
+   "38dc9d04d8b6a7e25a10": [
+    "NOT_OWN_SINCERE"
+   ],
+   "6a638f56d35b55ada6c9": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "e8ac8d86dea8e2996ae0": [
+    "REFERENT_OUTSIDE"
+   ],
+   "f2af9efdc1b09cace5ab": [
+    "REFERENT_OUTSIDE"
+   ],
+   "3614a1396d3d0bebe305": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "3785a718b9cab116ab16": [
+    "NOT_OWN_SINCERE"
+   ],
+   "be9efa84fddb57f5d974": [
+    "REFERENT_OUTSIDE"
+   ],
+   "12facfaf0ffe80f3a804": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "56c3f96b6f148760c9f5": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "78909644aa3667a3e177": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "92605f87420c44b3b8f3": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "98f58a521b32f8f667c6": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "d4984b895d67f79a78c7": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "48c6e547726b0ee02400": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "94bd089fb811e443f4a5": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.91 > the limit 12.0 USD"
+   ],
+   "994ca307911a9ee1eb79": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "c6e96bc659f260a89f34": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "93d940a1a01b7aceb20c": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "9f9457fd2896c66182b7": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "a714eb9413d3d1a6c3e2": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "8d1898dbc113c9e406a1": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "e0ef020c20d3c577f58c": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "756d28a8b35a6d73c005": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.93 > the limit 12.0 USD"
+   ],
+   "a693c226f9e5fd697418": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 8.10 USD + reserved 3.70 + this call's upper bound 0.83 > the limit 12.0 USD"
+   ]
+  },
+  "second_pass": {
+   "33c015a45418bd193444": "PASS",
+   "f003b72d2fe13d894ea5": "PASS",
+   "30b3768c0e6304f64560": "PASS",
+   "a5f5a1d5d1e5482718f6": "PASS",
+   "6058ee583d6fb7dce57c": "PASS",
+   "5b8effa74a967fb0ebed": "L-v 2 FAIL",
+   "28ebdcede4ba375f2607": "L-v 2 FAIL",
+   "87a6e1d0bb27b87b8fb3": "L-v 2 FAIL",
+   "d6a0933722bd9d5a0607": "PASS",
+   "7a033059dd483e36a8db": "PASS",
+   "1e6d0bed659350c143a8": "L-v 2 FAIL",
+   "94ca04cde8d0380acfe8": "PASS",
+   "e05b34a672b73f3334ea": "PASS",
+   "f07b5a20dc8cd723d171": "not cuttable at an edge (ruling C / 7)",
+   "d7578b88ff8e0129064f": "PASS",
+   "d6b855ab3f12b6436727": "not cuttable at an edge (ruling C / 7)",
+   "1f1395f24e622b6001c0": "not cuttable at an edge (ruling C / 7)",
+   "b9f62d9986a3521426b0": "PASS",
+   "9ac17c2de186d8bd9c33": "PASS",
+   "b827182688d32b1d4aed": "PASS",
+   "a9e55fb94cc7f66d419e": "PASS"
+  },
+  "cuttable": 14,
+  "hook_onset": {
+   "33c015a45418bd193444": "PASS",
+   "b9f62d9986a3521426b0": "PASS",
+   "d6a0933722bd9d5a0607": "FAIL: 40 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "6058ee583d6fb7dce57c": "PASS",
+   "9ac17c2de186d8bd9c33": "PASS",
+   "b827182688d32b1d4aed": "PASS",
+   "f003b72d2fe13d894ea5": "PASS",
+   "30b3768c0e6304f64560": "FAIL: 20 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "a5f5a1d5d1e5482718f6": "PASS",
+   "94ca04cde8d0380acfe8": "FAIL: 10 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "a9e55fb94cc7f66d419e": "PASS",
+   "7a033059dd483e36a8db": "FAIL: 20 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "e05b34a672b73f3334ea": "PASS",
+   "d7578b88ff8e0129064f": "PASS"
+  },
+  "trim_cut": {},
+  "second_vendor": {
+   "33c015a45418bd193444": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "b9f62d9986a3521426b0": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "d6a0933722bd9d5a0607": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "6058ee583d6fb7dce57c": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "9ac17c2de186d8bd9c33": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "b827182688d32b1d4aed": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "f003b72d2fe13d894ea5": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "30b3768c0e6304f64560": "PASS (heimdall:deepseek/deepseek-v4.1-flash)",
+   "a5f5a1d5d1e5482718f6": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek",
+   "94ca04cde8d0380acfe8": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek",
+   "a9e55fb94cc7f66d419e": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek",
+   "7a033059dd483e36a8db": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek",
+   "e05b34a672b73f3334ea": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek",
+   "d7578b88ff8e0129064f": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:deepseek/deepseek"
+  }
+ },
+ "angles": [
+  {
+   "angle": "Bitcoin is a conservative long-term savings asset that AI cannot copy, so you need patience and a multi-year horizon.",
+   "moments": [
+    "b9f62d9986a3521426b0",
+    "33c015a45418bd193444",
+    "6058ee583d6fb7dce57c",
+    "d6a0933722bd9d5a0607"
+   ],
+   "hook": "b9f62d9986a3521426b0"
+  }
+ ],
+ "takeaways": [],
+ "package": null,
+ "visual": {
+  "calls": 1,
+  "cached": 0,
+  "usd_reported": 0.015924,
+  "usd_estimate": 0.0,
+  "estimated_calls": 0,
+  "unmeasured": 0,
+  "flags": 0
+ },
+ "hook_pool": {
+  "can_open": 7,
+  "rated": 7,
+  "error": null,
+  "min": 4,
+  "ratings": {
+   "33c015a45418bd193444": {
+    "scroll": 3,
+    "alone": 4,
+    "setup": 4,
+    "rating": 3,
+    "why": "mild opener lacks scroll-stopping punch",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   },
+   "9ac17c2de186d8bd9c33": {
+    "scroll": 3,
+    "alone": 4,
+    "setup": 3,
+    "rating": 3,
+    "why": "slow start, feels conclusive",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "a9e55fb94cc7f66d419e": {
+    "scroll": 1,
+    "alone": 1,
+    "setup": 3,
+    "rating": 1,
+    "why": "assumes prior context",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "b827182688d32b1d4aed": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "rating": 3,
+    "why": "first seconds not gripping",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "b9f62d9986a3521426b0": {
+    "scroll": 5,
+    "alone": 4,
+    "setup": 3,
+    "rating": 4,
+    "why": "sounds like a conclusion",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "e05b34a672b73f3334ea": {
+    "scroll": 2,
+    "alone": 2,
+    "setup": 4,
+    "rating": 2,
+    "why": "starts with filler and prior references",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   },
+   "f003b72d2fe13d894ea5": {
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "rating": 3,
+    "why": "lacks punch to stop scrolling",
+    "backend": "xai:grok-4.20-0309-reasoning",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   }
+  },
+  "best": [
+   {
+    "moment_id": "b9f62d9986a3521426b0",
+    "channel": "Simply Bitcoin",
+    "rating": 4,
+    "scroll": 5,
+    "alone": 4,
+    "setup": 3,
+    "why": "sounds like a conclusion",
+    "text": "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitc"
+   },
+   {
+    "moment_id": "b827182688d32b1d4aed",
+    "channel": "Stephan Livera",
+    "rating": 3,
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "why": "first seconds not gripping",
+    "text": "A Bitcoin mine does not get better at mining Bitcoin the longer it mines Bitcoin. The only way to get better at it is to become faster or to become larger."
+   },
+   {
+    "moment_id": "f003b72d2fe13d894ea5",
+    "channel": "Simply Bitcoin",
+    "rating": 3,
+    "scroll": 3,
+    "alone": 5,
+    "setup": 4,
+    "why": "lacks punch to stop scrolling",
+    "text": "Bitcoin is a life lessens in patience and conviction."
+   }
+  ],
+  "passing": [
+   "b9f62d9986a3521426b0"
+  ],
+  "visual_blocked": {}
+ },
+ "angle_backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "angle_tried": [],
+ "search": {
+  "lineups": 0,
+  "limit": 8,
+  "usd_reported": 0.162,
+  "usd_estimate": 1.6783,
+  "seconds": 705.8
+ },
+ "why_none": "no angle gave a package: angle 1: no line-up: the hook + 2-4 clips inside the medley's seconds and the channel rules",
+ "seconds": 705.8,
+ "usd": 1.6783,
+ "candidate_tries": [],
+ "usd_estimate": 1.6783,
+ "usd_best_known": 0.162,
+ "full": {
+  "est": 1.4747,
+  "best": 0.2106,
+  "model_s": 806.62,
+  "calls": 29
+ },
+ "code": "8cbdccee+94590a9c0779",
+ "now": "2026-11-14T00:23:00.909996+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ]
+ },
+ "inputs": {
+  "rows": 378,
+  "no_word_record": 12,
+  "no_word_record_why": {
+   "no word record in the store; no sentence-ready window record": 12
+  },
+  "no_word_record_videos": {
+   "m83V9Xl9wLg": {
+    "rows": 11,
+    "why": "no word record in the store; no sentence-ready window record"
+   },
+   "j7ZF-4hDKrk": {
+    "rows": 1,
+    "why": "no word record in the store; no sentence-ready window record"
+   }
+  },
+  "window_records": {
+   "L6H7538ogGs": [
+    "transcripts/L6H7538ogGs/windows/896.467-999.234.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/853.007-954.569.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/652.134-748.265.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/909.291-1010.290.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/683.651-798.758.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/896.467-1007.988.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/909.291-1007.988.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/0.000-100.213.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/279.080-384.867.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/815.442-917.949.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/708.800-809.201.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/658.316-762.982.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/5.126-103.305.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/797.477-896.910.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/690.175-805.629.whisper_words_punct.json",
+    "transcripts/L6H7538ogGs/windows/892.649-989.470.whisper_words_punct.json"
+   ],
+   "uaHNzi-Kgr8": [
+    "transcripts/uaHNzi-Kgr8/windows/2657.480-2756.694.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/0.000-90.030.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2877.581-2981.390.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/590.334-700.829.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/107.800-211.070.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1582.840-1682.757.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1053.070-1156.510.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1391.400-1502.733.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/100.760-197.690.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3425.510-3532.952.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2218.798-2318.670.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/980.541-1078.375.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/283.670-396.430.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3437.908-3537.595.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3522.518-3626.735.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/285.734-398.120.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3838.488-3952.814.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1874.031-1986.509.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2487.321-2595.870.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/418.146-524.430.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1652.851-1772.430.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2737.720-2849.630.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2904.920-3012.081.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3238.890-3336.675.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3043.079-3145.560.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1435.595-1539.360.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1240.560-1342.509.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/2441.000-2540.829.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/640.841-741.630.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3775.880-3870.656.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/194.215-299.710.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/3273.309-3373.630.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/1924.357-2024.830.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/0.040-97.572.whisper_words_punct.json",
+    "transcripts/uaHNzi-Kgr8/windows/83.479-190.750.whisper_words_punct.json"
+   ],
+   "3kV3nWC5SAY": [
+    "transcripts/3kV3nWC5SAY/windows/79.188-184.430.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/45.199-147.160.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/942.680-1013.000.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/184.849-284.912.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/769.959-865.332.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/769.959-867.710.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/239.806-344.303.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/914.440-1013.000.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/545.398-654.430.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/621.156-727.379.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/133.239-241.149.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/850.334-965.790.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/601.560-708.525.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/278.585-376.527.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/1.399-110.635.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/728.839-858.789.whisper_words_punct.json",
+    "transcripts/3kV3nWC5SAY/windows/823.136-927.953.whisper_words_punct.json"
+   ],
+   "NVUxOhIV3K8": [
+    "transcripts/NVUxOhIV3K8/windows/2501.220-2602.184.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/441.344-536.896.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1554.954-1654.868.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2212.251-2314.735.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2488.280-2600.663.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1412.658-1527.110.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1658.368-1764.089.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/168.520-278.586.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/738.230-853.626.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1903.172-2010.308.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1554.954-1658.460.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1478.533-1578.659.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/441.344-543.627.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/50.348-163.387.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1329.955-1440.234.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1636.093-1738.441.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1135.926-1266.327.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2119.758-2230.795.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1918.397-2024.852.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/228.407-340.701.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/917.611-1033.066.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/26.000-129.613.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2133.983-2233.656.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/726.787-845.452.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/596.321-695.096.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2060.736-2171.252.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2418.648-2531.492.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1350.624-1457.824.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2256.131-2377.606.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2343.029-2474.423.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1979.454-2079.806.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/524.490-623.883.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/611.227-714.436.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1051.871-1167.979.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1425.776-1531.931.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2566.601-2686.741.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1595.151-1707.633.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2651.286-2764.000.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/624.546-724.273.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2270.233-2385.194.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/578.702-677.123.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2617.519-2721.950.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1092.516-1202.583.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2173.844-2282.863.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1003.471-1127.045.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/1990.676-2091.268.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/271.296-371.300.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2699.221-2764.000.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/877.160-977.776.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2545.594-2642.140.whisper_words_punct.json",
+    "transcripts/NVUxOhIV3K8/windows/2662.235-2764.000.whisper_words_punct.json"
+   ],
+   "QlieBet41X0": [
+    "transcripts/QlieBet41X0/windows/49.850-153.460.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/606.034-711.944.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/597.773-695.980.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/65.499-172.109.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/498.493-598.670.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/661.229-776.550.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/531.720-626.085.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/18.511-129.373.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/678.165-786.106.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/724.637-831.806.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/37.181-131.271.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/696.168-806.237.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/521.386-615.530.whisper_words_punct.json",
+    "transcripts/QlieBet41X0/windows/71.764-174.775.whisper_words_punct.json"
+   ],
+   "KJRod6tJ_w8": [
+    "transcripts/KJRod6tJ_w8/windows/1492.149-1586.590.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/558.383-658.389.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/667.231-764.030.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/360.170-462.563.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/2267.394-2371.111.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/223.850-326.112.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/293.604-397.978.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/936.941-1046.234.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/306.173-405.390.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/771.993-882.589.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1620.970-1714.318.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/0.000-61.897.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/707.720-811.949.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1298.787-1406.835.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/2053.031-2152.025.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1650.479-1749.515.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1070.360-1181.129.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1710.223-1812.903.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/2147.788-2246.925.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/236.182-334.141.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1474.961-1572.825.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/2141.064-2237.731.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/1434.596-1533.126.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/875.499-990.910.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/821.713-920.440.whisper_words_punct.json",
+    "transcripts/KJRod6tJ_w8/windows/89.471-185.521.whisper_words_punct.json"
+   ],
+   "VqNMYCgZ3Vw": [
+    "transcripts/VqNMYCgZ3Vw/windows/1505.600-1605.360.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1094.880-1191.330.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1149.250-1247.300.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1249.440-1350.670.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/727.500-836.620.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1022.550-1118.710.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1022.550-1126.470.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/354.030-454.755.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/18.690-116.739.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1402.350-1501.210.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/227.840-330.640.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/625.040-720.280.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/349.430-444.030.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1519.410-1615.509.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1267.510-1363.470.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1349.020-1450.940.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1292.040-1390.200.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1036.510-1143.400.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/85.340-181.964.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/592.750-695.839.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/277.260-371.740.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/379.616-477.888.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/637.640-730.880.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1257.110-1356.461.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1330.175-1429.060.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1371.514-1467.180.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1185.587-1280.100.whisper_words_punct.json",
+    "transcripts/VqNMYCgZ3Vw/windows/1170.540-1266.204.whisper_words_punct.json"
+   ],
+   "NtaQGnfWRR8": [
+    "transcripts/NtaQGnfWRR8/windows/1225.021-1339.549.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/4085.544-4181.708.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2979.310-3090.575.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3529.000-3631.050.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2983.933-3095.069.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/993.472-1103.310.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/1317.331-1421.905.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2636.766-2736.718.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/1374.200-1475.169.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/4186.967-4279.745.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/1241.385-1359.230.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3826.236-3929.340.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3137.532-3237.084.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3430.200-3539.657.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/31.028-137.789.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2859.556-2957.710.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/4151.960-4249.550.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3601.717-3700.801.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/381.602-479.790.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2451.361-2553.909.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/980.360-1081.069.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3195.000-3288.589.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/4078.910-4175.472.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2355.376-2451.605.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3641.385-3748.910.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2772.061-2864.360.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/553.495-667.470.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2436.774-2538.473.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2636.766-2737.250.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3137.532-3241.054.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3188.200-3286.829.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/4046.134-4150.349.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3972.722-4072.485.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/879.176-994.058.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3859.571-3964.750.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/785.793-910.750.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3162.640-3266.065.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2812.239-2923.790.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3534.760-3631.050.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2381.699-2486.030.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2152.834-2263.469.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3373.240-3483.430.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3967.078-4062.628.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/1583.640-1689.310.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3408.280-3508.261.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2713.636-2819.150.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2163.316-2268.504.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/2101.372-2201.702.whisper_words_punct.json",
+    "transcripts/NtaQGnfWRR8/windows/3580.760-3679.268.whisper_words_punct.json"
+   ],
+   "Zgm4Vck6bVw": [
+    "transcripts/Zgm4Vck6bVw/windows/182.894-277.932.whisper_words_punct.json",
+    "transcripts/Zgm4Vck6bVw/windows/139.784-234.923.whisper_words_punct.json",
+    "transcripts/Zgm4Vck6bVw/windows/194.105-290.211.whisper_words_punct.json",
+    "transcripts/Zgm4Vck6bVw/windows/149.961-247.168.whisper_words_punct.json"
+   ],
+   "kqAD0sjfkz0": [
+    "transcripts/kqAD0sjfkz0/windows/5.738-111.950.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/299.960-405.255.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/454.638-558.984.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/220.199-326.073.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/679.800-782.362.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/12.457-111.950.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/743.360-853.098.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/754.440-871.447.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/54.400-166.445.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/578.760-685.145.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/926.485-1002.000.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/615.880-717.949.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/789.974-894.620.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/309.592-405.255.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/116.543-214.711.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/917.000-1002.000.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/932.246-1002.000.whisper_words_punct.json",
+    "transcripts/kqAD0sjfkz0/windows/248.440-361.790.whisper_words_punct.json"
+   ],
+   "w6eeNCfT4yY": [
+    "transcripts/w6eeNCfT4yY/windows/494.097-614.487.whisper_words_punct.json",
+    "transcripts/w6eeNCfT4yY/windows/561.268-671.461.whisper_words_punct.json",
+    "transcripts/w6eeNCfT4yY/windows/12.228-110.414.whisper_words_punct.json",
+    "transcripts/w6eeNCfT4yY/windows/544.056-660.862.whisper_words_punct.json",
+    "transcripts/w6eeNCfT4yY/windows/524.497-623.357.whisper_words_punct.json",
+    "transcripts/w6eeNCfT4yY/windows/171.483-283.003.whisper_words_punct.json"
+   ],
+   "XXfT9oeM14c": [
+    "transcripts/XXfT9oeM14c/windows/52.899-152.924.whisper_words_punct.json",
+    "transcripts/XXfT9oeM14c/windows/0.000-77.432.whisper_words_punct.json",
+    "transcripts/XXfT9oeM14c/windows/63.019-170.200.whisper_words_punct.json",
+    "transcripts/XXfT9oeM14c/windows/33.912-142.775.whisper_words_punct.json",
+    "transcripts/XXfT9oeM14c/windows/0.000-88.349.whisper_words_punct.json"
+   ],
+   "MqVqfEDXgLo": [
+    "transcripts/MqVqfEDXgLo/windows/895.091-1002.791.whisper_words_punct.json",
+    "transcripts/MqVqfEDXgLo/windows/1005.092-1116.254.whisper_words_punct.json",
+    "transcripts/MqVqfEDXgLo/windows/831.965-937.942.whisper_words_punct.json",
+    "transcripts/MqVqfEDXgLo/windows/973.609-1071.992.whisper_words_punct.json"
+   ],
+   "Z1RFzHDftu8": [
+    "transcripts/Z1RFzHDftu8/windows/194.343-306.395.whisper_words_punct.json",
+    "transcripts/Z1RFzHDftu8/windows/201.153-306.395.whisper_words_punct.json",
+    "transcripts/Z1RFzHDftu8/windows/151.377-263.541.whisper_words_punct.json",
+    "transcripts/Z1RFzHDftu8/windows/46.759-150.254.whisper_words_punct.json",
+    "transcripts/Z1RFzHDftu8/windows/163.621-265.811.whisper_words_punct.json",
+    "transcripts/Z1RFzHDftu8/windows/25.246-124.109.whisper_words_punct.json"
+   ],
+   "FwzBGg8tHYA": [
+    "transcripts/FwzBGg8tHYA/windows/576.554-679.967.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 86,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "ee6f530e9de775dd62f6": "snapped outward to whole sentences (0 word(s) before the anchored text, 30 after) it runs 21.03 s > 20 s (ruling 32: the clip length limit)",
+   "b017ed6e86b4da44897d": "snapped outward to whole sentences (0 word(s) before the anchored text, 35 after) it runs 31.37 s > 20 s (ruling 32: the clip length limit)",
+   "25b2ac9c1ef7e7f11176": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1068-1142 s)",
+   "76266c454b06b96b4763": "the row's text does not anchor in the word record (sentence_law.anchor, searched 116-183 s)",
+   "8177c62cd66848332316": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2234-2304 s)",
+   "93650b96a2fd5c9f98b2": "snapped outward to whole sentences (20 word(s) before the anchored text, 0 after) it runs 36.61 s > 20 s (ruling 32: the clip length limit)",
+   "477ade2a135481a97662": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3254-3322 s)",
+   "fdadf338e22c91742d1c": "snapped outward to whole sentences (0 word(s) before the anchored text, 10 after) it holds a caption speaker marker at 3826.96 s: a measured speaker change (ruling 32)",
+   "b397f153b760b232d972": "the row's text does not anchor in the word record (sentence_law.anchor, searched 958-1032 s)",
+   "dff2edd78333a53fc328": "the row's text does not anchor in the word record (sentence_law.anchor, searched 200-270 s)",
+   "7616b48563006de17c2b": "the row's text does not anchor in the word record (sentence_law.anchor, searched 255-329 s)",
+   "7c085a5e46a2310edc75": "the row's text does not anchor in the word record (sentence_law.anchor, searched 560-639 s)",
+   "e7ec0f7fc1a687d6db66": "the row's text does not anchor in the word record (sentence_law.anchor, searched 148-226 s)",
+   "3a636e37fc48044adac9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 865-951 s)",
+   "318721a732ff1bde08b9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 744-844 s)",
+   "9c3d0ebfe8fa24f6a73e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2516-2587 s)",
+   "0b43f6cd634b41cedc62": "snapped outward to whole sentences (0 word(s) before the anchored text, 19 after) it runs 23.90 s > 20 s (ruling 32: the clip length limit)",
+   "eda946ed1aafdbab51f1": "snapped outward to whole sentences (43 word(s) before the anchored text, 0 after) it runs 23.00 s > 20 s (ruling 32: the clip length limit)",
+   "f11bda8d05f432fe96e7": "snapped outward to whole sentences (0 word(s) before the anchored text, 21 after) it runs 20.60 s > 20 s (ruling 32: the clip length limit)",
+   "75db598a0f3c64993fc4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2076-2156 s)",
+   "32af0211055ddfb4854e": "snapped outward to whole sentences (5 word(s) before the anchored text, 33 after) it runs 39.45 s > 20 s (ruling 32: the clip length limit)",
+   "f4b74f1ab58a34776b58": "snapped outward to whole sentences (39 word(s) before the anchored text, 0 after) it runs 22.78 s > 20 s (ruling 32: the clip length limit)",
+   "e9fdcb43f27a2bfafef2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 621-697 s)",
+   "3cd550e80ea6432740ef": "the row's text does not anchor in the word record (sentence_law.anchor, searched 676-762 s)",
+   "c7f0b6df9f46d172680f": "the row's text does not anchor in the word record (sentence_law.anchor, searched 547-611 s)",
+   "6ffaf72028bc884a24a3": "the row's text does not anchor in the word record (sentence_law.anchor, searched 52-116 s)",
+   "1cc1ff879657543978e3": "the row's text does not anchor in the word record (sentence_law.anchor, searched 573-643 s)",
+   "8bf6f4fa5b70fc47f80e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 375-448 s)",
+   "235efa84b54ecf8c7117": "the row's text does not anchor in the word record (sentence_law.anchor, searched 309-383 s)",
+   "d67538f22568f66aa900": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1314-1392 s)",
+   "fb04503ee0acf5b94656": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1725-1798 s)",
+   "97b32c18b8dea81c27f1": "the row's text does not anchor in the word record (sentence_law.anchor, searched 251-319 s)",
+   "2b7410833dfc5d740d49": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1450-1518 s)",
+   "c9ea348c71dafdb2ed03": "the row's text does not anchor in the word record (sentence_law.anchor, searched 104-171 s)",
+   "41505e80a9ab451e5307": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1110-1176 s)",
+   "72c2811b85419f0c1166": "snapped outward to whole sentences (11 word(s) before the anchored text, 0 after) it runs 20.82 s > 20 s (ruling 32: the clip length limit)",
+   "da89b72560eac1c95abf": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1038-1104 s)",
+   "54fc68cc2aa40f4569da": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1417-1486 s)",
+   "6eb845a8db64804c51b1": "the row's text does not anchor in the word record (sentence_law.anchor, searched 243-316 s)",
+   "df046f3b5983b80ad3e4": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1534-1601 s)",
+   "85734871e045e8397dd9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 608-681 s)",
+   "331fa4ad97170c7cb729": "snapped outward to whole sentences (0 word(s) before the anchored text, 18 after) it runs 30.95 s > 20 s (ruling 32: the clip length limit)",
+   "f1eae8c070b488ed9308": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2875-2943 s)",
+   "f433b8c54c73a2bd5ca2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 4094-4160 s)",
+   "66da7e245171b1a8569e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 568-652 s)",
+   "e4d2fad8261d56f77008": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3203-3272 s)",
+   "630d15d2cad161f61922": "snapped outward to whole sentences (0 word(s) before the anchored text, 17 after) it runs 31.45 s > 20 s (ruling 32: the clip length limit)",
+   "6363b3aecfe42226edbe": "snapped outward to whole sentences (0 word(s) before the anchored text, 16 after) it runs 27.09 s > 20 s (ruling 32: the clip length limit)",
+   "795b454b286d71611316": "snapped outward to whole sentences (55 word(s) before the anchored text, 0 after) it runs 24.28 s > 20 s (ruling 32: the clip length limit)",
+   "bab9135079ceed7fcf7b": "snapped outward to whole sentences (27 word(s) before the anchored text, 0 after) it runs 23.63 s > 20 s (ruling 32: the clip length limit)",
+   "70ba541327c093a6aeea": "the row's text does not anchor in the word record (sentence_law.anchor, searched 198-263 s)",
+   "54b0df45b3e3f148809d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 155-220 s)",
+   "92922b76eb545d49562d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 209-275 s)",
+   "d68c2020603ff66458ad": "snapped outward to whole sentences (15 word(s) before the anchored text, 0 after) it runs 27.40 s > 20 s (ruling 32: the clip length limit)",
+   "73581cb689769885cd9f": "snapped outward to whole sentences (18 word(s) before the anchored text, 0 after) it runs 28.47 s > 20 s (ruling 32: the clip length limit)",
+   "d38c9957a262095550de": "the row's text does not anchor in the word record (sentence_law.anchor, searched 559-646 s)",
+   "6b1dbdc3a9cc2ae58bf2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 216-291 s)",
+   "339af0d56ce55c63b6e3": "the row's text does not anchor in the word record (sentence_law.anchor, searched 40-109 s)"
+  },
+  "malformed": {},
+  "duplicates": 26,
+  "duplicates_of": {
+   "9e70362bd88ea6767b50": "0b98666034c45156bad1",
+   "10c637c941eaa442d9ff": "0b98666034c45156bad1",
+   "d90b9c8a347bb5d7a54a": "4b9a87f2ac81089d98d7",
+   "3a94af297109b4ea5972": "535f97bf7c56b6e23706",
+   "fa432c21ea6cb7da1fe5": "504a0fa3826db77c1453",
+   "6db1f237d3b93d3e954f": "7bebf97589f5c25ce5d9",
+   "9f3aa150a155cd24089f": "603f80ce12867a82fe41",
+   "4db22633a4e9bd294af1": "52c4b6a59efa20ae3281",
+   "e5b259d53132b9a71654": "17195dc4952a632cbc0b",
+   "142314ca7342661a7932": "e57ae33c730b69b84673",
+   "41bb9a2a1d965e591224": "8dc185170a87f72d5c9e",
+   "49866213b823c6ccacf7": "7bffd809bbb5b8de1051",
+   "7a59507312e0b9156397": "919c8ef08faded59616c",
+   "f2b4d34f08da60404cb6": "fe03a3da3afba733161e",
+   "eaf6aa3846d3ef7f5891": "297a83ed3ac0b96ad532",
+   "2b8587c990edddc3dcc8": "3cec02cd8c6985332add",
+   "b5dfdf48b80fbe63cfe5": "a2f9dc8ff98b49f5a5ae",
+   "81e80a87dccd72f201f8": "499933a8f6bc851a5161",
+   "8309e6181264b8f8bb75": "66f3908ad9c0bbb3b3e9",
+   "f95e58470aac405ad337": "9d99e41cfc1876e36fef",
+   "4d75f1455dd09f797fc8": "893889a8245736debfa3",
+   "b21d5e84c31b59c8617b": "5545a2118136ae2fb6b2",
+   "b92086cfcdd57ac3efb6": "f8b058d08fa85c887699",
+   "55e142df39a4faaa4298": "1990ffd0f4925a6df349",
+   "b17deb167989228ce7a7": "1990ffd0f4925a6df349",
+   "df9f0515f3874f858760": "ab1fb30248cc1c5fbfc3"
+  },
+  "moments": 196,
+  "videos": 15,
+  "sources": 196,
+  "word_records": {},
+  "word_pass": {
+   "rows": 1813,
+   "unreadable": 0,
+   "ready": 1310,
+   "not_ready": 173,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 196,
+  "cleared": 21,
+  "cuttable": 14,
+  "hooks_4": 1
+ },
+ "spend_ruling_48": {
+  "before": 8.1039,
+  "after": 8.266,
+  "cap": 12.0,
+  "stop": 10.0,
+  "basis": "reported"
+ },
+ "registry": true
+}

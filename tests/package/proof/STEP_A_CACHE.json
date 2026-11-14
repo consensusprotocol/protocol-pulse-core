@@ -7411,5 +7411,1149 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "33c015a45418bd193444:8cef5ec5e513b240b56b51550f54018d65683db0b2aa07fff3f87134ab97ba1e:3858a759734328aae6a2dfbe2a6284f6135f99d1b01b14f3b7aa35f953027643:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "33c015a45418bd193444",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "stocks, Bitcoin or other liked investment",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the five or ten year period",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you just commit to five years, 10 years, and then you put the money in",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Committing ahead of time to hold stocks, Bitcoin or any liked asset for five or ten years means the question when price drops is not whether to sell but whether the holding period has elapsed.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "in the in that book I just wrote this um I had never met this guy but American Hodel who was on a podcast",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "33c015a45418bd193444",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the asset you put money in (stocks, Bitcoin, etc.)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the time since you committed",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you just commit to five years, 10 years, and then you put the money in",
+     "inside": true
+    },
+    {
+     "text": "when it goes down",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If you commit to a five- or ten-year horizon, you shouldn't ask whether to sell when the asset drops; ask whether the commitment period has elapsed.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "in that book I just wrote; James Safer, who I I wrote this recent book with",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b9f62d9986a3521426b0:08a3bb05b7e5368fb0e9664ab683d98a145f235cb6f22a9ec05d46fc89c38e92:d32af8a12001879fa6659e49ee2ff6495c435fbba9094566e783646f00228a87:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b9f62d9986a3521426b0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "AI (or robots)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI (or robots)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI (or robots)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "AI can copy software, undercut margins, replace employees and help foreign actors overthrow a CEO but cannot print more Bitcoin, cannot hack Bitcoin, and all the quantum talk changes nothing.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin Simply",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "b9f62d9986a3521426b0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "AI can disrupt companies and help adversaries, but it cannot create or hack Bitcoin, regardless of quantum talk.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin Simply.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d6a0933722bd9d5a0607:2950886e485c2c7b9acec737d07fdd2fb0c42e8a3c8906641a09e38e6df527e8:96cbd24c9e67890ab4af4ae5f7d6101653a869d60235a24eb758a279b06ab68d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d6a0933722bd9d5a0607",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People underestimate how unbelievably conservative Bitcoin miners must be in managing their businesses.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Robert Warren: Do Mining Pools Actually Threaten Bitcoin? | SLP789",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "d6a0933722bd9d5a0607",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People underestimate how conservative Bitcoin miners must be.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "we are not just kind of going out willy-nilly",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6058ee583d6fb7dce57c:59cea7f0f472eb02be900427a758da2ba5c0d3f6f68929d500520a5ef0009277:cecc4df388a5f556d445009977d3a53c5e3660a0fb18dd6719d2a24a74d7efef:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6058ee583d6fb7dce57c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "its",
+     "refers_to": "real estate",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Real estate will most likely be replaced by Bitcoin in its function as a savings account.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "And you are real estate operator. Um and maybe we should just start there like you know what is it that you do? Sure. \u203a\u203a How does it relate to Bitcoin?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "6058ee583d6fb7dce57c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "real estate's function",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over time",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over time, real estate will likely be replaced by Bitcoin as a savings account.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "I operate in real estate. We are a real estate development company.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "87a6e1d0bb27b87b8fb3:20a3455feac429a0baeca5f85b4e98a5f3d13e7b90030190fd4c27bae08f5fb9:9bce832b570450e7dc7cd372f4e21e381ec139f5d8435d7267cde37d0aa35ffa:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "87a6e1d0bb27b87b8fb3",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "plot of land in a vastly expanding digital economy",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Treating Bitcoin as digital real estate or digital property means its emergence opens a whole new opportunity of value creation in the digital space, with owning Bitcoin like owning a plot of land in a vastly expanding digital economy.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "And you are real estate operator. Um and maybe we should just start there like you know what is it that you do? Sure. \u203a\u203a How does it relate to Bitcoin?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9ac17c2de186d8bd9c33:c620fcf1ac220f8b9eeeb9bb24c8201f3f522eda2eafe8f4d7a33a9ac766250d:6ca5b6b6ecba91530511435f1ee42db017b5386aecc8c0cb81542374d364c409:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9ac17c2de186d8bd9c33",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the price of Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "Over the next year",
+     "inside": true
+    },
+    {
+     "text": "even if the price doesn't reflect it today or in the short term",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over the next year Bitcoin will prove it is the last thing standing even if the price does not reflect that today or in the short term, which is why it should be part of your portfolio.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin Simply. We'll be back on Sunday.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "9ac17c2de186d8bd9c33",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "itself",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the proposition that Bitcoin is the last thing standing",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "even if the price doesn't reflect it today or in the short term",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Over the next year, Bitcoin will prove itself as the last thing standing, even if its price doesn't show it now, so it belongs in your portfolio.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin Simply.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b827182688d32b1d4aed:93ed9a1bf2bc30df197be0032c1890232ec6b723443452792ff63032c0f75b11:b38620d85ffe665ce1fafd9ec95235dedd63e1fa36a5a5a9c60864a0a5f8a052:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b827182688d32b1d4aed",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "mining Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "A Bitcoin mine does not get better at mining Bitcoin merely by mining Bitcoin longer; the only way to get better is to become faster or larger.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Robert Warren: Do Mining Pools Actually Threaten Bitcoin? | SLP789",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "b827182688d32b1d4aed",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "mining Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "mining Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "A Bitcoin mine doesn't improve with age; the only way to improve is to become faster or larger.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "we are, we are governed and ruled by the laws of statistical variance",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0fb234f62f47ba7a439a:62c5a281df761289ca98f5a7e34b1716edb2952b6de90ecbd08abe9bc12d8152:ea024c208101400e23eacf69621a305efb054c2cb95df2218cc2c3198a4a349b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0fb234f62f47ba7a439a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the cyberattacks, AI bubble bursting, Nvidia events and related market vulnerabilities",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "why Bitcoin is the escape hatch or only asset AI can't touch",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the next year, as things get much worse",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin predicted the current AI and cyber events, is the only asset AI cannot touch, and over the next year as things get much worse this will become more obvious.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin simply. Let's go.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "5b8effa74a967fb0ebed:13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd:e24da37fff6768a728ff9b67ed3dc9ee687712b3fc9b7c8a807eecd0afbf76e0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "5b8effa74a967fb0ebed",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "On a one-year basis right now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "On a one-year basis right now, Bitcoin is down 28% while the S&P 500 is up 11%, showing significant divergent weakness.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I started making that call. So it's removed. Reiterate some of my calls. 2018 I called for Bitcoin to drop a zero from 10,000 dropped to 3000. Okay. So I was 70% right",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "cd54d1f66044b8c0885c:d5955b65d0d0e3b34b34511090b287c01e83db7dee9569171612af4f5ae50bb8:94f3b93d52ef64cc3840fd6277068d27cc388d22639318cadcdc454ac7b4f275:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "cd54d1f66044b8c0885c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "a good index",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin and Cryptos",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "Bitcoin and Cryptos",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "the minute it goes mainstream",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "uncertain",
+   "proposition": "The number one lesson about a good index from backtesting is that the minute it goes mainstream it is over, and that is exactly what happened to Bitcoin and cryptos when they went mainstream with the ETFs.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "The bottom line is it's down, way down from those levels. When I said to it, and part of the reason I did it was because I needed to encourage some of the people I saw buying it for the wrong reasons to not buy it.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f003b72d2fe13d894ea5:39f1396ff92f07d29c897e9312b059d17a48c49c23d8463ca9f8491cb575fb22:764326c33dd841e2ee14b370b38064599f4cacdda1d4bcb23df923eab7b10b6b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f003b72d2fe13d894ea5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is a life lesson in patience and conviction.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've done this for nine years now. I've been through multiple bare markets and everyone sucks, okay?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "f003b72d2fe13d894ea5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin teaches patience and conviction.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've done this for nine years now.; if it wasn't for you, Opti",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "30b3768c0e6304f64560:9391691fa4b5f8cb4776796fff048ef7ae778499b886e06b0905675d5d9e426b:ea34afe8347306e0dd4cf7bb82b47d86d917e7777a1b09fc641a456e7fd0207e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "30b3768c0e6304f64560",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "That",
+     "refers_to": "the number of blocks found per day",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you're a pool and you only have 3 % of the total network hash rate",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "A mining pool with only 3% of network hash rate can see its variance as high as 50%, so the four blocks per day it would expect to find can vary wildly.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "the short answer to what you're saying is Statistical variation can explain a lot of these things.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "30b3768c0e6304f64560",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "That",
+     "refers_to": "the number of blocks found per day (or the variance)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If you're a pool and you only have 3 % of the total network hash rate",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "A pool with 3% of network hash rate has high variance, expecting about four blocks per day but with wide swings.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Robert Warren: Do Mining Pools Actually Threaten Bitcoin? | SLP789",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "660722e78cd7d482bf80:601b72e3afef837d2e22261ac95c05a535c749c201ec777bb160127b25006a9f:fc037b9e0635d4a5cc7ae6d618cf9b5f046e064c22da2845e0268050c47f35c0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "660722e78cd7d482bf80",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "Public companies",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "every human being",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Public companies will buy Bitcoin because robots cannot make more of it even if every human being were a million times smarter than Einstein.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a5f5a1d5d1e5482718f6:c292d05722dd1e2d9cc7784def17bbffd42fdfc3a0e61d117a9cd5ecfba700e3:bebea46e7c266ba62b96fe4529d4d084ee38c3cdf3f68b798fab5fea46c6033a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a5f5a1d5d1e5482718f6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "on Thursday, Friday",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Traditional stock prices especially tech stocks saw much larger drops of 10-29% on Thursday and Friday while Bitcoin dropped only about 5-6%.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Do you see crypto prices I mean crypto prices have hung in there, especially Bitcoin. Do you see pressure coming to crypto prices as whatever was taken in the hack is sold off in pieces?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1e6d0bed659350c143a8:790f0c9cf57398c3eb9377077b09afd1c6a6449c3a4fd0704917446bba6cfd03:ffc0fabbc4524c0b6a798d2189b24a4265e6f5f6969b2761f414921fdf71f2ab:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1e6d0bed659350c143a8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "comparing Bitcoin to the number zero",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People who go deep on Bitcoin end up comparing it to innovations like the wheel, fire, electricity or the number zero, which is a profound innovation.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "because your book ends on this.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "24ab858ebb86e082b021:69e69eac478e73560b55aeb4c04a218e0ae137c62afa47718d39655d424978f4:673587d6d7f750888916a86ca5a84b413ce6345dcd83256ce1a9bc8879b4709e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "24ab858ebb86e082b021",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "no",
+   "proposition": "Bitcoin crashed to around $67,000 last night and is selling off badly for no clear reason while the broader market is bouncing.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "What is up everybody? Happy Friday and welcome to the show.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "28ebdcede4ba375f2607:9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc:e4662deecc97bbb42dfdafbbfb115628347d807cab695494c0374ac9a0654bce:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "28ebdcede4ba375f2607",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The real hard truth is that you cannot wait to live your life until Bitcoin price hits some target level X.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "the host of Simply Bitcoin tweeted this. \u203a\u203a Wait, wait, wait, wait, wait, wait, wait. Before this is what I This is what Hold on. Before we go further, uh, Brian, I really appreciate it. Uh, you know, making it seem like I'm a big deal. But when I was watching this, I was like, yo, like I'm just a dude.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "94ca04cde8d0380acfe8:7dfa8d1e62c67b823dbe070898eca69f3a450616c55eeaba7e51e6145b8355d6:5afcb808440b2e1ee76ba82d0e8300460793a8b32786f41fa765f5efcc5c5bdc:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "94ca04cde8d0380acfe8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "now",
+     "refers_to": "the present time as of the show",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin ETFs are now down over 1.5 billion in net outflows for the year with recent rapid redemptions explaining the market swoon as Bitcoin spot price fell below 70,000 on Friday, the lowest since August.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "but we have not seen the same behavior, unfortunately, with our beloved Bitcoin ETFs. Right. So, Bitcoin",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a9e55fb94cc7f66d419e:abedf4293ac56f2c88dcad3bf3a7b2db5eb74d349927ac4325d382b0922f0160:7860b6ba505477eb31719518a3cb1b8ecd7588eccec825a47bbe9f50289d1b72:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a9e55fb94cc7f66d419e",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Now",
+     "refers_to": "the current Bitcoin market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Before getting into the weekly reckoning I want to look at the Bitcoin chart since it has crashed the 67K and now comes the real test.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Highly recommend you check out the book. Go check out the book. Eric and James, they're like two of the people who've been on this show the most. So, I highly uh encourage you, command you to go buy the book and to support them because they're awesome. Now,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d6b855ab3f12b6436727:9d15148fcffddddeabc9b9f6380fe403971f1b42bbc0605d194eabb50d6cddac:b0a8424ab31279d747977b36fbee7a04b8cfaa19cb710e73f76410ca6a7176c9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d6b855ab3f12b6436727",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those",
+     "refers_to": "U.S. spot Bitcoin ETFs",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Big investors are not stepping in to buy the dip as more than half a billion dollars has flowed out of those U.S. spot Bitcoin ETFs this week, most of it from BlackRock's fund.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC. \u203a\u203a SO JOHN BITCOIN BRIEFLY FALLING BELOW $68,000 EARLIER TODAY.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "38dc9d04d8b6a7e25a10:e392721237f301eb5a3963934df8fe389a099585e65b41709d91b2e5243416af:8b3b9b9fd6b1378e522733be3bb50b4eb24fa8ffa32723d9051283d9214ef13b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "38dc9d04d8b6a7e25a10",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "if we want Bitcoin to succeed",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If we want Bitcoin to succeed, one thing we need to do is separate ourselves from all the scammers and shitcoin land.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've been telling you all year of this 2026, you know, our Lord's year of 2026 that while we're dealing with this bare market, you should have been eating well, you know, getting getting your exercise in, like trying to get yourself as fit as humanly possible. And you guys know, if you seen me this year, everyone that's seen me is like, \"Damn, Opti, you're so much bigger than I thought you were.\"",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6a638f56d35b55ada6c9:cbd62cf8c7bb5a0d796c5ea01923e9633340524f33186d0c1785160245723203:7a5b29ccb461aeb0c4b3064512e89a7174bfc7f9217c8594c7c38c33baa6937b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6a638f56d35b55ada6c9",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the mining pools hashrate distribution chart",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "people in general",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if three or four pools find most of the blocks",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One of the concerns that people have is that if three or four pools find most of the blocks then Bitcoin is centralized and that is a great question.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "I love Bitcoin mining, I wrote the Bitcoin Miner's Almanac, I, I love this stuff. So I think from an educational perspective, there's nothing better than doing it yourself.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7a033059dd483e36a8db:369ad99867de8fe1ee068c343e91ba53b1706c6612b58d3d85d7e9bd1e1b2fc3:fd5a866f003b8f3ae526aaae7259e4b9a6fa905522aaadacb17f268c8e970836:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7a033059dd483e36a8db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin changed my life 100 percent from my finances to what I do for a living to where I live to how I view the world.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "McFly Opti, for real, thank you for carrying the weight of the show. We need to talk. Just appreciate on a serious note. Thank you, man. I really appreciate it.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e05b34a672b73f3334ea:87514ebf7e4ac07aa4a498df20526f1e6058b6a6cdf24a6ad4cd9860dbde4ea3:a16be95e52d5da9a95b2cdf9c48c43ae9eae8d229b54f62e65f503787c9d5f18:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e05b34a672b73f3334ea",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Simply Bitcoin / hanging out in the live chat",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "I want every single person that has ever watched Simply Bitcoin and hung out with me in the live chat to become a better person because of this, not just richer.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "e8ac8d86dea8e2996ae0:8185aa1429b48f1f95495e8ac08b64569b19e673dfa23f6fffae4e204ff1eade:ea7645fc13ce8efe28de462de01b4fd907e3e5e252f7e02e3a95bf202e103de5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e8ac8d86dea8e2996ae0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "here",
+     "refers_to": "in this situation/regarding these holdings",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "JP Morgan increased its iBit holdings to 11.4 million shares worth $540 million and is bullish on both Bitcoin and MSTR.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "We got a lot to cover. Let's dive in. So, you can see the first story here. This is from Coindes.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f2af9efdc1b09cace5ab:f0ad9dda9fd8cdc8595f3a00887b8ced69fcd09444eb2366c913aa13578463bb:8f4fb5ab9ba1e6e8165bdb7129924f8395409f91a072d318fa5e01f1139618a3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f2af9efdc1b09cace5ab",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the stock market or Nasdaq",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Nasdaq peaked on October 6th of this year while Bitcoin peaked on October 6th of last year.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Do you see this as a as a sustainable recovery or as a dead cat bounce before a prolonged bear market for stocks? Much more. The latter I don't know how long it's going to last",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1f1395f24e622b6001c0:81f8445174a2da1e8b16b9a2898712625b2bec696c70f56677afe24c1dba4ee1:f548514a31985a1f316d3a0d373a36bf5d69e898efd90bdbe5428fee2e5130da:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1f1395f24e622b6001c0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the interviewer or long-time Bitcoin participant",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin lacks the vulnerabilities and hurdles that stocks have, and the addressee has been involved with it for a long time.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "The reason that I'm interested in Bitcoin is because I'm looking for things that are benefiting from growth that is going to happen of which there's going to be difficulty for competition.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3614a1396d3d0bebe305:fd9b4a8c405cb6e1ace36a01a2b03bca1e78d6d6663dad7b03fe387dc114dd4e:b5692ddbdb5886b8ac3cb4fc22ac4432d65b663e8301df83050a03de7e2ab0d0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3614a1396d3d0bebe305",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "there",
+     "refers_to": "the 5.15% five-year note yield level",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "the year 1999",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If we'd stayed there (at 5.15% yield)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If the five-year note yield had remained at 5.15%, it would have been the highest since 1999, which was ten years before Bitcoin existed.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "And I'll end with one key fact that happened this year is we've had right now, as we speak, that ten year note yield in the US is around 10%.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3785a718b9cab116ab16:66ed32972eb16243b99666e3b8215d3bda28297d34dec2767cdf25aa2405eced:1112a42f2b697c3a0ff12539ac81e8f61a17fd295de1e4059cba36f522b3f211:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3785a718b9cab116ab16",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy, the world's largest corporate Bitcoin holder, is being dropped from MSCI indexes, and the company described the proposal as discriminatory, arbitrary, and misguided while urging shareholders to oppose it.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "What is up everybody? Welcome to the Daily Wolf on Yahoo Finance. I am your host Scott Melker",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "be9efa84fddb57f5d974:5673dff7e37cf9dd97a8d9efeef56dd8bf99986d527ad16d33e008edd90e87dc:8fbe99ef6fefc5595af439b1ba11ea867206248c1174006c33cf6a8198615658:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "be9efa84fddb57f5d974",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "normal people or those adjacent to Bitcoin content",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People view Bitcoin like a shitcoin and treat it as mere gambling.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin and these guys are sponsored by like Duel and Stake",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d7578b88ff8e0129064f:fb829abc0286e340be0c48c3f9f513214d007da4dced2cf0e68d750a05d20628:accc441cb5db955cc43c6844a02ec6735a471716bfe7779e0ee6b72601a46e42:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d7578b88ff8e0129064f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "in the current Bitcoin market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "in the current Bitcoin market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Negative funding rates from traders betting against Bitcoin have historically marked short-term bottoms, raising hopes that the selling pressure may be ending.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f07b5a20dc8cd723d171:8ba7685561b54f885e905f3e9e10ab6aace90a447fe2441a0a26d45060f452ae:cd8b2dd066bb78cf3fad3c1336178f11a87047200dcc43f177b48f32673c3322:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f07b5a20dc8cd723d171",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "a generic person or the audience",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "To fake a Bitcoin dump, one sells Bitcoin to oneself at lower prices.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "This is my Bitcoin safe space. If it wasn't for you, I would have sold the top.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }
