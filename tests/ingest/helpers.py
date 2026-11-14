@@ -21,6 +21,7 @@ def router_cfg(chain, **over):
                         for b in chain},
            "roles": {"mine": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
                      "hook": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
+                     "flagcheck": {"chain": list(chain), "attempts": 2, "max_tokens": 1000},
                      "judge": {"chain": list(chain), "attempts": 2, "max_tokens": 1000}},
            "health": {"consecutive_failures": 3, "window": 10, "failure_fraction": 0.5, "window_s": 600,
                       "slow_median_s": 150, "open_s": 300},

@@ -204,7 +204,46 @@ def carry_forward(lines, earlier):
             # refuses it: L-m); audit r80 c1, muse
             if e.get("role_hint") == "hook":
                 l["role_hint"] = "hook"
-    return lines
+            for f, c in (e.get("risk_checks") or {}).items():          # ruling 40 P1: a second model's answer is
+                l.setdefault("risk_checks", {}).setdefault(f, c)       # about the same words: it travels too; the
+    return lines                                                       # new line's own answer wins
+
+
+RELEASE_ON_CHECK = ("imperative", "single_source_breaking")   # ruling 40 P1; accusation never (P2: re-measured first)
+
+
+def check_valid(l, flag):
+    """The second model's recorded answer for this flag of this line, when it COUNTS (ruling 40 P1): a flag of
+    RELEASE_ON_CHECK, answered yes / no / unsure by a model other than the line's miner, under the current definitions
+    (flagcheck.PROMPT_VERSION). Anything else is no answer (the flag stands)."""
+    from . import flagcheck
+    c = (l.get("risk_checks") or {}).get(flag)
+    if flag not in RELEASE_ON_CHECK or not isinstance(c, dict) or c.get("answer") not in flagcheck.ANSWERS:
+        return None
+    if c.get("prompt_version") != flagcheck.PROMPT_VERSION or not c.get("model") or \
+            c.get("model") == (l.get("mined") or {}).get("model"):
+        return None
+    return c
+
+
+def effective_risk(l):
+    """(the flags that exclude, the notes). RULING 40 P1: imperative and single_source_breaking stand as hard flags
+    only when BOTH models agree; a flag the second model answered "no" to stays as a recorded note, not an exclusion.
+    "yes", "unsure", no answer, or an answer that does not count keep it (fail closed). Every other flag stands."""
+    risk, notes = [], []
+    for r in l.get("risk") or []:
+        c = check_valid(l, r)
+        if c is not None and c["answer"] == "no":
+            notes.append({"flag": r, "miner": "flagged", "checker": "no", "model": c["model"], "why": c.get("why"),
+                          "at": c.get("at"), "rule": "ruling 40 P1: a hard flag only when both models agree"})
+        else:
+            risk.append(r)
+    return risk, notes
+
+
+def _view(l, eff, notes):
+    """The row as the adapter returns it: the stored line, or a copy whose risk is the effective one with the notes."""
+    return l if not notes else dict(l, risk=eff, risk_notes=notes)
 
 
 def video_moment_ids(path, video_id, since):
@@ -293,6 +332,7 @@ def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, 
         flags = l.get("flags_ext") or {}
         src = l.get("source") or {}
         pub = _aware(l["published_at"])
+        eff, notes = effective_risk(l)                             # ruling 40 P1
         exp = expiry(l)
         if exp is not None and now >= exp:
             drop("expired (rulings 76 + 77: 12 h after its video's publish time)")
@@ -304,7 +344,7 @@ def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, 
             drop("channel opted out")
         elif enabled is not None and l["channel_id"] not in enabled:
             drop("channel not enabled in the registry")
-        elif any(r in mine.HARD_RISKS for r in l["risk"]):
+        elif any(r in mine.HARD_RISKS for r in eff):
             drop("hard exclusion flag (L-u)")
         elif flags.get("altcoin") is not False or flags.get("about_bitcoin") is not True:
             drop("altcoin or not about Bitcoin")
@@ -321,9 +361,10 @@ def best_unused_moments(path, since, now=None, delivered_ids=(), registry=None, 
             if not ok:
                 drop(f"contract drift: {why}")
             else:
-                out.append(l)
+                out.append(_view(l, eff, notes))
         else:
-            out.append(l)
+            out.append(_view(l, eff, notes))
+    report["released_by_the_second_model"] = sum(1 for l in out if l.get("risk_notes"))
     out.sort(key=lambda l: (-mine.rank_score(l), l["moment_id"]))
     report["returned"] = len(out) if limit is None else min(limit, len(out))
     return (out if limit is None else out[:limit]), report

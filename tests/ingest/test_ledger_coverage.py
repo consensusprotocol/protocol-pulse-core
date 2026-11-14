@@ -334,3 +334,60 @@ def test_an_earlier_missing_value_adds_nothing_and_a_missing_value_of_the_new_li
     alt = ledger.carry_forward([line(rec, 0, 1, flags_ext={"about_bitcoin": True, "altcoin": False})],
                                [line(rec, 0, 1, flags_ext={"about_bitcoin": True, "altcoin": True})])[0]
     assert alt["flags_ext"]["altcoin"] is True
+
+
+class TestSecondModel:
+    """RULING 40 P1: imperative and single_source_breaking stand as hard flags only when BOTH models agree; a flag the
+    second model answered "no" to stays as a recorded note, not an exclusion. Accusation never (P2)."""
+    def check(self, answer="no", model="model-checker", version=None):
+        from pipeline.ingest import flagcheck
+        return {"answer": answer, "evidence": "", "why": "w", "model": model, "backend": "b",
+                "prompt_version": version or flagcheck.PROMPT_VERSION, "at": "t"}
+
+    def read(self, tmp_path, lines):
+        p = str(tmp_path / "m.jsonl")
+        ledger.append(p, lines)
+        return ledger.best_unused_moments(p, NOW - timedelta(hours=2), NOW, registry=[H.CHAN], optout=(),
+                                          store_root=os.environ["PP_INGEST_STORE"])
+
+    def test_a_no_from_a_second_model_releases_imperative_and_ssb_and_keeps_the_note(self, tmp_path, rec):
+        a = line(rec, 0, 1, risk=["imperative"], risk_checks={"imperative": self.check("no")})
+        b = line(rec, 2, 3, risk=["single_source_breaking", "time_sensitive"],
+                 risk_checks={"single_source_breaking": self.check("no")})
+        out, rep = self.read(tmp_path, [a, b])
+        assert sorted(l["sentences"] for l in out) == [[0, 1], [2, 3]] and rep["released_by_the_second_model"] == 2
+        got = {tuple(l["sentences"]): l for l in out}
+        assert got[(0, 1)]["risk"] == [] and got[(0, 1)]["risk_notes"][0]["flag"] == "imperative"
+        assert got[(2, 3)]["risk"] == ["time_sensitive"] and got[(2, 3)]["risk_notes"][0]["checker"] == "no"
+        stored = ledger.read(str(tmp_path / "m.jsonl"))[0]
+        assert ["imperative"] in [l["risk"] for l in stored]          # the ledger keeps the miner's label
+
+    @pytest.mark.parametrize("risk_checks", [
+        {"imperative": {"answer": "yes"}}, {"imperative": {"answer": "unsure"}}, {}, None,
+        {"imperative": {"answer": "no", "model": "SAME"}},            # the miner's own model: no second opinion
+        {"imperative": {"answer": "no", "version": "flagcheck/0"}},   # other definitions
+    ])
+    def test_anything_but_a_counting_no_keeps_the_flag(self, tmp_path, rec, risk_checks):
+        l = line(rec, 0, 1, risk=["imperative"])
+        miner = l["mined"].get("model") or "m@b"
+        l["mined"]["model"] = miner
+        if risk_checks:
+            c = risk_checks["imperative"]
+            model = miner if c.get("model") == "SAME" else "model-checker"
+            l["risk_checks"] = {"imperative": self.check(c["answer"], model, c.get("version"))}
+        out, rep = self.read(tmp_path, [l])
+        assert out == [] and rep["excluded"] == {"hard exclusion flag (L-u)": 1}
+
+    def test_accusation_is_never_released_and_another_hard_flag_still_excludes(self, tmp_path, rec):
+        acc = line(rec, 0, 1, risk=["accusation"], risk_checks={"accusation": self.check("no")})
+        both = line(rec, 2, 3, risk=["ad_read", "imperative"], risk_checks={"imperative": self.check("no")})
+        out, rep = self.read(tmp_path, [acc, both])
+        assert out == [] and rep["excluded"] == {"hard exclusion flag (L-u)": 2}
+
+    def test_a_later_line_carries_the_check_and_its_own_answer_wins(self, rec):
+        old = line(rec, 0, 1, risk=["imperative"], risk_checks={"imperative": self.check("no")})
+        new = ledger.carry_forward([line(rec, 0, 1, risk=["imperative"])], [old])[0]
+        assert new["risk_checks"]["imperative"]["answer"] == "no"
+        mine_ = ledger.carry_forward([line(rec, 0, 1, risk=["imperative"],
+                                          risk_checks={"imperative": self.check("yes")})], [old])[0]
+        assert mine_["risk_checks"]["imperative"]["answer"] == "yes"

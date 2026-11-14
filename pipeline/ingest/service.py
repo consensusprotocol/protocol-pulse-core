@@ -9,6 +9,9 @@ Loops (threads, one process):
   hook    every 5 s (ruling 80): the HOOK PASS, a second mining question over the same windows (mine.HOOK_PROMPT),
           on mined videos published in the last 12 h, newest first (2 videos at once): the current window's backfill
           at start, then every new upload once its moment pass is done; its rows are moments with role_hint "hook"
+  check   every 30 s (ruling 40 P1): the second model's narrow question on every imperative / single_source_breaking
+          flag of a moment still usable (published in the last 12 h, newest first) that has no answer that counts; the
+          answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no"
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
 Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
@@ -30,9 +33,9 @@ import threading
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
-from . import config, coverage, fetch, ledger, mine, providers, purge, spend, stats, watch
+from . import config, coverage, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -51,6 +54,11 @@ HOOK_WINDOWS = 4               # hook windows in flight at once, all hook passes
                                # uploads keep the rest of the back-end's slots (audit r80 c1, glm: no starvation)
 HOOK_RETRY_S = 600             # a hook pass with failed windows is tried again (stored replies make it cheap)
 HOOK_TRIES = 3                 # passes with REJECTED windows before the hooks of the good windows are written
+CHECK_EVERY_S = 30             # ruling 40 P1: the second-model check loop
+CHECK_ROWS = 8                 # rows started per loop
+CHECK_INFLIGHT = 4             # rows being checked at once (their questions are short; Heimdall stays under ~20)
+CHECK_RETRY_S = 600            # a question nobody answered is asked again after this (the flag stands meanwhile)
+CHECK_RECALIBRATE_S = 86400    # the checker is re-calibrated on the known quotes once a day (and at every start)
 
 
 class ServiceBusy(RuntimeError):
@@ -92,6 +100,9 @@ class Service:
         self.inflight, self.hook_inflight = set(), set()
         self.ilock, self.hlock = threading.Lock(), threading.Lock()
         self.wlock = threading.Lock()                   # every ledger append of this service (carry_forward + append)
+        self.checks = ThreadPoolExecutor(max_workers=CHECK_INFLIGHT, thread_name_prefix="check")
+        self.check_inflight, self.check_next, self.clock_lock = set(), {}, threading.Lock()
+        self.check_allowed, self.check_calibrated = None, 0.0
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
         self.cycle = None
@@ -404,6 +415,83 @@ class Service:
                 f.result()
         return len(started)
 
+    def check_row(self, l, flags, miner):
+        """RULING 40 P1: the second model's question for each flag; the measured answers go into a new line of the
+        moment (under the append lock, carrying everything earlier). A question nobody answered is asked again later;
+        its flag stands meanwhile (fail closed)."""
+        key = l["moment_id"]
+        try:
+            got = {}
+            for f in flags:
+                rec = flagcheck.record(flagcheck.ask(self.router, l, f, miner, allowed=self.check_allowed))
+                if rec is not None:
+                    got[f] = rec
+            if len(got) < len(flags):
+                with self.clock_lock:
+                    self.check_next[key] = self.clock() + CHECK_RETRY_S
+            if got:
+                new = json.loads(json.dumps(l))
+                new.setdefault("risk_checks", {}).update(got)
+                v = self.q.video(l["video_id"]) or {"video_id": l["video_id"], "discovered_ts": self.clock()}
+                self._append(v, [new])
+                self.q.event("flagcheck", l["video_id"], l.get("channel_id"), moment_id=key,
+                             answers={f: c["answer"] for f, c in got.items()},
+                             released=[f for f, c in got.items() if c["answer"] == "no"])
+                self.log(f"check {key} ({l.get('channel_name')}): " + ", ".join(
+                    f"{f} {c['answer']}" + (" (released: the models disagree)" if c["answer"] == "no" else "")
+                    for f, c in got.items()) + (f"; unanswered {sorted(set(flags) - set(got))}" if len(got) <
+                                                len(flags) else ""))
+        except Exception as e:
+            with self.clock_lock:
+                self.check_next[key] = self.clock() + CHECK_RETRY_S
+            self.q.event("check_crash", l.get("video_id"), l.get("channel_id"), error=traceback.format_exc()[-2000:])
+            self.log(f"check {key}: crashed {type(e).__name__}: {e}")
+        finally:
+            with self.clock_lock:
+                self.check_inflight.discard(key)
+
+    def check_once(self, wait=False):
+        """RULING 40 P1: start the second-model check on the newest still-usable moments whose imperative /
+        single_source_breaking flag has no answer that counts. Only back-ends that answer every calibration quote
+        right may answer (none: nothing is checked, every flag stands)."""
+        if self.check_allowed is None or self.clock() - self.check_calibrated >= CHECK_RECALIBRATE_S:
+            self.check_allowed, cal = flagcheck.watcher_checkers(self.router)
+            self.check_calibrated = self.clock()
+            self.q.kv_set("check_calibration", json.dumps({b: {k: c[k] for k in ("model", "right", "of", "unmeasured")}
+                                                           for b, c in cal.items()}))
+            self.log(f"check: calibration {[(b, c['right'], c['of']) for b, c in cal.items()]}; allowed to answer: "
+                     f"{self.check_allowed or 'none (every flag stands)'}")
+        if not self.check_allowed:
+            return 0
+        now = datetime.now(timezone.utc)
+        lines = ledger.read(self.p["ledger"], from_time=now - timedelta(hours=config.EXPIRY_H, days=1))[0]
+        latest, miners = {}, {}
+        for l in lines:
+            latest[l["moment_id"]] = l
+            b, m = miners.setdefault(l["video_id"], (set(), set()))
+            b.add((l.get("mined") or {}).get("backend"))
+            m.add((l.get("mined") or {}).get("model"))
+        todo = []
+        with self.clock_lock:
+            for key, l in latest.items():
+                exp = ledger.expiry(l)
+                if exp is None or now >= exp or key in self.check_inflight or \
+                        self.check_next.get(key, 0) > self.clock():
+                    continue
+                flags = [f for f in ledger.RELEASE_ON_CHECK if f in l["risk"] and ledger.check_valid(l, f) is None]
+                if flags:
+                    todo.append((l["published_at"], key, l, flags))
+            todo.sort(key=lambda x: (x[0], x[1]), reverse=True)                       # newest first
+            room = CHECK_INFLIGHT - len(self.check_inflight)
+            todo = todo[:max(0, min(CHECK_ROWS, room))]
+            for _, key, _, _ in todo:
+                self.check_inflight.add(key)
+        started = [self.checks.submit(self.check_row, l, flags, miners[l["video_id"]]) for _, _, l, flags in todo]
+        if wait:
+            for f in started:
+                f.result()
+        return len(started)
+
     def mine_once(self, wait=False):
         started = []
         with self.ilock:
@@ -550,6 +638,7 @@ class Service:
             ("fetch", self.fetch_once, 10.0),
             ("mine", self.mine_once, 5.0),
             ("hook", self.hook_once, 5.0),
+            ("check", self.check_once, CHECK_EVERY_S),
             ("health", self.health_once, 60.0),
             ("purge", self.purge_once, float((self.purge_spec or {}).get("every_s", 600))))]
         for t in threads:

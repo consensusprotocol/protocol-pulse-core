@@ -49,6 +49,31 @@ QUESTIONS = {
     "single_source_breaking": "Does this quote make a new factual claim about a current event resting on this speaker "
                               "alone?",
 }
+# RULING 40 P2 (orchestrator 19:22 ET Nov 13): accusation is re-measured under the SHARPENED definition the proposal
+# gave (insinuation counts; "identifiable" from the clip's words, its title or its channel; criticism is not
+# wrongdoing) before anything is released; until then accusation stays hard as the miner labels it.
+SHARPENED = {
+    "accusation": ("alleges or insinuates wrongdoing (crime, fraud, market manipulation, corruption, self-dealing, "
+                   "dishonesty or abuse of office) by a person or organisation named in the clip or identifiable from "
+                   "its words, its title or its channel; criticism of a strategy, an opinion or a policy alleges no "
+                   "wrongdoing"),
+}
+SHARPENED_QUESTIONS = {
+    "accusation": ("Does this quote allege or insinuate wrongdoing by a person or organisation named in it or "
+                   "identifiable from its words, its title or its channel?"),
+}
+SHARPENED_VERSION = "flagcheck/1+accusation-sharpened"
+INSINUATION_PROBES = (       # the cases the first definition's checker let through (fictional names)
+    ("accusation", "yes", "Every time Dan Mercer tweets something bullish, the price dumps an hour later. Funny how "
+                          "that keeps happening."),
+    ("accusation", "yes", "Northgate keeps liquidating its own customers right before the big moves, and nobody "
+                          "asks why."),
+    ("accusation", "yes", "Ever since the hack, that exchange has been clearing the order book to refill its "
+                          "insurance fund."),
+    ("accusation", "no", "Dan Mercer's strategy is basically gambling with borrowed money, in my opinion."),
+    ("accusation", "no", "The central bank's new policy is a mistake that will hurt savers for years."),
+    ("accusation", "no", "Northgate was hacked last week, and it has already repaid every customer."),
+)
 ANSWERS = ("yes", "no", "unsure")
 CELLS = ANSWERS + ("unmeasured",)
 KEYS = ("answer", "evidence", "why")
@@ -135,8 +160,10 @@ def _norm(s):
     return " ".join(re.sub(r"[^0-9a-z]+", " ", str(s).lower()).split())
 
 
-def prompt(row, flag):
-    return PROMPT.format(flag=flag, definition=DEFINITIONS[flag], question=QUESTIONS[flag],
+def prompt(row, flag, sharpened=False):
+    d = SHARPENED if sharpened and flag in SHARPENED else DEFINITIONS
+    qs = SHARPENED_QUESTIONS if sharpened and flag in SHARPENED_QUESTIONS else QUESTIONS
+    return PROMPT.format(flag=flag, definition=d[flag], question=qs[flag],
                          channel=mine._untrusted(mine._q(row.get("channel_name"), 120)),
                          title=mine._untrusted(mine._q(row.get("title"), 200)),
                          date=mine._untrusted(str(row.get("published_at") or "")[:10]),
@@ -220,14 +247,15 @@ def checkers(router, miner):
     return [b for b in router.effective(ROLE) if b not in backends and router.backends[b].model not in models]
 
 
-def ask(router, row, flag, miner, can_spend=lambda: True):
-    cands = checkers(router, miner)
+def ask(router, row, flag, miner, can_spend=lambda: True, sharpened=False, allowed=None):
+    """allowed: the back-ends that may answer (the watcher passes the ones that passed the calibration)."""
+    cands = [b for b in checkers(router, miner) if allowed is None or b in allowed]
     if not cands:
         return {"answer": None, "unmeasured": "no checker back-end that is not the miner (or the miner is not "
-                                              "recorded)"}
+                                              "recorded), or none passed the calibration"}
     if not can_spend():
         return {"answer": None, "unmeasured": "the run's budget was reached"}
-    p, tried = prompt(row, flag), []
+    p, tried = prompt(row, flag, sharpened), []
     for bid in cands:
         try:
             out = router.run(ROLE, p, SCHEMA, validator(row.get("text") or ""),
@@ -240,17 +268,17 @@ def ask(router, row, flag, miner, can_spend=lambda: True):
     return {"answer": None, "unmeasured": tried}
 
 
-def calibrate(router, workers=6):
-    """Every callable back-end of the role answers PROBES (the fallback's accuracy is known too):
+def calibrate(router, workers=6, probes=PROBES, sharpened=False):
+    """Every callable back-end of the role answers the probes (the fallback's accuracy is known too):
     {back-end: {model, right, of (answered), unmeasured, by_flag {flag: [right, of]}, wrong [...]}}."""
-    jobs = [(bid, i) for bid in router.effective(ROLE) for i in range(len(PROBES))]
+    jobs = [(bid, i) for bid in router.effective(ROLE) for i in range(len(probes))]
 
     def one(job):
         bid, i = job
-        flag, _, text = PROBES[i]
+        flag, _, text = probes[i]
         row = {"channel_name": "Calibration", "title": "Bitcoin news", "published_at": "2026-11-12", "text": text}
         try:
-            out = router.run(ROLE, prompt(row, flag), SCHEMA, validator(text), tag={"probe": i}, only=bid)
+            out = router.run(ROLE, prompt(row, flag, sharpened), SCHEMA, validator(text), tag={"probe": i}, only=bid)
         except AllBackendsFailed:
             return bid, i, None
         return bid, i, out.obj["answer"]
@@ -258,7 +286,7 @@ def calibrate(router, workers=6):
     res = {}
     with ThreadPoolExecutor(workers) as ex:
         for bid, i, ans in ex.map(one, jobs):
-            flag, gold, text = PROBES[i]
+            flag, gold, text = probes[i]
             r = res.setdefault(bid, {"model": router.backends[bid].model, "right": 0, "of": 0, "unmeasured": 0,
                                      "by_flag": {f: [0, 0] for f in FLAGS}, "wrong": []})
             if ans is None:
@@ -272,6 +300,22 @@ def calibrate(router, workers=6):
             else:
                 r["wrong"].append({"flag": flag, "gold": gold, "answer": ans, "text": text})
     return res
+
+
+def record(ans):
+    """What a checked line carries for one flag (ruling 40 P1, the watcher), or None when nothing was measured."""
+    if not isinstance(ans, dict) or ans.get("answer") not in ANSWERS:
+        return None
+    return {"answer": ans["answer"], "evidence": ans.get("evidence", ""), "why": ans.get("why", ""),
+            "model": ans.get("model"), "backend": ans.get("backend"), "prompt_version": PROMPT_VERSION,
+            "at": config.iso()}
+
+
+def watcher_checkers(router, workers=4):
+    """The back-ends allowed to answer in the watcher: those that answered EVERY calibration quote, right (ruling 40
+    P1 releases a hard flag on their answer: a checker that misses a known case never does). -> (ids, calibration)."""
+    cal = calibrate(router, workers)
+    return [b for b, c in cal.items() if c["of"] == len(PROBES) and c["right"] == c["of"]], cal
 
 
 def cell(check):
@@ -436,7 +480,59 @@ def write_md(report, path):
         f.write("\n".join(md) + "\n")
 
 
+def remeasure(a):
+    """RULING 40 P2: the saved run's rows (--rerun flagcheck.json) asked the ACCUSATION question again under the
+    sharpened definition; the checker calibrated first on PROBES' accusation quotes plus INSINUATION_PROBES. Writes
+    remeasure_accusation.json and prints the table against the miner and against the first definition's answers."""
+    with open(a.rerun) as f:
+        saved = json.load(f)
+    out = a.out or os.path.join(os.path.dirname(a.rerun), "remeasure_accusation")
+    os.makedirs(out, exist_ok=True)
+    root = config.store_root()
+    cfg = providers.load_config()
+    cfg["global"]["max_inflight"] = int(a.max_inflight)
+    if a.transport_retries is not None:
+        cfg["throttle"]["transport_retries"] = int(a.transport_retries)
+    attempts, alock = [], threading.Lock()
+
+    def on_attempt(rec):
+        rec = dict(rec, at=config.iso())
+        rec.pop("content", None)
+        with alock:
+            attempts.append(rec)
+            with open(os.path.join(out, "attempts.jsonl"), "a") as fh:
+                fh.write(json.dumps(rec, default=str) + "\n")
+
+    router = providers.Router(cfg, on_attempt=on_attempt, cache_dir=os.path.join(root, "ingest", "flagcheck",
+                                                                                  "replies"))
+    probes = tuple(p for p in PROBES if p[0] == "accusation") + INSINUATION_PROBES
+    cal = calibrate(router, int(a.max_inflight), probes, sharpened=True)
+    for bid, c in cal.items():
+        print(f"calibration {bid} ({c['model']}): {c['right']}/{c['of']} right, {c['unmeasured']} unmeasured; wrong "
+              f"{[(w['gold'], w['answer'], w['text'][:50]) for w in c['wrong']]}")
+    rows = saved["results"]
+    miners = {r["video_id"]: ({r["miner"]["backend"]}, {r["miner"]["model"]}) for r in rows}
+    spent = lambda: sum((r.get("cost_usd") or 0.0) for r in attempts)   # noqa: E731
+    with ThreadPoolExecutor(int(a.max_inflight)) as ex:
+        futs = [ex.submit(ask, router, r, "accusation", miners[r["video_id"]], lambda: spent() < a.budget_usd, True)
+                for r in rows]
+        answers = [f.result() for f in futs]
+    res = [dict(r, checks={"accusation": c}, before=r["checks"]["accusation"]) for r, c in zip(rows, answers)]
+    t = table(res, "accusation")
+    moved = Counter((cell(r["before"]), cell(r["checks"]["accusation"])) for r in res if "accusation" in r["risk"])
+    report = {"at": config.iso(), "version": SHARPENED_VERSION, "definition": SHARPENED["accusation"],
+              "question": SHARPENED_QUESTIONS["accusation"], "calibration": cal, "table": t,
+              "miner_flagged_before_to_now": {f"{k[0]} -> {k[1]}": v for k, v in sorted(moved.items())},
+              "spend_usd": round(spent(), 6), "rows": len(res)}
+    with open(os.path.join(out, "remeasure_accusation.json"), "w") as fh:
+        json.dump({"report": report, "results": res}, fh, indent=1, ensure_ascii=False, default=str)
+    print(json.dumps({k: report[k] for k in ("table", "miner_flagged_before_to_now", "spend_usd")}, indent=1))
+    print(f"results: {out}/remeasure_accusation.json")
+
+
 def main(a):
+    if getattr(a, "rerun", None):
+        return remeasure(a)
     now = datetime.now(timezone.utc)
     root = config.store_root()
     path = a.ledger or os.path.join(root, "moments", "moment_ledger.jsonl")
@@ -533,6 +629,8 @@ def add_args(p):
                    "two together stay under ~20 on the shared gateway)")
     p.add_argument("--transport-retries", type=int, help="this run's retries of a timeout or transport error on the "
                    "same back-end (default: the config's); 0 sends such a question to the role's next back-end")
+    p.add_argument("--rerun", help="ruling 40 P2: re-ask accusation of this flagcheck.json's rows under the sharpened "
+                   "definition")
     p.add_argument("--out")
 
 

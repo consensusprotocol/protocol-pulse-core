@@ -444,3 +444,66 @@ def test_a_hook_pass_in_an_outage_waits_without_using_a_try(svc):
     row = s.q.video(vids[0])
     assert row["hook_ts"] is None and not row["hook_tries"] and row["hook_next_ts"] > s.clock()
     assert row["hook_note"].startswith("OUTAGE")
+
+
+def _checker(rows_answer="no", probes_right=True):
+    """The second model in the service tests: answers the calibration quotes (right, or one wrong) and every row's
+    question with rows_answer; everything else like a miner."""
+    import re
+    from pipeline.ingest import flagcheck as FC
+    gold = {t: g for _, g, t in FC.PROBES}
+
+    def fn(prompt):
+        if "You answer ONE narrow question" not in prompt:
+            return H.first_two_and_hooks(prompt)
+        q = re.search(r"QUOTE: (.*)\n</quote>", prompt).group(1)
+        ans = gold.get(q, rows_answer)
+        if not probes_right and q == FC.PROBES[0][2]:
+            ans = "no"
+        ev = q.split()[0] if ans == "yes" else ""
+        return json.dumps({"answer": ans, "evidence": ev, "why": "w"})
+    return fn
+
+
+def _flagging_miner(prompt):
+    if H.is_hook(prompt):
+        return H.hooks_reply(prompt)
+    ids = H.offered_ids(prompt)
+    return H.reply([H.moment(ids[0], ids[1], risk=["imperative"])])
+
+
+def test_the_watcher_asks_the_second_model_and_the_adapter_releases_a_no(svc):
+    """Ruling 40 P1 end to end: a moment the miner flagged imperative is asked of the second model (a model other than
+    the miner's, calibrated first); its "no" goes into a new line of the moment; the adapter returns the moment with
+    the label as a note."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
+    out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"])
+    assert out == [] and rep["excluded"]["hard exclusion flag (L-u)"] >= 1          # flagged: excluded
+    while s.check_once(wait=True):
+        pass
+    assert s.check_allowed == ["fallback"]                                        # the miner's back-end never checks
+    out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"])
+    assert out and all(l["risk"] == [] and l["risk_notes"][0]["flag"] == "imperative" for l in out)
+    assert rep["released_by_the_second_model"] == len(out)
+    assert s.check_once(wait=True) == 0                                           # answered: not asked again
+
+
+def test_a_checker_that_misses_a_calibration_quote_never_releases_anything(svc):
+    s, vids, b = svc(_flagging_miner, _checker("no", probes_right=False), n_videos=1)
+    run_once(s)
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []
+    since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
+    out, _ = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"])
+    assert out == []
+
+
+def test_an_unanswered_question_records_nothing_and_waits(svc):
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    s.check_allowed, s.check_calibrated = ["fallback"], s.clock()
+    b["fallback"].fn = lambda p: providers.BackendError("network", "down")
+    assert s.check_once(wait=True) >= 1
+    assert not [l for l in ledger.read(s.p["ledger"])[0] if l.get("risk_checks")]
+    assert s.check_once(wait=True) == 0                                           # retried only after CHECK_RETRY_S

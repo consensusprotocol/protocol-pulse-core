@@ -111,6 +111,23 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
                 (Q.MINED, Q.MINED_PARTIAL, h0))[0]
     out["hooks_12h"] = {"mined_videos": hk["videos"] or 0, "hook_pass_done": hk["done"] or 0,
                         "hook_rows": hk["rows_"] or 0, "usd": round(hk["usd"] or 0.0, 4)}
+    ck = {"rows_checked": 0, "answers": {}, "released": 0}            # ruling 40 P1: the second-model check
+    for e in q.rows("SELECT detail FROM events WHERE kind='flagcheck' AND ts >= ?", (h0,)):
+        try:
+            d = json.loads(e["detail"] or "{}")
+        except ValueError:
+            continue
+        ck["rows_checked"] += 1
+        ck["released"] += len(d.get("released") or [])
+        for f, a in (d.get("answers") or {}).items():
+            ck["answers"][f"{f} {a}"] = ck["answers"].get(f"{f} {a}", 0) + 1
+    ck["usd"] = round(q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS u FROM calls WHERE role='flagcheck' AND ts >= ?",
+                             (h0,))[0]["u"] or 0.0, 4)
+    try:
+        ck["calibration"] = json.loads(q.kv_get("check_calibration") or "null")
+    except ValueError:
+        ck["calibration"] = None
+    out["second_model_checks_12h"] = ck
     return out
 
 
