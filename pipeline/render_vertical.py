@@ -400,8 +400,10 @@ def _input_colour(path):
 def _shot_vf(shot, src_w, src_h):
     """Filter for one shot of a 1920x1080 prepared clip -> 1080x1920 (approved filters reused)."""
     cls = shot["class"]
-    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a)
-        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))
+    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a); ruling 93:
+        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))    # the plan's lower-third-clear x
+        if isinstance(shot.get("crop_x"), int) and 0 <= shot["crop_x"] <= src_w - CROP_W:
+            x = shot["crop_x"]
         return f"crop={CROP_W}:{CROP_H}:{x}:0,scale={VERT_W}:{VERT_H}:flags=lanczos"
     if cls in ("stack2", "stack3"):                       # equal bands, left to right (Law 18b equal mode)
         n = int(cls[-1])
