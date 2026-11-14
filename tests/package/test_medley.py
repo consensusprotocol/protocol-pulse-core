@@ -538,7 +538,7 @@ class Rig:
         self.lock_check = lock_check                        # rulings 68 / 72: the render's lock (lock_precheck.check)
         self.visuals, self.visual_calls = dict(visuals or {}), []   # ruling 70: {moment id: record} (default: clean)
         self.a_fail, self.unavailable = dict(a_fail or {}), set(unavailable)   # step A per (vendor, moment id)
-        self.screens, self.events, self.a_seen = [], [], []
+        self.screens, self.events, self.a_seen, self.screen_deadlines = [], [], [], []
         self.write_from = write_from or ("heimdall:deepseek", "heimdall", "deepseek")
         many = angle_moments if isinstance(angle_moments[0], list) else [angle_moments]
         self.router = Canned(angle_write=[{"angles": [angle(a, a[0]) for a in many]}] + ([follow_up] if follow_up else [])
@@ -562,7 +562,8 @@ class Rig:
         self.write_avoid = []
 
     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
-                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None):
+                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None):
+        self.screen_deadlines.append(deadline_s)           # ruling 82: which calls are bounded
         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
         av, af = self.P._as_set(writer_vendor), self.P._as_set(writer_family)
@@ -1115,7 +1116,7 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
         import context_integrity as CI
         from test_gates import a_item
 
-        def step_a(router_, contexts, wv, seed=7, writer_family=None):
+        def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False):
             calls.append((sorted(contexts), seed))
             if set(contexts) & set(fail):
                 raise RuntimeError("the batch reply was out of contract")
@@ -2345,7 +2346,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
                   a_fail={("heimdall", "y"): ["REFERENT_OUTSIDE"]})
         out = rig.run()
         self.assertEqual(rig.screens[0], ("xai:grok", ["h", "x", "y", "z"]))          # the first screen, off heimdall
-        self.assertEqual(rig.screens[1], ("heimdall:deepseek", ["h", "x", "y", "z"]))  # the second, off xai
+        self.assertEqual(rig.screens[1:3], [("heimdall:deepseek", ["h", "x"]),          # the second, off xai, in
+                                            ("heimdall:deepseek", ["y", "z"])])         # ruling 82's chunks of 2
         self.assertLess(rig.events.index("step_a:heimdall:deepseek"), rig.events.index("angle_write"))
         sv = out["prescreen"]["second_vendor"]
         self.assertEqual(sv["h"], "PASS (heimdall:deepseek)")
@@ -2373,7 +2375,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertEqual(set(rig.a_seen[0].values()), {"heimdall:deepseek"})
         self.assertEqual(rig.write_avoid, [{"heimdall"}])          # and every write avoids Heimdall, so with the two
         # real vendors the writers never span both and a verdict off them always exists (audit 0640 C1, glm cond. 1)
-        self.assertEqual(len(rig.screens), 2)                      # and no re-screen was needed after the write
+        self.assertEqual(len(rig.screens), 3)                      # (the second screen in two chunks of 2) and no
+        #   re-screen was needed after the write
         self.assertIsNotNone(out["package"])
 
     def test_a_clip_that_fails_its_re_screen_is_swapped_out_alone_and_the_line_up_carries_on(self):
@@ -2389,8 +2392,10 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertIn("swapped {'y': 'z'}", out["tried"][0]["why"])
         self.assertIn("(out for good)", out["tried"][0]["why"])
         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "z"])
-        self.assertEqual(rig.screens[2], ("openai:gpt", ["h", "x", "y"]))         # every verdict on a writer's vendor
-        self.assertEqual(rig.screens[3], ("openai:gpt", ["z"]))                   # only what changed is re-judged
+        self.assertEqual(rig.screens[3], ("openai:gpt", ["h", "x", "y"]))         # every verdict on a writer's vendor
+        self.assertEqual(rig.screens[4], ("openai:gpt", ["z"]))                   # only what changed is re-judged
+        self.assertEqual(rig.screen_deadlines, [None, 120.0, 120.0, 120.0, 120.0])   # audit 2005 C1: the first screen
+        #   unbounded as before; the second screen's two chunks and both off-writer re-screens at ruling 82's 120 s
 
     def test_a_re_screen_that_gives_no_verdict_is_never_a_pass(self):
         """The old branch read the stale verdict back when the re-screen returned nothing for a clip (a fail-open,
@@ -2435,10 +2440,12 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         ms = {m["moment_id"]: m for m in self.MS}
         a_by = {"h": {"backend": "xai:grok"}, "x": {"backend": "xai:grok"}, "y": {"backend": "nowhere:model"},
                 "z": {"backend": "heimdall:deepseek"}}
-        seen = []
+        seen, calls = [], []
 
-        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None):
+        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None, batch=None,
+                 deadline_s=None):
             seen.append((sorted(wv), [m["moment_id"] for m in chunk]))
+            calls.append((batch, deadline_s))
             name = "heimdall:deepseek"          # off xai for h and x; for z (first verdict heimdall) the SAME vendor
             return {m["moment_id"]: {"backend": name} for m in chunk}, {m["moment_id"]: [] for m in chunk}, set(), set()
         saved = PK.prescreen
@@ -2451,6 +2458,58 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertEqual(sorted(two), ["h", "x"])
         self.assertTrue(fail["y"][0].startswith("STEP_A_UNKNOWN_BACKEND: the first verdict's back-end 'nowhere:model'"))
         self.assertTrue(fail["z"][0].startswith("STEP_A_SAME_VENDOR"))
+        self.assertEqual(set(calls), {(PK.SECOND_VERDICT_BATCH, PK.SECOND_VERDICT_DEADLINE_S)})   # ruling 82
+        self.assertEqual((PK.SECOND_VERDICT_BATCH, PK.SECOND_VERDICT_DEADLINE_S), (2, 120.0))
+
+    def test_ruling_82_the_second_vendor_step_a_fails_over_down_the_chain(self):
+        """RULING 82 (20:02 Nov 13): off the first verdict's vendor (xAI), deepseek -> glm-5.3-flash -> qwen3.8-27b,
+        each call bounded by 120 s; a model that is down, past the deadline, or answers out of contract hands over to
+        the next; all three failing is no verdict (never cached, never a pass)."""
+        import tempfile
+        import context_integrity as CI
+        sys.path.insert(0, os.path.join(REPO, "tests", "providers"))
+        from test_providers import Fake, router as mk_router
+        from test_gates import CTX, a_item
+        good = json.dumps({"excerpts": [a_item(lb) for lb in CTX]})
+        with tempfile.TemporaryDirectory() as d:
+            x = Fake("xai:grok", "xai", answer=good, family="grok")
+            ds = Fake("heimdall:deepseek", "heimdall", fail="503 from the gateway", family="deepseek")
+            glm = Fake("heimdall:glm", "heimdall", answer="not one JSON object", family="glm")
+            qw = Fake("heimdall:qwen", "heimdall", answer=good, family="qwen")
+            r = mk_router(d, [x, ds, glm, qw], {"context_verdict": ["xai:grok", "heimdall:deepseek", "heimdall:glm",
+                                                                      "heimdall:qwen"]})
+            asked = []
+            inner = r.call
+            r.call = lambda role, prompt, *a, **k: (asked.append(k.get("deadline_s")), inner(role, prompt, *a, **k))[1]
+            got, backend = CI.step_a(r, CTX, {"xai"}, writer_family={"grok"}, deadline_s=120.0, failover=True)
+            self.assertEqual((backend, x.calls, ds.calls, glm.calls, qw.calls), ("heimdall:qwen", 0, 1, 1, 1))
+            self.assertEqual(set(asked), {120.0})                      # every call of the chain bounded
+            self.assertEqual(sorted(got), sorted(CTX))
+            asked.clear()
+            with self.assertRaises(ValueError):                        # without failover: as before, the bad answer
+                CI.step_a(r, CTX, {"xai"}, writer_family={"grok"})    # raises (the first verdict's path)
+            self.assertEqual(asked, [None])                            # and is never bounded there
+            asked.clear()
+            qw.answer = "still not JSON"
+            with self.assertRaises(P_ProviderError()):                 # all three spent: no verdict (law L-m)
+                CI.step_a(r, CTX, {"xai"}, writer_family={"grok"}, deadline_s=120.0, failover=True)
+            self.assertEqual(set(asked), {120.0})
+
+        class Stubborn:                                                # audit 2005 C2 (glm): a router that returns
+            calls = 0                                                  # a model it was told to skip
+
+            def call(self, role, prompt, *a, **k):
+                Stubborn.calls += 1
+                import providers
+                return providers.Reply("not JSON", "heimdall:deepseek", "heimdall")
+        with self.assertRaises(P_ProviderError()):                     # never a loop, the documented error
+            CI.step_a(Stubborn(), CTX, {"xai"}, writer_family={"grok"}, deadline_s=120.0, failover=True)
+        self.assertEqual(Stubborn.calls, 2)
+
+
+def P_ProviderError():
+    import providers
+    return providers.ProviderError
 
 
 class TestRuling53Reposted(unittest.TestCase):

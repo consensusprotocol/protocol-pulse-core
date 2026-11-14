@@ -72,6 +72,8 @@ PRESCREEN_N = None                 # RULING 58 (11:00 Nov 13): EVERY candidate i
                                    # miner's best first; a number keeps the old cap (the re-screens pass their own)
 PRESCREEN_BATCH = 8                # excerpts per step-A call
 PRESCREEN_WORKERS = 6              # ruling 58: the step-A batches run in parallel (about 19 batches at 72 h)
+SECOND_VERDICT_DEADLINE_S = 120.0  # RULING 82 (20:02 Nov 13): each second-vendor / off-writer step-A call; at it the next
+SECOND_VERDICT_BATCH = 2           # model (deepseek -> glm-5.3-flash -> qwen3.8-27b); small batches so one fits in it
 PRICE_PREDICTIONS_MAX = 1          # L-u: at most one per video
 SHORT_CLIP_S = 8.0                 # a clip under ~8 s is a penalty unless it is the angle's punchline (the last clip)
 MAX_ANGLES = 3                     # orchestrator 05:30: at most 3 angles x 2 writes
@@ -486,7 +488,7 @@ def src_of(x, sources):
 
 
 def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
-              store=None, log=print, cache=None):
+              store=None, log=print, cache=None, deadline_s=None):
     """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
     {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
     first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
@@ -538,7 +540,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     def screen(i, chunk):
         try:
             return CI.step_a(router, {m["moment_id"]: contexts[m["moment_id"]] for m in chunk}, writer_vendor,
-                             seed=7 + i * batch, writer_family=writer_family), None
+                             seed=7 + i * batch, writer_family=writer_family, deadline_s=deadline_s,
+                             failover=deadline_s is not None), None          # ruling 82: the chain, per call
         except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
             return None, e
     with ThreadPoolExecutor(max_workers=max(1, min(PRESCREEN_WORKERS, len(chunks)))) as ex:
@@ -581,12 +584,13 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
     for mid, m in cleared.items():
         b = router.backends.get((a_by.get(mid) or {}).get("backend"))
         groups.setdefault((b.vendor, b.family) if b is not None else None, []).append(m)
-    jobs = [(k, g[i:i + PRESCREEN_BATCH]) for k, g in groups.items() if k is not None
-            for i in range(0, len(g), PRESCREEN_BATCH)]
+    jobs = [(k, g[i:i + SECOND_VERDICT_BATCH]) for k, g in groups.items() if k is not None
+            for i in range(0, len(g), SECOND_VERDICT_BATCH)]
     def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
         try:
             return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log,
-                             cache=cache)                    # ruling 58: a second verdict is paid for once too
+                             cache=cache, batch=SECOND_VERDICT_BATCH,    # ruling 58: a second verdict is paid once;
+                             deadline_s=SECOND_VERDICT_DEADLINE_S)       # ruling 82: the chain, 120 s a call
         except Exception as e:
             return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
                         for m in chunk}, set(), set()
@@ -2813,6 +2817,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                         router.backends.get((a_by.get(m["moment_id"]) or {}).get("backend")))]
                     if stale:                                  # audit C2 K5: never judged by the writer's vendor
                         got_a, fails_a, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f,
+                                                         batch=SECOND_VERDICT_BATCH,      # ruling 82: off the writer,
+                                                         deadline_s=SECOND_VERDICT_DEADLINE_S,   # the chain, 120 s
                                                          n=len(stale), store=None, cache=step_a_cache)
                         bad = {}
                         for m in stale:

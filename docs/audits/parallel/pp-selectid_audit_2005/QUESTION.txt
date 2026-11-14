@@ -1,0 +1,63 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins). Only state what
+you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- Step A is a context verdict on each clip (role context_verdict). The router (providers.Router.call) tries the
+  role's chain in order. It skips a back-end on the vendor or family to avoid, or marked down. It moves on when a
+  back-end is unavailable, refuses, misses the call's deadline_s (logged to the Heimdall evidence file, item 55), or
+  answers empty. It raises ProviderError when the chain is spent.
+- Step A's FIRST verdict is xAI's (grok). ORDER 06:22 item 45: every cuttable clip also gets a SECOND verdict off the
+  first verdict's vendor and family (second_screen), BEFORE the angle step. Whichever vendor then writes, a verdict
+  off the writer exists (law L-x: a generator never judges its own text). After a write, a clip whose usable verdict
+  is on the writer's vendor or family is re-screened off it (the off-writer re-screen).
+- Frozen vendors (openai, anthropic, local) are removed from every chain (tests/package/proof_ly.chains). So the
+  second screen, which avoids xAI, had ONE model: Heimdall deepseek-v4.1-flash.
+- On 19:23 / 19:4x Nov 13, a batch of step-A calls there spent its whole output budget with an empty answer. The
+  chain was spent, 6 of 14 clips got no second verdict, and the build died at line-up formation.
+
+The order, RULING 82 (orchestrator 20:02 Nov 13): "THE SECOND-VENDOR STEP A HAS A FAILOVER CHAIN. Off-writer verdict
+order: Heimdall deepseek-v4.1-flash, then Heimdall z-ai/glm-5.3-flash (pp-ingest measured it 24/24 on calibration
+today), then Heimdall qwen3.8-27b. Per-call deadline 120 s, not 300: at the deadline go to the next model at once,
+record the miss in the Heimdall evidence file (item 55). The rule that matters is unchanged: the second verdict must
+come from a model family different from the FIRST verdict's (xAI) and, for a clip the writer quotes, different from the
+writer's. An outage verdict is never cached (as now)."
+
+The change:
+1. pipeline/model_providers.json:
+   - a new back-end heimdall:z-ai/glm-5.3-flash (vendor heimdall, family glm);
+   - context_verdict's chain is now xai, anthropic (frozen), heimdall deepseek, heimdall glm, heimdall qwen, local
+     (frozen). With the frozen legs out: xai -> deepseek -> glm -> qwen.
+2. context_integrity.step_a(..., deadline_s=None, failover=False):
+   - deadline_s bounds each call (the router moves on and logs the miss);
+   - failover=True also moves to the next model when an answer is OUT OF CONTRACT (each model once, via avoid_model).
+     The router alone moves on only on errors and empty answers. When the chain is spent: ProviderError, so no
+     verdict.
+   - Without failover (the first verdict's path), a bad answer still raises, as before.
+3. package.py:
+   - SECOND_VERDICT_DEADLINE_S = 120 and SECOND_VERDICT_BATCH = 2;
+   - prescreen(..., deadline_s) passes deadline_s and failover=(deadline_s is not None) to step_a;
+   - second_screen chunks by 2 and passes the deadline;
+   - the off-writer re-screen passes batch 2 and the deadline.
+   Batches of 2 keep one call inside 120 s: deepseek took 284-304 s for 8 excerpts. Every verdict is still cached per
+   moment (ruling 58), so no moment is paid for twice. A call that fails is never cached (unchanged).
+4. Tests:
+   - test_medley: the chain fails over (deepseek down, then glm out of contract, then qwen answers; every call
+     asked with 120 s); without failover a bad answer raises; all three failing raises (no verdict). The second screen
+     passes batch 2 and 120 s. Stubs accept the new arguments, and three tests' call counts follow the chunks of 2.
+   - test_ledger_build: the frozen-out chain is exactly xai -> deepseek -> glm -> qwen; glm is family "glm".
+   - Mutation runs: removing the failover, the deadline, or the batch / deadline in second_screen each fails a test.
+   - 15 suites OK.
+
+Known cost, by design: ruling 48's ledger books an ABANDONED call's upper bound (about $0.24 for a Heimdall call with
+16000 output tokens) as spent, because no vendor report exists for it. Batches of 2 are meant to keep calls inside the
+deadline.
+
+Check, against the diff:
+- the family rule: no second verdict can come from xAI (the first verdict's vendor), and none from the writer's family
+  for a clip it quotes;
+- that no answer out of contract can ever be a verdict, and the failover loop terminates;
+- that the first verdict's path is unchanged (no failover there, no deadline);
+- that nothing is cached from a call that failed;
+- that the batch / deadline wiring reaches every second-vendor and off-writer call.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

@@ -1,4 +1,4 @@
-19:37 ET: BUILD 19:23 (ledger_20261114_002300), WITH RULING 80'S HOOK ROWS: THE HOOK STAGE NOW PASSES. 1 hook >= 4: Simply Bitcoin L6H7538ogGs, 'AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.' Rated 4 (scroll 5, alone 4, setup 3); the visual check is clean. IT DIES AT LINE-UP FORMATION. The angle's other clips: Scott Melker 14.8 s, which is not clip-eligible ('not_statement'); Breedlove 12.6 s; Livera 6.0 s. With the hook they make 30.2 s, under the 36.7 s floor. The pool fill had no clip from another channel to add: 6 of the 14 cuttable moments, among them Yahoo Finance 19.3 s and CNBC 16.9 s (either lands the seconds), got NO second-vendor step-A verdict. Heimdall deepseek was unavailable for that batch ('every back-end unavailable'; its calls ran 284-304 s). That is an outage, not a refusal: nothing was cached, and the next build asks again (offline, the same pool with those verdicts forms Simply Bitcoin -> Breedlove -> Yahoo Finance, 43.5 s). RULING 76 (d): 196 MOMENTS INSIDE 12 H, 21 CLEARED, 14 CUTTABLE, 1 HOOK >= 4. NEXT: a build when the ingest's next hooks land (Simply Bitcoin NtaQGnfWRR8's 23, about 10 min). SPEND (ruling 48): $8.27 of $12.00.
+20:12 ET: RULING 82 IS COMMITTED (audit 2005: 2 cycles; no P0, and no P1 from grok or glm in cycle 2). The second-vendor step A, and the off-writer re-screen, now fail over deepseek -> glm-5.3-flash -> qwen3.8-27b. Each call has 120 s, batches are 2 clips, and an answer out of contract moves on too. All three failing is no verdict (never cached); the build log names it, and I will say it here in capitals. THE BUILD STARTS NOW. The places where one Heimdall model is the only route are below, one line each. THE STEPS STILL LEFT AT ONE HEIMDALL MODEL, WHEN THE WRITER IS xAI OR xAI IS DOWN: the fidelity verdict, coherence / clips-alone / hook ratings, step B, and the speaker and exclusion verdicts. QUESTION: DO YOU WANT THE SAME CHAIN THERE? The 19:4x build (before ruling 82) died the same way as 19:23: 221 inside 12 h, 34 cleared, 20 cuttable, 1 hook >= 4. COST NOTE: a call abandoned at 120 s books its upper bound (about $0.24) on ruling 48's ledger. SPEND (ruling 48): $8.44 of $12.00.
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -37,6 +37,22 @@
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
 
+
+## 20:12 ET: ruling 82: where one Heimdall model was the only route (one line each)
+
+1. Step A, second vendor (context_verdict, off xAI's first verdict): was deepseek only. NOW deepseek -> glm -> qwen, 120 s a call, batches of 2.
+2. Step A, off-writer re-screen when the writer is xAI: was deepseek only. NOW the same chain, 120 s, batches of 2.
+3. Context integrity, steps A and C (context_verdict) when the writer is xAI: was deepseek only. NOW deepseek -> glm -> qwen (the role's chain; no deadline added).
+4. Angle step (angle_write): deepseek -> qwen -> xAI, 300 s a call (ruling 5). Not one model; unchanged.
+5. The writer (angle_write: full writes and a line written alone), on the angle's vendor: Heimdall deepseek -> qwen, 300 s. Not one model; unchanged. An xAI angle writes on xAI only.
+6. Fidelity verdict (fidelity_verdict) when the writer is xAI: deepseek only. NOT CHANGED.
+7. Clips-alone verdict, coherence with the takeaway, hook ratings (coherence_verdict) when the writer is xAI or xAI is down: deepseek only. NOT CHANGED.
+8. Step B (viewer_takeaway) when the writer is xAI: qwen only. NOT CHANGED.
+9. Speaker and exclusion verdicts (speaker_verdict, exclusion_verdict): xAI, then deepseek only. NOT CHANGED.
+
+Line 1 as it stood at 19:37:
+
+> 19:37 ET: BUILD 19:23 (ledger_20261114_002300), WITH RULING 80'S HOOK ROWS: THE HOOK STAGE NOW PASSES. 1 hook >= 4: Simply Bitcoin L6H7538ogGs, 'AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.' Rated 4 (scroll 5, alone 4, setup 3); the visual check is clean. IT DIES AT LINE-UP FORMATION. The angle's other clips: Scott Melker 14.8 s, which is not clip-eligible ('not_statement'); Breedlove 12.6 s; Livera 6.0 s. With the hook they make 30.2 s, under the 36.7 s floor. The pool fill had no clip from another channel to add: 6 of the 14 cuttable moments, among them Yahoo Finance 19.3 s and CNBC 16.9 s (either lands the seconds), got NO second-vendor step-A verdict. Heimdall deepseek was unavailable for that batch ('every back-end unavailable'; its calls ran 284-304 s). That is an outage, not a refusal: nothing was cached, and the next build asks again (offline, the same pool with those verdicts forms Simply Bitcoin -> Breedlove -> Yahoo Finance, 43.5 s). RULING 76 (d): 196 MOMENTS INSIDE 12 H, 21 CLEARED, 14 CUTTABLE, 1 HOOK >= 4. NEXT: a build when the ingest's next hooks land (Simply Bitcoin NtaQGnfWRR8's 23, about 10 min). SPEND (ruling 48): $8.27 of $12.00.
 
 ## 19:37 ET: the 12 h pool's first verdict (line 1 as it stood at 18:31/18:48)
 

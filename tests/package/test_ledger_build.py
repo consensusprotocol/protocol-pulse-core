@@ -762,6 +762,18 @@ class TestDriverRefuses(unittest.TestCase):
         self.assertEqual(sorted(n for n in os.listdir(proof) if n.startswith("ledger_") or n == "CANDIDATES.json"),
                          before)
 
+    def test_ruling_82_the_context_verdict_chain(self):
+        """RULING 82 (20:02 Nov 13): with the frozen legs out, step A's chain is xAI first, then the three Heimdall
+        models in the ruled order; glm-5.3-flash is a Heimdall back-end of its own family."""
+        sys.path.insert(0, HERE)
+        import proof_ly as PL
+        self.assertEqual(PL.chains()["context_verdict"], ["xai:grok-4.20-0309-reasoning",
+                                                          "heimdall:deepseek/deepseek-v4.1-flash",
+                                                          "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b"])
+        with open(os.path.join(REPO, "pipeline", "model_providers.json")) as f:
+            glm = json.load(f)["backends"]["heimdall:z-ai/glm-5.3-flash"]
+        self.assertEqual((glm["vendor"], glm["family"], glm["model"]), ("heimdall", "glm", "z-ai/glm-5.3-flash"))
+
     def test_ruling_76_the_window_is_never_widened_and_delivered_spans_carry_their_text(self):
         """RULING 76 (18:08 Nov 13): --hours over 12 refuses the run before anything is written; the delivered spans
         carry the approved text, for the same-speech rule."""

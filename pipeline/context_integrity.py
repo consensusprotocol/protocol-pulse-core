@@ -318,9 +318,11 @@ def check(router, package, sources, writer_vendor, seed=7):
     return check_contexts(router, package, contexts_from_sources(package, sources), writer_vendor, seed)
 
 
-def step_a(router, contexts, writer_vendor, seed=7, writer_family=None):
+def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline_s=None, failover=False):
     """Step A alone (context only, the package hidden): {label: item} for exactly the given labels, and the back-end.
-    Raises ValueError / ProviderError when it cannot be had or read."""
+    Raises ValueError / ProviderError when it cannot be had or read. RULING 82 (20:02 Nov 13): deadline_s bounds each
+    call (the router moves to the next model at it and logs the miss, item 55); failover=True also moves on when a
+    model's answer is out of contract, each model once, until the chain is spent (then ProviderError: no verdict)."""
     labels = list(contexts)
     for lb in labels:
         if len(contexts[lb]["text"]) > EXCERPT_MAX:
@@ -330,17 +332,26 @@ def step_a(router, contexts, writer_vendor, seed=7, writer_family=None):
           f'"{_q(contexts[lb].get("title") or "", 160)}" published="{contexts[lb].get("published") or "unknown"}" '
           f'show_date="{contexts[lb].get("show_date") or "unknown"}">{contexts[lb]["text"]}</excerpt>'
           for lb in labels]
-    ra = router.call("context_verdict", STEP_A.format(excerpts="\n".join(ex)), 4000, seed, avoid_vendor=writer_vendor,
-                     avoid_family=writer_family)
-    try:
-        A = _strict(ra.text, {"excerpts"}, {"excerpts": A_KEYS})
-        a_by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
-        if set(a_by) != set(labels) or len(A["excerpts"]) != len(labels):
-            raise ValueError(f"step A must answer exactly the labels {labels}")
-    except (ValueError, TypeError):
-        if hasattr(router, "reject"):
-            router.reject(ra)
-        raise
+    prompt, skip = STEP_A.format(excerpts="\n".join(ex)), set()
+    while True:
+        ra = router.call("context_verdict", prompt, 4000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+                         **({"avoid_model": set(skip)} if skip else {}),
+                         **({"deadline_s": deadline_s} if deadline_s is not None else {}))
+        try:
+            A = _strict(ra.text, {"excerpts"}, {"excerpts": A_KEYS})
+            a_by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
+            if set(a_by) != set(labels) or len(A["excerpts"]) != len(labels):
+                raise ValueError(f"step A must answer exactly the labels {labels}")
+            break
+        except (ValueError, TypeError) as e:
+            if hasattr(router, "reject"):
+                router.reject(ra)
+            if not failover:
+                raise
+            if ra.backend in skip:                       # audit 2005 C1: never a loop, and the documented error
+                import providers as P
+                raise P.ProviderError(f"context_verdict: {ra.backend} answered again though skipped: {e}") from e
+            skip.add(ra.backend)                         # ruling 82: the next model in the chain
     for lb in labels:
         a_by[lb] = dict(a_by[lb], backend=ra.backend, replayed=bool(getattr(ra, "replayed", False)),
                         speaker_verified=speaker_verified(a_by[lb], contexts[lb]["text"]))
