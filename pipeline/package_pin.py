@@ -47,6 +47,11 @@ SPOTLIGHT_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicat
                    "step_a_two_families", "visual", "window_12h", "never_delivered", "one_per_channel_day",
                    "precheck")                                           # rulings 68 / 72 / 73 / 84: pass or adopt
 CLOSING_GATES = ("closing_value", "closing_fidelity", "closing_context")   # ruling 91: a non-null closing only with all
+# RULING 91, its MEDLEY half ('22:53' Nov 13: "The same value verdict also applies to a MEDLEY's takeaway going
+# forward"; the row agreed with the integrator 05:5x ET Nov 14): a medley carrying a takeaway (the VO line after the
+# LAST clip) ships it only with this row exactly PASS, not replayed, its "text" the takeaway it judged (the render binds
+# the row to the line it plays). A medley with no takeaway (L-y's no-voice shape) needs no row.
+TAKEAWAY_GATES = ("takeaway_value",)
 SPOT_RUNTIME_S = (28.0, 50.0)            # ruling 90: the moment, the closing line, sign-off, credits card and outro
 SPOT_CLOSING_MAX_WORDS = 12              # ruling 90 / 91: at most ONE closing line of 12 words or fewer
 CREDITS_LINE = "Credits \U0001F9E1"      # ruling 90: PBX's first-comment format, 'Credits' and the orange heart
@@ -58,14 +63,47 @@ def _closing(pk):
     return (vo or {}).get("closing")
 
 
+def takeaway_line(pk):
+    """A medley's takeaway, the VO line after its LAST clip, else None (only a medley has one: bridge_slots). pk: a
+    package (pk["vo"]: bridges with bridges_after_clip, the clips counted from pk["segments"]) or a pin's
+    moments_package (edl_vo's last bridge, when vo_jobs names a "takeaway": to_pin writes it for exactly that line)."""
+    if (pk or {}).get("shape") != "medley":
+        return None
+    vo = pk.get("vo")
+    if isinstance(vo, dict):
+        last = len(pk.get("segments") or []) - 1
+        hit = [t for t, a in zip(vo.get("bridges") or [], vo.get("bridges_after_clip") or []) if a == last]
+        return hit[-1] if hit else None
+    ev = pk.get("edl_vo")
+    if isinstance(ev, dict) and (pk.get("vo_jobs") or {}).get("takeaway") == "takeaway" and ev.get("bridges"):
+        b = ev["bridges"][-1]
+        return b.get("text") if isinstance(b, dict) else None
+    return None
+
+
 def required_gates(pk):
     """The rows a package's inventory must hold, each exactly PASS: REQUIRED_GATES, and for a medley (L-y) also the
-    clips-alone verdict and the L-y shape. A spotlight (ruling 90): SPOTLIGHT_GATES, plus CLOSING_GATES whenever its
-    closing line is not null (ruling 91). pk: a package, or a pin's moments_package."""
+    clips-alone verdict and the L-y shape, plus TAKEAWAY_GATES whenever it carries a takeaway (ruling 91, the medley
+    half). A spotlight (ruling 90): SPOTLIGHT_GATES, plus CLOSING_GATES whenever its closing line is not null (ruling
+    91). pk: a package, or a pin's moments_package."""
     shape = (pk or {}).get("shape")
     if shape == "spotlight":
         return SPOTLIGHT_GATES + (CLOSING_GATES if _closing(pk) is not None else ())
-    return REQUIRED_GATES + (MEDLEY_GATES if shape == "medley" else ())
+    return REQUIRED_GATES + (MEDLEY_GATES if shape == "medley" else ()) + \
+        (TAKEAWAY_GATES if takeaway_line(pk) is not None else ())
+
+
+def takeaway_problems(pk):
+    """[why] for a medley whose takeaway_value row (ruling 91) did not judge exactly the takeaway that ships: the row's
+    "text" must equal the line after the last clip, character for character (the render compares after strip(); this
+    is stricter, so every pin passing here passes there). The row's status is gate_problems' (required_gates)."""
+    t = takeaway_line(pk)
+    if t is None:
+        return []
+    row = (pk.get("gates") or {}).get("takeaway_value")
+    if not isinstance(row, dict) or not isinstance(row.get("text"), str) or row["text"] != t:
+        return ["takeaway_value: the value verdict did not judge the takeaway that ships (ruling 91)"]
+    return []
 
 
 def first_comment_text(lines, tags):
@@ -390,7 +428,7 @@ def to_pin(pk, run_name):
                                                                      for x in line_problems(pk)] + \
         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
-        spotlight_problems(pk)
+        spotlight_problems(pk) + takeaway_problems(pk)
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []

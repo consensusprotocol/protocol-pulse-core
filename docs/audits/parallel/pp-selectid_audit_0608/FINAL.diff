@@ -1,0 +1,818 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 80d079c2..f7f2d5a5 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -22,6 +22,9 @@ write_takeaway() role angle_write: the ONE takeaway (host commentary), ONE title
+ GATES (hard, every one, recorded in a sealed inventory, package_pin.required_gates):
+               the clips-alone verdict first (no writing before it passes);
+               cheap (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4, the L-y shape;
++              then RULING 91's VALUE verdict on the takeaway (takeaway_value, before any paid gate; a takeaway
++              that loses it never ships: the no-voice shape when the line-up's own clips meet the seconds, else ONE
++              rewrite of the takeaway alone; a second loss ends the line-up);
+               then concurrently: the classifying fidelity verdict (A / B / C / D, 05:25 items 1-2) and context
+               integrity B0 / B / C (L-s; step A precomputed); exclusion (L-u) and the second recognition pass (L-v 2)
+               start in the background once the clips-alone verdict passes; then COHERENCE with the takeaway (>= 4).
+@@ -1732,7 +1735,9 @@ TAKEAWAY_LIMIT = ("{lo}-{hi} words, one or two sentences: host commentary attrib
+ TAKEAWAY_WHY = dict(VO_FIX, **LINE_WHY, COMMENTARY="as host commentary it must state no fact, no speaker's view, no "
+                     "advice or prediction and no accusation, and must not sound like a speaker",
+                     COHERENCE="a blind viewer did not find its point supported by the clips",
+-                    RUNTIME="with it the video does not land 60-70 s")
++                    RUNTIME="with it the video does not land 60-70 s",
++                    VALUE="it did not earn its place (ruling 91): a viewer must miss it if it were cut, so it must say "
++                          "something the clips do not already say, never restate, summarise or cheer them")
+ 
+ 
+ def write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=7, avoid_vendor=None, avoid_model=None,
+@@ -1778,6 +1783,63 @@ def write_line(router, angle, segs, ctx, a_by, slot, fields, refused, seed=7, av
+     return r, ln
+ 
+ 
++TAKEAWAY_VALUE_PROMPT = """You judge ONE line a host would speak at the END of a short video. The clips below play
++first, back to back, alone and in full, in this order; then the host's line; then a sign-off credits the channels.
++{note}
++{clips}
++LINE: "{line}"
++Answer each question "yes" or "no". Anything you cannot answer with a clear yes is "no".
++- "adds": does the line say something the clips do not already say?
++- "no_restate": does the line avoid restating, summarising or cheering the clips?
++- "missed": would a viewer miss the line if it were cut?
++- "short": is the line {cap} words or fewer?
++Return ONLY this JSON object: {{"adds": "yes" | "no", "no_restate": "yes" | "no", "missed": "yes" | "no", "short":
++"yes" | "no", "why": "<one sentence>"}}"""
++
++
++def takeaway_value(router, segs, ctx, line, writers_v, writers_f, seed=7):
++    """RULING 91, its MEDLEY half ('22:53' Nov 13: "The same value verdict also applies to a MEDLEY's takeaway going
++    forward"): ONE blind value verdict on a written takeaway, in the spotlight's contract (spotlight.parse_value and
++    VALUE_KEYS: four questions, each a clear "yes" or it is "no") over the medley's clips in play order, off every
++    writer's vendor and family (role coherence_verdict, the call the spotlight's closing line gets). ok only when all
++    four answers are "yes" AND the line counts at most LY_TAKEAWAY_MAX_WORDS words in code (house_style.words: house
++    style's cap, ruling 6; R4's 30 stays the factory's bound). The seed is fixed, so one text over the same clips has
++    one verdict (a recorded reply is served again, never re-asked). An unavailable or out-of-contract answer is no
++    verdict: measured False, ok False ("anything short of a clear yes means no line"); an out-of-contract reply is
++    rejected, so it is never served again. -> the record the "takeaway_value" row reads; "text" is the judged line
++    (the render binds the row to the takeaway it plays)."""
++    import providers as Pr
++    import spotlight as SPOT                           # its contract; imported here (spotlight imports this module)
++    from select_by_id import UNTRUSTED
++    from story_semantics import quote_data
++    q = lambda t, n: quote_data(t, n).replace('"', "'")
++    clips = "\n".join(f'CLIP {i + 1} (on {q(_name(m, ctx), 80)}): "{q(m["text"], 900)}"' for i, m in enumerate(segs))
++    prompt = TAKEAWAY_VALUE_PROMPT.format(note=UNTRUSTED.replace("<sentences>", "the quotes"), clips=clips,
++                                          line=q(line, 300), cap=LY_TAKEAWAY_MAX_WORDS)
++    base = {"text": line, "words": HS.words(line), "cap": LY_TAKEAWAY_MAX_WORDS}
++    r = None
++    try:
++        r = router.call("coherence_verdict", prompt, 400, seed, avoid_vendor=writers_v, avoid_family=writers_f)
++        v = SPOT.parse_value(r.text)
++    except Exception as e:                             # noqa: BLE001  no verdict: no line (ruling 91, law L-m)
++        if r is not None and not isinstance(e, (Pr.ProviderError, Pr.SpendLimit)) and hasattr(router, "reject"):
++            router.reject(r)
++        return dict(base, measured=False, ok=False, why=f"{type(e).__name__}: {str(e)[:200]}",
++                    backend=getattr(r, "backend", None), replayed=False)
++    return dict(base, **v, measured=True, backend=r.backend, replayed=bool(getattr(r, "replayed", False)),
++                ok=all(v[k] == "yes" for k in SPOT.VALUE_KEYS) and base["words"] <= LY_TAKEAWAY_MAX_WORDS)
++
++
++def no_voice_fits(segs, med):
++    """RULING 91 (medley half): whether a line-up's OWN clips meet the seconds with no VO line, so that a takeaway the
++    value verdict refused falls back to L-y's no-voice shape with no clip added: the clips-alone verdict measured with
++    no flagged join (a no-voice medley carries no bridge either: ruling 3), and the clips' seconds inside what
++    no_voice() accepts (the factory's estimate, the clips + FINAL_TAIL_S, inside 60-70 s)."""
++    content = sum(m["duration_s"] for m in segs)
++    return med.get("measured") is True and med.get("flagged") == [] and \
++        RUNTIME_S[0] - FINAL_TAIL_S <= content <= RUNTIME_S[1] - FINAL_TAIL_S
++
++
+ def lone_slot(violations):
+     """RULING 65: "caption" or "title" when EVERY violation is on that one line (the takeaway and the other line pass),
+     else None."""
+@@ -2132,12 +2194,13 @@ def _redo(violations):
+             "\n".join(f"- {key.get(v['slot'], v['slot'])}: {v['rule']}: {v['detail']}" for v in violations)[:1800])
+ 
+ 
+-def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
++def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None, value=None):
+     """One written takeaway and the gates on ITS line (L-y 6: "one free-text line to judge per video ... measure it"):
+     the deterministic fidelity rules and DUPLICATE on the takeaway slot, then the classifying verdict's violations on it.
+     passed: True / False once the verdict judged it, None when other gates stopped the write before the verdict.
+     context_framing: the context-integrity failures the VO's framing causes (VO_DEPENDENT; per clip, so not attributed
+-    to one line: recorded beside `passed`, never folded into it)."""
++    to one line: recorded beside `passed`, never folded into it). value: ruling 91's value verdict on the line
++    (takeaway_value), recorded beside `passed` too (a value loss never counts toward ruling 3's no-voice trigger)."""
+     line = next((x for x in pk["lines"] if x["slot"] == "takeaway"), {})
+     rec = {"angle": ai + 1, "lineup": n_lineup, "write": w_used, "text": line.get("text"),
+            "words": len((line.get("text") or "").split()),
+@@ -2145,7 +2208,9 @@ def _takeaway_record(ai, n_lineup, w_used, pk, cheap, fid=None, cx=None):
+            "other_cheap_fail": sorted({v["rule"] for v in cheap if v.get("slot") != "takeaway"}), "verdict_fail": None,
+            "passed": False if any(v.get("slot") == "takeaway" for v in cheap) else None,
+            "context_framing": None if cx is None else sorted({v["rule"] for v in cx.get("violations") or []
+-                                                              if v.get("rule") in VO_DEPENDENT})}
++                                                              if v.get("rule") in VO_DEPENDENT}),
++           "value": None if value is None else {k: value.get(k) for k in ("ok", "measured", "adds", "no_restate",
++                                                                           "missed", "short", "why", "backend")}}
+     if fid is not None:
+         ver = fid.get("verdict") or {}
+         if fid.get("measured") and isinstance(ver.get("violations"), list):
+@@ -2259,6 +2324,15 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         (lock_precheck.apply, checked again at the pin stage).
+     The no-voice line-up is asked too. lock_check None: no pre-check (the tests' rigs); the driver always passes it.
+     scorer_extra (RULING 90): the spotlight pool's moments, sent to the clip scorer with this build's own candidates.
++    RULING 91, its MEDLEY half ('22:53' Nov 13: "a medley that loses its takeaway falls back to L-y's no-voice shape
++    only if its clips meet the seconds; otherwise the takeaway may be rewritten once"): every written takeaway that
++    passes its cheap gates is asked ONE value verdict (takeaway_value) before any paid gate. A clear yes on all four
++    (and <= 20 words in code): the write goes on, and the package seals the "takeaway_value" row with the line it
++    judged. A loss (no verdict included): the takeaway never ships. When the line-up's OWN clips meet the seconds with
++    no VO line (no_voice_fits), the no-voice shape follows at once (no_voice(value=...): no clip added). Otherwise ONE
++    rewrite of the takeaway alone, told the refusal, whatever the ruling-66 counts say. Its loss ends the line-up with no
++    package. A value loss never counts toward ruling 3's two failures, so ruling 3's no-voice (which may add a clip)
++    keeps its own trigger.
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+@@ -2550,15 +2624,18 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 f"${BUDGET_USD_REPORTED:.2f} reported / ${l_est:.2f} of the ${BUDGET_USD_ESTIMATE:.2f} estimate (ruling 5, "
+                 f"per package delivered: ruling 41)")
+ 
+-    def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup):
++    def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup, value=None):
+         """Ruling 3 (22:40): the takeaway failed its gates twice on a line-up whose clips ALONE passed with no join a
+         viewer cannot follow, so the package ships with NO VO line: clips back to back and the sign-off. It is not
+         dropped. The title and caption are the latest write's and go through every gate again. The factory's estimate
+         must still land 60-70 s, so when the clips are too short one more clip of the angle is added in the proposer's
+-        order, and the new line-up is judged on the clips alone again. -> a package, or None (rec["no_voice"] why)."""
++        order, and the new line-up is judged on the clips alone again. -> a package, or None (rec["no_voice"] why).
++        RULING 91 (medley half), value = the value verdict the takeaway lost: "a medley that loses its takeaway falls
++        back to L-y's no-voice shape only if its clips meet the seconds": the line-up's OWN clips (no_voice_fits), so no
++        clip is ever added on this path; the record names ruling 91 and carries the verdict."""
+         nv_lo, nv_hi = RUNTIME_S[0] - FINAL_TAIL_S, RUNTIME_S[1] - FINAL_TAIL_S
+         pos = {m_: i for i, m_ in enumerate(angle["moments"])}
+-        rec["no_voice"] = note = {"tried": True}
++        rec["no_voice"] = note = {"tried": True, "ruling": 3 if value is None else 91}
+         if med.get("measured") is not True or med.get("flagged") != []:     # audit 2240 C1 (qwen, glm): its own guard
+             note["why_not"] = "the clips-alone verdict is not a measured pass with every join followable"
+             return None
+@@ -2567,6 +2644,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         if content > nv_hi:
+             note["why_not"] = f"{content:.1f} s of clips: over {nv_hi:.1f} s with no VO line"
+             return None
++        if content < nv_lo and value is not None:            # ruling 91: only if its OWN clips meet the seconds
++            note["why_not"] = (f"ruling 91: {content:.1f} s of clips, under {nv_lo:.1f} s with no VO line, and no clip "
++                               f"is added for a takeaway the value verdict refused")
++            return None
+         if content < nv_lo:                                  # "the packager may add a clip"
+             chans = {m["channel_id"] for m in segs}
+             for mid in angle["moments"]:
+@@ -2595,12 +2676,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             if not ok2 or nv_med["flagged"]:
+                 note["why_not"] = "the line-up with the added clip fails on the clips alone (or has a join to bridge)"
+                 return None
++        why_nv = ("the takeaway failed its gates in both writes; ruling 3 (22:40) ships the clips back to back with "
++                  "the sign-off only") if value is None else \
++            ("ruling 91: the takeaway did not earn its place (its value verdict: " +
++             (", ".join(f"{k} {value.get(k)}" for k in ("adds", "no_restate", "missed", "short"))
++              if value.get("measured") else "no verdict") +
++             f"; {str(value.get('why') or '')[:200]}); the line-up's own clips meet the seconds, so L-y's no-voice "
++             f"shape ships them back to back with the sign-off only")
+         fields = {"takeaway": None, "bridge": None, "bridge_after": None, "title": last["title"],
+                   "caption": last["caption"], "type": "moments", "angle": angle["angle"], "style": "medley, no voice",
+                   "supply_exception": exception,
+-                  "no_voice": {"why": "the takeaway failed its gates in both writes; ruling 3 (22:40) ships the clips "
+-                                      "back to back with the sign-off only", "added_clip": added,
+-                               "lineup_before": [m["moment_id"] for m in segs]}}
++                  "no_voice": {"why": why_nv, "added_clip": added, "lineup_before": [m["moment_id"] for m in segs],
++                               **({"value": {k: value.get(k) for k in ("text", "ok", "measured", "adds", "no_restate",
++                                                                       "missed", "short", "why", "words", "backend")}}
++                                  if value is not None else {})}}
+         see(order)                                        # RULING 70: the added clip is seen too
+         vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+                 if VP.layout_block(m.get("visual"))}                                 # included, law L-m)
+@@ -2638,7 +2727,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             note["why_not"] = "the title / caption fail VO fidelity or context integrity"
+             note["violations"] = fid["violations"] + cx["violations"]
+             return None
+-        coh = dict(nv_med, vo_point=None, note="no VO line: the clips-alone verdict is the coherence verdict (ruling 3)")
++        coh = dict(nv_med, vo_point=None,
++                   note=f"no VO line: the clips-alone verdict is the coherence verdict (ruling {note['ruling']})")
+         a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+         pk["gates"] = inventory(fid, dup, rt_ok, r4_res, cx, a_lab, {k: v for k, (v, _) in got.items()},
+                                 {k: v for k, (_, v) in got.items()}, True, coh, medley=(True, nv_med),
+@@ -2664,7 +2754,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 note["why_not"] = f"ruling 68 / 72: {e}"[:400]
+                 return None
+         note["result"] = "PACKAGE"
+-        log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package ({len(order)} clips, "
++        log(f"  angle {ai + 1} line-up {n_lineup}: NO-VOICE package, ruling {note['ruling']} ({len(order)} clips, "
+             f"{sum(m['duration_s'] for m in order):.1f} s, added {added}) ({time.time() - t0:.0f} s)")
+         return pk
+ 
+@@ -2825,10 +2915,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         relined, w_used = True, writes
+                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
+                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
++                v_lost, v_redo, v_novoice, val = [], False, None, None   # RULING 91 (medley half): the value
++                #   verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to the no-voice
++                #   shape, and the verdict of the takeaway now written
+                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
+-                    lone = w_used >= writes                # takeaway alone failed, the takeaway ALONE, up to twice
+-                    if lone and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None and
+-                                     not last_rw65):
++                    lone = w_used >= writes or v_redo      # takeaway alone failed, the takeaway ALONE, up to twice
++                    if lone and not v_redo and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None
++                                                    and not last_rw65):
+                         break
+                     if over_budget(ai):
+                         break
+@@ -2836,8 +2929,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     if w_over:
+                         rec["why"], rec["budget"] = w_over, True      # ruling 66: a budget, not an outcome
+                         break
++                    redo91 = False
+                     if lone:                               # the other lines kept as gated; told each refusal and why
+                         alone_n += 1
++                        redo91, v_redo = v_redo, False     # ruling 91's one rewrite is spent here, whatever comes of it
+                         b = takeaway_budget(sum(m["duration_s"] for m in segs), written)
+                         if b is None:
+                             rec["attempts"].append({"writer_error": "no takeaway length lands 60-70 s with the kept "
+@@ -2924,14 +3019,16 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                            "runtime": pk["runtime_s_estimate"], "bridge": pk["bridge"],
+                            "takeaway_budget": fields.get("takeaway_budget"),
+                            "lines": [{k: x[k] for k in ("slot", "text", "cites")} for x in pk["lines"]],
+-                           **({"takeaway_alone": {"attempt": alone_n, "refused": [dict(x) for x in t_refused]}}
++                           **({"takeaway_alone": {"attempt": alone_n, "refused": [dict(x) for x in t_refused],
++                                                  **({"ruling_91": True} if redo91 else {})}}
+                               if lone else {})}
+                     rec["attempts"].append(att)
+                     take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap)
+                     out["takeaways"].append(take)
+                     last_fields = fields
+                     log(f"  angle {ai + 1} line-up {n_lineup} write {w_used + alone_n}" +
+-                        (" (the takeaway alone, ruling 66 17:02)" if lone else "") +
++                        (" (the takeaway alone, ruling 91)" if redo91 else
++                         " (the takeaway alone, ruling 66 17:02)" if lone else "") +
+                         f" ({wr.backend}, takeaway {take['words']} "
+                         f"words, {pk['runtime_s_estimate']} s): " +
+                         ("cheap gates fail " + ", ".join(sorted({v["rule"] for v in cheap})) if cheap else "cheap PASS")
+@@ -2963,12 +3060,41 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                                                      else " (no takeaway length lands it)"))
+                                        if v["rule"] == "RUNTIME" else v for v in cheap])
+                         continue
++                    # RULING 91 (medley half): the value verdict on the takeaway, before any paid gate is asked of it
++                    val = takeaway_value(router, segs, ctx, fields["takeaway"]["text"], writers_v, writers_f)
++                    att["value"] = val
++                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap,
++                                                                   value=val)
++                    answers = ", ".join(f"{k} {val.get(k)}" for k in ("adds", "no_restate", "missed", "short"))
++                    log(f"    value (ruling 91) {'PASS' if val['ok'] else 'LOST'}: " +
++                        (f"{answers}, {val.get('words')} words" if val.get("measured") else
++                         f"no verdict ({str(val.get('why'))[:120]})") + f" ({time.time() - t0:.0f} s)")
++                    if not val["ok"]:                      # "anything short of a clear yes means no line"
++                        v_lost.append({k: val.get(k) for k in ("text", "measured", "adds", "no_restate", "missed",
++                                                               "short", "why", "words", "backend")})
++                        rec["value_lost"] = list(v_lost)
++                        ref = {"text": fields["takeaway"]["text"], "rule": "VALUE",
++                               "detail": (f"{answers}: {val.get('why')}" if val.get("measured") else
++                                          f"no clear yes ({val.get('why')})")[:300]}
++                        t_refused += [ref] if ref not in t_refused else []      # what its one rewrite is told
++                        if no_voice_fits(segs, med):       # its OWN clips meet the seconds: L-y's no-voice shape
++                            v_novoice = val
++                            break
++                        if len(v_lost) > 1:                # its one rewrite did not earn its place either
++                            rec["why"] = ("ruling 91: the takeaway did not earn its place, nor did its one rewrite, "
++                                          "and the line-up's own clips do not meet the no-voice seconds "
++                                          f"({sum(m['duration_s'] for m in segs):.1f} s of clips)")
++                            break
++                        v_redo = True                      # ONE rewrite of the takeaway alone, told why
++                        last_fid, last_rw65 = (last_fid if lone else None), False   # a write's own lines: unjudged
++                        continue
+                     if lone and last_fid is not None:      # ruling 66 amended: the kept lines keep their verdicts
+                         fid, cx = takeaway_alone_gates(router, pk, last_fid, sources, a_by, levels, ctx.now,
+                                                        writers_v, writers_f)
+                     else:
+                         fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, pool)
+-                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap, fid, cx)
++                    out["takeaways"][-1] = take = _takeaway_record(ai, n_lineup, w_used + alone_n, pk, cheap, fid, cx,
++                                                                   value=val)
+                     framing = [v for v in cx["violations"] if v["rule"] in VO_DEPENDENT]
+                     att["violations"] = cheap + fid["violations"] + cx["violations"]
+                     att["verdict_classes"] = (fid.get("verdict") or {}).get("classes")
+@@ -3019,7 +3145,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                             style=HS.lint_lines(pk["lines"]),
+                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                             stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+-                                            visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]])
++                                            visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
++                                            value=val)                       # ruling 91: the takeaway earned its place
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
+@@ -3049,8 +3176,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         break
+                     pk["models"] = {"angle": angle_reply.backend, "writer": wr.backend, "medley": med.get("backend"),
+                                     "fidelity_verdict": fid.get("backend"), "context": cx.get("backends"),
+-                                    "coherence": coh.get("backend")}
+-                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med}
++                                    "coherence": coh.get("backend"), "value": val.get("backend")}
++                    pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": med, "value": val}
+                     pk["seconds"] = round(time.time() - t0, 1)
+                     pk["usd"] = round(_spent(spend)[0] - usd0[0], 4) if spend else None
+                     if lock_check is not None:            # rulings 68 / 72: the texts it seals come from the lock
+@@ -3065,12 +3192,16 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     break
+                 rec["relined"] = relined                    # ruling 66: a clip was dropped (or a line-up rule)
+                 if not out["packages"] and not relined and ok_m and not med["flagged"] and \
+-                        take_failed >= NO_VOICE_AFTER and last_fields is not None and not out.get("budget_stop") \
+-                        and not out.get("lock_stop"):
+-                    nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup)
++                        (v_novoice is not None or take_failed >= NO_VOICE_AFTER) and last_fields is not None and \
++                        not out.get("budget_stop") and not out.get("lock_stop"):
++                    nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup,
++                                  value=v_novoice)      # ruling 91 (its own clips, none added) before ruling 3
+                     if nv is not None:
+                         out["packages"].append(nv)
+-                        rec["result"] = "PACKAGE (no voice, ruling 3)"
++                        rec["result"] = f"PACKAGE (no voice, ruling {3 if v_novoice is None else 91})"
++                    elif v_novoice is not None:
++                        rec["why"] = ("ruling 91: the takeaway did not earn its place, and L-y's no-voice shape did not "
++                                      "pass: " + str(rec["no_voice"].get("why_not")))[:500]
+                 if not out["packages"] and not rec.get("why") and not rec.get("result"):
+                     last = (rec.get("attempts") or [{}])[-1]
+                     rules = sorted({str(v.get("rule")) for v in last.get("violations") or []})
+@@ -3113,9 +3244,12 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+-              hook=None, stand=None, visual=None):
++              hook=None, stand=None, visual=None, value=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
++    value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
++    the line it judged (package_pin.takeaway_problems and the render bind it to the takeaway that ships); None leaves
++    it out, which refuses the pin of any medley that carries a takeaway (package_pin.TAKEAWAY_GATES).
+     A medley (L-y) adds two rows: "medley" (the blind clips-alone verdict, medley=(ok, verdict)) and "ly_shape"
+     (shape=(ok, [why]) from ly_shape()). hook: the hook moment's hook_onset record -> the "hook_onset" row (G17a at
+     the pin stage, required for a medley: package_pin.MEDLEY_GATES); None leaves it out, which refuses the pin.
+@@ -3196,4 +3330,12 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+                            by_rule="visual_pin (ruling 70): one contact sheet per clip; a finding is a FLAG, sealed, "
+                                    "never a reject by itself")}
+            if visual is not None else {}),
++        **({"takeaway_value": dict(row(value.get("ok") is True, value.get("backend"), value.get("replayed"),
++                                       measured=value.get("measured") is True),
++                                   text=value.get("text"), answers={k: value.get(k) for k in ("adds", "no_restate",
++                                                                                              "missed", "short")},
++                                   why=value.get("why"), words=value.get("words"), cap=value.get("cap"),
++                                   rule=f"ruling 91 (medley half): all four a clear yes and at most {LY_TAKEAWAY_MAX_WORDS} "
++                                        f"words, off every writer's vendor and family")}
++           if value is not None else {}),
+     }
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index 445a53be..fc96df78 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -47,6 +47,11 @@ SPOTLIGHT_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicat
+                    "step_a_two_families", "visual", "window_12h", "never_delivered", "one_per_channel_day",
+                    "precheck")                                           # rulings 68 / 72 / 73 / 84: pass or adopt
+ CLOSING_GATES = ("closing_value", "closing_fidelity", "closing_context")   # ruling 91: a non-null closing only with all
++# RULING 91, its MEDLEY half ('22:53' Nov 13: "The same value verdict also applies to a MEDLEY's takeaway going
++# forward"; the row agreed with the integrator 05:5x ET Nov 14): a medley carrying a takeaway (the VO line after the
++# LAST clip) ships it only with this row exactly PASS, not replayed, its "text" the takeaway it judged (the render binds
++# the row to the line it plays). A medley with no takeaway (L-y's no-voice shape) needs no row.
++TAKEAWAY_GATES = ("takeaway_value",)
+ SPOT_RUNTIME_S = (28.0, 50.0)            # ruling 90: the moment, the closing line, sign-off, credits card and outro
+ SPOT_CLOSING_MAX_WORDS = 12              # ruling 90 / 91: at most ONE closing line of 12 words or fewer
+ CREDITS_LINE = "Credits \U0001F9E1"      # ruling 90: PBX's first-comment format, 'Credits' and the orange heart
+@@ -58,14 +63,47 @@ def _closing(pk):
+     return (vo or {}).get("closing")
+ 
+ 
++def takeaway_line(pk):
++    """A medley's takeaway, the VO line after its LAST clip, else None (only a medley has one: bridge_slots). pk: a
++    package (pk["vo"]: bridges with bridges_after_clip, the clips counted from pk["segments"]) or a pin's
++    moments_package (edl_vo's last bridge, when vo_jobs names a "takeaway": to_pin writes it for exactly that line)."""
++    if (pk or {}).get("shape") != "medley":
++        return None
++    vo = pk.get("vo")
++    if isinstance(vo, dict):
++        last = len(pk.get("segments") or []) - 1
++        hit = [t for t, a in zip(vo.get("bridges") or [], vo.get("bridges_after_clip") or []) if a == last]
++        return hit[-1] if hit else None
++    ev = pk.get("edl_vo")
++    if isinstance(ev, dict) and (pk.get("vo_jobs") or {}).get("takeaway") == "takeaway" and ev.get("bridges"):
++        b = ev["bridges"][-1]
++        return b.get("text") if isinstance(b, dict) else None
++    return None
++
++
+ def required_gates(pk):
+     """The rows a package's inventory must hold, each exactly PASS: REQUIRED_GATES, and for a medley (L-y) also the
+-    clips-alone verdict and the L-y shape. A spotlight (ruling 90): SPOTLIGHT_GATES, plus CLOSING_GATES whenever its
+-    closing line is not null (ruling 91). pk: a package, or a pin's moments_package."""
++    clips-alone verdict and the L-y shape, plus TAKEAWAY_GATES whenever it carries a takeaway (ruling 91, the medley
++    half). A spotlight (ruling 90): SPOTLIGHT_GATES, plus CLOSING_GATES whenever its closing line is not null (ruling
++    91). pk: a package, or a pin's moments_package."""
+     shape = (pk or {}).get("shape")
+     if shape == "spotlight":
+         return SPOTLIGHT_GATES + (CLOSING_GATES if _closing(pk) is not None else ())
+-    return REQUIRED_GATES + (MEDLEY_GATES if shape == "medley" else ())
++    return REQUIRED_GATES + (MEDLEY_GATES if shape == "medley" else ()) + \
++        (TAKEAWAY_GATES if takeaway_line(pk) is not None else ())
++
++
++def takeaway_problems(pk):
++    """[why] for a medley whose takeaway_value row (ruling 91) did not judge exactly the takeaway that ships: the row's
++    "text" must equal the line after the last clip, character for character (the render compares after strip(); this
++    is stricter, so every pin passing here passes there). The row's status is gate_problems' (required_gates)."""
++    t = takeaway_line(pk)
++    if t is None:
++        return []
++    row = (pk.get("gates") or {}).get("takeaway_value")
++    if not isinstance(row, dict) or not isinstance(row.get("text"), str) or row["text"] != t:
++        return ["takeaway_value: the value verdict did not judge the takeaway that ships (ruling 91)"]
++    return []
+ 
+ 
+ def first_comment_text(lines, tags):
+@@ -390,7 +428,7 @@ def to_pin(pk, run_name):
+                                                                      for x in line_problems(pk)] + \
+         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
+         screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
+-        spotlight_problems(pk)
++        spotlight_problems(pk) + takeaway_problems(pk)
+     if problems:
+         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
+     segs = []
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index af3a02dc..ed2b1e39 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -432,6 +432,8 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+     def gates(self, pk, **over):
+         g = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1} for k in package_pin.required_gates(pk)}
+         g["stand_alone"] = dict(g["stand_alone"], screen=E.BTC_SCREEN.pattern)      # the screen it judged with
++        if "takeaway_value" in g:                       # ruling 91: the row names the takeaway it judged
++            g["takeaway_value"] = dict(g["takeaway_value"], text=package_pin.takeaway_line(pk))
+         g.update(over)
+         return g
+ 
+@@ -468,8 +470,9 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+ 
+     def test_the_pin_requires_the_medley_rows_and_carries_intro_null(self):
+         pk = self.build()
+-        self.assertEqual(package_pin.required_gates(pk)[-6:], ("medley", "ly_shape", "house_style", "hook_onset",
+-                                                               "stand_alone", "visual"))
++        self.assertEqual(package_pin.required_gates(pk)[-7:], ("medley", "ly_shape", "house_style", "hook_onset",
++                                                               "stand_alone", "visual",
++                                                               "takeaway_value"))   # ruling 91: it has a takeaway
+         pk["gates"] = self.gates(pk)
+         pin = package_pin.to_pin(spk(pk), "test")
+         self.assertEqual(pin["label"], "bitcoin")     # the render's STAND_ALONE subject rests on it (audit 0310 C2)
+@@ -478,7 +481,7 @@ class TestMedleyPackageAndPin(unittest.TestCase):
+         self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": [{"text": pk["vo"]["bridges"][0], "after_clip": 2}]})
+         self.assertEqual(mp["vo_jobs"], {"takeaway": "takeaway"})
+         self.assertEqual(mp["shape"], "medley")
+-        for missing in ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"):
++        for missing in ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone", "takeaway_value"):
+             g = self.gates(pk)
+             g.pop(missing)
+             with self.assertRaises(package_pin.PinRefused):
+@@ -526,8 +529,11 @@ class Rig:
+     def __init__(self, moments, angle_moments, medleys, writes, uncuttable=(), excluded=(), takeaways=None,
+                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
+-                 cached=False, candidate=None, visuals=None, registered=None, lock_check=None):
++                 cached=False, candidate=None, visuals=None, registered=None, lock_check=None, values=None,
++                 real_value=False):
+         import providers as P
++        self.values, self.value_calls = list(values or []), []   # ruling 91: the value verdicts' answers, in order
++        self.real_value = real_value                       # ruling 91: package.takeaway_value itself, on the router
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
+@@ -623,6 +629,19 @@ class Rig:
+                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
+         return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
+ 
++    def value(self, router, segs, ctx_, line, wv, wf, seed=7):
++        """RULING 91 (medley half): package.takeaway_value as the build calls it. A clear yes on all four unless
++        self.values gives the next answers ({"adds": "no", ...}; {"measured": False} = no verdict)."""
++        self.value_calls.append({"line": line, "segs": [m["moment_id"] for m in segs], "wv": set(wv), "wf": set(wf)})
++        got = self.values.pop(0) if self.values else {}
++        base = {"text": line, "words": len(line.split()), "cap": PK.LY_TAKEAWAY_MAX_WORDS}
++        if got.get("measured") is False:
++            return dict(base, measured=False, ok=False, why="ProviderError: no back-end", backend=None, replayed=False)
++        ans = {k: got.get(k, "yes") for k in ("adds", "no_restate", "missed", "short")}
++        return dict(base, **ans, why=got.get("why", "a point the clips do not make"), measured=True,
++                    backend="xai:grok", replayed=False,
++                    ok=all(x == "yes" for x in ans.values()) and base["words"] <= PK.LY_TAKEAWAY_MAX_WORDS)
++
+     def visual(self, router, m, work_dir, cache, seed=7, log=print):
+         """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
+         self.visual_calls.append(m["moment_id"])
+@@ -664,11 +683,14 @@ class Rig:
+                                                      "edges": {"cuttable": m["moment_id"] not in self.uncuttable}},
+             "hook_onset_for": self.onset,
+             "hook_ratings": self.rate_hooks,
++            "takeaway_value": self.value,                  # ruling 91 (medley half)
+             "coherence": lambda router, pk, *a, **k: (True, {"through_line": "Nobody gets to bend the rules.",
+                                                              "clips": {sg["label"]: 5 for sg in pk["segments"]},
+                                                              "vo_point": 5, "backend": "xai:grok", "measured": True,
+                                                              "replayed": False}),
+         }
++        if self.real_value:                                # ruling 91: the real verdict, on the fake router
++            del stubs["takeaway_value"]
+         kw, path = ({"candidate": self.candidate} if self.candidate is not None else {}), None
+         if self.registered is not None:
+             kw["registered"] = self.registered
+@@ -2992,6 +3014,7 @@ class TestRuling34Screen(unittest.TestCase):
+         self.assertEqual(pk["btc_screen"], {"pattern": E.BTC_SCREEN.pattern, "source": E.BTC_SCREEN_SOURCE})
+         pk["gates"] = {k: {"status": "PASS", "by": "x", "replayed": False, "n": 1}
+                        for k in package_pin.required_gates(pk)}
++        pk["gates"]["takeaway_value"]["text"] = package_pin.takeaway_line(pk)   # ruling 91: its takeaway, judged
+         with self.assertRaises(package_pin.PinRefused):                 # no judged screen on the stand_alone row
+             package_pin.to_pin(spk(pk), "test")
+         pk["gates"]["stand_alone"]["screen"] = PK.stand_alone_check(pk["segments"])["screen"]   # what it judged
+@@ -3170,5 +3193,284 @@ class TestReportedCost(unittest.TestCase):
+         self.assertEqual(P._reported(0.5), {"usd_reported": 0.5})
+ 
+ 
++class TestRuling91MedleyHalf(unittest.TestCase):
++    """RULING 91, its MEDLEY half ('22:53' Nov 13): "The same value verdict also applies to a MEDLEY's takeaway going
++    forward: a medley that loses its takeaway falls back to L-y's no-voice shape only if its clips meet the seconds;
++    otherwise the takeaway may be rewritten once." The row "takeaway_value" was agreed with the integrator (05:5x ET
++    Nov 14): status PASS, replayed false, "text" the takeaway it judged."""
++    SHORT = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]          # 39 s: under 45.7 s with no VO line
++    FITS = [pm("h", "A", 16.0), pm("x", "B", 16.0), pm("y", "C", 16.0)]           # 48 s: 62.3 s with no VO line
++    NEW = ("Nobody bends these rules, and that is exactly why they keep working for everyone who holds them "
++           "anywhere.")                                                            # 18 words: lands 39 s of clips
++    MED = [(True, [], None, Rig.LINE)]
++
++    def test_a_takeaway_that_earns_its_place_ships_with_its_row_bound_to_its_text(self):
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None])
++        pk = rig.run()["package"]
++        row = pk["gates"]["takeaway_value"]
++        self.assertEqual((row["status"], row["replayed"], row["n"]), ("PASS", False, 1))
++        self.assertEqual(row["text"], pk["vo"]["bridges"][-1])                   # the line it judged is the one spoken
++        self.assertEqual(row["answers"], {"adds": "yes", "no_restate": "yes", "missed": "yes", "short": "yes"})
++        self.assertEqual((row["words"], row["cap"]), (16, 20))
++        self.assertEqual(rig.value_calls[0]["segs"], ["h", "x", "y"])            # the medley's clips, in play order
++        self.assertIn("heimdall", rig.value_calls[0]["wv"])                      # off the writer's vendor and family
++        self.assertIn("deepseek", rig.value_calls[0]["wf"])
++        self.assertEqual(pk["checks"]["value"]["text"], Rig.LINE)
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
++        self.assertEqual(mp["gates"]["takeaway_value"]["text"], mp["edl_vo"]["bridges"][-1]["text"])
++        self.assertEqual(package_pin.takeaway_line(mp), Rig.LINE)
++
++    def test_a_lost_takeaway_on_clips_that_meet_the_seconds_ships_no_voice_and_no_paid_gate_judged_it(self):
++        rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no", "why": "it restates clip_02"}])
++        out = rig.run()
++        pk = out["package"]
++        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y"])   # its OWN clips, none added
++        self.assertEqual((pk["vo"]["intro"], pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"]), (None, [], []))
++        self.assertEqual([x["slot"] for x in pk["lines"]], ["title", "caption"])
++        self.assertIn("ruling 91", pk["no_voice"]["why"])
++        self.assertIn("adds no", pk["no_voice"]["why"])
++        self.assertIsNone(pk["no_voice"]["added_clip"])
++        self.assertEqual((pk["no_voice"]["value"]["adds"], pk["no_voice"]["value"]["text"]), ("no", Rig.LINE))
++        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 91)")
++        self.assertNotIn("takeaway_value", pk["gates"])                          # no takeaway: no row
++        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
++        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 1))  # no rewrite: the clips meet the seconds
++        att = out["tried"][0]["attempts"][0]
++        self.assertEqual(att["value"]["adds"], "no")
++        self.assertNotIn("verdict_classes", att)                                 # asked before any paid gate
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
++        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
++        self.assertIn("ruling 91", pk["checks"]["coherence"]["note"])
++
++    def test_a_lost_takeaway_on_short_clips_gets_one_rewrite_alone_told_why(self):
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
++                  values=[{"adds": "no", "no_restate": "no", "why": "it restates the clips"}])
++        out = rig.run()
++        pk = out["package"]
++        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
++        self.assertEqual(pk["gates"]["takeaway_value"]["text"], self.NEW)      # the rewrite's verdict, never draft 1's
++        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])
++        self.assertEqual(len(rig.write_calls), 1)                                # one full write, then the takeaway ALONE
++        prompt = [p for r, p in rig.prompts if r == "angle_write"][-1]
++        self.assertIn("Your takeaway was refused", prompt)
++        self.assertIn(f'"{Rig.LINE}" (it did not earn its place (ruling 91)', prompt)
++        self.assertIn("adds no, no_restate no, missed yes, short yes: it restates the clips", prompt)
++        self.assertIn('TITLE: "Nobody bends the rules"', prompt)                # the other lines kept
++        tried = out["tried"][0]
++        self.assertTrue(tried["attempts"][1]["takeaway_alone"]["ruling_91"])
++        self.assertEqual([x["text"] for x in tried["value_lost"]], [Rig.LINE])
++        self.assertEqual(tried["result"], "PACKAGE")
++
++    def test_a_second_loss_ends_the_line_up_and_never_adds_a_clip(self):
++        ms = self.SHORT + [pm("z", "D", 13.0)]                                    # ruling 3 would add z (52 s)
++        rig = Rig(ms, ["h", "x", "y", "z"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
++                  values=[{"adds": "no"}, {"missed": "no"}])
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])   # one rewrite, no more
++        self.assertIn("ruling 91", out["tried"][0]["why"])
++        self.assertIn("nor did its one rewrite", out["tried"][0]["why"])
++        self.assertNotIn("no_voice", out["tried"][0])                            # never the no-voice shape with z
++        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])
++        self.assertIn("ruling 91", out["why_none"])
++
++    def test_no_verdict_is_a_loss(self):
++        rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"measured": False}])
++        pk = rig.run()["package"]
++        self.assertIn("no verdict", pk["no_voice"]["why"])
++        self.assertFalse(pk["no_voice"]["value"]["measured"])
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
++                  values=[{"measured": False}, {"measured": False}])
++        out = rig.run()
++        self.assertIsNone(out["package"])                                       # nothing measured is never a pass
++        self.assertEqual(len(rig.value_calls), 2)
++
++    def test_ruling_3_is_unchanged_and_no_value_verdict_judges_a_takeaway_its_cheap_gates_refuse(self):
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED * 2, [None, None], takeaways=bad)
++        out = rig.run()
++        self.assertEqual(rig.value_calls, [])                                    # refused by house style first
++        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")
++        self.assertEqual(out["package"]["no_voice"]["added_clip"], "z")          # ruling 3 may still add a clip
++        self.assertNotIn("value", out["package"]["no_voice"])
++
++    def test_a_value_loss_never_counts_toward_ruling_3s_two_failures(self):
++        """One value loss, one ordinary failure (its rewrite breaks house style), then a second value loss: the
++        takeaway failed its OTHER gates once, so ruling 3's no-voice (which would add z) is not reached."""
++        bad = "Ultimately nobody bends the rules."                                # house style: the opener
++        rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED * 2, [None, None],
++                  takeaways=[Rig.LINE, self.NEW], lines=[{"takeaway": {"text": bad, "cites": []}}],
++                  values=[{"adds": "no"}, {"adds": "no"}])
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])   # the bad line never reached it
++        self.assertNotIn("no_voice", out["tried"][0])
++        self.assertIn("ruling 91", out["tried"][0]["why"])
++
++    def test_the_real_verdict_runs_inside_the_build_and_its_row_seals(self):
++        """build() with package.takeaway_value itself (not the Rig's stub), only the router faked: a clear yes seals
++        the row from the real record; an answer out of contract is rejected and is no verdict (the no-voice shape)."""
++        yes = {"adds": "yes", "no_restate": "yes", "missed": "yes", "short": "yes", "why": "a point of its own"}
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], real_value=True)
++        rig.router.answers["coherence_verdict"] = [yes]
++        pk = rig.run()["package"]
++        row = pk["gates"]["takeaway_value"]
++        self.assertEqual((row["status"], row["text"], row["by"], row["words"]), ("PASS", Rig.LINE,
++                                                                                 "fake:coherence_verdict", 16))
++        self.assertEqual(rig.value_calls, [])                                    # the stub never ran
++        package_pin.to_pin(spk(pk), "test")
++        rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], real_value=True)
++        rig.router.answers["coherence_verdict"] = ["not json"]
++        pk = rig.run()["package"]
++        self.assertIn("no verdict", pk["no_voice"]["why"])
++        self.assertEqual(rig.router.rejected, ["fake:coherence_verdict"])
++
++    def test_the_rewrite_after_a_takeaway_alone_is_judged_on_its_own_new_text(self):
++        """Audit 0608 C2 (glm's condition): two full writes fail the fidelity verdict on the takeaway (ruling 66 keeps
++        the other lines' verdicts), the takeaway alone then loses its value verdict, and ruling 91's forced rewrite goes
++        through takeaway_alone_gates: the fidelity verdict itself judges the NEW takeaway (never the earlier write's),
++        and the sealed row is the new line's."""
++        import context_integrity as CI
++        import vo_fidelity as VF
++        seen = []
++
++        def one(router, segs, lns, *a, **k):              # the real takeaway_alone_gates calls VF.check on the line
++            seen.append([ln["text"] for ln in lns])
++            return {"ok": True, "violations": [], "measured": True, "replayed": False, "backend": "xai:grok",
++                    "deterministic": {"ok": True, "violations": [], "price_now_measured": True},
++                    "verdict": {"ok": True, "violations": [], "classes": {lns[0]["slot"]: ["commentary"]},
++                                "claims": []}}
++        saved = (VF.check, CI.check_contexts, CI.contexts_from_sources)
++        VF.check = one
++        CI.check_contexts = lambda *a, **k: {"ok": True, "violations": [], "measured": True, "replayed": False,
++                                             "backends": {"B": "xai", "C": "xai"}}
++        CI.contexts_from_sources = lambda *a, **k: {}
++        try:
++            failing = TestRuling66Amended().failing()
++            rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None, None], fids=[failing, failing],
++                      lines=[{"takeaway": {"text": Rig.LINE, "cites": []}}, {"takeaway": {"text": self.NEW, "cites": []}}],
++                      values=[{}, {}, {"adds": "no"}])          # writes 1-2 pass it, the takeaway alone loses it
++            out = rig.run()
++        finally:
++            VF.check, CI.check_contexts, CI.contexts_from_sources = saved
++        pk = out["package"]
++        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
++        self.assertEqual(pk["gates"]["takeaway_value"]["text"], self.NEW)
++        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, Rig.LINE, Rig.LINE, self.NEW])
++        self.assertEqual(seen, [[self.NEW]])                 # the verdict judged the rewrite's own text, alone
++        alone = [a.get("takeaway_alone") for a in out["tried"][0]["attempts"] if a.get("takeaway_alone")]
++        self.assertEqual([bool(a.get("ruling_91")) for a in alone], [False, True])   # ruling 66's, then ruling 91's
++
++    def test_the_line_up_records_every_takeaway_with_its_value(self):
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
++                  values=[{"short": "no"}])
++        out = rig.run()
++        vals = [t["value"] for t in out["takeaways"]]
++        self.assertEqual([(v["ok"], v["short"]) for v in vals], [(False, "no"), (True, "yes")])
++
++
++class TestTakeawayValueVerdict(unittest.TestCase):
++    """package.takeaway_value: the spotlight's value contract (spotlight.parse_value) over a medley's clips."""
++    SEGS = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0)]
++    LINE = "Nobody bends these rules, so nobody has to trust anyone to keep them."
++    YES = {"adds": "yes", "no_restate": "yes", "missed": "yes", "short": "yes", "why": "a point the clips do not make"}
++
++    def ask(self, answer, line=LINE):
++        r = Canned(coherence_verdict=[answer] if answer is not None else [])
++        prompts, inner = [], r.call
++        r.call = lambda role, prompt, *a, **k: (prompts.append((role, prompt, a, k)), inner(role, prompt, *a, **k))[1]
++        return r, PK.takeaway_value(r, self.SEGS, ctx(), line, {"heimdall"}, {"deepseek"}), prompts
++
++    def test_four_clear_yeses_inside_the_cap_pass_off_the_writers(self):
++        r, v, prompts = self.ask(self.YES)
++        self.assertTrue(v["ok"] and v["measured"])
++        self.assertEqual((v["text"], v["words"], v["cap"], v["backend"]), (self.LINE, 13, 20, "fake:coherence_verdict"))
++        self.assertEqual(r.calls, [("coherence_verdict", {"heimdall"}, {"deepseek"})])   # never the writer's vendor
++        self.assertEqual(prompts[0][2][:2], (400, 7))                                     # one verdict per text: seed 7
++
++    def test_any_answer_short_of_a_clear_yes_fails(self):
++        for k in ("adds", "no_restate", "missed", "short"):
++            r, v, _ = self.ask(dict(self.YES, **{k: "no"}))
++            self.assertTrue(v["measured"], k)
++            self.assertFalse(v["ok"], k)
++
++    def test_the_cap_is_counted_in_code(self):
++        long_ = " ".join(["rules"] * 21)
++        r, v, _ = self.ask(self.YES, line=long_)                                 # the model said "short": yes
++        self.assertEqual((v["words"], v["ok"]), (21, False))
++        r, v, _ = self.ask(self.YES, line=" ".join(["rules"] * 20))
++        self.assertTrue(v["ok"])
++
++    def test_an_answer_out_of_contract_is_no_verdict_and_is_rejected(self):
++        for bad in ({"adds": "maybe", "no_restate": "yes", "missed": "yes", "short": "yes", "why": "w"},
++                    {"adds": "yes", "no_restate": "yes", "missed": "yes", "short": "yes"},           # no why
++                    dict(self.YES, extra="yes"), "not json"):
++            r, v, _ = self.ask(bad)
++            self.assertEqual((v["measured"], v["ok"]), (False, False), bad)
++            self.assertEqual(r.rejected, ["fake:coherence_verdict"], bad)       # never served again
++
++    def test_no_back_end_is_no_verdict_and_nothing_is_rejected(self):
++        r, v, _ = self.ask(None)
++        self.assertEqual((v["measured"], v["ok"], r.rejected), (False, False, []))
++        self.assertIn("ProviderError", v["why"])
++
++    def test_the_prompt_shows_every_clip_in_play_order_then_the_line_and_the_cap(self):
++        segs = [dict(m, text=f'Bitcoin "{m["moment_id"]}" said.') for m in self.SEGS]
++        r = Canned(coherence_verdict=[self.YES])
++        seen, inner = [], r.call
++        r.call = lambda role, prompt, *a, **k: (seen.append(prompt), inner(role, prompt, *a, **k))[1]
++        PK.takeaway_value(r, segs, ctx(), 'He said "rules".', set(), set())
++        p = seen[0]
++        self.assertLess(p.index("CLIP 1 (on A)"), p.index("CLIP 2 (on B)"))
++        self.assertLess(p.index("CLIP 3 (on C)"), p.index("LINE:"))
++        self.assertIn("CLIP 2 (on B): \"Bitcoin 'x' said.\"", p)                # quotes inside a quote are neutralised
++        self.assertIn("LINE: \"He said 'rules'.\"", p)
++        self.assertIn('"short": is the line 20 words or fewer?', p)
++        self.assertIn("SECURITY", p)                                             # the quotes are untrusted data
++
++
++class TestTakeawayValueRow(unittest.TestCase):
++    """package_pin's half of the row (agreed with the integrator 05:5x ET Nov 14)."""
++
++    def pk(self, **kw):
++        return TestMedleyPackageAndPin().build(**kw)
++
++    def test_required_only_for_a_medley_that_carries_a_takeaway(self):
++        pk = self.pk()
++        self.assertIn("takeaway_value", package_pin.required_gates(pk))
++        nv = dict(pk, vo=dict(pk["vo"], bridges=[], bridges_after_clip=[]), no_voice={"why": "x"})
++        self.assertNotIn("takeaway_value", package_pin.required_gates(nv))       # the no-voice shape: no row
++        self.assertNotIn("takeaway_value", package_pin.required_gates({"shape": "medley"}))
++        self.assertNotIn("takeaway_value", package_pin.required_gates(dict(pk, shape=None)))   # only a medley's
++        self.assertNotIn("takeaway_value", package_pin.required_gates({"shape": "spotlight", "vo": {"closing": "x"}}))
++
++    def test_the_takeaway_is_the_line_after_the_last_clip_never_the_bridge(self):
++        b = {"text": "Next, on keys.", "cites": ["y"], "why": "no referent"}
++        pk = self.pk(bridge=b, k=1, n=4)
++        self.assertEqual(package_pin.takeaway_line(pk), "No ruler, just rules nobody gets to bend.")
++        pk["gates"] = TestMedleyPackageAndPin().gates(pk)
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
++        self.assertEqual(package_pin.takeaway_line(mp), "No ruler, just rules nobody gets to bend.")
++        self.assertIn("takeaway_value", package_pin.required_gates(mp))
++        self.assertIsNone(package_pin.takeaway_line(dict(mp, vo_jobs={"bridge_1": "connection"})))
++
++    def test_the_row_must_judge_exactly_the_takeaway_that_ships(self):
++        pk = self.pk()
++        t = pk["vo"]["bridges"][-1]
++        for bad in ({"text": "Another line."}, {"text": t + " "}, {"text": None}, {"text": t, "status": "FAIL"},
++                    {"text": t, "status": "NOT RUN"}, {"text": t, "replayed": True}, {"text": t, "replayed": None}):
++            g = TestMedleyPackageAndPin().gates(pk)
++            g["takeaway_value"] = dict(g["takeaway_value"], **bad)
++            with self.assertRaises(package_pin.PinRefused, msg=bad) as cm:
++                package_pin.to_pin(spk(dict(pk, gates=g)), "test")
++            self.assertIn("takeaway_value", str(cm.exception))
++        g = TestMedleyPackageAndPin().gates(pk)
++        g.pop("takeaway_value")
++        with self.assertRaises(package_pin.PinRefused) as cm:
++            package_pin.to_pin(spk(dict(pk, gates=g)), "test")
++        self.assertIn("takeaway_value: missing", str(cm.exception))
++        package_pin.to_pin(spk(dict(pk, gates=TestMedleyPackageAndPin().gates(pk))), "test")   # the right row: pins
++
++
+ if __name__ == "__main__":
+     unittest.main()

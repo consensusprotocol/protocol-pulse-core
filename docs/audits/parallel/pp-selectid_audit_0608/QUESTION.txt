@@ -1,0 +1,58 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff; if uncertain, say so; do not guess. Be specific: file:line and a concrete input that breaks it.
+
+BACKGROUND (static):
+- A MEDLEY pin is the hook clip + 2-4 clips played back to back, then at most ONE spoken VO line after the LAST clip
+  (the "takeaway"), then a code-written sign-off. package.build() has a writer model write the takeaway, gates it
+  (cheap deterministic gates, then paid verdicts: fidelity, context integrity, coherence) and seals a pin
+  (package_pin.to_pin; seal() hashes the segments, VO, title, caption and the gate inventory). The render side (another
+  team, "the integrator") imports pipeline/package_pin.py from this worktree LIVE and recomputes seal() with it.
+- Ruling 3 (Nov 12): if the takeaway fails its gates twice on a line-up whose clips pass "alone", the package ships
+  with NO VO line (the "no-voice shape": clips back to back, sign-off only); the packager may add one more clip to
+  land 60-70 s.
+- RULING 91 (Nov 13), the SPOTLIGHT half, already built: a closing line is kept only if a separate VALUE verdict, off
+  the writer's model family, answers four questions with a clear yes: adds (says something the clip does not),
+  no_restate (does not restate, summarise or cheer it), missed (a viewer would miss it if it were cut), short (within
+  the cap). Anything short of a clear yes means no line. spotlight.value_verdict / parse_value / VALUE_KEYS carry it.
+- RULING 91, the MEDLEY half (THIS change), verbatim: "The same value verdict also applies to a MEDLEY's takeaway going
+  forward: a medley that loses its takeaway falls back to L-y's no-voice shape only if its clips meet the seconds;
+  otherwise the takeaway may be rewritten once."
+- The row agreed with the integrator: gates["takeaway_value"] = {status exactly "PASS", replayed false, n 1, text =
+  the exact takeaway the verdict judged, answers, why, words, cap}; required for a medley carrying a takeaway; no
+  takeaway = no row. The integrator checks status, replayed, and text == the takeaway after strip(). Cap: 20 words
+  (house style), counted in code; R4's 30 stays the render's own bound.
+
+THE CHANGE (dynamic; the diff follows):
+1. package.takeaway_value(): ONE blind call (role coherence_verdict, as the spotlight's value verdict) showing the
+   clips in play order, then the line; parsed by spotlight.parse_value; ok = four "yes" AND house_style.words(line)
+   <= 20; off every writer's vendor and family; a fixed seed (one verdict per text over the same clips); unavailable
+   or out of contract = measured False, ok False; an out-of-contract reply is rejected (never served again).
+2. package.no_voice_fits(): the line-up's OWN clips (none added), the clips-alone verdict measured with no flagged
+   join, and the clips + the 14.3 s tail inside 60-70 s.
+3. build(): every written takeaway that passes its cheap gates gets the value verdict BEFORE any paid gate. On a loss:
+   if no_voice_fits, the no-voice shape at once (no_voice(value=...), which never adds a clip); else ONE rewrite of the
+   takeaway alone (write_line, told the refusal), forced past the ruling-66 write counts; a second loss ends the
+   line-up with no package. A value loss never counts toward ruling 3's take_failed. The kept verdict is sealed as the
+   "takeaway_value" row (inventory(value=...)).
+4. package_pin: TAKEAWAY_GATES; takeaway_line() (from a package, or from a pin's moments_package); required_gates adds
+   the row for a medley carrying a takeaway; takeaway_problems() refuses a row whose text is not exactly the shipped
+   takeaway. seal() is unchanged.
+5. Tests: the medley Rig stubs the verdict (default: a clear yes); 17 new tests; an 11-mutation check (each piece
+   broken in turn) was killed by them every time. 19 suites, 535 tests pass.
+
+ATTACK:
+(a) Can a takeaway ship without a value verdict on exactly its own text? (a stale verdict from an earlier write;
+    ruling 65's caption / title rewrite; the lock pre-check's LP.apply; the candidates registry's re-tries)
+(b) Can the loop spin, skip the one rewrite, or allow more than one value-driven rewrite? Does the forced rewrite
+    interact badly with ruling 66's takeaway-alone writes (alone_n, alone_by, last_fid, t_alone, last_rw65)?
+(c) Is "no clip added" airtight on the ruling-91 path, and is ruling 3's own path (which may add a clip) unchanged?
+(d) Backward compatibility: does every pin sealed before still recompute (seal() unchanged; the integrator's
+    check_pin_only uses REQUIRED_GATES only)? Does any path re-pin an OLD package through to_pin and now refuse it?
+(e) The verdict prompt: injection through clip text or the line (quote_data plus '"' -> "'"), and whether its four
+    questions and its ok rule match the spotlight's contract.
+(f) A known edge, judge it: a lost takeaway whose write ALSO has a lone caption / title failure falls back to the
+    no-voice shape with that caption, whose own gates then fail closed (no ruling-65 caption rewrite on that path).
+    Acceptable, or a defect?
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario), then
+"SHIP: yes / no / yes with conditions".
