@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## HANDOFF READY ee590ac0 (05:12 ET): docs/audits/INTEGRATOR_HANDOFF.md, committed and pushed on combo-letterbox-quoteonly-v2 as ordered at '05:14'.
+- It holds:
+  - the role and duties;
+  - every ruling in force on this side with its carrier, and the laws L-n .. L-ab;
+  - the render procedure: the 12 h launch check, yield, freeze, readiness, launch, report;
+  - stages, holds, REQUIRED / MONITORING rows, the pass path, the review drop;
+  - the protected references and their tags;
+  - the four services with their exact restart commands and shas: pre-check c705b20ed800, scorer 91d75457ceec, judge c62a1e12088c, word pass GPU1;
+  - the builder contracts; the open items in priority order; the known traps.
+- The two operator tools it names were moved from this session's scratchpad into scripts/integrator/: check_pin_only.py (the readiness check) and grok_audit.py (the Grok reviewer).
+- State at handoff:
+  - nothing rendering, GPU0 free;
+  - no builder pin pending (its 01:01 build, 2f081cba, scored at 01:06);
+  - every merge pushed: ruling 94 at 409188ef, and this handoff.
+  - Nothing further is done in this session.
+
 ## 00:45 RULING 94 MERGED, my side (agreed with the builder; audits batch 75 x2, cycle 2 clean with Grok). A first- or second-person pronoun no longer faults a hook; a third-person or demonstrative opener opens only with the clip scorer's affirmation; a conjunction or reply-word hook still opens only through ruling 33's trim. stand_alone.py sha256 14f30115284e859e..., new scorer_sha 91d75457ceec.
 - stand_alone.py:
   - FIRST_SECOND = {i, me, my, we, us, our, you, your}; THIRD = PRONOUNS - FIRST_SECOND.
