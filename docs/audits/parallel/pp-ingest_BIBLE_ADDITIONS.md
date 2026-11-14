@@ -163,3 +163,15 @@ prompts). The muse model answered 20/20 of what it returned but 4 of 24 calls fa
 with its table; its reasoning setting is chosen by that score, per prompt length (off for 100k-token packages, where
 reasoning empties the reply; default for one-question prompts).
 **Detection:** `flagcheck.calibrate` runs before every check; the calibration table heads the report.
+
+### INGEST-FAIL-16: A notice writer took any read error of the STATE file for an empty file
+**Evidence (audit r87 c1, its replies at 02:10 ET Nov 14):** `spend._rewrite_top`, which puts the NOTIFY lines at the top of the
+STATE file under a lock, read the file with `except OSError: text = ""`: a STATE file that EXISTS but cannot be read
+(permissions, an I/O error) would have been rewritten as the notice alone, the whole file lost. It had been there
+since the first notice writer; ruling 87 added two more writers to it, which is how a reviewer came to read it.
+**Rule:** only a MISSING file may start empty; any other read error raises, the caller logs it and tries again later,
+and nothing is ever rewritten from what could not be read (law L-j). A writer that clears a notice clears its own
+record only after the notice is gone.
+**Detection:** tests/ingest/test_signal.py `test_a_state_file_that_cannot_be_read_is_never_rewritten_from_nothing`
+(a chmod 000 STATE file: the writers raise, every line kept).
+

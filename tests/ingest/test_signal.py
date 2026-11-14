@@ -268,7 +268,9 @@ def test_a_failed_probe_resets_the_streak_and_a_probe_nobody_could_answer_is_no_
     s2, b2 = make(probe_enabled=False)                                # both probe back-ends switched off: no call
     t[0] += 200
     s2.hsig.tick(wait=True)
-    assert state(tmp)["last_probe_utc"] == iso(T0) and s2.hsig.n["probes_not_made"] == 1
+    st = state(tmp)                                                   # no probe_result: the streak is untouched (the
+    assert st["probe_streak"] == 0 and st["last_probe_utc"] in (iso(T0), iso(T0 + 200))   # builder's claim version
+    assert s2.hsig.n["probes_not_made"] == 1 and s2.hsig.n["probes"] == 0   # stamps the slot it claimed at T0+200)
     assert s2.hsig.last_probe["answered"] is None and b2["hv_p1"].calls == []
 
 

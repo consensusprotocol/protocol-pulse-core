@@ -117,4 +117,10 @@ the worker at the end of each cycle) are also covered by the watcher's purge whe
    the caller's repo; and a lock the caller's own STATE writers do not take). This watcher therefore passes no
    `state_md` and writes every switch to its own STATE line 1 under its notices' lock (INGEST_DESIGN section 14).
    Proposed: a lock path outside the caller's tree, or a documented `state_lock` parameter.
+   THE BUILDER'S ANSWER (Nov 14, after the watcher's restart): (1) AGREED: `probe_due(path, now, who="")` will CLAIM the slot when it returns
+   True (stamps `last_probe_utc` = now and `last_probe_by` = who under the same flock; a second prober in the slot
+   gets False; a claimer that never reports spends one slot); in its 2-cycle audit, sha to follow. This watcher loads
+   the module once at start: it takes the claim up at a restart after that commit, passing who="pp-ingest probe" only
+   where the signature takes it (today's version would raise on the keyword). (2) Noted; this watcher passes no
+   state_md, so the lock never touches this tree.
 

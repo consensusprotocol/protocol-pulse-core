@@ -1,19 +1,21 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 18:20 ET Nov 13) - paid frontier vendors FROZEN since 05:30 ET Nov 12
+## TOTAL SPEND BY VENDOR (this session, every use, to 02:30 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$0.97** | $0.84 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.37 (mining since 03:26 ET Nov 12: $0.10 before the freeze, $0.27 after), ruling 40 $0.23 (the flag check $0.05, option A's dry run $0.18), the audits $0.11, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $0.63: mining $0.27 (432 calls), ruling 40 $0.23, the freeze audit $0.08 + at most $0.05 unrecorded |
-| **TOTAL** | **~$13.20** | | Anthropic is 79 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
-- Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261113.json (tests/ingest/spend_by_vendor.py: every
-  row with its basis). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 37.05 at 18:12 ET
-  Nov 13 (+$2.47, the fleet's other sessions included); the cap's sweep spend $36.85 of $460 (8.0 %), meter ok, no
-  tripwire. Ruling 77 spent nothing on models (no model call).
+| Heimdall | **$1.53** | $1.40 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.52 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.42 after; 1,111 calls), the audits $0.62 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.14: the watcher $0.42, the audits $0.47, ruling 40 $0.25 + at most $0.05 unrecorded |
+| **TOTAL** | **~$13.76** | | Anthropic is 76 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+- Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261114.json (tests/ingest/spend_by_vendor.py: every
+  row with its basis; since e2878d54 it sums EVERY audit directory: the 18:20 ET Nov 13 table left out the audits of
+  rulings 40 P1 to 92, which it now carries; the smoke and freeze-drill rows are carried from the 20261113 file, their
+  scratch stores being gone). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.30 at 02:27 ET
+  Nov 14 (+$4.72, the fleet's other sessions included); the cap's sweep spend $39.10 of $460 (8.5 %), meter ok, no
+  tripwire. Ruling 87's probe runs only while calls fail or in Plan B (none so far: $0.00).
 
 ## RULING 40: LABEL PRECISION OF THE HARD FLAGS (measured 03:25-05:25 ET Nov 13; commit a462afda; report docs/audits/parallel/pp-ingest_FLAG_PRECISION.md)
 Second model z-ai/glm-5.3-flash (Heimdall, default reasoning; 24/24 on the calibration quotes), one narrow question per
@@ -32,6 +34,37 @@ parties); P3 the tighter miner prompt is not the fix (measured: no precision gai
 moment 12 h after publish, which removes most of what P1 would have released (the released rows were up to 72 h old).
 
 ## LIVE STATE (newest first; ET)
+
+- 02:27 Nov 14 RULING 87 IS WIRED: THE WATCHER IS ON THE ONE SHARED HEIMDALL-DOWN SIGNAL (the builder's module,
+  pp-selectid pipeline/heimdall_health.py at 125e7381, used through its API only; its state file
+  tests/package/proof/HEIMDALL_HEALTH.json in the builder's worktree). Audited 2 cycles (c1: no P0 after
+  verification, six fixes in; c2: glm "P0 none, P1 none, production ready with one condition" (in), muse "P0 none in
+  this diff"; pp-ingest_audit/r87/, $0.118 Heimdall), commits 31a50fe6 -> 5a3a2ae2; the watcher restarted 02:27 ET.
+  The builder was told right after the restart (the contract as built, and REQUESTS R12).
+  - NOTED: every real call of the watcher to a Heimdall back-end (mining, hooks, the second-model check). Answered =
+    the gateway answered inside the back-end's deadline (a reply, even one the validator rejects); not answered = any
+    other outcome of a real call (down, refusing, empty, late, 429, 4xx). Not noted: a stored reply, a missing key, a
+    probe call, a non-Heimdall back-end. A back-end under an overrides.json base_url override (the outage drill) is
+    noted drill=True (recorded, never counted). One thread calls the module, so its lock never stalls the miner.
+  - THE PROBE, while the shared state says one is due (calls failing, or Plan B; every 2 min): "Reply with the
+    single word OK." to qwen3.8-27b, then glm-5.3-flash (Heimdall, 60 s each, the first answer ends it; never a
+    stored reply; never during a drill). Spend: only while calls fail (none so far).
+  - EVERY SWITCH, whoever made it, goes to the start of this file's line 1 (IN CAPITALS with the time ET, who made it
+    and the miner's Plan B; newest first, one physical line) and to data/editorial/ingest/down_signal.jsonl.
+  - THE MINER'S PLAN B IS UNCHANGED: QUEUE AND WAIT (the 05:30 Nov 12 spend freeze; the orchestrator's question is
+    open). Nothing in the signal changes what the miner calls: Heimdall (the local model is disabled), and when
+    nothing answers the videos wait in the queue (a line here after 30 min), never dropped.
+  - A signal that cannot be read is never taken as up or down: live.json `down_signal.mode` null with the reason at
+    once, a "HEIMDALL DOWN SIGNAL NOT READ" line here after 30 min. Operating note (audit c2, muse): for the first
+    48 h, `counts.probes_not_made` should stay 0 outside drills and `not_read` null.
+  - FIRST READING (from 02:27): wired; mode heimdall_first; no note yet (every call since the restart was a stored
+    reply: the flag-check calibration); the shared state file is created by the first real Heimdall call. Live:
+    `tools/ingest_watch.py status` / live.json `down_signal`.
+  - Also fixed on the way (audit c1): a STATE file that exists but cannot be read is never rewritten from nothing by
+    a notice writer (before, any read error was taken as an empty file).
+  - THE BUILDER ON REQUESTS R12: agreed; its `probe_due` will claim the 2-minute slot (one probe per slot fleet-wide)
+    after its own 2-cycle audit. PENDING HERE: when its sha lands, read the diff, then restart the watcher to load it
+    (the module is loaded once at start), passing who="pp-ingest probe" where the signature takes it (audited).
 
 - 00:13 Nov 14 THE BUILDER'S RULINGS 90-93 ARE LIVE ON ITS SIDE (8bf5f278 the spotlight, 85c3895f ruling 93: DEC-12d
   per clip, not per channel: has_chyron no longer keeps a channel's clips off screen; each clip is judged on its own
@@ -487,13 +520,29 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   not deleted: not listed, and a deletion cannot be undone.
 - A21 "Newest uploads first, always" orders the mining; it does not stop it: videos older than 12 h are mined after
   every newer one, for the receipts.
+- A22 Ruling 87, "every switch ... STATE line 1": the module is given NO STATE path (its writer would leave a lock
+  file beside STATE.md and bypass the notices' lock); this watcher writes EVERY switch in the shared state, whoever
+  made it, to its own line 1 under the notices' lock (the module still writes its own switch record to this
+  watcher's evidence file when this watcher trips it).
+- A23 "Answered inside its deadline": the gateway gave a reply within the back-end's own timeout (ok, or a reply the
+  validator rejects); every other outcome of a real call is "not answered", as the contract says ("down, refused,
+  empty or late"): 429 and 4xx included (the signal measures whether the fleet gets through).
+- A24 One thread calls the builder's module; the router's threads only leave the outcome in memory, so a held or
+  stuck shared lock can never stall the miner (the signal's notes wait instead; STATE says so after 30 min).
+- A25 The probe: two probe-only Heimdall back-ends at the builder's 60 s deadline (the same models as the live ones),
+  free of the circuit breaker, no transport retry, the first answer ends it, never a stored reply.
+- A26 A drill = a base_url override present for that back-end in overrides.json: a real call wrongly taken for a
+  drill only loses evidence, never flips the fleet's signal.
 
 ## HOW TO OPERATE (for the orchestrator)
-- status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status`
+- status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status` (ruling 87: its `down_signal` block is the watcher's view of
+  the shared Heimdall-down signal: mode, last probe, counts, switches seen; from live.json, with that file's age)
 - packager read: `python3 tools/ingest_watch.py moments --since 2026-11-12T00:00:00+00:00 [--delivered ids.txt]`
 - coverage now: `python3 tools/ingest_watch.py coverage --hours 24`
 - outage drill: write `data/editorial/ingest/overrides.json` = {"heimdall_qwen27b": {"base_url": "http://127.0.0.1:9/api/v1"}};
-  remove it to restore (recovery at the breaker's half-open probe, <= 5 min); or, without touching the live watcher:
+  remove it to restore (recovery at the breaker's half-open probe, <= 5 min). Ruling 87: a drilled back-end's calls go
+  to the shared Heimdall-down signal as drill=True (recorded, never counted); while a probe back-end
+  (heimdall_qwen27b_probe, heimdall_glm53flash_probe) is overridden no probe runs. Or, without touching the live watcher:
   `PP_INGEST_STORE=<scratch> PP_INGEST_CHANNELS=<slug> python3 tests/ingest/drill_freeze.py --out <json>`
 - spend freeze: `pipeline/ingest/providers.json` `spend_freeze.vendors`; lift = remove the vendor(s), restore the mine
   chain's tail (REQUESTS R6.5), restart. Spend by vendor: `tests/ingest/spend_by_vendor.py --out <json>`; live:
