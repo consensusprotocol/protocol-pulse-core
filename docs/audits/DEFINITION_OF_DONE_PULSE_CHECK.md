@@ -6,6 +6,26 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 18:26 SPOTLIGHT PIN 3f481f5a RECEIVED (Blockware 06d34e15, the FULL 7BqLu-wzbU0 0.000-22.940; story moments-ledger_20261114_230148-3f481f5a), READY by every gate, NOT LAUNCHED: one integrity question for the orchestrator. Scribe read the "401k" token differently across calls on the same audio, two of three times "401".
+- The pin, frozen as data/moments_pins/SPOTLIGHT_PIN_230148.json:
+  - 12 h check 6.42 h;
+  - required_gates(shape "spotlight"): all 26 PASS and live, no trim problems;
+  - the builder's pin_seal recomputes 3f481f5a6514157f = package_sha256;
+  - pinned.validate_schema and moments_vo OK;
+  - closing line "Most people focus on the buy. The leaving is the story." with closing_value / fidelity / context PASS;
+  - title "Selling Retirement Stocks For Bitcoin Early".
+- THE QUESTION. Scribe_v1's readings of the token on this audio:
+  1. 13:51 ET, the long window: "401 ,";
+  2. 14:16 ET, the short window of the ruling-103 re-listen (the now-merged code, the proof run): "401 .", hold final (decoder "401k");
+  3. 18:17 ET, production on d1e155c642a6 with a fresh long reading ($0.0076): "401k", so outcome no_difference, as_spoken "same" with no differences, and no re-listen.
+  - Two of three independent readings say "401". Ruling 103: after a failed re-listen "the clip may only be saved by a variant that leaves the token out".
+  - Rendering the full clip on the one agreeing re-read would count a re-roll as a pass after a recorded final hold.
+- OPTIONS PUT: render the ruling-104 VARIANT (0.000-15.280, ending "...I still don't use my Roth IRA."; asked of the builder now), or render the full 3f481f5a.
+- Either launches at once; the source expires 00:00 ET.
+- TOOL BUG, found on this first spotlight: scripts/integrator/check_pin_only.py calls gate_problems with the medley default and reports "r4: missing; coherence: missing" for any spotlight.
+  - Readiness was therefore done by hand with the builder's required_gates(mp) and pin_seal(pin).
+  - The fix (the same two calls in the tool) goes through the audit after the render. It is not in the render path.
+
 ## 14:53 RULING 103 + CANON-401k LANDED (branch canon-401k: 373d0fed canon + 077407dc ruling 103; audits batch 79 x2 clean, batch 80 x2 with cycle 2 clean). The pre-check's decoder_sha moves ONCE, c705b20ed800 -> d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce, with the builder's matching 4c3435d9 (its READY; it pushes after this).
 - WHAT IS LIVE:
   - canon (L-k): '401k' = '401(k)' (also 403(b), 457(b)) is one name token, never the number; "$401k" stays an amount.
