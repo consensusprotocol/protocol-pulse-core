@@ -6,6 +6,14 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 21:29 NO PIN, NOTHING TO RENDER: the Breedlove candidate (L6H7538ogGs -> uaHNzi-Kgr8 -> NtaQGnfWRR8) closed at the builder's coherence-with-the-takeaway check at 21:28 (hook 4, clip_01 4, clip_02 2, takeaway 2; ruling 66 closes a clip under 4). The pre-check under ruling 84 answered exactly as measured. The builder's search (8 line-ups) runs on; any line-up holding Breedlove must START its render before 22:00:33.
+- Request pp-selectid.ledger_20261114_021501.1: decode 21:22:41-21:23:00 under one GPU0 lease, answers 21:23:06-21:23:14, second readings $0.0262.
+  - L6H7538ogGs 897.877-906.587: no_difference.
+  - uaHNzi-Kgr8 153.250-165.890: ADOPT_SPOKEN (classes filler, filler, one function word). The render's lock keeps 'so' and records 'or' (token 21, word 63, 22.90-23.12 s); ruling 73's cut 14.57-27.88 s, no error.
+  - NtaQGnfWRR8 3475.260-3494.260: two_readings ('me' / 'be', ruling 18, unchanged).
+- Audit record: glm's second cycle-2 attempt also ran its full 600 s without an answer (exit 124 at 21:17:19), after cycle 2 had closed clean on qwen27b and Grok.
+- Lock tests re-run on main after the merge: 107 passed. The scorer, the word pass and the local judge do not load pinned.py or lock_precheck.py, so they were not restarted.
+
 ## 21:12 RULING 84 MERGED on a clean cycle 2 (audits batch 71: cycle 1 no consensus; cycle 2 PASS from qwen27b and Grok, glm and deepseek did not answer inside 3 minutes, per the orchestrator's 21:10 order). The merge landed before 21:35, so the candidate is not lost to the audit queue.
 - (a) Fillers the second recogniser hears and the lock lacks (um, uh, er, ah, mm, hmm) adopt with the speaker's repetitions. (b) ONE function word read against the decode's one: the lock keeps the decode's word and records the other reading (ruling 18's record, made in pinned.adjudicate_lock, so the render makes the same lock). Two or more in one span hold, and so does any other substitution.
 - MUST-FAIL, on the real cached decode and reading (pipeline/fixtures/ruling84):
