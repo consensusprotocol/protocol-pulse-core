@@ -6,6 +6,21 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 13:54 PRE-CHECK HOLD ON "401k" STANDS (the builder's only spotlight finalist, Blockware Solutions 7BqLu-wzbU0 0.000-22.940, request pp-selectid.ledger_20261114_183413.1). Lawful under rulings 72 / 84 and 17 / L-v 2; QUESTION FOR THE ORCHESTRATOR below. A separate canon defect was found: "401k" == "401,000".
+- THE HOLD (results/7BqLu-wzbU0.0.000-22.940.c705b20ed800.json): the lock reads "I don't have a 401k."; scribe_v1 heard "...Roth IRA, I don't have a 401 , I don't own...". Difference [['401000', '401']], class hold.
+- WHY IT STANDS: ruling 84 adopts only fillers and keeps the decode's word for ONE function word; any other substitution holds. Ruling 17 / L-v 2: a number or name disagreement between independent readings always holds.
+  - With canon fixed, the difference would read [['401k', '401']], still a name / number substitution, still a hold.
+  - The integrator cannot adjudicate an integrity hold.
+- QUESTION FOR THE ORCHESTRATOR: does a second recogniser dropping a letter suffix of a known name token ("401k" -> "401") get any ruling, or does the hold stand? (L-w 6: no integrity rule is demoted without PBX in writing.)
+  - The clip's video was published 12:00 ET and expires 00:00 ET Nov 15.
+  - The lawful alternative, told to the builder: a span ending at the sentence boundary before "I don't have a 401k." (after "...I still don't use my Roth IRA."), if it keeps the 12 s floor and stands alone, re-asked of the pre-check.
+- CANON DEFECT (L-k: a different number never compares equal), measured:
+  - canon.canon_tokens("I don't have a 401k") -> [..., '401000'];
+  - canon.same("a 401k", "a 401,000") is True, a false EQUAL;
+  - "401(k)" -> ['401', 'k'], inconsistent with "401k".
+  - Planned fix: one name token for 401k / 401(k), never equal to 401000; must-fail tests; two audit cycles.
+  - canon.py is in the pre-check's decoder_sha (c705b20ed800), so the sha moves; the timing is being agreed with the builder so it does not cut across a build. Nothing changed yet.
+
 ## 11:43 RULING 99 and the orchestrator's rulings (2) / (3), as relayed by the builder (54ec843d, 679d26e6 on pp-selectid, each audited in two cycles): NO RENDER CHANGE; package_pin.py and seal() unchanged.
 - Ruling 99, the circuit breaker, lives in the builder's Router only (providers.py, pipeline/circuit_breaker.py, proof_ledger.build_router). glm's breaker opened at 11:31 after two deadline misses in a row.
 - (2) ledger_build.SNAP_MAX_S = 35 s: rows snapped to 21-35 s are read; the medley still drops them at 20 s (package.usable). A spotlight's 35 s is inside L-ab's 12-35 s clip window, and R4 / G5 hold its 28-50 s total.
