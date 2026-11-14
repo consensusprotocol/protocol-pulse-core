@@ -13,3 +13,15 @@ os.environ.pop("PP_EDITORIAL_STORE", None)
 os.environ.pop("PP_INGEST_ALLOW_MAIN_STORE", None)
 os.environ.pop("PP_INGEST_HEIMDALL_BASE", None)
 os.environ.pop("PP_INGEST_CHANNELS", None)
+
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _state_doc_in_tmp(tmp_path, monkeypatch):
+    """Every test writes its STATE notices to its own file, never the real STATE: the watcher's health loop writes the
+    cycles line (cycles.py), so any service test would otherwise reach the real file. A test that sets its own
+    STATE_DOC still does (its monkeypatch comes later)."""
+    from pipeline.ingest import config
+    monkeypatch.setattr(config, "STATE_DOC", str(tmp_path / "STATE_of_this_test.md"))

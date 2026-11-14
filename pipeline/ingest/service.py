@@ -50,7 +50,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
-from . import config, coverage, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
+from . import config, coverage, cycles, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -139,6 +139,7 @@ class Service:
         self.check_inflight, self.check_next, self.clock_lock = set(), {}, threading.Lock()
         self.check_allowed, self.check_calibrated = None, 0.0
         self.check_recal_s = CHECK_RECALIBRATE_S        # the wait before the next calibration (set by each one)
+        self.cycles_error = None                         # the cycles line's last failure (logged once per cause)
         self._reuse_tried = False                       # the start's one look at the stored live calibration
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
@@ -746,6 +747,7 @@ class Service:
         s = stats.write_live(self.q, self.p["live"], meter=self.meter, router=self.router,
                              signal=self.hsig.snapshot() if self.hsig is not None else None)
         self._outage_notice(now)
+        self._cycles_notice(now)
         day = config.iso()[:10]
         hour = datetime.now(timezone.utc).hour
         if force_coverage or (hour >= COVERAGE_HOUR_UTC and self.q.kv_get("coverage_day") != day and
@@ -761,6 +763,20 @@ class Service:
             self.log(f"coverage: {rep['mined']}/{rep['eligible']} mined, {len(rep['missed'])} listed with reasons, "
                      f"{len(rep['unmeasured_channels'])} channels unmeasured -> {path}")
         return s
+
+    def _cycles_notice(self, now):
+        """The orchestrator's 08:15 standing order (Nov 14): after each cycle that finds something, line 1 carries each
+        new video (channel, mined, moments, hooks, seconds from publish to rows), and says so when the last 3 h found
+        nothing Bitcoin (09:02); composed from the queue (cycles.compose), rewritten only when it changes. A failure is
+        logged once per cause and never stops the health loop."""
+        try:
+            spend.write_cycles_notice(cycles.compose(self.q, now), notify_path=self.p["notify"])
+            self.cycles_error = None
+        except Exception as e:                       # noqa: BLE001 (a report line never stops the watcher)
+            why = f"{type(e).__name__}: {str(e)[:200]}"
+            if why != self.cycles_error:
+                self.log(f"the cycles line could not be written: {why}")
+            self.cycles_error = why
 
     def _purge_blocked(self, why):
         """A purge that cannot run safely: once it has lasted PURGE_NOTICE_S, a line at the top of STATE (audit r77

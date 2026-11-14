@@ -458,6 +458,27 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   loop waiting 1-2 minutes), and at 09:16 ET Nov 14 a restart's calibration ended on one 502 that a quiet watcher
   turned into a false 'down' (ruling 87, since amended at 10:05: any answer, a probe's too, resets the clock).
 
+## 17. The per-cycle line on STATE (the orchestrator's standing order of 08:15 ET Nov 14, and 09:02)
+
+"From now on line 1 carries, after each cycle that finds something: video, channel, mined yes/no, moments, hooks,
+seconds from publish to rows"; and (09:02) "say so in the line when a cycle finds nothing Bitcoin in 3 hours". Until
+Nov 14 ~12:00 ET this line was written by hand from the queue; the watcher now writes it itself (`cycles.compose`,
+from the health loop every 60 s; `spend.write_cycles_notice`):
+- "PP-INGEST CYCLES TO HH:MM ET (...): <cycle> | <cycle> ...": the cycles of the last 3 h that found a new upload,
+  newest first, each "HH:MM ET cycle, N new: (1) <video> <channel>: ...; (2) ..." with what became of each video: a
+  Short (never mined); mined no, queued (its state and reason); mined yes HH:MM ET, its moments, its hooks and
+  spotlights (or "hook pass pending"), seconds from publish to rows (or to mined, for 0 moments, with why: every
+  window screened before any model call, or windows asked and nothing returned), seen-after-publish and
+  mined-after-seen.
+- The 09:02 note: when none of the window's MINED uploads had a Bitcoin term in any window (uploads not mined yet are
+  counted apart: their windows are not known), "NOTHING BITCOIN IN THE LAST 3 H: N upload(s) seen (S Shorts, Q not
+  mined yet) ...; the newest with one: <video> <channel>, seen HH:MM ET <date>".
+- Its time is that of the newest cycle or change it reports (a quiet window: its newest cycle), never the clock's, so
+  STATE is rewritten only when the line changes; no cycle in the window (the watcher stopped): no line. It is a notice
+  (spend.NOTICE_RE): kept in the top block, after ruling 87's switch line, under the notices' lock; a failure to
+  compose or write it is logged once per cause and never stops the health loop.
+- Tests write every STATE notice to their own file (tests/ingest/conftest.py redirects config.STATE_DOC for each test).
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

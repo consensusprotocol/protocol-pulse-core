@@ -19,13 +19,14 @@ from . import config
 
 OUTAGE_PREFIX = "MINING WAITING ON AN OUTAGE"
 PURGE_PREFIX = "PURGE NOT RUNNING"
+CYCLES_PREFIX = "PP-INGEST CYCLES"             # the watcher's per-cycle line (cycles.py; the orchestrator's 08:15 order)
 SIGNAL_SUFFIX = "DOWN SIGNAL NOT READ"        # ruling 87: "<label> DOWN SIGNAL NOT READ since ..." (the label from
 SWITCH_PATTERN = (r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRST|"   # providers.json down_signal)
                   r"MINER (?:ON|OFF) THE PAID ROUTE|MINER PAID ROUTE CAP REACHED)")       # ruling 98: the miner's route
 SWITCH_RE = re.compile("^" + SWITCH_PATTERN)
 SIGNAL_RE = re.compile(r"^[A-Z0-9_-]+ " + SIGNAL_SUFFIX)    # any label's: only the signal writes this notice
 NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + "|" +
-                       r"[A-Z0-9_-]+ " + SIGNAL_SUFFIX + "|" + SWITCH_PATTERN + ")")
+                       CYCLES_PREFIX + " TO |" + r"[A-Z0-9_-]+ " + SIGNAL_SUFFIX + "|" + SWITCH_PATTERN + ")")
 
 
 def notice_prefixes(label):
@@ -61,6 +62,18 @@ def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
             with open(tmp, "w") as f:
                 f.write(new)
             os.replace(tmp, doc)
+
+
+def write_cycles_notice(line, doc=None, notify_path=None):
+    """The watcher's per-cycle line (cycles.compose: the orchestrator's 08:15 order of Nov 14) at the top of STATE,
+    after ruling 87's switch line; None removes it. Rewritten only when its text changes (_rewrite_top)."""
+    if line is not None and ("\n" in line or not line.startswith(CYCLES_PREFIX + " TO ")):
+        raise ValueError("not a cycles line")
+    doc = doc or config.STATE_DOC
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    os.makedirs(os.path.dirname(lock_path) or ".", exist_ok=True)
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(CYCLES_PREFIX + " TO "), line)
+    return line
 
 
 def write_outage_notice(waiting, since, doc=None, notify_path=None):

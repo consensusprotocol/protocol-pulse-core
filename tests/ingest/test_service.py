@@ -383,6 +383,23 @@ def test_the_watcher_runs_the_purge_in_its_own_loop_and_a_refused_spec_deletes_n
     assert loops["purge"] == 600.0 and {"watch", "fetch", "mine", "health"} <= set(loops)
 
 
+def test_the_health_loop_writes_the_cycles_line_and_a_failure_never_stops_it(svc, monkeypatch):
+    """The orchestrator's 08:15 standing order, written by the watcher: after a cycle that finds something, the health
+    loop puts the cycles line at the top of STATE (here the test's own file: conftest); a failure is logged once."""
+    s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
+    run_once(s)
+    s.health_once()
+    text = open(config.STATE_DOC).read()
+    assert text.startswith("PP-INGEST CYCLES TO ") and f"{vids[0]} Test Channel: mined yes" in text.split("\n")[0]
+    msgs = []
+    s.log = msgs.append
+    monkeypatch.setattr(service.cycles, "compose", lambda *a, **k: 1 / 0)
+    s.health_once()
+    s.health_once()
+    assert [m for m in msgs if "cycles line could not be written" in m] == [
+        "the cycles line could not be written: ZeroDivisionError: division by zero"]
+
+
 def test_a_purge_that_cannot_run_safely_for_30_min_is_noticed_at_the_top_of_state(svc, monkeypatch, tmp_path):
     """Audit r77 c1 (muse P1): a refused purge must not be silent; the notice goes when a pass runs again."""
     s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
