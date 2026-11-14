@@ -6,6 +6,28 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 23:51 RULING 93 MEASUREMENT: on the published 0c68b589 CNBC clip, NO full-height 9:16 crop that keeps the speaker clears the lower third for the whole shot. Before the banner (0-6 s) one does: x 7-33 vs the published 94. A window above the lower third does for the whole shot, at a 2.51x upscale.
+- WHAT WAS MEASURED: clip_01, GXWj2JO9bz8 (CNBC Television), the protected reference's prepared clip qa/final_clip_01.mp4, one 'single' shot of 14.42 s (face_cx 397). 29 frames at 0.5 s, CPU only.
+  - Lower-third elements: Canny edges in the band 0.70-0.985 H, closed horizontally into word-sized boxes. Each element's x span.
+  - Faces: the face boxes from the reference's VERTICAL_LAYOUT.json samples, x union [235, 555].
+  - The renderer's single crop: 607 x 1080 at x = face_cx - 303 (render_vertical._shot_vf), so the published x is 94.
+- THE DEFECT: the published crop (94-701) cuts the 'CNBC EXCLUSIVE' tag and the CNBC logo at its left edge, and from 6.2 s the banner word 'STRATEGY' at its right edge (21 element spans cut over the shot).
+- CROPS THAT KEEP THE FACE BOX (x 0-235) AND PUT NO CROP EDGE INSIDE ANY ELEMENT:
+  - frames 0.25-5.75 s (before the banner 'STRATEGY CEO ON THE BLUE WAVE'): x 7-33, at full height. The tag, the logo and 'STREAM NOW' are wholly in; the speaker is kept.
+  - frames 6.25-14.25 s (the banner up, 8.2 of the 14.4 s): NONE at full height. Every face-keeping crop cuts a word: the tag on the left, or 'STRATEGY' / 'NOW' on the right.
+  - the whole shot (the renderer's crop is one static crop per shot): NONE at full height.
+- WHAT DOES CLEAR IT FOR THE WHOLE SHOT:
+  - (a) a 9:16 window wholly ABOVE the lower third (the white bar's top row is y = 766): 431 x 766 at x 124-235 keeps the face box, scaled up 2.51x to 1080 x 1920;
+  - (b) the existing letterbox safe frame (LETTERBOX_VF), the 16:9 whole in the 9:16;
+  - (c) a split of the shot at the banner's onset (6.2 s): x 7-33 before it, then (a) or (b) after.
+  - Each is a layout decision beyond 'the crop for a shot'. NOT BUILT; for the orchestrator.
+- BUILDING NOW (ruling 93, my side):
+  - G10 on every clip (still MONITORING);
+  - no channel ineligible by name (DEC-12d's layout_eligible exclusion removed);
+  - the single-shot crop takes the clear offset nearest the face-centred one when one exists inside the face-safe range, else today's crop with the shot flagged lower_third_cut;
+  - ruling 93 recorded beside DEC-12d / R8 in the laws.
+  - On this clip the shot keeps x 94 and is flagged, because no whole-shot clear crop exists. A pin from the builder renders first.
+
 ## 23:16 LAW L-ab SPOTLIGHT MERGED on the agreed contract (moments_package.shape 'spotlight', ONE segment role hook, closing null by default, the first comment verbatim), audits batch 73 x2 clean (cycle 2 with Grok). The demo pin waits for the builder's spotlight path, its seal now covering closing, shape and first_comment.
 - RENDER SIDE:
   - pinned: validate_schema's one-segment rule; _spotlight_vo (no clips; intro null and bridges []; closing null or ONE line <= 12 words with closing_value / closing_fidelity / closing_context exactly PASS and live; every required row PASS and live; first_comment); build_edl writes package_shape and first_comment.
