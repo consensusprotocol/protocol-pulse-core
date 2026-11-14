@@ -23,6 +23,7 @@ FAIL  an unreadable state (HealthUnreadable, OSError, the module missing or brok
       freeze is queue and wait (the mine chain as it is: Heimdall, then the local model, else the videos wait).
 """
 import importlib.util
+import inspect
 import json
 import threading
 import time
@@ -110,10 +111,16 @@ class DownSignal:
         self.n = {"answers_noted": 0, "failures_noted": 0, "drill_notes": 0, "unnoted": 0, "probes": 0,
                   "probe_answers": 0, "probes_not_made": 0, "probe_reports_lost": 0}
         self.module_path, self.state_path, self.hh, self.up = module_path or ds["module"], state_path, None, None
+        self.probe_kw = {}
         try:
             self.hh = load_module(self.module_path)
             self.state_path = state_path or self.hh.STATE
             self.up = next(m for m in self.hh.MODES if m != DOWN)
+            try:                                     # the builder's probe_due CLAIMS its slot and names the claimer
+                takes_who = "who" in inspect.signature(self.hh.probe_due).parameters   # (pp-selectid 11ed255f,
+            except (TypeError, ValueError):          # REQUESTS R12); an older module's probe_due takes no `who`
+                takes_who = False
+            self.probe_kw = {"who": WHO + " probe"} if takes_who else {}
         except Exception as e:                       # noqa: BLE001 (a module that cannot load is said, never guessed)
             self._fail(f"the shared module {self.module_path} cannot be loaded: {type(e).__name__}: {e}")
 
@@ -160,7 +167,7 @@ class DownSignal:
                     self.drill_logged = True
                 else:
                     self.drill_logged = False
-                    if self._call("probe_due", now=_utc(now)):
+                    if self._call("probe_due", now=_utc(now), **self.probe_kw):
                         self._start_probe()
         if wait and self.probe_thread is not None:
             self.probe_thread.join()
@@ -350,4 +357,5 @@ class DownSignal:
                 "not_read": self.error, "not_read_since": _iso(self.error_since),
                 "call_waiting_s": round(now - busy) if busy is not None else None, "last_probe": self.last_probe,
                 "counts": dict(self.n), "switches_seen": self.q.kv_get("signal_switches_seen"),
+                "probe_claimed_as": self.probe_kw.get("who"),
                 "miner_plan_b": MINER_PLAN_B}

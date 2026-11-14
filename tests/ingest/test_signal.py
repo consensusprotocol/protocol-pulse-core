@@ -526,3 +526,44 @@ def test_status_shows_the_watchers_view_of_the_signal(sig, capsys):
     cli.cmd_status(type("A", (), {"hours": 24})())
     out = json.loads(capsys.readouterr().out)
     assert out["down_signal"]["wired"] is True and out["down_signal"]["from_live_json_age_s"] >= 0
+
+
+# ── the builder's probe claim (pp-selectid 11ed255f, REQUESTS R12) ──
+
+def test_the_probe_claims_its_slot_by_name_and_a_slot_claimed_by_another_prober_is_left_alone(sig):
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    hs = s.hsig
+    if "who" not in downsignal.inspect.signature(hs.hh.probe_due).parameters:
+        pytest.skip("the module at the builder's path predates the probe claim")
+    assert hs.probe_kw == {"who": "pp-ingest probe"} and hs.snapshot()["probe_claimed_as"] == "pp-ingest probe"
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    st = state(tmp)
+    assert st["last_probe_by"] == "pp-ingest probe" and st["probe_streak"] == 1 and len(b["hv_p1"].calls) == 1
+    t[0] += 130                                                       # the next slot: the builder's prober claims it
+    assert hs.hh.probe_due(path=str(tmp / "HH.json"), now=datetime.fromtimestamp(t[0], timezone.utc),
+                           who="pp-selectid probe") is True
+    t[0] += 5
+    hs.tick(wait=True)                                                # this watcher finds the slot taken: no probe
+    assert len(b["hv_p1"].calls) == 1 and state(tmp)["last_probe_by"] == "pp-selectid probe"
+
+
+def test_a_module_without_the_claim_is_called_without_a_name(sig, tmp_path):
+    """The watcher loads the module once at start: an older module (125e7381) takes no `who` and must keep working."""
+    import subprocess
+    old = tmp_path / "old_module" / "heimdall_health.py"
+    old.parent.mkdir()
+    r = subprocess.run(["git", "-C", os.path.dirname(os.path.dirname(MODULE)), "show",
+                        "125e7381:pipeline/heimdall_health.py"], capture_output=True, text=True)
+    if r.returncode != 0:
+        pytest.skip("the builder's 125e7381 is not reachable")
+    old.write_text(r.stdout)
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=str(old))
+    hs = s.hsig
+    assert hs.hh is not None and hs.probe_kw == {} and hs.snapshot()["probe_claimed_as"] is None
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    st = state(tmp)
+    assert hs.snapshot()["not_read"] is None and st["probe_streak"] == 1 and "last_probe_by" not in st
