@@ -19127,5 +19127,431 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "266e7687898e26a9fa27:56bb1ffd07e77363eca4b265719f3371047b384618ff4b74c0c202d62b09d913:eac2a8724af0a86a2bcab52dea3a28a10874bb125005d1a69d0e62e3679adec7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "266e7687898e26a9fa27",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they'd",
+     "refers_to": "BlackRock",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "BlackRock",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That's",
+     "refers_to": "the $3.6 billion in in-kind swaps of Bitcoin to their iBit ETF",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "Those",
+     "refers_to": "the investors doing the swaps",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "here",
+     "refers_to": "the crypto space",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "just said yesterday",
+     "inside": true
+    },
+    {
+     "text": "for a very long time",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Robbie Michnik at BlackRock said yesterday that BlackRock had seen $3.6 billion in Bitcoin in-kind swaps into its iBit ETF, which constitutes major size from long-term whales.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "But okay, so then I would ask you this. If the thinking is like Binance is one of the more solid ones",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "408ef969709952011d0d:57ebec50783934aea307348e117116c91ab0dcda603dd12024fcb2e1c6eec52f:8bd45b3f1597f1fa9e650e97c2020fb32616c6c875e6c0d42410a4627f1451e6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "408ef969709952011d0d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker does not believe that meme coins are going to flip Bitcoin as some have claimed, nor that Ethereum is going to flip Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Why do you use the cash app, Rob? That's a great question.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "408ef969709952011d0d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "I",
+     "refers_to": "the speaker (Rob/host)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker (Rob/host)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "before in the past",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker does not believe that meme coins or Ethereum will flip Bitcoin, contrary to what some people have said.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Why do you use the cash app, Rob? That's a great question.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0c15358fb84ecdeca26f:c9a63b96b89340beb861a1dfae7ee064ef65c08db4f192fbd5288f1719ded901:2e3b89222e16382724c36c88a33178af20e9105b6383dbbb1029c47b0cc4d587:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0c15358fb84ecdeca26f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin (price)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in 2018",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In 2018 the speaker was shocked that he had bought Bitcoin at $18,500 and then $8,500 only for its price to fall below $5,000.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Hey, Rob Bitcoin. Hey, it's John Luis. John Luis, thank you for all the great articles you sent me. Hey, Rob.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "77f48524f35281ea375b:820c6781f158faaaa13046243ac6054cccae778ffee2dd456b50d9282ebd8591:3650a9fb55455d974b9a07b46391d2753d0df2ab56e97c88bff233b61c769b5a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "77f48524f35281ea375b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "their",
+     "refers_to": "J.P. Morgan",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "J.P. Morgan's Bitcoin and crypto-linked holdings approaching $1 billion",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "as of their recent filings",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "As of their recent filings, J.P. Morgan's Bitcoin and crypto-linked holdings are approaching $1 billion (likely over that counting other exposures), demonstrating conviction.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I want to remind everybody of this",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3f20de5b328db9e489dd~trim:8dfa9fccc9b931a150abf18a9bbd540c13e85f4607663d338a7f59dd422c1a51:768933453855daa917a708dc0e1582988bc4acd91293eb0ba80ab6754d59e141:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3f20de5b328db9e489dd~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the speaker and MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "bank credit / extending credit against Bitcoin or ETFs",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the iBit / Bitcoin ETF asset",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If Bitcoin flows into an ETF iBit and if your bank will extend credit against the iBit",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The possibility of banks extending credit against Bitcoin ETFs like IBIT creates a profound network effect that makes one want to hold the asset.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "Uh we think there's a lot of structural catalyst.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "879fa6d224b9cc309933~trim:3ce9bd3a269f10c190086065a1b0b9fb07d37b01c824af3f8601b12e518651f6:e7c6afc6c770250e942135b4a31c37670a12d15a5cf252c801b9774b4a6d89f6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "879fa6d224b9cc309933~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Jensen Wong stepping down from Nvidia",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over a cycle",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The news about Jensen Wong stepping down signals that one man's impropriety can greatly affect global markets, making the speaker nervous about future market events, but Bitcoin will be exceptionally volatile while generally trending up and to the right over a cycle.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Scott, it's good to see you here. Thank welcome by the way for the first time to the Yahoo Finance Studios.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b707975a220b3a29d85a~trim:271420c2b79a6d32f5f9c857b34a9edca3e206cb8e6a101c3e712ab004c333e0:1a27ac07a07aa55b22038e144ba48a60cbf2e0b97d73f1b4d7e7ea02bb53c8f6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b707975a220b3a29d85a~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the JP Morgan document or filing",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the JP Morgan asset management document",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "2027 long term capital market assumptions",
+     "inside": true
+    },
+    {
+     "text": "if we took a look at this and they did a step-by-step breakdown of what it could actually be",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "It was quite telling that JP Morgan's document on 2027 long-term capital market assumptions projected a 10% compounded return for Bitcoin with highest volatility, but a step-by-step breakdown would leave you way up with Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f0bdd696014300f2a46f~trim:708c6c724fa671bc3a44bd72e4fa4957c1fb4e82e633bbc551e1c3f505723106:e39182c2a96cfe532d0eb440498fbf3df40da7eb046be3ee0a5fec321478a5cd:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f0bdd696014300f2a46f~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they've",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "They",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "their",
+     "refers_to": "JP Morgan",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that's",
+     "refers_to": "raising their strategy stake 36% (848,000 shares)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "JP Morgan asset management document on 2027 capital market assumptions",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "speaker and channel/team",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the document/release",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "when JP Morgan put out the document",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "10 days ago",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "JP Morgan has raised its Bitcoin ETF holdings and increased its strategy stake by 36% with 848000 shares, indicating conviction, and it recently released a capital markets document that the speaker covered about 10 days ago.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "we covered this. I think it was like 10 days ago.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "c7a3e8d31e80d7f4ac66~trim:c5077c34400e434118f9dcd82b56e788da9f43283e7ed36512a9d3f1fde86545:9c7976418bea18d4345b118cffa66620d4269137df6800d2b9fcfe7bbaa7a46a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c7a3e8d31e80d7f4ac66~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "wanting Bitcoin to be cheaper to get a larger ROI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "bottom of the bear market",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the desire to buy Bitcoin cheaper for larger ROI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we",
+     "refers_to": "speaker and like-minded Bitcoin investors",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the bottom of the bear market",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker agrees that Bitcoin should be cheaper to allow a larger ROI, which is why he likes the bottom of the bear market as that is what we want.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

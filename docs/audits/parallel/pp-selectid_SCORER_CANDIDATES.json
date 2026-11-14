@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T17:24:56+00:00",
- "build": "ledger_20261114_172438",
+ "generated_at": "2026-11-14T23:02:09+00:00",
+ "build": "ledger_20261114_230148",
  "kind": "moments",
  "candidates": [
   {
@@ -64,6 +64,24 @@
    "duration": 12.36,
    "text": "And then if Bitcoin falls 17 % every year forever, then we eventually have to do a credit refinancing. So you can see, sometimes people think you need Bitcoin to go up 20 or 30%. We don't.",
    "text_sha256": "4e08af0c8955001a26729facfdc78a980502ce123f92a49e9e308d954910f90a",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "879fa6d224b9cc309933",
+   "video_id": "hkTCJXYC6fE",
+   "channel": "Yahoo Finance",
+   "duration": 19.82,
+   "text": "And it's honestly, to me, it's just a bigger signal that one man's impropriety could have such an effect on global markets and have everybody watching that makes me a bit more nervous or anxious about what's going to happen with markets. But I think Bitcoin is going to do what it's always done, which is to be exceptionally volatile, but generally trend up and to the right over a cycle.",
+   "text_sha256": "ed755239b1efd45d628905ab4389463b504921938cca54b08824d961ec5686f9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8ac7b543949830ff3ff7",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 10.98,
+   "text": "And it was quite telling what they actually put out because what they said in this was, 2027 long term capital market assumptions, Bitcoin compound return percentage, 10 % compounded return.",
+   "text_sha256": "ca1a5ae6a2db0c0ff2120fe487407597214f1f85d7732000997c44e88f6f3352",
    "trimmed_leading": null
   },
   {
@@ -148,6 +166,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "7a70c46fdec2fd255833",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 7.56,
+   "text": "So they've raised their ETF for Bitcoin. They also raised their strategy stake 36%, 848,000 shares, almost a million shares.",
+   "text_sha256": "b5680de11b18759562a110051badce65483aee4f3c12fba16e43d763af066360",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4c7a5e3a433a2a0b267c",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -181,6 +208,24 @@
    "duration": 5.8,
    "text": "So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
    "text_sha256": "1efdc1d04c4430a705e1f36a59f5748303117e4b1a081d25a88511bc8d6c1137",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f614d5e1d1753295af03",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 11.83,
+   "text": "And crypto, Krypton, I want Bitcoin to be cheaper. So I can get a larger ROI. Yes, this is why I like being here at the bottom of the bare mind.",
+   "text_sha256": "35218edef3d0b8bf7accb9caa0dca66f62f043ddee85305e039beafb371744f9",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5c3a8d8e842515507c86",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 8.48,
+   "text": "And Bitcoin is no different. Have you seen the flows for the ETFs? I mean, this is, this is quite a bit.",
+   "text_sha256": "15923a952bf764390c03e5d6ccbbf76da4e614a2b0c5b3aea9b1048b98294b05",
    "trimmed_leading": null
   },
   {
@@ -245,6 +290,24 @@
    "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing.",
    "text_sha256": "ecb8f8a3fae49d1e9df85f6792d6bdf5a7470a2b0d4938e085ef34b8ba54a066",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "879fa6d224b9cc309933~trim",
+   "video_id": "hkTCJXYC6fE",
+   "channel": "Yahoo Finance",
+   "duration": 19.82,
+   "text": "it's honestly, to me, it's just a bigger signal that one man's impropriety could have such an effect on global markets and have everybody watching that makes me a bit more nervous or anxious about what's going to happen with markets. But I think Bitcoin is going to do what it's always done, which is to be exceptionally volatile, but generally trend up and to the right over a cycle.",
+   "text_sha256": "3ce9bd3a269f10c190086065a1b0b9fb07d37b01c824af3f8601b12e518651f6",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "8ac7b543949830ff3ff7~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 10.94,
+   "text": "it was quite telling what they actually put out because what they said in this was, 2027 long term capital market assumptions, Bitcoin compound return percentage, 10 % compounded return.",
+   "text_sha256": "f5be0e4d015bea1cc243c21ec1f37cbcf9b10c28b35a704bcbbc8395942ed6d0",
+   "trimmed_leading": "And"
   },
   {
    "pid": "da0ff8d5b2a224b380fa~trim",
@@ -328,6 +391,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "7a70c46fdec2fd255833~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 7.28,
+   "text": "they've raised their ETF for Bitcoin. They also raised their strategy stake 36%, 848,000 shares, almost a million shares.",
+   "text_sha256": "b655dd0f00ca54f49abca31a5e05711e053c5b5a7bd62bf691140929fc018fa1",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "5bc4d12aa667407bed6c~trim",
    "video_id": "7BqLu-wzbU0",
    "channel": "Blockware Solutions",
@@ -353,6 +425,24 @@
    "text": "Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
    "text_sha256": "cf1f638e8e64e41931f745cc8d23514e1c3cd5d6890cde617c11502e6337c92e",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "f614d5e1d1753295af03~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 11.83,
+   "text": "crypto, Krypton, I want Bitcoin to be cheaper. So I can get a larger ROI. Yes, this is why I like being here at the bottom of the bare mind.",
+   "text_sha256": "aafd1f30b38505fa5a9cc98c4ea5c1682e550345c68ae6d559856c7f69943e6e",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "5c3a8d8e842515507c86~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 8.26,
+   "text": "Bitcoin is no different. Have you seen the flows for the ETFs? I mean, this is, this is quite a bit.",
+   "text_sha256": "1fa2c8dd11d863f0c97a08a0e6eb3e00122d265d0699eecec731c222073156ed",
+   "trimmed_leading": "And"
   },
   {
    "pid": "54e68763d2b2c33888da",
@@ -478,6 +568,15 @@
    "duration": 27.57,
    "text": "The harder part is what to do politically with like Satoshi's coins or what is estimated to be about 6 million Bitcoin in addresses that can be cracked quite easily. Basically, the public key is... is once you have the public key, you can derive the private key using quantum computers. And so things like Satoshi's Bitcoin could be stolen. And that's a political thing. And the politics behind that are far deeper of, you know, what do we do with these coins?",
    "text_sha256": "26efabbe726d5d0c2e44e244106d025dd1cb0c0dca34bcac65b712218f82d8d3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "77f48524f35281ea375b",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 21.28,
+   "text": "Did you know that as of their recent filings, J.P. Morgan's Bitcoin and crypto -linked holdings are approaching $1 billion? That's what we call conviction. So the Q313F shows roughly 901 million across Bitcoin ETF strategy strategy and Coinbase, likely over $1 billion counting Robin Hood and miners.",
+   "text_sha256": "820c6781f158faaaa13046243ac6054cccae778ffee2dd456b50d9282ebd8591",
    "trimmed_leading": null
   },
   {
@@ -724,6 +823,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3f20de5b328db9e489dd~trim",
+   "video_id": "cj2kAwBlcOA",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 20.28,
+   "text": "we see this has a profound network effect because with things like ETFs, let's take IBIT. If Bitcoin flows into an ETF iBit and if your bank, JP Morgan or Morgan Stanley or Schwab will extend credit against the iBit, you will tend to want to hold that asset.",
+   "text_sha256": "8dfa9fccc9b931a150abf18a9bbd540c13e85f4607663d338a7f59dd422c1a51",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "8976434fa074337ce69d",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -740,6 +848,15 @@
    "text": "If a bank wants to create credit and wants to cover crypto, in this case, Bitcoin, then it's going to be very good for the asset class. This is by far the most important driver, ultimately. And that's why when J.P. Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset.",
    "text_sha256": "130b5733ef26bc0116081ed71934cceb84ed9b8987aac3f1d95dc9c5d330d6c5",
    "trimmed_leading": null
+  },
+  {
+   "pid": "b707975a220b3a29d85a~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 21.56,
+   "text": "it was quite telling what they actually put out because what they said in this was, 2027 long term capital market assumptions, Bitcoin compound return percentage, 10 % compounded return. Annualized volatility was of course the highest, but if we took a look at this and they did a step -by -step breakdown of what it could actually be, you were way up with bitcoin.",
+   "text_sha256": "271420c2b79a6d32f5f9c857b34a9edca3e206cb8e6a101c3e712ab004c333e0",
+   "trimmed_leading": "And"
   },
   {
    "pid": "8ff932fc2cd797f3a4ae",
@@ -823,6 +940,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "266e7687898e26a9fa27",
+   "video_id": "hkTCJXYC6fE",
+   "channel": "Yahoo Finance",
+   "duration": 15.04,
+   "text": "I think that Robbie Michnik at Black Rock just said yesterday that they'd seen $3.6 billion in in -kind swaps of Bitcoin to their iBit ETF. That's major size. Those are large holders, whales who have been here for a very long time.",
+   "text_sha256": "56bb1ffd07e77363eca4b265719f3371047b384618ff4b74c0c202d62b09d913",
+   "trimmed_leading": null
+  },
+  {
    "pid": "422219f06d09c5aeebf4",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -865,6 +991,15 @@
    "duration": 14.54,
    "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce. But one of the things that he said to me that I found a unique way of looking at it.",
    "text_sha256": "5857bdd48a86aca0a2913f88233edd785fda4be4982d58a4f05384a2f3a99d32",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "270e5a5ae5dd1fdda09c",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 17.02,
+   "text": "I don't believe that meme coins are going to flip Bitcoin like some people have said before in the past. I don't even believe Ethereum is going to flip Bitcoin quite honestly. So if you believe in projects and they have a reality and they have some other utility, then yes, you should stick around.",
+   "text_sha256": "c216562afa5a5f2269fa24d196c9330d6cb0d2f1d1acc89e8d64653fa54519c4",
    "trimmed_leading": null
   },
   {
@@ -949,6 +1084,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6e5240c7ee0c7e986d48",
+   "video_id": "hkTCJXYC6fE",
+   "channel": "Yahoo Finance",
+   "duration": 17.1,
+   "text": "They're a treasury company for stocks as a treasury company for Bitcoin or a treasury company. So I think, you know, it might cause a $2.8 billion in selling, I think JPMorgan sort of, that was their estimate, but that's not even a day of volume on strategy of stock.",
+   "text_sha256": "bb71b0a000ace25b353da662bde6a033fe64368e0b7819f61212b12652ce835a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3fc97f3afec6a4386667",
    "video_id": "wLJ_jy3wyN8",
    "channel": "Anthony Pompliano",
@@ -994,6 +1138,24 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "f0bdd696014300f2a46f~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 15.72,
+   "text": "they've raised their ETF for Bitcoin. They also raised their strategy stake 36%, 848,000 shares, almost a million shares. So that's saying something. And as a quick reminder, as far as JP Morgan, They just put this out that we covered this. I think it was like 10 days ago.",
+   "text_sha256": "708c6c724fa671bc3a44bd72e4fa4957c1fb4e82e633bbc551e1c3f505723106",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "ff3a74144dc1f9220038",
+   "video_id": "-PVkGkD5GO4",
+   "channel": "Digital Asset News",
+   "duration": 17.51,
+   "text": "Muhammad says, wait until Bitcoin goes to 59K before you start DCA. And that could happen. It could. But I just don't. I still think that we're going to have a pullback in Q4. I also see it going up, but I can't tell you if that's going to happen in Q4.",
+   "text_sha256": "286d4240b25d56783472854bde6029f8c41ff27f0234eb98fbceb181acb4ca3b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "dd82d548eb807dbd16c9",
    "video_id": "SJXZ5GycchU",
    "channel": "Strategy (MicroStrategy)",
@@ -1009,6 +1171,15 @@
    "duration": 15.26,
    "text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin? And so actually, there's like a much tighter correlation there. Or it is just... everything combined in U.S. and the war may be a little small piece of it, but that's not actually the driver.",
    "text_sha256": "2c21da4f9a62fc6978f961b594c3ed44f19bb9f504bea2217ce998678e9bbfff",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0c15358fb84ecdeca26f",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 18.36,
+   "text": "I remember, Jesus, I remember in 2018 just thinking to myself, I can't believe I bought Bitcoin at 18,500. I said, I can't believe I bought Bitcoin at 8,500. And now here it is below 5,000.",
+   "text_sha256": "c9a63b96b89340beb861a1dfae7ee064ef65c08db4f192fbd5288f1719ded901",
    "trimmed_leading": null
   },
   {
@@ -1091,6 +1262,24 @@
    "text": "The S &P 500 as of yesterday was about 2.5 % below the all -time highs. So despite everything that's gone on, the Jensen stuff, the Fed raising rates, we're still sitting near the all -time highs in stock. So Bitcoin will benefit, but it needs to have the inflation headwind start to lessen.",
    "text_sha256": "f7202045873806dca6ce605a068d64e90f10954ea05a1cc06ce0a9e01c4a6c4b",
    "trimmed_leading": null
+  },
+  {
+   "pid": "c7a3e8d31e80d7f4ac66~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 18.26,
+   "text": "crypto, Krypton, I want Bitcoin to be cheaper. So I can get a larger ROI. Yes, this is why I like being here at the bottom of the bare mind. Everybody gets it. So, yeah. I mean, this is the same thing we want to do here.",
+   "text_sha256": "c5077c34400e434118f9dcd82b56e788da9f43283e7ed36512a9d3f1fde86545",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "02cea4cff9f2d7c6ba2c~trim",
+   "video_id": "PJxv8XB6Sms",
+   "channel": "Digital Asset News",
+   "duration": 15.38,
+   "text": "Bitcoin is no different. Have you seen the flows for the ETFs? I mean, this is, this is quite a bit. We can see that negative -wise, we're at, are we got nine days? One, two, three, four, five, six, seven, eight, nine.",
+   "text_sha256": "7fa1758969ac32e185719ad4d70bcf8a6091313fdad1fbd183a7a2d7a7fb6298",
+   "trimmed_leading": "And"
   },
   {
    "pid": "206e061739f6b989809a",

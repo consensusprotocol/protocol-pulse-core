@@ -471,5 +471,16 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "408ef969709952011d0d:57ebec50783934aea307348e117116c91ab0dcda603dd12024fcb2e1c6eec52f:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 2,
+   "rating": 3,
+   "why": "setup is weak; it's a flat opinion without a clear next beat",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

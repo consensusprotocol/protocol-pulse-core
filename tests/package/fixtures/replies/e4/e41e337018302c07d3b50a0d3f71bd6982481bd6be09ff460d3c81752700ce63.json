@@ -1,0 +1,302 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "eacce1c925e70ffe0914ed36446713c732518c261e4265e5ac38b3eab6964e02",
+ "result": {
+  "text": "I don't believe that we need 10,000 layer one solutions. I don't believe that meme coins are going to flip Bitcoin like some people have said before in the past. I don't even believe Ethereum's gonna flip eth- flip Bitcoin, quite honestly. So if you believe",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 16.16,
+    "text": "I don't believe that we need 10,000 layer one solutions. I don't believe that meme coins are going to flip Bitcoin like some people have said before in the past. I don't even believe Ethereum's gonna flip eth- flip Bitcoin, quite honestly. So if you believe"
+   }
+  ],
+  "words": [
+   {
+    "text": "I",
+    "start": 0.0,
+    "end": 0.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 0.04,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 0.2,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.68,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 1.08,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 1.26,
+    "end": 1.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "10,000",
+    "start": 1.6,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "layer",
+    "start": 2.36,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.68,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "solutions.",
+    "start": 2.88,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.14,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.2,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 4.38,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 4.76,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meme",
+    "start": 5.06,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coins",
+    "start": 5.32,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.62,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 5.7,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.96,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flip",
+    "start": 6.2,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.5,
+    "end": 6.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 7.0,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 7.28,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 7.48,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 10.02,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 10.22,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "before",
+    "start": 10.52,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.82,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.9,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past.",
+    "start": 11.02,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.68,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 11.74,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 11.86,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 12.02,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ethereum's",
+    "start": 12.28,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 12.62,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flip",
+    "start": 12.8,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eth-",
+    "start": 13.0,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flip",
+    "start": 13.44,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 13.66,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quite",
+    "start": 14.1,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "honestly.",
+    "start": 14.3,
+    "end": 14.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 15.46,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 15.94,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.04,
+    "end": 16.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 16.12,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.18
+ },
+ "usd": 0.003236,
+ "seconds": 0.68,
+ "recorded_at": "2026-11-14T23:03:54Z"
+}

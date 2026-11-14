@@ -1,0 +1,5445 @@
+{
+ "88b47fefa2c68c1a227a~trim:9d43580c729b": {
+  "label": "88b47fefa2c68c1a227a~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "applying the volatility/DCA strategy further to Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "the Bitcoin investor/owner",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the biggest risk with Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the biggest risk with Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you have volatility and you have time to consistently allocate capital throughout drawdowns and dips and bear markets",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Theoretically one could extend the volatility-outperformance strategy one step further to Bitcoin, where the biggest risk is the holder themselves making a self-custody mistake such as falling for a phishing attack or trusting the wrong custodian rather than price volatility.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eade93c11a2a492ea763:9d43580c729b": {
+  "label": "eade93c11a2a492ea763",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "hypothetical randomly selected person from the eight billion people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "your",
+    "refers_to": "Western American self of the hypothetical person",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "whether it would be better for Bitcoin to exist",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "being in Venezuela, Iran or similar difficult location",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if pulled out of your body and dropped in Venezuela or Iran or similar",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Asking whether you would rather Bitcoin existed or not is a good test after imagining being pulled from your Western American self and dropped into Venezuela, Iran or similar.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "30075b155874ab2de3c7:9d43580c729b": {
+  "label": "30075b155874ab2de3c7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "what's in my portfolio",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those",
+    "refers_to": "Bitcoin, SpaceX, and the S &B",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "for the future",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "My portfolio consists only of Bitcoin, SpaceX, and S&B, which I believe represents the best possible portfolio allocation for the future.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "If a family member came to you and said, hey, is Q4 a good time to get into SpaceX, what would you tell them?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4effcd61b4b012e82945:9d43580c729b": {
+  "label": "4effcd61b4b012e82945",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Once",
+    "refers_to": "general condition, not a specific referent",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "things",
+    "refers_to": "assets/transactions being moved on chain (tokenization)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Once you start moving things on chain",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Once assets are moved on chain, Bitcoin serves as the collateral backing of the digital financial system.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "which is why I said I put, you know, a good amount of money last week into uh the semiconductor names that I had",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1049bbce329720f0d4fa:9d43580c729b": {
+  "label": "1049bbce329720f0d4fa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in some way shape or form (and in the future per 'will be')",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin absolutely can be, should be, and probably will be used as a medium of exchange in some way, shape or form.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e466dcc10c4390f042c:9d43580c729b": {
+  "label": "2e466dcc10c4390f042c",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin performing as well as gold or the S&P index",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin performs as well as gold or the S&P index",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin performs as well as gold or the S&P index, this is a screaming home run for MicroStrategy's equity investors given the company's capital structure and hurdle rates.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a7d6255523f0656489cc:9d43580c729b": {
+  "label": "a7d6255523f0656489cc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "but only during Bitcoin's idiosyncratic bare market; if you cherrypick from the top of the Bitcoin bull market then yes, but zooming out to the full period you would have been equally well off owning Bitcoin and semis",
+  "time_ok": "yes",
+  "proposition": "Many articles and commentators have discussed how AI has outperformed or taken Bitcoin's gains.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Yeah, incredible point there. That'll be clipped. Uh we got to wrap up here, but just to make",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d50b23b1bf9e981c6992:9d43580c729b": {
+  "label": "d50b23b1bf9e981c6992",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when credible analysts discuss what will perform in various economic scenarios",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has entered mainstream financial conversations and is now discussed as a core asset alongside others rather than being peripheral.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a It's been normalized. Yeah, totally.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "22018cf6e0db2d846def:9d43580c729b": {
+  "label": "22018cf6e0db2d846def",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is like a sound money virus that is infiltrating the financial system.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "54e68763d2b2c33888da:9d43580c729b": {
+  "label": "54e68763d2b2c33888da",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "monthly DCA into the S&P 500",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the 69% returns with 21% CAGR from monthly DCA into Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "monthly DCA over the last 5 years from the 2021 bull market top to the 2026 bear market",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Monthly DCA into Bitcoin over the measured period returned 69% with a 21% CAGR compared to 51% for the same strategy in the S&P 500.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "73c02a63cf4e89076428:9d43580c729b": {
+  "label": "73c02a63cf4e89076428",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "no matter how much AI takes over the world",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin has a fixed supply of 21 million coins, making it a scarce asset that cannot be printed no matter how much AI takes over the world.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new? \u203a\u203a Doing well, guys. Thanks for having me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7b7b2406019e1a5fea09:9d43580c729b": {
+  "label": "7b7b2406019e1a5fea09",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this stuff",
+    "refers_to": "credit (the credit instruments being sold to buy Bitcoin)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "right now",
+    "refers_to": "time of the speech (November 2026)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "right now",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy currently has the capacity to sell $48 billion of credit without moving the Bitcoin price.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "933f9d33a8e345356177:9d43580c729b": {
+  "label": "933f9d33a8e345356177",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We're",
+    "refers_to": "MicroStrategy (the speaker's company)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "now",
+    "refers_to": "the present time of the speech (2026)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you're a Bitcoin investor",
+    "inside": true
+   },
+   {
+    "text": "between now and the year 2140",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy is the world's largest institutional Bitcoin holder, so Bitcoin investors should probably just hold their Bitcoin because the company will probably buy every Bitcoin mine between now and 2140.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9f173eb2984576d2a970:9d43580c729b": {
+  "label": "9f173eb2984576d2a970",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy (the company)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the 2% annual Bitcoin appreciation",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "As long as Bitcoin appreciates 2 % a year",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "As long as Bitcoin appreciates 2% a year, the company can pay its dividends forever indefinitely because its $70B capital base makes the $1.5B dividend requirement small.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b3ad2b8356e4a8d70dd9:9d43580c729b": {
+  "label": "b3ad2b8356e4a8d70dd9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the 22 bear market",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One of the best starting points for comparing asset performances is January 1st, 2023 at the bottom of the 2022 global bear market, during which bonds and TLT lost 50% of their value.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e4eb5b1d99927b2a0a4e:9d43580c729b": {
+  "label": "e4eb5b1d99927b2a0a4e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "the speaker expecting Bitcoin to become a $100T asset",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker (Michael Saylor)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is not a surprise to anyone following the speaker that he expects Bitcoin to become a $100 trillion asset.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1f42e788a93fa09117a9:9d43580c729b": {
+  "label": "1f42e788a93fa09117a9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Anytime",
+    "refers_to": "general condition, not a specific referent",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "Micro Strategy (and Bitcoin) being viewed the same by people",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Anytime micro strategy isn't doing well",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Whenever Micro Strategy performs poorly, it causes problems for Bitcoin because people view the two as the same.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Today's episode is brought to you by Abra. ... What do you think the ramifications are?",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "95490606c53e4959a46e:9d43580c729b": {
+  "label": "95490606c53e4959a46e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Long term ... for the foreseeable future",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker expects Bitcoin to appreciate 20 to 30% a year for the foreseeable future and to outperform the S&P and NASDAQ.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c3d02145771fb936d4f9:9d43580c729b": {
+  "label": "c3d02145771fb936d4f9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "alchemy (producing gold)",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the long arc of time",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Alchemy to produce gold relies on fusion, quantum computing is needed to kill Bitcoin, asteroid mining and other left-field scenarios exist, yet few assets can reliably endure on the other side over the long arc of time.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e9f0cf97ce933070ef7c:9d43580c729b": {
+  "label": "e9f0cf97ce933070ef7c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin should at least match gold's market capitalization because it is a superior gold in every way, with a known fixed supply that can be sent anywhere in the world and is divisible as money.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Does this bear market feel different to you? I mean, every bear market is different, but are are you still as confident in Bitcoin today as you were in maybe the 2022 bear market or 2018 or 2014? \u203a\u203a That's a great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2f055ee4b44dbaa008ca:9d43580c729b": {
+  "label": "2f055ee4b44dbaa008ca",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy (the speaker's company)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the company (MicroStrategy)",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker's company owns about 4.05% of all Bitcoin that will ever exist and is a $55 billion market cap company.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a49592a93a4a81a8d050:9d43580c729b": {
+  "label": "a49592a93a4a81a8d050",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "consistently accumulating Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Time and volatility are friends to the investor, and the speaker's preferred way to consistently accumulate Bitcoin is by running mining machines.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b5980c46a8ca2fe572c7:9d43580c729b": {
+  "label": "b5980c46a8ca2fe572c7",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "the dips Bitcoin has (bear markets/drawdowns)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you have a long time horizon and are not forced to sell during drawdowns",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's volatility is your friend because you do not need to save or invest additional money when it has dips under a DCA strategy.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "which I'm Generation Z, I've got plenty of it, Lord willing",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c7b73b3449d57df7912a:9d43580c729b": {
+  "label": "c7b73b3449d57df7912a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "trillions of dollars of digital credit from selling credit",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the digital credit that will flow into the crypto economy",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The proceeds from selling trillions of digital credit will flow into the crypto economy, drive up Bitcoin's price, and make Bitcoin a $20 trillion asset.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Michael Saylor Keynote at Cantor Convergence 4th Annual Conference 2026",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "cb80340f857a99178919:9d43580c729b": {
+  "label": "cb80340f857a99178919",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "They",
+    "refers_to": "People",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the fact that people don't understand Bitcoin is capital and digital credit is mispriced",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the mispricing due to lack of understanding",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "that being the case (misunderstanding and mispricing)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People don't understand that Bitcoin is capital and that its digital credit is mispriced, but given that situation it is just an opportunity.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ec4c0ff49fdb895ef08e:9d43580c729b": {
+  "label": "ec4c0ff49fdb895ef08e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "Now",
+    "refers_to": "current point in the conversation",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "AI having an impact last week",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin can be thought of as having two separate parts, an innovation side and a liquidity side, giving it a gold-type aspect.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "So I did I did a video this week for my subscribers. Um and I'm starting to do these more now where I'm connecting them back to macro.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "fad8df4e001b54c720d9:9d43580c729b": {
+  "label": "fad8df4e001b54c720d9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if quantum computers can crack ECDSA signatures",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The harder challenge with quantum computing breaking Bitcoin is deciding politically what to do with Satoshi's coins and the estimated 6 million BTC in easily cracked addresses.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7cdfb91fd54d185ad149:9d43580c729b": {
+  "label": "7cdfb91fd54d185ad149",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "kids coming through the next generation",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "kids coming through the next generation",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "for the next generation of young people",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is going to be second nature to the next generation of kids the same way Excel was the speaker's specialty.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Do you find any merit in the narrative that uh Bitcoin at the very least will see significant uptick in activity and maybe purchasing due to the agentic economy? \u203a\u203a No, I look I I don't think so.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7f9187e95075b8dcb74a:9d43580c729b": {
+  "label": "7f9187e95075b8dcb74a",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the situation of banks creating credit on Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "crypto",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If a bank wants to create credit and wants to cover crypto, in this case Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If a bank wants to create credit covering crypto like Bitcoin then it is going to be very good for the asset class.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "994b5c8a4b7e00490500:9d43580c729b": {
+  "label": "994b5c8a4b7e00490500",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "credit investors",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin returns 36% a year, enabling a 12% credit dividend that is compelling to credit investors who will embrace the new digital credit idea.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c9a9722716033dbb9cf6:9d43580c729b": {
+  "label": "c9a9722716033dbb9cf6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MSTR/MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "being like the central bank of the crypto economy",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MSTR is like the central bank of the crypto economy, the Bank of Bitcoin analogous to the Bank of England.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "efb097a26dc705eb5dfa:9d43580c729b": {
+  "label": "efb097a26dc705eb5dfa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "gold",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Gold is significantly better than fiat money but Bitcoin has no ability to produce any more of itself.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Do you find any merit in the narrative that uh Bitcoin at the very least will see significant uptick in activity and maybe purchasing due to the agentic economy? \u203a\u203a No, I look I I don't think so.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5735db643191d7e6f30c:9d43580c729b": {
+  "label": "5735db643191d7e6f30c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "studying or learning about Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they're",
+    "refers_to": "people who do the homework on Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "I",
+    "refers_to": "the speaker (Dan Held)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if people just spent and did the homework here",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "After obsessing over Bitcoin for years, if people do the homework they will probably reach the same conclusion the speaker did.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "I like it. My final question before we do final thoughts is uh trading versus investing. Now I presume you are a uh investing advocate. \u203a\u203a Yeah, so that's a great question where you know, I'm very bad at trading.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "23114b06920582460e85:9d43580c729b": {
+  "label": "23114b06920582460e85",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Bitcoin investors/community",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "now",
+    "refers_to": "time of recent bear market (last summer)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "which",
+    "refers_to": "crisis of identity and faith",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and Bitcoin community",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "These moments",
+    "refers_to": "periods of apathy/fear/doubt/despair at bear bottoms",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at emotional bottoms of bear markets",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Periods of apathy, despair, and crisis of identity and faith in the Bitcoin community typically mark the emotional and price bottom of bear markets.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a That's a great question. I would say like each bear market rhymes.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3aab6902ebb87738edc2:9d43580c729b": {
+  "label": "3aab6902ebb87738edc2",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks whether Bitcoin needs a narrative refresher.",
+  "certainty": "uncertain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7d4beb6e36508e978089:9d43580c729b": {
+  "label": "7d4beb6e36508e978089",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Bitcoin falls below $3,600 a coin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Their model and website also show a floor at which STRF would be under collateralized if Bitcoin falls below $3600 per coin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb402a210905c778432d:9d43580c729b": {
+  "label": "eb402a210905c778432d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "You",
+    "refers_to": "the guest being addressed",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the idea that AI popularity leads to Bitcoin gaining value",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the world created by widespread AI",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as AI becomes more popular",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "You and I have discussed how Bitcoin should gain more value as AI becomes more popular because AI creates a world of abundance while Bitcoin is scarce.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "when I asked him about the hack on stage uh first words he says were we had some deficiencies.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "861f0c97d093b4fd4220:9d43580c729b": {
+  "label": "861f0c97d093b4fd4220",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "institutions and president calling Bitcoin digital gold",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "which",
+    "refers_to": "current 1.5T market cap/stage",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin's adoption",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at current 1.5T market cap",
+    "inside": true
+   },
+   {
+    "text": "going forward",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Recognition by BlackRock, Fidelity and the president makes Bitcoin glimmer like digital gold and is incredibly bullish, but at 1.5T it remains very early in adoption as digital gold or world reserve asset with substantial potential ahead.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Well, so whenever I purchase an asset and hold it, I have an investment thesis, reason why I'm holding it.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9e059304bfc5bc1e2d85:9d43580c729b": {
+  "label": "9e059304bfc5bc1e2d85",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's core purpose hasn't changed and it is being adopted by institutions who recognize it as digital gold.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9e059304bfc5bc1e2d85~trim:9d43580c729b": {
+  "label": "9e059304bfc5bc1e2d85~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's core purpose remains unchanged as it is adopted by institutions that view it as digital gold.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "eb0fd778800d99d16559:9d43580c729b": {
+  "label": "eb0fd778800d99d16559",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the largest rise in two-year yields in a week, 35 basis points since 2022",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "since 2022",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The largest rise in two-year yields in a week since 2022 (35 basis points) is why Bitcoin is down, as it follows gold amid liquidity headwinds.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that is that what's applying so much pressure to Bitcoin? \u203a\u203a Not right now.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ee12dbbe04fc4b9b1c36:9d43580c729b": {
+  "label": "ee12dbbe04fc4b9b1c36",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we needed to",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy can sell Bitcoin if needed in order to buy back the credit as part of its digital treasury framework.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f083d3f96ba2ff322ff5:9d43580c729b": {
+  "label": "f083d3f96ba2ff322ff5",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy / the company",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we sell $40 billion of credit and buy $30 billion of Bitcoin",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the hypothetical case of selling $40B credit to buy $30B Bitcoin, Bitcoin's price moves up and MicroStrategy ends up holding $300B of Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5725aeda167432775db9:9d43580c729b": {
+  "label": "5725aeda167432775db9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "its",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker is happy to witness Bitcoin come into its identity and adulthood during his own lifetime before turning 40, as many other timelines existed where it might have died or only succeeded much later.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "True, true. And of course, you're a long-term Bitcoin bull.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "63e84dd53de85f9e6337:9d43580c729b": {
+  "label": "63e84dd53de85f9e6337",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the correlation between Bitcoin, gold, and macro liquidity headwinds or the largest rise in yields",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "Bitcoin and gold",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "since March",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Gold is at the lows, Bitcoin and gold have been moving together since March because of liquidity headwinds, as the speaker has shown in videos.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that is that what's applying so much pressure to Bitcoin? \u203a\u203a Not right now.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "baf4bf24c2aa35df4c49:9d43580c729b": {
+  "label": "baf4bf24c2aa35df4c49",
+  "speaker_changes_inside": "no",
+  "view": "uncertain",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin going to 59K (before starting DCA)",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "wait until Bitcoin goes to 59K before you start DCA",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Muhammad advised waiting until Bitcoin reaches 59K before starting to DCA, and reaching that level could occur.",
+  "certainty": "possible",
+  "speaker_is": "host",
+  "speaker_evidence": "But Rob, aren't you concerned because you think that, you know, you follow along with the four-year cycles and you've said that, you know, in Q4 we should see a pullback.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "dd82d548eb807dbd16c9:9d43580c729b": {
+  "label": "dd82d548eb807dbd16c9",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "which",
+    "refers_to": "STRC",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "plugging in 40 vol and 10% ARR assumption for bitcoin in the stochastic credit model",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The theoretical credit risk on STRC, which is about five to six times over-collateralized at $6 of Bitcoin per $1 of STRC, is about 58 basis points.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "07c844d922fa6dddf59e:9d43580c729b": {
+  "label": "07c844d922fa6dddf59e",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "the guest/expert being interviewed",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the war and conflict playing into inflation",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks how much the war and conflict is playing into inflation and thereby leading to Bitcoin.",
+  "certainty": "uncertain",
+  "speaker_is": "host",
+  "speaker_evidence": "You said Iran war. Um I don't even sometimes remember which you know I should but when I am looking at the market there are many days where I'm just like oh yeah I forgot that there is this conflict going on cuz we kind of don't hear about it for multiple days in a row.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5bc4d12aa667407bed6c:9d43580c729b": {
+  "label": "5bc4d12aa667407bed6c",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if you just cherry pick date to date over the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If you cherry-pick the performance date to date over the last five years from the 2021 peak to the 2026 bottom, the S&P 500 is up 72% while Bitcoin is up 28%, so a naive critic would say you should buy the S&P 500 instead of Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5bc4d12aa667407bed6c~trim:9d43580c729b": {
+  "label": "5bc4d12aa667407bed6c~trim",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "if you just cherry pick date to date over the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If you cherry-pick the performance date to date over the last five years from the 2021 peak to the 2026 bottom, the S&P 500 is up 72% while Bitcoin is up 28%, so a naive critic would say you should buy the S&P 500 instead of Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7d9a721942de505c5d4f:9d43580c729b": {
+  "label": "7d9a721942de505c5d4f",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "these guys",
+    "refers_to": "the traditional investor and the degenerate retail investor",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "he",
+    "refers_to": "the traditional investor",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If you take both of these guys",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Considering both the traditional suit-and-tie investor and the volatile Wall Street bets retail investor, Bitcoin would be the absolute riskiest asset the traditional one owns, leading him to say one should not allocate more than 2-5% to it or be an idiot, yet he still holds 2-5%.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f63eb650af0400385f9f:9d43580c729b": {
+  "label": "f63eb650af0400385f9f",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "equity investors",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin appreciates more than 10%",
+    "inside": true
+   },
+   {
+    "text": "if we get a 15 % or 20 % Bitcoin performance",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin appreciates more than 10%, then the excess spread over the cost of the credit is captured by the equity investor, so the equity should outperform Bitcoin if it achieves 15% or 20% performance.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1cccbd3811e8eb70e748:9d43580c729b": {
+  "label": "1cccbd3811e8eb70e748",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "what the degenerate retail investor (who wants maximum volatility) would say if told you have a lot of Bitcoin",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The degenerate retail investor seeking high volatility would say Bitcoin is dead and a boomer coin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "710caa666883a37ec4a5:9d43580c729b": {
+  "label": "710caa666883a37ec4a5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "narrative that AI bots are going to be using SATs",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "this narrative",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the bot",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you ask it to use Bitcoin (or whatever currency specified)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The narrative about AI bots using SATs is not compelling because a bot will use whatever currency its user directs it to use.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b4831bdba3bc73769a7d:9d43580c729b": {
+  "label": "b4831bdba3bc73769a7d",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "these two things",
+    "refers_to": "Bitcoin falling/declining and collateral damage in the AI industry",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "these two things being connected",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks whether the collateral damage in the AI industry and Bitcoin's decline are connected and if that is applying so much pressure to Bitcoin.",
+  "certainty": "uncertain",
+  "speaker_is": "host",
+  "speaker_evidence": "All right, let's switch to our other favorite topic, Bitcoin. How low can you go? How low can you go? We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "704fa6e1af4a86ff1d07:9d43580c729b": {
+  "label": "704fa6e1af4a86ff1d07",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "The total",
+    "refers_to": "the combined value of the stolen assets just listed (Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and smaller tokens) taken from Binance's hot wallets",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "On the 29th of October",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On 29 October, Binance's hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and a long tail of smaller tokens, altogether worth roughly $6.3 billion.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+  "backend": "heimdall:z-ai/glm-5.3-flash",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "266e7687898e26a9fa27:9d43580c729b": {
+  "label": "266e7687898e26a9fa27",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they'd",
+    "refers_to": "BlackRock",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "BlackRock",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That's",
+    "refers_to": "the $3.6 billion in in-kind swaps of Bitcoin to their iBit ETF",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "Those",
+    "refers_to": "the investors doing the swaps",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "here",
+    "refers_to": "the crypto space",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "just said yesterday",
+    "inside": true
+   },
+   {
+    "text": "for a very long time",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Robbie Michnik at BlackRock said yesterday that BlackRock had seen $3.6 billion in Bitcoin in-kind swaps into its iBit ETF, which constitutes major size from long-term whales.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "But okay, so then I would ask you this. If the thinking is like Binance is one of the more solid ones",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "408ef969709952011d0d:9d43580c729b": {
+  "label": "408ef969709952011d0d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker does not believe that meme coins are going to flip Bitcoin as some have claimed, nor that Ethereum is going to flip Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Why do you use the cash app, Rob? That's a great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0c15358fb84ecdeca26f:9d43580c729b": {
+  "label": "0c15358fb84ecdeca26f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin (price)",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in 2018",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In 2018 the speaker was shocked that he had bought Bitcoin at $18,500 and then $8,500 only for its price to fall below $5,000.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Hey, Rob Bitcoin. Hey, it's John Luis. John Luis, thank you for all the great articles you sent me. Hey, Rob.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "06d34e155feae654ee56:9d43580c729b": {
+  "label": "06d34e155feae654ee56",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "selling every stock in my Roth IRA and putting it all into Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "every stock in my Roth IRA",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "the time of speaking when the speaker is 26",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "on my 20th birthday",
+    "inside": true
+   },
+   {
+    "text": "by 45",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker sold every stock in his Roth IRA on his 20th birthday to buy Bitcoin, which was one of the best financial decisions he ever made, and at age 26 he holds no traditional retirement accounts and is on pace for financial independence by 45.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d6a80171491e2b5395b9~trim:9d43580c729b": {
+  "label": "d6a80171491e2b5395b9~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "applying the volatility/dollar-cost-averaging strategy one step further with Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "the individual Bitcoin investor/listener",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the biggest risk with Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "theoretically",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Theoretically one could take the volatility investing strategy one step further with Bitcoin, where the biggest risk is the investor themselves making a self-custody error such as falling for a phishing attack or trusting the wrong custodian, so one must learn to secure Bitcoin properly to hold it for decades.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "46ce4069efe4e25e0d38:9d43580c729b": {
+  "label": "46ce4069efe4e25e0d38",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "those",
+    "refers_to": "gold, fiat currencies, real estate",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those",
+    "refers_to": "known $21M supply, hard to seize, uncensorable",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the end of 2026 going into 2027",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin disrupts other stores of value like gold, fiat and real estate because it offers a known 21 million supply, is hard to seize, and is uncensorable like a Swiss bank account in your pocket, making it competitive as the speaker believed when buying at $10.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "What is Bitcoin's bull case today? \u203a\u203a Well, so whenever I purchase an asset and hold it, I have an investment thesis, reason why I'm holding it.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7c0121c6c14b8b930a2a:9d43580c729b": {
+  "label": "7c0121c6c14b8b930a2a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin being the collateral backing of the digital system",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "Bitcoin serving as the collateral backing of the digital system",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the recent AI market correction or downturn affecting hedge funds",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Once you start moving things on chain",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Once assets begin moving on chain, Bitcoin is the chosen collateral backing the digital system, and the speaker is hopeful the recent AI-related market correction on the hedge fund side will be overcome.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "your fundamental analysis did not predict the uh three affair uh black swan. That's I'm surprised you missed that. You know, you're pretty smart guy. \u203a\u203a Yeah, \u203a\u203a it was definitely shocking.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b04337f6fdffa0029f2d:9d43580c729b": {
+  "label": "b04337f6fdffa0029f2d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "not",
+    "refers_to": "depreciating (like intelligence)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They",
+    "refers_to": "all of the robots and all of the AIs in the world",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "They",
+    "refers_to": "all of the robots and all of the AIs in the world",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "enormous wealth created by these AIs",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "enormous wealth created by these AIs",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "migration of capital into digital capital",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the outperforming of equity capital",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "long-term for the foreseeable future",
+    "inside": true
+   },
+   {
+    "text": "in April of 2028",
+    "inside": true
+   },
+   {
+    "text": "Once you embrace the idea that it is going to outperform equity capital",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Unlike depreciating intelligence, Bitcoin is an appreciating asset that AIs and robots cannot create more of, so AI-generated wealth will migrate into Bitcoin, which the speaker expects to appreciate 20-30% annually long-term and outperform the S&P, NASDAQ, Magnificent 7, and gold.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e3622d2282ef2692994:9d43580c729b": {
+  "label": "2e3622d2282ef2692994",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "being used as a medium of exchange",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin being used as a medium of exchange",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the idea that things take a long time",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "we are so far away from that",
+    "inside": true
+   },
+   {
+    "text": "if it's not happening",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin can should and probably will be used as a medium of exchange in the future but we are so far from that point we should not stress if it is not happening yet because these things take a long time.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a No, I look I I don't think so. I think this narrative that like AI bots are going to be using SATs",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "383c02b65c9218f3b8bb:9d43580c729b": {
+  "label": "383c02b65c9218f3b8bb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "harder",
+    "refers_to": "compared to the technical debate on post-quantum cryptography for Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Satoshi's coins or 6 million BTC in easily cracked addresses being stolen via quantum computers",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "Bitcoin community or developers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "these",
+    "refers_to": "Satoshi's coins or the estimated 6 million Bitcoin in crackable addresses",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "once quantum computers can derive private keys from public keys",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The harder issue with quantum computing for Bitcoin is the political question of what to do with an estimated 6 million BTC in easily cracked addresses like Satoshi's, which could be stolen once public keys allow private key derivation.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Well, let me ask you this because you know like I said, this bear market feels a little bit different or it's actually just Bitcoin's new era feels a little bit different from the first 15 years. ... Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a84e4fbdb80b7eba0dfc:9d43580c729b": {
+  "label": "a84e4fbdb80b7eba0dfc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin performing as well as gold or the S&P index",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the company's Bitcoin and credit portfolio",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "This",
+    "refers_to": "historical performance versus the hurdle rates",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin performs as well as gold or the S&P index",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If Bitcoin performs as well as gold or the S&P index this is a screaming home run for equity investors in the company's conservatively constructed portfolio, as shown by history against the hurdle rates.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f51962672170ebaac719:9d43580c729b": {
+  "label": "f51962672170ebaac719",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "during Bitcoin's idiosyncratic bear market",
+    "inside": true
+   },
+   {
+    "text": "If you cherry pick from the top of the Bitcoin bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Much has been written claiming AI has eaten Bitcoin's lunch but this only holds during Bitcoin's idiosyncratic bear market and only if one cherry-picks the timeframe from the top of Bitcoin's bull market into the explosive AI trade.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Yeah, incredible point there. That'll be clipped. Uh we got to wrap up here",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0e20031e46ad9ad30c91:9d43580c729b": {
+  "label": "0e20031e46ad9ad30c91",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "That",
+    "refers_to": "Bitcoin infiltrating the system as a sound money virus",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin acts as a sound money virus infiltrating the financial system, which is beneficial because deeper integration and ownership by politicians and bankers strengthens a network effect of individuals incentivized to defend it.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Well, let me ask you this because you know like I said, this bear market feels a little bit different or it's actually just Bitcoin's new era feels a little bit different from the first 15 years. So nowadays JP Morgan, Morgan Stanley, Charles Schwab, Bank of America, UBS, Goldman Sachs, the biggest banks in the US and around the world are clearly getting involved and this is a major shift. Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3868d86dcb0cc7df9f6c:9d43580c729b": {
+  "label": "3868d86dcb0cc7df9f6c",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this thing",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "these things",
+    "refers_to": "taking your money, fleeing the country if needed, hiding money from an abusive partner",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if pulled from your Western self and dropped in Venezuela/Iran/similar",
+    "inside": false
+   },
+   {
+    "text": "if you needed to",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It would be better for Bitcoin to exist so that people could take their money, flee a country if needed, or hide money from an abusive partner, as Bitcoin has beautiful components that represent pure freedom, which left-wing politics ironically hates.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "How should they present it to their family? Look, honestly, what I found to be the most effective way to handle this is to just have people ask questions.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3c3679159b58612ae873:9d43580c729b": {
+  "label": "3c3679159b58612ae873",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this stuff",
+    "refers_to": "credit instruments from selling credit",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy / the company",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the price",
+    "refers_to": "Bitcoin price",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "without Bitcoin price moving",
+    "inside": true
+   },
+   {
+    "text": "if we sell $40 billion of credit and buy $30 billion of Bitcoin",
+    "inside": true
+   },
+   {
+    "text": "when the price moves up",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy currently has capacity to sell $48 billion of credit without moving Bitcoin's price, but selling $40B credit to buy $30B Bitcoin would drive the price higher and leave the company holding $300B of Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "888cf86d36258b87c0fa:9d43580c729b": {
+  "label": "888cf86d36258b87c0fa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "This",
+    "refers_to": "Bitcoin becoming a 20 trillion dollar asset or the preceding flywheel prediction",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker (Michael Saylor)",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy / the company",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Those following the speaker should not be surprised by his expectation that Bitcoin will become a $100 trillion asset that competes against private credit, junk bonds, and similar credit securities.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a70f7d22798173c122eb:9d43580c729b": {
+  "label": "a70f7d22798173c122eb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "the coins (approx. 6 million BTC in easily cracked addresses)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "the people who own the easily cracked Bitcoin addresses",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "artificial intelligence",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "no matter how much AI takes over the world",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker poses the dilemma of whether to burn vulnerable pre-quantum coins or devise a scheme to protect them for their owners while asserting Bitcoin's fixed 21 million scarcity cannot be altered no matter how much AI advances and that AI will likely store its wealth in Bitcoin.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e959d5ade74f877900c0:9d43580c729b": {
+  "label": "e959d5ade74f877900c0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the 22 bear market",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "January 1st 2023 at the bottom of the 2022 global bear market (in which bonds lost 50% of value during the fastest rate hiking cycle in history) is one of the best starting points for assessing Bitcoin performance.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "How should they present it to their family? Look, honestly, what I found to be the most effective way to handle this is to just have people ask questions.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ea1fc684ee2a95f0473a~trim:9d43580c729b": {
+  "label": "ea1fc684ee2a95f0473a~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the approx 75-80% of total Bitcoin wealth being long-term holder based",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the 75-80% of total wealth in the Bitcoin system that is long-term holder-based",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at bottom of bear market or early bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "At the bottom of a bear market or start of a bull market, roughly 75-80% of total Bitcoin wealth is held by long-term holders, a group that mixes prior-cycle buyers at lower prices with those who bought the top.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "Speaking of UTXO, set, what are you seeing on chain? Uh what's the what's the breakdown of uh UTXOs that look to be fresh buys? \u203a\u203a Yeah, I mean I think so.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ece4072374c42a4331ef:9d43580c729b": {
+  "label": "ece4072374c42a4331ef",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "That",
+    "refers_to": "monthly DCA into the S&P 500",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "your returns are 69 % with a kegger of 21%",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the same 5-year period from 2021 bull market peak to 2026 bear market bottom",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Monthly DCA into Bitcoin over the described 5-year period from the 2021 peak to the 2026 bear market bottom returns 69% with a 21% CAGR, outperforming the 51% from the same strategy into the S&P 500.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "157d7aabbb2adca8f60d~trim:9d43580c729b": {
+  "label": "157d7aabbb2adca8f60d~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that's",
+    "refers_to": "banks creating credit on Bitcoin as the most important driver",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "JP Morgan",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that's",
+    "refers_to": "JP Morgan announcing Bitcoin will appreciate 10% a year",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they've",
+    "refers_to": "JP Morgan",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we've",
+    "refers_to": "progress in banking adoption of crypto",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the current Cantor Convergence conference",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "banking regulators",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "JP Morgan announcing that Bitcoin will appreciate 10% a year is profound because it legitimizes the asset and accelerates bank adoption, in contrast to regulators shutting down banks for being pro-crypto only 24 months earlier.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "514455ecf0bd9312e4a4~trim:9d43580c729b": {
+  "label": "514455ecf0bd9312e4a4~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "whether Bitcoin has lost its way with institutions coming in",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the Bitcoin protocol/code",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "big banks/institutions",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's core code and protocol have not changed at all to suit institutions, with no alterations to proof of work, the 21 million hard cap, or any other element pushed by big banks.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Mhm. Well, let me ask you this because you know like I said, this bear market feels a little bit different or it's actually just Bitcoin's new era feels a little bit different from the first 15 years. So nowadays JP Morgan, Morgan Stanley, Charles Schwab, Bank of America, UBS, Goldman Sachs, the biggest banks in the US and around the world are clearly getting involved and this is a major shift. Is this something that worries you or how do you think about it? \u203a\u203a That's a great question. I think that's very top of mind as well for everyone in the space. Everyone's wondering has Bitcoin lost its way with these institutions coming in?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "98f8c426a874add381bf:9d43580c729b": {
+  "label": "98f8c426a874add381bf",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "MicroStrategy not doing well",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "them",
+    "refers_to": "MicroStrategy and Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "Bitcoin or the crypto space",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "you",
+    "refers_to": "the host Anthony Pompliano",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "Anytime micro strategy isn't doing well",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When MicroStrategy performs poorly it negatively impacts Bitcoin solely because people equate the two, and the Bitcoin community is already mostly long Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Does that cause issues for Bitcoin? What do you think the ramifications are?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b02d5f5e5d7e25cc6d78:9d43580c729b": {
+  "label": "b02d5f5e5d7e25cc6d78",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin should at least equal gold's market capitalization because it is superior to gold in every way, with a known fixed supply, the ability to send it anywhere, divisibility, and use as money.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Does this bear market feel different to you? I mean, every bear market is different, but are are you still as confident in Bitcoin today as you were in maybe the 2022 bear market or 2018 or 2014? \u203a\u203a That's a great question. I would say like each bear market rhymes.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c3d02145771fb936d4f9~trim:9d43580c729b": {
+  "label": "c3d02145771fb936d4f9~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "alchemy (or turning base metals into gold)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "these",
+    "refers_to": "exotic or left-field possibilities such as asteroid mining",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these",
+    "refers_to": "factors or assets that may or may not endure",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the long arc of time",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Alchemy to affect gold relies on fusion, quantum computing is needed to kill Bitcoin, and various left-field scenarios like asteroid mining exist, yet only a small basket of assets can reliably endure over the long arc of time.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a But I've been told by Jason Calacanis, the infamous investor, that I should drop Bitcoin",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c762a1951bb30926fb96:9d43580c729b": {
+  "label": "c762a1951bb30926fb96",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "Bitcoin (as a private Swiss bank account)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "still (in current institutional adoption era)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Even with growing institutional and political adoption, Bitcoin can still be used in a cypherpunk way via coin joins, self-custody where ownership is unknown, cash purchases, and as an originally intended private Swiss bank account in your pocket.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "You've been around for almost three cycles now. So, or over three cycles.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d62a1004294ea1c5b1e5:9d43580c729b": {
+  "label": "d62a1004294ea1c5b1e5",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "the statement about Bitcoin's expected appreciation and outperformance",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "long term / for the foreseeable future",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Long term, the speaker expects Bitcoin to appreciate 20 to 30% a year for the foreseeable future and to outperform the S&P, NASDAQ, and Magnificent Seven.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "42dc41d2e53264a70420:9d43580c729b": {
+  "label": "42dc41d2e53264a70420",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "Satoshi's coins or the estimated 6 million Bitcoin in easily cracked addresses",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "Bitcoin community or protocol decision-makers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "us",
+    "refers_to": "Bitcoin community or protocol decision-makers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "the coins",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "those people",
+    "refers_to": "the owners or holders of those coins",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "upon quantum computers cracking current Bitcoin signatures",
+    "inside": false
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The harder political challenge with quantum computing is deciding what to do with Satoshi's coins or the estimated 6 million BTC in easily cracked addresses, such as burning them or creating a novel protection scheme for their owners.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new? \u203a\u203a Doing well, guys. Thanks for having me.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "5b159ce6a40b1251f0fe~trim:9d43580c729b": {
+  "label": "5b159ce6a40b1251f0fe~trim",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "he",
+    "refers_to": "CZ (founder of Binance)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "Binance",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the continued deposits during the hack as people bought the dip",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "while the hack was going on",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "CZ said that Binance continued receiving many deposits during the hack because people rushed to buy the Bitcoin dip on the platform, and the speaker found that psychology fascinating.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Yesterday I was at the uh Caner Fitzgerald conference down in uh Miami and uh I did a little fireside chat with my friend CZ",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "6b33291720bfc3eab9fe:9d43580c729b": {
+  "label": "6b33291720bfc3eab9fe",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "This",
+    "refers_to": "the current year",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "this year / in a bad crypto year",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy owns about 4.05% of all the Bitcoin that will ever exist, is a company with about $55 billion market cap, and raised nearly $22 billion this bad year in crypto winter.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7c5844550969e471cd1f:9d43580c729b": {
+  "label": "7c5844550969e471cd1f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "accumulating Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "these",
+    "refers_to": "Bitcoin mining machines",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Time and volatility are friends to those accumulating Bitcoin, which the speaker does consistently using depreciable mining machines that lower his taxable income and save him five figures annually.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a7ed3a348a7136992e88~trim:9d43580c729b": {
+  "label": "a7ed3a348a7136992e88~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "gold trading down due to interest rate worries",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if gold is trading down because there's worries that interest rates are going higher",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker thinks of Bitcoin as having an innovation side and a liquidity side like gold, which is why AI impacted it last week and why Bitcoin trades down when gold does on interest-rate worries.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I did I did a video this week for my subscribers. Um and I'm starting to do these more now where I'm connecting them back to macro.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e202d5ec74a53c22a5ff~trim:9d43580c729b": {
+  "label": "e202d5ec74a53c22a5ff~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "commodity businesses and commodity elements",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the idea of what can stand the test of time",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the idea of what can stand the test of time",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "what can stand the test of time",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Not as many commodity businesses and elements will be super profitable in the way they have been in recent months with the AI trade, so the basket of assets that can stand the test of time is quite small with Bitcoin being one of the few that has a very defensible moat across multiple levels.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "building on what you just said",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f8fa70776de5b2d2e4ac:9d43580c729b": {
+  "label": "f8fa70776de5b2d2e4ac",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "his",
+    "refers_to": "Bitcoin's",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "people not understanding that Bitcoin is capital and digital credit which is mispriced",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the mispricing or lack of understanding about Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "us",
+    "refers_to": "MicroStrategy/Saylor's company",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy/Saylor's company",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the high dividend attracting capital",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "People don't understand Bitcoin is capital and his digital credit is mispriced",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People do not understand that Bitcoin is capital and digital credit which is mispriced, but that situation is an opportunity that the speaker's company does not mind because the high dividend attracts more capital into the digital economy.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "129d962df2f71d53ef75~trim:9d43580c729b": {
+  "label": "129d962df2f71d53ef75~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "credit/digital credit",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the alloy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the alloy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "which",
+    "refers_to": "something (the created digital credit)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the alloy is 98% Bitcoin $2",
+    "inside": true
+   },
+   {
+    "text": "if the alloy becomes 25, 30, 40 percent dollars",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Digital credit is an alloy of Bitcoin and dollars that buckles like weak material at 98% Bitcoin / 2% dollars but becomes very strong like stainless steel at 25-40% dollars, so the key to creating it is blending the right proportion of dollars with Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1306d03f2a72fd0af4d0:9d43580c729b": {
+  "label": "1306d03f2a72fd0af4d0",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "a bank creating credit on crypto/Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "This",
+    "refers_to": "a bank wanting to create credit on Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the preceding point about the most important driver",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "J.P. Morgan",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "J.P. Morgan's announcement and view",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If a bank wants to create credit and wants to cover crypto",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "If banks create credit on Bitcoin it will be very good for the asset class as this is the most important driver, which is why J.P. Morgan announcing that Bitcoin will appreciate 10% a year is profound since it legitimizes the asset.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "139139443bdc32ae3e3b~trim:9d43580c729b": {
+  "label": "139139443bdc32ae3e3b~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "bank credit's impact on asset values, holding incentives, and network effects",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that asset",
+    "refers_to": "iBit (Bitcoin held in the ETF)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "banks (JP Morgan, Morgan Stanley or Schwab)",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Bitcoin flows into an ETF like IBIT and banks extend credit against it",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Extending bank credit against Bitcoin ETFs such as IBIT produces a profound network effect that makes investors more inclined to hold the asset and less inclined to sell, with better credit terms increasing buying and reducing selling pressure.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4d9418596b2fdd0a0a88~trim:9d43580c729b": {
+  "label": "4d9418596b2fdd0a0a88~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the video",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "right now",
+    "refers_to": "the time the video is being made",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "the money",
+    "refers_to": "the $6.3 billion stolen from Binance hot wallets",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as I make this video",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "As the speaker makes this video, estimates put about $3.3 billion of the stolen funds still in addresses controlled by the thieves, mostly Bitcoin and Ether, with the FBI alert naming 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "as I make this video",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "64f28f858f21b75dd1fa:9d43580c729b": {
+  "label": "64f28f858f21b75dd1fa",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the pullback",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin going to die",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "the current Bitcoin pullback",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If it's not [going to die]",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People who wanted to buy Bitcoin in the 60s and 70s two months ago when it was at 87 should buy the current pullback if Bitcoin is not going to die.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "James Check, it's been too long, sir.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "8976434fa074337ce69d:9d43580c729b": {
+  "label": "8976434fa074337ce69d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "them",
+    "refers_to": "kids coming through the next generation/younger people",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "their",
+    "refers_to": "younger people's",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin/saving in Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "for younger people/next generation",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin will be second nature to younger generations the way Excel was to the speaker, becoming normalized and ingrained so that it is the obvious place to save capital given its fundamental core properties.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Do you find any merit in the narrative that uh Bitcoin at the very least will see significant uptick in activity and maybe purchasing due to the agentic economy? \u203a\u203a No, I look I I don't think so.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "8ff932fc2cd797f3a4ae:9d43580c729b": {
+  "label": "8ff932fc2cd797f3a4ae",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "the creators of digital credit products such as STRC",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "credit investors",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin delivers 36% annual returns, enabling a 12% credit dividend that exceeds the 9% threshold needed to attract credit investors by offering double-digit returns and tax efficiency akin to an equity portfolio like the S&P index.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c0849ea02c9857cf9ebb~trim:9d43580c729b": {
+  "label": "c0849ea02c9857cf9ebb~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "gold",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "my",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "me",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the company that made the block clock",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "the block clock/hardware",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Gold is significantly better than fiat money but Bitcoin has no ability to produce more of it, as indicated by the circulating supply metric on the speaker's Block Clock hardware.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "dab001bab2343f1968cb:9d43580c729b": {
+  "label": "dab001bab2343f1968cb",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MSTR/MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "being like the central bank of the crypto economy",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "We",
+    "refers_to": "MSTR/MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "MSTR",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MSTR is like the central bank of the crypto economy (Bank of Bitcoin, akin to Bank of England), owns about 4.05% of all Bitcoin that will ever exist, and is a $55 billion market cap company.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0c36a4488b906f2e4eaf:9d43580c729b": {
+  "label": "0c36a4488b906f2e4eaf",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "here",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "SpaceX",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "These",
+    "refers_to": "the conclusions about Bitcoin and SpaceX",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if people spend time doing the homework to understand it",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker obsesses over Bitcoin and SpaceX, finding after years of homework that they seem obvious and that others would likely reach the same conclusions if they did the same, while accepting he will miss many other investment opportunities.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Yeah, so that's a great question where you know, I'm very bad at trading.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "23caa285d4cbeb43e51c~trim:9d43580c729b": {
+  "label": "23caa285d4cbeb43e51c~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "fiat money coming into Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "fiat system",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we're going to get Bitcoin up to the levels that we think it's going to go to",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy's performance has a trading impact on Bitcoin, but reaching much higher Bitcoin prices will require inflows of fiat money that only occur if people fundamentally believe tokenization will change the world by moving value from the $900T fiat system into crypto.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "What do you think the ramifications are? \u203a\u203a Anytime Micro Strategy isn't doing well, it has issues for Bitcoin for no other reason that people view them the same.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "4f8d42ac7d400d93b0d2:9d43580c729b": {
+  "label": "4f8d42ac7d400d93b0d2",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin feels expensive",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the point where Bitcoin feels expensive at 100K",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in every bull cycle",
+    "inside": true
+   },
+   {
+    "text": "Once we approach 100K",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In every bull cycle there comes a point where Bitcoin feels expensive such that buyers hesitate, and once approaching 100K this collective feeling will arrive and trigger acceleration off to the races.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a56b39c9c2c9ea896e29~trim:9d43580c729b": {
+  "label": "a56b39c9c2c9ea896e29~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the primary debate that Bitcoin Core is crooked and corrupt",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the prior debate about Bitcoin Core",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "the Bitcoin Core developers",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "three months ago, not even",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Three months ago the main debate was that Bitcoin Core is crooked and corrupt, yet those same people have written some of the most amazing code ever and deserve props.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2e21c7dc76f2cffa169f~trim:9d43580c729b": {
+  "label": "2e21c7dc76f2cffa169f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "all of the robots and all of the AIs in the world",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "enormous wealth created by these AIs",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in April of 2008",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "uncertain",
+  "proposition": "In April of 2008 there will only be 225 Bitcoin a day available for sale, so enormous wealth created by AIs will drive a migration of capital as it has to go somewhere.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "422219f06d09c5aeebf4:9d43580c729b": {
+  "label": "422219f06d09c5aeebf4",
+  "speaker_changes_inside": "uncertain",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "whether Bitcoin needs a narrative refresher",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "a narrative refresher",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "the narrative",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "It",
+    "refers_to": "the 300 billion stablecoin market cap",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "after the price goes up",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has been pondering if Bitcoin needs a narrative refresher and asserts it will probably arrive after price rises while noting it does not seem like much.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7ba59050e5ee6fcd14bb:9d43580c729b": {
+  "label": "7ba59050e5ee6fcd14bb",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "Bitcoin community",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "These",
+    "refers_to": "moments of apathy, fear, doubt, and despair at bear market bottoms",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "crisis of identity and faith or emotional bottom",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at emotional bottoms of bear markets",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "At bear market bottoms people feel like Bitcoin succeeded but now faces a crisis of identity and faith, and these moments typically mark a bottom as seen in 2015, 2018, 2019, and 2022.",
+  "certainty": "likely",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Does this bear market feel different to you? I mean, every bear market is different, but are are you still as confident in Bitcoin today as you were in maybe the 2022 bear market or 2018 or 2014? \u203a\u203a That's a great question. I would say like each bear market rhymes.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "93fca317d9fe229b4001:9d43580c729b": {
+  "label": "93fca317d9fe229b4001",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "You",
+    "refers_to": "the person being addressed (guest)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the connection between AI popularity and Bitcoin value",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "he",
+    "refers_to": "the person asked about the hack on stage",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the unique perspective described next",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as AI becomes more popular",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker and guest have discussed how Bitcoin should gain value as AI grows in popularity due to its scarcity versus AI-driven abundance, but the speaker found a unique perspective from what another person said on the topic.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "the second thing that he talked about which I thought was very uh interesting way to frame it.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "98dac99f884b77763b5f~trim:9d43580c729b": {
+  "label": "98dac99f884b77763b5f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they're",
+    "refers_to": "people who bought the local high and are capitulating",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "These",
+    "refers_to": "the capitulating people",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you just closed your eyes and came into Bitcoin for your very first buy",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "People are capitulating in large volumes right at prices in the bottom quarter of the distribution, which a new buyer would see as a great time to enter, but selling is the wrong decision.",
+  "certainty": "likely",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e68cc1564197965e962f~trim:9d43580c729b": {
+  "label": "e68cc1564197965e962f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "the AI agentic thing",
+    "refers_to": "prior discussion of AI agents",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "AI",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that's",
+    "refers_to": "AI understanding the difference between crypto and Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "underlying distinction/separation between Bitcoin and crypto",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "AI understands the difference between Bitcoin and (other) crypto, possibly because Bitcoin has been memed enough online, and there is an underlying distinction.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "1abf62635b6422bce8dd:9d43580c729b": {
+  "label": "1abf62635b6422bce8dd",
+  "speaker_changes_inside": "no",
+  "view": "conditional",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy/the company",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "Our",
+    "refers_to": "MicroStrategy/the company",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy/the company",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when the price moves up",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "When Bitcoin's price moves up, MicroStrategy will hold $300B of Bitcoin, causing its credit risk to fall, credit spreads to compress, demand for credit to increase so it sells more credit and equity premiums expand.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2de8e757031888803e1e:9d43580c729b": {
+  "label": "2de8e757031888803e1e",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the largest rise in two-year yields in a week, 35 basis points since 2022",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "AI had an impact last week",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "liquidity side needs to turn around",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The largest rise in two-year yields in a week since 2022 (35 basis points) is why Bitcoin is down as it follows gold, the liquidity side needs to turn around, the speaker mentioned AI's impact last week, and Bitcoin consists of two separate parts.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Not right now. Um it was uh last week. I I'm surprised that people So I did I did a video this week for my subscribers.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3fc97f3afec6a4386667:9d43580c729b": {
+  "label": "3fc97f3afec6a4386667",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "the situation with MicroStrategy and the indexes",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "MicroStrategy",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "MicroStrategy being removed from some of the indexes",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy is being removed from some indexes after what feels like an active or discretionary decision to include them when eligible, and this might cause issues for Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Today's episode is brought to you by Abra.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "70f16ce108b0083275dc:9d43580c729b": {
+  "label": "70f16ce108b0083275dc",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "which",
+    "refers_to": "the signature size of post-quantum cryptography being much larger",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "opening a conversation around increasing Bitcoin's block size",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "deciding what to do with coins that don't migrate to post-quantum secure addresses",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the outcome of which way Bitcoin gets upgraded",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over the next couple of years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Post-quantum cryptography has much larger signature sizes likely requiring Bitcoin block size increase discussions, while handling unmigrated coins raises political issues, so the technical debate is the least critical path as the upgrade direction will become self-evident soon.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a Mhm. Well, let me ask you this because you know like I said, this bear market feels a little bit different",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "902fb9c0b9b1ac6335d7~trim:9d43580c729b": {
+  "label": "902fb9c0b9b1ac6335d7~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "here",
+    "refers_to": "this discussed strategy of issuing managed preferred stock on Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "issuing digital credit via actively managed preferred stock on Bitcoin holdings",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the digital credit strategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "because Bitcoin is a commodity",
+    "inside": true
+   },
+   {
+    "text": "If Bitcoin was a security",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The core reason one can create this digital credit via preferred stock is that Bitcoin is a commodity, since the structure would not work under the Investment Company Act of 1940 if Bitcoin were a security.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "92cb306efb63543581dd:9d43580c729b": {
+  "label": "92cb306efb63543581dd",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "One",
+    "refers_to": "one of the two things that investment advice from top investors like Howard Marks and Warren Buffett boils down to",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "studying Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if people just spent the homework here",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "One key to successful investing is to obsess over and develop an informational edge through deep study that others overlook, just as the speaker did over years with Bitcoin leading to his conclusions.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "\u203a\u203a I like it. My final question before we do final thoughts is uh trading versus investing. Now I presume you are a uh investing advocate.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9e63b39a556c9ed33ed7:9d43580c729b": {
+  "label": "9e63b39a556c9ed33ed7",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "He",
+    "refers_to": "the interviewee who discussed this on stage",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "these companies",
+    "refers_to": "SpaceX, Anthropic, and OpenAI",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this equity",
+    "refers_to": "equity in the AI companies mentioned",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they're",
+    "refers_to": "the government",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if they're printing money then Bitcoin becomes more valuable",
+    "inside": true
+   }
+  ],
+  "retraction": "Um I actually don't subscribe to any of that",
+  "time_ok": "yes",
+  "proposition": "Looking at companies like SpaceX, Anthropic, and OpenAI, there is not enough money in the system to purchase all their equity so the government must print money over time, making Bitcoin more valuable.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "You and I have spent a lot of time talking about as AI becomes more popular Bitcoin should gain more value.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ae50e01f802ee33c2807~trim:9d43580c729b": {
+  "label": "ae50e01f802ee33c2807~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "institutions adopting Bitcoin as digital gold and infiltrating the financial system",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "seeing Bitcoin infiltrate the financial system",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin infiltrating the financial system",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin's core purpose is unchanged and it is being adopted by institutions that view it as digital gold, which the speaker sees as a positive development he has anticipated his whole life.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "c931a4f668731b60de7f~trim:9d43580c729b": {
+  "label": "c931a4f668731b60de7f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin gaining adoption and value via new institutional buyers",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That's",
+    "refers_to": "tokenization and agent commerce being inevitable",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "for this to work",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Tokenization and agent commerce are inevitable and represent the only thing that matters for Bitcoin, as institutions like pension funds, insurers, hedge funds, and mutual funds must become interested in the fundamentals of moving assets and transactions on chain.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "What do you think the ramifications are? \u203a\u203a Anytime Micro Strategy isn't doing well, it has issues for Bitcoin for no other reason that people view them the same.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "e961be05baa6f473fd66:9d43580c729b": {
+  "label": "e961be05baa6f473fd66",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy (the company)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "MicroStrategy (the company)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the credit (issued by the company backed by digital gold)",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if we needed to",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The company can sell Bitcoin if needed, buy back the credit or its equity, or adjust the dividend, and in June of 2025 that credit buckled.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "79eb86c1b0670fe1e579~trim:9d43580c729b": {
+  "label": "79eb86c1b0670fe1e579~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "It",
+    "refers_to": "Bitcoin as savings choice",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that's",
+    "refers_to": "Bitcoin becoming normalized for younger people with its core properties",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when I don't know what to do",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin will be so normalized and ingrained in younger people that it is the obvious place to save capital due to its fundamental properties, which is why the speaker buys gold and Bitcoin when unsure what to do.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "7db867b846e84a4ab586:9d43580c729b": {
+  "label": "7db867b846e84a4ab586",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "We",
+    "refers_to": "MicroStrategy/Saylor's team",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "assessing the described risk",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this risk",
+    "refers_to": "STRF becoming undercollateralized below $3600 Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "website/chart with credit spreads vs risk",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if Bitcoin falls below $3,600 a coin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "MicroStrategy shows a Bitcoin floor of $3600 below which STRF becomes undercollateralized, making the credit risk straightforward to evaluate against market spreads that offer credit investors a massive premium.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a09d2e1fa91290142664~trim:9d43580c729b": {
+  "label": "a09d2e1fa91290142664~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "We",
+    "refers_to": "US government/America",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They",
+    "refers_to": "chronic deficits",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is the scarcest and most desirable crypto asset whose price will continue being driven by the fiat debasement trade stemming from large chronic US deficits that will remain large or grow larger.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b3847c05e85387dc96b1:9d43580c729b": {
+  "label": "b3847c05e85387dc96b1",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "his",
+    "refers_to": "the child (son) who received the $100",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "saving capital in UTXOs/Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "they",
+    "refers_to": "people bringing big data problems",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "when I was in, as a civil engineer",
+    "inside": true
+   },
+   {
+    "text": "as people get",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "UTXOs are the most obvious thing to save the child's capital in, Bitcoin is going to be like the internet for young people, and the speaker was the go-to expert for big data problems as a civil engineer.",
+  "certainty": "speculative",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "da859ee356c68c74ce2f:9d43580c729b": {
+  "label": "da859ee356c68c74ce2f",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the macro setup/charts about yields gold lows and Bitcoin correlation",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they've",
+    "refers_to": "Bitcoin and gold",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "since March",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker has shown in videos that gold is at its lows and Bitcoin has moved together with gold since March due to liquidity headwinds including inflation rising from the Iran war.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "So I did I did a video this week for my subscribers",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ff3a74144dc1f9220038:9d43580c729b": {
+  "label": "ff3a74144dc1f9220038",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin going to 59K before starting DCA",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin going to 59K",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "it (Bitcoin) going up",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in Q4",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Muhammad advises waiting for Bitcoin to hit 59K to start DCAing and that could occur, but the speaker still expects a pullback in Q4, sees it possibly going up too, yet cannot say if any rise will occur in Q4.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "as we've talked about in this channel",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b36fbc2652b71924a361:9d43580c729b": {
+  "label": "b36fbc2652b71924a361",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the suggested fork of Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "the UTXO set in the history",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the network effect of the UTXO set and history",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "unless you can attract the whole system, in which case you are Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Forking Bitcoin causes your UTXO set to differ from consensus immediately so it is not the same, the UTXO set and history cannot be replicated, and that network effect is why Bitcoin is worth $1.5T while alternatives are not.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "What's up freaks? This episode is brought to you by Simple Mining.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "cbf391e7523ac232206a:9d43580c729b": {
+  "label": "cbf391e7523ac232206a",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "you",
+    "refers_to": "the guest being addressed",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "inflation",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "there",
+    "refers_to": "between the war inflation and Bitcoin",
+    "inside": false,
+    "changes_assertion": "uncertain"
+   },
+   {
+    "word": "it",
+    "refers_to": "the cause of inflation or pressure on Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the war",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if the war is only a small piece of combined U.S. factors",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "How much is the war and conflict playing into inflation that leads to Bitcoin moves, suggesting there may be a tighter correlation or that the war is only a small piece of combined U.S. factors and not the actual driver.",
+  "certainty": "uncertain",
+  "speaker_is": "host",
+  "speaker_evidence": "You said Iran war",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "df978d34fe61f7830a1d~trim:9d43580c729b": {
+  "label": "df978d34fe61f7830a1d~trim",
+  "speaker_changes_inside": "no",
+  "view": "hypothetical",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "Bitcoin's volatility (from 2021 peak to 2026 bottom)",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you just cherry pick date to date over the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Cherry-picking from the last five years shows the S&P 500 up 72% versus Bitcoin up only 28%, so a naive critic would recommend buying the S&P 500 instead due to Bitcoin's underperformance and volatility.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "what we're looking at are the real numbers over the past 5 years",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "023cca5f86cc39618300~trim:9d43580c729b": {
+  "label": "023cca5f86cc39618300~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the solution to the problem of trust",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "He",
+    "refers_to": "Satoshi",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "It",
+    "refers_to": "Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "he",
+    "refers_to": "Satoshi",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "those",
+    "refers_to": "elements of trust in the financial system",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "he",
+    "refers_to": "Satoshi",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "for me",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "To the speaker, Bitcoin represented a digital gold that solves the problem of trust in the financial system as described by Satoshi in the first paragraph of the whitepaper.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Could you remind us how did you get your start in Bitcoin? What is your background and how has it led you to today?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "2cf9382f1209dea701c0~trim:9d43580c729b": {
+  "label": "2cf9382f1209dea701c0~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the moment of realization during the 2008 financial crisis",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the realization that all the books, professors and TV were wrong",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin's purpose or the digital gold concept",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in that moment in the 2008 financial crisis",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker's study of finance during the 2008 financial crisis led him to realize that the established teachings were wrong, opening him to Bitcoin which for him represented a new digital gold as described by Satoshi in the white paper.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Could you remind us how did you get your start in Bitcoin? What is your background and how has it led you to today?",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a3bd7b1f28874036fe53:9d43580c729b": {
+  "label": "a3bd7b1f28874036fe53",
+  "speaker_changes_inside": "no",
+  "view": "attributed",
+  "referents": [
+   {
+    "word": "It's",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "there",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that guy",
+    "refers_to": "degenerate retail investor (Wall Street bets type)",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this sweet spot",
+    "refers_to": "position of being too safe for degens but too risky for traditional investors",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "them",
+    "refers_to": "those who know a lot about Bitcoin and have been around it",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "the scene",
+    "refers_to": "Bitcoin scene",
+    "inside": false,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Degenerate retail investors think Bitcoin is dead, a boomer coin that's not volatile enough with insufficient upside so too safe for them, while it is too risky for traditional investors, placing it in a sweet spot for those knowledgeable about and experienced with it.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Blockware manages the machines at one of their data centers.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ccdb0097bea1f57a6348:9d43580c729b": {
+  "label": "ccdb0097bea1f57a6348",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "yesterday",
+    "refers_to": "the day before the show/recording",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the Jensen stuff, the Fed raising rates",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "inflation headwind starts to lessen",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The S&P 500 is only 2.5% below all-time highs despite Jensen news and Fed rate hikes, so Bitcoin will benefit once the inflation headwind lessens.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Today's episode is brought to you by Fit Nexa.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "206e061739f6b989809a:9d43580c729b": {
+  "label": "206e061739f6b989809a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "narrative that AI bots are going to be using SATs (or agentic economy narrative)",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the narrative",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "the bot",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "debate around medium of exchange versus store of value",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if you ask it to use Bitcoin",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The narrative that AI bots will drive significant Bitcoin activity by using SATs lacks merit because a bot will use whatever its user instructs it to use, amid the known debate on medium of exchange versus store of value.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Do you find any merit in the narrative that uh Bitcoin at the very least will see significant uptick in activity and maybe purchasing due to the agentic economy? \u203a\u203a No, I look I I don't think so. I think",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "9a2febf853f2761ea0f6:9d43580c729b": {
+  "label": "9a2febf853f2761ea0f6",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "the asset",
+    "refers_to": "Bitcoin",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "these two things",
+    "refers_to": "Bitcoin's price fall and collateral damage in the AI industry",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "that",
+    "refers_to": "the collateral damage in the AI industry or its connection to Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "not right now (at present)",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Bitcoin is currently at $69,000 amid its continued fall and AI industry collateral damage, but the two are not connected right now.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "So I did I did a video this week for my subscribers.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "0d39ef4732c8c206ffae~trim:9d43580c729b": {
+  "label": "0d39ef4732c8c206ffae~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "the 75-80% long-term holder wealth situation",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at bottom of bear market or early bull market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Purchasers below $50K are now meaningfully in profit from a prior cycle and thus tenured, such that at the bottom of a bear market or early bull market stage roughly 75-80% of Bitcoin wealth is held by long-term holders.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "Speaking of UTXO, set, what are you seeing on chain? \u203a\u203a Yeah, I mean I think so. So my general view and what the way I try to look at things.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "d0adae88e4f7b5354a72:9d43580c729b": {
+  "label": "d0adae88e4f7b5354a72",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "On the 29th of October",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "On the 29th of October, Binance hot wallets were drained of Ethereum, Bitcoin, USDT, USDC, about 233 million XRP and smaller tokens for a total of about $6.3 billion, with the speed enabled by the Ethereum feature EIP-7702.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "My name is DC, and you're watching The Coin Bureau.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "77f48524f35281ea375b:9d43580c729b": {
+  "label": "77f48524f35281ea375b",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "their",
+    "refers_to": "J.P. Morgan",
+    "inside": true,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "That",
+    "refers_to": "J.P. Morgan's Bitcoin and crypto-linked holdings approaching $1 billion",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "as of their recent filings",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "As of their recent filings, J.P. Morgan's Bitcoin and crypto-linked holdings are approaching $1 billion (likely over that counting other exposures), demonstrating conviction.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I want to remind everybody of this",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "3f20de5b328db9e489dd~trim:9d43580c729b": {
+  "label": "3f20de5b328db9e489dd~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "the speaker and MicroStrategy",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "bank credit / extending credit against Bitcoin or ETFs",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that",
+    "refers_to": "the iBit / Bitcoin ETF asset",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "If Bitcoin flows into an ETF iBit and if your bank will extend credit against the iBit",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The possibility of banks extending credit against Bitcoin ETFs like IBIT creates a profound network effect that makes one want to hold the asset.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "Uh we think there's a lot of structural catalyst.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "879fa6d224b9cc309933~trim:9d43580c729b": {
+  "label": "879fa6d224b9cc309933~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "Jensen Wong stepping down from Nvidia",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "over a cycle",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The news about Jensen Wong stepping down signals that one man's impropriety can greatly affect global markets, making the speaker nervous about future market events, but Bitcoin will be exceptionally volatile while generally trending up and to the right over a cycle.",
+  "certainty": "speculative",
+  "speaker_is": "guest",
+  "speaker_evidence": "Scott, it's good to see you here. Thank welcome by the way for the first time to the Yahoo Finance Studios.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "b707975a220b3a29d85a~trim:9d43580c729b": {
+  "label": "b707975a220b3a29d85a~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "it",
+    "refers_to": "the JP Morgan document or filing",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "they",
+    "refers_to": "JP Morgan",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "this",
+    "refers_to": "the JP Morgan asset management document",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "2027 long term capital market assumptions",
+    "inside": true
+   },
+   {
+    "text": "if we took a look at this and they did a step-by-step breakdown of what it could actually be",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It was quite telling that JP Morgan's document on 2027 long-term capital market assumptions projected a 10% compounded return for Bitcoin with highest volatility, but a step-by-step breakdown would leave you way up with Bitcoin.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "f0bdd696014300f2a46f~trim:9d43580c729b": {
+  "label": "f0bdd696014300f2a46f~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they've",
+    "refers_to": "JP Morgan",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "JP Morgan",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "They",
+    "refers_to": "JP Morgan",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "their",
+    "refers_to": "JP Morgan",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "that's",
+    "refers_to": "raising their strategy stake 36% (848,000 shares)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "JP Morgan asset management document on 2027 capital market assumptions",
+    "inside": false,
+    "changes_assertion": "yes"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and channel/team",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "this",
+    "refers_to": "the document/release",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "when JP Morgan put out the document",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "10 days ago",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "JP Morgan has raised its Bitcoin ETF holdings and increased its strategy stake by 36% with 848000 shares, indicating conviction, and it recently released a capital markets document that the speaker covered about 10 days ago.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "we covered this. I think it was like 10 days ago.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "c7a3e8d31e80d7f4ac66~trim:9d43580c729b": {
+  "label": "c7a3e8d31e80d7f4ac66~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "this",
+    "refers_to": "wanting Bitcoin to be cheaper to get a larger ROI",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here",
+    "refers_to": "bottom of the bear market",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "the desire to buy Bitcoin cheaper for larger ROI",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "we",
+    "refers_to": "speaker and like-minded Bitcoin investors",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "at the bottom of the bear market",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker agrees that Bitcoin should be cheaper to allow a larger ROI, which is why he likes the bottom of the bear market as that is what we want.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

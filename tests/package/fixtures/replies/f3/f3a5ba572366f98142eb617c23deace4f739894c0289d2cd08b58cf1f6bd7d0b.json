@@ -1,0 +1,428 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2e8f3adf8bc2d5f4af1a59ea2a96fa1f06b0498db33d6840ef2dc87c155d0521",
+ "result": {
+  "text": "And my man Jamie Dimon and JP Morgan. Did you know that as of their recent filings, JP Morgan's Bitcoin and crypto-linked holdings are approaching one billion dollars? That's, uh, what we call conviction. So the Q3 13F shows roughly nine hundred and eighty-one million across Bitcoin ETF strategy, strategy, and Coinbase, likely over one billion dollars counting Robinhood and miners. I thought it was interesting because-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 26.76,
+    "text": "And my man Jamie Dimon and JP Morgan. Did you know that as of their recent filings, JP Morgan's Bitcoin and crypto-linked holdings are approaching one billion dollars? That's, uh, what we call conviction. So the Q3 13F shows roughly nine hundred and eighty-one million across Bitcoin ETF strategy, strategy, and Coinbase, likely over one billion dollars counting Robinhood and miners. I thought it was interesting because-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 0.12,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "man",
+    "start": 0.38,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jamie",
+    "start": 0.7,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dimon",
+    "start": 1.04,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.82,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "JP",
+    "start": 2.02,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Morgan.",
+    "start": 2.5,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Did",
+    "start": 4.0,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.18,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 4.42,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.96,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.18,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.36,
+    "end": 6.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 6.48,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recent",
+    "start": 6.66,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "filings,",
+    "start": 7.08,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "JP",
+    "start": 7.92,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Morgan's",
+    "start": 8.26,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 8.7,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.08,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto-linked",
+    "start": 9.24,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holdings",
+    "start": 9.82,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 10.26,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "approaching",
+    "start": 10.36,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 10.94,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 11.28,
+    "end": 11.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars?",
+    "start": 11.68,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's,",
+    "start": 12.8,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 13.08,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 13.44,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.58,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "call",
+    "start": 13.72,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conviction.",
+    "start": 13.96,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 15.32,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.42,
+    "end": 15.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Q3",
+    "start": 15.62,
+    "end": 15.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "13F",
+    "start": 15.9,
+    "end": 16.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shows",
+    "start": 16.32,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "roughly",
+    "start": 16.64,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nine",
+    "start": 16.96,
+    "end": 17.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hundred",
+    "start": 17.08,
+    "end": 17.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.14,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eighty-one",
+    "start": 17.18,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 17.4,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "across",
+    "start": 17.58,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 17.88,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ETF",
+    "start": 18.12,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "strategy,",
+    "start": 18.52,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "strategy,",
+    "start": 19.28,
+    "end": 19.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 20.14,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Coinbase,",
+    "start": 20.36,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "likely",
+    "start": 21.34,
+    "end": 21.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 21.78,
+    "end": 21.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 22.02,
+    "end": 22.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "billion",
+    "start": 22.28,
+    "end": 22.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dollars",
+    "start": 22.62,
+    "end": 23.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "counting",
+    "start": 23.32,
+    "end": 23.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Robinhood",
+    "start": 23.8,
+    "end": 24.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 24.46,
+    "end": 24.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "miners.",
+    "start": 24.92,
+    "end": 25.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 26.06,
+    "end": 26.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thought",
+    "start": 26.12,
+    "end": 26.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 26.18,
+    "end": 26.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 26.22,
+    "end": 26.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting",
+    "start": 26.34,
+    "end": 26.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because-",
+    "start": 26.56,
+    "end": 26.76,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 26.78
+ },
+ "usd": 0.005356,
+ "seconds": 0.88,
+ "recorded_at": "2026-11-14T23:16:20Z"
+}

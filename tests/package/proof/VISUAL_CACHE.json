@@ -170,6 +170,166 @@
   },
   "version": "visual-2"
  },
+ "30075b155874ab2de3c7:1795.530-1811.450:visual-2:83035f5e841920fb": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Dan",
+    "whole_in_16x9": true
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Aaron Arnold",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Dan"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Aaron Arnold"
+   }
+  ],
+  "lower_third": {
+   "name": "Dan",
+   "text": "Dan"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_11d61168557e0b8b.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_11d61168557e0b8b.jpg",
+   "sha256": "11d61168557e0b8b7236de69d1223936b99853578e6c5dc7916683ecfaf03ed7",
+   "times": [
+    1795.53,
+    1797.8,
+    1800.06,
+    1802.33,
+    1804.6,
+    1806.87,
+    1809.13,
+    1811.4
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person is shown as a still, photo, or graphic; only two live participants appear, and the words are a neutral portfolio opinion, not a negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3076,
+   "out": 12457,
+   "usd_reported": 0.079166
+  },
+  "version": "visual-2"
+ },
+ "408ef969709952011d0d:1501.813-1512.493:visual-2:835a0a57123e557f": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "lower_third",
+    "text": "If you believe in Crypto. You have to keep buying the dip",
+    "whole_in_16x9": true
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "cut",
+    "kind": "ticker",
+    "text": "TRADE CRYPTOS & STOCKS IN 100+ COUNTRIES kraken \u2192 $25 SIGN UP BONUS. ESTABLISHED 2011",
+    "whole_in_16x9": false
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "J",
+    "whole_in_16x9": true
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "@Johnkeptitreal",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "If you believe in Crypto. You have to keep buying the dip",
+    "why": "The banner tells viewers to keep buying the crypto dip, which the spoken words never say; the speaker only argues meme coins and Ethereum will not overtake Bitcoin."
+   },
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "J"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "@Johnkeptitreal"
+   }
+  ],
+  "lower_third": {
+   "name": "@Johnkeptitreal",
+   "text": "@Johnkeptitreal"
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "If you believe in Crypto. You have to keep buying the dip",
+    "why": "The banner tells viewers to keep buying the crypto dip, which the spoken words never say; the speaker only argues meme coins and Ethereum will not overtake Bitcoin."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_e0cd6f82b733c540.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_e0cd6f82b733c540.jpg",
+   "sha256": "e0cd6f82b733c54026fdb99a5e2740a01cb6803ab102a7c34ff2b1472069e4bb",
+   "times": [
+    1501.81,
+    1503.81,
+    1505.81,
+    1507.81,
+    1509.81,
+    1511.81,
+    1512.44
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears, live on camera; no other person is shown as a still, photo, or graphic while he says meme coins and Ethereum will not flip Bitcoin.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3050,
+   "out": 19635,
+   "usd_reported": 0.122182
+  },
+  "version": "visual-2"
+ },
  "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -572,6 +732,89 @@
    "usd_reported": 0.030056
   },
   "version": "visual-1"
+ },
+ "cb80340f857a99178919:1455.478-1463.298:visual-2:68f34beb30d47fe8": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "CANTON Convergence",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Digital Credit Spreads Exceed Modeled BTC Credit Risk",
+    "why": "The slide headline states spreads exceed modeled BTC credit risk, a specific comparison the spoken words (mispriced, an opportunity) never make."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Assuming $75,800 BTC Price, $4.9B USD Assets, 45% BTC Volatility, and 10% BTC ARR",
+    "why": "These exact price, asset, volatility, and return assumptions are not spoken in the clip."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Modeled BTC Credit of 6 to 35 bps is in line with the 33 bps U.S. investment-grade spread, yet Digital Credit trades at 484 to 978 bps",
+    "why": "The callout gives specific basis-point figures and an investment-grade comparison that the narration does not state."
+   },
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "CANTON Convergence"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Digital Credit Spreads Exceed Modeled BTC Credit Risk",
+    "why": "The slide headline states spreads exceed modeled BTC credit risk, a specific comparison the spoken words (mispriced, an opportunity) never make."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "Assuming $75,800 BTC Price, $4.9B USD Assets, 45% BTC Volatility, and 10% BTC ARR",
+    "why": "These exact price, asset, volatility, and return assumptions are not spoken in the clip."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "Modeled BTC Credit of 6 to 35 bps is in line with the 33 bps U.S. investment-grade spread, yet Digital Credit trades at 484 to 978 bps",
+    "why": "The callout gives specific basis-point figures and an investment-grade comparison that the narration does not state."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_74bfd09fa900be8d.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_74bfd09fa900be8d.jpg",
+   "sha256": "74bfd09fa900be8dcb22711faacaebea86608a40357e9332090c0df37e9ba55e",
+   "times": [
+    1455.48,
+    1457.48,
+    1459.48,
+    1461.48,
+    1463.25
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaking person appears as a still, photo, or graphic; the frames show only the live speaker beside a data slide, though the narration says people don't understand and that digital credit is mi",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3045,
+   "out": 7362,
+   "usd_reported": 0.048534
+  },
+  "version": "visual-2"
  },
  "e05b34a672b73f3334ea:3475.260-3494.260:visual-1:e7ce570e2457dcb3": {
   "backend": "xai_vision:grok-4.7",

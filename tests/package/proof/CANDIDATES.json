@@ -64,7 +64,8 @@
   "tests/package/proof/ledger_20261114_172438",
   "tests/package/proof/ledger_20261114_174007",
   "tests/package/proof/ledger_20261114_183413",
-  "tests/package/proof/ledger_20261114_192056"
+  "tests/package/proof/ledger_20261114_192056",
+  "tests/package/proof/ledger_20261114_230148"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -305,6 +306,29 @@
    "source": "tests/package/proof/ledger_20261114_192056",
    "index": 6,
    "found_at": "2026-11-14T19:20:56.728805+00:00",
+   "state": "closed",
+   "until": null,
+   "fresh_used": false,
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261114_230148",
+     "at": "2026-11-14T23:01:48.598884+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "ruling 37: the join after the question hook must be followable without a bridge, and the clips alone flag hook -> clip_01: re-lined"
+    }
+   ]
+  },
+  "704fa6e1af4a86ff1d07+408ef969709952011d0d+30075b155874ab2de3c7+cb80340f857a99178919": {
+   "lineup": [
+    "704fa6e1af4a86ff1d07",
+    "408ef969709952011d0d",
+    "30075b155874ab2de3c7",
+    "cb80340f857a99178919"
+   ],
+   "source": "tests/package/proof/ledger_20261114_230148",
+   "index": 2,
+   "found_at": "2026-11-14T23:01:48.598884+00:00",
    "state": "open",
    "until": null,
    "fresh_used": false,

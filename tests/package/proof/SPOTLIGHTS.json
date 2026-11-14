@@ -1,0 +1,13 @@
+{
+ "spotlights": [
+  {
+   "channel_id": "UC678LSROK47l__G-pMnOMgA",
+   "channel": "Blockware Solutions",
+   "day_et": "2026-11-14",
+   "story_id": "moments-ledger_20261114_230148-3f481f5a",
+   "package_sha256": "3f481f5a6514157f7e3f1faa130d577edfe2e95d5c1bad7cc2882b8ef9bb5adc",
+   "at": "2026-11-14T23:01:48+00:00",
+   "build": "tests/package/proof/ledger_20261114_230148"
+  }
+ ]
+}
