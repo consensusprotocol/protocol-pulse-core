@@ -67,7 +67,8 @@ VIDEO_FIELDS = ("title", "published_at", "published_ts", "published_source", "me
 
 
 HOOK_COLUMNS = (("hook_ts", "REAL"), ("hook_rows", "INTEGER"), ("hook_cost_usd", "REAL"), ("hook_next_ts", "REAL"),
-                ("hook_note", "TEXT"), ("hook_tries", "INTEGER"))
+                ("hook_note", "TEXT"), ("hook_tries", "INTEGER"),
+                ("episode_markers", "INTEGER"), ("episode_tpm", "REAL"))   # ruling 92: the turn measure, per video
 
 
 class Queue:

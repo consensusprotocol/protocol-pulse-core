@@ -390,3 +390,12 @@ def test_every_row_carries_its_episodes_turn_measure():
         assert lines and all(l["episode"] == m for l in lines)
     plain, _ = H.caption_record(H.vid(), n_rep=1)
     assert mine.episode_measure(plain)["unmarked"] is True
+
+
+def test_a_leading_speaker_marker_never_hides_the_first_word():
+    """Audit r92 c1 (qwen, muse): 229 ledger texts begin with '>>'; the builder's tokenizer drops the marker (both
+    forms), so the OPENER filter reads the first real word, as the builder does."""
+    for t in (">> And then Bitcoin rose", "&gt;&gt; Yeah, I think", ">>It's over", "- Because"):
+        assert mine.bad_opener(t) is not None, t
+    assert mine.bad_opener(">> Bitcoin is scarce") is None
+    assert mine.episode_measure({"segments": []})["measured_from"] == "no segments"

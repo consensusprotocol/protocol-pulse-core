@@ -375,6 +375,8 @@ class Service:
                 self.log(f"hooks {vid} ({(chan or {}).get('display_name')}): waiting: {what}")
                 return
             self._append(v, lines)
+            ep = rep.get("episode") or {}
+            self.q.set_hook(vid, episode_markers=ep.get("speaker_markers"), episode_tpm=ep.get("turns_per_min"))
             self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
                             hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes"
                                                           if failed else None))

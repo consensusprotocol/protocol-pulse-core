@@ -111,6 +111,13 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
                 (Q.MINED, Q.MINED_PARTIAL, h0))[0]
     out["hooks_12h"] = {"mined_videos": hk["videos"] or 0, "hook_pass_done": hk["done"] or 0,
                         "hook_rows": hk["rows_"] or 0, "usd": round(hk["usd"] or 0.0, 4)}
+    by_ep = {}                     # ruling 92's feedback (audit r92 c1, glm): the hook rows by the episode's turn measure
+    for r in q.rows("SELECT episode_markers AS m, episode_tpm AS t, COALESCE(hook_rows,0) AS n FROM videos WHERE "
+                    "state IN (?, ?) AND published_ts >= ? AND hook_ts IS NOT NULL", (Q.MINED, Q.MINED_PARTIAL, h0)):
+        b = ("not measured" if r["m"] is None else "unmarked captions" if r["m"] == 0 else
+             ">= 1 turn / min" if (r["t"] or 0) >= 1.0 else "< 1 turn / min")
+        by_ep[b] = by_ep.get(b, 0) + r["n"]
+    out["hooks_12h"]["rows_by_episode"] = by_ep
     ck = {"rows_checked": 0, "answers": {}, "released": 0}            # ruling 40 P1: the second-model check
     for e in q.rows("SELECT detail FROM events WHERE kind='flagcheck' AND ts >= ?", (h0,)):
         try:

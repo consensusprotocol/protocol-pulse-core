@@ -158,6 +158,7 @@ def cmd_hooks(a):
                 "AND published_ts >= ? AND (hook_note IS NULL OR hook_note <> ?)",
                 (f"re-run: {mine.HOOK_PROMPT_VERSION}", Q.MINED, Q.MINED_PARTIAL, max(since, q.clock() - 12 * 3600),
                  f"re-run: {mine.HOOK_PROMPT_VERSION}")).rowcount
+        q.event("hooks_rerun", None, None, version=mine.HOOK_PROMPT_VERSION, videos=n)
         print(f"{n} videos of the last 12 h queued for the hook pass again ({mine.HOOK_PROMPT_VERSION}), newest first")
     rows = q.rows("SELECT video_id, channel_id, title, published_at, state, moments, hook_ts, hook_rows, hook_cost_usd, "
                   "hook_note, hook_tries FROM videos WHERE published_ts >= ? AND state IN (?, ?) "
@@ -221,8 +222,10 @@ def main():
     b.set_defaults(fn=cmd_ab)
     hk = sub.add_parser("hooks")
     hk.add_argument("--hours", type=float, default=12.0)
-    hk.add_argument("--rerun", action="store_true", help="queue the window's mined videos for the current hook "
-                    "question again (once per prompt version; the watcher's loop does the work)")
+    hk.add_argument("--rerun", action="store_true", help="queue the last 12 h's mined videos for the current hook "
+                    "question again; the watcher's loop does the work, newest first. A video whose re-run pass has "
+                    "not succeeded is queued again by a second --rerun. Run it while no hook pass is in flight: a "
+                    "pass in flight writes its own result for its video")
     hk.set_defaults(fn=cmd_hooks)
     pg = sub.add_parser("purge")
     pg.add_argument("--apply", action="store_true", help="delete (default: a dry run)")

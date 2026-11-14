@@ -240,6 +240,9 @@ def episode_measure(rec):
     escaped as &gt;&gt; in YouTube captions) across the whole record, its minutes, and the turns per minute. A
     record without a single marker is "unmarked" (professional captions do not mark turns: unknown, not solo)."""
     segs = rec.get("segments") or []
+    if not segs:                                      # a record without segments: measured as nothing, not as solo
+        return {"speaker_markers": 0, "minutes": None, "turns_per_min": None, "unmarked": True,
+                "measured_from": "no segments"}
     n = sum(len(TURN_MARK.findall(str(x.get("text") or ""))) for x in segs)
     try:
         mins = max(0.0, (float(segs[-1].get("end") or 0) - float(segs[0].get("start") or 0)) / 60.0) if segs else 0.0
