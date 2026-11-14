@@ -424,7 +424,8 @@ class Service:
                      f"hook {len(rep['failed'])}")              # which question failed (audit hk3 c1, glm)
             sp = (f"{len(spot)} spotlight rows (dropped {srep['dropped'] or 0})" if srep is not None else
                   f"the spotlight question CRASHED ({scrash}): the hook rows are written" if scrash else
-                  f"no spotlight question ({ep.get('turns_per_min')} turns / min: not a conversation)")
+                  f"no spotlight question (a marked solo episode: {ep.get('speaker_markers')} markers, "
+                  f"{ep.get('turns_per_min')} turns / min)")
             what = (f"{len(lines)} hook rows (up to {rep['max_n']} a window), {sp}, windows {rep['windows']} "
                     f"(screened {rep['screened']}, failed {len(failed)}: {len(rejected)} rejected; {split}), "
                     f"dropped {rep['dropped'] or 0}{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, "

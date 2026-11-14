@@ -404,6 +404,8 @@ def test_the_hook_pass_mines_the_12_h_window_newest_first_and_its_rows_carry_ear
     last 12 h, newest first; its rows are moments with role_hint 'hook'; the same span's earlier flags are carried,
     so a hook the moment pass flagged is still excluded; a video older than 12 h is never hook-mined."""
     def fn(prompt):
+        if H.is_spot(prompt):                                           # unmarked captions: asked since 09:02 (A36)
+            return json.dumps({"spotlights": []})
         if H.is_hook(prompt):
             return H.hooks_reply(prompt, ((0, 1), (2, 3)))
         ids = H.offered_ids(prompt)
@@ -622,20 +624,19 @@ def _every_question(prompt):
 
 def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question_a_solo_one_neither(svc,
                                                                                                     monkeypatch):
-    """The orchestrator's 08:15 ruling 2 (ruling 92 (b) + (c)): a conversation (caption turns >= 1 a minute) is asked
-    for up to 5 hooks a window and the spotlight question (its rows: role_hint "spotlight", 12-35 s); a solo episode
-    keeps 3 hooks and is never asked the spotlight question. The pass's version, its spotlight rows and its cost (both
-    roles) are recorded; live.json counts them."""
+    """The orchestrator's 08:15 ruling 2 (ruling 92 (b) + (c)) as widened at 09:02 (A36): a conversation is asked for
+    up to 5 hooks a window and the spotlight question (its rows: role_hint "spotlight", 12-35 s); a MARKED solo episode
+    (under 0.3 caption turns a minute) keeps 3 hooks and is never asked the spotlight question. The pass's version, its
+    spotlight rows and its cost (both roles) are recorded; live.json counts them."""
     s, vids, b = svc(_every_question, _every_question, n_videos=2)
     conv = vids[0]
     ts = config.ts()
-    solo_captions = ts.fetch_captions
 
     def captions(meta, work):
-        if meta["video_id"] != conv:
-            return solo_captions(meta, work)
-        lead = [(">> " if i % 4 == 3 else "") + f"Bitcoin show {conv} opens with {i} new facts." for i in range(30)]
-        rec, _ = H.caption_record(conv, n_rep=8, lead=lead)
+        v = meta["video_id"]
+        mark = (lambda i: i % 4 == 3) if v == conv else (lambda i: i == 1)    # the other: ONE marker in 5.7 min
+        lead = [(">> " if mark(i) else "") + f"Bitcoin show {v} opens with {i} new facts." for i in range(30)]
+        rec, _ = H.caption_record(v, n_rep=8, lead=lead)
         return "ok", ts._make_record(meta, "yt_auto:en-orig", "youtube captions (auto-subs, en-orig)", rec["segments"])
     monkeypatch.setattr(ts, "fetch_captions", captions)
     run_once(s)
@@ -643,8 +644,8 @@ def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question
         pass
     rows = [l for l in ledger.read(s.p["ledger"])[0]]
     c, o = s.q.video(conv), s.q.video(vids[1])
-    assert c["episode_tpm"] >= mine.CONVERSATION_TPM > (o["episode_tpm"] or 0)
-    assert c["hook_version"] == o["hook_version"] == mine.HOOK_PROMPT_VERSION == "mine-hook/3"
+    assert c["episode_tpm"] >= mine.CONVERSATION_TPM > o["episode_tpm"] > 0 and o["episode_markers"] == 1
+    assert c["hook_version"] == o["hook_version"] == mine.HOOK_PROMPT_VERSION == "mine-hook/4"
     spots = [l for l in rows if l.get("role_hint") == "spotlight"]
     assert spots and {l["video_id"] for l in spots} == {conv} and c["spot_rows"] == len(spots) and o["spot_rows"] is None
     assert all(12.0 <= l["duration_estimate_s"] <= 35.0 and l["mined"]["pass"] == "spotlight" for l in spots)
@@ -659,7 +660,7 @@ def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question
     assert {(r["video_id"], r["role"]) for r in calls} == {(conv, "hook"), (conv, "spotlight"), (vids[1], "hook")}
     assert c["hook_cost_usd"] == pytest.approx(sum(r["usd"] for r in calls if r["video_id"] == conv))
     hk = s.health_once()["hooks_12h"]
-    assert hk["conversations"] == 1 and hk["spotlight_rows"] == len(spots)
+    assert hk["spotlight_asked_videos"] == 1 and hk["spotlight_rows"] == len(spots)
     # audit hk3 c1 (muse): end to end, the packager's read returns the spotlight rows (no filter drops them)
     since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
     out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"],

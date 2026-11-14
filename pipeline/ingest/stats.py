@@ -106,14 +106,13 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
     out["purge"] = {"expiry_h": config.EXPIRY_H, "last_pass": last,
                     "freed_total_bytes": float(q.kv_get("purge_freed_total") or 0)}
     h0 = (now_ts or time.time()) - config.EXPIRY_H * 3600           # ruling 80: the hook pass over the 12 h window
-    from . import mine                                # (lazy: the measure's threshold, one definition)
     hk = q.rows("SELECT COUNT(*) AS videos, SUM(hook_ts IS NOT NULL) AS done, SUM(COALESCE(hook_rows,0)) AS rows_, "
-                "SUM(COALESCE(spot_rows,0)) AS spots, SUM(COALESCE(episode_tpm >= ?, 0)) AS convs, "
+                "SUM(COALESCE(spot_rows,0)) AS spots, SUM(spot_rows IS NOT NULL) AS asked, "
                 "SUM(COALESCE(hook_cost_usd,0)) AS usd FROM videos WHERE state IN (?, ?) AND published_ts >= ?",
-                (mine.CONVERSATION_TPM, Q.MINED, Q.MINED_PARTIAL, h0))[0]
+                (Q.MINED, Q.MINED_PARTIAL, h0))[0]
     out["hooks_12h"] = {"mined_videos": hk["videos"] or 0, "hook_pass_done": hk["done"] or 0,
                         "hook_rows": hk["rows_"] or 0, "usd": round(hk["usd"] or 0.0, 4),
-                        "conversations": hk["convs"] or 0,                 # the 08:15 ruling 2: (b) + (c) apply there
+                        "spotlight_asked_videos": hk["asked"] or 0,   # the 08:15 ruling 2 / 09:02 A36: (b) + (c) asked
                         "spotlight_rows": hk["spots"] or 0}
     by_ep = {}                     # ruling 92's feedback (audit r92 c1, glm): the hook rows by the episode's turn measure
     for r in q.rows("SELECT episode_markers AS m, episode_tpm AS t, COALESCE(hook_rows,0) AS n FROM videos WHERE "

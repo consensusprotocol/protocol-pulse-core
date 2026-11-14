@@ -284,9 +284,14 @@ the last 12 h, newest first: the current window at start, then every new upload 
 `tools/ingest_watch.py hooks` and live.json `hooks_12h`.
 
 CONVERSATIONS (mine-hook/3: the orchestrator's 08:15 ruling 2, Nov 14, ruling 92's options (b) + (c); "last night's
-pools had exactly one opener rated 4 in each window: this is where the supply is"). A CONVERSATION is ruling 92's
-caption measure: at least `mine.CONVERSATION_TPM` (1.0) caption speaker changes a minute (`mine.is_conversation`; the
-builder's spotlight.CONVERSATION_TPM; unmarked or unmeasured captions are never taken as one). In a conversation:
+pools had exactly one opener rated 4 in each window: this is where the supply is"). WHICH EPISODES (mine-hook/4, the
+orchestrator's 09:02 ruling, A36: WIDEN; it was ruling 92's 1.0 line, which measured 26 of 67 mined videos as
+conversations and cut off Bitcoin Magazine's and CoinDesk's interviews and Pompliano at 0.97): (b) + (c) run on every
+episode EXCEPT one that is MARKED (it carries caption speaker markers) and sits under `mine.CONVERSATION_TPM` (0.3)
+turns a minute, a measured solo recap (`mine.is_conversation`). An episode with NO markers at all (auto captions often
+carry none, e.g. Stephan Livera's interviews; professional captions never do) is asked, and so is a marked one whose
+rate cannot be measured: "at $0.006 a video the cost of asking is nothing and the cost of missing an interview is the
+whole point". The builder gets the matching ruling for its source test. In such an episode:
 - (b) the hook question allows up to `HOOK_MAX_CONVERSATION` (5) openers a window (the prompt says it, the validator
   holds the reply to it); elsewhere it stays 3, and its prompt is byte-identical to mine-hook/2's (so a re-run of a
   solo video is answered from the reply cache at no cost).
@@ -300,12 +305,13 @@ builder's spotlight.CONVERSATION_TPM; unmarked or unmeasured captions are never 
   L-o; the builder's spotlight pool takes up to 35 s), `mined.pass` "spotlight"; a row outside 12-35 s or opening on a
   pronoun, a conjunction or a reply word (the OPENER rule) is not written. The builder reads every row through the
   adapter and re-judges it (role_hint is advisory; `carry_forward` carries any hint, a later line's own winning).
-- The pass records its version (`hook_version` mine-hook/3), the spotlight rows (`spot_rows`; NULL for a video that
-  is not a conversation) and its cost over both roles (`hook_cost_usd`); live.json `hooks_12h.conversations` and
+- The pass records its version (`hook_version` mine-hook/4), the spotlight rows (`spot_rows`; NULL for a video the
+  question was not asked of) and its cost over both roles (`hook_cost_usd`); live.json
+  `hooks_12h.spotlight_asked_videos` and
   `spotlight_rows`. A pass with failed windows in either question is retried as before (the hook question's replies
   come back from the reply cache, free). A spotlight question that CRASHES (an exception, not a model failure) never
   holds back the hook rows: they are written, the crash is an event (`spotlight_crash`) and the pass's note, and the
-  pass is recorded as "mine-hook/3 (spotlight crashed)", so `hooks --rerun` asks it again (audit hk3 c2). `tools/ingest_watch.py hooks
+  pass is recorded as "<version> (spotlight crashed)", so `hooks --rerun` asks it again (audit hk3 c2). `tools/ingest_watch.py hooks
   --rerun` re-asks every video of the 12 h window whose pass is older. A provider config without a role for every
   mining question stops the start (`service.check_roles`).
 

@@ -462,24 +462,29 @@ def test_the_spotlight_question_writes_rows_of_12_to_35_seconds_judged_as_clips(
 
 
 def test_a_conversation_is_asked_for_up_to_5_hooks_a_window_and_a_solo_episode_for_3():
-    """(b): the same hook question, 5 in a conversation (>= 1 caption speaker change a minute), 3 elsewhere: the prompt
-    says it and the validator holds the reply to it; a solo episode's prompt is the one asked before (cached replies
-    still answer it)."""
+    """(b): the same hook question, 5 in a conversation and (the 09:02 ruling A36) in an episode with no speaker
+    markers at all; 3 only in a MARKED episode under 0.3 turns a minute: the prompt says it and the validator holds the
+    reply to it; a solo episode's prompt is the one asked before (cached replies still answer it)."""
     asked = []
 
     def fn(p):
         asked.append(p)
         return H.hooks_reply(p, ((0, 0), (1, 1), (2, 2), (3, 3), (4, 4)))
-    solo, meta = H.caption_record(H.vid(), n_rep=3)
+    solo, meta = H.caption_record(H.vid(), n_rep=10)                    # 70 segments of 4 s, 4.7 min
+    solo = H.marked_solo(solo)                                          # 1 marker: 0.21 turns a minute
     conv = H.conversation(H.caption_record(H.vid(), n_rep=3)[0], every=4)
+    unmarked = H.caption_record(H.vid(), n_rep=3)[0]
+    assert mine.episode_measure(solo)["turns_per_min"] < mine.CONVERSATION_TPM
     assert mine.is_conversation(mine.episode_measure(conv)) and not mine.is_conversation(mine.episode_measure(solo))
+    assert mine.episode_measure(unmarked)["unmarked"] and mine.is_conversation(mine.episode_measure(unmarked))
     r = H.make_router([H.FakeBackend("primary", fn=fn)])
-    with ThreadPoolExecutor(4) as ex:
-        lines, rep = mine.mine_video(r, ex, conv, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
-                                     use_cache=False, kind="hook")
-    assert rep["max_n"] == 5 and not rep["failed"] and asked and all("1 to\n5 lines" in p or "1 to 5" in
-                                                                     p.replace("\n", " ") for p in asked)
-    asked.clear()
+    for rec in (conv, unmarked):
+        with ThreadPoolExecutor(4) as ex:
+            lines, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                         use_cache=False, kind="hook")
+        assert rep["max_n"] == 5 and not rep["failed"] and asked and all("1 to\n5 lines" in p or "1 to 5" in
+                                                                         p.replace("\n", " ") for p in asked)
+        asked.clear()
     with ThreadPoolExecutor(4) as ex:
         _, rep = mine.mine_video(r, ex, solo, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
                                  use_cache=False, kind="hook")
@@ -492,13 +497,22 @@ def test_a_conversation_is_asked_for_up_to_5_hooks_a_window_and_a_solo_episode_f
         lo=win[0]["k"], hi=win[-1]["k"])
 
 
-@pytest.mark.parametrize("ep,conv", [
-    ({"turns_per_min": 1.0}, True), ({"turns_per_min": 2.5}, True), ({"turns_per_min": 0.99}, False),
-    ({"turns_per_min": None, "unmarked": True}, False), ({}, False), (None, False), ({"turns_per_min": True}, False),
-    ({"turns_per_min": "2"}, False),
+@pytest.mark.parametrize("ep,asked", [
+    ({"speaker_markers": 5, "turns_per_min": 0.3}, True), ({"speaker_markers": 5, "turns_per_min": 2.5}, True),
+    ({"speaker_markers": 5, "turns_per_min": 0.97}, True),                  # Pompliano: was cut off by the 1.0 line
+    ({"speaker_markers": 5, "turns_per_min": 0.29}, False),                 # a marked solo recap: the only skip
+    ({"speaker_markers": 1, "turns_per_min": 0.0}, False),
+    ({"speaker_markers": 0, "turns_per_min": 0.0, "unmarked": True}, True),  # no markers (Stephan Livera): asked
+    ({"speaker_markers": 0, "turns_per_min": None, "unmarked": True}, True),
+    ({"speaker_markers": 5, "turns_per_min": None}, True),                  # marked, rate unmeasurable: not shown solo
+    ({"speaker_markers": 5, "turns_per_min": True}, True), ({"speaker_markers": 5, "turns_per_min": "0.1"}, True),
+    ({"speaker_markers": True, "turns_per_min": 0.1}, True), ({}, True), (None, True),
 ])
-def test_a_conversation_is_measured_never_assumed(ep, conv):
-    assert mine.is_conversation(ep) is conv
+def test_the_hook_pass_skips_b_and_c_only_for_a_marked_episode_under_0_3_turns_a_minute(ep, asked):
+    """The orchestrator's 09:02 ruling (A36: WIDEN): (b) + (c) on every episode with >= 0.3 caption turns a minute AND
+    every episode with no speaker markers; only an episode that IS marked and sits under 0.3 is skipped."""
+    assert mine.CONVERSATION_TPM == 0.3
+    assert mine.is_conversation(ep) is asked
 
 
 def test_the_episode_measure_survives_a_segment_without_an_end():

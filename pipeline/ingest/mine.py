@@ -123,13 +123,15 @@ whole sentences; never invent an id; scores are integers 0-5; exactly the keys s
 # (pp-selectid pipeline/package.py HOOK_QUESTION, rulings 52 / 59), so the miner aims at the target the judge scores;
 # tests/ingest/test_mine.py compares it with the builder's source. The score axes and the flag list are the moment
 # prompt's own, so a hook row carries the same exclusion flags as any moment.
-HOOK_PROMPT_VERSION = "mine-hook/3"   # ruling 92 (orchestrator 22:52 Nov 13): favour conversations: the builder's
+HOOK_PROMPT_VERSION = "mine-hook/4"   # ruling 92 (orchestrator 22:52 Nov 13): favour conversations: the builder's
                                        # OPENER rule stated and applied; the episode's turn measure on every row.
                                        # /3: the orchestrator's 08:15 ruling 2 (Nov 14; ruling 92's options (b) + (c)):
                                        # in a CONVERSATION episode the hook question allows up to 5 openers a window
-                                       # and the spotlight question (SPOT_PROMPT) is asked too; elsewhere unchanged
-CONVERSATION_TPM = 1.0       # ruling 92's caption measure (= pp-selectid spotlight.CONVERSATION_TPM): an episode is a
-                             # conversation at >= 1 caption speaker change a minute; unmarked captions are unknown
+                                       # and the spotlight question (SPOT_PROMPT) is asked too; elsewhere unchanged.
+                                       # /4: the 09:02 ruling (A36: WIDEN): (b) + (c) on every episode but a marked one
+                                       # under 0.3 turns a minute (is_conversation)
+CONVERSATION_TPM = 0.3       # the orchestrator's 09:02 ruling (A36: WIDEN; was 1.0, ruling 92's caption measure): a
+                             # MARKED episode under it is a solo recap; an episode with no markers is asked
 HOOK_MAX_CONVERSATION = 5    # (b): up to 5 hook candidates a window in a conversation episode
 SPOT_PROMPT_VERSION = "mine-spot/1"   # (c): the spotlight question, conversation episodes only
 SPOT_MAX, SPOT_MAX_SENTENCES = 2, 8
@@ -298,10 +300,19 @@ scores are integers 0-5; exactly the keys shown; one JSON object.""".replace("@@
 
 
 def is_conversation(episode):
-    """Ruling 92's caption measure: >= CONVERSATION_TPM speaker changes a minute. Unmarked or unmeasured: False (an
-    unknown is never taken as a conversation)."""
-    t = (episode or {}).get("turns_per_min")
-    return isinstance(t, (int, float)) and not isinstance(t, bool) and t >= CONVERSATION_TPM
+    """Whether the hook pass asks (b) + (c) (up to 5 hooks a window, the spotlight question). The orchestrator's 09:02
+    ruling (A36: WIDEN): every episode EXCEPT one that is marked (it carries caption speaker markers) and sits under
+    CONVERSATION_TPM (0.3) turns a minute, a measured solo recap. An episode with NO markers (auto captions often
+    carry none: Stephan Livera's interviews; professional captions never do) is asked, and so is a marked one whose
+    rate cannot be measured: "at $0.006 a video the cost of asking is nothing and the cost of missing an interview is
+    the whole point". Was (08:15): >= 1.0 turns a minute, unmarked never."""
+    ep = episode or {}
+    n, t = ep.get("speaker_markers"), ep.get("turns_per_min")
+    if isinstance(n, bool) or not isinstance(n, int) or n <= 0:
+        return True                                # no markers (or none counted): asked
+    if isinstance(t, bool) or not isinstance(t, (int, float)):
+        return True                                # marked, its rate not measurable: not shown solo, asked
+    return t >= CONVERSATION_TPM
 
 
 def opener_word(text):

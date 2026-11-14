@@ -176,8 +176,18 @@ def hooks_reply(prompt, spans=((0, 1),)):
 
 
 def first_two_and_hooks(prompt):
-    """The moment pass answers its first two ids; the hook pass answers the same two ids as a hook."""
+    """The moment pass answers its first two ids; the hook pass answers the same two ids as a hook, and the spotlight
+    question (asked of every unmarked episode since the 09:02 ruling A36) finds none."""
+    if is_spot(prompt):
+        return json.dumps({"spotlights": []})
     return hooks_reply(prompt) if is_hook(prompt) else first_two(prompt)
+
+
+def marked_solo(rec):
+    """A MARKED solo episode (the 09:02 ruling A36: the one kind the hook pass skips for (b) + (c)): one caption speaker
+    marker on the second segment, over a record long enough to sit under 0.3 turns a minute."""
+    rec["segments"][1]["text"] = ">> " + rec["segments"][1]["text"]
+    return rec
 
 
 def is_spot(prompt):
