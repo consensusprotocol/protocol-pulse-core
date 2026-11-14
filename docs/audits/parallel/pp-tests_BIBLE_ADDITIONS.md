@@ -296,9 +296,16 @@ and test_the_baseline_reads_a_key_only_by_name_through_its_loader (behaviour, ba
 file through pathlib or a helper would pass the string search, and the equality only restated the constant.
 **Rule:** test what the code DOES at its seam:
 - point the dependency at a stub that records its calls (here KEY_LOADER -> a stub loader file);
-- deny the forbidden effect during the call (open, io.open and os.open patched to raise a BaseException; the import
-  machinery reads source through io.open_code, so loading the stub still works). Say what is NOT denied: a
-  subprocess or a C-level read is caught only if what the code returns is not the stub's value;
+- deny the forbidden effect during the call, and EVERY route to it: a file read can go through open, io.open or
+  os.open, and also through a child process. So deny subprocess.Popen (run / check_output / call / os.popen go
+  through it), os.system, os.posix_spawn[p], os.fork / forkpty, os.exec*, os.spawn*. Each one raises a BaseException
+  and records the attempt (batch 78 cycle 3, glm + qwen: a SIDE read through a child, result discarded, passed
+  every assertion). The import machinery reads source through io.open_code, which calls _io.open, so _io.open
+  itself cannot be denied without breaking the stub's load (measured), and neither can a reference to open bound
+  before the call (tokenize.open). io.FileIO could be denied (measured) but was outside the integrator's scope.
+  Say what is NOT denied: such code is caught only if what it returns is not the stub's value, and only a
+  process-wide audit hook (sys.addaudithook) would see all of it, C-level calls (ctypes) included. Make a list of
+  calls to deny check itself: a misspelt name filtered out by hasattr shrinks the coverage silently;
 - force the environment-dependent state the check reads (sys.dont_write_bytecode = False for the call): under -B
   or PYTHONDONTWRITEBYTECODE a 'no bytecode written' check otherwise tests nothing (measured: it passed a broken
   _key);
@@ -307,5 +314,7 @@ file through pathlib or a helper would pass the string search, and the equality 
 A failure message must never show a value the code returned when that value can be a secret (show its type).
 **Detection:** test_f0 test_the_baseline_reads_a_key_only_by_name_through_its_loader. Scratch mutations, run both
 with bytecode writing on and under -B: it fails on a `_key` that parses a file with open(), one that parses through
-os.open / os.read, one that bypasses the loader, the sys.path form, and one that leaves bytecode on, each on its
-own assertion; the real `_key` passes.
+os.open / os.read, one that bypasses the loader, the sys.path form, one that leaves bytecode on, and three that
+SIDE-read the loader file and discard the result (a Python child without pipes, os.system, os.posix_spawn). Each
+fails on its own assertion; the three side reads PASSED the previous version of the test (measured). The real
+`_key` passes.

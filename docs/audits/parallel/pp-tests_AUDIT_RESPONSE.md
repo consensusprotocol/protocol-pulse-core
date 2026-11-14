@@ -486,3 +486,49 @@ credit; Grok not run):
   - qwen's P2 misread the flag check: answered with a clearer comment.
 - Records: pp-tests_AUDIT_B78C2_*.md.
 - Spend: $0.135 (gemini-2.5-pro 2 calls $0.127; Heimdall $0.008). The ledger stands at $2.154 of $3.00.
+
+## INTEGRATOR AUDIT BATCH 78, CYCLE 3 (pipeline_pp_dod, 2026-11-14 ~09:30 ET): a side read through a child process
+
+The message (essentials): a55e4dcf verified; the behavioural test is good; Grok PASS, 0 findings; the integrator's
+wall on merge 04a0b95c: 382 passed, 40 xfailed, 3 skipped, 0 failed. ONE CONSENSUS (glm F1, agreed by qwen27b), the last
+before the merge: the "nothing opened" guarantee covered only open / io.open / os.open. A _key that also reads the key
+file through a child (subprocess / os.system / os.posix_spawn / os.exec*), discards the result and returns the loader's
+value passes every assertion. Fix: deny those starters during the two calls (a BaseException, attempts recorded); add a
+scratch mutation that side-reads via subprocess and must fail. Nothing else changes.
+
+What was done (test_f0_cpu_guard.py; BIBLE; a mutations record):
+- `_Denied` (was `_FileOpened`) covers a file opened OR a process started. During the two calls,
+  `_check_key_behaviour` also denies subprocess.Popen (run / check_output / call / os.popen go through it) and every
+  os starter: system, popen, posix_spawn[p], fork, forkpty, exec*, spawn*. Each records `<name>(<first arg>)`.
+- A control checks that every listed starter exists, so a typo cannot silently skip one (audit, glm).
+- Measured, the gap was real. Three side-read mutations PASSED the previous test (a55e4dcf):
+  - a Python child without pipes (with pipes, subprocess opens their fds through io.open, already denied);
+  - os.system;
+  - os.posix_spawn.
+  All three FAIL the new test in both bytecode modes. The real _key passes, and M1-M5 still fail on their own
+  assertions.
+- Evidence in the repo: pp-tests_AUDIT_B78C3_MUTATIONS.md (every mutation's _key, how it was run, the verbatim
+  results).
+- The boundary, as measured:
+  - _io.open cannot be denied: io.open_code calls it to read the stub, and denying it broke the load. Therefore
+    neither can a reference to open bound before the call (tokenize.open).
+  - io.FileIO could be denied (measured) but is outside "Nothing else changes".
+  - C-level calls are not denied.
+  - Such a _key is caught only if what it returns is not the loader's value. A process-wide audit hook
+    (sys.addaudithook) is offered to the integrator as a follow-up.
+- BIBLE PP-E32 updated.
+
+Verification (release line merged, CPU only, no network): 425 tests = 382 passed, 40 strict xfails, 3 skipped,
+0 failed, 0 errors; --runxfail exactly the 40; regression_test.sh 26 PASS / 0 FAIL / 5 WARN.
+
+How it was audited (two cycles; consensus by the session, since Anthropic and OpenAI are out of credit; Grok not run):
+- Cycle 1: gemini-2.5-pro 99, Heimdall qwen 98, Heimdall glm 92.
+  - Implemented: the record format (Gemini and glm); the mutation evidence in the repo (glm P1); the process-wide note
+    (qwen).
+  - Refuted: "the flag / sys.path assertions may be gone": unchanged lines outside the hunks, still failing M3 / M4.
+- Cycle 2: all three "Yes".
+  - Implemented: the starter list's self-check (glm N1); "on POSIX" (Gemini).
+  - qwen asked why FileIO is not denied. That corrected my own wording: FileIO is deniable but out of scope, not
+    impossible.
+- Records: pp-tests_AUDIT_B78C3_*.md.
+- Spend: $0.138 (gemini-2.5-pro 2 calls $0.132; Heimdall $0.006). The ledger stands at $2.292 of $3.00.

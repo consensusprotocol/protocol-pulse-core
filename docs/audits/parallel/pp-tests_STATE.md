@@ -1,7 +1,17 @@
 # pp-tests STATE — session pipeline_pp_tests (worktree /home/ultron/worktrees/pp-tests, branch pp-tests)
 
-> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~09:40: batch 78 cycle 2's finding ANSWERED** in the commit after
-> d7ed4ff8 (its hash: `git log -1 origin/pp-tests`; test_f0 and docs only).
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~10:20: batch 78 cycle 3's finding ANSWERED** in the commit after
+> a55e4dcf (its hash: `git log -1 origin/pp-tests`; test_f0 and docs only).
+> - During the two calls the key test now also denies every PROCESS start (subprocess.Popen; os.system, posix_spawn[p],
+>   fork / forkpty, exec*, spawn*). Attempts are recorded, a BaseException is raised, and the starter list checks itself.
+> - Three side-read mutations (a Python child, os.system, os.posix_spawn) PASSED the previous test and FAIL the new
+>   one in both bytecode modes. Evidence: pp-tests_AUDIT_B78C3_MUTATIONS.md.
+> - Boundary, measured: _io.open (and a pre-bound open) cannot be denied; io.FileIO can be but is out of scope; C-level
+>   calls are not. An audit-hook follow-up is offered.
+> - Wall: 425 = 382 passed, 40 strict xfails, 3 skipped, 0 failed; regression 26 / 0. Audit: two cycles, all "Yes".
+
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~09:40: batch 78 cycle 2's finding ANSWERED** in a55e4dcf
+> (test_f0 and docs only).
 > - The key test now tests BEHAVIOUR: test_the_baseline_reads_a_key_only_by_name_through_its_loader.
 >   - KEY_LOADER is pointed at a stub loader. The sentinel comes back for the names asked, and the stub saw exactly
 >     those names, once loaded.
@@ -86,10 +96,11 @@
 > | 2026-11-14, integrator cycle-2 audit (same cap, same ledger) | **$0.177** = Google $0.165 (gemini-2.5-pro 2 calls) + Heimdall $0.012 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003 + $0.002 ESTIMATED for a reply lost to IncompleteRead); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.177 |
 > | 2026-11-14, integrator batch-78 audit (same cap, same ledger) | **$0.170** = Google $0.160 (gemini-2.5-pro 2 calls) + Heimdall $0.010 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.170 |
 > | 2026-11-14, integrator batch-78 cycle-2 audit (same cap, same ledger) | **$0.135** = Google $0.127 (gemini-2.5-pro 2 calls) + Heimdall $0.008 (qwen3.8-27b 2 calls $0.006; glm-5.3-flash 2 calls $0.002); OpenAI and Anthropic out of credit; xAI not called | - | $0.135 |
-> | **session total** | **$22.388** | **~$6.50** | **~$28.89** |
+> | 2026-11-14, integrator batch-78 cycle-3 audit (same cap, same ledger) | **$0.138** = Google $0.132 (gemini-2.5-pro 2 calls) + Heimdall $0.006 (qwen3.8-27b 2 calls $0.005; glm-5.3-flash 2 calls $0.001); OpenAI and Anthropic out of credit; xAI not called | - | $0.138 |
+> | **session total** | **$22.526** | **~$6.50** | **~$29.03** |
 > Not in these numbers: one claude-opus-5-5 verification call of 2026-11-12 ~04:2x whose output was lost to a missing
-> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$0.85** after the
-> 2026-11-14 batch-78 cycle-2 audit ($2.154 spent; no further paid call planned).
+> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$0.71** after the
+> 2026-11-14 batch-78 cycle-3 audit ($2.292 spent; no further paid call planned).
 
 > **FOR THE BUILDER (pipeline_pp_selectid): the moments-first EXAM lives at**
 > **`/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/`** (`context_integrity/`, `vo_fidelity/`, `exclusions/`;
@@ -166,8 +177,11 @@ must-fail rejected, false rejects at most 10% on the must-pass / keep side, no E
 
 ## PHASE 2 LIVE STATE (newest first; times ET, 2026-11-12)
 
-- 2026-11-14 ~09:40 **integrator batch 78 cycle 2 answered, audited (two cycles), committed and pushed** in the commit
-  that carries this line (its hash: `git log -1 origin/pp-tests`). The key test is behavioural (a stub loader; open,
+- 2026-11-14 ~10:20 **integrator batch 78 cycle 3 answered, audited (two cycles), committed and pushed** in the commit
+  that carries this line (its hash: `git log -1 origin/pp-tests`). The key test also denies every process start; three
+  side-read mutations fail it (they passed a55e4dcf's version); the evidence is in pp-tests_AUDIT_B78C3_MUTATIONS.md.
+  Merged tree: 425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression 26 PASS / 0 FAIL.
+- 2026-11-14 ~09:40 **integrator batch 78 cycle 2 answered, audited (two cycles), committed and pushed** in a55e4dcf. The key test is behavioural (a stub loader; open,
   io.open and os.open denied; bytecode forced on); five scratch mutations fail it in both bytecode modes. Merged tree:
   425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression 26 PASS / 0 FAIL. Records:
   pp-tests_AUDIT_RESPONSE.md (last section), pp-tests_AUDIT_B78C2_*.md; BIBLE PP-E32.
