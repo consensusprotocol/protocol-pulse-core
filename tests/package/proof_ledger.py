@@ -57,6 +57,7 @@ sys.path.insert(0, HERE)
 import eligibility as E  # noqa: E402
 import candidates as CA  # noqa: E402
 import heimdall_health as HH  # noqa: E402
+import circuit_breaker as CB  # noqa: E402
 import shadow86 as SH  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import moments as M  # noqa: E402
@@ -99,6 +100,16 @@ def delivered_pins(paths):
             raise ValueError(f"{p}: {type(e).__name__}: {e}") from None
         newest = at if newest is None or at > newest else newest
     return spans, newest, pins
+
+
+def build_router(routing, shadow, shadow_log):
+    """The build's router: ruling 48's ledger and limit, the routing's chains (frozen legs out), the evidence file
+    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker."""
+    return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+                    limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
+                    routing=routing, shadow=shadow, shadow_log=shadow_log,
+                    health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
+                    breakers=CB.STATE)                                                         # ruling 99
 
 
 def main(argv=None):
@@ -193,10 +204,7 @@ def main(argv=None):
     shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
     if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
         shadow = rt.get("shadow") or None
-    router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
-                      routing=routing, shadow=shadow, shadow_log=os.path.join(out_dir, "SHADOW86.jsonl"),
-                      health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD)    # ruling 87
+    router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
         + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
@@ -367,6 +375,16 @@ def main(argv=None):
                               if vis.get("estimated_calls") else ""))
     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
         f"vendor-reported after this build (before it: ${spent0:.2f})")
+    evs = router.breaker_events                  # RULING 99: the circuit breaker's count, for STATE line 1
+    try:
+        bs = CB.summary(CB.STATE)
+        res["breakers_ruling_99"] = dict(bs, this_build=evs)
+        say(f"  RULING 99 (circuit breaker): this build opened {sum(e['kind'] == 'breaker_open' for e in evs)} and "
+            f"closed {sum(e['kind'] == 'breaker_close' for e in evs)}; open now: "
+            + ("; ".join(f"{o['model']} until {o['until']} ({o['why']})" for o in bs["open"]) or "none")
+            + f"; in 24 h: {bs['opens']} opened, {bs['closes']} closed")
+    except Exception as e:                       # noqa: BLE001 (the record is written whatever the breaker says)
+        say(f"  RULING 99 (circuit breaker): its state cannot be read: {type(e).__name__}: {str(e)[:160]}")
     try:                                                 # audit 1420 C2: a registry failure never loses the record;
         if cand is not None and CA.key(cand["lineup"]) in reg["candidates"]:      # 1420b C2: its flag tells the truth
             CA.outcome(reg["candidates"][CA.key(cand["lineup"])], res["candidate"]["class"], at, name,

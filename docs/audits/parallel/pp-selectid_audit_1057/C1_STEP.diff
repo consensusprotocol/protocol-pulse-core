@@ -1,0 +1,563 @@
+diff --git a/pipeline/circuit_breaker.py b/pipeline/circuit_breaker.py
+new file mode 100644
+index 0000000..ac8aa15
+--- /dev/null
++++ b/pipeline/circuit_breaker.py
+@@ -0,0 +1,162 @@
++"""RULING 99 (orchestrator 10:48 ET Nov 14), THE CIRCUIT BREAKER. A model that misses its deadline MISSES_TO_OPEN (2)
++times in a row, or returns more than RUNAWAY_X (2) times its max_tokens, is SKIPPED by every list for OPEN_S (30
++minutes): the next family leads. After that, ONE real call may try it again (the trial, claimed under the lock); an
++answer closes the breaker, a miss or a runaway re-opens it for REOPEN_S (60 minutes). Every open and close is one line
++in the Heimdall evidence file (model, deadline, seconds, tokens: the caller logs the event this module returns); the
++count goes on STATE line 1 (summary()).
++
++- "Its max_tokens" is the cap the call actually SENT (providers.Backend.max_out: every Heimdall family is sent its
++  min_out floor of 16,000, Grok 8 x max_tokens, since a reasoning model thinks inside it). Measured on 1,252 recorded
++  answers (10:4x ET Nov 14): none exceeds 1x that cap; against the CALLER's max_tokens, 309 of 676 healthy Grok answers
++  and 61 of 127 deepseek answers would read as runaways. Asked of the orchestrator on STATE line 1.
++- A breaker is not an outage (ruling 87's clock is about NO family answering); it lives in its own state file.
++- Only LIVE calls touch it: a recorded reply is served as before, replay never consults it, and probes (ruling 87) and
++  shadow calls (ruling 86) neither count nor skip (the caller decides; providers.Router._breaker_live).
++- The state file: {"models": {name: {"misses", "open_until", "trial_at", "opens", "why"}}, "events": [the last
++  EVENTS_KEPT opens and closes]}. Times are ISO UTC. An unreadable file raises BreakerUnreadable: the caller says so and
++  skips nothing by it (an optimisation never stops a verdict; ruling 82's chain still fails over call by call)."""
++import fcntl
++import json
++import os
++from datetime import datetime, timedelta, timezone
++
++STATE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
++                     "BREAKERS.json")
++MISSES_TO_OPEN = 2                      # ruling 99: two deadline misses in a row
++OPEN_S = 30 * 60                        # ruling 99: skipped by every list for 30 minutes
++REOPEN_S = 60 * 60                      # ruling 99: a failed trial re-opens it for 60
++RUNAWAY_X = 2.0                         # ruling 99: more than twice its max_tokens (the cap sent)
++TRIAL_HOLD_S = 15 * 60                  # a trial whose call never reports (its process ended) frees the trial after
++EVENTS_KEPT = 500
++
++
++class BreakerUnreadable(Exception):
++    """The state file exists but cannot be read: no guess either way."""
++
++
++def _now(now=None):
++    return now if now is not None else datetime.now(timezone.utc)
++
++
++def _iso(t):
++    return t.strftime("%Y-%m-%dT%H:%M:%SZ")
++
++
++def _t(s):
++    try:
++        t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return None
++    return t if t.tzinfo is not None else None
++
++
++def _load(path):
++    if not os.path.exists(path):
++        return {"models": {}, "events": []}
++    try:
++        with open(path) as f:
++            s = json.load(f)
++        if not isinstance(s, dict) or not isinstance(s.get("models"), dict):
++            raise ValueError("not a breaker state")
++        return s
++    except (OSError, ValueError) as e:
++        raise BreakerUnreadable(f"{path}: {type(e).__name__}: {e}") from None
++
++
++def _save(path, s):
++    tmp = f"{path}.{os.getpid()}.tmp"
++    with open(tmp, "w") as f:
++        json.dump(s, f, indent=1)
++    os.replace(tmp, path)
++
++
++class _Locked:
++    def __init__(self, path):
++        self.path = path
++
++    def __enter__(self):
++        os.makedirs(os.path.dirname(os.path.abspath(self.path)), exist_ok=True)
++        self.f = open(self.path + ".lock", "w")
++        fcntl.flock(self.f, fcntl.LOCK_EX)
++        return self
++
++    def __exit__(self, *exc):
++        fcntl.flock(self.f, fcntl.LOCK_UN)
++        self.f.close()
++        return False
++
++
++def allow(name, path=STATE, now=None):
++    """May a live call go to `name` now? -> (True, None) closed; (True, "trial") the one call after the open window
++    (claimed here, under the lock); (False, why) open, or a trial already in flight. A malformed record skips nothing."""
++    now = _now(now)
++    with _Locked(path):
++        s = _load(path)
++        m = s["models"].get(name)
++        until = _t(m.get("open_until")) if isinstance(m, dict) else None
++        if until is None:
++            return True, None
++        if now < until:
++            return False, f"circuit breaker open until {m['open_until']} (ruling 99: {m.get('why')})"
++        ta = _t(m.get("trial_at"))
++        if ta is not None and (now - ta).total_seconds() < TRIAL_HOLD_S:
++            return False, f"circuit breaker: its one trial call is in flight since {m['trial_at']} (ruling 99)"
++        m["trial_at"] = _iso(now)
++        _save(path, s)
++        return True, "trial"
++
++
++def record(name, outcome, path=STATE, now=None, deadline_s=None, seconds=None, tokens=None, max_out=None):
++    """One live call's outcome: "answer", "miss" (its deadline passed) or "runaway" (more than RUNAWAY_X times the cap
++    it was sent). -> the event for the evidence file ({"kind": "breaker_open" | "breaker_close", "model", "why",
++    "deadline_s", "seconds", "tokens", "max_out", "until", "utc"}) or None."""
++    if outcome not in ("answer", "miss", "runaway"):
++        raise ValueError(f"outcome must be answer, miss or runaway, not {outcome!r}")
++    now = _now(now)
++    with _Locked(path):
++        s = _load(path)
++        m = s["models"].get(name)
++        if not isinstance(m, dict):
++            m = s["models"][name] = {"misses": 0, "open_until": None, "trial_at": None, "opens": 0}
++        until = _t(m.get("open_until"))
++        detail = {"model": name, "deadline_s": deadline_s, "seconds": seconds, "tokens": tokens, "max_out": max_out}
++        ev = None
++        if outcome == "answer":
++            m["misses"] = 0
++            if until is not None and now >= until:            # the trial (a call after the window) answered
++                m["open_until"], m["trial_at"] = None, None
++                ev = dict(detail, kind="breaker_close", why="the trial call answered")
++        elif until is not None and now >= until:              # the trial failed: open again, for longer
++            m["why"] = "the trial call " + ("missed its deadline" if outcome == "miss" else
++                                            f"returned more than {RUNAWAY_X:g}x the cap it was sent")
++            m["open_until"], m["trial_at"] = _iso(now + timedelta(seconds=REOPEN_S)), None
++            m["opens"] = int(m.get("opens") or 0) + 1
++            ev = dict(detail, kind="breaker_open", why=m["why"], until=m["open_until"])
++        elif until is None:                                   # closed (while open, a call from before it is ignored)
++            m["misses"] = int(m.get("misses") or 0) + (1 if outcome == "miss" else 0)
++            if outcome == "runaway" or m["misses"] >= MISSES_TO_OPEN:
++                m["why"] = (f"returned more than {RUNAWAY_X:g}x the cap it was sent" if outcome == "runaway" else
++                            f"missed its deadline {MISSES_TO_OPEN} times in a row")
++                m["open_until"], m["trial_at"], m["misses"] = _iso(now + timedelta(seconds=OPEN_S)), None, 0
++                m["opens"] = int(m.get("opens") or 0) + 1
++                ev = dict(detail, kind="breaker_open", why=m["why"], until=m["open_until"])
++        if ev:
++            ev["utc"] = _iso(now)
++            s["events"] = (list(s.get("events") or []) + [ev])[-EVENTS_KEPT:]
++        _save(path, s)
++        return ev
++
++
++def summary(path=STATE, now=None, since=None):
++    """For STATE line 1 (ruling 99: "the count goes on STATE line 1"): the breakers open now and the opens / closes
++    since `since` (an aware datetime; default: the last 24 hours). -> {"open": [...], "opens": n, "closes": n}."""
++    now = _now(now)
++    since = since or now - timedelta(hours=24)
++    with _Locked(path):
++        s = _load(path)
++    open_now = [{"model": n, "until": m.get("open_until"), "why": m.get("why")}
++                for n, m in sorted(s["models"].items()) if isinstance(m, dict) and _t(m.get("open_until")) is not None
++                and now < _t(m.get("open_until"))]
++    evs = [e for e in s.get("events") or [] if isinstance(e, dict) and (_t(e.get("utc")) or since) >= since]
++    return {"open": open_now, "opens": sum(1 for e in evs if e.get("kind") == "breaker_open"),
++            "closes": sum(1 for e in evs if e.get("kind") == "breaker_close")}
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 6dc0aee..bc0f1fe 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -719,7 +719,8 @@ class Router:
+ 
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
+-                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None):
++                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
++                 breakers=None):
+         with open(config) as f:
+             self.config = json.load(f)
+         rt = self.config.get("routing") or {}
+@@ -754,6 +755,10 @@ class Router:
+         # A probe thread asks each Heimdall family a one-word question every 2 minutes while calls fail.
+         self.health, self.plan_b_chains, self.state_md = health, dict(plan_b_chains or {}), state_md
+         self._probe = None
++        # RULING 99 (10:48 Nov 14): the circuit breaker's state file (pipeline/circuit_breaker.py). A model that misses
++        # its deadline twice in a row, or runs past twice the cap it was sent, is skipped by every list for 30 minutes
++        # (live calls only: a recorded reply, replay, probes and shadow calls never touch it)
++        self.breakers, self.breaker_events = breakers, []
+         if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
+             for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
+                 if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
+@@ -947,6 +952,10 @@ class Router:
+                 usd, rep = b.usd(usage), usage.get("usd_reported")
+                 rec.update({"in": usage.get("in"), "out": usage.get("out"), "usd_estimate": usd,
+                             "usd_reported": float(rep) if _num(rep) else None})
++                n_out, cap = usage.get("out"), ab.get("max_out")
++                if _num(n_out) and _num(cap) and n_out > self._runaway_x() * cap:   # ruling 99: a late runaway
++                    self._breaker(role, b.name, "runaway", deadline_s=ab.get("deadline_s"), seconds=rec["seconds"],
++                                  tokens=n_out, max_out=cap)
+                 if self.spend_path:
+                     try:
+                         self._replace_booking(b, role, booked, usage, usd, rep)
+@@ -1006,6 +1015,46 @@ class Router:
+         d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
+         return float(d) if _num(d) and d > 0 else None
+ 
++    def _breaker_live(self, role):
++        """RULING 99: the breaker counts and skips only this builder's LIVE calls (never replay, a probe or a shadow)."""
++        return bool(self.breakers) and not self.replay and not role.startswith(("probe87:", "shadow86:"))
++
++    @staticmethod
++    def _runaway_x():
++        import circuit_breaker as CB
++        return CB.RUNAWAY_X
++
++    def _breaker_allow(self, role, name):
++        """RULING 99 -> why `name` is skipped now (its breaker is open, or its one trial is in flight), or None. A state
++        that cannot be read skips nothing (a notice): the breaker saves minutes, it never stops a verdict."""
++        if not self._breaker_live(role):
++            return None
++        import circuit_breaker as CB
++        try:
++            ok, why = CB.allow(name, self.breakers)
++        except (CB.BreakerUnreadable, OSError) as e:
++            n = f"RULING 99: the circuit breaker's state cannot be read, so it skips nothing: {e}"
++            if n not in self.notices:
++                self.notices.append(n)
++            return None
++        return None if ok else why
++
++    def _breaker(self, role, name, outcome, **kw):
++        """RULING 99: one live call's outcome to the breaker; an open or a close is one line in the evidence file."""
++        if not self._breaker_live(role):
++            return
++        import circuit_breaker as CB
++        try:
++            ev = CB.record(name, outcome, self.breakers, **kw)
++        except (CB.BreakerUnreadable, OSError) as e:
++            n = f"RULING 99: the circuit breaker's state cannot be read or written: {e}"
++            if n not in self.notices:
++                self.notices.append(n)
++            return
++        if ev:
++            self.breaker_events.append(ev)
++            self._log_slow(dict(ev, role=role))
++
+     def _note(self, role, b, answered):
+         """RULING 87: a Heimdall verdict or writer call's outcome, to the shared health state (never a gate here: a
+         state file that cannot be written is a notice). The probe thread starts at the first failure."""
+@@ -1170,6 +1219,10 @@ class Router:
+             if self.replay:
+                 tried.append((name, "replay: not recorded"))
+                 continue
++            bwhy = self._breaker_allow(role, name)              # ruling 99: an open breaker skips it; the next leads
++            if bwhy:
++                tried.append((name, bwhy))
++                continue
+             upper = b.upper_usd(prompt, max_tokens, system)
+             key = self._reserve(b, upper)
+             if isinstance(b, HeimdallBackend):
+@@ -1193,7 +1246,8 @@ class Router:
+                                 "prompt_chars": len(prompt_text(prompt)),
+                                 "max_tokens": max_tokens, "booked_usd": booked})   # evidence first (audit 2048 C1)
+                 self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
+-                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
++                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time(),
++                        "max_out": b.max_out(max_tokens)}             # ruling 99: a late runaway is measured on it
+             try:
+                 if dl:                                 # ruling 5 (22:40): fail over instead of waiting
+                     text, usage, secs = _within(dl, lambda: b.complete(prompt, max_tokens, seed, system),
+@@ -1202,6 +1256,7 @@ class Router:
+                     text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
+                 self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
++                self._breaker(role, name, "miss", deadline_s=dl, seconds=dl, max_out=b.max_out(max_tokens))
+                 booked = b.prompt_usd(prompt, system)
+                 tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
+                                     "ruling 83 (a))"))
+@@ -1233,6 +1288,9 @@ class Router:
+                 tried.append((name, "refused this request: an empty reply"))
+                 continue
+             self._note(role, b, True)                  # ruling 87: a Heimdall family answered inside its deadline
++            cap, n_out = b.max_out(max_tokens), (usage or {}).get("out")
++            self._breaker(role, name, "runaway" if _num(n_out) and n_out > self._runaway_x() * cap else "answer",
++                          deadline_s=dl, seconds=round(secs, 2), tokens=n_out, max_out=cap)       # ruling 99
+             recorded = ""
+             if path and isinstance(text, str) and text.strip():
+                 self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index b034586..ac9acba 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -57,6 +57,7 @@ sys.path.insert(0, HERE)
+ import eligibility as E  # noqa: E402
+ import candidates as CA  # noqa: E402
+ import heimdall_health as HH  # noqa: E402
++import circuit_breaker as CB  # noqa: E402
+ import shadow86 as SH  # noqa: E402
+ import ledger_build as LB  # noqa: E402
+ import moments as M  # noqa: E402
+@@ -101,6 +102,16 @@ def delivered_pins(paths):
+     return spans, newest, pins
+ 
+ 
++def build_router(routing, shadow, shadow_log):
++    """The build's router: ruling 48's ledger and limit, the routing's chains (frozen legs out), the evidence file
++    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker."""
++    return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
++                    limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
++                    routing=routing, shadow=shadow, shadow_log=shadow_log,
++                    health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
++                    breakers=CB.STATE)                                                         # ruling 99
++
++
+ def main(argv=None):
+     ap = argparse.ArgumentParser()
+     ap.add_argument("--delivered", nargs="+", required=True, metavar="PIN",
+@@ -193,10 +204,7 @@ def main(argv=None):
+     shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
+     if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
+         shadow = rt.get("shadow") or None
+-    router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
+-                      routing=routing, shadow=shadow, shadow_log=os.path.join(out_dir, "SHADOW86.jsonl"),
+-                      health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD)    # ruling 87
++    router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
+     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+         + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+@@ -367,6 +375,16 @@ def main(argv=None):
+                               if vis.get("estimated_calls") else ""))
+     say(f"  spend (ruling 48): {after if isinstance(after, str) else f'${after:.2f}'} of ${PL.LY_LIMIT_USD:.2f} "
+         f"vendor-reported after this build (before it: ${spent0:.2f})")
++    evs = router.breaker_events                  # RULING 99: the circuit breaker's count, for STATE line 1
++    try:
++        bs = CB.summary(CB.STATE)
++        res["breakers_ruling_99"] = dict(bs, this_build=evs)
++        say(f"  RULING 99 (circuit breaker): this build opened {sum(e['kind'] == 'breaker_open' for e in evs)} and "
++            f"closed {sum(e['kind'] == 'breaker_close' for e in evs)}; open now: "
++            + ("; ".join(f"{o['model']} until {o['until']} ({o['why']})" for o in bs["open"]) or "none")
++            + f"; in 24 h: {bs['opens']} opened, {bs['closes']} closed")
++    except Exception as e:                       # noqa: BLE001 (the record is written whatever the breaker says)
++        say(f"  RULING 99 (circuit breaker): its state cannot be read: {type(e).__name__}: {str(e)[:160]}")
+     try:                                                 # audit 1420 C2: a registry failure never loses the record;
+         if cand is not None and CA.key(cand["lineup"]) in reg["candidates"]:      # 1420b C2: its flag tells the truth
+             CA.outcome(reg["candidates"][CA.key(cand["lineup"])], res["candidate"]["class"], at, name,
+diff --git a/tests/providers/test_circuit_breaker.py b/tests/providers/test_circuit_breaker.py
+new file mode 100644
+index 0000000..345cac2
+--- /dev/null
++++ b/tests/providers/test_circuit_breaker.py
+@@ -0,0 +1,209 @@
++#!/usr/bin/env python3
++"""RULING 99 (orchestrator 10:48 ET Nov 14), THE CIRCUIT BREAKER (pipeline/circuit_breaker.py and its use in
++providers.Router and the ledger build). Offline: a temporary state file, the test's own clock, fake back-ends."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import circuit_breaker as CB  # noqa: E402
++import providers as P  # noqa: E402
++from test_providers import Fake, Slow, router, wait_for  # noqa: E402
++
++T0 = datetime(2026, 11, 14, 15, 0, tzinfo=timezone.utc)
++GLM = "heimdall:z-ai/glm-5.3-flash"
++
++
++def at(minutes=0, seconds=0):
++    return T0 + timedelta(minutes=minutes, seconds=seconds)
++
++
++class TestBreaker(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.state = os.path.join(self.d.name, "BREAKERS.json")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def rec(self, outcome, t, **kw):
++        return CB.record(GLM, outcome, self.state, now=t, **kw)
++
++    def test_two_deadline_misses_in_a_row_open_it_for_30_minutes(self):
++        self.assertIsNone(self.rec("miss", at(0)))
++        self.assertIsNone(self.rec("answer", at(1)))                      # an answer between: not in a row
++        self.assertIsNone(self.rec("miss", at(2)))
++        ev = self.rec("miss", at(3), deadline_s=120.0, seconds=120.0, max_out=16000)
++        self.assertEqual({k: ev[k] for k in ("kind", "model", "why", "until", "deadline_s", "seconds", "tokens",
++                                             "max_out", "utc")},
++                         {"kind": "breaker_open", "model": GLM, "why": "missed its deadline 2 times in a row",
++                          "until": "2026-11-14T15:33:00Z", "deadline_s": 120.0, "seconds": 120.0, "tokens": None,
++                          "max_out": 16000, "utc": "2026-11-14T15:03:00Z"})
++        ok, why = CB.allow(GLM, self.state, now=at(32, 59))
++        self.assertFalse(ok)
++        self.assertIn("open until 2026-11-14T15:33:00Z", why)
++        self.assertEqual(CB.allow("heimdall:deepseek/deepseek-v4.1-flash", self.state, now=at(4)), (True, None))
++
++    def test_after_30_minutes_one_trial_an_answer_closes_it_and_a_miss_reopens_it_for_60(self):
++        self.rec("miss", at(0))
++        self.rec("miss", at(1))                                           # open until 15:31
++        self.assertEqual(CB.allow(GLM, self.state, now=at(31)), (True, "trial"))
++        ok, why = CB.allow(GLM, self.state, now=at(31, 1))                # one trial at a time
++        self.assertFalse(ok)
++        self.assertIn("trial call is in flight", why)
++        ev = self.rec("answer", at(32))
++        self.assertEqual((ev["kind"], ev["why"]), ("breaker_close", "the trial call answered"))
++        self.assertEqual(CB.allow(GLM, self.state, now=at(33)), (True, None))
++        self.rec("miss", at(40))
++        self.rec("miss", at(41))                                          # open again until 16:11
++        self.assertEqual(CB.allow(GLM, self.state, now=at(71)), (True, "trial"))
++        ev = self.rec("miss", at(73))                                     # the trial misses: 60 minutes
++        self.assertEqual((ev["kind"], ev["until"], ev["why"]),
++                         ("breaker_open", "2026-11-14T17:13:00Z", "the trial call missed its deadline"))
++        self.assertFalse(CB.allow(GLM, self.state, now=at(132, 59))[0])
++        self.assertEqual(CB.allow(GLM, self.state, now=at(133)), (True, "trial"))
++        self.assertEqual(json.load(open(self.state))["models"][GLM]["opens"], 3)
++
++    def test_a_runaway_opens_it_at_once(self):
++        ev = self.rec("runaway", at(0), tokens=40000, max_out=16000)
++        self.assertEqual((ev["kind"], ev["why"], ev["tokens"]),
++                         ("breaker_open", "returned more than 2x the cap it was sent", 40000))
++        self.assertEqual(CB.allow(GLM, self.state, now=at(30)), (True, "trial"))
++        ev = self.rec("runaway", at(31), tokens=40000, max_out=16000)   # a trial that runs away re-opens it too
++        self.assertEqual((ev["why"], ev["until"]),
++                         ("the trial call returned more than 2x the cap it was sent", "2026-11-14T16:31:00Z"))
++
++    def test_calls_in_flight_when_it_opened_change_nothing_and_a_dead_trial_is_freed(self):
++        self.rec("miss", at(0))
++        self.rec("miss", at(0, 30))                                       # open until 15:30:30
++        self.assertIsNone(self.rec("miss", at(5)))                        # calls from before it opened: two misses
++        self.assertIsNone(self.rec("miss", at(5, 30)))                    # never extend or re-open the window
++        self.assertIsNone(self.rec("answer", at(6)))                      # an answer inside the window: still open
++        self.assertEqual(json.load(open(self.state))["models"][GLM]["open_until"], "2026-11-14T15:30:30Z")
++        self.assertEqual(CB.allow(GLM, self.state, now=at(31)), (True, "trial"))   # its caller's process ends ...
++        self.assertFalse(CB.allow(GLM, self.state, now=at(45, 59))[0])
++        self.assertEqual(CB.allow(GLM, self.state, now=at(46)), (True, "trial"))   # ... freed after TRIAL_HOLD_S
++
++    def test_the_count_for_state_line_1_and_an_unreadable_state_is_never_guessed(self):
++        self.rec("miss", at(0))
++        self.rec("miss", at(1))
++        CB.allow(GLM, self.state, now=at(31))
++        self.rec("answer", at(32))
++        self.rec("runaway", at(40), tokens=40000, max_out=16000)
++        s = CB.summary(self.state, now=at(41))
++        self.assertEqual((s["opens"], s["closes"], [o["model"] for o in s["open"]]), (2, 1, [GLM]))
++        self.assertEqual(CB.summary(self.state, now=at(41), since=at(35))["opens"], 1)
++        with open(self.state, "w") as f:
++            f.write("{ broken")
++        for fn in (lambda: CB.allow(GLM, self.state, now=at(50)), lambda: self.rec("miss", at(50)),
++                   lambda: CB.summary(self.state, now=at(50))):
++            with self.assertRaises(CB.BreakerUnreadable):
++                fn()
++        self.assertEqual(open(self.state).read(), "{ broken")
++        json.dump({"models": {GLM: {"open_until": "soon"}}}, open(self.state, "w"))
++        self.assertEqual(CB.allow(GLM, self.state, now=at(50)), (True, None))   # a malformed record skips nothing
++        with self.assertRaises(ValueError):
++            self.rec("slow", at(51))
++
++
++class TestRouterBreaker(unittest.TestCase):
++    """providers.Router: live calls only. Two real deadline misses (P._within) open the breaker, the next family leads,
++    and the open is one line in the evidence file."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.state = os.path.join(self.d.name, "BREAKERS.json")
++        self.log = os.path.join(self.d.name, "DEADLINES.jsonl")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def mk(self, backends, chain, **kw):
++        return router(self.d.name, backends, {"check": chain, "probe87:" + chain[0]: [chain[0]]}, deadline_log=self.log,
++                      breakers=self.state, **kw)
++
++    def test_two_misses_skip_glm_and_the_next_family_leads(self):
++        glm = Slow(GLM, "heimdall", '{"ok": 1}', delay=0.4, family="glm")
++        ds = Fake("heimdall:deepseek", "heimdall", answer='{"ok": 2}', family="deepseek")
++        r = self.mk([glm, ds], [GLM, "heimdall:deepseek"])
++        self.assertEqual([r.call("check", f"p{i}", 100, 7, deadline_s=0.1).backend for i in range(2)],
++                         ["heimdall:deepseek"] * 2)
++        rep = r.call("check", "p3", 100, 7, deadline_s=0.1)
++        import time as _t
++        _t.sleep(0.6)                                                     # the two abandoned calls end on their clock
++        self.assertEqual((rep.backend, glm.calls), ("heimdall:deepseek", 2))      # glm not asked a third time
++        self.assertIn("circuit breaker open until", dict(rep.tried)[GLM])
++        self.assertEqual([e["kind"] for e in r.breaker_events], ["breaker_open"])
++        opened = [x for x in wait_for(self.log, "breaker_open") if x["kind"] == "breaker_open"]
++        self.assertEqual({k: opened[0][k] for k in ("model", "deadline_s", "seconds", "max_out", "role")},
++                         {"model": GLM, "deadline_s": 0.1, "seconds": 0.1, "max_out": 100, "role": "check"})
++        self.assertEqual(r.call("probe87:" + GLM, "Reply with the single word OK.", 64, 7).backend, GLM)  # a probe:
++        #   asked all the same, and never counted (ruling 87's probe is not a list)
++
++    def test_a_runaway_answer_opens_it_and_a_recorded_reply_is_still_served(self):
++        glm = Fake(GLM, "heimdall", answer='{"ok": 1}', family="glm", usage={"in": 10, "out": 201})   # > 2 x 100
++        ds = Fake("heimdall:deepseek", "heimdall", answer='{"ok": 2}', family="deepseek")
++        r = self.mk([glm, ds], [GLM, "heimdall:deepseek"], record_dir=os.path.join(self.d.name, "rec"))
++        self.assertEqual(r.call("check", "p", 100, 7).backend, GLM)       # it answered: the answer stands
++        self.assertEqual(r.breaker_events[0]["why"], "returned more than 2x the cap it was sent")
++        self.assertEqual(r.call("check", "p", 100, 7).backend, GLM)       # its recorded reply: served, nothing paid
++        self.assertEqual(glm.calls, 1)
++        self.assertEqual(r.call("check", "q", 100, 7).backend, "heimdall:deepseek")   # a live call: skipped
++        glm2 = Fake(GLM, "heimdall", answer='{"ok": 1}', family="glm", usage={"in": 10, "out": 200})  # exactly 2x
++        r2 = self.mk([glm2, ds], [GLM, "heimdall:deepseek"])
++        os.remove(self.state)
++        r2.call("check", "p", 100, 7)
++        self.assertEqual(r2.breaker_events, [])
++        healthy = Fake("heimdall:deepseek2", "heimdall", answer='{"ok": 3}', family="deepseek",
++                       usage={"in": 10, "out": 1500})
++        healthy.spec["min_out"] = 1000          # a reasoning model is sent its floor (as Grok and deepseek are):
++        r3 = self.mk([healthy, ds], ["heimdall:deepseek2", "heimdall:deepseek"])
++        self.assertEqual(r3.call("check", "z", 100, 7).backend, "heimdall:deepseek2")
++        self.assertEqual(r3.breaker_events, [])  # 1500 of a 1000 cap: no runaway (15x the caller's 100 would be one)
++
++    def test_a_late_answer_that_ran_away_opens_it(self):
++        glm = Slow(GLM, "heimdall", '{"ok": 1}', delay=0.3, family="glm", usage={"in": 10, "out": 5000})
++        ds = Fake("heimdall:deepseek", "heimdall", answer='{"ok": 2}', family="deepseek")
++        r = self.mk([glm, ds], [GLM, "heimdall:deepseek"])
++        self.assertEqual(r.call("check", "p", 100, 7, deadline_s=0.1).backend, "heimdall:deepseek")   # one miss
++        log = wait_for(self.log, "breaker_open")                          # its late answer: 5000 > 2 x 100
++        self.assertEqual([x["why"] for x in log if x["kind"] == "breaker_open"],
++                         ["returned more than 2x the cap it was sent"])
++        self.assertFalse(CB.allow(GLM, self.state)[0])
++
++    def test_replay_never_consults_it_and_an_unreadable_state_skips_nothing(self):
++        glm = Fake(GLM, "heimdall", answer='{"ok": 1}', family="glm")
++        ds = Fake("heimdall:deepseek", "heimdall", answer='{"ok": 2}', family="deepseek")
++        CB.record(GLM, "runaway", self.state)                             # open now
++        rr = self.mk([glm, ds], [GLM, "heimdall:deepseek"], replay=True)
++        self.assertIsNone(rr._breaker_allow("check", GLM))                # replay walks its recordings only
++        with open(self.state, "w") as f:
++            f.write("{ broken")
++        r = self.mk([glm, ds], [GLM, "heimdall:deepseek"])
++        self.assertEqual(r.call("check", "p", 100, 7).backend, GLM)       # never a skip by guess
++        self.assertTrue(any("RULING 99" in n for n in r.notices))
++        no = self.mk([glm, ds], [GLM, "heimdall:deepseek"])
++        no.breakers = None                                                # a router given no state: no breaker
++        self.assertIsNone(no._breaker_allow("check", GLM))
++
++
++class TestTheBuildUsesIt(unittest.TestCase):
++    def test_the_build_router_has_the_breaker_and_the_health(self):
++        """The ledger build's one router (proof_ledger.build_router) is given ruling 99's state and ruling 87's."""
++        sys.path.insert(0, os.path.join(REPO, "tests", "package"))
++        import heimdall_health as HH
++        import proof_ledger as PLG
++        with tempfile.TemporaryDirectory() as d:
++            r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
++        self.assertEqual((r.breakers, r.health, r.routing), (CB.STATE, HH.STATE, "heimdall_first"))
++        self.assertEqual(os.path.basename(CB.STATE), "BREAKERS.json")
++
++
++if __name__ == "__main__":
++    unittest.main()

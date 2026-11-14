@@ -1,0 +1,75 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence of calls that breaks it.
+
+BACKGROUND (static):
+- providers.Router.call(role, prompt, max_tokens, ...) walks a role's chain of model back-ends in order. For each leg
+  it first serves a RECORDED reply when one exists on disk (no paid call), else (in replay mode) moves on, else makes a
+  live paid call under a deadline (Heimdall gateway legs: 120 s). A leg that misses its deadline is abandoned and the
+  chain moves on; a leg that answers decides. Ruling 87's shared health file and its probe thread (probe roles
+  "probe87:<model>") are a SEPARATE mechanism about Heimdall as a whole; ruling 86's shadow calls (roles
+  "shadow86:<role>") ask Grok the same prompt and never decide.
+- Before this change, a deadline miss did not stop the Router from asking the same model again on the next call: glm
+  missed every call's 120 s deadline at 09:55 ET, so every glm-first verdict burned 120 s before deepseek or Grok.
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- providers.py:1211 serves a recorded reply before anything else; :1219 `if self.replay: ... continue` (replay never
+  makes a live call). The new breaker check (:1222) sits AFTER both, so it only ever gates a live paid call.
+- providers._within (:345) raises DeadlineExceeded (class at :340) when the deadline passes; the abandoned call keeps
+  running in its own thread and, if it ends, calls Router._late (:934) with (text, usage, seconds) or an error.
+- Router._log_slow (:850) appends one JSON line to the evidence file (deadline_log) and does nothing when no path is
+  set; a write failure becomes a notice, never an exception.
+- Backend.max_out(max_tokens) is the output cap a call actually SENDS: base back-ends max(spec min_out, max_tokens)
+  (:177), xAI text max(min_out or 8000, 8 x max_tokens) (:443), xAI vision max(..., 4 x max_tokens) (:531).
+  model_providers.json gives every Heimdall family min_out 16,000. Usage "out" is the vendor's completion count, with
+  reasoning tokens included (xAI's backend adds them explicitly).
+- tests/package/proof_ledger.py builds the ONE production Router of a ledger build; the exam's adapter
+  (moments_gate_adapter.make_router) builds its own Router with no breaker (its replay must stay deterministic).
+
+THE ORCHESTRATOR'S RULING (10:48 ET Nov 14), verbatim:
+"RULING 99, THE CIRCUIT BREAKER. A model that misses its deadline TWICE in a row, or returns more than twice its
+max_tokens (a runaway: glm gave 16,000 tokens against 4,000, and 10,455 for a one-word probe), is SKIPPED by every list
+for 30 minutes; the next family leads. After 30 minutes one real call may try it again; a miss re-opens the breaker for
+60. Every open / close is one line in the Heimdall evidence file (model, deadline, seconds, tokens) and the count goes
+on STATE line 1. A breaker is not an outage: ruling 87's clock is about NO family answering. While glm's breaker is
+open, step A's Heimdall filter is deepseek, the hook rating is qwen -> deepseek, fidelity is qwen -> Grok, exclusion
+is deepseek -> Grok. This is why Grok served 24 of 27 step A verdicts at 09:55 after each burned 120 s: fix that first,
+it is costing every build minutes and dollars."
+FACT, measured and put to the orchestrator on STATE line 1 (10:45): glm was SENT a 16,000-token cap (its min_out), not
+4,000; its 16,000 tokens were 1.00x that cap and the probe's 10,455 were 0.65x. On 1,252 recorded answers no model
+exceeds 1x the cap it was sent; against the CALLER's max_tokens, 309 of 676 healthy Grok answers and 61 of 127 deepseek
+answers exceed 2x. So this change reads "its max_tokens" as the cap actually sent (Backend.max_out). The heimdall_first
+lists minus glm are exactly the chains the ruling names (step A first: deepseek, Grok; hook: qwen, deepseek, Grok;
+fidelity: qwen, Grok; exclusion: deepseek, Grok).
+
+THE CHANGE (the diff follows):
+1. pipeline/circuit_breaker.py (new): a JSON state file under an flock (tests/package/proof/BREAKERS.json), shared by the
+   builder's processes. allow(name) -> (True, None) closed; (True, "trial") the ONE call after the open window, claimed
+   under the lock; (False, why) open, or a trial in flight (a trial whose caller never reports is freed after 15
+   minutes). record(name, "answer" | "miss" | "runaway"): closed: 2 misses in a row (an answer resets the count) or one
+   runaway open it for 30 minutes; open, inside the window: ignored (calls in flight from before it opened); after the
+   window: an answer closes it, a miss or a runaway re-opens it for 60 minutes. Each open / close is returned as an
+   event with model, why, deadline_s, seconds, tokens, max_out, until, utc. summary() gives the open breakers and the
+   opens / closes in the last 24 h. An unreadable file raises BreakerUnreadable; a malformed record skips nothing.
+2. pipeline/providers.py: Router(breakers=path). Live calls only (never replay, probe87: or shadow86: roles):
+   _breaker_allow before the paid call skips an open model (the next leg leads); a deadline miss records "miss"; an
+   answer records "runaway" when its output exceeds 2x the cap sent, else "answer"; a LATE answer (in _late) that ran
+   past 2x the cap records "runaway". Each event goes to the evidence file (_log_slow) and router.breaker_events. An
+   unreadable breaker state skips nothing (a notice): the breaker saves minutes, it never stops a verdict.
+3. tests/package/proof_ledger.py: the build's Router is made by build_router() (the same arguments as before, plus
+   breakers=circuit_breaker.STATE), and the build log and record carry the count for STATE line 1.
+4. Tests: tests/providers/test_circuit_breaker.py (new, 10 tests, real deadline misses through _within). 17 mutations,
+   each killed. 21 suites, 578 tests pass.
+
+ATTACK:
+(a) Can glm burn its deadline more than twice in a row, across threads or across build processes, once this is live?
+    Can the breaker skip a model that is healthy (Grok or deepseek reasoning inside their caps)?
+(b) The trial: can two calls both be the trial? Can a trial claim be lost so the model is never tried again? Can a
+    call that started before the open re-open or extend it?
+(c) Can an open breaker ever leave a verdict with NO leg (fail closed is acceptable; a wrong verdict is not)? Can it
+    change which RECORDED reply a replay serves?
+(d) Concurrency: two processes and eight threads on one state file; the lock; the atomic write.
+(e) Anything that could make a build slower or costlier than before, or break pp-ingest (which never loads this file).
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".

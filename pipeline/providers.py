@@ -719,7 +719,8 @@ class Router:
 
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
-                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None):
+                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
+                 breakers=None):
         with open(config) as f:
             self.config = json.load(f)
         rt = self.config.get("routing") or {}
@@ -754,6 +755,10 @@ class Router:
         # A probe thread asks each Heimdall family a one-word question every 2 minutes while calls fail.
         self.health, self.plan_b_chains, self.state_md = health, dict(plan_b_chains or {}), state_md
         self._probe = None
+        # RULING 99 (10:48 Nov 14): the circuit breaker's state file (pipeline/circuit_breaker.py). A model that misses
+        # its deadline twice in a row, or runs past twice the cap it was sent, is skipped by every list for 30 minutes
+        # (live calls only: a recorded reply, replay, probes and shadow calls never touch it)
+        self.breakers, self.breaker_events = breakers, []
         if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
             for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
                 if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
@@ -947,6 +952,10 @@ class Router:
                 usd, rep = b.usd(usage), usage.get("usd_reported")
                 rec.update({"in": usage.get("in"), "out": usage.get("out"), "usd_estimate": usd,
                             "usd_reported": float(rep) if _num(rep) else None})
+                n_out, cap = usage.get("out"), ab.get("max_out")
+                if _num(n_out) and _num(cap) and n_out > self._runaway_x() * cap:   # ruling 99: a late runaway
+                    self._breaker(role, b.name, "runaway", deadline_s=ab.get("deadline_s"), seconds=rec["seconds"],
+                                  tokens=n_out, max_out=cap)
                 if self.spend_path:
                     try:
                         self._replace_booking(b, role, booked, usage, usd, rep)
@@ -1005,6 +1014,47 @@ class Router:
             return None
         d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
         return float(d) if _num(d) and d > 0 else None
+
+    def _breaker_live(self, role):
+        """RULING 99: the breaker counts and skips only this builder's LIVE calls (never replay, a probe or a shadow)."""
+        return bool(self.breakers) and not self.replay and not role.startswith(("probe87:", "shadow86:"))
+
+    @staticmethod
+    def _runaway_x():
+        import circuit_breaker as CB
+        return CB.RUNAWAY_X
+
+    def _breaker_allow(self, role, name, deadline_s=None):
+        """RULING 99 -> why `name` is skipped now (its breaker is open, or its one trial is in flight), or None. A trial
+        is held for this call's own deadline + 60 s. A state that cannot be read skips nothing (a notice): the breaker
+        saves minutes, it never stops a verdict."""
+        if not self._breaker_live(role):
+            return None
+        import circuit_breaker as CB
+        try:
+            ok, why = CB.allow(name, self.breakers, hold_s=deadline_s + 60.0 if _num(deadline_s) else None)
+        except (CB.BreakerUnreadable, OSError) as e:
+            n = f"RULING 99: the circuit breaker's state cannot be read, so it skips nothing: {e}"
+            if n not in self.notices:
+                self.notices.append(n)
+            return None
+        return None if ok else why
+
+    def _breaker(self, role, name, outcome, **kw):
+        """RULING 99: one live call's outcome to the breaker; an open or a close is one line in the evidence file."""
+        if not self._breaker_live(role):
+            return
+        import circuit_breaker as CB
+        try:
+            ev = CB.record(name, outcome, self.breakers, **kw)
+        except (CB.BreakerUnreadable, OSError) as e:
+            n = f"RULING 99: the circuit breaker's state cannot be read or written: {e}"
+            if n not in self.notices:
+                self.notices.append(n)
+            return
+        if ev:
+            self.breaker_events.append(ev)
+            self._log_slow(dict(ev, role=role))
 
     def _note(self, role, b, answered):
         """RULING 87: a Heimdall verdict or writer call's outcome, to the shared health state (never a gate here: a
@@ -1170,6 +1220,13 @@ class Router:
             if self.replay:
                 tried.append((name, "replay: not recorded"))
                 continue
+            dl = deadline_s or self.role_deadline(role, b)      # the caller's deadline, else the role's (20:33)
+            if dl and _num(b.spec.get("deadline_floor_s")):     # ruling 87: the local judge waits out a render
+                dl = max(dl, float(b.spec["deadline_floor_s"]))
+            bwhy = self._breaker_allow(role, name, dl)          # ruling 99: an open breaker skips it; the next leads
+            if bwhy:
+                tried.append((name, bwhy))
+                continue
             upper = b.upper_usd(prompt, max_tokens, system)
             key = self._reserve(b, upper)
             if isinstance(b, HeimdallBackend):
@@ -1177,9 +1234,6 @@ class Router:
                 if n:
                     notices.append(n)
 
-            dl = deadline_s or self.role_deadline(role, b)      # the caller's deadline, else the role's (20:33)
-            if dl and _num(b.spec.get("deadline_floor_s")):     # ruling 87: the local judge waits out a render
-                dl = max(dl, float(b.spec["deadline_floor_s"]))
             if isinstance(b, LocalJudgeBackend) and self.state_md and not getattr(self, "_announced_local", False):
                 import heimdall_health as HH
                 self._announced_local = True                    # ruling 87: "and STATE line 1 says so"
@@ -1193,7 +1247,8 @@ class Router:
                                 "prompt_chars": len(prompt_text(prompt)),
                                 "max_tokens": max_tokens, "booked_usd": booked})   # evidence first (audit 2048 C1)
                 self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
-                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
+                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time(),
+                        "max_out": b.max_out(max_tokens)}             # ruling 99: a late runaway is measured on it
             try:
                 if dl:                                 # ruling 5 (22:40): fail over instead of waiting
                     text, usage, secs = _within(dl, lambda: b.complete(prompt, max_tokens, seed, system),
@@ -1202,6 +1257,7 @@ class Router:
                     text, usage, secs = b.complete(prompt, max_tokens, seed, system)
             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
                 self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
+                self._breaker(role, name, "miss", deadline_s=dl, seconds=dl, max_out=b.max_out(max_tokens))
                 booked = b.prompt_usd(prompt, system)
                 tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
                                     "ruling 83 (a))"))
@@ -1233,6 +1289,9 @@ class Router:
                 tried.append((name, "refused this request: an empty reply"))
                 continue
             self._note(role, b, True)                  # ruling 87: a Heimdall family answered inside its deadline
+            cap, n_out = b.max_out(max_tokens), (usage or {}).get("out")
+            self._breaker(role, name, "runaway" if _num(n_out) and n_out > self._runaway_x() * cap else "answer",
+                          deadline_s=dl, seconds=round(secs, 2), tokens=n_out, max_out=cap)       # ruling 99
             recorded = ""
             if path and isinstance(text, str) and text.strip():
                 self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,

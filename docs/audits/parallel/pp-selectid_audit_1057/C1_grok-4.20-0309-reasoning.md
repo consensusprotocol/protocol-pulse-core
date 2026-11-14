@@ -1,0 +1,7 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 56 s finish=stop usage in 17021 / out 318 usd~0.093 (upper-bound price)
+
+<medium>providers.py:256 (in Router.call): if all models in a chain have open breakers (e.g. concurrent GLM+deepseek misses across 2 processes hitting the serialized record("miss") twice, then a later fidelity chain ["qwen","grok"] where both are opened by prior runaway/miss), the loop appends every bwhy and falls through with no successful leg; facts confirm this only affects live calls and M12 fail-closed is acceptable, but full call() body not in diff so outcome (exception vs INCONCLUSIVE) uncertain.</medium>
+<medium>circuit_breaker.py:108 and providers.py:221 (_breaker_live + allow): trial_at is set under lock but TRIAL_HOLD_S=15*60 frees only on next allow(); concrete sequence: process A claims trial at T0 (sets trial_at), crashes before record(); process B at T+14min calls allow() (still in flight, returns False); at T+16min B retries and claims new trial. Matches test but hold time is arbitrary (not in ruling).</medium>
+No critical findings; no violations of SENTENCE LAW through L-l, M2/M12/LAW22 or governing stack constraints verifiable from diff+facts (change is orthogonal to clips/gates/render/selection; only live calls; no renderer; replay/recorded paths untouched per :1219-:1222; pp-ingest unaffected as breakers=None keeps _breaker_live=False). All attack vectors (a-e) covered by tests or lock/atomic _save/os.replace.
+
+SHIP: yes
