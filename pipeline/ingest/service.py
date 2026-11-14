@@ -783,6 +783,7 @@ class Service:
             self.q.kv_set("purge_last", json.dumps({
                 "at": rep["at"], "freed_bytes": rep.get("freed_bytes", 0), "refused": rep.get("refused"),
                 "deleted": rep["deleted"], "kept": rep["kept"], "delivered_videos": rep["delivered_videos"],
+                "one_copy_per_delivery": rep.get("one_copy_per_delivery"),    # A19 in live.json (audit a19 c2)
                 "seconds": rep.get("seconds")}))
             self.q.event("purge", None, None, freed=rep.get("freed_bytes", 0), refused=rep.get("refused"))
         if rep.get("freed_bytes") or rep.get("refused") or dry_run:

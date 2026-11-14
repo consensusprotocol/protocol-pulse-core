@@ -191,6 +191,8 @@ def cmd_purge(a):
     print(purge.summary(rep))
     for r in rep["delivered_runs"]:
         print(f"  delivered (kept): {r['run']} ({', '.join(r['why'])})")
+    for v, why in sorted(((rep.get("one_copy_per_delivery") or {}).get("unresolved") or {}).items()):
+        print(f"  unresolved, every copy kept (A19): {v}: {why}")                  # audit a19 c2 (minimax N-5)
     for f in rep.get("would_delete") or []:
         print(f"  would delete: {f['path']} ({f['bytes'] / 1e6:.1f} MB; video {f['video_id']}, {f['age_h']} h old)")
     if a.measure:

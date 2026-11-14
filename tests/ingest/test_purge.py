@@ -431,6 +431,23 @@ def test_an_attested_section_in_a_references_run_sources_is_kept_and_named_and_t
     assert K not in rep["one_copy_per_delivery"]["unresolved"]
 
 
+def test_an_unresolved_video_names_every_delivery_that_could_not_identify_its_copy_and_keeps_every_copy(tree):
+    """Audit a19 c2 (glm P3-1, minimax N-1's report half): one delivery resolves K by hash, two cannot (a hash no
+    copy has; no hash named): K is unresolved, its why names BOTH failing deliveries (not only the first), and every
+    copy of K stays, the resolved delivery's included (fail closed: the rule is per video)."""
+    good = b"the delivered section"
+    _delivery(tree, "pinned_dl", {f"{K}.mp4": good}, [(K, f"{K}.mp4", _sha(good))])
+    _delivery(tree, "pinned_dl2", {}, [(K, f"{K}.mp4", "0" * 64)])
+    _delivery(tree, "pinned_dl3", {}, [(K, f"{K}.mp4", None)])
+    _copy(tree, "pinned_dl_replay", K, good)
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    why = rep["one_copy_per_delivery"]["unresolved"][K]
+    assert "pinned_dl2: no copy with its PROVENANCE's sha256 000000000000" in why
+    assert "pinned_dl3: its PROVENANCE names no sha256 for it" in why
+    assert _exists(tree, f"runs/pinned_dl/sources/{K}.mp4") and _exists(tree, f"runs/pinned_dl_replay/sources/{K}.mp4")
+
+
 def test_the_hash_cache_is_bounded(tmp_path, monkeypatch):
     """Audit a19 c1 (glm C5): the watcher runs for days; the sha256 cache is emptied when it reaches its bound, and
     a hash read after that is still right."""

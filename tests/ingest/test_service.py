@@ -349,13 +349,16 @@ def test_the_watcher_runs_the_purge_in_its_own_loop_and_a_refused_spec_deletes_n
     s, vids, b = svc(H.first_two, H.first_two, n_videos=1)
     assert s.purge_spec is not None and s.purge_spec["every_s"] == 600
     seen = []
+    one = {"kept_copies": 3, "unresolved": {"KKKKKKKKKKK": "pinned_x: no hash named and no own section"},
+           "other_copies": {"files": 2, "bytes": 5}}
     monkeypatch.setattr(service.purge, "run_pass", lambda spec, **kw: seen.append(kw) or {
         "at": "t", "dry_run": False, "deleted": {"run_sources": {"files": 2, "bytes": 5}}, "kept": {}, "problems": [],
-        "delivered_runs": [], "delivered_videos": 0, "freed_bytes": 5, "seconds": 0.1})
+        "delivered_runs": [], "delivered_videos": 0, "freed_bytes": 5, "seconds": 0.1, "one_copy_per_delivery": one})
     s.purge_once()
     assert seen and seen[0]["log_dir"] == s.p["purge"] and float(s.q.kv_get("purge_freed_total")) == 5
     live = stats.live(s.q, meter=s.meter, router=s.router)
     assert live["purge"]["freed_total_bytes"] == 5 and live["purge"]["last_pass"]["deleted"]["run_sources"]["files"] == 2
+    assert live["purge"]["last_pass"]["one_copy_per_delivery"] == one          # A19 in live.json (audit a19 c2)
     msgs = []
     s.log = msgs.append
     s.purge_spec, s.purge_error = None, "SpecError: bad"
@@ -790,6 +793,28 @@ def test_every_mining_question_needs_its_role_to_start():
         del c["roles"][role]
         with pytest.raises(ValueError, match=rf"no role \['{role}'\]"):
             service.check_roles(c)
+
+
+def test_the_purge_cli_names_each_unresolved_video(monkeypatch, capsys):
+    """Audit a19 c2 (minimax N-5): `ingest_watch.py purge` lists every video whose delivery copy is not identified
+    (every copy kept) with the deliveries that could not identify it, not only their count."""
+    import argparse
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ingest_watch", os.path.join(config.REPO, "tools", "ingest_watch.py"))
+    iw = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(iw)
+    rep = {"at": "t", "dry_run": True, "deleted": {}, "kept": {}, "problems": [], "delivered_runs": [],
+           "delivered_videos": 1, "freed_bytes": 0, "seconds": 0.1,
+           "one_copy_per_delivery": {"kept_copies": 0, "other_copies": {"files": 0, "bytes": 0},
+                                     "unresolved": {"KKKKKKKKKKK": "pinned_x: no hash named and no own section"}}}
+    monkeypatch.setattr(service.purge, "load_spec", lambda: {})
+    monkeypatch.setattr(service.purge, "run_pass", lambda spec, **kw: rep)
+    monkeypatch.setattr(iw.config, "paths", lambda root=None: {"queue": ":memory:", "purge": "/nonexistent"})
+    import pipeline.ingest.queue as Qm
+    monkeypatch.setattr(Qm, "Queue", lambda path: None)
+    iw.cmd_purge(argparse.Namespace(apply=False, measure=False, json=False))
+    out = capsys.readouterr().out
+    assert "unresolved, every copy kept (A19): KKKKKKKKKKK: pinned_x: no hash named and no own section" in out
 
 
 def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):
