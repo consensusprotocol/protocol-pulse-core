@@ -307,6 +307,10 @@ def test_an_unreadable_state_is_never_guessed_and_is_noticed_after_30_minutes(si
     assert s.hsig.n["unnoted"] == 1
     s.hsig.check_notice()
     assert doc.read_text() == "# STATE\nbody\n"                     # not yet 30 minutes
+    for _ in range(12):                                               # 12 ticks, 2 of them asking the module
+        t[0] += 5
+        s.hsig.tick(wait=True)
+    assert len([m for m in msgs if "is not read" in m]) == 1          # one cause, one log line (no churn)
     t[0] += downsignal.SIGNAL_NOTICE_S
     s.hsig.check_notice()
     assert doc.read_text().startswith("HV DOWN SIGNAL NOT READ since 2026-11-14T07:00:00Z: ")

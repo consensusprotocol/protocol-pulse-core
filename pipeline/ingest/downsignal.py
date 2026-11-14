@@ -171,8 +171,8 @@ class DownSignal:
         try:
             out = getattr(self.hh, fn)(*a, path=self.state_path, **kw)
         except Exception as e:                       # noqa: BLE001 (HealthUnreadable, OSError, a broken module)
-            self._fail(f"{fn}: {type(e).__name__}: {str(e)[:200]}")
-            return None
+            self._fail(f"{type(e).__name__}: {str(e)[:240]}", where=fn)     # one stable text per cause: no log or
+            return None                                                      # STATE churn while it lasts
         finally:
             self.busy_since = None
         self._recovered()
@@ -240,7 +240,8 @@ class DownSignal:
         except FileNotFoundError:
             return                                   # no state yet: the module writes it at the first note
         except (OSError, ValueError) as e:
-            self._fail(f"the shared state cannot be read: {type(e).__name__}: {str(e)[:200]}")
+            if self.error is None:                   # the module's own calls already said so otherwise
+                self._fail(f"{type(e).__name__}: {str(e)[:240]}", where="reading the switches")
             return
         seen = self.q.kv_get("signal_switches_seen")
         if seen in (None, "") or int(seen) > len(sw):
@@ -269,9 +270,10 @@ class DownSignal:
             self.log(f"RULING 87: {h or 'an unknown switch: ' + json.dumps(rec)[:300]}")
             self.q.kv_set("signal_switches_seen", str(i + 1))
 
-    def _fail(self, why):
+    def _fail(self, why, where="loading"):
         if self.error != why:
-            self.log(f"RULING 87: the shared {self.label} down signal is not read: {why} (never guessed up or down)")
+            self.log(f"RULING 87: the shared {self.label} down signal is not read ({where}): {why} (never guessed up "
+                     "or down)")
             if self.error is None:
                 self._evidence({"kind": "unreadable", "utc": _iso(self.clock()), "why": why, "by": WHO})
                 self.q.event("down_signal_unreadable", None, None, why=why)

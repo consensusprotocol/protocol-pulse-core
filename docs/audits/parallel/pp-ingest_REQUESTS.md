@@ -105,3 +105,16 @@ exclusion, whatever `since` or horizon the caller passes). So the worker already
 24 h and "older" tiers are simply empty until the constants change. Its temporary audio and window WAVs (deleted by
 the worker at the end of each cycle) are also covered by the watcher's purge when a cycle dies and leaves them
 (`/tmp/word_pass_*` untouched for 12 h; never a directory a process holds open).
+
+## R12 pp-selectid `pipeline/heimdall_health.py` (ruling 87; the builder's module, non-blocking)
+1. Two probers, one streak: `probe_due` reads `last_probe_utc` but does not claim the probe, and `probe_result` stamps
+   it only when the probe has answered (up to 60 s per family later). While both the builder's probe thread and this
+   watcher's probe run during an outage, both can see a probe due in the same 2-minute slot and both report: "3 answers
+   in a row" can then come from 2 rounds (back to Heimdall-first after ~2-4 min instead of ~4-6), and one prober's
+   failure resets the other's streak. Proposed: `probe_due` stamps `last_probe_utc` when it answers True (a claim), so
+   one probe per slot fleet-wide; `probe_result` keeps the streak rule.
+2. `_prepend(state_md, ...)` takes its lock as `state_md + ".lock"`, a file beside the caller's STATE.md (untracked in
+   the caller's repo; and a lock the caller's own STATE writers do not take). This watcher therefore passes no
+   `state_md` and writes every switch to its own STATE line 1 under its notices' lock (INGEST_DESIGN section 14).
+   Proposed: a lock path outside the caller's tree, or a documented `state_lock` parameter.
+

@@ -283,6 +283,38 @@ must never lose a flag. The watcher's `hook` loop (every 5 s, 2 videos at once) 
 the last 12 h, newest first: the current window at start, then every new upload after its moment pass. Report:
 `tools/ingest_watch.py hooks` and live.json `hooks_12h`.
 
+## 14. The shared Heimdall-down signal (ruling 87, orchestrator 21:18 ET Nov 13; the builder's contract 01:5x Nov 14)
+
+ONE "Heimdall down" signal for the builder and this watcher: the builder's module (pp-selectid
+`pipeline/heimdall_health.py`, 125e7381), loaded by path at the watcher's start and used through its API only
+(`note`, `mode`, `probe_due`, `probe_result`); its state file `tests/package/proof/HEIMDALL_HEALTH.json` in the
+builder's worktree under its own flock. Down = no Heimdall family answering for 15 min (`plan_b`); back after 3 probe
+answers in a row. This side (`pipeline/ingest/downsignal.py`, the `signal` loop every 5 s):
+- NOTES: every real call of the watcher to a back-end of `providers.json down_signal.vendor` (mining, hooks, the
+  second-model check) is one outcome: answered (`ok`, or `invalid`: the gateway answered inside the back-end's
+  deadline) or not (any other outcome of a real call: down, refusing, empty, late, 429). No note for a stored reply or
+  a missing key (no call), a probe call (its outcome is the probe's), another vendor. A back-end under an
+  overrides.json `base_url` override (the outage drill) is noted `drill=True` (recorded, never counted). The router's
+  threads only leave the outcome in memory (the latest answer and the first failure after it, each with its time):
+  one thread calls the module, so a held or stuck shared lock never stalls the miner.
+- THE PROBE (role `probe`: the miner's qwen3.8-27b, then glm-5.3-flash, each a probe-only back-end with the builder's
+  60 s deadline, one in flight): while `probe_due`, "Reply with the single word OK."; the first answer ends it; never
+  from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`), no
+  transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called is
+  no probe.
+- SWITCHES: every switch in the shared state, whoever made it, goes once to the top of `pp-ingest_STATE.md` (line 1,
+  the module's words IN CAPITALS with the time ET, plus who made it and the miner's Plan B; newest first on one
+  physical line, kept first whatever other notice comes or goes) and to the evidence file
+  `data/editorial/ingest/down_signal.jsonl` (the module also writes its own switch record there when this watcher
+  trips it). The module is given NO STATE path: its own head writer would leave a lock file beside STATE.md and bypass
+  the notices' lock.
+- FAIL CLOSED: an unreadable state, a missing module or a call stuck on the lock is never read as up or down
+  (live.json `down_signal.mode` null with the reason at once; a "<LABEL> DOWN SIGNAL NOT READ" line on STATE after
+  30 min, removed when it is read again).
+- THE MINER'S PLAN B: queue and wait (the 05:30 Nov 12 spend freeze; the orchestrator's question is open). Nothing in
+  the signal changes what the miner calls: in Plan B it calls Heimdall (then the local model, disabled), and when
+  nothing answers the videos wait in the queue, never dropped (section 7's outage handling).
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,
