@@ -146,7 +146,8 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
                                                            # retired by ruling 56: kept so its pins still recompute)
                 "scorer_verdict",                          # ruling 56: the clip scorer's affirmation, only when sealed
                 "attested",                                # ruling 67: the attested-text re-seal's record (re-sealed)
-                "visual")                                  # ruling 70: the clip's visual record (flags, sheet sha)
+                "visual",                                  # ruling 70: the clip's visual record (flags, sheet sha)
+                "relisten")                                # ruling 103: the targeted re-listen's two short readings
 TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
                                                            # separate constant (a test holds them equal): the
                                                            # integrator's check_pin_only imports this module, which
@@ -439,7 +440,8 @@ def to_pin(pk, run_name):
                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
                      **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual",
-                                          "attested")      # rulings 68 / 72: an adopted spoken text, sealed
+                                          "attested",      # rulings 68 / 72: an adopted spoken text, sealed
+                                          "relisten")      # ruling 103: only when a re-listen ran, sealed
                         if k in s},
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],

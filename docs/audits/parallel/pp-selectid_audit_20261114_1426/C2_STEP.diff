@@ -1,0 +1,303 @@
+diff --git a/pipeline/canon.py b/pipeline/canon.py
+index c977a6a..6564cd6 100644
+--- a/pipeline/canon.py
++++ b/pipeline/canon.py
+@@ -29,6 +29,9 @@ _UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eig
+ _TENS = {w: 10 * (i + 2) for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split())}
+ _SCALES = {"hundred": 100, "thousand": 10 ** 3, "million": 10 ** 6, "billion": 10 ** 9, "trillion": 10 ** 12}
+ _SUFFIX = {"k": 10 ** 3, "m": 10 ** 6, "mn": 10 ** 6, "b": 10 ** 9, "bn": 10 ** 9, "t": 10 ** 12, "tn": 10 ** 12}
++# US retirement plans are NAMES: '401k' = '401(k)' (tokenised '401', 'k') is never 401000 (L-k: a different number never
++# compares equal; the 2026-11-14 pre-check finding). With a '$' before it, '$401k' stays the amount $401,000.
++_PLANS = ("401k", "403b", "457b")
+ _ORD = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
+         "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12, "thirteenth": 13, "fourteenth": 14,
+         "fifteenth": 15, "sixteenth": 16, "seventeenth": 17, "eighteenth": 18, "nineteenth": 19, "twentieth": 20,
+@@ -157,6 +160,13 @@ def _canon_seq(trips, heads=False):
+             i += 1
+             continue
+         num, s0 = None, i
++        plan = t if t in _PLANS else (t + toks[i + 1] if i + 1 < len(toks) and len(toks[i + 1]) == 1
++                                      and t + toks[i + 1] in _PLANS else None)     # '401', 'k': only the letter
++        if plan is not None and owed is None:        # a plan's name, one token over every word it spans
++            last = i if plan == t else i + 1
++            out.append((plan, trips[i][1], trips[last][2]))
++            i = last + 1
++            continue
+         m = _NUM.match(t)
+         if m:
+             try:
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index e7095b4..1c650a3 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -40,14 +40,18 @@ from datetime import datetime, timezone
+ 
+ import attest as AT
+ 
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # RULING 84 (orchestrator 20:41 Nov 13): the integrator's
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"   # RULING 103 (orchestrator 14:12 Nov 14): the
++#   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
++#   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+ #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+-DECODER = "c705b20ed800"                      # side): the render's own cut placement joins the pre-check (a passing
++DECODER = "d1e155c642a6"                      # side): the render's own cut placement joins the pre-check (a passing
+ #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+ #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+ #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
+ #   spotlight branches in pinned.py, merged fd5c9cc4 at 23:16 ET Nov 13; RULES unchanged; every medley span's decode,
+ #   lock and class unchanged, entries under the old sha not reused): c705b20ed80025af629856e6c34eb609834fef3f708b8614ca26749a4fc8088c
++#   RULING 103 with the canon-401k fix (law L-k: '401k' is a plan's name, never 401000), landed together on the
++#   integrator's side (canon-401k 373d0fed + 077407dc, audited batches 79 and 80): d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce
+ RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
+ REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                         "lock_requests")      # this worktree's; the service only reads it
+@@ -174,7 +178,7 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
+     rows = []
+     for s, e in zip(req, got):
+         d = decide(s, e)
+-        rows.append(dict(s, **d, entry=None if e is None else {
++        rows.append(dict(s, **d, relisten=relisten_of(e), entry=None if e is None else {
+             "request_id": e.get("request_id"), "at": e.get("at"), "outcome": e.get("outcome"),
+             "lock_sha256": (e.get("lock") or {}).get("sha256") if isinstance(e.get("lock"), dict) else None,
+             "file": os.path.basename(result_file(s, results_dir))}))
+@@ -183,6 +187,14 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
+             "error": "; ".join(errs)[:600] or None}
+ 
+ 
++def relisten_of(e):
++    """RULING 103: the entry's targeted re-listen record as it stands (one per segment: the lock's token, its short
++    window, both short readings, the verdict, scribe's cost), or None when no re-listen ran (the entry's null, a missing
++    key, or anything that is not an object). It is sealed onto the segment as it stands (apply; package_pin)."""
++    r = (e or {}).get("relisten") if isinstance(e, dict) else None
++    return r if isinstance(r, dict) else None
++
++
+ def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
+     """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
+     return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
+@@ -217,6 +229,8 @@ def apply(pk, pre):
+             if q:
+                 raise ValueError(f"ruling 67: these lines quote the changed words of {s['video_id']}: {q}")
+             s["text"], s["attested"] = r["spoken_text"], attested(r)
++        if isinstance(r.get("relisten"), dict):          # RULING 103: "Record both short readings on the pin"
++            s["relisten"] = json.loads(json.dumps(r["relisten"]))   # a copy as it stands (sealed: SEALED_LATER)
+     pk["hook_first_words"] = " ".join(segs[0]["text"].split()[:8])      # as package._package derives it
+     pk["precheck"] = {"ok": True, "request_id": pre.get("request_id"),
+                       "segments": [dict({k: r.get(k) for k in ("video_id", "start", "end", "role", "verdict", "outcome",
+diff --git a/pipeline/package_pin.py b/pipeline/package_pin.py
+index fc96df7..db852b6 100644
+--- a/pipeline/package_pin.py
++++ b/pipeline/package_pin.py
+@@ -146,7 +146,8 @@ SEALED_LATER = ("time_sensitive", "source_published_at",   # ruling 1 (22:40): t
+                                                            # retired by ruling 56: kept so its pins still recompute)
+                 "scorer_verdict",                          # ruling 56: the clip scorer's affirmation, only when sealed
+                 "attested",                                # ruling 67: the attested-text re-seal's record (re-sealed)
+-                "visual")                                  # ruling 70: the clip's visual record (flags, sheet sha)
++                "visual",                                  # ruling 70: the clip's visual record (flags, sheet sha)
++                "relisten")                                # ruling 103: the targeted re-listen's two short readings
+ TRIMMED_PER_PIN_MAX = 1                                    # ruling 49 (b): package.TRIMMED_PER_LINEUP_MAX. Kept a
+                                                            # separate constant (a test holds them equal): the
+                                                            # integrator's check_pin_only imports this module, which
+@@ -439,7 +440,8 @@ def to_pin(pk, run_name):
+                      "time_sensitive": s.get("time_sensitive"), "source_published_at": s.get("source_published_at"),
+                      "speaker": s.get("speaker"),                     # 00:05 ET Nov 13 item 3 (sealed)
+                      **{k: s[k] for k in ("trimmed_leading", "untrimmed_start", "scorer_verdict", "visual",
+-                                          "attested")      # rulings 68 / 72: an adopted spoken text, sealed
++                                          "attested",      # rulings 68 / 72: an adopted spoken text, sealed
++                                          "relisten")      # ruling 103: only when a re-listen ran, sealed
+                         if k in s},
+                      "time_coords": "youtube", "source": {"kind": "youtube"}})
+     edl_vo = {"intro": pk["vo"]["intro"],
+diff --git a/pipeline/test_canon.py b/pipeline/test_canon.py
+index 2ed80aa..1ea065c 100644
+--- a/pipeline/test_canon.py
++++ b/pipeline/test_canon.py
+@@ -264,5 +264,36 @@ class TestSites(unittest.TestCase):
+         self.assertFalse(missing, missing)
+ 
+ 
++class TestRetirementPlans(unittest.TestCase):
++    """L-k (a different number never compares equal), the 2026-11-14 pre-check finding on 7BqLu-wzbU0: a US
++    retirement plan is a NAME. '401k' read as 401000 made 'a 401k' equal 'a 401,000'; '401(k)' read as 401 + 'k'
++    made the plan's two spellings differ. Both spellings are now one token; a '$' keeps an amount an amount."""
++
++    def test_a_plan_is_never_the_number(self):
++        for plan, amount in (("a 401k", "a 401,000"), ("a 401k", "a 401 thousand"), ("a 401(k)", "a 401,000"),
++                             ("my 403(b)", "my 403 billion"), ("a 457b", "a 457,000,000,000")):
++            self.assertFalse(C.same(plan, amount), (plan, amount))
++
++    def test_the_plans_spellings_are_one_name(self):
++        for a, b in (("I don't have a 401k.", "I don't have a 401(k)."), ("a 401K", "a 401(k)"),
++                     ("my 403b", "my 403(b)"), ("a 457(b) plan", "a 457b plan")):
++            self.assertTrue(C.same(a, b), (a, b))
++        self.assertEqual(C.canon_tokens("I don't have a 401(k)"), ["i", "don't", "have", "a", "401k"])
++
++    def test_the_pre_check_case_still_differs(self):
++        self.assertFalse(C.same("I don't have a 401k", "I don't have a 401 ,"))     # the second recogniser's reading
++
++    def test_amounts_are_unchanged(self):
++        self.assertEqual(C.canon_tokens("$401k"), ["401000", "dollars"])           # a '$' keeps it an amount
++        self.assertEqual(C.canon_tokens("40k"), ["40000"])
++        self.assertTrue(C.same("74k", "seventy four thousand"))
++        self.assertEqual(C.canon_tokens("401,000"), ["401000"])
++        self.assertEqual(C.canon_tokens("401 kilos"), ["401", "kilos"])           # only the single letter joins
++
++    def test_the_split_form_spans_both_words(self):
++        spans = C.canon_spans(["a", "401", "k", "plan"])
++        self.assertIn(("401k", 1, 2), [tuple(s) for s in spans])
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index 299098c..1c8a870 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -58,7 +58,7 @@ class TestRequest(Dirs):
+         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
+         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
+         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
+-                         "DcUbBkyeh9M.216.054-228.674.c705b20ed800.json")             # ruling 90's decoder
++                         "DcUbBkyeh9M.216.054-228.674.d1e155c642a6.json")             # ruling 103's decoder
+ 
+     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -133,7 +133,8 @@ class TestRuling84(unittest.TestCase):
+     s = LP.segments_of([BREEDLOVE])[0]
+ 
+     def test_the_rules_string_is_the_integrators(self):
+-        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84")
++        """RULING 103 (14:12 Nov 14) joined the integrator's rules string (its message of 14:3x Nov 14)."""
++        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103")
+ 
+     def test_the_held_span_of_the_20_12_build_now_adopts(self):
+         spoken = "So over time, um, I came to think, uh, or the money itself was broken."
+@@ -180,7 +181,7 @@ class TestCheck(Dirs):
+             self.put(s, entry(s))
+         rep, sleeps = self.run_check([HOOK, CLIP])
+         self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
+-        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.c705b20ed800.json")
++        self.assertEqual(rep["segments"][0]["entry"]["file"], f"DcUbBkyeh9M.216.054-228.674.{LP.DECODER}.json")
+ 
+     def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
+         segs = LP.segments_of([HOOK, CLIP])
+@@ -204,15 +205,16 @@ class TestCheck(Dirs):
+ 
+     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
+         """Audit 1845 C2 (glm): ruling 73 changed the decoder, ruling 84 changed it again, and ruling 90 (the
+-        integrator's spotlight branches) again; a file named for an older decoder (25cd6f15e6c9, 8a101f222598,
+-        962353613cb0) is never opened, even with a matching, newer entry under the current rules."""
++        integrator's spotlight branches) again, and ruling 103 with the canon-401k fix again (14:3x Nov 14); a file
++        named for an older decoder (25cd6f15e6c9, 8a101f222598, 962353613cb0, c705b20ed800) is never opened, even
++        with a matching, newer entry under the current rules."""
+         s = LP.segments_of([HOOK])[0]
+-        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0"):
++        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0", "c705b20ed800"):
+             old = LP.result_file(s, self.res, decoder=dec)
+             with open(old, "w") as f:
+                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
+             self.assertTrue(old.endswith(f".{dec}.json"))
+-        self.assertIsNone(LP.answer(s, self.res))                                         # only c705b20ed800's file
++        self.assertIsNone(LP.answer(s, self.res))                                         # only LP.DECODER's file
+ 
+     def test_ruling_73_holds_a_span_the_render_cannot_cut(self):
+         segs = LP.segments_of([HOOK, CLIP])
+diff --git a/tests/package/test_ruling_103.py b/tests/package/test_ruling_103.py
+new file mode 100644
+index 0000000..10eaad6
+--- /dev/null
++++ b/tests/package/test_ruling_103.py
+@@ -0,0 +1,93 @@
++#!/usr/bin/env python3
++"""RULING 103 (orchestrator 14:12 ET Nov 14), the builder's side, landed with the integrator's canon-401k fix (one
++decoder-sha move): the pre-check's rules and decoder; the targeted re-listen's record ("Record both short readings on
++the pin") carried from the pre-check entry onto the segment as it stands and sealed (package_pin.SEALED_LATER), only when
++a re-listen ran, so every pin without one seals as before; canon's '401k' is a plan's name (pipeline/test_canon.py, the
++integrator's tests, byte-identical). Offline: temporary requests and results directories."""
++import copy
++import json
++import os
++import sys
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import canon as C  # noqa: E402
++import lock_precheck as LP  # noqa: E402
++import package_pin  # noqa: E402
++import test_angles as TA  # noqa: E402
++from test_lock_precheck import CLIP, HOOK, Dirs, entry  # noqa: E402
++
++RELISTEN = {"token": "401k", "against": "", "window": [14.84, 18.38], "source_window": [14.84, 18.38],
++            "decoder_reading": "IRA. I don't have a 401k. I don't own a single",
++            "second_reading": "Roth IRA. I don't have a 401k. I don't own a single", "verdict": "pass",
++            "scribe_usd": 0.0007}
++
++
++class TestTheRules(Dirs):
++    def test_an_entry_under_the_rules_before_103_is_never_read(self):
++        s = LP.segments_of([HOOK])[0]
++        self.put(s, entry(s, rules="ruling 17 + ruling 72 + ruling 73 + ruling 84", at="2026-11-14T19:00:00Z"))
++        self.assertIsNone(LP.answer(s, self.res))
++        self.put(s, entry(s, at="2026-11-14T19:01:00Z"))                     # the same answer under ruling 103's rules
++        self.assertEqual(LP.answer(s, self.res)["outcome"], "no_difference")
++
++
++class TestTheRecordReachesTheSeal(Dirs):
++    def check(self, relisten):
++        segs = LP.segments_of([HOOK, CLIP])
++        self.put(segs[0], entry(segs[0], relisten=relisten))
++        self.put(segs[1], entry(segs[1], relisten=None))
++        return LP.check([HOOK, CLIP], "r", self.req, self.res, log=lambda m: None)
++
++    def pk(self):
++        return {"segments": [{"video_id": m["video_id"], "start": m["start"], "end": m["end"], "text": m["text"]}
++                             for m in (HOOK, CLIP)], "lines": [], "hook_first_words": ""}
++
++    def test_a_relisten_record_is_carried_as_it_stands_and_only_when_one_ran(self):
++        pre = self.check(copy.deepcopy(RELISTEN))
++        self.assertTrue(pre["ok"])
++        self.assertEqual([r["relisten"] for r in pre["segments"]], [RELISTEN, None])
++        pk = LP.apply(self.pk(), pre)
++        self.assertEqual(pk["segments"][0]["relisten"], RELISTEN)                 # as it stands,
++        self.assertIsNot(pk["segments"][0]["relisten"], pre["segments"][0]["relisten"])   # a copy (glm C1)
++        self.assertNotIn("relisten", pk["segments"][1])                           # null: no key
++        for odd in ("pass", ["401k"], 7):                                           # not an object: no record
++            self.tmp.cleanup()
++            self.setUp()
++            pre = self.check(odd)
++            self.assertIsNone(pre["segments"][0]["relisten"], odd)                 # the row's contract: None
++            pk = LP.apply(self.pk(), pre)
++            self.assertNotIn("relisten", pk["segments"][0], odd)
++
++    def test_the_record_is_sealed_and_a_pin_without_one_seals_as_before(self):
++        base = TA.TestPinAndTruth.pk(None)
++        plain = package_pin.to_pin(copy.deepcopy(base), "r")
++        self.assertNotIn("relisten", plain["segments"][0])
++        with_r = copy.deepcopy(base)
++        with_r["segments"][0]["relisten"] = copy.deepcopy(RELISTEN)
++        pin = package_pin.to_pin(with_r, "r")
++        self.assertEqual(pin["segments"][0]["relisten"], RELISTEN)
++        sha = pin["moments_package"]["package_sha256"]
++        self.assertEqual(package_pin.pin_seal(pin), sha)                           # the integrator's recompute
++        self.assertNotEqual(sha, plain["moments_package"]["package_sha256"])      # the record is inside the seal
++        tampered = copy.deepcopy(pin)
++        tampered["segments"][0]["relisten"]["second_reading"] = "Roth IRA. I don't have a 401. I don't own a single"
++        self.assertNotEqual(package_pin.pin_seal(tampered), sha)
++        self.assertEqual(package_pin.pin_seal(plain), plain["moments_package"]["package_sha256"])
++
++
++class TestCanonOnThisSide(unittest.TestCase):
++    """The integrator's canon fix, taken byte-identical (its own tests: pipeline/test_canon.py TestRetirementPlans):
++    this side's step-A and attest code read the same canonical tokens as the render's lock."""
++
++    def test_the_plan_is_a_name_here_too(self):
++        self.assertFalse(C.same("a 401k", "a 401,000"))
++        self.assertTrue(C.same("I don't have a 401k.", "I don't have a 401(k)."))
++        self.assertFalse(C.same("I don't have a 401k", "I don't have a 401 ,"))     # Blockware's hold stands
++
++
++if __name__ == "__main__":
++    unittest.main()

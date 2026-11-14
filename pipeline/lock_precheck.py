@@ -40,14 +40,18 @@ from datetime import datetime, timezone
 
 import attest as AT
 
-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"   # RULING 103 (orchestrator 14:12 Nov 14): the
+#   targeted re-listen joins the rules (the integrator's message of 14:3x Nov 14); entries under the old RULES are never
+#   read. RULING 84 (orchestrator 20:41 Nov 13): the integrator's
 #   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "c705b20ed800"                      # side): the render's own cut placement joins the pre-check (a passing
+DECODER = "d1e155c642a6"                      # side): the render's own cut placement joins the pre-check (a passing
 #   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
 #   84 changed the render's adjudicate_lock (pinned.py), so the decoder_sha changed: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
 #   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7). RULING 90 (the integrator's
 #   spotlight branches in pinned.py, merged fd5c9cc4 at 23:16 ET Nov 13; RULES unchanged; every medley span's decode,
 #   lock and class unchanged, entries under the old sha not reused): c705b20ed80025af629856e6c34eb609834fef3f708b8614ca26749a4fc8088c
+#   RULING 103 with the canon-401k fix (law L-k: '401k' is a plan's name, never 401000), landed together on the
+#   integrator's side (canon-401k 373d0fed + 077407dc, audited batches 79 and 80): d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it
@@ -174,13 +178,21 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
     rows = []
     for s, e in zip(req, got):
         d = decide(s, e)
-        rows.append(dict(s, **d, entry=None if e is None else {
+        rows.append(dict(s, **d, relisten=relisten_of(e), entry=None if e is None else {
             "request_id": e.get("request_id"), "at": e.get("at"), "outcome": e.get("outcome"),
             "lock_sha256": (e.get("lock") or {}).get("sha256") if isinstance(e.get("lock"), dict) else None,
             "file": os.path.basename(result_file(s, results_dir))}))
     errs = [f"{x['video_id']} {x['start']}-{x['end']}: {x['why']}" for x in rows if x["verdict"] == "error"]
     return {"ok": all(x["verdict"] in ("pass", "adopt") for x in rows), "request_id": sent, "segments": rows,
             "error": "; ".join(errs)[:600] or None}
+
+
+def relisten_of(e):
+    """RULING 103: the entry's targeted re-listen record as it stands (one per segment: the lock's token, its short
+    window, both short readings, the verdict, scribe's cost), or None when no re-listen ran (the entry's null, a missing
+    key, or anything that is not an object). It is sealed onto the segment as it stands (apply; package_pin)."""
+    r = (e or {}).get("relisten") if isinstance(e, dict) else None
+    return r if isinstance(r, dict) else None
 
 
 def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
@@ -217,6 +229,8 @@ def apply(pk, pre):
             if q:
                 raise ValueError(f"ruling 67: these lines quote the changed words of {s['video_id']}: {q}")
             s["text"], s["attested"] = r["spoken_text"], attested(r)
+        if isinstance(r.get("relisten"), dict):          # RULING 103: "Record both short readings on the pin"
+            s["relisten"] = json.loads(json.dumps(r["relisten"]))   # a copy as it stands (sealed: SEALED_LATER)
     pk["hook_first_words"] = " ".join(segs[0]["text"].split()[:8])      # as package._package derives it
     pk["precheck"] = {"ok": True, "request_id": pre.get("request_id"),
                       "segments": [dict({k: r.get(k) for k in ("video_id", "start", "end", "role", "verdict", "outcome",

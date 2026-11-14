@@ -1,0 +1,92 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence that breaks it.
+
+BACKGROUND (static):
+- Before a line-up is written and before its pin is sealed, the builder asks the integrator's service to run the
+  render's own lock on each segment (the "lock pre-check", pipeline/lock_precheck.py, rulings 68 / 72).
+  - Requests go to this worktree's lock_requests dir. Answers are list-of-entry files named
+    <video>.<start>-<end>.<DECODER>.json in the integrator's results dir (read only here).
+  - An entry is read only when its "rules" string equals RULES and its file is named for DECODER: an answer under any
+    other rules or decoder is not valid for the render's code.
+- A pin (package_pin.to_pin) seals a sha256 over the gated bytes. Per segment: video, start, end, text, transcript sha,
+  plus each SEALED_LATER field the segment carries, so a field enters the body only when present.
+  - The integrator's check imports THIS worktree's package_pin.py and recomputes every pin's seal (pin_seal).
+  - Every pin already delivered must recompute unchanged.
+- canon.py is the one canonical text form both sides compare with (law L-k: a different number never compares equal).
+  This worktree's copy was byte-identical to the render's.
+
+THE ORCHESTRATOR'S RULING (14:12 ET Nov 14), verbatim:
+"RULING 103, THE TARGETED RE-LISTEN (for a hold where the two independent readings differ on ONE number or name token,
+as '401k' against '401' on Blockware 06d34e15). The hold stands as the default: a number or name disagreement is never
+waved through. But one long-span reading against another is weak evidence about one token. Before the hold is final,
+BOTH recognisers are asked again on a SHORT window cut around that token alone (the token's word times, 1.5 s either
+side, the same audio the cut will use). The lock passes on that token only if BOTH short-window readings give the
+lock's token (after the canon, with the 401k fix: a plan's name is not the number 401000). If either short reading still
+differs, or the two differ from each other, the hold is final and the clip may only be saved by a variant that leaves
+the token out. Record both short readings on the pin. Scribe's cost for 4 s is nothing; say it.
+ORDER OF WORK: ... (2) with the integrator, land the canon-401k fix and ruling 103 together so the decoder sha moves
+once ..."
+
+THE INTEGRATOR'S SIDE (its messages of 14:2x-14:3x ET Nov 14; facts, not in this diff):
+- Branch canon-401k 077407dc = 373d0fed (canon: '401k' / '401(k)' / 403(b) / 457(b) are one NAME token, never 401000;
+  a '$' keeps an amount an amount) + ruling 103 in the render's adjudicate_lock. Audited batches 79 and 80, two cycles
+  each, clean.
+- The final decoder_sha is d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce. RULES becomes
+  "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"; entries under the old RULES are never reused.
+- The relisten record sits on each result entry, key "relisten", ONE per segment (a span decides at most one token).
+  - It is null when no re-listen ran. Otherwise it is an object {token, against, window [f, f], source_window [f, f],
+    decoder_reading, second_reading, verdict "pass" | "hold", scribe_usd}, or the edge form
+    {token, against, verdict "hold", why}.
+  - Only outcome "hold" or a passing lock carries a non-null record. relisten.verdict is the re-listen's own verdict,
+    never an outcome.
+- Ruling 103 added and renamed NO outcome. The set is "decoded", "no_difference", "adopted", "two_readings",
+  "adopt_spoken", "hold", "error".
+  - "decoded" is only for a decode-only request without approved_text. The builder's requests always carry it, and
+    its decide() fails closed on "decoded", as it should.
+  - A re-listen pass keeps the normal outcome (no_difference / adopted / two_readings), with spoken_text null.
+- Landing: the builder commits this change and says READY with no build running. The integrator merges to main and
+  pushes. Only then does the builder push, so no pre-check of the builder's waits on a sha it cannot read.
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- lock_precheck.decide(): PASS = {"no_difference", "adopted", "two_readings"} passes; "adopt_spoken" adopts only after
+  this side's own class_84 check; "hold" holds; anything else (including "decoded" and "error") is no verdict, never a
+  pass.
+- lock_precheck._matches(): rules == RULES, the window equals the segment's [start, end], and role, approved_text and the
+  trim fields are equal.
+- package_pin.seal() / pin_seal(): unchanged; body_of() adds `{k: s[k] for k in SEALED_LATER if k in s}`.
+
+THE CHANGE (the diff follows):
+1. lock_precheck.py:
+   - RULES and DECODER updated (with the full sha in the history comment).
+   - relisten_of(e): the entry's "relisten" when it is an object, else None.
+   - check() puts it on each row ("relisten").
+   - apply() copies a row's object record onto the package segment ("relisten") as it stands. Absent otherwise.
+2. package_pin.py: SEALED_LATER gains "relisten", and to_pin carries "relisten" from the segment when present.
+3. canon.py and test_canon.py: the integrator's fixed files, byte-identical (git show 077407dc:pipeline/canon.py). This
+   side's copies were byte-identical to theirs before the fix.
+4. Tests:
+   - test_ruling_103.py (new, 5):
+     - an entry under the old RULES is never read;
+     - the record is carried as it stands, only when one ran;
+     - a non-object is never carried, in the row or on the segment;
+     - the record is inside the seal and pin_seal recomputes it, and a tampered reading changes the seal;
+     - a pin without a record seals as before;
+     - canon's plan-name cases on this side.
+   - test_lock_precheck.py: its decoder literals and old-decoder list updated (c705b20ed800 joins the never-read list).
+   - 8 mutations, each killed.
+   - pipeline/test_canon.py TestSites::test_no_ad_hoc_normaliser_outside_canon already fails at HEAD (pipeline/
+     speakers.py's own normalisers), before and after this change; it is not in this change's scope.
+
+ATTACK:
+(a) Can any answer under the old decoder or the old RULES still be read? Can a valid new answer be missed (a pass read
+    as no verdict)?
+(b) The relisten record: can a non-null record reach a pin that the render would refuse, or a null or odd one reach
+    it? Is it sealed as it stands (no re-shaping)? Can a pin delivered before this change fail its recompute?
+(c) canon: does the fix change any comparison the builder's own gates make, beyond '401k'-class plan names (an amount
+    with '$', '40k', '401 kilos')?
+(d) The landing order: can a build of the builder's run while the decoder it reads is not the one the service serves?
+(e) Anything else that could seal a wrong pin or block every pre-check.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".
