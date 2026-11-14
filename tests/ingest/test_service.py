@@ -507,3 +507,15 @@ def test_an_unanswered_question_records_nothing_and_waits(svc):
     assert s.check_once(wait=True) >= 1
     assert not [l for l in ledger.read(s.p["ledger"])[0] if l.get("risk_checks")]
     assert s.check_once(wait=True) == 0                                           # retried only after CHECK_RETRY_S
+
+
+def test_the_check_loop_does_not_reread_an_unchanged_ledger(svc, monkeypatch):
+    """Audit r40p1 c1 (glm): every 30 s the loop re-parsed a day of ledger; now only when the ledger changed or a
+    retry is due."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    while s.check_once(wait=True):
+        pass
+    s.check_once(wait=True)                               # sees the checked lines; nothing left to start
+    monkeypatch.setattr(service.ledger, "read", lambda *a, **k: (_ for _ in ()).throw(AssertionError("re-read")))
+    assert s.check_once(wait=True) == 0

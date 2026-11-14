@@ -302,12 +302,14 @@ def calibrate(router, workers=6, probes=PROBES, sharpened=False):
     return res
 
 
-def record(ans):
-    """What a checked line carries for one flag (ruling 40 P1, the watcher), or None when nothing was measured."""
+def record(ans, version=PROMPT_VERSION):
+    """What a checked line carries for one flag (ruling 40 P1, the watcher), or None when nothing was measured.
+    version: the definitions the answer was given under (the adapter counts only the current PROMPT_VERSION; an
+    answer under the sharpened definition would carry SHARPENED_VERSION: audit r40p1 c1, glm)."""
     if not isinstance(ans, dict) or ans.get("answer") not in ANSWERS:
         return None
     return {"answer": ans["answer"], "evidence": ans.get("evidence", ""), "why": ans.get("why", ""),
-            "model": ans.get("model"), "backend": ans.get("backend"), "prompt_version": PROMPT_VERSION,
+            "model": ans.get("model"), "backend": ans.get("backend"), "prompt_version": version,
             "at": config.iso()}
 
 
@@ -517,7 +519,8 @@ def remeasure(a):
         futs = [ex.submit(ask, router, r, "accusation", miners[r["video_id"]], lambda: spent() < a.budget_usd, True)
                 for r in rows]
         answers = [f.result() for f in futs]
-    res = [dict(r, checks={"accusation": c}, before=r["checks"]["accusation"]) for r, c in zip(rows, answers)]
+    res = [dict(r, checks={"accusation": c}, before=(r.get("checks") or {}).get("accusation"))
+           for r, c in zip(rows, answers)]
     t = table(res, "accusation")
     moved = Counter((cell(r["before"]), cell(r["checks"]["accusation"])) for r in res if "accusation" in r["risk"])
     report = {"at": config.iso(), "version": SHARPENED_VERSION, "definition": SHARPENED["accusation"],

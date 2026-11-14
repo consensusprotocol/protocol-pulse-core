@@ -463,6 +463,15 @@ class Service:
                      f"{self.check_allowed or 'none (every flag stands)'}")
         if not self.check_allowed:
             return 0
+        try:                                              # nothing new in the ledger and no retry due: no re-read
+            st = os.stat(self.p["ledger"])                # (audit r40p1 c1, glm)
+            seen = (st.st_size, st.st_mtime_ns)
+        except OSError:
+            seen = None
+        with self.clock_lock:
+            due = min(self.check_next.values(), default=float("inf"))
+        if seen is not None and seen == getattr(self, "_check_seen", None) and self.clock() < due:
+            return 0
         now = datetime.now(timezone.utc)
         lines = ledger.read(self.p["ledger"], from_time=now - timedelta(hours=config.EXPIRY_H, days=1))[0]
         latest, miners = {}, {}
@@ -480,8 +489,10 @@ class Service:
                     continue
                 flags = [f for f in ledger.RELEASE_ON_CHECK if f in l["risk"] and ledger.check_valid(l, f) is None]
                 if flags:
-                    todo.append((l["published_at"], key, l, flags))
+                    todo.append((str(l.get("published_at") or ""), key, l, flags))
             todo.sort(key=lambda x: (x[0], x[1]), reverse=True)                       # newest first
+            if len(todo) <= CHECK_INFLIGHT - len(self.check_inflight):
+                self._check_seen = seen                   # everything due is being started: the next loop may skip
             room = CHECK_INFLIGHT - len(self.check_inflight)
             todo = todo[:max(0, min(CHECK_ROWS, room))]
             for _, key, _, _ in todo:
