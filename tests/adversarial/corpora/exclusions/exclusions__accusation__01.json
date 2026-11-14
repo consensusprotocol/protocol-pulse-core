@@ -1,0 +1,273 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__accusation__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Zng5DkMO8e8/transcript.whisper_words.json",
+  "record_sha256": "dc505a20cc6a1a8ec2b08dda8e7e2f789473cf71dd141a9fdbbd3ace51bb653e",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "grift",
+  "mined": "2026-11-12",
+  "selected_k": [
+   259,
+   259
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "accusation",
+  "why": "Names a person and accuses him of grift ('turned crypto into his grift piggy bank')."
+ },
+ "source": {
+  "video_id": "Zng5DkMO8e8",
+  "channel": "Bankless",
+  "title": "Stocks Plunge After the Midterms. Can Bitcoin Survive the AI Selloff?",
+  "description": "📣SPOTIFY PREMIUM RSS FEED | USE CODE: SPOTIFY24\nhttps://bankless.cc/spotify-premium\n\n---\nA blue wave and a black swan. Democrats sweep Congress, markets whipsaw into a $2 trillion selloff, and Bitcoin holds its 50-week moving average through the biggest heist in history: $6 billion stolen from Binance. Ryan and David break down how North Korea pulled it off, how a French bank got robbed with crypto as the getaway car, Ethereum's December 2028 quantum-proof deadline from DevCon, and Coinbase insiders' new sell plans.\n\n---\nBANKLESS SPONSOR TOOLS:\n\n🔓NEAR | TRADE CONFIDENTIALLY, GET 20% BACK\nhttps",
+  "description_truncated": true,
+  "published_at": "2026-11-06T11:30:32+00:00",
+  "url": "https://www.youtube.com/watch?v=Zng5DkMO8e8"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 259,
+    "start": 1041.39,
+    "end": 1046.61,
+    "text": "One of the biggest constraints on crypto's upside was Trump turned crypto into his grift piggy bank.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 241,
+    "start": 980.97,
+    "end": 982.49,
+    "text": "Like, they see the opportunity.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 242,
+    "start": 982.79,
+    "end": 985.73,
+    "text": "Larry thinks he's the opportunity in tokenization, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 243,
+    "start": 985.83,
+    "end": 987.55,
+    "text": "And they're fully bought in on crypto.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 244,
+    "start": 988.21,
+    "end": 990.53,
+    "text": "And there's some of the Democrats funders as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 245,
+    "start": 991.17,
+    "end": 997.57,
+    "text": "So ironically, you have kind of like big asset manager, Wall Street, sort of on the side of crypto.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 246,
+    "start": 998.41,
+    "end": 1001.49,
+    "text": "And that's different than it was in 2022, 2023.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 247,
+    "start": 1002.45,
+    "end": 1007.91,
+    "text": "So like what we've seen so far, this was mild asks from the Democrats.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 248,
+    "start": 1008.03,
+    "end": 1009.71,
+    "text": "Of course, it is incredibly early.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 249,
+    "start": 1010.49,
+    "end": 1015.01,
+    "text": "Hasid tweeting out that Maxine Waters, she's proposed something called the crypto investor bill of rights.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 250,
+    "start": 1015.71,
+    "end": 1024.33,
+    "text": "And it would include things like all exchange withdrawals have to happen within 24 hours, customer assets segregated, bankruptcy, remote, monthly proof of reserves.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 251,
+    "start": 1024.69,
+    "end": 1025.73,
+    "text": "Like, some of this stuff is great.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 252,
+    "start": 1026.01,
+    "end": 1028.63,
+    "text": "And also we're already heading that way anyways.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 253,
+    "start": 1029.13,
+    "end": 1030.03,
+    "text": "We're headed that way anyway.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 254,
+    "start": 1030.47,
+    "end": 1030.77,
+    "text": "That's good.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 255,
+    "start": 1030.99,
+    "end": 1031.45,
+    "text": "That's reasonable.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 256,
+    "start": 1031.75,
+    "end": 1037.49,
+    "text": "And honestly, like, uncovering any sort of Trump or Trump family grift in crypto, I mean, you made the point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 257,
+    "start": 1037.69,
+    "end": 1040.27,
+    "text": "You said this is just like medicine that we have to take, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 258,
+    "start": 1040.37,
+    "end": 1040.75,
+    "text": "You said this.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 260,
+    "start": 1047.15,
+    "end": 1053.39,
+    "text": "This is probably a rough but necessary exorcism for the crypto industry to get rid of sort of Trump.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 261,
+    "start": 1054.07,
+    "end": 1057.85,
+    "text": "They can come after Trump corruption, Trump making coins all they want.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 262,
+    "start": 1058.03,
+    "end": 1058.47,
+    "text": "Welcomeed.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 263,
+    "start": 1058.47,
+    "end": 1061.17,
+    "text": "It's probably, that's very good for crypto, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 264,
+    "start": 1061.33,
+    "end": 1067.39,
+    "text": "It's like, I feel like crypto always knew doing this kind of like Trump thing was a little like a deal with the devil.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 265,
+    "start": 1067.53,
+    "end": 1068.17,
+    "text": "A deal with the devil.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 266,
+    "start": 1068.51,
+    "end": 1068.51,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 267,
+    "start": 1068.79,
+    "end": 1070.19,
+    "text": "But now we get all the upside.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 268,
+    "start": 1070.49,
+    "end": 1080.63,
+    "text": "So long as the Democrats leave the SEC and CFTC alone and allow Paul Atkins and Mike Seelig to continue what they're doing, which is good, responsible.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 269,
+    "start": 1081.11,
+    "end": 1112.93,
+    "text": "productive legislation so that so long as that stays put they can do whatever they want with all trump grift crypto stuff have adam that's a happy happy case though i gotta say david it's not clear whether they'll take that path or they'll just right if they'll go even further anti -crypto like everything and that could also happen as well i'm hoping that the absolute overperformance of the crypto packs the fair shakes all all the crypto money like Can't that be a carrot for them to like agree with us, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

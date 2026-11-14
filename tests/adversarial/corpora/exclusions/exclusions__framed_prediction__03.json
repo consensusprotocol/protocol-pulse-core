@@ -1,0 +1,281 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__framed_prediction__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+  "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "I think",
+  "mined": "2026-11-12",
+  "selected_k": [
+   90,
+   90
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "framed_prediction",
+  "why": "'I think we've seen the bottom behind us and we should expect a number go up from here.'"
+ },
+ "source": {
+  "video_id": "L9tzgg6PXi8",
+  "channel": "CoinTelegraph",
+  "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+  "description": "Is Bitcoin's bottom finally in? Could BTC reach $1 MILLION by 2030? Investor and Bitcoin Opportunity Fund partner Mark Moss explains why he believes Bitcoin is entering one of the biggest buying opportunities in its history, despite recent crypto hacks and market uncertainty. He breaks down why Bitcoin could hit new all-time highs in 2027, how Wall Street adoption could push BTC to $1 million, and whether Strategy (MSTR) could outperform Bitcoin itself. Plus, Moss explains why he believes AI has killed the altcoin market and where investors should position themselves for the next bull run.\n\n00",
+  "description_truncated": true,
+  "published_at": "2026-11-06T14:30:20+00:00",
+  "url": "https://www.youtube.com/watch?v=L9tzgg6PXi8"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 90,
+    "start": 380.9,
+    "end": 388.44,
+    "text": "So when I look at all those three things combined, yeah, I think we've seen the bottom behind us and we should expect a number go up from here.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 78,
+    "start": 321.66,
+    "end": 322.68,
+    "text": "So that's kind of where we're at.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 79,
+    "start": 322.9,
+    "end": 324.84,
+    "text": "But what do we expect moving forward?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 80,
+    "start": 325.2,
+    "end": 337.4,
+    "text": "Well, in 19 of 19, 100 % of the time, for 70 years, 100 % of the time, the market is higher three, six, and 12 months later, 100 % of the time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 81,
+    "start": 338.25,
+    "end": 342.73,
+    "text": "And the average return on the market, the SB 500 is 15%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 82,
+    "start": 342.73,
+    "end": 346.09,
+    "text": "15 % higher in 12 months.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 83,
+    "start": 346.9,
+    "end": 349.4,
+    "text": "And for Bitcoin, again, we don't have that data.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 84,
+    "start": 349.5,
+    "end": 355.25,
+    "text": "We can go back to 2014, but Bitcoin is up an average of 53 % 12 months later.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 85,
+    "start": 355.45,
+    "end": 361.21,
+    "text": "anywhere from 23 to 97%, I think it was, but an average about 53 % higher 12 months later.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 86,
+    "start": 361.81,
+    "end": 367.67,
+    "text": "So I think when you look at all of these things combined, as I said, the market seller exhaustion, we can see that based off of on -chain data.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 87,
+    "start": 368.23,
+    "end": 372.87,
+    "text": "We can see it in the sentiment based off of bad news coming and the price doesn't go down even more.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 88,
+    "start": 373.84,
+    "end": 378.88,
+    "text": "And then we can look at the cycle data, which I said, like midterm data, we can see that 100 % of the time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 89,
+    "start": 379.34,
+    "end": 380.48,
+    "text": "12 months later, it's higher.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 91,
+    "start": 388.94,
+    "end": 395.42,
+    "text": "Yeah, when you say an average of 50%, then, does that make you think that we're going to reach new all -time highs in 2027?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 92,
+    "start": 397.01,
+    "end": 399.31,
+    "text": "Yeah, I don't see any reason why we wouldn't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 93,
+    "start": 399.43,
+    "end": 407.61,
+    "text": "I mean, I think we should based off of, you know, all types of factors, you know, market cycle factors, looking at, you know, typical return ratios off of hitting 200 weekly moving averages.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 94,
+    "start": 407.89,
+    "end": 409.67,
+    "text": "And to that point, yeah, 53 % average.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 95,
+    "start": 410.57,
+    "end": 411.73,
+    "text": "Although, like I said, that's an average.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 96,
+    "start": 411.95,
+    "end": 416.65,
+    "text": "So we did see as low as I think it was like 28 % was the low and like 90 something in the high.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 97,
+    "start": 417.09,
+    "end": 417.53,
+    "text": "So it's an average.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 98,
+    "start": 417.69,
+    "end": 419.87,
+    "text": "But yeah, I think we should break all -time highs in 2027.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 99,
+    "start": 419.87,
+    "end": 420.67,
+    "text": "I would expect that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 100,
+    "start": 421.67,
+    "end": 424.37,
+    "text": "Every year, exchanges get hacked.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 101,
+    "start": 424.77,
+    "end": 427.29,
+    "text": "Wallets get drained and keys get stolen.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 102,
+    "start": 427.91,
+    "end": 430.57,
+    "text": "Engrave Zero is built to make that impossible.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 103,
+    "start": 431.29,
+    "end": 434.73,
+    "text": "No USB, no Bluetooth, no Wi -Fi.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 104,
+    "start": 435.33,
+    "end": 439.87,
+    "text": "Every transaction is signed offline and verified by QR code.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 105,
+    "start": 440.39,
+    "end": 443.57,
+    "text": "It's the only wallet certified EAL7.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 106,
+    "start": 443.79,
+    "end": 448.21,
+    "text": "The highest security rating a financial device can hold.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 107,
+    "start": 448.39,
+    "end": 450.51,
+    "text": "Four layers of Tampa protection.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

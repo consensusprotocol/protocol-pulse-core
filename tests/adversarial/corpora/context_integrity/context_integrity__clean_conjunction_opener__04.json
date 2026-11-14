@@ -1,0 +1,264 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_conjunction_opener__04",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+  "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   796,
+   796
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_conjunction_opener",
+  "why": "Opens on 'And'; a complete historical statement."
+ },
+ "source": {
+  "video_id": "jTuJ8PXhRV4",
+  "channel": "BTC Sessions",
+  "title": "Markets Just Realized How Wrong They Are | Lepard & Valek",
+  "description": "Mentor Sessions EP 109: Lawrence Lepard & Mark Valek on the Sovereign Debt Crisis, the Fed Trap, Gold, Silver & Bitcoin\n\nAmerica's debt just blew past $40 trillion, interest now costs more than the entire military budget, and yet gold and Bitcoin are both down on the year. Larry Lepard of Equity Management Associates and Mark Valek of Incrementum explain why the debasement trade stalled and what sets it off again.\n\nIn this conversation you'll learn why Valek sees a melting system against Lawrence Lepard's Big Print, why higher short-term rates trap the Fed under fiscal dominance, and which str",
+  "description_truncated": true,
+  "published_at": "2026-11-05T16:00:38+00:00",
+  "url": "https://www.youtube.com/watch?v=jTuJ8PXhRV4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 784,
+    "start": 3572.7,
+    "end": 3582.02,
+    "text": "But I think, and I have to admit, I was in the critical camp also, especially when it comes to the big position around micro strategy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 785,
+    "start": 3582.9,
+    "end": 3592.94,
+    "text": "I think the problems there have basically now epped down because the problem was they didn't have any cash reserves and they need cash to, you know.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 786,
+    "start": 3593.36,
+    "end": 3596.52,
+    "text": "be able to pay their dividends and all this stuff.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 787,
+    "start": 3597.36,
+    "end": 3598.36,
+    "text": "Now they learned their lesson.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 788,
+    "start": 3598.56,
+    "end": 3599.38,
+    "text": "They have got the cash.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 789,
+    "start": 3599.62,
+    "end": 3602.7,
+    "text": "So I don't see any imminent threat back then.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 790,
+    "start": 3602.86,
+    "end": 3618.3,
+    "text": "But my point being is it could have worked out pretty differently if we would have seen a de -leveraging or some extent of a more extensive de -leveraging of Bitcoin from Micro Strategy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 791,
+    "start": 3618.44,
+    "end": 3620.0,
+    "text": "I mean, they did sell a few Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 792,
+    "start": 3620.83,
+    "end": 3632.01,
+    "text": "Anyway, so my point is, well, we have also some downside risk due to some concentration risk, also from the ETF side.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 793,
+    "start": 3632.41,
+    "end": 3646.17,
+    "text": "I mean, I was quite amazed that the ETF holders had such strong hands, not much sellings going on from the ETF side during this bear market, which I think one can interpret that this in a positive.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 794,
+    "start": 3646.56,
+    "end": 3661.48,
+    "text": "way, but nevertheless, I mean, for instance, compare the figures, I think from total gold stock, gold ETFs hold roughly, it's not even 1%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 795,
+    "start": 3662.16,
+    "end": 3666.24,
+    "text": "Whereas the total Bitcoin stock, it's 5 % points.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 796,
+    "start": 3668.82,
+    "end": 3675.46,
+    "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 797,
+    "start": 3675.56,
+    "end": 3681.98,
+    "text": "You could really have a nice correlation about the holdings of the gold ETFs and the gold price.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 798,
+    "start": 3682.44,
+    "end": 3689.56,
+    "text": "So I think all Bitcoin ETFs would also be the logically quite important buyers and also sellers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 799,
+    "start": 3691.21,
+    "end": 3704.15,
+    "text": "sees whatever the leveraging event and Bitcoin ETF holders get nervous, this drawdown could potentially, they could become, they could get a worse drawdown out of this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 800,
+    "start": 3704.27,
+    "end": 3707.39,
+    "text": "Yeah, that's just, you know, one point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 801,
+    "start": 3708.35,
+    "end": 3727.17,
+    "text": "And the other point I would make in this regard also indirectly, you know, Larry pointed it out, well, adoption, yes, but I mean the power law implicitly says that the adoption factor actually gradually declines, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 802,
+    "start": 3727.73,
+    "end": 3737.12,
+    "text": "And I think we are now already at the phase where Bitcoin is... more and more trading as a macro sound money asset.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   12,
+   12
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On BTC Sessions: For a Long Period, Gold ETFs Were the Marginal Buyers and Sellers of Gold",
+  "caption": "Clips: BTC Sessions (2026-11-05); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, BTC Sessions.",
+   "bridges": [
+    "Swan Bitcoin:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "jTuJ8PXhRV4",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-05T16:00:38+00:00",
+    "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+    "start": 3668.82,
+    "end": 3675.46,
+    "provenance": {
+     "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+     "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+     "k": [
+      796,
+      796
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   }
+  ]
+ }
+}

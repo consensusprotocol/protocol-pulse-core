@@ -1,0 +1,426 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__14",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   526,
+   526
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "Hedged ('I think', 'might') and kept hedged."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 504,
+    "start": 2248.29,
+    "end": 2250.71,
+    "text": "But that's the playbook, right, that they have used before.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 505,
+    "start": 2250.83,
+    "end": 2251.71,
+    "text": "And it's what they'll use again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 506,
+    "start": 2251.87,
+    "end": 2257.61,
+    "text": "You'll return to the anti -energy policies that you had under the Biden years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 507,
+    "start": 2258.13,
+    "end": 2258.21,
+    "text": "Right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 508,
+    "start": 2260.59,
+    "end": 2262.59,
+    "text": "So nothing, yeah, I mean, nothing good there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 509,
+    "start": 2262.71,
+    "end": 2267.67,
+    "text": "But in terms of before 28, because look, two years is, as we just saw as an eternity in politics, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 510,
+    "start": 2267.69,
+    "end": 2269.87,
+    "text": "Who knows what that could happen in two years?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 511,
+    "start": 2270.32,
+    "end": 2278.1,
+    "text": "So, you know, if so many people, you know, going back to like the very end of 24 would never think that we'd be here right now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 512,
+    "start": 2278.46,
+    "end": 2280.4,
+    "text": "And towards the guys, we get to the end of 26.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 513,
+    "start": 2281.08,
+    "end": 2284.74,
+    "text": "So let's just look at what is going to happen over the next two years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 514,
+    "start": 2285.42,
+    "end": 2286.9,
+    "text": "Democrats are basically going to do nothing.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 515,
+    "start": 2287.06,
+    "end": 2288.24,
+    "text": "It's going to be show trials.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 516,
+    "start": 2288.74,
+    "end": 2290.12,
+    "text": "They'll push for more spending.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 517,
+    "start": 2290.26,
+    "end": 2296.1,
+    "text": "I anticipate they'll do things like try to shut down the government unless the president agrees to defund ICE, you know.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 518,
+    "start": 2296.99,
+    "end": 2305.81,
+    "text": "So there'll be a lot of antics like that, and Democrats may even be successful in some things, because as we've seen, government shutdowns never really last that long, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 519,
+    "start": 2305.91,
+    "end": 2314.19,
+    "text": "I don't know if, I'm not sure, I'm trying to remember if presidents have ever really been able to get everything they wanted.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 520,
+    "start": 2314.35,
+    "end": 2320.87,
+    "text": "Maybe they get some concessions out of Congress, but I don't know the last time a president has gotten everything he wanted, at least out of a government shutdown.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 521,
+    "start": 2321.92,
+    "end": 2324.78,
+    "text": "It always tends to be pretty nasty business, I suppose.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 522,
+    "start": 2325.04,
+    "end": 2327.84,
+    "text": "But whatever the case, I would anticipate things like that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 523,
+    "start": 2328.24,
+    "end": 2331.2,
+    "text": "I don't think that's going to cause much of an economic disruption, though.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 524,
+    "start": 2331.36,
+    "end": 2335.5,
+    "text": "Look, I mean, the, again, the investment gains that we're seeing are massive.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 525,
+    "start": 2335.52,
+    "end": 2338.8,
+    "text": "The productivity gains we're seeing are absolutely massive here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 526,
+    "start": 2340.16,
+    "end": 2349.68,
+    "text": "I think actually Congress, with being all Democrat controlled, might be able to bring a speedier end to the war in Iran.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 527,
+    "start": 2350.26,
+    "end": 2354.94,
+    "text": "which could allow oil markets to stabilize sooner rather than later, or at least normalize.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 528,
+    "start": 2356.04,
+    "end": 2360.2,
+    "text": "And then from that, you get lower energy prices a little bit faster.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 529,
+    "start": 2360.84,
+    "end": 2364.26,
+    "text": "And that trickles down, as we were saying earlier, into prices throughout the economy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 530,
+    "start": 2364.76,
+    "end": 2367.16,
+    "text": "So you might end up seeing a little bit of improvement there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 531,
+    "start": 2367.52,
+    "end": 2370.54,
+    "text": "That could be why oil futures responded the way they did.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 532,
+    "start": 2371.06,
+    "end": 2373.34,
+    "text": "You know, the market's been really, really volatile.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 533,
+    "start": 2373.52,
+    "end": 2377.54,
+    "text": "So it's kind of difficult to interpret what's going on with equity prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 534,
+    "start": 2378.08,
+    "end": 2389.72,
+    "text": "And, you know, you also never know, you have sometimes you have these days where the market's up because people are just short covering, as opposed to the markets up because they're anticipating government is going to spend, borrow, and print more money, and that's inflationary.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 535,
+    "start": 2390.3,
+    "end": 2394.52,
+    "text": "You know, maybe that's a better indicator when you see things like gold also moving up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 536,
+    "start": 2394.52,
+    "end": 2398.88,
+    "text": "When you look at the bond market and you interpret from that, inflation expectations are rising, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 537,
+    "start": 2399.32,
+    "end": 2401.48,
+    "text": "So it's, there's a lot of moving parts.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 538,
+    "start": 2402.32,
+    "end": 2406.82,
+    "text": "And sorry, I'm covering too much here and I'm probably being more confusing than I am.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 539,
+    "start": 2407.04,
+    "end": 2408.1,
+    "text": "elucidating anything.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 540,
+    "start": 2408.72,
+    "end": 2414.7,
+    "text": "But I think that you're going to continue over the next couple of years to see economic growth.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   22,
+   22
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On TFTC: 'I Think' Congress 'Might Be Able to Bring a Speedier End to the War in Iran'",
+  "caption": "Clips: TFTC (2026-11-07); Coin Bureau (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, TFTC.",
+   "bridges": [
+    "From Coin Bureau:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "I think actually Congress, with being all Democrat controlled, might be able to bring a speedier end to the war in Iran.",
+    "start": 2340.16,
+    "end": 2349.68,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      526,
+      526
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "start": 184.93,
+    "end": 198.36,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      27,
+      27
+     ]
+    }
+   }
+  ]
+ }
+}

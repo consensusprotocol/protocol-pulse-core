@@ -1,0 +1,408 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__quoting_opponent__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+  "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "those people will be like",
+  "mined": "2026-11-12",
+  "selected_k": [
+   503,
+   503
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "quoting_opponent",
+  "why": "Mimics what officials say ('Those people will be like, Bitcoin's bad.', k502) and rebuts it next: 'Everyone above them is a criminal and a money launderer' (k504)."
+ },
+ "source": {
+  "video_id": "NM_WPezsI0I",
+  "channel": "Bitcoin Mechanic",
+  "title": "The State Of Payments In \"Bitcoin\"",
+  "description": null,
+  "description_truncated": false,
+  "published_at": "2026-11-04T22:36:21+00:00",
+  "url": "https://www.youtube.com/watch?v=NM_WPezsI0I"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 483,
+    "start": 2451.04,
+    "end": 2453.86,
+    "text": "They have to do it in a way that gets around the existing rules.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 484,
+    "start": 2454.18,
+    "end": 2455.8,
+    "text": "They know how to do it and you don't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 485,
+    "start": 2455.98,
+    "end": 2457.56,
+    "text": "And you don't have the money in the first place.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 486,
+    "start": 2457.78,
+    "end": 2468.41,
+    "text": "But if you did... The point is they are jumping through hoops they place there themselves because that's how those networks operate, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 487,
+    "start": 2468.57,
+    "end": 2484.13,
+    "text": "Why are these like, why are they transporting around, you know, inflated, why are they bothering with the scam of modern art, you know, mispriced appraisal of art to be worth half a billion dollars when it's a squiggle on a piece of paper?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 488,
+    "start": 2484.45,
+    "end": 2492.1,
+    "text": "Why are they doing that if... If they're that in control and they have complete freedom at the top, it's because they actually don't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 489,
+    "start": 2492.24,
+    "end": 2494.82,
+    "text": "They have to find holes in these things just the same as we do.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 490,
+    "start": 2495.38,
+    "end": 2497.76,
+    "text": "So Bitcoin is actually really useful for these people.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 491,
+    "start": 2498.42,
+    "end": 2503.0,
+    "text": "It's a great tool for them to move money around unobstructed.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 492,
+    "start": 2503.2,
+    "end": 2504.44,
+    "text": "And they do it all the time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 493,
+    "start": 2504.64,
+    "end": 2509.86,
+    "text": "I don't think like at the end of the day, they are at the top.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 494,
+    "start": 2510.04,
+    "end": 2510.96,
+    "text": "They're in a cartel.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 495,
+    "start": 2511.18,
+    "end": 2513.0,
+    "text": "but no one trusts anyone else.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 496,
+    "start": 2513.22,
+    "end": 2517.68,
+    "text": "You have cliques and you have enemies and sabotage and blackmail and all that stuff going on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 497,
+    "start": 2518.02,
+    "end": 2523.46,
+    "text": "And they need their own little tools and they need their trump cards and get out of jail free cards too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 498,
+    "start": 2523.84,
+    "end": 2527.38,
+    "text": "Bitcoin is incredibly useful for people all the way at the top.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 499,
+    "start": 2527.9,
+    "end": 2535.4,
+    "text": "The people below them, one rung below them that are, you know, detestable that we want to throw tomatoes at and that Justin Trudeau's and all those kinds of people.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 500,
+    "start": 2535.76,
+    "end": 2537.42,
+    "text": "They're obviously not at the top guys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 501,
+    "start": 2537.58,
+    "end": 2538.48,
+    "text": "These are just figureheads.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 502,
+    "start": 2538.75,
+    "end": 2541.01,
+    "text": "Those people will be like, Bitcoin's bad.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 503,
+    "start": 2541.25,
+    "end": 2542.77,
+    "text": "It's for criminals and money launderers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 504,
+    "start": 2543.21,
+    "end": 2548.21,
+    "text": "Everyone above them is a criminal and a money launderer, but obviously they're never going to target them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 505,
+    "start": 2548.73,
+    "end": 2554.49,
+    "text": "If it's tax evasion, we're worried about, okay, we find the broke people that we can throw in jail over it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 506,
+    "start": 2554.55,
+    "end": 2557.63,
+    "text": "They don't care about anyone, you know, higher up than that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 507,
+    "start": 2557.97,
+    "end": 2561.11,
+    "text": "So just please understand that's the structure of it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 508,
+    "start": 2561.96,
+    "end": 2567.71,
+    "text": "So there are people that want to just destroy beautiful things for whatever reason.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 509,
+    "start": 2567.97,
+    "end": 2568.29,
+    "text": "Right.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 510,
+    "start": 2568.57,
+    "end": 2574.29,
+    "text": "And there are people that have the power to do that, some of whom actually find Bitcoin kind of useful, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 511,
+    "start": 2574.37,
+    "end": 2576.23,
+    "text": "And maybe that's a read between the lines point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 512,
+    "start": 2576.43,
+    "end": 2583.61,
+    "text": "So these incentives bros, these incentives game theoreticians that I see as often naive.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 513,
+    "start": 2583.99,
+    "end": 2592.11,
+    "text": "Yeah, I understand why they might want to, why they might even say, this is true of governments, this is true of people above governments.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 514,
+    "start": 2592.41,
+    "end": 2594.75,
+    "text": "They want Bitcoin to be permissionless too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 515,
+    "start": 2594.77,
+    "end": 2597.15,
+    "text": "So they're not going to undermine it in that way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 516,
+    "start": 2597.6,
+    "end": 2601.16,
+    "text": "I think they're wrong because they've already bought a permission.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 517,
+    "start": 2601.94,
+    "end": 2616.52,
+    "text": "These people are already in charge of a, I'm sorry, I know it's cliche, the financial matrix they have constructed that restricts the movement of money completely, it applies to everyone.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   20,
+   20
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Bitcoin Mechanic's Show: Bitcoin Is 'for Criminals and Money Launderers'",
+  "caption": "Clips: TFTC (2026-11-07); Bitcoin Mechanic's show (2026-11-04). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From TFTC.",
+   "bridges": [
+    "From Bitcoin Mechanic's show:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "start": 1979.43,
+    "end": 1985.33,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      432,
+      432
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "NM_WPezsI0I",
+    "channel": "Bitcoin Mechanic",
+    "published_at": "2026-11-04T22:36:21+00:00",
+    "text": "It's for criminals and money launderers.",
+    "start": 2541.25,
+    "end": 2542.77,
+    "provenance": {
+     "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+     "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+     "k": [
+      503,
+      503
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,185 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__altcoin__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Ov5jg52HqIY/transcript.whisper_words.json",
+  "record_sha256": "6621ae121dd77a56d61e472b237493a192d019d3dbe4e367438722aed39c03c9",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "ethereum",
+  "mined": "2026-11-12",
+  "selected_k": [
+   39,
+   39
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "altcoin",
+  "why": "Ethereum price content."
+ },
+ "source": {
+  "video_id": "Ov5jg52HqIY",
+  "channel": "Altcoin Daily",
+  "title": "uh oh, is Crypto is about to BLOW UP? (You’ve Been Warned)",
+  "description": "Crypto is about to get INTERESTING! What Comes Next?\n🔴 Earn $14,550 as a new user on Bitbase (sign-up & trading bonuses): \nhttps://www.bitbase.com/activity/welcome-bonus3?ref=ALTCOINDAILY\n\n⭐ Follow Altcoin Daily on 𝕏: https://twitter.com/AltcoinDaily\n\n🟡 50% deposit bonus on first $100 on WEEX: https://www.weex.com/events/welcome-event?vipCode=oz5p&qrType=activity\n\n🟠 Become a channel member & get access to perks:\nhttps://www.youtube.com/channel/UCbLhGKVY-bJPcawebgtNfbw/join\n\n✅  Bitunix (no kyc, $10,000 bonus): https://www.bitunix.com/register?vipCode=AltcoinDaily\n\n🧢 Altcoin Daily Merch: https:/",
+  "description_truncated": true,
+  "published_at": "2026-11-08T23:02:00+00:00",
+  "url": "https://www.youtube.com/watch?v=Ov5jg52HqIY"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 39,
+    "start": 460.25,
+    "end": 468.02,
+    "text": "In the long term, Ethereum can go a lot higher because like I said, There is plenty of reason to be bullish.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 36,
+    "start": 356.19,
+    "end": 442.97,
+    "text": "use our referral code if you want the full bonus package but basically after you register you have 14 days to complete a series of tasks and then you will unlock this will be in your account 14, 550 you will be able to withdraw and this is for traders you know the tasks include depositing 100 or more making your first trade i've already looked at the back end and have seen that a lot of different people have already accused two thousand three thousand dollars by by doing this so make sure you sign up for bit base so if you're interested in the i mean you can do this up to a thousand dollars up to three thousand dollars or even take advantage of the full fourteen thousand five hundred fifty dollars new users can earn this by using our link below i'm bullish on bitcoin i think it's going to be trading above a hundred thousand dollars sooner rather than later i'm even more bullish on ethereum for sure and quality alt coins but speaking of ethereum this is one hell of a base one hell of a launch pad that eat has been building the breakout will be offensive and we can say that confidently for a couple different reasons one the adoption the plumbing the infrastructure the build out it's undeniable among the smart contract blockchains ethereum is number one in stable coins number one in tokenized assets number one in applications, number one in developers, number one in investment products.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 37,
+    "start": 443.57,
+    "end": 453.07,
+    "text": "So if Ethereum only does what it did in 2025 when it broke out of its range, that would be a 2.35x.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 38,
+    "start": 453.43,
+    "end": 460.05,
+    "text": "And if we did a 2.35x from here, that would put Ethereum at 5,100 in a short to midterm.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 40,
+    "start": 468.28,
+    "end": 473.9,
+    "text": "And when you understand where Ethereum is going and Vitalik just laid it out at DevCon.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 41,
+    "start": 474.52,
+    "end": 477.64,
+    "text": "I'm really excited for the future of crypto.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 42,
+    "start": 478.22,
+    "end": 481.56,
+    "text": "Listen to Vitalik describe what's next for Ethereum.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 43,
+    "start": 481.8,
+    "end": 484.12,
+    "text": "He says step one of winning is surviving.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 44,
+    "start": 484.88,
+    "end": 491.42,
+    "text": "And beyond that, we are making Ethereum the best post quantum post -AI store of value.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 45,
+    "start": 491.76,
+    "end": 492.84,
+    "text": "crypto blockchain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 46,
+    "start": 493.1,
+    "end": 496.84,
+    "text": "I'm surprised the theorem isn't pumping harder right now after he's saying this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 47,
+    "start": 496.88,
+    "end": 500.16,
+    "text": "What does winning look like for the network in the next decade?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 48,
+    "start": 500.62,
+    "end": 503.92,
+    "text": "And what early signals would show you are in that in that path?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 49,
+    "start": 505.67,
+    "end": 507.31,
+    "text": "Step one of winning is surviving, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 50,
+    "start": 507.47,
+    "end": 519.15,
+    "text": "I think, you know, we're all concerned about quantum computers, about AI and what all of this will do both to our code and store cryptography and making sure the war we're all positioned to.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 51,
+    "start": 520.13,
+    "end": 524.15,
+    "text": "be fully secure and survive through that is going to be extremely important.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 52,
+    "start": 524.89,
+    "end": 525.39,
+    "text": "So that's one.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 53,
+    "start": 525.59,
+    "end": 538.77,
+    "text": "And then once you can survive, then once at least even applications that exist on Ethereum can survive, then the next step is getting Ethereum actually used at a much higher scale, right?",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

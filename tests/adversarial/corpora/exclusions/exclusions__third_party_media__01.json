@@ -1,0 +1,257 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__third_party_media__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+  "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "sat down with",
+  "mined": "2026-11-12",
+  "selected_k": [
+   39,
+   40
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "third_party_media",
+  "why": "Darius Dale's audio from Natalie Brunell's Coin Stories, played inside a Simply Bitcoin video (k31)."
+ },
+ "source": {
+  "video_id": "l987bgGZjS0",
+  "channel": "Simply Bitcoin",
+  "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+  "description": "Bitcoin dumps to $75,000 as Democrats take control of Congress, the AI stock market bubble cracks, and fears of another massive government bailout grow. Is this Bitcoin crash the beginning of a larger financial crisis, or will Washington respond with more Federal Reserve liquidity, money printing, and inflation? From Trump's divided government and America's exploding national debt to a shocking banking crisis in Paraguay, we examine what comes next for Bitcoin, financial markets, and your money.\n\nSPONSORS:\nTruth Block is brought to you by @hodlwithLedn\n🚀 Bitcoin-backed Loans\n💰 $10B+ in loans i",
+  "description_truncated": true,
+  "published_at": "2026-11-05T22:00:19+00:00",
+  "url": "https://www.youtube.com/watch?v=l987bgGZjS0"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 39,
+    "start": 179.95,
+    "end": 188.01,
+    "text": "And so you could just get a politically induced slowdown in data center construction that would force Wall Street to take down its 2027, 2028 earnings estimates.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 40,
+    "start": 188.41,
+    "end": 193.93,
+    "text": "So that would be a really negative sign in the context of leading indicators of liquidity moving in the adverse direction already.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 30,
+    "start": 120.15,
+    "end": 122.95,
+    "text": "So why would a Democratic win knock over the AI trade?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 31,
+    "start": 123.63,
+    "end": 134.05,
+    "text": "Darius Dale, who runs 42 macro and helps design risk systems for big Wall Street funds, sat down with Natalie Bernal on coin stories right before the vote and laid out exactly what could go wrong.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 32,
+    "start": 134.73,
+    "end": 139.31,
+    "text": "And again, the catalyst that we think could really accelerate this process are the main term elections.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 33,
+    "start": 139.87,
+    "end": 142.07,
+    "text": "Everyone thinks the Democrats are going to take the House.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 34,
+    "start": 142.35,
+    "end": 148.33,
+    "text": "When you look at betting markets, the odds for the Democrats to take the Senate are roughly slightly over 60%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 35,
+    "start": 148.33,
+    "end": 152.07,
+    "text": "We don't think they're that high because I think pigs will fly when the Democrats take Texas.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 36,
+    "start": 152.55,
+    "end": 154.71,
+    "text": "But let's say the Democrats do take the Senate.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 37,
+    "start": 155.17,
+    "end": 171.81,
+    "text": "What that ultimately would be a signal of is that this sort of anti -AI sentiment among voters is pervasive enough to cause the Republican members of Congress who are up for reelection in 2008 to go on board with any federal kind of anti -AI regulation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 38,
+    "start": 172.21,
+    "end": 179.77,
+    "text": "And then obviously we're going to see more democratic gubernatorial races and wins and congressional wins at the state level, or state Congress level.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 41,
+    "start": 194.05,
+    "end": 196.61,
+    "text": "This is one of the weirdest junctures of my career.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 42,
+    "start": 196.71,
+    "end": 199.01,
+    "text": "I've been doing this for almost 20 years as an institutional investor.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 43,
+    "start": 199.51,
+    "end": 201.37,
+    "text": "We can very clearly see a.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 44,
+    "start": 201.6,
+    "end": 208.4,
+    "text": "potentially very big negative catalyst less than a week away, but Wall Street isn't appropriately hedging for that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 45,
+    "start": 208.7,
+    "end": 212.58,
+    "text": "Dale said Texas goes blue when pigs fly and then Texas went blue.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 46,
+    "start": 213.0,
+    "end": 216.9,
+    "text": "So the anti -AI signal Dale was watching for came in even louder than he expected.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 47,
+    "start": 217.56,
+    "end": 219.76,
+    "text": "So has the AI bubble finally popped?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 48,
+    "start": 220.62,
+    "end": 221.76,
+    "text": "Honestly, nobody knows yet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 49,
+    "start": 222.32,
+    "end": 224.1,
+    "text": "But the air has been leaking out for weeks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 50,
+    "start": 224.54,
+    "end": 228.04,
+    "text": "And the NASDAQ is now in a correction, more than 10 % off its high.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 51,
+    "start": 228.42,
+    "end": 231.3,
+    "text": "And the backlash against AI is real on both sides of the aisle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 52,
+    "start": 231.47,
+    "end": 238.07,
+    "text": "In a Reuters in Ipsos poll last month, 69 % of Democratic voters said they'd back limits on building new data centers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 53,
+    "start": 238.73,
+    "end": 240.35,
+    "text": "And so did 43 % of Republicans.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 54,
+    "start": 241.05,
+    "end": 246.61,
+    "text": "Now, to be fair, a national ban on AI would almost certainly get vetoed, so this could still turn out to be a speed bump.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 55,
+    "start": 247.21,
+    "end": 251.99,
+    "text": "But back in October, in this episode here, we said this bubble has gotten too big to pop before the midterms.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 56,
+    "start": 252.45,
+    "end": 253.81,
+    "text": "Well, the midterms are over.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

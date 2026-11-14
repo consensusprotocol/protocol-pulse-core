@@ -1,0 +1,93 @@
+{
+ "gate_module": "baselines.frontier_blind",
+ "gate_identity": {
+  "vendor": "anthropic",
+  "model": "claude-opus-5-5",
+  "price": [
+   4.0,
+   20.0
+  ],
+  "effort": "medium"
+ },
+ "absent_reason": null,
+ "network": true,
+ "started_at": "2026-11-12T04:27:52-0500",
+ "seed": 2781058003,
+ "corpora": {
+  "context_integrity": {
+   "table": {
+    "per_class": {
+     "clean_conjunction_opener": {
+      "expected": "pass",
+      "n": 5,
+      "rejected": 1,
+      "accepted": 4,
+      "error": 0,
+      "absent": 0
+     }
+    },
+    "total": {
+     "must_reject": 0,
+     "rejected": 0,
+     "missed": 0,
+     "must_accept": 5,
+     "accepted": 4,
+     "false_rejects": 1,
+     "false_reject_rate": 0.2,
+     "errors": 0,
+     "absent": 0,
+     "ok": false
+    }
+   },
+   "rows": [
+    {
+     "id": "context_integrity__clean_conjunction_opener__01",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "Cory Klippsten sincerely states, in his own explanation of the selloff, that Bitcoin gets sold with stocks when investors need cash or want less risk. The general claim has no unresolved referents or time words, nothing in the window retracts it, the title restates it with correct attribution, and the neutral bridge to Coin Bureau's factual Nov 5 recap implies no reply or agreement between the videos.",
+     "seconds": 7.018
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__07",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The clip is the guest Joe Burnett's own plain description of what the stock-to-flow model charted, answering the host's question; its referent is resolved and nothing in the window retracts it. The package only says 'From Stephan Livera's show' and names no wrong speaker, implies no relation to the Coin Bureau clip, and the title adds no thesis beyond what the clip says.",
+     "seconds": 8.772
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__08",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "The guest (apparently Cory Klippsten) sincerely states his own long-held view that the Bitcoin strategic reserve was never going to happen, and he reaffirms it right after ('that's exactly how it's played out'). The title quotes the clip verbatim, and the neutral VO bridge to TFTC implies no reply or agreement between the two videos.",
+     "seconds": 6.32
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__05",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "pass",
+     "why": "In context the guest sincerely asserts, as a historical observation, that gold ETFs were long the marginal buyers and sellers of gold, and nothing in the window retracts or conditions it. The title restates the clip with the same certainty, and the neutral 'Swan Bitcoin:' bridge implies no reply or agreement between the two videos.",
+     "seconds": 6.319
+    },
+    {
+     "id": "context_integrity__clean_conjunction_opener__03",
+     "class": "clean_conjunction_opener",
+     "expected": "pass",
+     "origin": "REAL",
+     "verdict": "fail",
+     "why": "The clip says Bitcoin made no new low 'once the results were in', but neither the clip nor the title, caption or VO says these were the US midterm election results. Only the source window and the source title make that clear, so the referent is left unresolved for the viewer.",
+     "seconds": 8.132
+    }
+   ]
+  }
+ },
+ "finished_at": "2026-11-12T04:28:00-0500",
+ "salt": "f087b4e3ea0821b6"
+}

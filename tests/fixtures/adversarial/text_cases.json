@@ -1,0 +1,22 @@
+{
+  "_doc": "tests/adversarial family 1 fixtures (hand-written, realistic speech). adjacent_numbers: two numbers spoken side by side; the canonical form must be a fixpoint on them (PP-01). substring_traps: [quote, transcript] pairs where the quote is NOT said in the transcript although its canonical text is a character substring of it (Grok47-select F4).",
+  "adjacent_numbers": [
+    "It costs about two, three hundred dollars a month to run a node.",
+    "There were three, four hundred people at the meetup last night.",
+    "We have one, two hundred basis points of cuts priced in already.",
+    "The Dow was down four, five hundred points before lunch.",
+    "The top ten, twenty, two hundred wallets hold most of the supply."
+  ],
+  "substring_traps": [
+    ["$81,000 by the weekend and then it fell further",
+     "It went from above $181,000 by the weekend and then it fell further."],
+    ["coin fell below 74,000 dollars on Friday night",
+     "Bitcoin fell below $74,000 on Friday night after the jobs report."],
+    ["over the month the index fell sixteen",
+     "Over the month the index fell 160 percent which is impossible."],
+    ["Bitcoin is now trading at 74",
+     "Bitcoin is now trading at 74,500 dollars."],
+    ["1.6 billion dollars of outflows last week",
+     "Spot ETFs saw $11.6 billion of outflows last week."]
+  ]
+}

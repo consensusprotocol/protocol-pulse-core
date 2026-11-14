@@ -1,0 +1,95 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__manifest_language__04",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "manifest_language",
+  "why": "'two voices' and channel names.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "TFTC"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "OhRh81S7B2g",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-08T12:45:18+00:00",
+   "sentences": [
+    {
+     "k": 77,
+     "text": "A loan signed in an office will not appear in a Merkel tree.",
+     "start": 406.82,
+     "end": 410.1
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/OhRh81S7B2g/transcript.whisper_words.json",
+    "record_sha256": "075489aa3b2f6b0e92dd1420d2d480f380f26cca3051def6bc240544afad6209",
+    "k": [
+     77,
+     77
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "W2LIxB2kAH0",
+   "channel": "TFTC",
+   "speaker": null,
+   "published_at": "2026-11-07T15:00:39+00:00",
+   "sentences": [
+    {
+     "k": 432,
+     "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+     "start": 1979.43,
+     "end": 1985.33
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+    "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+    "k": [
+     432,
+     432
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From Coin Bureau and TFTC.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Two voices, from Coin Bureau and TFTC.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

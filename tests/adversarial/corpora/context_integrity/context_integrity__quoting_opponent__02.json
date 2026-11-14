@@ -1,0 +1,579 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__quoting_opponent__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/9La50F_lmd0/transcript.whisper_words.json",
+  "record_sha256": "016757b26fe6efa30c34ee284c7709f45a43375aa05aae625c82d8d4fb27d193",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "tweet",
+  "mined": "2026-11-12",
+  "selected_k": [
+   941,
+   941
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "quoting_opponent",
+  "why": "The hosts are reading out a critic's tweet ('Please advise Matt Cratter's tweet', k939) in order to mock it; STRC had just returned to par (k919-920)."
+ },
+ "source": {
+  "video_id": "9La50F_lmd0",
+  "channel": "BTC Sessions",
+  "title": "Trump Loses Both House And Senate BUT Bitcoin Rips To $81K Anyway",
+  "description": "🔴 LIVE – A Satoshi-era Bitcoin wallet dormant since 2010 just moved for the first time ever — sixteen years of silence, broken — while Bitcoin ripped to $81,000 and $320M in shorts got wiped out in thirty minutes. The real story here isn't the price, it's the wallet.\n\nIn this Bitcast live roundup you'll see exactly what the Satoshi-era wallet move means, with $1.7 million in untouched gains sitting since 2014. You'll hear Michael Saylor explain how Bitcoin reserve support just crossed party lines after the midterms — a Republican governor and a Democratic senator backing the same reserve. You'",
+  "description_truncated": true,
+  "published_at": "2026-11-04T22:55:59+00:00",
+  "url": "https://www.youtube.com/watch?v=9La50F_lmd0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 898,
+    "start": 3585.65,
+    "end": 3589.45,
+    "text": "Learn more at Abundantmines.com slash sessions.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 899,
+    "start": 3590.0,
+    "end": 3591.4,
+    "text": "All right, gents.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 900,
+    "start": 3592.54,
+    "end": 3594.54,
+    "text": "First off, Joey.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 901,
+    "start": 3597.52,
+    "end": 3597.92,
+    "text": "Congratulations.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 902,
+    "start": 3597.92,
+    "end": 3599.28,
+    "text": "SDRC is back at par.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 903,
+    "start": 3599.86,
+    "end": 3601.34,
+    "text": "Can we say, why am I thinking?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 904,
+    "start": 3601.56,
+    "end": 3602.34,
+    "text": "You did it, buddy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 905,
+    "start": 3602.86,
+    "end": 3603.5,
+    "text": "You did it, Joey.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 906,
+    "start": 3604.16,
+    "end": 3605.6,
+    "text": "Nathan, we haven't forgotten about you either.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 907,
+    "start": 3606.06,
+    "end": 3608.28,
+    "text": "We haven't forgotten.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 908,
+    "start": 3608.42,
+    "end": 3609.72,
+    "text": "I said it wouldn't get back to par.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 909,
+    "start": 3609.88,
+    "end": 3610.18,
+    "text": "Is that why?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 910,
+    "start": 3610.5,
+    "end": 3612.92,
+    "text": "I think, I think many people on this show said it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 911,
+    "start": 3613.12,
+    "end": 3614.92,
+    "text": "Maybe except Walker and Ben?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 912,
+    "start": 3615.24,
+    "end": 3615.82,
+    "text": "I don't know.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 913,
+    "start": 3616.6,
+    "end": 3619.42,
+    "text": "I, I, maybe Ben said it too, actually.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 914,
+    "start": 3619.68,
+    "end": 3620.44,
+    "text": "That doesn't say $100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 915,
+    "start": 3621.34,
+    "end": 3622.7,
+    "text": "Well, hang on, I got another one here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 916,
+    "start": 3622.8,
+    "end": 3623.4,
+    "text": "Let me just pull this one up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 917,
+    "start": 3623.46,
+    "end": 3624.22,
+    "text": "Then you can see it's $100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 918,
+    "start": 3624.42,
+    "end": 3624.82,
+    "text": "There you go.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 919,
+    "start": 3624.98,
+    "end": 3625.22,
+    "text": "It's $100.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 920,
+    "start": 3625.62,
+    "end": 3626.94,
+    "text": "You got back up to par right there.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 921,
+    "start": 3626.98,
+    "end": 3628.18,
+    "text": "It's going to hang out near the top.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 922,
+    "start": 3628.46,
+    "end": 3629.78,
+    "text": "Like it was 69, 420.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 923,
+    "start": 3629.96,
+    "end": 3630.36,
+    "text": "Are you kidding?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 924,
+    "start": 3630.58,
+    "end": 3630.9,
+    "text": "Oh, yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 925,
+    "start": 3631.98,
+    "end": 3634.62,
+    "text": "Joey was getting dragged before we came on the show.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 926,
+    "start": 3635.06,
+    "end": 3636.54,
+    "text": "There was already comments.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 927,
+    "start": 3639.52,
+    "end": 3643.38,
+    "text": "One of the first comments, SGRC bag of 100, I guess Joey's an idiot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 928,
+    "start": 3643.68,
+    "end": 3645.0,
+    "text": "Can't wait to get him out of here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 929,
+    "start": 3645.4,
+    "end": 3645.4,
+    "text": "Classic.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 930,
+    "start": 3646.06,
+    "end": 3646.78,
+    "text": "Classic Joey.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 931,
+    "start": 3647.1,
+    "end": 3647.66,
+    "text": "Fuck you guys.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 932,
+    "start": 3647.68,
+    "end": 3648.64,
+    "text": "Lying to his audience.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 933,
+    "start": 3649.12,
+    "end": 3650.04,
+    "text": "We got in the background.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 934,
+    "start": 3650.47,
+    "end": 3656.97,
+    "text": "Do a friend of the show, Joe Consorti, quoting Matt Cratter, saying that it would never happen as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 935,
+    "start": 3657.21,
+    "end": 3658.49,
+    "text": "So, I mean, Joe, you're in good company.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 936,
+    "start": 3658.67,
+    "end": 3665.61,
+    "text": "At least I didn't fucking go down this multi -video rabbit hole about it and telling everyone else who veto coin or whatever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 937,
+    "start": 3666.37,
+    "end": 3669.15,
+    "text": "Yeah, Joe, I had it on good authority.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 938,
+    "start": 3669.39,
+    "end": 3670.91,
+    "text": "STRC would never get to 100 again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 939,
+    "start": 3671.07,
+    "end": 3675.91,
+    "text": "Please advise Matt Cratter's tweet, your summary of strategies.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 940,
+    "start": 3676.25,
+    "end": 3679.19,
+    "text": "fundraising avenues in this clip is extremely misleading.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 43,
+    "k": 941,
+    "start": 3679.43,
+    "end": 3681.79,
+    "text": "MNAV will probably never get above 1.0 again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 44,
+    "k": 942,
+    "start": 3682.31,
+    "end": 3685.87,
+    "text": "Estiercy is now a broken preff with lawsuits incoming.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 45,
+    "k": 943,
+    "start": 3686.57,
+    "end": 3687.05,
+    "text": "Yeah, anyways.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 46,
+    "k": 944,
+    "start": 3687.49,
+    "end": 3688.71,
+    "text": "Where were those lawsuits?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 47,
+    "k": 945,
+    "start": 3689.63,
+    "end": 3693.51,
+    "text": "Did they, maybe they got somehow reorged during the chain split or something?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 48,
+    "k": 946,
+    "start": 3695.57,
+    "end": 3696.89,
+    "text": "I do not know.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 49,
+    "k": 947,
+    "start": 3697.41,
+    "end": 3700.09,
+    "text": "Now, okay, so this one, you know, it was a mixed bag.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 50,
+    "k": 948,
+    "start": 3700.21,
+    "end": 3702.69,
+    "text": "Some people, I didn't know where I sat on it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 51,
+    "k": 949,
+    "start": 3702.81,
+    "end": 3703.75,
+    "text": "I wasn't sure if it would.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 52,
+    "k": 950,
+    "start": 3703.91,
+    "end": 3737.01,
+    "text": "get back but uh here we are uh but one thing where i was also a little uncertain as to why it was taken so damn long in regards to uh getting back one to one is liquid it is now back one to one they also so they added in all of the reserves uh it's now fully backed i first of all it's been a couple months um that's a long time to wait to be like, I wonder if it'll, if we'll get that backing again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 53,
+    "k": 951,
+    "start": 3737.69,
+    "end": 3746.4,
+    "text": "And part of me, if it had quickly turned around and Blockstrom was like, listen, all right, we're dealing with it.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   43,
+   43
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "BTC Sessions: 'MNAV Will Probably Never Get Above 1.0 Again'",
+  "caption": "Clips: Natalie Brunell's show (2026-11-10); BTC Sessions (2026-11-04). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Natalie Brunell's show first.",
+   "bridges": [
+    "Next, BTC Sessions."
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "start": 3218.14,
+    "end": 3221.64,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      715,
+      715
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "9La50F_lmd0",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-04T22:55:59+00:00",
+    "text": "MNAV will probably never get above 1.0 again.",
+    "start": 3679.43,
+    "end": 3681.79,
+    "provenance": {
+     "record": "transcripts/9La50F_lmd0/transcript.whisper_words.json",
+     "record_sha256": "016757b26fe6efa30c34ee284c7709f45a43375aa05aae625c82d8d4fb27d193",
+     "k": [
+      941,
+      941
+     ]
+    }
+   }
+  ]
+ }
+}

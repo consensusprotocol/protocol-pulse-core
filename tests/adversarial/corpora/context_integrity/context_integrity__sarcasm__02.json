@@ -1,0 +1,345 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__sarcasm__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/AD6hqvAuVvo/transcript.yt_manual.json",
+  "record_sha256": "42e946721871e79d526997db246cd6497c0a2ce4a59c8c98bd8a836eaccd131f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "\\[LAUGHTER\\]",
+  "mined": "2026-11-12",
+  "selected_k": [
+   18,
+   18
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "sarcasm",
+  "why": "Sarcasm about a senator's plans (k15-16) marked by the caption's [LAUGHTER] (k17, k19); the clip says the opposite of the speaker's view."
+ },
+ "source": {
+  "video_id": "AD6hqvAuVvo",
+  "channel": "Fox Business",
+  "title": "This is the MOST CONSEQUENTIAL issue for voters: Liz Peek",
+  "description": "Fox News contributor Liz Peek and UBS managing director Jason Katz discuss the markets rebounding after an initial post-midterm decline on 'Kudlow.' #fox #foxbusiness #media #breakingnews #us #usa #new #news #breaking #kudlow #lizpeek #jasonkatz #economy #markets #stockmarket #wallstreet #stocks #investing #investors #finance #financialnews #business #businessnews #election #midterms #politics #political #politicalnews #government #voters #economicgrowth #marketrecovery #marketrally #trading #inflation #money #economicoutlook\n\nSubscribe to Fox Business: https://bit.ly/2D9Cdse\nWatch more Fox Bu",
+  "description_truncated": true,
+  "published_at": "2026-11-10T01:15:00+00:00",
+  "url": "https://www.youtube.com/watch?v=AD6hqvAuVvo"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 1,
+    "start": 0.933,
+    "end": 4.55,
+    "text": "DAVID: GOOD NEWS IS GOOD NEWS, AND THIS IS VERY GOOD NEWS.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 1,
+    "k": 2,
+    "start": 3.916,
+    "end": 6.516,
+    "text": "LAUREN, THANK YOU.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 2,
+    "k": 3,
+    "start": 4.65,
+    "end": 11.116,
+    "text": "JOINING ME NOW IS LIZ PEEK, FOX NEWS CONTRIBUTOR, AND JASON KATZ, UBS MANAGING DIRECTOR.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 3,
+    "k": 4,
+    "start": 9.983,
+    "end": 11.816,
+    "text": "GOOD TO SEE YOU BOTH.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 4,
+    "k": 5,
+    "start": 11.216,
+    "end": 14.283,
+    "text": "THANKS FOR BEING HERE.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 5,
+    "k": 6,
+    "start": 12.35,
+    "end": 19.666,
+    "text": "YOU KNOW, JASON, LAST WEEK I HAD KEN FISHER ON, AND HE WAS VERY OPTIMISTIC.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 6,
+    "k": 7,
+    "start": 17.516,
+    "end": 34.366,
+    "text": "I MEAN, HE DOES THESE HISTORIC ANALYSES OF INVESTMENT CYCLES AND SEES THAT IN A PERIOD SUCH AS THIS WHERE YOU HAVE A PRESIDENT FROM ONE PARTY AND A CONGRESS HELD BY ANOTHER PARTY, IT'S ALWAYS GOOD COMING OUT OF A MIDTERMS LIKE WE HAVE.",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 7,
+    "k": 8,
+    "start": 32.4,
+    "end": 37.65,
+    "text": "IS THAT OPTIMISM, IS THAT WHAT PLAYED OUT TODAY?",
+    "speaker": "DAVID",
+    "turn": 1
+   },
+   {
+    "n": 8,
+    "k": 9,
+    "start": 36.45,
+    "end": 47.916,
+    "text": ">> I THINK -- WELL, FIRST OF ALL, I WILL TELL YOU THE LAST FEW TRADING DAYS COULD BE THE WILDEST OF MY THREE DECADES ON WALL STREET, BUT I DIGRESS.",
+    "speaker": null,
+    "turn": 2
+   },
+   {
+    "n": 9,
+    "k": 10,
+    "start": 45.716,
+    "end": 54.166,
+    "text": "TODAY, DAVID, WAS MUCH MORE ABOUT OIL, TRUMP'S TO CONCILIATORY TONE AND THE PARADE OF GOOD EARNINGS.",
+    "speaker": null,
+    "turn": 2
+   },
+   {
+    "n": 10,
+    "k": 11,
+    "start": 52.666,
+    "end": 61.866,
+    "text": "SO THE ECONOMIC CONDITIONS ARE VERY SUPPORTIVE OF EQUITIES IN SPITE OF WHAT HAPPENED IN TERMS OF THE MIDTERMS.",
+    "speaker": null,
+    "turn": 2
+   },
+   {
+    "n": 11,
+    "k": 12,
+    "start": 60.2,
+    "end": 66.233,
+    "text": "DAVID: AND, LIZ, YOU KNOW, I'M JUST WONDERING IF THE DEMOCRATS -- AND THERE'S A THEME HERE.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 12,
+    "k": 13,
+    "start": 65.0,
+    "end": 69.3,
+    "text": "WE'RE GOING TO GET BACK TO IT WITH OTHER GUESTS.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 13,
+    "k": 14,
+    "start": 67.666,
+    "end": 71.816,
+    "text": "BUT WHETHER THE DEMOCRATS ARE OVERPLAYING THEIR HAND.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 14,
+    "k": 15,
+    "start": 70.45,
+    "end": 79.616,
+    "text": "YOU HAVE BERNIE SANDERS COMING OUT, AND HE'S PRACTICALLY GLOWING AS A RESULT OF THE MIDTERM ELECTIONS.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 15,
+    "k": 16,
+    "start": 76.216,
+    "end": 83.35,
+    "text": "AND NOW HE WANTS TO EXPAND IT'S NOT JUST MEDICARE FOR ALL, NOW HE WANTS TO EXPAND SOCIAL SECURITY.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 16,
+    "k": 17,
+    "start": 83.083,
+    "end": 96.133,
+    "text": "[LAUGHTER] A LOT OF PEOPLE QUESTION WHETHER THOSE PATHETIC 1 AND 2% GAINS YOU MAKE ON SOCIAL SECURITY WHEN YOU CAN MAKE FOUR TIMES THAT BY JUST INVESTING IN THE MARKET IS REALLY WORTH IT.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 17,
+    "k": 18,
+    "start": 94.4,
+    "end": 99.866,
+    "text": "WELL, HE WANTS TO GIVE MORE MONEY TO THE GOVERNMENT BECAUSE HE THINKS IT'S DOING SO WELL.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 18,
+    "k": 19,
+    "start": 99.6,
+    "end": 103.35,
+    "text": "[LAUGHTER] >> I DON'T THINK THAT'S ANY SURPRISE, DAVID.",
+    "speaker": "DAVID",
+    "turn": 3
+   },
+   {
+    "n": 19,
+    "k": 20,
+    "start": 101.966,
+    "end": 116.016,
+    "text": "I THINK WHAT WE'RE SEEING IS A BIT OF A RECKONING JUST HOW FAR CAN DEMOCRATS GO IN TERMS OF SLOWING A.I., SLOWING THE BUILDOUT OF A.I., DATA CENTERS AND SO FORTH.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 20,
+    "k": 21,
+    "start": 113.783,
+    "end": 126.333,
+    "text": "I THINK THAT'S THE MOST CONSEQUENTIAL ISSUE FACING VOTERS AND ALSO VOTING -- INVESTORS RIGHT NOW AS THEY ROOK AT WHAT HAPPENED IN THE MIDTERMS.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 21,
+    "k": 22,
+    "start": 124.633,
+    "end": 143.383,
+    "text": "IN OTHER WORDS, TODAY OR YESTERDAY THE TEXAS GOVERNOR, THE NEWLY-ELECTED TEXAS GOVERNOR, GINA HINOJOSA, SAID, WELL, WE'RE NOT GOING TO BLOCK OR PERMANENTLY BAN DATA CENTERS FROM CONSTRUCTION, INSTEAD WE WANT SOME SENSIBLE REGULATION.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 22,
+    "k": 23,
+    "start": 142.316,
+    "end": 145.616,
+    "text": "LOOK, THAT'S GOING TO HAPPEN ACROSS THE COUNTRY.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 23,
+    "k": 24,
+    "start": 144.15,
+    "end": 148.883,
+    "text": "YOU'RE NOT GOING TO STOP THIS THING.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 24,
+    "k": 25,
+    "start": 146.15,
+    "end": 148.206,
+    "text": "SPENDING ON A.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 25,
+    "k": 26,
+    "start": 148.353,
+    "end": 152.583,
+    "text": "A.I. DATA CENTERS IN SEPTEMBER WAS UP 90% YEAR-OVER-YEAR.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 26,
+    "k": 27,
+    "start": 151.416,
+    "end": 157.033,
+    "text": "THIS THING IS ROLLING, AND IT'S NOT GOING TO STOP JUST BECAUSE WE'VE HAD A CHANGE IN THE POLITICAL LEADERSHIP.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 27,
+    "k": 28,
+    "start": 155.833,
+    "end": 172.416,
+    "text": "AND I DO THINK, YOU KNOW, WHEN YOU HAVE ELIZABETH WARREN TAKING OVER AN IMPORTANT SENATE COMMITTEE, THE BANKING COMMITTEE, AND WHEN BERNIE SANDERS IS GOING TO RUN THE COMMITTEE THAT OVERSEES SOCIAL SECURITY AND STUFF, I THINK THERE'S PLENTY OF CAUSE FOR ALARM.",
+    "speaker": null,
+    "turn": 4
+   }
+  ],
+  "selected": [
+   17,
+   17
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Fox Business: The Government Is 'Doing So Well'",
+  "caption": "Clips: Fox Business (2026-11-10); Simply Bitcoin (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From Fox Business.",
+   "bridges": [
+    "Over to Simply Bitcoin."
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "AD6hqvAuVvo",
+    "channel": "Fox Business",
+    "published_at": "2026-11-10T01:15:00+00:00",
+    "text": "WELL, HE WANTS TO GIVE MORE MONEY TO THE GOVERNMENT BECAUSE HE THINKS IT'S DOING SO WELL.",
+    "start": 94.4,
+    "end": 99.866,
+    "provenance": {
+     "record": "transcripts/AD6hqvAuVvo/transcript.yt_manual.json",
+     "record_sha256": "42e946721871e79d526997db246cd6497c0a2ce4a59c8c98bd8a836eaccd131f",
+     "k": [
+      18,
+      18
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "l987bgGZjS0",
+    "channel": "Simply Bitcoin",
+    "published_at": "2026-11-05T22:00:19+00:00",
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "start": 615.08,
+    "end": 618.8,
+    "provenance": {
+     "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+     "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+     "k": [
+      135,
+      135
+     ]
+    }
+   }
+  ]
+ }
+}

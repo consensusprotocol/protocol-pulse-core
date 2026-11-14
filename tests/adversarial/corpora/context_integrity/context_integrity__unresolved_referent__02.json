@@ -1,0 +1,363 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__unresolved_referent__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+  "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^it ",
+  "mined": "2026-11-12",
+  "selected_k": [
+   39,
+   39
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "unresolved_referent",
+  "why": "'It' is a payment platform that bolts identity onto Bitcoin payments (k35-38); after a clip about Bitcoin, the viewer hears that Bitcoin becomes pointless."
+ },
+ "source": {
+  "video_id": "NM_WPezsI0I",
+  "channel": "Bitcoin Mechanic",
+  "title": "The State Of Payments In \"Bitcoin\"",
+  "description": null,
+  "description_truncated": false,
+  "published_at": "2026-11-04T22:36:21+00:00",
+  "url": "https://www.youtube.com/watch?v=NM_WPezsI0I"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 24,
+    "start": 174.27,
+    "end": 176.57,
+    "text": "So when I lost it, I went to buy it again, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 25,
+    "start": 177.33,
+    "end": 180.95,
+    "text": "And at the time, they accepted Bitcoin as payment.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 26,
+    "start": 181.89,
+    "end": 187.93,
+    "text": "and I went to pay for it, and I don't remember exactly what it did, but I couldn't get it to give me a Bitcoin address.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 27,
+    "start": 188.13,
+    "end": 207.39,
+    "text": "It gave me like use Binance wallet or Coinbase wallet or Metamask, and each of these required me to set up some sort of K -Y -C account with some fucking company that will only open a link to the relevant application that I would have to have installed and be signed in with my identity connected to it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 28,
+    "start": 207.61,
+    "end": 210.59,
+    "text": "It would not give me a Bitcoin address to pay with.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 29,
+    "start": 211.07,
+    "end": 214.79,
+    "text": "because it doesn't actually respect the underlying neutrality of the protocol.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 30,
+    "start": 215.65,
+    "end": 218.45,
+    "text": "Where have you ever heard a Bitcoin complain about that?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 31,
+    "start": 219.5,
+    "end": 221.1,
+    "text": "Twitter is our town square.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 32,
+    "start": 221.46,
+    "end": 226.02,
+    "text": "That is where most of the majority around what happens on Bitcoin occurs in the world.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 33,
+    "start": 226.24,
+    "end": 227.32,
+    "text": "It happens on Twitter.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 34,
+    "start": 227.7,
+    "end": 232.84,
+    "text": "I'm not saying there aren't hundreds of other venues for it, but I'm pretty sure that is the most important one.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 35,
+    "start": 233.36,
+    "end": 239.1,
+    "text": "It accepts Bitcoin, except it doesn't... allow us to actually pay each other in a peer -to -peer way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 36,
+    "start": 239.34,
+    "end": 240.46,
+    "text": "It requires permission.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 37,
+    "start": 240.82,
+    "end": 255.6,
+    "text": "It's done it in a way that undermines the entire point of it, the peer -to -peer payment network aspect of it, the fact that I can pay any address, as long as there's a valid address, I can pay it, and I can pay it from any valid UTXO.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 38,
+    "start": 256.24,
+    "end": 264.12,
+    "text": "That is undermined by enforcing a system on top of it that says, no, we need your identity to be attached to your activity somehow.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 39,
+    "start": 264.69,
+    "end": 266.51,
+    "text": "It becomes completely pointless.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 40,
+    "start": 266.79,
+    "end": 270.93,
+    "text": "There is no difference between making payments that way and making payments with a credit card.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 41,
+    "start": 271.41,
+    "end": 272.69,
+    "text": "It's the same system.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 42,
+    "start": 273.19,
+    "end": 275.29,
+    "text": "You haven't escaped Fiat at all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 43,
+    "start": 275.75,
+    "end": 279.95,
+    "text": "All you've done is escape inflation by being involved in Bitcoin at that point.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 44,
+    "start": 280.45,
+    "end": 287.99,
+    "text": "You haven't... freed yourself from the tyranny of regulated payment networks, which was one of the main points.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 45,
+    "start": 288.27,
+    "end": 289.69,
+    "text": "There are two points to Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 46,
+    "start": 289.91,
+    "end": 299.43,
+    "text": "There's a disinflationary currency that allows you to store value and not lose it and store your work and labor over long periods of time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 47,
+    "start": 300.27,
+    "end": 301.27,
+    "text": "That's half of it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 48,
+    "start": 301.39,
+    "end": 306.19,
+    "text": "The other half of it is I can make payments to anyone, anywhere, and no one can stop me.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 49,
+    "start": 306.27,
+    "end": 307.31,
+    "text": "That's the other half of it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 50,
+    "start": 307.56,
+    "end": 317.32,
+    "text": "And the Bip -110ers and the XBT heads and all those, we have spoken about how the second aspect can be undermined with centralized mining and top -down soft forks and things like that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 51,
+    "start": 317.48,
+    "end": 323.32,
+    "text": "And I really want to stress that all of that can be true, but this is already gone.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 52,
+    "start": 323.92,
+    "end": 325.82,
+    "text": "It's already a thing that's not there anymore.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 53,
+    "start": 326.04,
+    "end": 327.1,
+    "text": "It's not just X premium.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   15,
+   15
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Bitcoin Mechanic's Show: 'It Becomes Completely Pointless'",
+  "caption": "Clips: Natalie Brunell's show (2026-11-10); Bitcoin Mechanic's show (2026-11-04). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From Natalie Brunell's show.",
+   "bridges": [
+    "Bitcoin Mechanic's show:"
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "start": 3218.14,
+    "end": 3221.64,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      715,
+      715
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "NM_WPezsI0I",
+    "channel": "Bitcoin Mechanic",
+    "published_at": "2026-11-04T22:36:21+00:00",
+    "text": "It becomes completely pointless.",
+    "start": 264.69,
+    "end": 266.51,
+    "provenance": {
+     "record": "transcripts/NM_WPezsI0I/transcript.whisper_words.json",
+     "record_sha256": "68014216ac2b657de7b71173dce953d9a371deb52cea7e9e921e38296d87fe8a",
+     "k": [
+      39,
+      39
+     ]
+    }
+   }
+  ]
+ }
+}

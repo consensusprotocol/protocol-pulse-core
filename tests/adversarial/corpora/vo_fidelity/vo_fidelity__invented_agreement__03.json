@@ -1,0 +1,95 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__invented_agreement__03",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "invented_agreement",
+  "why": "The two clips come from different videos; 'echoes' invents a relation.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "Stephan Livera"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+     "start": 147.27,
+     "end": 153.85
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     20,
+     20
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "speaker": null,
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "sentences": [
+    {
+     "k": 285,
+     "text": "And the stock to flow model was simply charting the stock to flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate.",
+     "start": 1522.29,
+     "end": 1529.15
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+    "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+    "k": [
+     285,
+     285
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices: Coin Bureau and Stephan Livera's show.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Stephan Livera's show echoes Coin Bureau's point.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

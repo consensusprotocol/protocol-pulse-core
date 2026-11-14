@@ -1,0 +1,209 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__neutral_company__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/36HPi9UZPOc/transcript.whisper_words.json",
+  "record_sha256": "11818b5033dc9b5e8ab3000df3dada34a5e42dae20b850543bb0202bbd3a24a3",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "Coinbase",
+  "mined": "2026-11-12",
+  "selected_k": [
+   69,
+   69
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "neutral_company",
+  "why": "A company's banking charter, stated neutrally."
+ },
+ "source": {
+  "video_id": "36HPi9UZPOc",
+  "channel": "Yahoo Finance",
+  "title": "Coinbase got the charter Jamie Dimon did not want it to have.",
+  "description": "Strategy bought 1,036 Bitcoin for about $81.9 million, taking its holdings past 850,000 for the first time. Scott Melker's point is that the headlines about Michael Saylor being underwater on his average cost miss what matters, because Strategy is never getting margin called.\n\nCoinbase won full approval for a national trust bank charter from the OCC. The Treasury cut MEXC off from the US financial system over an alleged $16 billion in illicit transactions. Binance will close affected European accounts on December 31. And Circle froze $1.1 billion of USDC tied to the Binance theft.\n\nTimestamps\n",
+  "description_truncated": true,
+  "published_at": "2026-11-09T18:00:10+00:00",
+  "url": "https://www.youtube.com/watch?v=36HPi9UZPOc"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 69,
+    "start": 339.02,
+    "end": 341.16,
+    "text": "Coinbase is entering the federal banking framework.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 59,
+    "start": 273.82,
+    "end": 282.38,
+    "text": "This allows them more flexibility in how they cost the assets, custody other people's assets, what they can do for backing stable coins, all of those things.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 60,
+    "start": 282.72,
+    "end": 289.82,
+    "text": "But once again, to be fair, Coinbase is already the custodian for the majority of the Bitcoin spot ETFs.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 61,
+    "start": 290.24,
+    "end": 295.94,
+    "text": "And that was one of those interesting nuances that happened when all of those were sort of surprisingly approved.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 62,
+    "start": 296.44,
+    "end": 315.68,
+    "text": "was that because of rules that the SEC had that were strict about crypto custody for actual banks, which Coinbase was not at the time, that the banks or the traditional custodians like State Street and BNY, Mellon and all of those, were actually not able to custody the ETFs.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 63,
+    "start": 316.2,
+    "end": 317.14,
+    "text": "Coinbase got all of that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 64,
+    "start": 317.24,
+    "end": 319.96,
+    "text": "So they were already able to custody institutional assets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 65,
+    "start": 320.1,
+    "end": 327.2,
+    "text": "This is just changing how they're regulated and giving them a hell of a lot more clarity and stability moving into the future.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 66,
+    "start": 327.34,
+    "end": 328.68,
+    "text": "Great news for Coinbase.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 67,
+    "start": 329.3,
+    "end": 331.22,
+    "text": "I would say great news for the industry.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 68,
+    "start": 331.54,
+    "end": 338.52,
+    "text": "Great news to see that the bank regulators are still moving forward, regardless of what happens in the political worlds.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 70,
+    "start": 341.3,
+    "end": 344.98,
+    "text": "Treasury is moving to exclude another exchange.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 71,
+    "start": 345.26,
+    "end": 347.38,
+    "text": "from U.S. financial connections.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 72,
+    "start": 347.54,
+    "end": 348.0,
+    "text": "Here you go.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 73,
+    "start": 349.04,
+    "end": 358.42,
+    "text": "Treasury cuts off Mexi Global over alleged $16 billion in transactions linked to Iran, North Korea, and Russia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 74,
+    "start": 359.56,
+    "end": 365.18,
+    "text": "So, FinCEN issued an order against Mexi on November 6th, just three days ago.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 75,
+    "start": 365.56,
+    "end": 376.49,
+    "text": "This order prohibits covered U.S. financial institutions from transmitting funds to or from Mexi, which takes 30... days in effect after the Federal Register publication.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 76,
+    "start": 376.79,
+    "end": 384.45,
+    "text": "So what they're claiming here, Treasury is saying that Mexico facilitated at least $16 billion in illicit transactions between May 2021 and May 26.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 77,
+    "start": 384.81,
+    "end": 390.45,
+    "text": "They attribute nearly 1.5 billion of those flows to Russian sanctions evasion.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 78,
+    "start": 391.13,
+    "end": 398.73,
+    "text": "Now, Treasury says transactions with Garrentex and its successor Grinix, which were Russian exchanges, continued as recently as June.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 79,
+    "start": 399.69,
+    "end": 403.97,
+    "text": "2026, those are sanctioned entities since April 2022.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,246 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__steelman__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/1s_i1us5q8w/transcript.yt_manual.json",
+  "record_sha256": "5fa653768e7af20a5cf80d37dd08bb36e514ea97a2aba73c729c16a606e9a186",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "THE COUNTERARGUMENT",
+  "mined": "2026-11-12",
+  "selected_k": [
+   7,
+   7
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "steelman",
+  "why": "The reporter (caption label TAYLOR) is stating Big Tech's counterargument in a debate she is laying out (k6: 'A DEBATE ON SILICON VALLEY ...'); the title strips 'THE COUNTERARGUMENT IN BIG TECH IS'."
+ },
+ "source": {
+  "video_id": "1s_i1us5q8w",
+  "channel": "Fox Business",
+  "title": "IBM to end H-1B visas for consulting division",
+  "description": "The 'Big Money in the Morning' panel weighs in on IBM's decision to end H-1B visas for its consulting division and whether artificial intelligence is playing a role.\n\nSubscribe to Fox Business: https://bit.ly/2D9Cdse\nWatch more Fox Business Video: https://video.foxbusiness.com\nWatch Fox Business Network Live: http://www.foxnewsgo.com/\n\nFOX Business Network (FBN) is a financial news channel delivering real-time information across all platforms that impact both Main Street and Wall Street. Headquartered in New York — the business capital of the world — FBN launched in October 2007 and is one of ",
+  "description_truncated": true,
+  "published_at": "2026-11-11T18:00:29+00:00",
+  "url": "https://www.youtube.com/watch?v=1s_i1us5q8w"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 0,
+    "start": 0.367,
+    "end": 10.443,
+    "text": " UNIVERSITIES, COLLEGES TRYING  TO INDOCTRINATE OUR YOUNG  PEOPLE SO FLORIDA WE WILL  PROSECUTE TO THE FULLEST.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 1,
+    "start": 4.237,
+    "end": 11.111,
+    "text": " DAGEN: THEN THERE'S OF THIS.",
+    "speaker": "DAGEN",
+    "turn": 1
+   },
+   {
+    "n": 2,
+    "k": 2,
+    "start": 10.577,
+    "end": 18.118,
+    "text": " IBM ENDING IMMIGRATION  SPONSORSHIP WITHIN ITS LARGEST  DIVISION.",
+    "speaker": "DAGEN",
+    "turn": 1
+   },
+   {
+    "n": 3,
+    "k": 3,
+    "start": 17.05,
+    "end": 36.369,
+    "text": " IBM CONSULTING WHICH BOASTS ONE  HUNDRED 50,000 EMPLOYEES, THIS  FOLLOWS THE TRUMP  ADMINISTRATION'S CRACKDOWN ON  THE H ONE B VISA PROGRAM WHICH  IMPACTED WORKERS CAN STAY WITH  THE COMPANY WORKING OUTSIDE THE  UNITED STATES OR RELIEVED BY  THE END OF THE YEAR.",
+    "speaker": "DAGEN",
+    "turn": 1
+   },
+   {
+    "n": 4,
+    "k": 4,
+    "start": 29.763,
+    "end": 41.307,
+    "text": " US CIS SHOWING IBM SECURE JUST  OVER 1600 H1 Bs IN THE LAST  BUDGET YEAR ENDING  SEPTEMBER 30TH.",
+    "speaker": "DAGEN",
+    "turn": 1
+   },
+   {
+    "n": 5,
+    "k": 5,
+    "start": 40.673,
+    "end": 47.68,
+    "text": " STOCK DOWN FRACTIONALLY THIS  MORNING ABOUT ONE THIRD OF 1%.",
+    "speaker": "DAGEN",
+    "turn": 1
+   },
+   {
+    "n": 6,
+    "k": 6,
+    "start": 46.679,
+    "end": 79.512,
+    "text": " TAYLOR: A DEBATE ON SILICON  VALLEY THAT YOU HAVE THE  PLAYERS AGAINST SOME OF THE  STARTUPS, I WILL TALK ABOUT THE  POLICIES WHO ARE IN FAVOR OF  THIS, THE LIKE OF MARC  ANDRESON, PALMER LOCKHEED A  VENDOR ALL HAVE LIKED THE  CRACKDOWN ON THESE VISAS AS  PROPONENTS OF LITTLE TACH OR  AMERICAN DYNAMISM THAT THEY SAY  RELY NOT HAVING TO RELY ON THE  MASSIVE OFFSHORE TO ONSHORE IT  CONSULTING AND MORE DOMESTIC  LED ENGINEERING TALENT.",
+    "speaker": "TAYLOR",
+    "turn": 2
+   },
+   {
+    "n": 7,
+    "k": 7,
+    "start": 77.11,
+    "end": 98.598,
+    "text": " THE COUNTERARGUMENT IN BIG TECH  IS ON THAT SIDE, YOU WANT THE  BEST AND BRIGHTEST NO MATTER  WHAT AND WE SHOULD BE COMPETING  FOR THE TOP ENGINEER NO MATTER  WHERE YOU ARE BUT DO CERTAINLY  SEE THE SIDE OF SOME OF THESE  TECH GUYS WHO SAY I WANT THIS  TO BE AN AMERICAN LED DOMESTIC  LED ENGINEERING TEAM.",
+    "speaker": "TAYLOR",
+    "turn": 2
+   },
+   {
+    "n": 8,
+    "k": 8,
+    "start": 97.964,
+    "end": 105.271,
+    "text": " BRIAN: HOW MUCH OF THIS IS A  CONSULTING STORY?",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 9,
+    "k": 9,
+    "start": 101.868,
+    "end": 108.174,
+    "text": " THE FACT THAT AI WILL CHANGE  THE CONSULTING BUSINESS.",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 10,
+    "k": 10,
+    "start": 106.339,
+    "end": 124.724,
+    "text": " IF YOU ARE IBM, GOT TO ADAPT TO  THAT AND STEP ONE IS GET RID OF  THIS PROGRAM BECAUSE IT IS  COSTLY, COULD BE MORE COSTLY  BUT THIS IS A WAY TO  ACKNOWLEDGE THE FACT THAT THAT  BUSINESS WILL BE DISRUPTED AND  WE GOT TO CHANGE SOMETHING  ANYWAY AS WE START HERE.",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 11,
+    "k": 11,
+    "start": 124.057,
+    "end": 128.928,
+    "text": " JOSH:REPLACE THOSE WORKERS WITH  AI AND THIS IS ONE WAY TO GET  TO THAT OUTCOME.",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 12,
+    "k": 12,
+    "start": 126.86,
+    "end": 134.968,
+    "text": " WE WANT TO TEST OUT CAN AI DO  THESE PEOPLE JOBS, HERE'S ONE  WAY TO DO IT AND YOU START  TESTING.",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 13,
+    "k": 13,
+    "start": 134.067,
+    "end": 143.243,
+    "text": " AN INTERESTING ANGLE, THINKING  OF AI ANY TIME I SEE MOVEMENT  IN WORKERS AT BIG COMPANIES,  WHERE IS THE AI?",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 14,
+    "k": 14,
+    "start": 142.575,
+    "end": 146.679,
+    "text": " BRIAN: GOT TO ASK WHAT'S BEHIND  IT.",
+    "speaker": "BRIAN",
+    "turn": 3
+   },
+   {
+    "n": 15,
+    "k": 15,
+    "start": 145.645,
+    "end": 150.45,
+    "text": " DAGEN: GO COMPANY BY COMPANY.",
+    "speaker": "DAGEN",
+    "turn": 4
+   },
+   {
+    "n": 16,
+    "k": 16,
+    "start": 146.813,
+    "end": 180.947,
+    "text": " WHEN JD VANCE WENT AFTER  MICROSOFT FOR ONE EXAMPLE,  THERE WERE 6000 H1 B  APPLICATIONS, THERE WERE  FILINGS AND MICROSOFT CAME OUT  AND SAID THOSE WERE MOSTLY  RENEWALS, 80% OF THOSE 6000  APPLICATIONS WERE TO EXTEND OR  CHANGE THE STATUS OF EXISTING  EMPLOYEES, NEW HIRES WERE  ALREADY IN THE UNITED STATES  AND THE FIRST PLACE, THE  WORKFORCE, THE VAST MAJORITY O",
+    "speaker": "DAGEN",
+    "turn": 4
+   }
+  ],
+  "selected": [
+   7,
+   7
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Fox Business: 'We Should Be Competing for the Top Engineer No Matter Where You Are'",
+  "caption": "Clips: Fox Business (2026-11-11); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with Fox Business.",
+   "bridges": [
+    "And on Swan Bitcoin:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "1s_i1us5q8w",
+    "channel": "Fox Business",
+    "published_at": "2026-11-11T18:00:29+00:00",
+    "text": " THE COUNTERARGUMENT IN BIG TECH  IS ON THAT SIDE, YOU WANT THE  BEST AND BRIGHTEST NO MATTER  WHAT AND WE SHOULD BE COMPETING  FOR THE TOP ENGINEER NO MATTER  WHERE YOU ARE BUT DO CERTAINLY  SEE THE SIDE OF SOME OF THESE  TECH GUYS WHO SAY I WANT THIS  TO BE AN AMERICAN LED DOMESTIC  LED ENGINEERING TEAM.",
+    "start": 77.11,
+    "end": 98.598,
+    "provenance": {
+     "record": "transcripts/1s_i1us5q8w/transcript.yt_manual.json",
+     "record_sha256": "5fa653768e7af20a5cf80d37dd08bb36e514ea97a2aba73c729c16a606e9a186",
+     "k": [
+      7,
+      7
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "I'm betting on more and more people choosing to hold and use scarce money over time and I think that will be the case regardless of what happens with the AI trade.",
+    "start": 118.9,
+    "end": 126.96,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      19,
+      19
+     ]
+    }
+   }
+  ]
+ }
+}

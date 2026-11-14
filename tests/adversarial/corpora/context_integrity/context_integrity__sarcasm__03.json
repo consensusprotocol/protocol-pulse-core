@@ -1,0 +1,534 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__sarcasm__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/2rHDngzB0bs/transcript.whisper.json",
+  "record_sha256": "8eb9cf00c8aa2ba6cdc1904b0a022b23be6afeed66f0aee90085fab1702d1881",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "nothing to see here",
+  "mined": "2026-11-12",
+  "selected_k": [
+   45,
+   46
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "sarcasm",
+  "why": "Ironic: said right after a $1.25 trillion valuation despite slowing sales (k42-44); the speaker means the opposite."
+ },
+ "source": {
+  "video_id": "2rHDngzB0bs",
+  "channel": "Yahoo Finance",
+  "title": "Sozzi Unleashed (9:30–10:00 a.m. ET)",
+  "description": "Yahoo Finance Executive Editor Brian Sozzi brings his signature energy, perspective and knowledge of corporate America to a fast-paced daily show that delivers sharp takes and interviews on the biggest stories shaping business.\n\n==\nAlphaSpace by Yahoo Finance: A Professional-Grade Investment Platform Built for Everyday Investors.\n👉 https://finance.yahoo.com/about/promos/gold/alphaspace?ncid=100003571",
+  "description_truncated": false,
+  "published_at": "2026-11-10T12:18:05+00:00",
+  "url": "https://www.youtube.com/watch?v=2rHDngzB0bs"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 14,
+    "start": 88.706,
+    "end": 93.885,
+    "text": "And then along those same lines, we're going to keep the word analysis top of mind when it comes to Nvidia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 15,
+    "start": 93.933,
+    "end": 101.193,
+    "text": "Because like I mentioned yesterday, I'm not going down that route at all of sharing some of the interesting videos I've been seeing out there on this.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 16,
+    "start": 101.242,
+    "end": 102.064,
+    "text": "You've seen them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 17,
+    "start": 102.113,
+    "end": 103.274,
+    "text": "I know you've seen them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 18,
+    "start": 103.323,
+    "end": 107.34,
+    "text": "But you're starting to see now the price cuts start to trickle in on Nvidia B of A.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 19,
+    "start": 107.34,
+    "end": 108.989,
+    "text": "I mean, Taney, it's buy rating.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 20,
+    "start": 109.043,
+    "end": 110.266,
+    "text": "No price cut from them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 21,
+    "start": 110.319,
+    "end": 111.543,
+    "text": "City, price target cut.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 22,
+    "start": 111.596,
+    "end": 112.926,
+    "text": "Mizuho, price target cut.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 23,
+    "start": 112.98,
+    "end": 114.576,
+    "text": "Wells Fargo, price target cut.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 24,
+    "start": 114.629,
+    "end": 116.385,
+    "text": "Bernstein, still doing its thing.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 25,
+    "start": 116.438,
+    "end": 119.098,
+    "text": "But by and large, no one is cutting their ratings.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 26,
+    "start": 119.151,
+    "end": 120.854,
+    "text": "That is until Bear did so today.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 27,
+    "start": 120.907,
+    "end": 123.354,
+    "text": "So there's a lot going on here for all things.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 28,
+    "start": 123.408,
+    "end": 123.833,
+    "text": "Invidia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 29,
+    "start": 123.887,
+    "end": 126.813,
+    "text": "And that's where we're going to start in just a moment.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 30,
+    "start": 126.866,
+    "end": 128.728,
+    "text": "But first, I'm going to start here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 31,
+    "start": 128.781,
+    "end": 132.08,
+    "text": "The markets in the investing world more broadly are making me.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 32,
+    "start": 132.08,
+    "end": 133.018,
+    "text": "L-M-F-A-O today.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 33,
+    "start": 133.077,
+    "end": 136.536,
+    "text": "I want to make sure I had that right and said it very slow.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 34,
+    "start": 136.595,
+    "end": 137.826,
+    "text": "I'll tick through it.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 35,
+    "start": 137.885,
+    "end": 148.967,
+    "text": "CoreWeave incurs $846 million in interest expense on the road to losing more than $700 million in the quarter, and the market responds by sending its stock price up double-digit percentage.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 36,
+    "start": 149.025,
+    "end": 149.26,
+    "text": "Why?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 37,
+    "start": 149.318,
+    "end": 157.41,
+    "text": "Exec said demand is strong in the earnings call, and it won't access high-yield debt markets to layer on even more debt onto a debt-laden.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 38,
+    "start": 157.41,
+    "end": 158.154,
+    "text": "Bound sheet.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 39,
+    "start": 158.216,
+    "end": 159.457,
+    "text": "Nothing to see here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 40,
+    "start": 159.519,
+    "end": 160.76,
+    "text": "Just keep it moving.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 41,
+    "start": 160.822,
+    "end": 169.569,
+    "text": "Then we have open AI out saying it lost $10.9 billion in the third quarter on an operating basis up from $10.1 billion in the second quarter.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 42,
+    "start": 169.631,
+    "end": 172.981,
+    "text": "What's more, sales slowed and trailed rival anthropic.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 43,
+    "start": 173.043,
+    "end": 175.338,
+    "text": "However, investors responded to this.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 44,
+    "start": 175.4,
+    "end": 181.417,
+    "text": "The company reportedly raised $11 billion in new funding this week at a $1.25 trillion valuation.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 45,
+    "start": 181.479,
+    "end": 182.72,
+    "text": "Nothing to see here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 46,
+    "start": 182.72,
+    "end": 183.572,
+    "text": "Keep it moving.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 47,
+    "start": 183.629,
+    "end": 189.137,
+    "text": "Anthropics Roadshow looks to be off to a good start out of a planned IPO next Thursday of Friday.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 48,
+    "start": 189.193,
+    "end": 193.906,
+    "text": "Chatter is that it could raise up to $100 billion at the high end of its ambitions.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 49,
+    "start": 193.963,
+    "end": 197.257,
+    "text": "Anthropic, just like opening eye, is losing gobs of money.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 50,
+    "start": 197.313,
+    "end": 198.449,
+    "text": "Oh, this is madness.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 51,
+    "start": 198.506,
+    "end": 208.67,
+    "text": "And honestly, the comfort of the holiday season couldn't get here fast enough for this guy because this is, I mean, these are big numbers by companies that are not making anybody.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 52,
+    "start": 208.67,
+    "end": 212.789,
+    "text": "and don't have any chances, I think, of making any money over the next 12 months.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 53,
+    "start": 212.84,
+    "end": 216.349,
+    "text": "We're going to keep it moving because I want to get back into Nvidia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 40,
+    "k": 54,
+    "start": 216.399,
+    "end": 220.366,
+    "text": "Like I said, we are on, or I am on, maybe I've just taken this little too far.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 41,
+    "k": 55,
+    "start": 220.417,
+    "end": 221.129,
+    "text": "I'm on Nvidia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 42,
+    "k": 56,
+    "start": 221.18,
+    "end": 222.349,
+    "text": "Jensen Wong Watch here.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 43,
+    "k": 57,
+    "start": 222.4,
+    "end": 226.824,
+    "text": "And a couple of things I wanted to highlight off the jump here on all things, in video.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 44,
+    "k": 58,
+    "start": 226.875,
+    "end": 233.231,
+    "text": "First up, we are now starting to see that I think the market price in a couple two, I think two interesting things on Nvidia.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 45,
+    "k": 59,
+    "start": 233.282,
+    "end": 236.85,
+    "text": "First up, Number one, and these are headwinds I would quantify them for.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 46,
+    "k": 60,
+    "start": 236.9,
+    "end": 240.21,
+    "text": "As you can imagine, given the situation, Jensen and Vivido are in.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 47,
+    "k": 61,
+    "start": 240.26,
+    "end": 241.715,
+    "text": "Now, you're seeing the stock.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 48,
+    "k": 62,
+    "start": 241.765,
+    "end": 249.439,
+    "text": "I really do want to quickly mention the stock is up here in the early going because of what core we've said on its earnings call regarding strong demand.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   31,
+   32
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Yahoo Finance: 'Nothing to See Here. Keep It Moving.'",
+  "caption": "Clips: Coin Bureau (2026-11-05); Yahoo Finance (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Coin Bureau first.",
+   "bridges": [
+    "Now Yahoo Finance."
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "Open interest hit its highest  level since September on the 3rd of November with   annualized funding around 11%.",
+    "start": 325.244,
+    "end": 332.96,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      51,
+      51
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "2rHDngzB0bs",
+    "channel": "Yahoo Finance",
+    "published_at": "2026-11-10T12:18:05+00:00",
+    "text": "Nothing to see here. Keep it moving.",
+    "start": 181.479,
+    "end": 183.572,
+    "provenance": {
+     "record": "transcripts/2rHDngzB0bs/transcript.whisper.json",
+     "record_sha256": "8eb9cf00c8aa2ba6cdc1904b0a022b23be6afeed66f0aee90085fab1702d1881",
+     "k": [
+      45,
+      46
+     ]
+    }
+   }
+  ]
+ }
+}

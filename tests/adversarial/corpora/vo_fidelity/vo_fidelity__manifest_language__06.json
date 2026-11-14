@@ -1,0 +1,92 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__manifest_language__06",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "manifest_language",
+  "why": "Channel names only.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Stephan Livera",
+   "BTC Sessions"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "Sjb6lUiL0m4",
+   "channel": "Stephan Livera",
+   "speaker": null,
+   "published_at": "2026-11-11T18:03:23+00:00",
+   "sentences": [
+    {
+     "k": 285,
+     "text": "And the stock to flow model was simply charting the stock to flow of Bitcoin, which is basically the inverse of Bitcoin supply and inflation rate.",
+     "start": 1522.29,
+     "end": 1529.15
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/Sjb6lUiL0m4/transcript.whisper_words_punct.json",
+    "record_sha256": "b11f7a4b79d6c4248875a4de5c5668b888be5f6d293cfd67928cdb315bf55a5a",
+    "k": [
+     285,
+     285
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "jTuJ8PXhRV4",
+   "channel": "BTC Sessions",
+   "speaker": null,
+   "published_at": "2026-11-05T16:00:38+00:00",
+   "sentences": [
+    {
+     "k": 796,
+     "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+     "start": 3668.82,
+     "end": 3675.46
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+    "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+    "k": [
+     796,
+     796
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices.",
+   "cites": []
+  },
+  {
+   "slot": "bridge",
+   "text": "From Stephan Livera's show and BTC Sessions.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "That's Pulse Check.",
+   "cites": []
+  }
+ ]
+}

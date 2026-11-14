@@ -1,0 +1,321 @@
+{
+ "schema": "pp.corpus_index/1",
+ "corpus": "context_integrity",
+ "cases": [
+  {
+   "id": "context_integrity__stale_time_reference__02",
+   "file": "context_integrity__stale_time_reference__02.json",
+   "sha256": "37909512c877b25c460d97d2dd0a30e3b6a3b360ec50888bbba3ee22f3742790"
+  },
+  {
+   "id": "context_integrity__false_dialogue__03",
+   "file": "context_integrity__false_dialogue__03.json",
+   "sha256": "a3d9309d3172afa1275c03fa22eba9a759473f9960d228d0117e15cab9aa44d5"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__03",
+   "file": "context_integrity__clean_conjunction_opener__03.json",
+   "sha256": "8edcde3ed696021ea44af22d13ff17a59493ebaf0fbc4d694ddebe2cf7ef5a65"
+  },
+  {
+   "id": "context_integrity__hypothetical__03",
+   "file": "context_integrity__hypothetical__03.json",
+   "sha256": "1b6d6faf7bd58402305e2abf647805ccdf381a936a48177c73197e1c615e7cee"
+  },
+  {
+   "id": "context_integrity__answer_without_question__01",
+   "file": "context_integrity__answer_without_question__01.json",
+   "sha256": "a14971ee0bab9127876457d72950cee757361bae24f2e915e08d62c176743126"
+  },
+  {
+   "id": "context_integrity__clean_assertion__15",
+   "file": "context_integrity__clean_assertion__15.json",
+   "sha256": "6add750ca1e1bdd4954308fde987d99ff4708386d1b227cd5d90610ba37eb949"
+  },
+  {
+   "id": "context_integrity__later_retraction__01",
+   "file": "context_integrity__later_retraction__01.json",
+   "sha256": "07fc97f0c746c244db80b7e9d8ff3f8b66f28f194d12b1f4dba209cd98511741"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__03",
+   "file": "context_integrity__title_adds_thesis__03.json",
+   "sha256": "52a8948aaa500d5dcf2798a7ef4b0cf7ebd24fcc9636f3095ff17af69b852445"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__03",
+   "file": "context_integrity__stale_time_reference__03.json",
+   "sha256": "4a921fd405185926b1ddeeb28ee2cc3701d67f20d4e04c1f7be77dd073b7e9a4"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__03",
+   "file": "context_integrity__wrong_speaker__03.json",
+   "sha256": "5f75caa8fde5f661eb4ba218ce1a0abacab7ac6c32a7a0343800c02431f88e2c"
+  },
+  {
+   "id": "context_integrity__steelman__01",
+   "file": "context_integrity__steelman__01.json",
+   "sha256": "f14fbdcb934c846f8d9ee8dfa117d1e700a9de5025c74b31e7924a10dbd9d6d1"
+  },
+  {
+   "id": "context_integrity__answer_without_question__03",
+   "file": "context_integrity__answer_without_question__03.json",
+   "sha256": "0617a6b111c62afa9466805c1ddc3305ed4fef587e901043ea7eb59161f87a0f"
+  },
+  {
+   "id": "context_integrity__sarcasm__02",
+   "file": "context_integrity__sarcasm__02.json",
+   "sha256": "bcacfcca34b3017ba4aad0a53a1863202d41493dc9aa78e2ca2b5573d8a0a684"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__03",
+   "file": "context_integrity__unresolved_referent__03.json",
+   "sha256": "edf7e51edc0f2232a3a4103c0b6639d5fa2271dc684465871429f412d5dc207b"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__04",
+   "file": "context_integrity__unresolved_referent__04.json",
+   "sha256": "d9b99414bea8a267d8226f0d60dc3e603a0edbe47b5c7aceb41600be54d3dba9"
+  },
+  {
+   "id": "context_integrity__clean_assertion__06",
+   "file": "context_integrity__clean_assertion__06.json",
+   "sha256": "fecb0e7e0469ce33411ee3559f2e1d08d4ba058062613a4805179a5550a57c2b"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__01",
+   "file": "context_integrity__wrong_speaker__01.json",
+   "sha256": "0fec553b9ca0803ed5a552814e16328d91f1f37c11e647199c333c96d19dc136"
+  },
+  {
+   "id": "context_integrity__reading_aloud__03",
+   "file": "context_integrity__reading_aloud__03.json",
+   "sha256": "a9ace9df618e6f1bb2303bb60a308ad50aca752fac25792f03532efcf92a3098"
+  },
+  {
+   "id": "context_integrity__some_people_say__03",
+   "file": "context_integrity__some_people_say__03.json",
+   "sha256": "5e06cf48013a0f55d977de6b00163c8b4e8e233f7de29eda31f9167986899c2f"
+  },
+  {
+   "id": "context_integrity__clean_assertion__09",
+   "file": "context_integrity__clean_assertion__09.json",
+   "sha256": "53141d30e84e2763e1443db27a9bcd9e3eaa663c29bde66a26d83c4d2a0756f7"
+  },
+  {
+   "id": "context_integrity__sarcasm__03",
+   "file": "context_integrity__sarcasm__03.json",
+   "sha256": "909e37c80750577aa4a36605c7b366308aa44979f0072ba68704f7296441f33b"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__06",
+   "file": "context_integrity__clean_conjunction_opener__06.json",
+   "sha256": "a7f19c95fed2730427cbc270d8003f4538c4917a1b1c504b4d3dd3284719ec5b"
+  },
+  {
+   "id": "context_integrity__conditional_split__02",
+   "file": "context_integrity__conditional_split__02.json",
+   "sha256": "1f864a84f022504a6d0bb8d8fbe44df3474789268ed9aff2655c77e9a4691083"
+  },
+  {
+   "id": "context_integrity__reading_aloud__01",
+   "file": "context_integrity__reading_aloud__01.json",
+   "sha256": "a36763fb1557cd243ab3168197b6393f134c069882f008a7c1cf004be6ed696f"
+  },
+  {
+   "id": "context_integrity__clean_assertion__10",
+   "file": "context_integrity__clean_assertion__10.json",
+   "sha256": "afb221e36ea7a25d4e5718c1b04a78e529cef9fbcfd0beb18202b43b70f18886"
+  },
+  {
+   "id": "context_integrity__clean_assertion__02",
+   "file": "context_integrity__clean_assertion__02.json",
+   "sha256": "f4c7c601e08d050297575889745fed05dd697821cbfd20acdc69185662c67ac2"
+  },
+  {
+   "id": "context_integrity__sarcasm__01",
+   "file": "context_integrity__sarcasm__01.json",
+   "sha256": "d8007171b1bbbe98b7f3a872453e1a421fc62f8fadc0613c8c8026423debd836"
+  },
+  {
+   "id": "context_integrity__answer_without_question__02",
+   "file": "context_integrity__answer_without_question__02.json",
+   "sha256": "fb02eef6ba281b9105e141845c4f91e287426375271d1d3dd3d6b19078ed51f2"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__02",
+   "file": "context_integrity__unresolved_referent__02.json",
+   "sha256": "059514353c96d49cd60a769538e669883d07509026f61226f46092e0e494a2a5"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__01",
+   "file": "context_integrity__quoting_opponent__01.json",
+   "sha256": "4e1cc612545024fdd1db4a40b817fb5a04da0d3cab7bc78dd500e9073bee9e3e"
+  },
+  {
+   "id": "context_integrity__unresolved_referent__01",
+   "file": "context_integrity__unresolved_referent__01.json",
+   "sha256": "61262c07ffd6fa9a50ab7a6d8005dc788aa9baff6a0c2dae97b2391fb8a76707"
+  },
+  {
+   "id": "context_integrity__clean_assertion__16",
+   "file": "context_integrity__clean_assertion__16.json",
+   "sha256": "8feca4b956d25634328df942cc746907344d6e136e89a1eca910cd277a867933"
+  },
+  {
+   "id": "context_integrity__stale_time_reference__01",
+   "file": "context_integrity__stale_time_reference__01.json",
+   "sha256": "c0cc361b5a977e39fa532ff2b8faabe91b6f5fb239e63bcd6ffe40a2ba46125d"
+  },
+  {
+   "id": "context_integrity__steelman__03",
+   "file": "context_integrity__steelman__03.json",
+   "sha256": "181bd5256b0f8c1853e68ec8b3e83dbc5c5730e5ef66866a8c291f9b76fcf4f3"
+  },
+  {
+   "id": "context_integrity__some_people_say__02",
+   "file": "context_integrity__some_people_say__02.json",
+   "sha256": "380a6d285c4669b99a252fc5635f24a9e38ecd2a9dc1094f0a4859046e64d1b4"
+  },
+  {
+   "id": "context_integrity__clean_assertion__07",
+   "file": "context_integrity__clean_assertion__07.json",
+   "sha256": "16beeba973e207a0ae4d5e3e30f83764663230a194daf67d4b688a760563520f"
+  },
+  {
+   "id": "context_integrity__clean_assertion__08",
+   "file": "context_integrity__clean_assertion__08.json",
+   "sha256": "869c639e77fd930d1d4e14a29a7b0b298204f7f509a832f9a01b781b7e4f6d41"
+  },
+  {
+   "id": "context_integrity__false_dialogue__01",
+   "file": "context_integrity__false_dialogue__01.json",
+   "sha256": "3f69f0fb09f41e5bb7685957046e1bfdc127d456529b7bff3f8f4f27475f2da6"
+  },
+  {
+   "id": "context_integrity__clean_assertion__13",
+   "file": "context_integrity__clean_assertion__13.json",
+   "sha256": "00169571274ea2e1b32d25a6c1d6bbdc6da739d30c59588b51dc382ad09f369a"
+  },
+  {
+   "id": "context_integrity__some_people_say__01",
+   "file": "context_integrity__some_people_say__01.json",
+   "sha256": "daf413d43a5e2824211cb677565d261327b6a6750384cd28c8d0b9f80c0183bb"
+  },
+  {
+   "id": "context_integrity__clean_assertion__12",
+   "file": "context_integrity__clean_assertion__12.json",
+   "sha256": "f60a21d050ac40a1b45fa3b3829dc79244c81212f7865684ceaafe30263e729c"
+  },
+  {
+   "id": "context_integrity__wrong_speaker__02",
+   "file": "context_integrity__wrong_speaker__02.json",
+   "sha256": "34df8f884dc7d19bbff9f84a8611d15f0dcbeaac8c5a85ef7df1769e7778652d"
+  },
+  {
+   "id": "context_integrity__hypothetical__02",
+   "file": "context_integrity__hypothetical__02.json",
+   "sha256": "82877ea2093d404d8fedf936ce63ef791cd9508e5d1a5adcfdcb2d058bf4ef87"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__01",
+   "file": "context_integrity__clean_conjunction_opener__01.json",
+   "sha256": "17704b33c5a9b47fa0e8679e8248c1525560740a13d3af439b3f7c5a9858f2f6"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__03",
+   "file": "context_integrity__quoting_opponent__03.json",
+   "sha256": "d6275081b3463573c42f003c01f0743181f961b374074480953007be3ebaeded"
+  },
+  {
+   "id": "context_integrity__clean_assertion__14",
+   "file": "context_integrity__clean_assertion__14.json",
+   "sha256": "4fef25faf4f96191102f80b6ab13ecde80be97c91373622ed195c218695f0f37"
+  },
+  {
+   "id": "context_integrity__clean_assertion__11",
+   "file": "context_integrity__clean_assertion__11.json",
+   "sha256": "0298f17f0a068b92c8ad071ab4fd9c45a5d69fe054e2489bd4565286eb9cb7ee"
+  },
+  {
+   "id": "context_integrity__quoting_opponent__02",
+   "file": "context_integrity__quoting_opponent__02.json",
+   "sha256": "deac6045cb704b1181f9dd3ee28ea28d17e4ea028e75e2bb36b3c208433092d4"
+  },
+  {
+   "id": "context_integrity__later_retraction__02",
+   "file": "context_integrity__later_retraction__02.json",
+   "sha256": "85b403e8006185057e5faa278f9ed72318376bf2c7b96af25cbfd14045f8c424"
+  },
+  {
+   "id": "context_integrity__false_dialogue__02",
+   "file": "context_integrity__false_dialogue__02.json",
+   "sha256": "49da105ebee4de140f77ca5ba681bbe9e05876bf2dc48ba11c124d055c34fc48"
+  },
+  {
+   "id": "context_integrity__conditional_split__01",
+   "file": "context_integrity__conditional_split__01.json",
+   "sha256": "4cb4741f7b73ed8046386a0a05997b73aca8c6198358ee46f3929b90ed6ad54d"
+  },
+  {
+   "id": "context_integrity__clean_assertion__01",
+   "file": "context_integrity__clean_assertion__01.json",
+   "sha256": "bb5da20296675c818dc77cfae4d04df8e0f94f5c1fb5c96015aadc766ea080fc"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__04",
+   "file": "context_integrity__clean_conjunction_opener__04.json",
+   "sha256": "2936ca438d5d25315d26875ab7f6fc26076183bed4de6743575369c0316605f6"
+  },
+  {
+   "id": "context_integrity__clean_assertion__04",
+   "file": "context_integrity__clean_assertion__04.json",
+   "sha256": "987cc3b7ecc07b80275cfc6b977069d773dd2230a19f01a17505aa0883adeac0"
+  },
+  {
+   "id": "context_integrity__reading_aloud__02",
+   "file": "context_integrity__reading_aloud__02.json",
+   "sha256": "c3c17e297f9aaa2ae497327cbdde756285876a3ba76760c7cc11d7369584b7b3"
+  },
+  {
+   "id": "context_integrity__clean_assertion__05",
+   "file": "context_integrity__clean_assertion__05.json",
+   "sha256": "1f7201ee713ab54f075a20a51e8838c3a72ac233e71f247270425155157614d4"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__05",
+   "file": "context_integrity__clean_conjunction_opener__05.json",
+   "sha256": "74845b17bd2552834638d50aa0e0ca611540a12c44b6bee022e9af25f763819c"
+  },
+  {
+   "id": "context_integrity__hypothetical__01",
+   "file": "context_integrity__hypothetical__01.json",
+   "sha256": "a530052f8dc4bcae334b1ae30240715ed9329343410f2eeeca018065e7018f89"
+  },
+  {
+   "id": "context_integrity__clean_conjunction_opener__02",
+   "file": "context_integrity__clean_conjunction_opener__02.json",
+   "sha256": "3d8ada216e427c26811d08bf6830e0ee41ecfff2fe7a1f7cd3aff299aac8b980"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__01",
+   "file": "context_integrity__title_adds_thesis__01.json",
+   "sha256": "56e3e072e7edb49329f22f4644d954ec24380ffc77dad99ddec992bf454128f3"
+  },
+  {
+   "id": "context_integrity__steelman__02",
+   "file": "context_integrity__steelman__02.json",
+   "sha256": "0d541d8fc34dc52fb98c3038806f90c717b04232f4514ed2608b5a6c28b9fee7"
+  },
+  {
+   "id": "context_integrity__clean_assertion__03",
+   "file": "context_integrity__clean_assertion__03.json",
+   "sha256": "0cc8ceaf9f651e35012e6b6eec594bdc75d23f566eafc8ef7a7c773c7c81d3c9"
+  },
+  {
+   "id": "context_integrity__title_adds_thesis__02",
+   "file": "context_integrity__title_adds_thesis__02.json",
+   "sha256": "50b96f53960d98017255f7fe399c096030d1791cd6bacdd5157a054ac5ed7c9d"
+  }
+ ]
+}

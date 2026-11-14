@@ -1,0 +1,588 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__wrong_speaker__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/9iyI2LddOoE/transcript.yt_manual.json",
+  "record_sha256": "bf027a43b98c432a53ee974667c00851459ff531decbeb975e152af480a82cdc",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "SO YOU'RE SAYING",
+  "mined": "2026-11-12",
+  "selected_k": [
+   49,
+   49
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "wrong_speaker",
+  "why": "The interviewer's paraphrase ('>> SO YOU'RE SAYING ...', a new turn); Wilson answers only '>> MAYBE.' and offers another reading (k50-51)."
+ },
+ "source": {
+  "video_id": "9iyI2LddOoE",
+  "channel": "CNBC Television",
+  "title": "Morgan Stanley CIO Mike Wilson: Market correction entering final phase",
+  "description": "Michael Wilson, CIO and chief U.S. equity strategist at Morgan Stanley, joins 'Squawk Box' to discuss last week's market sell-off, the Iran war, and more.",
+  "description_truncated": false,
+  "published_at": "2026-11-09T14:50:21+00:00",
+  "url": "https://www.youtube.com/watch?v=9iyI2LddOoE"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 16,
+    "start": 68.902,
+    "end": 72.939,
+    "text": "I'LL GIVE YOU A RANGE 7100 TO 10,300 IS A GOOD TARGET RANGE.",
+    "speaker": null,
+    "turn": 3
+   },
+   {
+    "n": 1,
+    "k": 17,
+    "start": 72.072,
+    "end": 74.841,
+    "text": "WE'RE PRETTY CLOSE.",
+    "speaker": null,
+    "turn": 3
+   },
+   {
+    "n": 2,
+    "k": 18,
+    "start": 72.972,
+    "end": 76.444,
+    "text": ">> THE S&P IS ONLY 6% FROM AN ALL TIME HIGH.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 3,
+    "k": 19,
+    "start": 76.556,
+    "end": 81.681,
+    "text": "AND THAT'S BEFORE YOU CONSIDER THE GAINS OF THIS MORNING WHERE THE MARKETS INDICATED UP 60 POINTS.",
+    "speaker": null,
+    "turn": 4
+   },
+   {
+    "n": 4,
+    "k": 20,
+    "start": 79.913,
+    "end": 81.892,
+    "text": ">> THAT'S RIGHT.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 5,
+    "k": 21,
+    "start": 81.982,
+    "end": 84.062,
+    "text": "SO SO LIKE DON'T TRY TO CATCH THE ACTUAL BOTTOM HERE.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 6,
+    "k": 22,
+    "start": 84.157,
+    "end": 84.831,
+    "text": "NOW REMEMBER THE MIDTERMS.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 7,
+    "k": 23,
+    "start": 84.921,
+    "end": 87.32,
+    "text": "EVERYBODY'S ALL UP IN ARMS ABOUT LAST WEEK.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 8,
+    "k": 24,
+    "start": 87.396,
+    "end": 89.471,
+    "text": "THAT'S WHAT THURSDAY WAS ABOUT.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 9,
+    "k": 25,
+    "start": 89.58,
+    "end": 90.251,
+    "text": "I THINK THAT WAS PART OF THE REASON.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 10,
+    "k": 26,
+    "start": 90.327,
+    "end": 93.849,
+    "text": "THERE'S ALSO YOU KNOW, THE AI YOU KNOW CONCERNS AND EVERYTHING ELSE.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 11,
+    "k": 27,
+    "start": 93.963,
+    "end": 96.714,
+    "text": "BUT THE REALITY IS, IS THAT THIS IS WHAT ALWAYS HAPPENS IN THE MIDTERMS.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 12,
+    "k": 28,
+    "start": 96.809,
+    "end": 101.935,
+    "text": "AND WHEN YOU ACTUALLY GET IN IT, PEOPLE ARE LIKE, WELL, THEY START SECOND GUESSING, DON'T SECOND GUESS IT.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 13,
+    "k": 29,
+    "start": 100.9,
+    "end": 106.045,
+    "text": "YOU KNOW, EVERY MIDTERM ELECTION, THE 6 TO 12 MONTH PERIOD, POST MIDTERMS IS REALLY, REALLY GOOD.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 14,
+    "k": 30,
+    "start": 106.143,
+    "end": 109.008,
+    "text": "SO JUST KEEP THAT IN THE BACK OF YOUR MIND.",
+    "speaker": null,
+    "turn": 5
+   },
+   {
+    "n": 15,
+    "k": 31,
+    "start": 107.841,
+    "end": 112.262,
+    "text": ">> YOU KNOW, THIS MORNING YOU CAN SAY THINGS ARE PROBABLY REALLY, REALLY GOOD.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 16,
+    "k": 32,
+    "start": 112.338,
+    "end": 115.952,
+    "text": "AND EVEN LAST WEEK, ANY GAINS THAT YOU SAW IN SECTORS CAME BECAUSE OIL WAS DOWN.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 17,
+    "k": 33,
+    "start": 116.082,
+    "end": 119.318,
+    "text": "OIL WAS DOWN 16% FOR BRANT, DOWN 12% FOR WTI.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 18,
+    "k": 34,
+    "start": 119.427,
+    "end": 121.134,
+    "text": "AND WE'RE LOOKING AT ADDITIONAL LOSSES TODAY.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 19,
+    "k": 35,
+    "start": 121.237,
+    "end": 128.287,
+    "text": "I THINK IF YOU CALL UP THAT OIL CHART, YOU'LL SEE THAT WTI HAS INDICATED OFF ANOTHER TRADING OFF ANOTHER 4% THIS MORNING.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 20,
+    "k": 36,
+    "start": 128.435,
+    "end": 129.918,
+    "text": "YEAH YEAH.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 21,
+    "k": 37,
+    "start": 130.066,
+    "end": 131.258,
+    "text": "SO HERE WE ARE AT 8677.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 22,
+    "k": 38,
+    "start": 131.433,
+    "end": 136.302,
+    "text": "THAT HAS TO EXPLAIN A LOT ABOUT THE MARKET'S GAINS IN THE PREMARKET THIS MORNING.",
+    "speaker": null,
+    "turn": 6
+   },
+   {
+    "n": 23,
+    "k": 39,
+    "start": 135.268,
+    "end": 136.602,
+    "text": ">> ABSOLUTELY.",
+    "speaker": null,
+    "turn": 7
+   },
+   {
+    "n": 24,
+    "k": 40,
+    "start": 136.669,
+    "end": 139.639,
+    "text": "AND I THINK THAT'S A REALLY GOOD POINT ABOUT THE MIDTERMS AS WELL.",
+    "speaker": null,
+    "turn": 7
+   },
+   {
+    "n": 25,
+    "k": 41,
+    "start": 138.538,
+    "end": 139.301,
+    "text": "RIGHT.",
+    "speaker": null,
+    "turn": 7
+   },
+   {
+    "n": 26,
+    "k": 42,
+    "start": 139.428,
+    "end": 143.705,
+    "text": "GOING INTO THE >> MIDTERMS, THERE WAS ALWAYS, YOU KNOW, CONCERN ABOUT WHO'S GOING TO WIN.",
+    "speaker": null,
+    "turn": 7
+   },
+   {
+    "n": 27,
+    "k": 43,
+    "start": 143.81,
+    "end": 146.4,
+    "text": "AND, YOU KNOW, WHAT DOES THAT MEAN FOR MY INVESTMENTS?",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 28,
+    "k": 44,
+    "start": 146.49,
+    "end": 151.693,
+    "text": "BUT THE REALITY IS, IS THAT THE BIGGER CONCERN WAS WHAT WAS THE PRESIDENT GOING TO DO AFTER THE MIDTERMS?",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 29,
+    "k": 45,
+    "start": 151.797,
+    "end": 155.421,
+    "text": "AND SO FAR, NOT MUCH IN TERMS OF AT LEAST FOR THE MILITARY CONFLICT.",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 30,
+    "k": 46,
+    "start": 154.254,
+    "end": 155.891,
+    "text": "AND LET'S HOPE IT STAYS THAT WAY.",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 31,
+    "k": 47,
+    "start": 156.0,
+    "end": 159.161,
+    "text": "BUT THAT'S WHAT OIL I THINK IS RESPONDING TO.",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 32,
+    "k": 48,
+    "start": 159.244,
+    "end": 162.362,
+    "text": "AND THAT'S A VERY POSITIVE DRIVER AS WE GO INTO 2027.",
+    "speaker": null,
+    "turn": 8
+   },
+   {
+    "n": 33,
+    "k": 49,
+    "start": 161.127,
+    "end": 174.807,
+    "text": ">> SO YOU'RE SAYING THE MIDTERM EFFECT IS THAT IT PUTS A GOVERNOR, ESSENTIALLY ON THE ADMINISTRATION AND DOESN'T ALLOW THEM TO DO ANYTHING EXTREME THAT YOU HAVE TO COME TO MEASURES THAT YOU ARE MEETING WITH THE OPPOSITION, BASICALLY.",
+    "speaker": null,
+    "turn": 9
+   },
+   {
+    "n": 34,
+    "k": 50,
+    "start": 173.039,
+    "end": 174.32,
+    "text": ">> MAYBE.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 35,
+    "k": 51,
+    "start": 174.405,
+    "end": 180.802,
+    "text": "OR MAYBE IT'S JUST THE IDEA THAT, YOU KNOW, I DON'T KNOW IF THE PRESIDENT REALLY WANTED TO GO IN AND DO MILITARY ACTION IN THE FIRST PLACE.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 36,
+    "k": 52,
+    "start": 180.923,
+    "end": 182.852,
+    "text": "IT WAS A THREAT.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 37,
+    "k": 53,
+    "start": 182.972,
+    "end": 185.196,
+    "text": "AND NOW IT LOOKS LIKE THAT THREAT IS NOT BEING EXACTED.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 38,
+    "k": 54,
+    "start": 185.271,
+    "end": 185.457,
+    "text": "AND THAT'S GOOD.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 39,
+    "k": 55,
+    "start": 185.551,
+    "end": 187.253,
+    "text": "THAT'S GREAT NEWS.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 40,
+    "k": 56,
+    "start": 187.347,
+    "end": 189.169,
+    "text": "AND I THINK THAT'S A REALLY POSITIVE BACKDROP POTENTIALLY GOING INTO 27.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 41,
+    "k": 57,
+    "start": 189.274,
+    "end": 193.809,
+    "text": "I PERSONALLY THINK OIL IS GOING TO COME DOWN QUITE A BIT FOR OTHER REASONS.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 42,
+    "k": 58,
+    "start": 193.914,
+    "end": 196.029,
+    "text": "BUT I MEAN THAT WOULD BE A NICE DRIVER.",
+    "speaker": null,
+    "turn": 10
+   },
+   {
+    "n": 43,
+    "k": 59,
+    "start": 194.994,
+    "end": 196.725,
+    "text": ">> REASONS BEING WHAT.",
+    "speaker": null,
+    "turn": 11
+   },
+   {
+    "n": 44,
+    "k": 60,
+    "start": 196.787,
+    "end": 198.998,
+    "text": "NOT A SLOWDOWN IN THE ECONOMY.",
+    "speaker": null,
+    "turn": 11
+   },
+   {
+    "n": 45,
+    "k": 61,
+    "start": 197.697,
+    "end": 200.13,
+    "text": ">> WELL PART OF IT IS DEMAND DESTRUCTION.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 46,
+    "k": 62,
+    "start": 200.221,
+    "end": 200.744,
+    "text": "IT'S A REALLY GOOD POINT.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 47,
+    "k": 63,
+    "start": 200.852,
+    "end": 204.424,
+    "text": "BUT THE OTHER ONE IS THERE'S GOING TO BE A SUPPLY RESPONSE RIGHT.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 48,
+    "k": 64,
+    "start": 204.517,
+    "end": 206.154,
+    "text": "THINK ABOUT THE STRAIT OF HORMUZ.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 49,
+    "k": 65,
+    "start": 206.231,
+    "end": 207.514,
+    "text": "IT'S BEING EXPOSED NOW FOR THIS CHOKE POINT.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 50,
+    "k": 66,
+    "start": 207.594,
+    "end": 208.667,
+    "text": "THAT'S KIND OF CRAZY RIGHT.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 51,
+    "k": 67,
+    "start": 208.766,
+    "end": 210.44,
+    "text": "IT'S ITS SELF-IMPOSED CHOKE POINT.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 52,
+    "k": 68,
+    "start": 210.542,
+    "end": 214.101,
+    "text": "SO IF YOU'RE A COUNTRY THAT'S ENERGY INSECURE, YOU HAVE NO CHOICE.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 53,
+    "k": 69,
+    "start": 214.211,
+    "end": 215.4,
+    "text": "NOW YOU HAVE TO GO AND FIND YOUR OWN SUPPLY.",
+    "speaker": null,
+    "turn": 12
+   },
+   {
+    "n": 54,
+    "k": 70,
+    "start": 215.455,
+    "end": 216.282,
+    "text": "THAT MEANS MORE DRILLING ACTIVIT",
+    "speaker": null,
+    "turn": 12
+   }
+  ],
+  "selected": [
+   33,
+   33
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Morgan Stanley's Mike Wilson: The Midterm Effect 'Puts a Governor' on the Administration",
+  "caption": "Clips: CNBC Television (2026-11-09); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "From CNBC Television.",
+   "bridges": [
+    "Also on the record, TFTC:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "9iyI2LddOoE",
+    "channel": "CNBC Television",
+    "published_at": "2026-11-09T14:50:21+00:00",
+    "text": ">> SO YOU'RE SAYING THE MIDTERM EFFECT IS THAT IT PUTS A GOVERNOR, ESSENTIALLY ON THE ADMINISTRATION AND DOESN'T ALLOW THEM TO DO ANYTHING EXTREME THAT YOU HAVE TO COME TO MEASURES THAT YOU ARE MEETING WITH THE OPPOSITION, BASICALLY.",
+    "start": 161.127,
+    "end": 174.807,
+    "provenance": {
+     "record": "transcripts/9iyI2LddOoE/transcript.yt_manual.json",
+     "record_sha256": "bf027a43b98c432a53ee974667c00851459ff531decbeb975e152af480a82cdc",
+     "k": [
+      49,
+      49
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "start": 1979.43,
+    "end": 1985.33,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      432,
+      432
+     ]
+    }
+   }
+  ]
+ }
+}

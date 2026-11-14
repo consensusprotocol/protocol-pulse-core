@@ -1,0 +1,273 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__imperative__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+  "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^buy bitcoin",
+  "mined": "2026-11-12",
+  "selected_k": [
+   212,
+   212
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "imperative",
+  "why": "A direct buy instruction to the viewer ('Buy Bitcoin and sail above the politics')."
+ },
+ "source": {
+  "video_id": "l987bgGZjS0",
+  "channel": "Simply Bitcoin",
+  "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+  "description": "Bitcoin dumps to $75,000 as Democrats take control of Congress, the AI stock market bubble cracks, and fears of another massive government bailout grow. Is this Bitcoin crash the beginning of a larger financial crisis, or will Washington respond with more Federal Reserve liquidity, money printing, and inflation? From Trump's divided government and America's exploding national debt to a shocking banking crisis in Paraguay, we examine what comes next for Bitcoin, financial markets, and your money.\n\nSPONSORS:\nTruth Block is brought to you by @hodlwithLedn\n🚀 Bitcoin-backed Loans\n💰 $10B+ in loans i",
+  "description_truncated": true,
+  "published_at": "2026-11-05T22:00:19+00:00",
+  "url": "https://www.youtube.com/watch?v=l987bgGZjS0"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 212,
+    "start": 946.92,
+    "end": 949.06,
+    "text": "Buy Bitcoin and sail above the politics.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 193,
+    "start": 886.29,
+    "end": 890.83,
+    "text": "Within hours of the Binance hack, tether and circle froze about $2.4 billion of stable coins.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 194,
+    "start": 891.53,
+    "end": 893.03,
+    "text": "A stable coin, remember, is still a dollar?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 195,
+    "start": 893.63,
+    "end": 895.13,
+    "text": "And somebody else holds the off switch.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 196,
+    "start": 895.87,
+    "end": 898.61,
+    "text": "So is a Democratic Congress bullish or bearish for Bitcoin?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 197,
+    "start": 899.09,
+    "end": 900.55,
+    "text": "Over the next few days, it's messy.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 198,
+    "start": 901.33,
+    "end": 903.57,
+    "text": "Over the next few years, I think it's very bullish.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 199,
+    "start": 904.25,
+    "end": 905.79,
+    "text": "Groman just told you the slow road.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 200,
+    "start": 906.04,
+    "end": 909.16,
+    "text": "which is keeping real rates deeply negative, is really good for Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 201,
+    "start": 909.8,
+    "end": 912.78,
+    "text": "And with a divided government, the slow road is the one that's open.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 202,
+    "start": 913.2,
+    "end": 916.38,
+    "text": "Big new laws are stuck, but the debt keeps growing on autopilot.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 203,
+    "start": 916.94,
+    "end": 919.84,
+    "text": "And the Fed doesn't need a single vote from Congress to print more money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 204,
+    "start": 920.3,
+    "end": 923.2,
+    "text": "The last three midterms all ended in divided government too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 205,
+    "start": 923.64,
+    "end": 927.48,
+    "text": "And the debt went from about $18 trillion to more than $40 trillion anyway.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 206,
+    "start": 927.9,
+    "end": 930.38,
+    "text": "A year after each of those midterms, Bitcoin was higher.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 207,
+    "start": 930.46,
+    "end": 935.16,
+    "text": "And in every one of those years, it also dropped somewhere between 15 % and half along the way.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 208,
+    "start": 935.4,
+    "end": 937.42,
+    "text": "So don't let a red Thursday shake you out.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 209,
+    "start": 938.06,
+    "end": 941.6,
+    "text": "And whoever you voted for, be careful about putting your hope in a party or a politician.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 210,
+    "start": 942.2,
+    "end": 942.92,
+    "text": "They come and go.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 211,
+    "start": 943.58,
+    "end": 946.14,
+    "text": "Red or blue, nobody's printing less dollars.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 213,
+    "start": 949.66,
+    "end": 950.42,
+    "text": "So tell me in the comments.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 214,
+    "start": 950.98,
+    "end": 954.22,
+    "text": "Is a Democratic Congress bullish or bearish for Bitcoin over the next two years?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 215,
+    "start": 954.58,
+    "end": 954.84,
+    "text": "And why?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 216,
+    "start": 955.32,
+    "end": 958.34,
+    "text": "And when the AI trade finally breaks, where does the money run?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 217,
+    "start": 958.88,
+    "end": 962.6,
+    "text": "Gold, Bitcoin, or back into stocks once the government starts buying?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 218,
+    "start": 962.87,
+    "end": 970.13,
+    "text": "If you got value to this, don't forget to hit the like button, share it with a friend who's ready to panic sell, and subscribe to Simply Bitcoin for more analysis like this every day.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 219,
+    "start": 970.67,
+    "end": 971.17,
+    "text": "I'm Hurley.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 220,
+    "start": 971.63,
+    "end": 973.23,
+    "text": "This is TruthBlock with Simply Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 221,
+    "start": 973.83,
+    "end": 976.11,
+    "text": "Thanks for hanging out with me, and I'll see you next week.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

@@ -1,0 +1,336 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__05",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+  "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   20,
+   20
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "A dated factual statement; single narrator."
+ },
+ "source": {
+  "video_id": "UJFQBaMh3yg",
+  "channel": "Coin Bureau",
+  "title": "Bitcoin's Midterm CRASH. Is The Worst Over?",
+  "description": "♣️ Join the Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter 👉 https://www.coinbureau.com/newsletters/ \n\nOther Channels:\n",
+  "description_truncated": true,
+  "published_at": "2026-11-10T11:33:20+00:00",
+  "url": "https://www.youtube.com/watch?v=UJFQBaMh3yg"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 5,
+    "start": 54.06,
+    "end": 59.26,
+    "text": "So then, has Bitcoin already taken the worst of it, or is the hard part still to come?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 6,
+    "start": 59.88,
+    "end": 61.82,
+    "text": "That's exactly what we'll look at today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 7,
+    "start": 62.28,
+    "end": 66.62,
+    "text": "We'll examine what knocked Bitcoin off its high and who actually did the selling.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 8,
+    "start": 67.12,
+    "end": 77.1,
+    "text": "We'll look at the all -important 200 -day moving average and why so many traders are staring it, plus what MSCI's actions could mean for strategy and for Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 9,
+    "start": 77.48,
+    "end": 80.18,
+    "text": "My name is Guy, and this is the Coin Bureau.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 10,
+    "start": 81.55,
+    "end": 86.59,
+    "text": "So, to begin with, what actually knocked Bitcoin off its post -election high?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 11,
+    "start": 87.19,
+    "end": 90.09,
+    "text": "Well, Washington first and then Wall Street.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 12,
+    "start": 90.95,
+    "end": 97.89,
+    "text": "So, on the 3rd of November, Democrats won both the House and the Senate by much wider margins than many expected.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 13,
+    "start": 98.51,
+    "end": 104.91,
+    "text": "For crypto, that shuts the door on the fast, friendly policy -making a lot of the market had been banking on.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 14,
+    "start": 105.21,
+    "end": 113.67,
+    "text": "Instead of new laws written with the cooperation of the industry, the likely path now runs back through the agencies and through enforcement.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 15,
+    "start": 114.29,
+    "end": 118.37,
+    "text": "And if you were around for the last few years of that, you'll remember how it felt.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 16,
+    "start": 119.03,
+    "end": 124.21,
+    "text": "The clearest casualty is the Clarity Act, the market structure bill the industry wanted most.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 17,
+    "start": 124.51,
+    "end": 135.63,
+    "text": "It already fell one vote short in the Senate back in September, and if the Senate doesn't vote on it before the 3rd of January, it dies and has to start again from scratch.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 18,
+    "start": 136.01,
+    "end": 142.65,
+    "text": "As things stand, traders on Kalshi now give it single -digit odds of becoming law before 2027.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 19,
+    "start": 143.11,
+    "end": 146.79,
+    "text": "And so, the market didn't waste much time pricing this in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 20,
+    "start": 147.27,
+    "end": 153.85,
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 21,
+    "start": 154.32,
+    "end": 155.74,
+    "text": "But of course, it wasn't alone.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 22,
+    "start": 156.32,
+    "end": 161.64,
+    "text": "The NASDAQ lost nearly 5 % the same day, dragged down by chipmakers and data centre stocks.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 23,
+    "start": 162.14,
+    "end": 169.64,
+    "text": "Investors were questioning how long the AI spending spree can last, and worrying about tighter rules on it under the new Congress.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 24,
+    "start": 170.34,
+    "end": 173.86,
+    "text": "So, on the day, Bitcoin traded just like another tech stock.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 25,
+    "start": 174.4,
+    "end": 177.12,
+    "text": "Since then, though, the backdrop has only gotten tougher.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 26,
+    "start": 177.52,
+    "end": 185.4,
+    "text": "A strong jobs report has given the Fed even more reason to keep interest rates high, with another hike in December now on the table.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 27,
+    "start": 185.86,
+    "end": 190.74,
+    "text": "And even if inflation cools, the chances of a rate cut anytime soon looks slim.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 28,
+    "start": 191.38,
+    "end": 203.06,
+    "text": "Now, higher rates make cash more attractive and borrowed money more expensive, which is very much the wrong combo for anything risky, and the market definitely sees Bitcoin as risky.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 29,
+    "start": 203.37,
+    "end": 208.37,
+    "text": "Now, despite all of that, there is something worth noting here in this wild price action.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 30,
+    "start": 208.97,
+    "end": 212.77,
+    "text": "Once that drop was done, the selling seemed to run out of road.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 31,
+    "start": 213.45,
+    "end": 220.61,
+    "text": "Over the next four days, Bitcoin has closed around the 75K level again and again, never more than about $1,000 away.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   15,
+   15
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: On November 5, Bitcoin Dropped 5.5% and Closed Just Under 76K",
+  "caption": "Clips: Coin Bureau (2026-11-10); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Coin Bureau first.",
+   "bridges": [
+    "From Swan Bitcoin:"
+   ],
+   "signoff": "Pulse Check, out."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   }
+  ]
+ }
+}

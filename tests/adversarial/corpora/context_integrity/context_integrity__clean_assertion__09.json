@@ -1,0 +1,435 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__09",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+  "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   135,
+   135
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "The narrator's own general statement; single narrator."
+ },
+ "source": {
+  "video_id": "l987bgGZjS0",
+  "channel": "Simply Bitcoin",
+  "title": "Bitcoin Dumps as Democrats Take Congress! Now What?",
+  "description": "Bitcoin dumps to $75,000 as Democrats take control of Congress, the AI stock market bubble cracks, and fears of another massive government bailout grow. Is this Bitcoin crash the beginning of a larger financial crisis, or will Washington respond with more Federal Reserve liquidity, money printing, and inflation? From Trump's divided government and America's exploding national debt to a shocking banking crisis in Paraguay, we examine what comes next for Bitcoin, financial markets, and your money.\n\nSPONSORS:\nTruth Block is brought to you by @hodlwithLedn\n🚀 Bitcoin-backed Loans\n💰 $10B+ in loans i",
+  "description_truncated": true,
+  "published_at": "2026-11-05T22:00:19+00:00",
+  "url": "https://www.youtube.com/watch?v=l987bgGZjS0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 114,
+    "start": 520.57,
+    "end": 537.49,
+    "text": "And that's sort of what we're living through, right, which is the periodic injection of currency units to try to slow down or offset the deflationary impact of both the technology, but then also the drag of high levels of debt, which also naturally push deflation as well.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 115,
+    "start": 537.51,
+    "end": 538.01,
+    "text": "Exactly.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 116,
+    "start": 538.53,
+    "end": 542.51,
+    "text": "So now, but again, keep going on that, I think, because I think that's really important.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 117,
+    "start": 543.99,
+    "end": 554.27,
+    "text": "Because it's not, it's not, like when people think about inflation, they think about should it be two or three or one or four, what's the percent, what's the rate?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 118,
+    "start": 554.81,
+    "end": 556.61,
+    "text": "Essentially, what's the rate of theft?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 119,
+    "start": 558.25,
+    "end": 561.51,
+    "text": "Yeah, what percent of, yeah, purchasing power theft, sure.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 120,
+    "start": 561.77,
+    "end": 564.25,
+    "text": "Instead of saying, is theft okay, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 121,
+    "start": 564.57,
+    "end": 566.07,
+    "text": "What is the rate of theft?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 122,
+    "start": 566.39,
+    "end": 566.65,
+    "text": "I'm okay.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 123,
+    "start": 566.77,
+    "end": 567.73,
+    "text": "I have no vote in it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 124,
+    "start": 568.5,
+    "end": 573.96,
+    "text": "So the democracy I live in, there is no vote on the rate of theft.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 125,
+    "start": 574.42,
+    "end": 576.02,
+    "text": "And that's the cycle we're stuck in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 126,
+    "start": 576.36,
+    "end": 581.34,
+    "text": "When the things you need get more expensive faster than your paycheck, people vote out whoever's in charge.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 127,
+    "start": 581.92,
+    "end": 583.94,
+    "text": "And two years later, they do it all over again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 128,
+    "start": 584.5,
+    "end": 586.84,
+    "text": "Jameson Lopp posted about exactly that this week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 129,
+    "start": 587.42,
+    "end": 592.56,
+    "text": "Red team, then blue team, then back to red team, then back to blue team, and over and over again.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 130,
+    "start": 593.06,
+    "end": 596.36,
+    "text": "And the whole time, the debt keeps climbing under every president from both parties.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 131,
+    "start": 596.78,
+    "end": 598.64,
+    "text": "Bitcoin sits above all of this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 132,
+    "start": 599.22,
+    "end": 607.84,
+    "text": "Michael Saylor pointed out that Florida just elected a Republican governor who backed a U.S. Bitcoin Reserve, and Texas elected a Democratic senator who voted to create one for his state.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 133,
+    "start": 608.28,
+    "end": 610.5,
+    "text": "The case for holding Bitcoin crosses party lines.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 134,
+    "start": 611.16,
+    "end": 614.42,
+    "text": "So whoever you voted for this week, what you save in is still your call.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 135,
+    "start": 615.08,
+    "end": 618.8,
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 136,
+    "start": 619.42,
+    "end": 623.82,
+    "text": "This week, people in Paraguay found out how fast it can happen when someone else is holding your money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 137,
+    "start": 624.14,
+    "end": 626.54,
+    "text": "Ueno is Paraguay's biggest bank by customers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 138,
+    "start": 627.22,
+    "end": 629.56,
+    "text": "About 3 million people in a country of under 7 million.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 139,
+    "start": 630.02,
+    "end": 634.46,
+    "text": "On Monday, the central bank voted to take it over after it ran dangerously short of capital.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 140,
+    "start": 635.06,
+    "end": 638.56,
+    "text": "And overnight, the app, the cards, and the accounts all went dark.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 141,
+    "start": 639.08,
+    "end": 643.68,
+    "text": "Bloomberg reports people are struggling to pay for everything from rent and groceries to bus rides.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 142,
+    "start": 644.22,
+    "end": 647.54,
+    "text": "Even retirement money from the state social security fund is stuck inside.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 143,
+    "start": 648.04,
+    "end": 652.9,
+    "text": "For the last two nights, people have been in the streets and the capital chanting, give us back our money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 144,
+    "start": 653.21,
+    "end": 655.57,
+    "text": "This, ladies and gentlemen, is why we Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 145,
+    "start": 656.31,
+    "end": 658.63,
+    "text": "The real question this week is who's actually holding your money.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 146,
+    "start": 659.29,
+    "end": 661.71,
+    "text": "A bank balance is a promise from whoever keeps the ledger.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 147,
+    "start": 662.11,
+    "end": 665.45,
+    "text": "And when the ledger keeper fails, you find out what that promise is worth.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 148,
+    "start": 666.03,
+    "end": 669.01,
+    "text": "Bitcoin you hold yourself has no app anyone can switch off.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 149,
+    "start": 669.65,
+    "end": 672.19,
+    "text": "So holding your own keys means nobody can switch your money off.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 150,
+    "start": 672.73,
+    "end": 674.79,
+    "text": "But it only works if your family can access it too.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 151,
+    "start": 675.35,
+    "end": 681.33,
+    "text": "Walking my wife through my old multi -sig setup kept me up at night because I needed to know she could get access to her Bitcoin when I wasn't around.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Simply Bitcoin: 'Inflation Takes Your Savings Slowly, and It Happens No Matter Who Wins'",
+  "caption": "Clips: Coin Bureau (2026-11-10); Simply Bitcoin (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Coin Bureau first.",
+   "bridges": [
+    "And on Simply Bitcoin:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "UJFQBaMh3yg",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-10T11:33:20+00:00",
+    "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+    "start": 147.27,
+    "end": 153.85,
+    "provenance": {
+     "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+     "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+     "k": [
+      20,
+      20
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "l987bgGZjS0",
+    "channel": "Simply Bitcoin",
+    "published_at": "2026-11-05T22:00:19+00:00",
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "start": 615.08,
+    "end": 618.8,
+    "provenance": {
+     "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+     "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+     "k": [
+      135,
+      135
+     ]
+    }
+   }
+  ]
+ }
+}

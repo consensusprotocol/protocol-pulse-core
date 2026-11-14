@@ -1,0 +1,101 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__number_swapped__01",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "number_swapped",
+  "why": "The clip says 5.5%.",
+  "bad_line": 1
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "Swan Bitcoin"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "UJFQBaMh3yg",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-10T11:33:20+00:00",
+   "sentences": [
+    {
+     "k": 20,
+     "text": "On the 5th of November, Bitcoin dropped 5.5 % on the day and closed just under 76K.",
+     "start": 147.27,
+     "end": 153.85
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/UJFQBaMh3yg/transcript.whisper_words.json",
+    "record_sha256": "57427ad3d0ac4395f87100837c605ce836648c84b7a92a891faa3fa53a5c6c10",
+    "k": [
+     20,
+     20
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "w4h9HfP7Gb0",
+   "channel": "Swan Bitcoin",
+   "speaker": null,
+   "published_at": "2026-11-06T15:29:48+00:00",
+   "sentences": [
+    {
+     "k": 11,
+     "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+     "start": 61.8,
+     "end": 66.5
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+    "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+    "k": [
+     11,
+     11
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "From Coin Bureau and Swan Bitcoin.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Coin Bureau: on November 5 Bitcoin dropped 6.5% and closed just under 76K.",
+   "cites": [
+    "A"
+   ]
+  },
+  {
+   "slot": "bridge",
+   "text": "Here is Swan Bitcoin.",
+   "cites": [
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

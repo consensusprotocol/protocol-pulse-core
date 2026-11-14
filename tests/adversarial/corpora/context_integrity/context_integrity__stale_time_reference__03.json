@@ -1,0 +1,390 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__stale_time_reference__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+  "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "today",
+  "mined": "2026-11-12",
+  "selected_k": [
+   55,
+   55
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "stale_time_reference",
+  "why": "'today' is 2026-11-06 (publish time); the title presents it as the state on 2026-11-12. A time word the title presents as current on the show date is a FAIL even though the caption dates the clip (L-v (3))."
+ },
+ "source": {
+  "video_id": "L9tzgg6PXi8",
+  "channel": "CoinTelegraph",
+  "title": "Bitcoin to $1 MILLION by 2030? Mark Moss Reveals His Model",
+  "description": "Is Bitcoin's bottom finally in? Could BTC reach $1 MILLION by 2030? Investor and Bitcoin Opportunity Fund partner Mark Moss explains why he believes Bitcoin is entering one of the biggest buying opportunities in its history, despite recent crypto hacks and market uncertainty. He breaks down why Bitcoin could hit new all-time highs in 2027, how Wall Street adoption could push BTC to $1 million, and whether Strategy (MSTR) could outperform Bitcoin itself. Plus, Moss explains why he believes AI has killed the altcoin market and where investors should position themselves for the next bull run.\n\n00",
+  "description_truncated": true,
+  "published_at": "2026-11-06T14:30:20+00:00",
+  "url": "https://www.youtube.com/watch?v=L9tzgg6PXi8"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 37,
+    "start": 127.56,
+    "end": 152.29,
+    "text": "hack that was pretty pretty bad that was like uh you know the cold card was sort of the wallet that was embraced by the by the hardcore bitcoin maximalist if you will and so that was devastating and um that didn't really drop the price we had the liquid hack that didn't really drop that didn't really drop that didn't really drop so when you see three big bad pieces of news devastating.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 38,
+    "start": 152.61,
+    "end": 156.01,
+    "text": "I mean, the largest in history, devastating news happened and the price doesn't go down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 39,
+    "start": 156.15,
+    "end": 157.29,
+    "text": "I think it just further confirms.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 40,
+    "start": 157.49,
+    "end": 158.63,
+    "text": "The seller exhaustion has happened.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 41,
+    "start": 158.79,
+    "end": 159.63,
+    "text": "The sentiment has changed.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 42,
+    "start": 160.43,
+    "end": 163.09,
+    "text": "So I think, I think, you know, fundamentally we can see that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 43,
+    "start": 163.65,
+    "end": 163.73,
+    "text": "Definitely.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 44,
+    "start": 164.01,
+    "end": 165.79,
+    "text": "We're sort of behind us.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 45,
+    "start": 166.57,
+    "end": 172.47,
+    "text": "I think what's also interesting is, you know, in the United States yesterday, at the time of this recording, yesterday we've had the midterm elections.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 46,
+    "start": 173.09,
+    "end": 178.45,
+    "text": "And it matters for the world because, of course, the U.S. dollars, the reserve currency of the world, U.S. financial markets, basically drive the global markets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 47,
+    "start": 178.91,
+    "end": 179.95,
+    "text": "Bitcoin is a global asset.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 48,
+    "start": 180.07,
+    "end": 180.43,
+    "text": "And of course.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 49,
+    "start": 180.7,
+    "end": 207.85,
+    "text": "you know what china does with liquidity matters for bitcoin and other countries but you know the the midterms are a pretty big deal for the world and um so we had those elections and what we can see i just actually did a video on my youtube channel breaking this down i went through about 70 years of data going back to 1950 and we looked at every midterm so uh 20 20 midterms not 19 midterms since 1950 and When you look at it, it's pretty interesting to look at what happens.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 50,
+    "start": 207.97,
+    "end": 214.59,
+    "text": "Now, obviously, Bitcoin hasn't been around that long, but we looked at the market cycle, just in general, and then, you know, what we can see with Bitcoin cycle since 2014.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 51,
+    "start": 215.31,
+    "end": 226.27,
+    "text": "And what we see is that in a midterm year, which is the year we're in a midterm year, they're historically bad for all markets, including Bitcoin, has always been really, been really rough in the midterm year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 52,
+    "start": 226.89,
+    "end": 231.89,
+    "text": "The average market gain in a midterm year is only 4%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 53,
+    "start": 231.89,
+    "end": 233.45,
+    "text": "The average gain.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 54,
+    "start": 234.34,
+    "end": 236.56,
+    "text": "In Bitcoin terms, it's typically down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 55,
+    "start": 236.64,
+    "end": 238.86,
+    "text": "Bitcoin is down year to date in a midterm year today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 56,
+    "start": 239.56,
+    "end": 244.16,
+    "text": "But it's what happens after the, well, first, it's what happens after the midterm, which is pretty interesting, I'll tell you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 57,
+    "start": 244.46,
+    "end": 246.08,
+    "text": "But why is it down?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 58,
+    "start": 246.22,
+    "end": 248.34,
+    "text": "Well, one of it is market cycles.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 59,
+    "start": 248.72,
+    "end": 250.46,
+    "text": "And we talk about the Bitcoin four -year cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 60,
+    "start": 250.94,
+    "end": 256.48,
+    "text": "And certainly the supply demand, you know, change in the halving cycle changes the price.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 61,
+    "start": 256.68,
+    "end": 265.75,
+    "text": "So, you know, in the early years of Bitcoin, when you cut the new incoming supply in half, You cut the supply in half, but the demand stays as hammered demand increases.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 62,
+    "start": 265.93,
+    "end": 267.29,
+    "text": "Of course, the price goes up.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 63,
+    "start": 267.93,
+    "end": 276.61,
+    "text": "But what's happened now is that the new incoming supply in relation to the demand of Bitcoin is so out of balance that we cut the supply and half today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 64,
+    "start": 276.63,
+    "end": 277.39,
+    "text": "It doesn't really matter.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 65,
+    "start": 277.49,
+    "end": 278.41,
+    "text": "It doesn't really move the needle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 66,
+    "start": 278.95,
+    "end": 289.89,
+    "text": "But I think when you look back, you really see that the four -year cycle certainly had something to do with supply and demand, but really what was more important for the four -year cycle was actually the global four -year liquidity cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 67,
+    "start": 290.3,
+    "end": 294.04,
+    "text": "the business ISM cycle, and the four -year presidential cycle.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 68,
+    "start": 294.76,
+    "end": 297.08,
+    "text": "And so the midterms are typically bad years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 69,
+    "start": 297.4,
+    "end": 299.64,
+    "text": "Like I said, right now, the S &P is about 10 % on the year.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   18,
+   18
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "CoinTelegraph: 'Bitcoin Is Down Year to Date in a Midterm Year Today'",
+  "caption": "Clips: TFTC (2026-11-07); CoinTelegraph (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "TFTC first.",
+   "bridges": [
+    "CoinTelegraph:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "Look, sound money is one of the fundamental foundations of good economic growth.",
+    "start": 1979.43,
+    "end": 1985.33,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      432,
+      432
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "L9tzgg6PXi8",
+    "channel": "CoinTelegraph",
+    "published_at": "2026-11-06T14:30:20+00:00",
+    "text": "Bitcoin is down year to date in a midterm year today.",
+    "start": 236.64,
+    "end": 238.86,
+    "provenance": {
+     "record": "transcripts/L9tzgg6PXi8/transcript.whisper_words.json",
+     "record_sha256": "75c4df514450909edeefd27453b9d44a81a03249bc424110f259e628d5ece96f",
+     "k": [
+      55,
+      55
+     ]
+    }
+   }
+  ]
+ }
+}

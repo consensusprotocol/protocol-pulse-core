@@ -1,0 +1,281 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__ad_read__05",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/qo8rDU3bbMo/transcript.whisper_words.json",
+  "record_sha256": "f645b0da951612607f566303b216f2eb3222dc9274d020237f612030d1cdc183",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "learn more about Bitcoin-backed loans (context)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   54,
+   54
+  ]
+ },
+ "expected": {
+  "verdict": "exclude",
+  "class": "ad_read",
+  "why": "Ledn ad copy ('Borrow against it with Lendend', k55)."
+ },
+ "source": {
+  "video_id": "qo8rDU3bbMo",
+  "channel": "Simply Bitcoin",
+  "title": "Bitcoin Has Only Done This Twice Before. Here’s What Came Next",
+  "description": "Bitcoin just lost its 50-week moving average after five straight red weeks, reigniting fears that the Bitcoin bear market is back. But this rare post-bottom breakdown has happened only twice before, and what followed might surprise you. As Nvidia's AI selloff rattles Wall Street and pressure builds around Federal Reserve policy, inflation, and liquidity, is Bitcoin facing another leg down or the final shakeout before the next bull run?\n\nSPONSORS:\nTruth Block is brought to you by @hodlwithLedn\n🚀 Bitcoin-backed Loans\n💰 $10B+ in loans issued since 2018\n🔓 Simply Bitcoin clients get 0.25% off their",
+  "description_truncated": true,
+  "published_at": "2026-11-09T22:18:53+00:00",
+  "url": "https://www.youtube.com/watch?v=qo8rDU3bbMo"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 54,
+    "start": 218.43,
+    "end": 220.09,
+    "text": "So don't sell your Bitcoin to cover a bill.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 37,
+    "start": 156.0,
+    "end": 164.8,
+    "text": "Nvidia is about 7 % of the S &P 500, and this morning it fell as much as 8%, wiping up more than $200 billion, while everything else seemed to rally.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 38,
+    "start": 165.26,
+    "end": 169.44,
+    "text": "That's what happens when a market leans on one company, and that company leans on one man.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 39,
+    "start": 169.68,
+    "end": 174.12,
+    "text": "This is another glaring reason why Bitcoin having no CEO is a feature, not a bug.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 40,
+    "start": 174.56,
+    "end": 175.4,
+    "text": "Now zoom out a bit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 41,
+    "start": 175.69,
+    "end": 179.75,
+    "text": "Over the last 10 years, Bitcoin and Nvidia have both gone up 100x.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 42,
+    "start": 180.25,
+    "end": 184.35,
+    "text": "And as of this morning, Bitcoin is back on top as the best performing asset of the last 10 years.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 43,
+    "start": 184.85,
+    "end": 186.97,
+    "text": "So if you're tired, just remember what you're holding.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 44,
+    "start": 187.51,
+    "end": 192.89,
+    "text": "An exhausting grind like this is when many are tempted to throw in the towel and sell the most scarce asset on the planet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 45,
+    "start": 193.59,
+    "end": 194.83,
+    "text": "Well, what if you don't have to sell?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 46,
+    "start": 195.43,
+    "end": 196.49,
+    "text": "That's where Leden comes in.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 47,
+    "start": 197.03,
+    "end": 199.83,
+    "text": "Lennon lets you borrow dollars against your Bitcoin without selling it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 48,
+    "start": 200.23,
+    "end": 202.71,
+    "text": "And funds typically land in your bank account in under four hours.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 49,
+    "start": 203.19,
+    "end": 207.27,
+    "text": "What I like most about Bitcoin -backed loans with Lend is that it's set it and forget it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 50,
+    "start": 207.55,
+    "end": 208.83,
+    "text": "There are no monthly payments required.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 51,
+    "start": 209.33,
+    "end": 211.51,
+    "text": "You get strong protection against liquidation risk.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 52,
+    "start": 211.67,
+    "end": 213.31,
+    "text": "You can refinance whenever you want.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 53,
+    "start": 213.89,
+    "end": 217.99,
+    "text": "And as Bitcoin climbs in a bull market, you can claw your collateral back into cold storage.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 55,
+    "start": 220.71,
+    "end": 221.99,
+    "text": "Borrow against it with Lendend.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 56,
+    "start": 222.17,
+    "end": 226.03,
+    "text": "Learn more about Bitcoin -backed loans with Lendend at learn.org.com.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 57,
+    "start": 226.99,
+    "end": 230.67,
+    "text": "So the age -old question, is the AI bubble popping?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 58,
+    "start": 231.05,
+    "end": 237.05,
+    "text": "Jordi Visser is a Wall Street macro veteran who's still long AI after giving back most of this year's gains.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 59,
+    "start": 237.57,
+    "end": 240.63,
+    "text": "On Friday, he told Anthony Pompliano why this isn't the pop.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 60,
+    "start": 241.07,
+    "end": 248.57,
+    "text": "Number one, I think with the midterms, we've eliminated the bubble risk, which sounds funny when the market's going down.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 61,
+    "start": 248.77,
+    "end": 253.53,
+    "text": "But my argument would be there isn't a bubble risk yet because we haven't done enough of the debt.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 62,
+    "start": 253.71,
+    "end": 255.47,
+    "text": "We haven't done enough of the spending yet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 63,
+    "start": 255.9,
+    "end": 263.42,
+    "text": "If there was a macro event which slowed down the demand side or something happened in the next couple years and these guys spent more and more money, I think it would be an issue.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 64,
+    "start": 263.62,
+    "end": 270.96,
+    "text": "But if we're all believing that they're not going to spend as much money for 2028, well, then that would mean that KEPX would probably be less next year.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 65,
+    "start": 271.62,
+    "end": 273.66,
+    "text": "They've already started on the stuff that will happen now.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 66,
+    "start": 273.82,
+    "end": 281.94,
+    "text": "If they're worried about 2028, maybe there'll be a delay, and that would be good for the bubble risk, meaning it would push out the buildout further and further, and that would be good.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

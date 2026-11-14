@@ -1,0 +1,480 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__stale_time_reference__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/Ve2eFzwom_4/transcript.whisper_words.json",
+  "record_sha256": "c6203ad303763885ffa9d0be0f84a88bad591b40250b19c8bbcf1534a6707f05",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "today",
+  "mined": "2026-11-12",
+  "selected_k": [
+   393,
+   393
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "stale_time_reference",
+  "why": "A market quote from 2026-11-06 presented as today's price on 2026-11-12. A time word the title presents as current on the show date is a FAIL even though the caption dates the clip (L-v (3))."
+ },
+ "source": {
+  "video_id": "Ve2eFzwom_4",
+  "channel": "Bloomberg Television",
+  "title": "Democrats Begin Outlining Priorities",
+  "description": "On the early edition of Balance of Power, Bloomberg Washington Correspondents Joe Mathieu and Kailey Leinz discuss the dust settling on Tuesday's midterm elections. On today's show, Democratic Congressman Sam Liccardo of California, White House Council of Economic Advisers Chairman Chris Phelan, Stonecourt Capital Partner Rick Davis, Harvard Kennedy School Ash Center Visiting Democracy Fellow Jeanne Sheehan Zaino and former Republican Congressman Patrick McHenry.\n\n\nChapters:\n00:00:00 Radio Balance of Power: Early Edition\n00:02:31 Markets Bounce After a Brutal Week\n00:04:20 Strong October Jobs ",
+  "description_truncated": true,
+  "published_at": "2026-11-06T21:04:31+00:00",
+  "url": "https://www.youtube.com/watch?v=Ve2eFzwom_4"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 366,
+    "start": 1920.08,
+    "end": 1922.82,
+    "text": "After 40 of 41 of them passed on Tuesday.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 367,
+    "start": 1922.96,
+    "end": 1924.38,
+    "text": "Rick Davis and Jeannie Shanz.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 368,
+    "start": 1924.5,
+    "end": 1927.7,
+    "text": "They know both of them, Bloomberg politics contributors and our political panel today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 369,
+    "start": 1927.84,
+    "end": 1928.6,
+    "text": "Thank you so much.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 370,
+    "start": 1928.7,
+    "end": 1934.42,
+    "text": "Of course, Joe, we spoke yesterday with Congressman Suha Suhrmann, who represents Data Center Alley in Virginia.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 371,
+    "start": 1934.58,
+    "end": 1940.86,
+    "text": "And he said it's not going to work this patchwork piecemeal, state -by -state locality, kind of approach to data centers.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 372,
+    "start": 1940.94,
+    "end": 1942.54,
+    "text": "He thinks there needs to be something federal.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 373,
+    "start": 1942.9,
+    "end": 1945.52,
+    "text": "I guess we'll see it maybe in the new Congress.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 374,
+    "start": 1945.64,
+    "end": 1948.82,
+    "text": "We'll have more ahead here on Balance of Power on Bloomberg TV and radio.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 375,
+    "start": 1954.02,
+    "end": 1955.6,
+    "text": "It's 140 on Wall Street.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 376,
+    "start": 1955.82,
+    "end": 1957.92,
+    "text": "We do check markets all day long here at Bloomberg.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 377,
+    "start": 1958.12,
+    "end": 1965.06,
+    "text": "We are seeing a tepid rebound of sorts today for the S &P 500 index right now higher by six tenths of one percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 378,
+    "start": 1965.2,
+    "end": 1967.96,
+    "text": "The Dow does remain negative lower by one tenth of one percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 379,
+    "start": 1968.5,
+    "end": 1970.62,
+    "text": "NASDAQ up 1.3 percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 380,
+    "start": 1970.82,
+    "end": 1975.32,
+    "text": "NASDAQ 100 index holding on to a gain right now of 1.5 percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 381,
+    "start": 1975.7,
+    "end": 1978.16,
+    "text": "But we've got to begin with what is happening with the Sox today.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 382,
+    "start": 1978.46,
+    "end": 1984.78,
+    "text": "Yesterday, recall the index of Philadelphia Stock Exchange Semiconductor Index plunged by 12%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 383,
+    "start": 1984.78,
+    "end": 1988.86,
+    "text": "We're seeing a rebound today up by three and a half percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 384,
+    "start": 1989.26,
+    "end": 1991.08,
+    "text": "Two year 4.50 percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 385,
+    "start": 1991.24,
+    "end": 1992.04,
+    "text": "Jobs Friday here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 386,
+    "start": 1992.16,
+    "end": 1994.62,
+    "text": "We've got the 10 year 4.84 percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 387,
+    "start": 1995.0,
+    "end": 1996.6,
+    "text": "Gold down five tenths of one percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 388,
+    "start": 1996.76,
+    "end": 1998.24,
+    "text": "Four thousand sixty eight the ounce.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 389,
+    "start": 1998.52,
+    "end": 2002.46,
+    "text": "West Texas intermediate crude lower now by six tenths of one percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 390,
+    "start": 2002.66,
+    "end": 2003.04,
+    "text": "But back.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 391,
+    "start": 2003.26,
+    "end": 2007.32,
+    "text": "just above $90, $90 one set a barrel on WTI.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 392,
+    "start": 2007.88,
+    "end": 2010.72,
+    "text": "Brent 9735 down now by 1%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 393,
+    "start": 2010.72,
+    "end": 2016.88,
+    "text": "And Bitcoin just below $76,000 Bitcoin today up by under one tenth of one percent.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 394,
+    "start": 2017.32,
+    "end": 2022.02,
+    "text": "Keeping an eye on Draft King shares, they are plunging now by 23.2%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 395,
+    "start": 2022.02,
+    "end": 2039.82,
+    "text": "Company sharply reduced its profit forecast as a result of continued investment in its prediction market product, but Graft Kings and its chief rival, Butter Entertainment's fan duel, have been coping with competition from a new generation of prediction market operators like Kalshi and Polly Market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 396,
+    "start": 2039.98,
+    "end": 2044.42,
+    "text": "Again, Draft King shares, they are now down by 23.2%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 397,
+    "start": 2045.12,
+    "end": 2047.82,
+    "text": "Recapping, we got the socks up by 3.5%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 32,
+    "k": 398,
+    "start": 2047.82,
+    "end": 2050.46,
+    "text": "NASDAQ 100 up 1.5%.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 33,
+    "k": 399,
+    "start": 2050.46,
+    "end": 2051.82,
+    "text": "I'm Charlie Pellett.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 34,
+    "k": 400,
+    "start": 2052.4,
+    "end": 2055.26,
+    "text": "And Kaylee and Joe, that is a Bloomberg business flash.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 35,
+    "k": 401,
+    "start": 2055.5,
+    "end": 2057.02,
+    "text": "All right, Charlie, check in the markets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 36,
+    "k": 402,
+    "start": 2059.05,
+    "end": 2059.67,
+    "text": "Go ahead, Joe.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 37,
+    "k": 403,
+    "start": 2059.95,
+    "end": 2060.33,
+    "text": "It's Friday.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 38,
+    "k": 404,
+    "start": 2060.53,
+    "end": 2063.07,
+    "text": "We can both talk as little or as much as we want.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 39,
+    "k": 405,
+    "start": 2063.43,
+    "end": 2068.81,
+    "text": "This is the danger of having the two of us in different cities, because James already told me you were going to talk first.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 40,
+    "k": 406,
+    "start": 2068.95,
+    "end": 2070.39,
+    "text": "Anyway, I'm glad that you're there with Charlie.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 41,
+    "k": 407,
+    "start": 2070.84,
+    "end": 2072.22,
+    "text": "I'm glad to be here with Charlie.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 42,
+    "k": 408,
+    "start": 2072.44,
+    "end": 2079.68,
+    "text": "I am excited to get home to D.C. after what has been an incredibly long week covering these midterms and they're technically not over yet.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   27,
+   27
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Bloomberg Television: Bitcoin 'Just Below $76,000', Up 'Today'",
+  "caption": "Clips: BTC Sessions (2026-11-05); Bloomberg Television (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's BTC Sessions.",
+   "bridges": [
+    "From Bloomberg Television:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "jTuJ8PXhRV4",
+    "channel": "BTC Sessions",
+    "published_at": "2026-11-05T16:00:38+00:00",
+    "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+    "start": 3668.82,
+    "end": 3675.46,
+    "provenance": {
+     "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+     "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+     "k": [
+      796,
+      796
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "Ve2eFzwom_4",
+    "channel": "Bloomberg Television",
+    "published_at": "2026-11-06T21:04:31+00:00",
+    "text": "And Bitcoin just below $76,000 Bitcoin today up by under one tenth of one percent.",
+    "start": 2010.72,
+    "end": 2016.88,
+    "provenance": {
+     "record": "transcripts/Ve2eFzwom_4/transcript.whisper_words.json",
+     "record_sha256": "c6203ad303763885ffa9d0be0f84a88bad591b40250b19c8bbcf1534a6707f05",
+     "k": [
+      393,
+      393
+     ]
+    }
+   }
+  ]
+ }
+}

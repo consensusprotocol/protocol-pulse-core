@@ -1,0 +1,318 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__06",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+  "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   27,
+   27
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "A dated narrative, complete in itself; single narrator."
+ },
+ "source": {
+  "video_id": "n17v727G7FI",
+  "channel": "Coin Bureau",
+  "title": "The Midterms Couldn't Stop Bitcoin!",
+  "description": "👥 Join CBC Lite 👉 https://go.coinbureau.com/CBC-Lite-CB-Des\n🛒 Get The Hottest Crypto Deals 👉 https://www.coinbureau.com/deals/ \n\nCrypto Exchanges:\n\n📊TOOBIT: Deposit, Trade & Win Up to 60,000 USDT👉 https://go.coinbureau.com/toobit\n📈BINANCE: https://go.coinbureau.com/binance-cb\n\nCoin Bureau Community:\n\n♣️ Join The Coin Bureau Club 👉 https://go.coinbureau.com/cbc-cb-des\n📱 Coin Bureau Telegram 👉 https://go.coinbureau.com/yt-telegram\n💥 Coin Bureau Discord 👉 https://go.coinbureau.com/cb-discord \n📲 Insider Info in our Socials 👉 https://www.coinbureau.com/socials/ \n🔥 TOP Crypto TIPS In our Newsletter ",
+  "description_truncated": true,
+  "published_at": "2026-11-05T11:10:49+00:00",
+  "url": "https://www.youtube.com/watch?v=n17v727G7FI"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 14,
+    "start": 93.175,
+    "end": 95.361,
+    "text": "Well, for two reasons.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 15,
+    "start": 95.461,
+    "end": 100.041,
+    "text": "The first is tougher   regulation.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 16,
+    "start": 100.169,
+    "end": 107.869,
+    "text": "Control of Congress means control of  the committees that oversee the SEC, the CFTC, and   crypto legislation.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 17,
+    "start": 107.993,
+    "end": 108.753,
+    "text": "So the expectation is heavier  oversight from both agencies.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 18,
+    "start": 108.864,
+    "end": 130.09,
+    "text": "and House Democrats   are currently weighing a market structure bill  that gives the SEC a bigger role than the CFTC.   The second is that proc crypto legislation stalls.  The Clarity Act passed the House in July 2025,   but it still hasn't cleared the Senate.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 19,
+    "start": 130.187,
+    "end": 132.114,
+    "text": "If  it doesn't get through before this Congress   ends on the 3rd of January, it effectively has to  start over.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 20,
+    "start": 132.219,
+    "end": 140.681,
+    "text": "So, the market went into election day   bracing for stricter rules and a much slower road  for the bills it actually wanted.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 21,
+    "start": 140.782,
+    "end": 148.144,
+    "text": "That led to some   crazy volatility coming on the back of the already  wild price action following the Binance hack.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 22,
+    "start": 148.245,
+    "end": 152.404,
+    "text": "And   this is exactly the kind of market environment the  Coin Bureau Club was made for.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 23,
+    "start": 152.492,
+    "end": 167.988,
+    "text": "As the events of   this week unfolded, our research team was in the  private Discord breaking down the price action.   members get direct access to that research team  along with daily research pieces across both   crypto and traditional markets.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 24,
+    "start": 168.083,
+    "end": 179.0,
+    "text": "So, if you want  to make it easier on yourself to navigate this   madness, the link is in the description or you can  scan the QR code that's on the screen right now.   Okay, back to the midterms.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 25,
+    "start": 179.132,
+    "end": 180.148,
+    "text": "So, what did Bitcoin  actually do as America went to the polls?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 26,
+    "start": 180.263,
+    "end": 184.782,
+    "text": "Well, it   flinched early.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 27,
+    "start": 184.93,
+    "end": 198.36,
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 28,
+    "start": 198.533,
+    "end": 195.886,
+    "text": "At  2200 UTC, it dropped to the 75Ks.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 29,
+    "start": 196.047,
+    "end": 200.756,
+    "text": "For context,   that was 1 to 2 hours before the first polls began  closing.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 30,
+    "start": 200.861,
+    "end": 208.93,
+    "text": "So, the dip came on the fear of a result,   not the actual result.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 31,
+    "start": 209.045,
+    "end": 215.259,
+    "text": "The Bears got their  election night flush just slightly before   election night started.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 32,
+    "start": 215.404,
+    "end": 223.375,
+    "text": "Then the counting began.  By midnight UTC, Bitcoin was back near $78,000 and   it ground higher through the night.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 33,
+    "start": 223.478,
+    "end": 227.744,
+    "text": "The blue wave  was clear early in the vote counts, well before   the final calls came in.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 34,
+    "start": 227.84,
+    "end": 234.302,
+    "text": "With the worst case  already on the table, there was nothing left   for the bears to sell.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 35,
+    "start": 234.486,
+    "end": 240.747,
+    "text": "Then, Bitcoin ripped to  about $81,100, a 7% pump in the space of 12 hours.   Now, this wasn't necessarily just people rushing  in to buy.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 36,
+    "start": 240.837,
+    "end": 246.907,
+    "text": "A big part of that move was a classic   short squeeze.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 37,
+    "start": 247.023,
+    "end": 254.252,
+    "text": "That's when traders betting on a  drop are forced to buy back as the price rises,   pushing it even higher.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 38,
+    "start": 254.374,
+    "end": 258.731,
+    "text": "According to Coin Glass  data, around $950 million in positions were   liquidated, more than $560 million of it from  shorts.",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   13,
+   13
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Coin Bureau: Bitcoin Traded Calmly Between About 77 and 78K on November 3 Until Selling Started Around 19 UTC",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); Coin Bureau (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Swan Bitcoin.",
+   "bridges": [
+    "Over to Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI can deliver on its promises and still cause huge losses for investors in the buildout.",
+    "start": 77.21,
+    "end": 81.67,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      13,
+      13
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "start": 184.93,
+    "end": 198.36,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      27,
+      27
+     ]
+    }
+   }
+  ]
+ }
+}

@@ -1,0 +1,257 @@
+{
+ "schema": "pp.excl_case/1",
+ "id": "exclusions__framed_prediction__02",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/by_7k0EZpdE/transcript.whisper_words.json",
+  "record_sha256": "7c632aadbc6cfc2f5078df2ec9eaa85045372301b9222ad1d6b0d4cb43b0daab",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "could",
+  "mined": "2026-11-12",
+  "selected_k": [
+   202,
+   202
+  ]
+ },
+ "expected": {
+  "verdict": "keep",
+  "class": "framed_prediction",
+  "why": "'I have the feeling that this could smell a lot like a bottom.'"
+ },
+ "source": {
+  "video_id": "by_7k0EZpdE",
+  "channel": "Real Vision",
+  "title": "The Economy Is Sending a Surprising Signal? with Mikkel Rosenvold | Macro Mondays",
+  "description": "Mikkel Rosenvold, head of geopolitics at Steno Research, is flying solo on this week's Macro Mondays to unpack what the U.S. midterm elections mean for the political landscape, economic policy, and financial markets. He also examines the significance of the Abu Dhabi and Shenzhen meetings and reveals a surprising signal from Steno Research's economic nowcasting models.\n\n🏆 The Real Vision Trading is now open! The best trade ideas on the platform compete for $80,000 in cash. \n\n📈 Trading League: https://realvision.com/your-future\n\nTimestamps:\n00:00 - Welcome to Macro Mondays \n00:40 - Midterm Fall",
+  "description_truncated": true,
+  "published_at": "2026-11-09T16:53:14+00:00",
+  "url": "https://www.youtube.com/watch?v=by_7k0EZpdE"
+ },
+ "moment": {
+  "timing": "word",
+  "sentences": [
+   {
+    "k": 202,
+    "start": 955.17,
+    "end": 959.29,
+    "text": "And I have the feeling that this could smell a lot like a bottom.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ },
+ "context": {
+  "before": [
+   {
+    "k": 189,
+    "start": 891.99,
+    "end": 895.59,
+    "text": "This leads me to an incredible chart that I had from Andreas here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 190,
+    "start": 896.59,
+    "end": 901.55,
+    "text": "What we saw on Thursday was in many ways, the largest degrossing event in recent memory.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 191,
+    "start": 902.71,
+    "end": 908.55,
+    "text": "The data from this, I think it's from Morgan Stanley, goes back to 2016.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 192,
+    "start": 908.83,
+    "end": 910.27,
+    "text": "This is the great latest largest.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 193,
+    "start": 910.84,
+    "end": 915.68,
+    "text": "One day degrossing, we had over $70 billion wiped out in the space of 90 minutes.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 194,
+    "start": 916.7,
+    "end": 918.22,
+    "text": "So what happened here?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 195,
+    "start": 918.4,
+    "end": 921.4,
+    "text": "Well, obviously, we hear that from a lot of our hedge fund clients.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 196,
+    "start": 923.3,
+    "end": 925.52,
+    "text": "They had a lot of risk on that book on the AI bet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 197,
+    "start": 925.9,
+    "end": 927.5,
+    "text": "They believed the bottom had come.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 198,
+    "start": 928.01,
+    "end": 929.75,
+    "text": "It happened, obviously.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 199,
+    "start": 930.59,
+    "end": 943.97,
+    "text": "And the anti -AI or AI skeptic sentiment in markets, or as a result of the midterms, simply pulled the rug from underneath the markets, and it led to this washout in markets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 200,
+    "start": 946.5,
+    "end": 948.94,
+    "text": "You could argue that this looks a bit like what we had.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 201,
+    "start": 949.34,
+    "end": 954.32,
+    "text": "We had that last year we had in the spring over the winter in the software space.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "after": [
+   {
+    "k": 203,
+    "start": 959.79,
+    "end": 966.49,
+    "text": "Andreas goes much more into detail with this in his piece that also looks at the liquidity side of things, which might also look more benign.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 204,
+    "start": 967.35,
+    "end": 975.77,
+    "text": "I'm still a little bit worried about the rates, obviously, which has also been a big part of this, but I'm beginning to smell a bottom in here.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 205,
+    "start": 976.98,
+    "end": 979.52,
+    "text": "Let's look a little bit ahead at what's to come.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 206,
+    "start": 979.74,
+    "end": 980.38,
+    "text": "this week.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 207,
+    "start": 980.54,
+    "end": 982.4,
+    "text": "We obviously have a big inflation report tomorrow.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 208,
+    "start": 982.84,
+    "end": 988.02,
+    "text": "And this is where things get really, really interesting because the round war isn't solved.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 209,
+    "start": 989.1,
+    "end": 990.58,
+    "text": "We still have a big diesel crisis.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 210,
+    "start": 991.2,
+    "end": 996.6,
+    "text": "We just had the Republicans just lost 37 seats over inflation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 211,
+    "start": 999.21,
+    "end": 1000.57,
+    "text": "But we're seeing something else.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 212,
+    "start": 1001.11,
+    "end": 1005.91,
+    "text": "And now I'm just going to flip our screen here to our nowcast IQ platform.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 213,
+    "start": 1006.41,
+    "end": 1013.65,
+    "text": "This is our proprietor nowcast that if you have been regular followers of ours, we measure growth, inflation, and liquidity in real time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 214,
+    "start": 1014.67,
+    "end": 1018.31,
+    "text": "For this, I've taken our nowcast of the US economy specifically.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "k": 215,
+    "start": 1018.81,
+    "end": 1023.93,
+    "text": "And what we see here is that I'll just try and zoom in a little bit on here for those you watching on.",
+    "speaker": null,
+    "turn": null
+   }
+  ]
+ }
+}

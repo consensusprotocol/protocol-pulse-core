@@ -1,0 +1,363 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__unresolved_referent__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+  "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "^(he|she|it|this|that)('s| is| has)",
+  "mined": "2026-11-12",
+  "selected_k": [
+   970,
+   970
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "unresolved_referent",
+  "why": "'He' is the official squeezing Iran's finances (k968-969), outside the clip; placed after Swan Bitcoin's founder speaking of his own thesis, the viewer resolves 'he' to him."
+ },
+ "source": {
+  "video_id": "W2LIxB2kAH0",
+  "channel": "TFTC",
+  "title": "The One Mistake That Cost Trump",
+  "description": "E.J. Antoni returns to break down the midterm blue wave and why he says Republicans lost because of the Iran war. Marty and E.J. cover energy prices bleeding into inflation, falling home affordability, a 35-point youth swing to the left, and the Grover Cleveland parallel. They also dig into tariffs and reindustrialization, Chevron deference and deregulation, Warsh's Fed, bank capital rules, Bessent and the Treasury's role in the repo market, and what a Democrat-controlled Congress means for interest rates.\n\nThe Bitcoin Playbook for Commercial Real Estate Owners & Investors: https://www.tftc.io",
+  "description_truncated": true,
+  "published_at": "2026-11-07T15:00:39+00:00",
+  "url": "https://www.youtube.com/watch?v=W2LIxB2kAH0"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 946,
+    "start": 4262.5,
+    "end": 4266.8,
+    "text": "And again, I had 5.1 % as my median GDP prediction back in February.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 947,
+    "start": 4266.96,
+    "end": 4269.4,
+    "text": "Like, I was in that camp of the economy's about to take off.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 948,
+    "start": 4269.44,
+    "end": 4269.86,
+    "text": "I think.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 949,
+    "start": 4270.25,
+    "end": 4271.91,
+    "text": "Oh, irony of ironies, Marty.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 950,
+    "start": 4272.11,
+    "end": 4272.95,
+    "text": "I think I had a piece.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 951,
+    "start": 4273.11,
+    "end": 4277.39,
+    "text": "It ran in Fox, if I remember correctly, either Fox News or Fox Business, I think.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 952,
+    "start": 4278.11,
+    "end": 4282.77,
+    "text": "And there was something along the lines of five reasons why the Trump economy is about to take off.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 953,
+    "start": 4282.97,
+    "end": 4287.61,
+    "text": "And it ran like February 27th or like right before the Iran War.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 954,
+    "start": 4287.89,
+    "end": 4289.97,
+    "text": "I mean, my timing could not have been worse, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 955,
+    "start": 4290.41,
+    "end": 4294.97,
+    "text": "But again, it was all predicated on, well, it was predicated in part on low energy prices.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 956,
+    "start": 4296.19,
+    "end": 4297.43,
+    "text": "So back to Besson.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 957,
+    "start": 4298.84,
+    "end": 4301.34,
+    "text": "Again, I have a very strong suspicion.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 958,
+    "start": 4302.29,
+    "end": 4303.41,
+    "text": "He has not told me this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 959,
+    "start": 4303.49,
+    "end": 4305.19,
+    "text": "I have not spoken to him.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 960,
+    "start": 4306.11,
+    "end": 4310.13,
+    "text": "Nor have any of his advisors told me he said this either.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 961,
+    "start": 4310.39,
+    "end": 4311.91,
+    "text": "So again, this is my speculation.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 962,
+    "start": 4312.81,
+    "end": 4323.03,
+    "text": "But given what I've seen of him, given even the president's own comments, I have a very, very strong suspicion that he was not in favor of this war at all.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 963,
+    "start": 4323.07,
+    "end": 4328.09,
+    "text": "And he's just been stuck with trying to kind of clean up the messes that have resulted from it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 964,
+    "start": 4328.57,
+    "end": 4336.19,
+    "text": "I think he's done a very good job trying to fight the war from a financial perspective with what do they call it, Operation Outcast, I think.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 965,
+    "start": 4336.91,
+    "end": 4337.87,
+    "text": "Economic Outcast.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 966,
+    "start": 4338.09,
+    "end": 4338.91,
+    "text": "Yeah, thank you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 967,
+    "start": 4339.17,
+    "end": 4339.33,
+    "text": "Thank you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 968,
+    "start": 4339.45,
+    "end": 4349.53,
+    "text": "And, you know, he's trying essentially to put as much financial pressure on Iran in the ways in which we have not been able to put military pressure on them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 969,
+    "start": 4350.15,
+    "end": 4352.79,
+    "text": "And I mean, look, hats off to him for that.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 970,
+    "start": 4352.99,
+    "end": 4355.19,
+    "text": "He has done a really brilliant job.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 971,
+    "start": 4355.21,
+    "end": 4357.49,
+    "text": "And the number of avenues.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 972,
+    "start": 4358.11,
+    "end": 4392.71,
+    "text": "of attack that he's been able to take on that um whether it's the traditional banking system or crypto exchanges i mean genuinely he has done an absolutely remarkable job um and i've been i've been more than impressed by him for that uh but it's like everything he's doing again it's clean up aisle six you know and and so no matter how good of a cleanup job he does it's like because of where he's at because of the mess that has been dumped in his lap, he doesn't have the ability to solve that overnight.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 973,
+    "start": 4393.01,
+    "end": 4397.07,
+    "text": "So going forward, working with Warsh, what does that look like?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 974,
+    "start": 4398.66,
+    "end": 4410.5,
+    "text": "Again, I think it requires working hand and glove, especially as some of these larger tranches of treasuries mature to ensure you have smooth funding in the market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 975,
+    "start": 4411.36,
+    "end": 4415.6,
+    "text": "Also, I'm really not opposed to things when you look at the TGA, for example.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   24,
+   24
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On TFTC: 'He Has Done a Really Brilliant Job'",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); TFTC (2026-11-07). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Here's Swan Bitcoin.",
+   "bridges": [
+    "From TFTC:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "AI uncertainty is a big... part of my personal thesis for investing in Bitcoin.",
+    "start": 107.45,
+    "end": 112.92,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      17,
+      17
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "W2LIxB2kAH0",
+    "channel": "TFTC",
+    "published_at": "2026-11-07T15:00:39+00:00",
+    "text": "He has done a really brilliant job.",
+    "start": 4352.99,
+    "end": 4355.19,
+    "provenance": {
+     "record": "transcripts/W2LIxB2kAH0/transcript.whisper_words.json",
+     "record_sha256": "1d22a7f4c0175cda8112f5b477795b6b78be696d1a694d45234a41b5f87e8879",
+     "k": [
+      970,
+      970
+     ]
+    }
+   }
+  ]
+ }
+}

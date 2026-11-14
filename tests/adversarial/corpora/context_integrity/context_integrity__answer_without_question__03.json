@@ -1,0 +1,462 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__answer_without_question__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/LGzfQjA2SHA/transcript.yt_manual.json",
+  "record_sha256": "f8585148131d5e5b77620a82e3b5027df03d895424a47fb427b46e321820cd5b",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "what would actually make you walk away",
+  "mined": "2026-11-12",
+  "selected_k": [
+   138,
+   139
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "answer_without_question",
+  "why": "A deliberately far-fetched answer to 'what would actually make you walk away from Bitcoin' (k137), followed by 'the aliens eventually land' and 'there's nothing I can see on the horizon' (k140-141)."
+ },
+ "source": {
+  "video_id": "LGzfQjA2SHA",
+  "channel": "CoinTelegraph",
+  "title": "“The Four-Year Cycle Isn’t Dead” — Anthony Scaramucci Predicts the Next Bitcoin Rally",
+  "description": "Why is Bitcoin still trading around $75K–$80K when Anthony Scaramucci believes it should already be worth $200,000? In this exclusive Cointelegraph interview, the SkyBridge Capital founder explains why Bitcoin is lagging behind its fundamentals, when the next major BTC rally could begin, and why he still believes in the four-year cycle. He also takes aim at Trump's crypto policies, discusses the reported $6.3 billion Binance hack, and reveals what could finally make him give up on Bitcoin.\n\n#Bitcoin #AnthonyScaramucci #BitcoinPrice #Crypto #Cointelegraph\n\n00:00 Anthony Scaramucci: Is Crypto He",
+  "description_truncated": true,
+  "published_at": "2026-11-09T14:30:11+00:00",
+  "url": "https://www.youtube.com/watch?v=LGzfQjA2SHA"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 109,
+    "start": 404.846,
+    "end": 408.73,
+    "text": "You said you're trying too hard or you I'm giving you the interview answer when you were a kid.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 1,
+    "k": 110,
+    "start": 408.77,
+    "end": 412.57,
+    "text": "But I would there be a time then, you know, you said it should be $200,000 now.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 2,
+    "k": 111,
+    "start": 412.61,
+    "end": 416.41,
+    "text": "I mean, you've been a, you know, an exec for a very long time.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 3,
+    "k": 112,
+    "start": 416.45,
+    "end": 425.53,
+    "text": "I mean, would there be a time where five years from now Bitcoin is still trading at a price that you're like, well, $120,000 in 2030?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 4,
+    "k": 113,
+    "start": 425.57,
+    "end": 426.439,
+    "text": "Everyone's saying a million.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 5,
+    "k": 114,
+    "start": 426.547,
+    "end": 427.09,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 6,
+    "k": 115,
+    "start": 427.09,
+    "end": 428.53,
+    "text": "You're like you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 7,
+    "k": 116,
+    "start": 427.09,
+    "end": 428.53,
+    "text": "Would you give up?",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 8,
+    "k": 117,
+    "start": 428.57,
+    "end": 430.85,
+    "text": "Remember, I think you saw those base case and.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 9,
+    "k": 118,
+    "start": 430.85,
+    "end": 431.45,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 10,
+    "k": 119,
+    "start": 431.45,
+    "end": 432.77,
+    "text": "Bull cases.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 11,
+    "k": 120,
+    "start": 432.89,
+    "end": 435.564,
+    "text": "And somebody said ten years from now, 130 was the bear case.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 12,
+    "k": 121,
+    "start": 435.691,
+    "end": 440.58,
+    "text": "And Lyn Alden was basically saying to Natalie Brunell, wow, it's 130,000 in 10 years.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 13,
+    "k": 122,
+    "start": 440.98,
+    "end": 443.1,
+    "text": "That is a abysmal failure.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 14,
+    "k": 123,
+    "start": 443.46,
+    "end": 449.66,
+    "text": "Um, I think and again, I could be wrong, but I'm a strong believer in the four year cycle.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 15,
+    "k": 124,
+    "start": 450.06,
+    "end": 457.697,
+    "text": "And I think as we get closer to the halving in 2028, this thing is going to pick up momentum as it has in years past.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 16,
+    "k": 125,
+    "start": 457.785,
+    "end": 464.38,
+    "text": "And by the way, I'll tell you something, you may not know the horoscopes, but you should learn them because other people believe them.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 17,
+    "k": 126,
+    "start": 464.74,
+    "end": 466.22,
+    "text": "You don't have to believe in them, but you better know.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 18,
+    "k": 127,
+    "start": 466.22,
+    "end": 467.82,
+    "text": "I actually haven't looked at them before.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 19,
+    "k": 128,
+    "start": 467.9,
+    "end": 468.46,
+    "text": "I'll be honest with you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 20,
+    "k": 129,
+    "start": 468.5,
+    "end": 469.177,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 21,
+    "k": 130,
+    "start": 469.312,
+    "end": 470.26,
+    "text": "But I'm learning right now.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 22,
+    "k": 131,
+    "start": 470.3,
+    "end": 471.315,
+    "text": "You're saying.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 23,
+    "k": 132,
+    "start": 471.387,
+    "end": 475.86,
+    "text": "I mean, so to me, if you don't believe in the four year cycle, other people do.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 24,
+    "k": 133,
+    "start": 474.42,
+    "end": 475.86,
+    "text": "Okay.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 25,
+    "k": 134,
+    "start": 475.86,
+    "end": 478.66,
+    "text": "You know, I mean, there could be a whole group of Asian investors.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 26,
+    "k": 135,
+    "start": 478.7,
+    "end": 479.18,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 27,
+    "k": 136,
+    "start": 479.276,
+    "end": 488.66,
+    "text": "That are, uh, that are living and dying by that cycle, which means that the end of the fourth quarter, you're going to see a big spend in crypto and big spend in Bitcoin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 28,
+    "k": 137,
+    "start": 488.9,
+    "end": 496.54,
+    "text": "And I guess then just to go back to that point, what would actually make you walk away from Bitcoin and go, you know what, I was wrong.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 29,
+    "k": 138,
+    "start": 497.46,
+    "end": 499.43,
+    "text": "We we lose electricity.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 30,
+    "k": 139,
+    "start": 499.99,
+    "end": 502.79,
+    "text": "Uh, so the entire wall has been depleted from electricity.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 31,
+    "k": 140,
+    "start": 503.11,
+    "end": 508.99,
+    "text": "Uh, the aliens eventually land, and they they had a system that demolishes us on Bitcoin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 32,
+    "k": 141,
+    "start": 509.35,
+    "end": 514.15,
+    "text": "Uh, I don't there's not a lot, actually, I, I, there's nothing I can see on the horizon.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 33,
+    "k": 142,
+    "start": 514.19,
+    "end": 516.683,
+    "text": "It's you really understand the technology.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 34,
+    "k": 143,
+    "start": 516.771,
+    "end": 518.55,
+    "text": "I would just implore people to listen to you.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 35,
+    "k": 144,
+    "start": 518.83,
+    "end": 533.55,
+    "text": "There's certainly crypto curious if they're on your show or at least I've, you know, devouring your show, but I would just think about and I would ask the people listening to think about the aspects of what we deem to be valuable in a society.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 36,
+    "k": 145,
+    "start": 533.55,
+    "end": 538.878,
+    "text": "Read The Ascent of Money by Neil Ferguson and then study the technical properties of Bitcoin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 37,
+    "k": 146,
+    "start": 538.944,
+    "end": 543.15,
+    "text": "It would be almost impossible for you not to want to invest in some Bitcoin.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 38,
+    "k": 147,
+    "start": 543.19,
+    "end": 548.854,
+    "text": "Because Bitcoin is everywhere, and now everyone in the world has at least heard of Bitcoin, whether they've invested or not.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 39,
+    "k": 148,
+    "start": 548.938,
+    "end": 562.07,
+    "text": "But do you think that, um, from a mainstream adoption point of view since you got into it and looking back now, um, do you think it is further ahead than you thought it would be by now, or do you think that maybe it isn't, as.",
+    "speaker": null,
+    "turn": 0
+   },
+   {
+    "n": 40,
+    "k": 149,
+    "start": 562.07,
+    "end": 563.43,
+    "text": "Brand is further ahead?",
+    "speaker": null,
+    "turn": 0
+   }
+  ],
+  "selected": [
+   29,
+   30
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "CoinTelegraph: 'We Lose Electricity'",
+  "caption": "Clips: CoinTelegraph (2026-11-09); Simply Bitcoin (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Starting with CoinTelegraph.",
+   "bridges": [
+    "Now Simply Bitcoin."
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "LGzfQjA2SHA",
+    "channel": "CoinTelegraph",
+    "published_at": "2026-11-09T14:30:11+00:00",
+    "text": "We we lose electricity. Uh, so the entire wall has been depleted from electricity.",
+    "start": 497.46,
+    "end": 502.79,
+    "provenance": {
+     "record": "transcripts/LGzfQjA2SHA/transcript.yt_manual.json",
+     "record_sha256": "f8585148131d5e5b77620a82e3b5027df03d895424a47fb427b46e321820cd5b",
+     "k": [
+      138,
+      139
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "l987bgGZjS0",
+    "channel": "Simply Bitcoin",
+    "published_at": "2026-11-05T22:00:19+00:00",
+    "text": "Inflation takes your savings slowly, and it happens no matter who wins.",
+    "start": 615.08,
+    "end": 618.8,
+    "provenance": {
+     "record": "transcripts/l987bgGZjS0/transcript.whisper_words.json",
+     "record_sha256": "0d54d3143d4c201dacae46a6c4a97568d6bc0b6b4246f9e29796551d73f0a804",
+     "k": [
+      135,
+      135
+     ]
+    }
+   }
+  ]
+ }
+}

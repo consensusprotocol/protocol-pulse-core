@@ -1,0 +1,381 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__clean_assertion__11",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+  "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "manual review of single-sentence assertions",
+  "mined": "2026-11-12",
+  "selected_k": [
+   715,
+   715
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "clean_assertion",
+  "why": "One sentence, quoted, show credited; the host's next question follows (k716)."
+ },
+ "source": {
+  "video_id": "wdk5JZ9hPzs",
+  "channel": "Natalie Brunell",
+  "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+  "description": "Are we headed toward a future of abundance and freedom...or control and scarcity? \n\nJeff Booth joins me to revisit The Price of Tomorrow and explore how AI, government control, and a broken financial system are shaping our future—and why he believes Bitcoin offers a way out.\n\nIn this episode:\n• Can Bitcoin succeed but we still lose our freedom?\n• Who holds the power if AI does all the work?\n• Why Jeff questions what elections can really change\n• Wall Street’s Bitcoin versus Main Street’s Bitcoin\n• What Jeff sees beyond the price chart\n• Could Bitcoin power a new kind of internet?\n\nFollow Jeff ",
+  "description_truncated": true,
+  "published_at": "2026-11-10T13:45:51+00:00",
+  "url": "https://www.youtube.com/watch?v=wdk5JZ9hPzs"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 694,
+    "start": 3123.77,
+    "end": 3134.06,
+    "text": "The model that's local on my computer, four months ago would have been the best frontier model, the best, and it lives on my computer, don't need the internet.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 695,
+    "start": 3134.74,
+    "end": 3135.02,
+    "text": "Wow.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 696,
+    "start": 3135.46,
+    "end": 3140.2,
+    "text": "So if it's four months, I can have an open source model on my computer that runs locally on my computer.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 697,
+    "start": 3141.28,
+    "end": 3144.48,
+    "text": "And these other models take tens of billions of dollars.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 698,
+    "start": 3144.94,
+    "end": 3152.04,
+    "text": "To pay for, and they have a moat for four months, then how do you pay back the tens of billions of dollars?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 699,
+    "start": 3152.6,
+    "end": 3153.38,
+    "text": "Great question.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 700,
+    "start": 3154.1,
+    "end": 3168.32,
+    "text": "You scare a whole bunch of public that AI is going to kill you, and you get regulation to try to create a moat around your business because you can't pay for it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 701,
+    "start": 3168.6,
+    "end": 3169.48,
+    "text": "That's what's happening.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 702,
+    "start": 3170.04,
+    "end": 3173.5,
+    "text": "And so all of the fear is coming.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 703,
+    "start": 3173.96,
+    "end": 3181.12,
+    "text": "From the same system trying to drive you into paralysis and fear to give your agency away to somebody else.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 704,
+    "start": 3181.5,
+    "end": 3182.76,
+    "text": "So they can save you.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 705,
+    "start": 3183.22,
+    "end": 3185.06,
+    "text": "And basically they're going to backstop.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 706,
+    "start": 3185.72,
+    "end": 3186.98,
+    "text": "We're going to be the backstop.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 707,
+    "start": 3187.26,
+    "end": 3188.92,
+    "text": "The taxpayers are going to pay for all this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 708,
+    "start": 3189.0,
+    "end": 3191.74,
+    "text": "But again, the taxpayers, like, you've never lived in a free market.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 709,
+    "start": 3191.92,
+    "end": 3192.08,
+    "text": "Yeah.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 710,
+    "start": 3192.4,
+    "end": 3192.4,
+    "text": "Right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 711,
+    "start": 3192.64,
+    "end": 3197.68,
+    "text": "You've never lived in what actually is, is now, early.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 712,
+    "start": 3198.28,
+    "end": 3201.16,
+    "text": "early founding of the U.S., you probably did.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 713,
+    "start": 3201.7,
+    "end": 3209.12,
+    "text": "And the people moving to the U.S. were leaving controlled markets to be able to have that freedom.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 714,
+    "start": 3209.22,
+    "end": 3217.42,
+    "text": "But after 1913, kind of after the Federal Reserve, it started to take and it slowly evolved into a different path.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 715,
+    "start": 3218.14,
+    "end": 3221.64,
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 716,
+    "start": 3221.98,
+    "end": 3225.64,
+    "text": "Okay, so let's wrap this up with maybe some news you can use.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 717,
+    "start": 3225.82,
+    "end": 3246.9,
+    "text": "How do you... share this message with people that believe that there's a fix from within the control system, that believe if they just vote the right way, they believe if we hand out more benefits and services to the working class, if we put more regulation in to prevent these... greedy corporations from controlling us.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 718,
+    "start": 3247.24,
+    "end": 3256.44,
+    "text": "Like, how do you approach the people in all of our lives who are so skeptical and they can't recognize the problem, so of course they won't appreciate the solution?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 719,
+    "start": 3257.08,
+    "end": 3258.24,
+    "text": "In their own time.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 720,
+    "start": 3259.12,
+    "end": 3265.1,
+    "text": "So I ask typically, is it true that the free market is deflation?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 721,
+    "start": 3265.66,
+    "end": 3266.76,
+    "text": "Is that true?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 722,
+    "start": 3267.08,
+    "end": 3271.9,
+    "text": "And most people will eventually say, yes, and then but.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 29,
+    "k": 723,
+    "start": 3271.9,
+    "end": 3273.28,
+    "text": "We can't live in it.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 30,
+    "k": 724,
+    "start": 3273.41,
+    "end": 3275.53,
+    "text": "And everything else, and whatever reason.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 31,
+    "k": 725,
+    "start": 3276.11,
+    "end": 3285.39,
+    "text": "But I would just describe this as, when have you ever, in anything, tried to convince somebody that their thing was wrong and you were right?",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   21,
+   21
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Natalie Brunell's Show: 'Bitcoin Imposes a Global Free Market for the First Time Ever'",
+  "caption": "Clips: Natalie Brunell's show (2026-11-10); Swan Bitcoin (2026-11-06). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Natalie Brunell's show first.",
+   "bridges": [
+    "Swan Bitcoin:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "start": 3218.14,
+    "end": 3221.64,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      715,
+      715
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   }
+  ]
+ }
+}

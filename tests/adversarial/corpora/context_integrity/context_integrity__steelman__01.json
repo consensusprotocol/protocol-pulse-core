@@ -1,0 +1,354 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__steelman__01",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+  "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "you could argue",
+  "mined": "2026-11-12",
+  "selected_k": [
+   471,
+   472
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "steelman",
+  "why": "Jeff Booth is voicing his critics' case against himself ('Or you could argue on my side, he's delusional', k470) and moves on ('And so we'll see', k474); the package presents it as the speaker's own forecast."
+ },
+ "source": {
+  "video_id": "wdk5JZ9hPzs",
+  "channel": "Natalie Brunell",
+  "title": "Jeff Booth Warning: The Scenario Nobody in Bitcoin Wants to Talk About",
+  "description": "Are we headed toward a future of abundance and freedom...or control and scarcity? \n\nJeff Booth joins me to revisit The Price of Tomorrow and explore how AI, government control, and a broken financial system are shaping our future—and why he believes Bitcoin offers a way out.\n\nIn this episode:\n• Can Bitcoin succeed but we still lose our freedom?\n• Who holds the power if AI does all the work?\n• Why Jeff questions what elections can really change\n• Wall Street’s Bitcoin versus Main Street’s Bitcoin\n• What Jeff sees beyond the price chart\n• Could Bitcoin power a new kind of internet?\n\nFollow Jeff ",
+  "description_truncated": true,
+  "published_at": "2026-11-10T13:45:51+00:00",
+  "url": "https://www.youtube.com/watch?v=wdk5JZ9hPzs"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "word",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 456,
+    "start": 2000.22,
+    "end": 2006.18,
+    "text": "So if you thought about Bitcoin today right now, even let's use this a real example, not good or bad people.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 1,
+    "k": 457,
+    "start": 2006.74,
+    "end": 2010.24,
+    "text": "Let's use a treasury company example.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 2,
+    "k": 458,
+    "start": 2010.8,
+    "end": 2015.94,
+    "text": "I want to collect a whole bunch of Bitcoin and I want to build a digital assets.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 3,
+    "k": 459,
+    "start": 2017.08,
+    "end": 2020.18,
+    "text": "or the same financial system on top of this.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 4,
+    "k": 460,
+    "start": 2020.22,
+    "end": 2022.5,
+    "text": "In other words, I'm near the new central bank, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 5,
+    "k": 461,
+    "start": 2022.98,
+    "end": 2026.42,
+    "text": "And the world doesn't change very much, just different leaders.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 6,
+    "k": 462,
+    "start": 2027.96,
+    "end": 2045.93,
+    "text": "That would, against people that, where I am, right, that would create this, those people are evil, the same, they've been captured, everything else, and you'd get this massive attack vector everywhere where it doesn't, that's just the free market exposing, right?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 7,
+    "k": 463,
+    "start": 2046.31,
+    "end": 2050.19,
+    "text": "Different choices on what is emergent from us.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 8,
+    "k": 464,
+    "start": 2050.91,
+    "end": 2057.55,
+    "text": "And through time, over time, like if that version exists, then my version can't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 9,
+    "k": 465,
+    "start": 2058.64,
+    "end": 2061.76,
+    "text": "And I don't think that version will exist.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 10,
+    "k": 466,
+    "start": 2062.56,
+    "end": 2075.59,
+    "text": "I think that a whole bunch of people, I think there's for a time and place it can, but then a whole bunch of people likely get hurt by the same choices made inside a system that has to centralize.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 11,
+    "k": 467,
+    "start": 2075.88,
+    "end": 2077.48,
+    "text": "and obscure what Bitcoin is.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 12,
+    "k": 468,
+    "start": 2077.92,
+    "end": 2088.22,
+    "text": "If Bitcoin stays decentralized and secure, that system eventually, or many people holding a token on top of that, could get liquidated.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 13,
+    "k": 469,
+    "start": 2088.86,
+    "end": 2090.7,
+    "text": "And we'll own the choices on either.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 14,
+    "k": 470,
+    "start": 2090.88,
+    "end": 2095.21,
+    "text": "Or you could argue on my side, he's delusional.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 15,
+    "k": 471,
+    "start": 2095.47,
+    "end": 2096.53,
+    "text": "This will never exist.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 16,
+    "k": 472,
+    "start": 2097.15,
+    "end": 2098.37,
+    "text": "It will always be captured.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 17,
+    "k": 473,
+    "start": 2099.42,
+    "end": 2102.94,
+    "text": "And everything you're building in the free market can't exist.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 18,
+    "k": 474,
+    "start": 2103.1,
+    "end": 2105.84,
+    "text": "And so we'll see.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 19,
+    "k": 475,
+    "start": 2106.3,
+    "end": 2115.8,
+    "text": "But I don't have to get mad or anything else from people making whatever decision they want to make in a market that's really hard to understand.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 20,
+    "k": 476,
+    "start": 2115.98,
+    "end": 2124.26,
+    "text": "Okay, so this is really interesting because right now you are building orange juice, which is acquiring profitable businesses and accumulating Bitcoin.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 21,
+    "k": 477,
+    "start": 2124.98,
+    "end": 2132.12,
+    "text": "And then we see the other side, which is the treasury companies, companies like strategy that are building financial products, like digital credit.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 22,
+    "k": 478,
+    "start": 2132.42,
+    "end": 2134.92,
+    "text": "These are two very different approaches.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 23,
+    "k": 479,
+    "start": 2136.06,
+    "end": 2137.3,
+    "text": "How do you compare them?",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 24,
+    "k": 480,
+    "start": 2137.9,
+    "end": 2138.3,
+    "text": "I don't.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 25,
+    "k": 481,
+    "start": 2138.42,
+    "end": 2145.46,
+    "text": "They're just very different approaches, just like there's very different approaches to solve market needs in the market, and the market decides which one's right for them.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 26,
+    "k": 482,
+    "start": 2146.0,
+    "end": 2149.5,
+    "text": "We each decide which one's right for us, and we always do.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 27,
+    "k": 483,
+    "start": 2149.98,
+    "end": 2156.72,
+    "text": "And sometimes we choose the wrong one for a long time until we see a different one that is more aligned to what we want.",
+    "speaker": null,
+    "turn": null
+   },
+   {
+    "n": 28,
+    "k": 484,
+    "start": 2157.24,
+    "end": 2160.32,
+    "text": "So these are just two totally different approaches to a market.",
+    "speaker": null,
+    "turn": null
+   }
+  ],
+  "selected": [
+   15,
+   16
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "On Natalie Brunell's Show: 'This Will Never Exist. It Will Always Be Captured.'",
+  "caption": "Clips: Swan Bitcoin (2026-11-06); Natalie Brunell's show (2026-11-10). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "First, Swan Bitcoin.",
+   "bridges": [
+    "Also on the record, Natalie Brunell's show:"
+   ],
+   "signoff": "That's Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "w4h9HfP7Gb0",
+    "channel": "Swan Bitcoin",
+    "published_at": "2026-11-06T15:29:48+00:00",
+    "text": "And Bitcoin gets sold alongside stocks when investors need cash or want less risk.",
+    "start": 61.8,
+    "end": 66.5,
+    "provenance": {
+     "record": "transcripts/w4h9HfP7Gb0/transcript.whisper_words.json",
+     "record_sha256": "3007240273d152d8fc46f1ebdd571a9e77113a60c23190e096f07fbce5e32b92",
+     "k": [
+      11,
+      11
+     ]
+    }
+   },
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "published_at": "2026-11-10T13:45:51+00:00",
+    "text": "This will never exist. It will always be captured.",
+    "start": 2095.47,
+    "end": 2098.37,
+    "provenance": {
+     "record": "transcripts/wdk5JZ9hPzs/transcript.whisper_words_punct.json",
+     "record_sha256": "4d1812bbb98925394e4a653cd7e4fb51551359abd6eb3823316579d93334e5e7",
+     "k": [
+      471,
+      472
+     ]
+    }
+   }
+  ]
+ }
+}

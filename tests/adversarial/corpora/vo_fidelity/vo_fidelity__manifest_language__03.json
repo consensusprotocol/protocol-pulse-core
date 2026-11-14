@@ -1,0 +1,92 @@
+{
+ "schema": "pp.vo_case/1",
+ "id": "vo_fidelity__manifest_language__03",
+ "origin": "REAL",
+ "provenance": {
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "lines written against real selected sentences",
+  "mined": "2026-11-12"
+ },
+ "expected": {
+  "verdict": "pass",
+  "class": "manifest_language",
+  "why": "Sequence words and channel names.",
+  "bad_line": null
+ },
+ "manifest": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "channels": [
+   "Coin Bureau",
+   "BTC Sessions"
+  ]
+ },
+ "segments": [
+  {
+   "label": "A",
+   "video_id": "n17v727G7FI",
+   "channel": "Coin Bureau",
+   "speaker": null,
+   "published_at": "2026-11-05T11:10:49+00:00",
+   "sentences": [
+    {
+     "k": 27,
+     "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+     "start": 184.93,
+     "end": 198.36
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+    "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+    "k": [
+     27,
+     27
+    ]
+   }
+  },
+  {
+   "label": "B",
+   "video_id": "jTuJ8PXhRV4",
+   "channel": "BTC Sessions",
+   "speaker": null,
+   "published_at": "2026-11-05T16:00:38+00:00",
+   "sentences": [
+    {
+     "k": 796,
+     "text": "And gold ETFs for quite a long period of time were the marginal buyers and sellers of gold.",
+     "start": 3668.82,
+     "end": 3675.46
+    }
+   ],
+   "provenance": {
+    "record": "transcripts/jTuJ8PXhRV4/transcript.whisper_words.json",
+    "record_sha256": "37bd07ade44a3b5d179477b288748e169b9d2b5c985859f6cf721c3e596e3456",
+    "k": [
+     796,
+     796
+    ]
+   }
+  }
+ ],
+ "lines": [
+  {
+   "slot": "intro",
+   "text": "Two voices.",
+   "cites": []
+  },
+  {
+   "slot": "bridge",
+   "text": "Coin Bureau, then BTC Sessions.",
+   "cites": [
+    "A",
+    "B"
+   ]
+  },
+  {
+   "slot": "signoff",
+   "text": "Pulse Check for 2026-11-12.",
+   "cites": []
+  }
+ ]
+}

@@ -1,0 +1,345 @@
+{
+ "schema": "pp.ci_case/1",
+ "id": "context_integrity__wrong_speaker__03",
+ "origin": "REAL",
+ "provenance": {
+  "record": "transcripts/IzRH9CA6Kfk/transcript.yt_manual.json",
+  "record_sha256": "c195e86b240e680e40c0af8fe751c06276bfd869777677b32f5ae2cfc655d719",
+  "k_basis": "pp-selectid d809a1f8: select_by_id.tokens_from_record + eligibility.split_sentences (sentence_law.is_terminal); text = transcript_store.read_text",
+  "found_by": "YOU JUST SAID",
+  "mined": "2026-11-12",
+  "selected_k": [
+   167,
+   167
+  ],
+  "trap_in": "source"
+ },
+ "expected": {
+  "verdict": "fail",
+  "class": "wrong_speaker",
+  "why": "The host's voice (caption label JOE) credited to his guest; the guest's own words begin at k169."
+ },
+ "source": {
+  "video_id": "IzRH9CA6Kfk",
+  "channel": "Bloomberg Television",
+  "title": "Huang’s Trump Ties Face Scrutiny",
+  "description": "On the early edition of Balance of Power, Bloomberg Washington Correspondents Joe Mathieu and Kailey Leinz discuss the latest from DC. On today’s show, former US Ambassador to the United Nations Nikki Haley, Rep. Chris Deluzio (D-PA), Stonecourt Capital Partner Rick Davis and Harvard Kennedy School Ash Center Visiting Democracy Fellow Jeanne Sheehan Zaino.\n\nChapters:\n00:00:00 Radio Balance of Power: Early Edition\n00:01:52 Markets: Tech & Semiconductors Rally\n00:03:01 Jensen Huang Faces Possible Subpoenas\n00:04:31 Nikki Haley on Nvidia & National Security\n00:10:02 Nikki Haley on Iran & U.S. Str",
+  "description_truncated": true,
+  "published_at": "2026-11-11T20:31:42+00:00",
+  "url": "https://www.youtube.com/watch?v=IzRH9CA6Kfk"
+ },
+ "window": {
+  "before_s": 90.0,
+  "after_s": 60.0,
+  "timing": "segment",
+  "sentences": [
+   {
+    "n": 0,
+    "k": 152,
+    "start": 1012.044,
+    "end": 1027.493,
+    "text": "THE REASON WE SAW A BLUE WAVE IS THEY ARE SEEING TOO MUCH CORRUPTION IN D.C., THEY ARE SEEING EVERYBODY BENEFIT FROM WORKING IN D.C. AND NO ONE IS BENEFITING ON THEY WORK HARD AT HOME.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 1,
+    "k": 153,
+    "start": 1022.321,
+    "end": 1031.53,
+    "text": "ISRAEL HAS BEEN THE ONE PARTNER WE HAVE HAD FOR DECADES THAT IS HELPED KEEP THE U.S. SAFE.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 2,
+    "k": 154,
+    "start": 1031.53,
+    "end": 1037.703,
+    "text": "THE IRANIAN REGIME DOESN'T JUST SAY DEATH TO ISRAEL, THEY SAY DEATH TO AMERICA AND DEATH TO ISRAEL.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 3,
+    "k": 155,
+    "start": 1037.703,
+    "end": 1041.74,
+    "text": "ISRAEL HAS BEEN A GOOD PARTNER.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 4,
+    "k": 156,
+    "start": 1037.703,
+    "end": 1041.74,
+    "text": "DON'T SHOOT YOUR PARTNERS.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 5,
+    "k": 157,
+    "start": 1041.74,
+    "end": 1046.845,
+    "text": "YOU NEED TO MAKE SURE YOU LOOK IN THE MIRROR AND REFLECT ON WHAT WAS DONE.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 6,
+    "k": 158,
+    "start": 1042.741,
+    "end": 1052.017,
+    "text": "REPUBLICANS HAVE AN OPPORTUNITY TO SELF-CORRECT.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 7,
+    "k": 159,
+    "start": 1046.845,
+    "end": 1058.09,
+    "text": "WE WIN WHEN WE GO BACK TO OUR CONSERVATIVE VALUES, WHEN WE LEAN FORWARD AND SAY WHAT DOES THE NEW VISION LOOK LIKE.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 8,
+    "k": 160,
+    "start": 1053.018,
+    "end": 1073.405,
+    "text": "THE NEW VISION LOOK LIKE A REPUBLICAN PARTY THAT LEADS WITH PHYSICAL RESPONSE ABILITY, THAT DEALS WITH-- FISCAL RESPONSIBILITY, THAT DEALS WITH DEBT, THAT ACKNOWLEDGES THAT SOCIAL SECURITY WILL GO BANKRUPT IN FIVE YEARS AND 75 MILLION AMERICANS WILL BE AFFECTED BY THAT.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 9,
+    "k": 161,
+    "start": 1069.301,
+    "end": 1081.58,
+    "text": "REPUBLICANS WIN WHEN THEY ACKNOWLEDGE FREEDOMS, MAKING SURE AMERICANS HAVE QUALITY-OF-LIFE AND CAN DO STUFF OF THEMSELVES AND THEIR FAMILIES AND HAVE WAGES THEY KNOW CAN KEEP UP.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 10,
+    "k": 162,
+    "start": 1081.58,
+    "end": 1088.72,
+    "text": "WHEN WE --WE DO THAT WHEN WE KEEP CRIME LESSENED, WHICH THE TRUMP ADMINISTRATION HAS DONE WELL.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 11,
+    "k": 163,
+    "start": 1088.72,
+    "end": 1096.895,
+    "text": "AND WE DO THAT WITH A STRONG NATIONAL SECURITY THAT IS DECISIVE AND ALLOWS US TO HAVE THE SAFETY AND QUALITY OF LIFE WE NEED.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 12,
+    "k": 164,
+    "start": 1092.825,
+    "end": 1096.895,
+    "text": "REPUBLICANS HAVE AN OPPORTUNITY.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 13,
+    "k": 165,
+    "start": 1096.895,
+    "end": 1102.968,
+    "text": "SELF CORRECTION IS UP TO THEM.",
+    "speaker": "MR. HALEY",
+    "turn": 25
+   },
+   {
+    "n": 14,
+    "k": 166,
+    "start": 1096.895,
+    "end": 1108.04,
+    "text": "JOE: ALL RIGHT, WE GOT TO WHERE WE WANTED TO GET OT HERE WHEN WE START TALKING ABOUT THE FUTURE OF THE REPUBLICAN PARTY, AMBASSADOR.",
+    "speaker": "JOE",
+    "turn": 26
+   },
+   {
+    "n": 15,
+    "k": 167,
+    "start": 1108.04,
+    "end": 1118.217,
+    "text": "YOU JUST SAID THAT JD VANCE WAS COMPLETELY MISGUIDED ON SUCH A CRITICAL ISSUE.",
+    "speaker": "JOE",
+    "turn": 26
+   },
+   {
+    "n": 16,
+    "k": 168,
+    "start": 1111.11,
+    "end": 1124.423,
+    "text": "SUR YOU DO NOTELY-- SURELY YOU DO NOT THINK HE IS THE PERSON TRULY THE REPUBLICAN PARTY MOVING FORWARD, DO YOU?",
+    "speaker": "JOE",
+    "turn": 26
+   },
+   {
+    "n": 17,
+    "k": 169,
+    "start": 1119.251,
+    "end": 1131.597,
+    "text": "MR. HALEY: IT IS TOO SOON TO TELL WHO WAS GOING TO LEAVE THE REPUBLICAN PARTY GOING FORWARD FOR SOME EVERYONE SAID RON DESANTIS WAS GOING TO BE PRESIDENT AND HE MADE IT OUT OF IOWA.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 18,
+    "k": 170,
+    "start": 1131.597,
+    "end": 1134.833,
+    "text": "I THINK IT IS TOO SOON AND THERE WILL BE MULTIPLE PEOPLE.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 19,
+    "k": 171,
+    "start": 1134.833,
+    "end": 1143.842,
+    "text": "BUT IT IS NOT WHAT YOU SAY, IS WHAT REPUBLICANS DO IN THESE NEXT TWO YEARS.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 20,
+    "k": 172,
+    "start": 1140.772,
+    "end": 1145.944,
+    "text": "WE NEED TO SHOW THE AMERICAN PEOPLE THAT WE FEEL THEIR PAIN, THAT WE HEAR THEM.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 21,
+    "k": 173,
+    "start": 1145.944,
+    "end": 1151.116,
+    "text": "AND WE NEED TO ACT ACCORDINGLY.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 22,
+    "k": 174,
+    "start": 1145.944,
+    "end": 1153.152,
+    "text": "THIS IS A MASSIVE POWER MOVE BY THE AMERICAN PEOPLE SAYING LISTEN TO US.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 23,
+    "k": 175,
+    "start": 1153.152,
+    "end": 1156.288,
+    "text": "YOU DON'T GET TO TELL US HOW WE FEEL.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 24,
+    "k": 176,
+    "start": 1156.288,
+    "end": 1161.36,
+    "text": "BUT AS TELL YOU HOW WE FEEL -- LET US TELL YOU HOW WE FEEL.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 25,
+    "k": 177,
+    "start": 1161.36,
+    "end": 1165.397,
+    "text": "NO MORE PEACOCKING ON TV.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 26,
+    "k": 178,
+    "start": 1161.36,
+    "end": 1171.603,
+    "text": "MAKE SURE WE CAN SHOW THEM REAL RESULTS THAT THEY CAN FEEL IN THEIR HOMES AND MAKE THEM FEEL LIKE THEY ARE MORE CONFIDENT AND STRONG GOING FORWARD.",
+    "speaker": "MR. HALEY",
+    "turn": 27
+   },
+   {
+    "n": 27,
+    "k": 179,
+    "start": 1171.603,
+    "end": 1184.783,
+    "text": "KAILEY: LET'S TALK ABOUT HOW THIS IS REFLECTED IN THE SOUTH IN PARTICULAR, BECAUSE IN YOUR STATE OF SOUTH CAROLINA, WE SAW THE INCUMBENT, ALTHOUGH FOR SHORT TIME SHE HAS BEEN SERVING AS SENATOR, DARLINE GRAHAM, GO DOWN IN THE RACE AGAINST ANNIE ANDREWS.",
+    "speaker": "KAILEY",
+    "turn": 28
+   }
+  ],
+  "selected": [
+   15,
+   15
+  ]
+ },
+ "package": {
+  "show": "Pulse Check",
+  "date": "2026-11-12",
+  "title": "Ambassador Haley: JD Vance 'Completely Misguided'",
+  "caption": "Clips: Bloomberg Television (2026-11-11); Coin Bureau (2026-11-05). Pulse Check, 2026-11-12.",
+  "vo": {
+   "intro": "Bloomberg Television first.",
+   "bridges": [
+    "Next, Coin Bureau."
+   ],
+   "signoff": "That's the Pulse Check."
+  },
+  "segments": [
+   {
+    "label": "M",
+    "role": "moment",
+    "video_id": "IzRH9CA6Kfk",
+    "channel": "Bloomberg Television",
+    "published_at": "2026-11-11T20:31:42+00:00",
+    "text": "YOU JUST SAID THAT JD VANCE WAS COMPLETELY MISGUIDED ON SUCH A CRITICAL ISSUE.",
+    "start": 1108.04,
+    "end": 1118.217,
+    "provenance": {
+     "record": "transcripts/IzRH9CA6Kfk/transcript.yt_manual.json",
+     "record_sha256": "c195e86b240e680e40c0af8fe751c06276bfd869777677b32f5ae2cfc655d719",
+     "k": [
+      167,
+      167
+     ]
+    }
+   },
+   {
+    "label": "A",
+    "role": "adjacent",
+    "video_id": "n17v727G7FI",
+    "channel": "Coin Bureau",
+    "published_at": "2026-11-05T11:10:49+00:00",
+    "text": "For most of the 3rd of November,  Bitcoin traded calmly between about 77 and 78K.   Then from around 19 UTC, the selling started.",
+    "start": 184.93,
+    "end": 198.36,
+    "provenance": {
+     "record": "transcripts/n17v727G7FI/transcript.yt_manual.json",
+     "record_sha256": "b432152da6575ec9867f669f3aa0c0d381fe592cfe009f4766e8d37013a119c4",
+     "k": [
+      27,
+      27
+     ]
+    }
+   }
+  ]
+ }
+}
