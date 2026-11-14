@@ -40,7 +40,8 @@ FILES = ["pipeline/ingest/__init__.py", "pipeline/ingest/config.py", "pipeline/i
          "pipeline/ingest/queue.py", "pipeline/ingest/watch.py", "pipeline/ingest/fetch.py", "pipeline/ingest/mine.py",
          "pipeline/ingest/ledger.py", "pipeline/ingest/coverage.py", "pipeline/ingest/stats.py",
          "pipeline/ingest/service.py", "pipeline/ingest/ab.py", "pipeline/ingest/flagcheck.py",
-         "pipeline/ingest/purge.py", "pipeline/ingest/purge.json", "tools/ingest_watch.py"]
+         "pipeline/ingest/purge.py", "pipeline/ingest/purge.json", "pipeline/ingest/downsignal.py",
+         "tools/ingest_watch.py"]
 HEIMDALL = {"kind": "openai_compat", "vendor": "heimdall", "base_url": "https://api-staging.heimdallm.com/api/v1",
             "key_env_prefix": "HEIMDALL_API_KEY", "timeout_s": 900, "cost_from_usage": True}
 REVIEWERS = {

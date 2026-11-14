@@ -19,7 +19,11 @@ from . import config
 
 OUTAGE_PREFIX = "MINING WAITING ON AN OUTAGE"
 PURGE_PREFIX = "PURGE NOT RUNNING"
-NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + ")")
+SIGNAL_SUFFIX = "DOWN SIGNAL NOT READ"        # ruling 87: "<label> DOWN SIGNAL NOT READ since ..." (the label from
+SWITCH_PATTERN = r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRST)"   # providers.json down_signal)
+SWITCH_RE = re.compile("^" + SWITCH_PATTERN)
+NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + "|" +
+                       r"[A-Z0-9_-]+ " + SIGNAL_SUFFIX + "|" + SWITCH_PATTERN + ")")
 
 
 def notice_prefixes(label):
@@ -28,8 +32,8 @@ def notice_prefixes(label):
 
 def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
     """The STATE file's leading block of notice lines (NOTICE_RE): this writer's lines (mine) are replaced by `line`
-    (None: removed; one of them kept where keep(h)), every other notice stays. Rewritten only when the text changes,
-    under an flock."""
+    (None: removed; one of them kept where keep(h); a callable: line(this writer's lines) -> the line), every other
+    notice stays; ruling 87's switch line is always the first. Rewritten only when the text changes, under an flock."""
     with open(lock_path, "a") as lk:
         fcntl.flock(lk, fcntl.LOCK_EX)
         try:
@@ -41,9 +45,13 @@ def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
         head = []
         while lines and NOTICE_RE.match(lines[0]):
             head.append(lines.pop(0))
+        if callable(line):
+            line = line([h for h in head if mine(h)])
         kept = [h for h in head if mine(h) and keep(h)][:1]
         others = [h for h in head if not mine(h)]
-        new = "\n".join(([line] if line else []) + kept + others + lines)
+        block = ([line] if line else []) + kept + others
+        block = [h for h in block if SWITCH_RE.match(h)] + [h for h in block if not SWITCH_RE.match(h)]
+        new = "\n".join(block + lines)
         if new != text:
             tmp = f"{doc}.{os.getpid()}.{threading.get_ident()}.tmp"
             with open(tmp, "w") as f:
@@ -181,4 +189,34 @@ def write_purge_notice(why, since, doc=None, notify_path=None):
             "while it cannot run safely)") if why else None
     lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
     _rewrite_top(doc, lock_path, lambda h: h.startswith(PURGE_PREFIX), line)
+    return line
+
+
+def write_switch_head(head, doc=None, notify_path=None):
+    """Ruling 87: one switch of the shared Heimdall signal, whoever made it ("HH:MM ET: SWITCHED TO PLAN B (...) |"),
+    prepended to the one physical line at the start of STATE line 1 that holds every earlier switch, newest first; that
+    line stays the first whatever other notice comes or goes. Under the notices' own lock (never a lock file beside the
+    STATE file)."""
+    if not SWITCH_RE.match(head or ""):
+        raise ValueError(f"not a switch head: {head!r}")
+    doc = doc or config.STATE_DOC
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    if notify_path:
+        os.makedirs(os.path.dirname(notify_path), exist_ok=True)
+        with open(notify_path, "a") as f:
+            f.write(json.dumps({"at": config.iso(), "down_signal_switch": head}) + "\n")
+    _rewrite_top(doc, lock_path, lambda h: bool(SWITCH_RE.match(h)), lambda old: " ".join([head] + old))
+    return head
+
+
+def write_signal_notice(why, since, doc=None, notify_path=None, label="GATEWAY"):
+    """Ruling 87: the shared Heimdall signal not read for longer than downsignal.SIGNAL_NOTICE_S (its state file
+    unreadable, its module missing, its lock held): one line at the top of STATE (never 'up' or 'down' by guess); why
+    None removes it."""
+    doc = doc or config.STATE_DOC
+    prefix = f"{label} {SIGNAL_SUFFIX}"
+    line = (f"{prefix} since {since}: {why} (this watcher's notes and probes wait; the miner does not depend on the "
+            "signal: its chain as it is, else the videos wait)") if why else None
+    lock_path = os.path.join(os.path.dirname(notify_path), "state_doc.lock") if notify_path else doc + ".lock"
+    _rewrite_top(doc, lock_path, lambda h: h.startswith(prefix), line)
     return line

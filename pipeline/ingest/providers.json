@@ -74,7 +74,29 @@
       "note": "gemini-pro-latest resolved to gemini-3.1-pro-preview; at max_output_tokens 4,000 its thinking (counted in the budget) truncated the JSON (2026-11-12 03:10)",
       "price": {"in_per_mtok": 5.0, "out_per_mtok": 25.0, "basis": "estimate"},
       "daily_budget_usd": 10.0
+    },
+    "heimdall_qwen27b_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "qwen/qwen3.8-27b", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "none"}, "provider": {"only": ["consensusprotocol"]}},
+      "note": "ruling 87's probe only (the probe role): the miner's model with a 60 s deadline (the builder's probe deadline), one in flight, its own breaker and throttle so a probe never queues behind the mining",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
+    },
+    "heimdall_glm53flash_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
+      "note": "ruling 87's probe only (the probe role): a second Heimdall family, 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-13"}
     }
+  },
+  "down_signal": {
+    "vendor": "heimdall", "probe_role": "probe", "label": "HEIMDALL",
+    "module": "/home/ultron/worktrees/pp-selectid/pipeline/heimdall_health.py",
+    "note": "ruling 87 (orchestrator 21:18 Nov 13): ONE shared 'Heimdall down' signal for the builder and this watcher (pp-selectid pipeline/heimdall_health.py, its state file under an flock). Every call of this watcher to a back-end of this vendor is noted there (answered: ok or invalid; not answered: every other outcome of a real call; a stored reply, a missing key or a probe call is no note; a back-end under a runtime base_url override is a drill: drill=True, never counted). The probe role is asked while the shared state says a probe is due (any answer counts). The miner's Plan B under the 05:30 Nov 12 spend freeze: queue and wait (the mine chain as it is)."
   },
   "roles": {
     "mine": {"chain": ["heimdall_qwen27b", "local_gemma"],
@@ -83,7 +105,10 @@
     "hook": {"chain": ["heimdall_qwen27b", "local_gemma"], "attempts": 3, "max_tokens": 3000,
              "note": "ruling 80 (2026-11-13 18:42 ET): the hook pass, a second mining question over the same windows (mine.HOOK_PROMPT); the mine role's chain under the spend freeze"},
     "flagcheck": {"chain": ["heimdall_glm53flash", "heimdall_muse"], "attempts": 2, "max_tokens": 4000,
-                  "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."}
+                  "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."},
+    "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_glm53flash_probe"], "attempts": 1, "max_tokens": 512,
+              "transport_retries": 0, "breaker": false,
+              "note": "ruling 87: the cheap probe while Heimdall calls fail (and in Plan B): one call per back-end, the first answer ends it; never from a stored reply (use_cache False), never held back by a breaker (breaker false: it is the breaker's evidence, not its patient), no transport retry (each back-end's 60 s deadline is the probe's). 512 tokens: room for the second family's default reasoning."}
   },
   "spend_meter": {
     "backend": "heimdall_qwen27b", "label": "HEIMDALL", "baseline_usage": 0.2036796658, "cap_usd": 460.0, "notify_fraction": 0.9,

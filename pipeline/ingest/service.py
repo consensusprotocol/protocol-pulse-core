@@ -15,6 +15,10 @@ Loops (threads, one process):
           checker is calibrated at start and daily inside this loop (16 short calls; the loop waits for it)
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
+  signal  every 5 s (ruling 87, when providers.json has down_signal): the ONE shared 'Heimdall down' signal
+          (downsignal.py over pp-selectid pipeline/heimdall_health.py): every real Heimdall call noted, the 15-minute
+          rule on the clock, the probe while one is due, every switch on STATE line 1. The miner's Plan B under the
+          spend freeze is queue and wait: nothing here changes what the miner calls
 Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
   - a pass whose failed windows found every back-end down, refusing or skipped (frozen, disabled, budget, circuit
     open) is an OUTAGE: the video waits (mine_waiting) and is retried every MINE_RETRY_S without using a try, for as
@@ -36,7 +40,7 @@ import traceback
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 
-from . import config, coverage, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
+from . import config, coverage, downsignal, fetch, flagcheck, ledger, mine, providers, purge, spend, stats, watch
 from . import queue as Q
 from .contract import ContractUnavailable
 
@@ -68,7 +72,7 @@ class ServiceBusy(RuntimeError):
 
 class Service:
     def __init__(self, providers_path=None, log=None, clock=time.time, backends=None, gate=None,
-                 keyring=None, sleep=time.sleep):
+                 keyring=None, sleep=time.sleep, signal_module=None, signal_state=None):
         self.p = config.paths()                         # the store transcript_store is bound to (config.ts)
         for k in ("ingest", "moments", "replies", "replies_log", "coverage", "work", "transcripts", "purge"):
             os.makedirs(self.p[k], exist_ok=True)
@@ -86,9 +90,13 @@ class Service:
         self._rlog_lock = threading.Lock()
         self.overrides = providers.Overrides(os.path.join(self.p["ingest"], "overrides.json"),
                                              on_change=self._override_change)
+        self.hsig = None                                # ruling 87 (set below; _on_attempt reads it)
         self.router = providers.Router(self.cfg, keyring=keyring, spend=self.spendbook,
                                        on_attempt=self._on_attempt, cache_dir=self.p["replies"], clock=clock,
                                        sleep=sleep, backends=backends, overrides=self.overrides)
+        if self.cfg.get("down_signal"):
+            self.hsig = downsignal.DownSignal(self.cfg, self.router, self.overrides, self.q, self.p, clock=clock,
+                                              log=self.log, module_path=signal_module, state_path=signal_state)
         mc = self.cfg["spend_meter"]
         self.meter = spend.CreditMeter(mc, self.router.backends[mc["backend"]], clock=clock,
                                        on_change=self._meter_change)
@@ -153,6 +161,8 @@ class Service:
             pass
 
     def _on_attempt(self, rec):
+        if self.hsig is not None:
+            self.hsig.noted(rec)                        # O(1); the signal thread writes the shared file
         self.q.call(rec)
         day = config.iso()[:10]
         line = json.dumps(dict(rec, at=config.iso()), default=str, ensure_ascii=False)
@@ -539,7 +549,13 @@ class Service:
         if now - self.last_measure >= float(self.cfg["spend_meter"]["measure_every_s"]):
             self.meter.measure()
             self.last_measure = now
-        s = stats.write_live(self.q, self.p["live"], meter=self.meter, router=self.router)
+        if self.hsig is not None:
+            try:
+                self.hsig.check_notice()
+            except OSError as e:
+                self.log(f"ruling 87: the STATE notice could not be written: {type(e).__name__}: {e}")
+        s = stats.write_live(self.q, self.p["live"], meter=self.meter, router=self.router,
+                             signal=self.hsig.snapshot() if self.hsig is not None else None)
         self._outage_notice(now)
         day = config.iso()[:10]
         hour = datetime.now(timezone.utc).hour
@@ -645,6 +661,11 @@ class Service:
                  f"{self.router.effective('mine')}), spend freeze {fz}, back-ends {self.describe()}")
         self.q.event("start", None, None, pid=os.getpid(), chain=self.router.chain("mine"),
                      effective=self.router.effective("mine"), spend_freeze=fz, backends=self.describe())
+        if self.hsig is not None:
+            sg = self.hsig.snapshot()
+            self.log("ruling 87: the shared down signal " + (
+                f"wired to {sg['state_file']} (evidence {sg['evidence']}); "
+                f"the miner's Plan B: {sg['miner_plan_b']}" if sg["wired"] else f"NOT READ: {sg['not_read']}"))
         if len(self.router.effective("mine")) < 2:
             self.log(f"WARNING: {len(self.router.effective('mine'))} callable mine back-end(s): when it is down the "
                      "videos wait in the queue and are mined when it returns (orchestrator 05:30: never a paid frontier "
@@ -658,7 +679,9 @@ class Service:
             ("hook", self.hook_once, 5.0),
             ("check", self.check_once, CHECK_EVERY_S),
             ("health", self.health_once, 60.0),
-            ("purge", self.purge_once, float((self.purge_spec or {}).get("every_s", 600))))]
+            ("purge", self.purge_once, float((self.purge_spec or {}).get("every_s", 600))))] + (
+            [threading.Thread(target=self._loop, args=("signal", self.hsig.tick, downsignal.SIGNAL_EVERY_S),
+                              daemon=True, name="signal")] if self.hsig is not None else [])
         for t in threads:
             t.start()
 

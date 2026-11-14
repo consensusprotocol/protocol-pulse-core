@@ -20,7 +20,7 @@ def _pct(xs, p):
     return xs[k]
 
 
-def live(q, meter=None, router=None, hours=24, now_ts=None):
+def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
     now_ts = now_ts or q.clock()
     t0 = now_ts - hours * 3600
     disc = q.rows("SELECT state, discovered_ts, discovered_via, first_sight FROM videos WHERE discovered_ts >= ?", (t0,))
@@ -135,6 +135,8 @@ def live(q, meter=None, router=None, hours=24, now_ts=None):
     except ValueError:
         ck["calibration"] = None
     out["second_model_checks_12h"] = ck
+    if signal is not None:
+        out["down_signal"] = signal                                   # ruling 87 (downsignal.DownSignal.snapshot)
     return out
 
 

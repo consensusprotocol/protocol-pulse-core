@@ -115,6 +115,21 @@ def validate_config(cfg):
         for b in r["chain"]:
             if b not in cfg["backends"]:
                 raise ValueError(f"role {role}: unknown back-end {b}")
+        if "breaker" in r and type(r["breaker"]) is not bool:
+            raise ValueError(f"role {role}: 'breaker' must be true or false")
+        tr = r.get("transport_retries")
+        if tr is not None and (type(tr) is not int or tr < 0):
+            raise ValueError(f"role {role}: 'transport_retries' must be a whole number >= 0")
+    ds = cfg.get("down_signal")         # ruling 87: the shared signal's vendor, label and module, and its probe role
+    if ds is not None:
+        if type(ds) is not dict or ds.get("probe_role") not in cfg["roles"] or \
+                not all(type(ds.get(k)) is str and ds[k] for k in ("vendor", "label", "module")):
+            raise ValueError("down_signal must name a 'vendor', a 'label', the shared 'module' and a 'probe_role' "
+                             "that is a role")
+        # the probe is answered only by the signal's own vendor: a local or outside answer is no answer of that vendor
+        off = [b for b in cfg["roles"][ds["probe_role"]]["chain"] if cfg["backends"][b]["vendor"] != ds["vendor"]]
+        if off:
+            raise ValueError(f"down_signal: the probe role's back-ends {off} are not of vendor {ds['vendor']!r}")
     return cfg
 
 
@@ -606,6 +621,18 @@ class Health:
                     "opened_count": self.opened, "recent": len(self.events)}
 
 
+class _NoHealth:
+    """The breaker of a role with "breaker": false (ruling 87's probe): its calls are never gated and never recorded."""
+
+    @staticmethod
+    def record(ok, latency_s=None, kind=""):
+        pass
+
+    @staticmethod
+    def abandon():
+        pass
+
+
 class Throttle:
     """Queue-aware backoff shared by every thread of one back-end: a 429 / overloaded answer pauses them all."""
 
@@ -710,7 +737,9 @@ class Router:
         return [b for b in self.order(role) if b in self.backends and not self.frozen(b) and
                 self.backends[b].enabled()]
 
-    def available(self, bid):
+    def available(self, bid, breaker=True):
+        """breaker False (a role whose calls are the breaker's evidence, ruling 87's probe): the freeze, the switch
+        and the budget still hold; an open circuit does not."""
         b = self.backends[bid]
         if self.frozen(bid):
             return False, f"spend freeze: vendor {self.vendor(bid)!r} is frozen (providers.json spend_freeze)"
@@ -719,7 +748,7 @@ class Router:
         budget = b.cfg.get("daily_budget_usd")
         if budget is not None and self.spend.today(bid) >= float(budget):
             return False, f"daily budget ${budget} used (${self.spend.today(bid):.2f})"
-        return self.health[bid].allow()
+        return self.health[bid].allow() if breaker else (True, "")
 
     def release(self):
         """End of a cycle: every back-end frees what it holds (the local model is unloaded)."""
@@ -744,6 +773,7 @@ class Router:
         chain = [only] if only else self.order(role)
         tried = []
         max_tokens = int(rc.get("max_tokens", 4000))
+        breaker = rc.get("breaker", True) is not False
         for bid in chain:
             if bid not in self.backends:
                 tried.append((bid, "unknown", "not in providers.json"))
@@ -755,13 +785,15 @@ class Router:
                 if out is not None:
                     out.tried = tried + [(bid, "ok", "cache")]
                     return out
-            ok, why = self.available(bid)
+            ok, why = self.available(bid, breaker)
             if not ok:
                 tried.append((bid, "skipped", why))
                 continue
             try:
                 out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
             except BaseException as e:                              # a half-open probe is never left in flight;
+                if not breaker:                                     # (a breaker-free role took no probe slot)
+                    raise
                 if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):   # an interrupt is not the
                     self.health[bid].abandon()                      # back-end's failure
                 else:
@@ -799,10 +831,12 @@ class Router:
         'unavailable' (the back-end: down, overloaded, refusing access)."""
         if self.frozen(bid):                                     # never reached through run(); a second lock
             return "unavailable", f"spend freeze: vendor {self.vendor(bid)!r} is frozen"
-        b, h, th = self.backends[bid], self.health[bid], self.throttle[bid]
-        psha = sha256(prompt)
-        path = self._cache_path(bid, self._key(bid, prompt, schema, max_tokens))
-        transport_left = int(self.cfg["throttle"]["transport_retries"])
+        b, th = self.backends[bid], self.throttle[bid]
+        rc = self.cfg["roles"][role]
+        h = self.health[bid] if rc.get("breaker", True) is not False else _NoHealth   # ruling 87's probe: the
+        psha = sha256(prompt)                                                          # breaker neither gates nor
+        path = self._cache_path(bid, self._key(bid, prompt, schema, max_tokens))       # learns from it
+        transport_left = int(rc.get("transport_retries", self.cfg["throttle"]["transport_retries"]))
         attempt, why = 0, ""
         p = prompt
         while attempt < attempts:

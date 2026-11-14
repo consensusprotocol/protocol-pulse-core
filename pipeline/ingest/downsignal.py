@@ -1,0 +1,325 @@
+"""pipeline/ingest/downsignal.py: RULING 87 (orchestrator 21:18 Nov 13), this watcher's side of the ONE shared
+'Heimdall down' signal (pp-selectid pipeline/heimdall_health.py, the builder's module, used through its API only; its
+state file under its own flock).
+
+NOTE  every real call of this watcher to a back-end of the signal's vendor (providers.json down_signal) is one outcome:
+      answered (ok, invalid: the gateway answered inside the back-end's deadline) or not (any other kind of a real call:
+      down, refusing, empty, past the deadline). No note: a stored reply or a missing key (no call was made), a probe
+      call (its outcome is the probe's, never a verdict answer), another vendor's back-end. A back-end under a runtime
+      base_url override (this watcher's outage drill) is noted drill=True: recorded by the module, never counted.
+ONE   thread owns the shared file (tick, the service's signal loop): the router's threads only leave a pending outcome
+      under a local lock (the latest answer and the first failure after it, each with its own time), so a held or
+      stuck shared lock never stalls the miner.
+TICK  pending notes; every SIGNAL_MODE_S: mode() (the 15-minute rule on the clock) and, while probe_due(), the probe
+      role asked in its own thread (never from a stored reply, never while a probe back-end is under an override); its
+      outcome goes to probe_result() at the next tick (a probe whose back-ends could not be called is no probe).
+SEEN  every switch in the shared state, whoever made it, once: at the start of this watcher's STATE line 1
+      (spend.write_switch_head) and in its evidence file (the number seen is kept in the queue; the history before
+      this watcher was wired is not announced). The module is given no STATE path: its own head writer would leave a
+      lock file beside STATE.md and bypass the notices' lock.
+FAIL  an unreadable state (HealthUnreadable, OSError, the module missing or broken, a call stuck on the lock) is never
+      read as up or down: live.json says so at once, STATE after SIGNAL_NOTICE_S (spend.write_signal_notice, removed
+      when the signal is read again). The miner does not depend on the mode: its Plan B under the 05:30 Nov 12 spend
+      freeze is queue and wait (the mine chain as it is: Heimdall, then the local model, else the videos wait).
+"""
+import importlib.util
+import json
+import threading
+import time
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+from . import providers, spend
+
+SIGNAL_EVERY_S = 5.0            # the signal loop: pending notes are written this often
+SIGNAL_MODE_S = 30.0            # mode() and probe_due() at most this often (the module's probe interval is 120 s)
+SIGNAL_NOTICE_S = 1800          # the signal not read this long: one line at the top of STATE
+PROBE_PROMPT = "Reply with the single word OK."      # the builder's probe question; any answer counts
+WHO = "pp-ingest"
+ANSWERED = frozenset({"ok", "invalid"})              # the gateway answered inside the deadline
+NO_CALL = frozenset({"cache", "disabled"})           # nothing was asked of the gateway
+ET = ZoneInfo("America/New_York")
+DOWN = "plan_b"                                      # the module's down mode; its other mode is the up one (MODES)
+MINER_PLAN_B = ("queue and wait: the 05:30 Nov 12 spend freeze binds the miner until the orchestrator answers the "
+                "Plan B question (the mine chain as it is, else the videos wait)")
+
+
+def load_module(path):
+    """The builder's module, by path (its `pipeline` package would shadow this one), checked for the API used here."""
+    spec = importlib.util.spec_from_file_location("pp_selectid_down_signal", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"no module at {path}")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    for name in ("note", "mode", "probe_due", "probe_result", "HealthUnreadable", "STATE", "MODES"):
+        if not hasattr(mod, name):
+            raise ImportError(f"{path} has no {name}: not the ruling 87 API this watcher was written for")
+    if len(mod.MODES) != 2 or DOWN not in mod.MODES:
+        raise ImportError(f"{path}: modes {mod.MODES!r}, not one up mode and {DOWN!r}")
+    return mod
+
+
+def _utc(t):
+    return datetime.fromtimestamp(t, timezone.utc)
+
+
+def _iso(t):
+    return _utc(t).strftime("%Y-%m-%dT%H:%M:%SZ") if t is not None else None
+
+
+def _any_text(c):
+    if not c.strip():
+        raise providers.Invalid("no text")
+    return c
+
+
+def head(rec, seen_ts, up):
+    """STATE line 1's head for one switch record {"utc", "to", "why", "by"} (the module's words: "SWITCHED TO PLAN B",
+    "BACK TO <UP MODE>", plus who made it and what the miner does), IN CAPITALS, one physical line. None: not a switch
+    between the module's two modes (up: the mode that is not DOWN)."""
+    to = rec.get("to")
+    if to == DOWN:
+        word, tail = "SWITCHED TO PLAN B", "; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)"
+    elif to == up:
+        word, tail = "BACK TO " + up.upper().replace("_", "-"), ""
+    else:
+        return None
+    try:
+        t = datetime.fromisoformat(str(rec.get("utc")).replace("Z", "+00:00"))
+        t = t if t.tzinfo is not None else None
+    except ValueError:
+        t = None
+    when = t.astimezone(ET).strftime("%H:%M") if t else _utc(seen_ts).astimezone(ET).strftime("%H:%M")
+    text = f"{when} ET: {word} ({rec.get('why') or 'no reason recorded'}; BY {rec.get('by') or 'unknown'}" + \
+           ("" if t else "; ITS TIME NOT RECORDED, SEEN AT THIS TIME") + f"){tail} |"
+    return " ".join(text.upper().split())
+
+
+class DownSignal:
+    def __init__(self, cfg, router, overrides, q, paths, clock=time.time, log=print, module_path=None,
+                 state_path=None):
+        ds = cfg["down_signal"]
+        self.vendor, self.probe_role, self.label = ds["vendor"], ds["probe_role"], ds["label"]
+        self.router, self.overrides, self.q, self.clock, self.log = router, overrides, q, clock, log
+        self.evidence, self.notify = paths["signal"], paths["notify"]
+        self.lock = threading.Lock()
+        self.pending = {"answer": None, "fail": None, "drills": 0}
+        self.probe_out, self.probe_thread, self.next_mode = None, None, 0.0
+        self.mode, self.last_probe, self.head_error, self.drill_logged = None, None, None, False
+        self.error = self.error_since = self.busy_since = None
+        self.n = {"answers_noted": 0, "failures_noted": 0, "drill_notes": 0, "unnoted": 0, "probes": 0,
+                  "probe_answers": 0, "probes_not_made": 0}
+        self.module_path, self.state_path, self.hh, self.up = module_path or ds["module"], state_path, None, None
+        try:
+            self.hh = load_module(self.module_path)
+            self.state_path = state_path or self.hh.STATE
+            self.up = next(m for m in self.hh.MODES if m != DOWN)
+        except Exception as e:                       # noqa: BLE001 (a module that cannot load is said, never guessed)
+            self._fail(f"the shared module {self.module_path} cannot be loaded: {type(e).__name__}: {e}")
+
+    # ── the router's threads ──
+
+    def noted(self, rec):
+        """One attempt record (Service._on_attempt): O(1), never the shared file, never raises."""
+        try:
+            bid, kind = rec.get("backend"), rec.get("kind")
+            if kind in NO_CALL or rec.get("role") == self.probe_role or self.router.vendor(bid) != self.vendor:
+                return
+            drill, t = self._drill(bid), self.clock()
+            with self.lock:
+                if drill:
+                    self.pending["drills"] += 1
+                elif kind in ANSWERED:
+                    self.pending["answer"], self.pending["fail"] = t, None
+                elif self.pending["fail"] is None:
+                    self.pending["fail"] = t
+        except Exception:                            # noqa: BLE001 (the signal never decides a call)
+            pass
+
+    def _drill(self, bid):
+        return bool(self.overrides is not None and self.overrides.get(bid, "base_url"))
+
+    # ── the signal thread ──
+
+    def tick(self, wait=False):
+        """The signal loop: the only caller of the shared module in this process. wait: join a probe started now."""
+        if self.hh is None:
+            return
+        self._flush()
+        now = self.clock()
+        if now >= self.next_mode:
+            self.next_mode = now + SIGNAL_MODE_S
+            m = self._call("mode", now=_utc(now), evidence=self.evidence, who=WHO)
+            self.mode = m if m is not None else self.mode
+            if self.probe_thread is None or not self.probe_thread.is_alive():
+                drills = [b for b in self.router.chain(self.probe_role) if self._drill(b)]
+                if drills:
+                    if not self.drill_logged:
+                        self.log(f"RULING 87: no probe while {drills} run under an override (a drill)")
+                    self.drill_logged = True
+                else:
+                    self.drill_logged = False
+                    if self._call("probe_due", now=_utc(now)):
+                        self._start_probe()
+        if wait and self.probe_thread is not None:
+            self.probe_thread.join()
+        self._report_probe()
+        self._seen()
+
+    def _call(self, fn, *a, **kw):
+        self.busy_since = self.clock()
+        try:
+            out = getattr(self.hh, fn)(*a, path=self.state_path, **kw)
+        except Exception as e:                       # noqa: BLE001 (HealthUnreadable, OSError, a broken module)
+            self._fail(f"{fn}: {type(e).__name__}: {str(e)[:200]}")
+            return None
+        finally:
+            self.busy_since = None
+        self._recovered()
+        return out
+
+    def _flush(self):
+        with self.lock:
+            p, self.pending = self.pending, {"answer": None, "fail": None, "drills": 0}
+        if p["drills"]:
+            if self._call("note", False, now=_utc(self.clock()), evidence=self.evidence, who=WHO, drill=True) \
+                    is not None:
+                self.n["drill_notes"] += 1
+        for answered, t in ((True, p["answer"]), (False, p["fail"])):     # the failure, if any, came after the answer
+            if t is None:
+                continue
+            m = self._call("note", answered, now=_utc(t), evidence=self.evidence, who=WHO)
+            if m is None:
+                self.n["unnoted"] += 1
+                continue
+            self.mode = m
+            self.n["answers_noted" if answered else "failures_noted"] += 1
+
+    def _start_probe(self):
+        def run():
+            t0 = self.clock()
+            try:
+                out = self.router.run(self.probe_role, PROBE_PROMPT, None, _any_text, tag="probe87", use_cache=False)
+                res = (True, f"{out.backend} answered in {self.clock() - t0:.0f} s")
+            except providers.AllBackendsFailed as e:
+                tried = "; ".join(f"{b} {s} ({str(w)[:100]})" for b, s, w in e.tried)
+                called = any(s in ("unavailable", "rejected") for _, s, _ in e.tried)
+                res = (False, tried) if called else (None, "no probe back-end could be called: " + tried)
+            except Exception as e:                   # noqa: BLE001 (a probe that breaks is no probe)
+                res = (None, f"the probe broke: {type(e).__name__}: {e}")
+            with self.lock:
+                self.probe_out = (self.clock(),) + res
+        self.probe_thread = threading.Thread(target=run, daemon=True, name="probe87")
+        self.probe_thread.start()
+
+    def _report_probe(self):
+        with self.lock:
+            out, self.probe_out = self.probe_out, None
+        if out is None:
+            return
+        t, answered, why = out
+        self.last_probe = {"utc": _iso(t), "answered": answered, "why": why[:300]}
+        self._evidence({"kind": "probe", "utc": _iso(t), "answered": answered, "why": why[:300], "by": WHO})
+        if answered is None:
+            self.n["probes_not_made"] += 1
+            self.log(f"RULING 87: probe not made: {why[:300]}")
+            return
+        self.n["probes"] += 1
+        self.n["probe_answers"] += int(answered)
+        m = self._call("probe_result", answered, now=_utc(t), evidence=self.evidence, who=WHO + " probe")
+        self.mode = m if m is not None else self.mode
+
+    def _seen(self):
+        """Every switch in the shared state not yet seen here: STATE line 1, the evidence file, an event."""
+        try:
+            with open(self.state_path) as f:
+                s = json.load(f)
+            sw = s.get("switches") if isinstance(s, dict) else None
+            if not isinstance(sw, list):
+                raise ValueError("no switches list")
+        except FileNotFoundError:
+            return                                   # no state yet: the module writes it at the first note
+        except (OSError, ValueError) as e:
+            self._fail(f"the shared state cannot be read: {type(e).__name__}: {str(e)[:200]}")
+            return
+        seen = self.q.kv_get("signal_switches_seen")
+        if seen in (None, "") or int(seen) > len(sw):
+            self.q.kv_set("signal_switches_seen", str(len(sw)))
+            self.log(f"RULING 87: wired to {self.state_path} (mode {s.get('mode')}); {len(sw)} earlier switch(es) "
+                     "there are not announced here")
+            self._evidence({"kind": "wired", "utc": _iso(self.clock()), "mode": s.get("mode"),
+                            "switches_before": len(sw), "by": WHO})
+            return
+        for i in range(int(seen), len(sw)):
+            rec = sw[i] if isinstance(sw[i], dict) else {}
+            h = head(rec, self.clock(), self.up)
+            if h is not None:
+                try:
+                    spend.write_switch_head(h, notify_path=self.notify)
+                except (OSError, ValueError) as e:
+                    msg = f"RULING 87: STATE line 1 not written (tried again next tick): {type(e).__name__}: {e}"
+                    if msg != self.head_error:
+                        self.log(msg)
+                    self.head_error = msg
+                    return
+            self.head_error = None
+            self._evidence(dict(rec, kind="seen", seen_utc=_iso(self.clock()), seen_by=WHO, head=h))
+            self.q.event("down_signal_switch", None, None, utc=rec.get("utc"), to=rec.get("to"),
+                         why=rec.get("why"), by=rec.get("by"))
+            self.log(f"RULING 87: {h or 'an unknown switch: ' + json.dumps(rec)[:300]}")
+            self.q.kv_set("signal_switches_seen", str(i + 1))
+
+    def _fail(self, why):
+        if self.error != why:
+            self.log(f"RULING 87: the shared {self.label} down signal is not read: {why} (never guessed up or down)")
+            if self.error is None:
+                self._evidence({"kind": "unreadable", "utc": _iso(self.clock()), "why": why, "by": WHO})
+                self.q.event("down_signal_unreadable", None, None, why=why)
+        self.error, self.error_since = why, self.error_since or self.clock()
+
+    def _recovered(self):
+        if self.error is not None:
+            self.log(f"RULING 87: the shared {self.label} down signal is read again (not read since "
+                     f"{_iso(self.error_since)})")
+            self._evidence({"kind": "readable", "utc": _iso(self.clock()), "since": _iso(self.error_since),
+                            "by": WHO})
+            self.q.event("down_signal_readable", None, None, since=_iso(self.error_since))
+            self.error = self.error_since = None
+
+    def _evidence(self, rec):
+        try:
+            with open(self.evidence, "a") as f:
+                f.write(json.dumps(rec, default=str) + "\n")
+        except OSError:
+            pass                                     # evidence, never a gate
+
+    # ── the health thread (never blocked by the shared file) ──
+
+    def check_notice(self):
+        """The signal not read (or a call into it not returned) for SIGNAL_NOTICE_S: one line at the top of STATE;
+        removed when it is read again (the queue remembers it across restarts)."""
+        now, busy = self.clock(), self.busy_since
+        if self.error:
+            why, since = self.error, self.error_since
+        elif busy is not None and now - busy >= SIGNAL_NOTICE_S:
+            why, since = "a call into the shared state has not returned (its lock held?)", busy
+        else:
+            why, since = None, None
+        noticed = self.q.kv_get("signal_noticed") == "1"
+        if why and now - since >= SIGNAL_NOTICE_S:
+            line = spend.write_signal_notice(why[:300], _iso(since), notify_path=self.notify, label=self.label)
+            if not noticed:
+                self.log(line)
+                self.q.kv_set("signal_noticed", "1")
+        elif not why and noticed:
+            spend.write_signal_notice(None, None, notify_path=self.notify, label=self.label)
+            self.q.kv_set("signal_noticed", "0")
+
+    def snapshot(self):
+        now, busy = self.clock(), self.busy_since
+        return {"wired": self.hh is not None, "module": self.module_path, "state_file": self.state_path,
+                "evidence": self.evidence, "vendor": self.vendor, "mode": None if self.error else self.mode,
+                "not_read": self.error, "not_read_since": _iso(self.error_since),
+                "call_waiting_s": round(now - busy) if busy is not None else None, "last_probe": self.last_probe,
+                "counts": dict(self.n), "switches_seen": self.q.kv_get("signal_switches_seen"),
+                "miner_plan_b": MINER_PLAN_B}

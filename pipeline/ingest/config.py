@@ -97,6 +97,7 @@ def paths(root=None):
         "overrides": os.path.join(ing, "overrides.json"),
         "work": os.path.join(ing, "work"),
         "purge": os.path.join(ing, "purge"),
+        "signal": os.path.join(ing, "down_signal.jsonl"),         # ruling 87: this watcher's evidence file
     }
 
 
