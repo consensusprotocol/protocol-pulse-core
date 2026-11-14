@@ -1,0 +1,823 @@
+diff --git a/pipeline/circuit_breaker.py b/pipeline/circuit_breaker.py
+index 868dc78..459d79d 100644
+--- a/pipeline/circuit_breaker.py
++++ b/pipeline/circuit_breaker.py
+@@ -112,6 +112,25 @@ def allow(name, path=STATE, now=None, hold_s=None):
+         return True, "trial"
+ 
+ 
++def is_open(name, path=STATE, now=None):
++    """READ ONLY (it never claims a trial): would allow() skip `name` now? Its window open, or its one trial in flight.
++    RULING 101's estimate of the filter's wait reads it. An unreadable state skips nothing: False."""
++    now = _now(now)
++    try:
++        with _Locked(path):
++            s = _load(path)
++    except (BreakerUnreadable, OSError):
++        return False
++    m = s["models"].get(name)
++    until = _t(m.get("open_until")) if isinstance(m, dict) else None
++    if until is None:
++        return False
++    if now < until:
++        return True
++    ta, tu = _t(m.get("trial_at")), _t(m.get("trial_until"))
++    return ta is not None and now < (tu or ta + timedelta(seconds=TRIAL_HOLD_S))
++
++
+ def record(name, outcome, path=STATE, now=None, deadline_s=None, seconds=None, tokens=None, max_out=None):
+     """One live call's outcome: "answer", "miss" (its deadline passed) or "runaway" (more than RUNAWAY_X times the cap
+     it was sent). -> the event for the evidence file ({"kind": "breaker_open" | "breaker_close", "model", "why",
+diff --git a/pipeline/deadline_table.py b/pipeline/deadline_table.py
+new file mode 100644
+index 0000000..5d3644d
+--- /dev/null
++++ b/pipeline/deadline_table.py
+@@ -0,0 +1,108 @@
++"""RULING 100 (orchestrator 12:16 ET Nov 14): DEADLINES FOLLOW THE MODEL, NOT ONE NUMBER. Per (model, verdict type) the
++deadline is the recorded p90 of that pair's answered calls x FACTOR (1.5), floor FLOOR_S (60 s), ceiling CEIL_S (300 s),
++recomputed from the records daily; ruling 99's "two misses in a row" is against THAT deadline.
++
++- The records: this builder's recorded exchanges (providers.Router's record_dir: one JSON per ANSWERED call, with its
++  role, back-end and seconds). A pair with fewer than MIN_N answered calls has no row, and its gateway's configured
++  deadline stands (ruling 82's 120 s on Heimdall).
++- The table lives in a JSON file with its computed_at; load() recomputes it when it is missing, unreadable or older
++  than RECOMPUTE_S (a day). The Router applies a row only where a deadline applies today (a verdict role on a gateway
++  with a configured deadline: Heimdall); Grok keeps none (providers.Router.role_deadline).
++- Measured at 12:2x ET Nov 14: deepseek's step A, 32 answers, median 166 s, p90 273 s -> 300 s (the ceiling); glm's step
++  A, 3 answers, p90 39 s -> 60 s (the floor), which its 483-532 s runs still miss."""
++import glob
++import json
++import math
++import os
++from datetime import datetime, timezone
++
++STATE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
++                     "DEADLINE_TABLE.json")
++FACTOR, FLOOR_S, CEIL_S = 1.5, 60.0, 300.0      # ruling 100
++MIN_N = 3                                      # a pair needs this many answered calls for a row of its own
++RECOMPUTE_S = 24 * 3600                        # ruling 100: "recomputed from the records daily"
++RULE = "p90 of the pair's recorded answered calls x 1.5, floor 60 s, ceiling 300 s (ruling 100)"
++
++
++def _iso(t):
++    return t.strftime("%Y-%m-%dT%H:%M:%SZ")
++
++
++def _t(s):
++    try:
++        t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return None
++    return t if t.tzinfo is not None else None
++
++
++def percentile(xs, q):
++    """Linear interpolation between the closest ranks (numpy's default)."""
++    xs = sorted(xs)
++    k = (len(xs) - 1) * q
++    lo, hi = math.floor(k), math.ceil(k)
++    return xs[lo] if lo == hi else xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
++
++
++def compute(record_dir, now=None):
++    """-> {"computed_at", "rule", "rows": {"<back-end>|<role>": {"n", "p50", "p90", "deadline_s"}}} from every recorded
++    exchange in record_dir (a file that cannot be read, or has no back-end, role or positive seconds, is skipped)."""
++    now = now or datetime.now(timezone.utc)
++    seconds = {}
++    for p in glob.glob(os.path.join(record_dir or "", "*", "*.json")):
++        try:
++            with open(p) as f:
++                r = json.load(f)
++        except (OSError, ValueError):
++            continue
++        b, role, s = r.get("backend"), r.get("role"), r.get("seconds")
++        if isinstance(b, str) and isinstance(role, str) and isinstance(s, (int, float)) and not isinstance(s, bool) \
++                and math.isfinite(s) and s > 0:
++            seconds.setdefault(f"{b}|{role}", []).append(float(s))
++    rows = {}
++    for key, xs in sorted(seconds.items()):
++        if len(xs) < MIN_N:
++            continue
++        q = percentile(xs, 0.9)
++        rows[key] = {"n": len(xs), "p50": round(percentile(xs, 0.5), 1), "p90": round(q, 1),
++                     "deadline_s": round(min(CEIL_S, max(FLOOR_S, FACTOR * q)), 1)}
++    return {"computed_at": _iso(now), "rule": RULE, "rows": rows}
++
++
++def load(path=STATE, record_dir=None, now=None):
++    """The table: the saved one while it is younger than RECOMPUTE_S, else computed again from record_dir and saved
++    (a save that fails leaves the computed table in use). -> the table dict."""
++    now = now or datetime.now(timezone.utc)
++    try:
++        with open(path) as f:
++            t = json.load(f)
++        at = _t(t.get("computed_at")) if isinstance(t, dict) else None
++        if at is not None and 0 <= (now - at).total_seconds() < RECOMPUTE_S and isinstance(t.get("rows"), dict):
++            return t
++    except (OSError, ValueError):
++        pass
++    t = compute(record_dir, now)
++    try:
++        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
++        tmp = f"{path}.{os.getpid()}.tmp"
++        with open(tmp, "w") as f:
++            json.dump(t, f, indent=1)
++        os.replace(tmp, path)
++    except OSError:
++        pass
++    return t
++
++
++def deadline(table, backend, role):
++    """The pair's own deadline in seconds, or None when the table has no row for it."""
++    row = ((table or {}).get("rows") or {}).get(f"{backend}|{role}") if isinstance(table, dict) else None
++    d = row.get("deadline_s") if isinstance(row, dict) else None
++    return float(d) if isinstance(d, (int, float)) and not isinstance(d, bool) and d > 0 else None
++
++
++def text(table, applies=None):
++    """The table in one line, for STATE (ruling 100: "say the table on STATE once"); applies(key) keeps the rows a
++    Router would use (the build passes the Heimdall verdict pairs)."""
++    rows = {k: v for k, v in ((table or {}).get("rows") or {}).items() if applies is None or applies(k)}
++    return "; ".join(f"{k.split('|')[0].split('/')[-1]} {k.split('|')[1]}: {v['deadline_s']:g} s (n {v['n']}, p50 "
++                     f"{v['p50']:g}, p90 {v['p90']:g})" for k, v in sorted(rows.items()))
+diff --git a/pipeline/package.py b/pipeline/package.py
+index d542ae5..b3043b4 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -492,7 +492,7 @@ def src_of(x, sources):
+ 
+ 
+ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
+-              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None):
++              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None, plan_only=False):
+     """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
+     {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
+     first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
+@@ -501,7 +501,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+     context step A reads (its window, title, channel, publish time and the show date, so time words are judged again on
+     a new show date) and the step-A prompt's version. The batches run in parallel (PRESCREEN_WORKERS), each with the
+     seed of its place in the queue. Only a parsed verdict is stored: a call that fails is no verdict (law L-m), never
+-    remembered. writer_vendor / writer_family: of the writers, so step A never runs on them."""
++    remembered. writer_vendor / writer_family: of the writers, so step A never runs on them. plan_only (ruling 101):
++    no call is made; -> the moments this screen would ask (no verdict in the ledger or the cache), nothing written."""
+     import providers as P
+     ranked = sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"]))
+     if n is None:
+@@ -539,6 +540,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+             families.add(b.family)
+         else:
+             todo.append(m)
++    if plan_only:                                        # ruling 101: what this screen would ask, nothing asked
++        return todo
+     chunks = [todo[i:i + batch] for i in range(0, len(todo), batch)]
+ 
+     def screen(i, chunk):
+@@ -577,12 +580,96 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+ 
+ def first_bounds(router):
+     """The kwargs of step A's FIRST screen. RULING 85: under heimdall_first the first verdict is a Heimdall family's,
+-    2 clips and 120 s a call (Heimdall needs a median 268 s on 8 clips); today it keeps its batches with no deadline.
+-    One helper for both builds (the medley's and the spotlight's)."""
+-    return {"batch": SECOND_VERDICT_BATCH, "deadline_s": SECOND_VERDICT_DEADLINE_S} \
++    2 clips a call (Heimdall needs a median 268 s on 8 clips), failing over down the chain (ruling 82); today it keeps
++    its batches with no deadline. RULING 100 (12:16 Nov 14): no flat deadline is passed: each leg's own (the Router's
++    role_deadline: its row of the deadline table, else the gateway's 120 s). One helper for both builds."""
++    return {"batch": SECOND_VERDICT_BATCH, "deadline_s": None, "failover": True} \
+         if getattr(router, "routing", "today") == "heimdall_first" else {}
+ 
+ 
++STEP_A_PARALLEL_NEW = 20           # RULING 101 (12:16 Nov 14): over 20 new moments to screen, AND
++STEP_A_PARALLEL_WAIT_S = 600.0     # the filter would hold the build over 10 minutes: Grok's confirm goes in parallel
++
++
++class _Tally:
++    """A router seen through one task (ruling 101's confirm-ahead): every reply's vendor-reported dollars (else its
++    estimate) summed; everything else is the router's own."""
++
++    def __init__(self, router):
++        self._r, self.usd, self.calls = router, 0.0, 0
++        self._lock = threading.Lock()
++
++    def call(self, *a, **k):
++        rep = self._r.call(*a, **k)
++        rep_usd = (getattr(rep, "usage", None) or {}).get("usd_reported")
++        with self._lock:
++            self.calls += 1
++            self.usd += float(rep_usd) if isinstance(rep_usd, (int, float)) else float(getattr(rep, "usd", 0) or 0)
++        return rep
++
++    def __getattr__(self, name):
++        return getattr(self._r, name)
++
++
++def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **first):
++    """RULING 101 (12:16 Nov 14): does step A ask the Heimdall filter and Grok's confirm IN PARALLEL? Yes when more than
++    STEP_A_PARALLEL_NEW moments are NEW to the first screen (no verdict in this build's ledger or the shared cache) AND
++    the filter would hold the build longer than STEP_A_PARALLEL_WAIT_S: its rounds (the new moments' batches over
++    PRESCREEN_WORKERS) x the deadline of the filter's leading leg (the step_a_first chain's first back-end off the
++    writers and not breaker-open: ruling 100's per-model deadline). A leading leg with no deadline (Grok) never holds a
++    build long: sequential. -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg"}."""
++    new = prescreen(router, ms, sources, ctx, wv, wf, store=store, cache=cache, plan_only=True,
++                    **{k: v for k, v in first.items() if k in ("batch", "kind")})
++    if len(new) <= STEP_A_PARALLEL_NEW:                  # under the line: sequential whatever the wait
++        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None}
++    leg, dl = None, None
++    for name in router.chain("context_verdict", kind="step_a_first"):
++        b = router.backends.get(name)
++        if b is None or b.vendor in set(wv) or b.family in set(wf) or name in getattr(router, "down", {}) or \
++                (hasattr(router, "breaker_open") and router.breaker_open(name)):
++            continue
++        leg, dl = name, router.role_deadline("context_verdict", b)
++        break
++    batch = first.get("batch") or PRESCREEN_BATCH
++    rounds = math.ceil(math.ceil(len(new) / batch) / PRESCREEN_WORKERS) if new else 0
++    wait = rounds * dl if dl else 0.0
++    return {"parallel": len(new) > STEP_A_PARALLEL_NEW and wait > STEP_A_PARALLEL_WAIT_S, "new": new,
++            "n_new": len(new), "est_wait_s": round(wait, 1), "leg": leg}
++
++
++def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
++    """RULING 101: Grok's confirm asked AT ONCE on every new moment, beside the Heimdall filter: each one's step_a_second
++    verdict, off every Heimdall family and off the writers, into the step-A cache that the second screen reads later
++    (it then reuses the verdict off the first's vendor; 'a clip passes only if BOTH pass' is unchanged, and a moment
++    whose first verdict came from Grok itself is screened off it as before). -> {"asked", "verdicts", "usd", "calls",
++    "by": {moment id: back-end}}: the spend is reported per build (a verdict the second screen cannot use is extra)."""
++    import providers as P
++    hv = {b.vendor for b in router.backends.values() if isinstance(b, P.HeimdallBackend)}
++    hf = {b.family for b in router.backends.values() if isinstance(b, P.HeimdallBackend)}
++    tally = _Tally(router)
++    try:
++        got, _fails, _, _ = prescreen(tally, new, sources, ctx, set(wv) | hv, set(wf) | hf, n=len(new), store=None,
++                                      log=log, cache=cache, batch=PRESCREEN_BATCH, deadline_s=None,
++                                      kind="step_a_second", failover=True)
++    except Exception as e:                               # noqa: BLE001 (the sequential second screen still runs)
++        return {"asked": len(new), "verdicts": 0, "usd": round(tally.usd, 4), "calls": tally.calls,
++                "error": f"{type(e).__name__}: {str(e)[:160]}"}
++    return {"asked": len(new), "verdicts": len(got), "usd": round(tally.usd, 4), "calls": tally.calls,
++            "by": {mid: a.get("backend") for mid, a in got.items() if isinstance(a, dict)}}
++
++
++def prewarm_used(router, mids, a_by, pre_by):
++    """RULING 101: how many of `mids` (the moments reaching the second screen) the confirm-ahead served: it has a
++    verdict for the moment AND that verdict is off the moment's first verdict's vendor and family (the second screen
++    reads only such a verdict; a moment whose first verdict came from Grok itself is screened off it as before)."""
++    n = 0
++    for mid in mids:
++        b1 = router.backends.get((a_by.get(mid) or {}).get("backend"))
++        b2 = router.backends.get(pre_by.get(mid))
++        n += b1 is not None and b2 is not None and b2.vendor != b1.vendor and b2.family != b1.family
++    return n
++
++
+ def _second_bounds(router):
+     """(batch, deadline_s) of step A's second verdict. Today it is a Heimdall family's (ruling 82: 2 clips, 120 s a
+     call). RULING 88 (c), under heimdall_first, it is Grok confirming a Heimdall pass: Grok's own batch (8 clips) and no
+@@ -2386,9 +2473,21 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+     wv, wf = _writers(router)
+-    a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
+-                                                   cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
+-                                                   **first_bounds(router))
++    fb = first_bounds(router)
++    plan = step_a_plan(router, ms, sources, ctx, wv, wf, store=store, cache=step_a_cache, **fb)   # RULING 101
++    ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None
++    ahead = ahead_pool.submit(confirm_ahead, router, plan["new"], sources, ctx, wv, wf, log, step_a_cache) \
++        if ahead_pool is not None else None              # Grok's confirm beside the Heimdall filter, at once
++    par = {**{k: plan[k] for k in ("parallel", "n_new", "est_wait_s", "leg")}, "used": 0}
++    try:
++        a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
++                                                       cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
++                                                       **fb)
++    finally:
++        if ahead is not None:
++            par.update(ahead.result())
++            ahead_pool.shutdown()
++    pre_by = par.pop("by", None) or {}                   # which back-end confirmed each moment ahead (not reported)
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+@@ -2396,7 +2495,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+            "reposted": reposted,
+            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+-                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
++                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par},
++           "angles": [], "takeaways": [],
+            "package": None}
+     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
+         f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
+@@ -2487,6 +2587,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                       f"{b['why']}" for b in best) if openers else
+             "no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)"))
+         return out
++    par["used"] = prewarm_used(router, cleared, a_by, pre_by)    # ruling 101: the confirm-ahead verdicts it reads
+     a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
+                                     cache=step_a_cache)                  # ORDER 06:22 item 45
+     out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 36ece53..aad75f7 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -720,7 +720,7 @@ class Router:
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
+                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
+-                 breakers=None):
++                 breakers=None, deadlines=None):
+         with open(config) as f:
+             self.config = json.load(f)
+         rt = self.config.get("routing") or {}
+@@ -759,6 +759,8 @@ class Router:
+         # its deadline twice in a row, or runs past twice the cap it was sent, is skipped by every list for 30 minutes
+         # (live calls only: a recorded reply, replay, probes and shadow calls never touch it)
+         self.breakers, self.breaker_events = breakers, []
++        # RULING 100 (12:16 Nov 14): the per-(model, verdict type) deadlines (pipeline/deadline_table.py's table)
++        self.deadlines = deadlines
+         if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
+             for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
+                 if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
+@@ -1004,8 +1006,10 @@ class Router:
+ 
+     def role_deadline(self, role, b):
+         """The 20:33 order (ruling 82's chain on the verdicts): a call of a verdict role on a back-end whose gateway
+-        names a deadline (model_providers.json routing.verdict_deadline_s, e.g. {"heimdall": 120}) gets it when the
+-        caller sets none. -> seconds or None."""
++        names a deadline (model_providers.json routing.verdict_deadline_s, e.g. {"heimdall": 120}) gets one when the
++        caller sets none. RULING 100 (12:16 Nov 14): THAT deadline follows the model: the pair's own row of the
++        deadline table (p90 of its recorded answers x 1.5, 60-300 s) where it has one, else the gateway's number.
++        Where no deadline applies today (Grok, a non-verdict role), none applies now. -> seconds or None."""
+         rt = self.config.get("routing") or {}
+         bounded = set(rt.get("verdict_roles") or ())
+         if self.routing == "today":                   # step A's first screen and step C keep no deadline today:
+@@ -1013,7 +1017,11 @@ class Router:
+         if role not in bounded:                       # call cannot answer in 120 s on Heimdall)
+             return None
+         d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
+-        return float(d) if _num(d) and d > 0 else None
++        if not (_num(d) and d > 0):
++            return None
++        import deadline_table as DT
++        own = DT.deadline(self.deadlines, b.name, role)          # ruling 100: the model's own, where it has one
++        return own if own is not None else float(d)
+ 
+     def _breaker_live(self, role):
+         """RULING 99: the breaker counts and skips only this builder's LIVE calls (never replay, a probe or a shadow)."""
+@@ -1040,6 +1048,13 @@ class Router:
+             return None
+         return None if ok else why
+ 
++    def breaker_open(self, name):
++        """RULING 99, read only (ruling 101's wait estimate): whether a live call would skip `name` now."""
++        if not self.breakers:
++            return False
++        import circuit_breaker as CB
++        return CB.is_open(name, self.breakers)
++
+     def _breaker(self, role, name, outcome, **kw):
+         """RULING 99: one live call's outcome to the breaker; an open or a close is one line in the evidence file."""
+         if not self._breaker_live(role):
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index ac9acba..6f0ce5e 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -58,6 +58,7 @@ import eligibility as E  # noqa: E402
+ import candidates as CA  # noqa: E402
+ import heimdall_health as HH  # noqa: E402
+ import circuit_breaker as CB  # noqa: E402
++import deadline_table as DT  # noqa: E402
+ import shadow86 as SH  # noqa: E402
+ import ledger_build as LB  # noqa: E402
+ import moments as M  # noqa: E402
+@@ -104,12 +105,43 @@ def delivered_pins(paths):
+ 
+ def build_router(routing, shadow, shadow_log):
+     """The build's router: ruling 48's ledger and limit, the routing's chains (frozen legs out), the evidence file
+-    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker."""
++    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker,
++    ruling 100's deadline table (recomputed daily from the build's own recorded answers)."""
+     return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+                     limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
+                     routing=routing, shadow=shadow, shadow_log=shadow_log,
+                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
+-                    breakers=CB.STATE)                                                         # ruling 99
++                    breakers=CB.STATE,                                                         # ruling 99
++                    deadlines=DT.load(DT.STATE, PL.REPLIES))                                   # ruling 100
++
++
++def applied(router):
++    """RULING 100: which rows of the deadline table the build's router uses (a deadline applies to the pair today:
++    a verdict role on a gateway with a configured deadline). -> applies(key)."""
++    def applies(key):
++        name, _, role = key.partition("|")
++        b = router.backends.get(name)
++        return b is not None and router.role_deadline(role, b) is not None
++    return applies
++
++
++def ruling_101_line(par):
++    """RULING 101 (12:16 Nov 14): the build's line on step A's order, with the extra spend when Grok's confirm ran in
++    parallel (its verdicts the second screen could not use: the dollars sequential would have saved). -> str or ""."""
++    if not par:
++        return ""
++    if par.get("parallel"):
++        asked = par.get("asked", 0) or 0
++        extra = (par.get("usd", 0) or 0) * (asked - (par.get("used", 0) or 0)) / max(1, asked)
++        return (f"  RULING 101 (step A in parallel): {par.get('n_new')} new moments; the filter ({par.get('leg')}) "
++                f"would have held the build about {(par.get('est_wait_s') or 0) / 60:.0f} min. Grok's confirm was asked "
++                f"on {asked} at once ({par.get('verdicts')} verdicts, ${par.get('usd', 0) or 0:.4f} vendor-reported); "
++                f"the second screen used {par.get('used')}, so about ${extra:.4f} was spent that sequential would have "
++                f"saved" + (f"; {par['error']}" if par.get("error") else ""))
++    wait = par.get("est_wait_s")
++    return (f"  RULING 101: step A sequential ({par.get('n_new')} new moments" +
++            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')})" if isinstance(wait, (int, float))
++             else f", not over {PK.STEP_A_PARALLEL_NEW})"))
+ 
+ 
+ def main(argv=None):
+@@ -207,6 +239,8 @@ def main(argv=None):
+     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
+     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+         + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
++    say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
++        f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+     if spent0 >= PL.LY_STOP_USD:
+         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+@@ -367,6 +401,9 @@ def main(argv=None):
+         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
+     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
+                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
++    line101 = ruling_101_line((res.get("prescreen") or {}).get("parallel_101"))   # RULING 101: the extra spend
++    if line101:
++        say(line101)
+     vis = res.get("visual") or {}
+     say(f"  visual (ruling 70): {vis.get('calls', 0)} sheet(s) asked ({vis.get('unmeasured', 0)} not measured), "
+         f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); cost ${vis.get('usd_reported', 0):.4f} "
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index fefacdc..bf25380 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -572,7 +572,9 @@ class Rig:
+ 
+     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
+                   batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None, kind=None,
+-                  failover=None):
++                  failover=None, plan_only=False):
++        if plan_only:                                      # ruling 101's plan: the moments new to the first screen
++            return [m for m in ms if m["moment_id"] in getattr(self, "plan_new", ())]
+         self.screen_deadlines.append(deadline_s)           # ruling 82: which calls are bounded
+         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
+         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
+@@ -1257,6 +1259,25 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
+             self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # never the writer's
+             self.assertEqual({a["backend"] for a in a_by.values()}, {"heimdall:deepseek"})     # vendor's verdict
+ 
++    def test_ruling_101_plan_only_lists_what_the_screen_would_ask_and_asks_nothing(self):
++        import tempfile
++        ms, srcs = self.pool(10)
++        calls = []
++        self.fake(calls)
++        ids = lambda xs: sorted(m["moment_id"] for m in xs)
++        with tempfile.TemporaryDirectory() as d:
++            cache = os.path.join(d, "STEP_A_CACHE.json")
++            new = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache, plan_only=True)
++            self.assertEqual((ids(new), calls, os.path.exists(cache)), (ids(ms), [], False))   # all new, nothing asked
++            PK.prescreen(self.router(), ms[:6], srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)   # 6 paid for
++            calls.clear()
++            with open(cache) as f:
++                before = f.read()
++            new = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache, plan_only=True)
++            self.assertEqual(ids(new), ids(ms[6:]))                       # only the 4 the cache does not hold
++            with open(cache) as f:
++                self.assertEqual((calls, f.read()), ([], before))         # nothing asked, nothing written
++
+     def test_a_failed_batch_is_no_verdict_never_cached_and_says_why(self):
+         import tempfile
+         ms, srcs = self.pool(10)
+@@ -2529,7 +2550,9 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+ 
+     def test_ruling_85_the_first_screen_is_bounded_under_heimdall_first(self):
+         """RULING 85: under heimdall_first the FIRST step-A verdict is a Heimdall family's, so it gets ruling 82's
+-        bounds too (2 clips a call, 120 s); under today's routing it stays unbounded (Grok's), as before."""
++        batch (2 clips a call) and fails over down the chain; RULING 100 (12:16 Nov 14): no flat deadline is passed,
++        each leg gets its own from the Router (role_deadline: its row of the deadline table, else the gateway's 120 s).
++        Under today's routing it stays unbounded (Grok's), as before."""
+         batches = []
+         for routing in ("today", "heimdall_first"):
+             rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+@@ -2542,10 +2565,129 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+                 return pre(*a, batch=batch, **k)
+             rig.prescreen = spy
+             rig.run()
+-            self.assertEqual(rig.screen_deadlines[0], None if routing == "today" else PK.SECOND_VERDICT_DEADLINE_S)
++            self.assertIsNone(rig.screen_deadlines[0])          # ruling 100: the Router decides per leg
+         self.assertEqual([b for r, b in batches if r == "heimdall_first"][0], PK.SECOND_VERDICT_BATCH)
++        self.assertEqual(PK.first_bounds(type("R", (), {"routing": "heimdall_first"})()),
++                         {"batch": PK.SECOND_VERDICT_BATCH, "deadline_s": None, "failover": True})
+         self.assertEqual([b for r, b in batches if r == "today"][0], PK.PRESCREEN_BATCH)
+ 
++    def test_ruling_101_the_plan_parallel_only_over_20_new_moments_and_10_minutes_of_filter(self):
++        """RULING 101 (12:16 Nov 14): parallel when the new moments are over 20 AND the filter would hold the build over
++        10 minutes: its rounds (batches over PRESCREEN_WORKERS) x the leading leg's own deadline (ruling 100), the leg
++        the first off the writers and not breaker-open; a leading leg with no deadline (Grok) is sequential."""
++        from unittest import mock
++
++        class B:
++            def __init__(self, vendor, family):
++                self.vendor, self.family = vendor, family
++
++        class R:
++            routing, down = "heimdall_first", {}
++
++            def __init__(self, open_=()):
++                self.backends = {"heimdall:glm": B("heimdall/glm", "glm"), "heimdall:ds": B("heimdall/deepseek",
++                                                                                          "deepseek"),
++                                 "xai:grok": B("xai", "grok")}
++                self.open_ = set(open_)
++
++            def chain(self, role, kind=None):
++                assert (role, kind) == ("context_verdict", "step_a_first")
++                return ["heimdall:glm", "heimdall:ds", "xai:grok"]
++
++            def role_deadline(self, role, b):
++                return {"glm": 60.0, "deepseek": 300.0}.get(b.family)
++
++            def breaker_open(self, name):
++                return name in self.open_
++
++        def plan(n, router, wv=(), wf=()):
++            new = [{"moment_id": f"m{i}"} for i in range(n)]
++            with mock.patch.object(PK, "prescreen", lambda *a, plan_only=False, **k: new if plan_only else None):
++                return PK.step_a_plan(router, [], {}, None, set(wv), set(wf), **PK.first_bounds(router))
++        p = plan(20, R())                                                  # under the line: nothing else consulted
++        self.assertEqual((p["parallel"], p["n_new"], p["est_wait_s"], p["leg"]), (False, 20, None, None))
++        p = plan(21, R())                                  # glm leads: 11 batches of 2, 2 rounds x 60 s = 2 minutes
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 120.0, "heimdall:glm"))
++        p = plan(21, R(open_={"heimdall:glm"}))           # glm's breaker open: deepseek leads, 2 x 300 s = 10 minutes
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 600.0, "heimdall:ds"))   # not OVER 10
++        p = plan(37, R(open_={"heimdall:glm"}))           # 19 batches, 4 rounds x 300 s = 20 minutes
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (True, 1200.0, "heimdall:ds"))
++        p = plan(37, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # the writer's family: Grok leads,
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 0.0, "xai:grok"))   # no deadline
++
++    def test_ruling_101_confirm_ahead_asks_off_every_heimdall_family_and_tallies_its_dollars(self):
++        from unittest import mock
++        import providers as P
++        hb = lambda name, fam: P.HeimdallBackend(name, {"model": fam, "family": fam, "base_url": "http://x"}, "/x")
++
++        class Rep:
++            def __init__(self, usd, reported):
++                self.usd, self.usage = usd, ({"usd_reported": reported} if reported is not None else {})
++
++        class R:
++            backends = {"heimdall:glm": hb("heimdall:glm", "glm"), "heimdall:ds": hb("heimdall:ds", "deepseek")}
++            replies = [Rep(0.5, 0.01), Rep(0.5, None)]
++
++            def call(self, *a, **k):
++                return self.replies.pop(0)
++        got = {}
++
++        def fake(router, new, sources, ctx_, wv, wf, n=None, kind=None, cache=None, **k):
++            got.update(wv=set(wv), wf=set(wf), kind=kind, n=n, cache=cache)
++            router.call("context_verdict", "p")
++            router.call("context_verdict", "q")
++            return {m["moment_id"]: {"backend": "xai:grok"} for m in new}, {}, set(), set()
++        with mock.patch.object(PK, "prescreen", fake):
++            res = PK.confirm_ahead(R(), [{"moment_id": "a"}, {"moment_id": "b"}], {}, None, {"openai"}, {"gpt"},
++                                   cache="/tmp/c")
++        self.assertEqual(got, {"wv": {"openai", "heimdall"}, "wf": {"gpt", "glm", "deepseek"}, "kind": "step_a_second",
++                               "n": 2, "cache": "/tmp/c"})       # off every Heimdall family and off the writers
++        self.assertEqual(res, {"asked": 2, "verdicts": 2, "usd": 0.51, "calls": 2,      # vendor-reported, else estimate
++                               "by": {"a": "xai:grok", "b": "xai:grok"}})
++
++    def test_ruling_101_in_a_build_grok_confirms_beside_the_filter_and_the_extra_is_reported(self):
++        """The plan says parallel: Grok's confirm (step_a_second) runs on every new moment ON ANOTHER THREAD while the
++        first screen runs; the second screen later reads the cache; the report counts what it used."""
++        import threading
++        from unittest import mock
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
++                  angle_from=("xai:grok", "xai", "grok"), write_from=("xai:grok", "xai", "grok"))
++        rig.router.routing = "heimdall_first"
++        rig.plan_new = {m["moment_id"] for m in self.MS}
++        rig.router.chain = lambda role, kind=None: ["openai:gpt", "xai:grok"]   # the rig's writers are heimdall's:
++        rig.router.role_deadline = lambda role, b: 300.0 if b.vendor == "openai" else None   # a third vendor leads
++        rig.router.breaker_open = lambda name: False
++        seen, pre = [], rig.prescreen
++
++        def spy(router_, ms, sources_, ctx_, writer_vendor, *a, kind=None, plan_only=False, **k):
++            if not plan_only:
++                seen.append((kind, set(writer_vendor), threading.get_ident()))
++            return pre(router_, ms, sources_, ctx_, writer_vendor, *a, kind=kind, plan_only=plan_only, **k)
++        rig.prescreen = spy
++        with mock.patch.object(PK, "STEP_A_PARALLEL_NEW", 1), mock.patch.object(PK, "STEP_A_PARALLEL_WAIT_S", 60.0):
++            out = rig.run()
++        par = out["prescreen"]["parallel_101"]
++        self.assertEqual((par["parallel"], par["n_new"], par["asked"], par["leg"]),
++                         (True, len(self.MS), len(self.MS), "openai:gpt"))
++        main = threading.get_ident()
++        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall"}]   # off the writers (heimdall)
++        self.assertEqual(len(ahead), 1)                                   # Grok's confirm: once,
++        self.assertNotEqual(ahead[0], main)                               # on its own thread,
++        self.assertIn(("step_a_first", {"heimdall"}, main), seen)         # beside the filter on the build's thread
++        self.assertEqual(par["used"], 0)              # here every first verdict is Grok's own: the second screen
++        self.assertEqual(rig.screens[-1][0], "heimdall:deepseek")         # screens off it as before
++
++    def test_ruling_101_used_counts_only_a_verdict_off_the_first(self):
++        class B:
++            def __init__(self, vendor, family):
++                self.vendor, self.family = vendor, family
++        r = type("R", (), {"backends": {"heimdall:ds": B("heimdall/deepseek", "deepseek"), "xai:grok": B("xai", "grok"),
++                                        "heimdall:glm": B("heimdall/glm", "glm")}})()
++        a_by = {"a": {"backend": "heimdall:ds"}, "b": {"backend": "xai:grok"}, "c": {"backend": "heimdall:glm"},
++                "d": {"backend": "heimdall:ds"}}
++        pre_by = {"a": "xai:grok", "b": "xai:grok", "c": "xai:grok"}      # d: no verdict ahead
++        self.assertEqual(PK.prewarm_used(r, ["a", "b", "c", "d"], a_by, pre_by), 2)   # a and c; b is Grok's own
++
+     def test_ruling_88_grok_confirms_in_its_own_batches_under_heimdall_first(self):
+         """RULING 88 (c): under heimdall_first the second step-A verdict is Grok confirming Heimdall's passes: Grok's own
+         batch (8) and no deadline, the move-on rule kept; under today it stays a Heimdall family's (2 clips, 120 s)."""
+diff --git a/tests/providers/test_circuit_breaker.py b/tests/providers/test_circuit_breaker.py
+index 3cf2f24..fb13f11 100644
+--- a/tests/providers/test_circuit_breaker.py
++++ b/tests/providers/test_circuit_breaker.py
+@@ -121,6 +121,31 @@ class TestBreaker(unittest.TestCase):
+             self.rec("slow", at(51))
+ 
+ 
++class TestReadOnly(unittest.TestCase):
++    """RULING 101's estimate reads the breakers without touching them (is_open never claims a trial)."""
++
++    def test_is_open_reads_and_never_claims(self):
++        with tempfile.TemporaryDirectory() as d:
++            state = os.path.join(d, "BREAKERS.json")
++            self.assertFalse(CB.is_open(GLM, state, now=at(0)))                     # no state: closed
++            CB.record(GLM, "miss", state, now=at(0))
++            CB.record(GLM, "miss", state, now=at(1))                                 # open until 15:31
++            self.assertTrue(CB.is_open(GLM, state, now=at(30, 59)))
++            before = open(state).read()
++            self.assertFalse(CB.is_open(GLM, state, now=at(31)))                    # the window passed: a call may
++            self.assertEqual(open(state).read(), before)                            # try it, and nothing was claimed
++            self.assertEqual(CB.allow(GLM, state, now=at(31), hold_s=180.0), (True, "trial"))
++            self.assertTrue(CB.is_open(GLM, state, now=at(33, 59)))                 # its one trial in flight
++            self.assertFalse(CB.is_open(GLM, state, now=at(34)))
++            with open(state, "w") as f:
++                f.write("{ broken")
++            self.assertFalse(CB.is_open(GLM, state, now=at(35)))                    # unreadable: skips nothing
++            r = router(d, [Fake(GLM, "heimdall", answer="x", family="glm")], {"c": [GLM]}, breakers=state)
++            self.assertFalse(r.breaker_open(GLM))
++            r.breakers = None
++            self.assertFalse(r.breaker_open(GLM))
++
++
+ class TestRouterBreaker(unittest.TestCase):
+     """providers.Router: live calls only. Two real deadline misses (P._within) open the breaker, the next family leads,
+     and the open is one line in the evidence file."""
+diff --git a/tests/providers/test_deadline_table.py b/tests/providers/test_deadline_table.py
+new file mode 100644
+index 0000000..5733333
+--- /dev/null
++++ b/tests/providers/test_deadline_table.py
+@@ -0,0 +1,140 @@
++#!/usr/bin/env python3
++"""RULING 100 (orchestrator 12:16 ET Nov 14): DEADLINES FOLLOW THE MODEL (pipeline/deadline_table.py and its use in
++providers.Router.role_deadline and the ledger build). Offline: temporary record dirs and table files."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++from datetime import datetime, timedelta, timezone
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++import deadline_table as DT  # noqa: E402
++import providers as P  # noqa: E402
++
++T0 = datetime(2026, 11, 14, 17, 0, tzinfo=timezone.utc)
++DS, GLM, GROK = "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:z-ai/glm-5.3-flash", "xai:grok-4.20-0309-reasoning"
++
++
++def records(d, rows):
++    """rows: [(backend, role, seconds)] -> one recorded exchange each, as providers.Router._record writes them."""
++    for i, (b, role, s) in enumerate(rows):
++        os.makedirs(os.path.join(d, f"{i:02x}"[-2:]), exist_ok=True)
++        with open(os.path.join(d, f"{i:02x}"[-2:], f"{i:064x}.json"), "w") as f:
++            json.dump({"role": role, "backend": b, "seconds": s, "text": "{}"}, f)
++
++
++class TestTable(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.rec = os.path.join(self.d.name, "replies")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def test_p90_times_one_and_a_half_inside_60_to_300_s(self):
++        records(self.rec, [(DS, "context_verdict", s) for s in (100, 120, 140, 160, 180, 200, 220, 240, 260, 280)]
++                + [(GLM, "context_verdict", s) for s in (5, 9, 12)]
++                + [("heimdall:qwen/qwen3.8-27b", "context_verdict", s) for s in (30, 40, 50, 60)]
++                + [("heimdall:slow/x", "context_verdict", s) for s in (400, 500, 600)]
++                + [(GROK, "coherence_verdict", s) for s in (10, 20)])          # two answers: no row of its own
++        t = DT.compute(self.rec, T0)
++        r = t["rows"]
++        self.assertEqual(r[f"{DS}|context_verdict"], {"n": 10, "p50": 190.0, "p90": 262.0, "deadline_s": 300.0})
++        self.assertEqual(r[f"{GLM}|context_verdict"]["deadline_s"], 60.0)                  # the floor
++        self.assertEqual(r["heimdall:qwen/qwen3.8-27b|context_verdict"]["deadline_s"], 85.5)   # 57 x 1.5
++        self.assertEqual(r["heimdall:slow/x|context_verdict"]["deadline_s"], 300.0)          # the ceiling
++        self.assertNotIn(f"{GROK}|coherence_verdict", r)                                       # under MIN_N
++        self.assertEqual((t["computed_at"], DT.deadline(t, DS, "context_verdict"), DT.deadline(t, GROK, "x")),
++                         ("2026-11-14T17:00:00Z", 300.0, None))
++
++    def test_a_record_that_cannot_be_read_or_has_no_positive_time_is_skipped(self):
++        records(self.rec, [(DS, "context_verdict", s) for s in (10, 20, 30)] +
++                [(DS, "context_verdict", bad) for bad in (0, -5, None, "slow", True)])
++        os.makedirs(os.path.join(self.rec, "zz"), exist_ok=True)
++        with open(os.path.join(self.rec, "zz", "broken.json"), "w") as f:
++            f.write("{ broken")
++        with open(os.path.join(self.rec, "zz", "nan.json"), "w") as f:
++            f.write('{"role": "context_verdict", "backend": "%s", "seconds": NaN}' % DS)
++        self.assertEqual(DT.compute(self.rec, T0)["rows"][f"{DS}|context_verdict"]["n"], 3)
++        self.assertEqual(DT.deadline({"rows": {"a|b": {"deadline_s": "60"}}}, "a", "b"), None)   # no guess
++        self.assertEqual(DT.deadline(None, "a", "b"), None)
++
++    def test_the_table_is_kept_a_day_then_recomputed_and_an_unreadable_one_is_recomputed(self):
++        path = os.path.join(self.d.name, "TABLE.json")
++        records(self.rec, [(DS, "context_verdict", s) for s in (100, 110, 120)])
++        first = DT.load(path, self.rec, T0)
++        self.assertTrue(os.path.exists(path))
++        records(self.rec, [(DS, "context_verdict", s) for s in (10, 10, 10, 10, 10, 10, 10)])
++        self.assertEqual(DT.load(path, self.rec, T0 + timedelta(hours=23)), first)          # within the day: kept
++        again = DT.load(path, self.rec, T0 + timedelta(hours=24, seconds=1))                # a day later: the records
++        self.assertNotEqual(again["rows"], first["rows"])
++        self.assertEqual(again["computed_at"], "2026-11-15T17:00:01Z")
++        with open(path, "w") as f:
++            f.write("{ broken")
++        self.assertEqual(DT.load(path, self.rec, T0 + timedelta(hours=25))["computed_at"], "2026-11-15T18:00:00Z")
++        self.assertIn("deepseek-v4.1-flash context_verdict:", DT.text(again))
++        self.assertEqual(DT.text(again, applies=lambda k: False), "")
++
++
++class TestRouter(unittest.TestCase):
++    """providers.Router.role_deadline: the pair's own deadline where a deadline applies today; the gateway's number
++    without a row; none where none applies (Grok, a non-verdict role)."""
++
++    def router(self, table):
++        d = tempfile.mkdtemp()
++        cfg = os.path.join(d, "cfg.json")
++        json.dump({"schema": "pp.providers/1",
++                   "backends": {DS: {"vendor": "heimdall", "model": "deepseek", "family": "deepseek",
++                                     "base_url": "http://x"},
++                                GLM: {"vendor": "heimdall", "model": "glm", "family": "glm", "base_url": "http://x"},
++                                GROK: {"vendor": "xai", "model": "grok", "family": "grok"}},
++                   "roles": {"context_verdict": {"chain": [GLM, DS, GROK]}},
++                   "routing": {"mode": "heimdall_first", "verdict_roles": ["context_verdict"],
++                               "verdict_deadline_s": {"heimdall": 120}}}, open(cfg, "w"))
++        return P.Router(cfg, env_path="/nonexistent", deadlines=table)
++
++    def test_the_model_s_own_deadline_where_one_applies(self):
++        table = {"rows": {f"{DS}|context_verdict": {"n": 33, "p50": 165, "p90": 272, "deadline_s": 300.0},
++                          f"{GROK}|context_verdict": {"n": 268, "p50": 46, "p90": 80, "deadline_s": 120.7}}}
++        r = self.router(table)
++        self.assertEqual(r.role_deadline("context_verdict", r.backends[DS]), 300.0)     # its own row
++        self.assertEqual(r.role_deadline("context_verdict", r.backends[GLM]), 120.0)    # no row: the gateway's
++        self.assertIsNone(r.role_deadline("context_verdict", r.backends[GROK]))        # none applies today, row or not
++        self.assertIsNone(r.role_deadline("angle_write", r.backends[DS]))              # not a verdict role
++        self.assertEqual(self.router(None).role_deadline("context_verdict", r.backends[DS]), 120.0)   # no table
++
++    def test_the_build_router_loads_the_table_from_its_own_records(self):
++        sys.path.insert(0, os.path.join(REPO, "tests", "package"))
++        import proof_ledger as PLG
++        import proof_ly as PL
++        with tempfile.TemporaryDirectory() as d:
++            path = os.path.join(d, "DEADLINE_TABLE.json")
++            with mock.patch.object(DT, "STATE", path):
++                r = PLG.build_router("heimdall_first", None, os.path.join(d, "SHADOW86.jsonl"))
++            self.assertTrue(os.path.exists(path))
++            self.assertEqual(r.deadlines, DT.load(path, PL.REPLIES))
++        app = PLG.applied(r)
++        self.assertFalse(app(f"{GROK}|context_verdict"))                                # Grok: none applies
++        self.assertTrue(app("heimdall:deepseek/deepseek-v4.1-flash|context_verdict"))
++
++
++class TestTheBuildLine(unittest.TestCase):
++    def test_ruling_101_s_line_reports_the_extra_spend(self):
++        sys.path.insert(0, os.path.join(REPO, "tests", "package"))
++        import proof_ledger as PLG
++        self.assertEqual(PLG.ruling_101_line(None), "")
++        line = PLG.ruling_101_line({"parallel": True, "n_new": 37, "leg": DS, "est_wait_s": 1200.0, "asked": 37,
++                                    "verdicts": 36, "usd": 0.37, "used": 10})
++        self.assertIn("would have held the build about 20 min", line)
++        self.assertIn("the second screen used 10, so about $0.2700 was spent that sequential would have saved", line)
++        self.assertIn("about 2.0 min on", PLG.ruling_101_line({"parallel": False, "n_new": 21, "est_wait_s": 120.0,
++                                                               "leg": GLM}))
++        self.assertIn("not over 20", PLG.ruling_101_line({"parallel": False, "n_new": 4, "est_wait_s": None}))
++
++
++if __name__ == "__main__":
++    unittest.main()

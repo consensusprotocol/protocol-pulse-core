@@ -572,7 +572,9 @@ class Rig:
 
     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
                   batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None, kind=None,
-                  failover=None):
+                  failover=None, plan_only=False):
+        if plan_only:                                      # ruling 101's plan: the moments new to the first screen
+            return [m for m in ms if m["moment_id"] in getattr(self, "plan_new", ())]
         self.screen_deadlines.append(deadline_s)           # ruling 82: which calls are bounded
         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
@@ -1256,6 +1258,25 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
             a_by, _, _, _ = PK.prescreen(self.router(), ms[:3], srcs, ctx(), {"xai"}, {"grok"}, cache=cache)
             self.assertEqual(sorted(sum((c[0] for c in calls), [])), ["m00", "m01", "m02"])   # never the writer's
             self.assertEqual({a["backend"] for a in a_by.values()}, {"heimdall:deepseek"})     # vendor's verdict
+
+    def test_ruling_101_plan_only_lists_what_the_screen_would_ask_and_asks_nothing(self):
+        import tempfile
+        ms, srcs = self.pool(10)
+        calls = []
+        self.fake(calls)
+        ids = lambda xs: sorted(m["moment_id"] for m in xs)
+        with tempfile.TemporaryDirectory() as d:
+            cache = os.path.join(d, "STEP_A_CACHE.json")
+            new = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache, plan_only=True)
+            self.assertEqual((ids(new), calls, os.path.exists(cache)), (ids(ms), [], False))   # all new, nothing asked
+            PK.prescreen(self.router(), ms[:6], srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)   # 6 paid for
+            calls.clear()
+            with open(cache) as f:
+                before = f.read()
+            new = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache, plan_only=True)
+            self.assertEqual(ids(new), ids(ms[6:]))                       # only the 4 the cache does not hold
+            with open(cache) as f:
+                self.assertEqual((calls, f.read()), ([], before))         # nothing asked, nothing written
 
     def test_a_failed_batch_is_no_verdict_never_cached_and_says_why(self):
         import tempfile
@@ -2529,7 +2550,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
 
     def test_ruling_85_the_first_screen_is_bounded_under_heimdall_first(self):
         """RULING 85: under heimdall_first the FIRST step-A verdict is a Heimdall family's, so it gets ruling 82's
-        bounds too (2 clips a call, 120 s); under today's routing it stays unbounded (Grok's), as before."""
+        bounds too (2 clips a call, 120 s); under today's routing it stays unbounded (Grok's), as before. RULING 100:
+        the Router holds each leg to its own row in place of the 120 s (Router.effective_deadline, test_deadline_table)."""
         batches = []
         for routing in ("today", "heimdall_first"):
             rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
@@ -2544,7 +2566,135 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
             rig.run()
             self.assertEqual(rig.screen_deadlines[0], None if routing == "today" else PK.SECOND_VERDICT_DEADLINE_S)
         self.assertEqual([b for r, b in batches if r == "heimdall_first"][0], PK.SECOND_VERDICT_BATCH)
+        self.assertEqual(PK.first_bounds(type("R", (), {"routing": "heimdall_first"})()),
+                         {"batch": PK.SECOND_VERDICT_BATCH, "deadline_s": PK.SECOND_VERDICT_DEADLINE_S})
         self.assertEqual([b for r, b in batches if r == "today"][0], PK.PRESCREEN_BATCH)
+
+    def test_ruling_101_the_plan_parallel_only_over_20_new_moments_and_10_minutes_of_filter(self):
+        """RULING 101 (12:16 Nov 14): parallel when the new moments are over 20 AND the filter would hold the build over
+        10 minutes: its rounds (batches over PRESCREEN_WORKERS) x the leading leg's deadline (ruling 100's, for the
+        first screen's 120 s), the leg the first off the writers and not breaker-open; when Grok leads (no Heimdall
+        family can), sequential whatever the wait."""
+        from unittest import mock
+
+        class B:
+            def __init__(self, vendor, family):
+                self.vendor, self.family, self.gateway = vendor, family, vendor.split("/")[0]
+
+        class R:
+            routing, down = "heimdall_first", {}
+
+            def __init__(self, open_=()):
+                self.backends = {"heimdall:glm": B("heimdall/glm", "glm"), "heimdall:ds": B("heimdall/deepseek",
+                                                                                          "deepseek"),
+                                 "xai:grok": B("xai", "grok")}
+                self.open_ = set(open_)
+
+            def chain(self, role, kind=None):
+                assert (role, kind) == ("context_verdict", "step_a_first")
+                return ["heimdall:glm", "heimdall:ds", "xai:grok"]
+
+            def effective_deadline(self, role, b, deadline_s=None):
+                assert (role, deadline_s) == ("context_verdict", PK.SECOND_VERDICT_DEADLINE_S)   # the first screen's
+                return {"glm": 60.0, "deepseek": 300.0, "grok": 118.1}.get(b.family)
+
+            def breaker_open(self, name):
+                return name in self.open_
+
+        def plan(n, router, wv=(), wf=()):
+            new = [{"moment_id": f"m{i}"} for i in range(n)]
+            with mock.patch.object(PK, "prescreen", lambda *a, plan_only=False, **k: new if plan_only else None):
+                return PK.step_a_plan(router, [], {}, None, set(wv), set(wf), **PK.first_bounds(router))
+        p = plan(20, R())                                                  # under the line: nothing else consulted
+        self.assertEqual((p["parallel"], p["n_new"], p["est_wait_s"], p["leg"]), (False, 20, None, None))
+        p = plan(21, R())                                  # glm leads: 11 batches of 2, 2 rounds x 60 s = 2 minutes
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 120.0, "heimdall:glm"))
+        p = plan(21, R(open_={"heimdall:glm"}))           # glm's breaker open: deepseek leads, 2 x 300 s = 10 minutes
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 600.0, "heimdall:ds"))   # not OVER 10
+        p = plan(37, R(open_={"heimdall:glm"}))           # 19 batches, 4 rounds x 300 s = 20 minutes
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (True, 1200.0, "heimdall:ds"))
+        p = plan(37, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # the writer's family: Grok leads,
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 472.4, "xai:grok"))   # 4 x 118.1 s
+        p = plan(80, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # 40 batches, 7 rounds: over 10 minutes
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 826.7, "xai:grok"))   # but Grok leads
+        p = plan(80, R())                                                  # glm leads: 7 x 60 s, under 10 minutes
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 420.0, "heimdall:glm"))
+
+    def test_ruling_101_confirm_ahead_asks_off_every_heimdall_family_and_tallies_its_dollars(self):
+        from unittest import mock
+        import providers as P
+        hb = lambda name, fam: P.HeimdallBackend(name, {"model": fam, "family": fam, "base_url": "http://x"}, "/x")
+
+        class Rep:
+            def __init__(self, usd, reported):
+                self.usd, self.usage = usd, ({"usd_reported": reported} if reported is not None else {})
+
+        class R:
+            backends = {"heimdall:glm": hb("heimdall:glm", "glm"), "heimdall:ds": hb("heimdall:ds", "deepseek")}
+            replies = [Rep(0.5, 0.01), Rep(0.5, None)]
+
+            def call(self, *a, **k):
+                return self.replies.pop(0)
+        got = {}
+
+        def fake(router, new, sources, ctx_, wv, wf, n=None, kind=None, cache=None, **k):
+            got.update(wv=set(wv), wf=set(wf), kind=kind, n=n, cache=cache)
+            router.call("context_verdict", "p")
+            router.call("context_verdict", "q")
+            return {m["moment_id"]: {"backend": "xai:grok"} for m in new}, {}, set(), set()
+        with mock.patch.object(PK, "prescreen", fake):
+            res = PK.confirm_ahead(R(), [{"moment_id": "a"}, {"moment_id": "b"}], {}, None, {"openai"}, {"gpt"},
+                                   cache="/tmp/c")
+        self.assertEqual(got, {"wv": {"openai", "heimdall"}, "wf": {"gpt", "glm", "deepseek"}, "kind": "step_a_second",
+                               "n": 2, "cache": "/tmp/c"})       # off every Heimdall family and off the writers
+        self.assertEqual(res, {"asked": 2, "verdicts": 2, "usd": 0.51, "calls": 2,      # vendor-reported, else estimate
+                               "by": {"a": "xai:grok", "b": "xai:grok"}})
+
+    def test_ruling_101_in_a_build_grok_confirms_beside_the_filter_and_the_extra_is_reported(self):
+        """The plan says parallel: Grok's confirm (step_a_second) runs on every new moment ON ANOTHER THREAD while the
+        first screen runs; the second screen later reads the cache; the report counts what it used."""
+        import threading
+        from unittest import mock
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  angle_from=("xai:grok", "xai", "grok"), write_from=("xai:grok", "xai", "grok"))
+        rig.router.routing = "heimdall_first"
+        rig.plan_new = {m["moment_id"] for m in self.MS}
+        rig.router.backends["heimdall:glm"] = type("B", (), {"vendor": "heimdall/glm", "family": "glm",
+                                                             "gateway": "heimdall"})()    # off the rig's writer
+        rig.router.chain = lambda role, kind=None: ["heimdall:glm", "xai:grok"]          # (heimdall, deepseek)
+        rig.router.effective_deadline = lambda role, b, deadline_s=None: 300.0 if b.family == "glm" else None
+        rig.router.breaker_open = lambda name: False
+        seen, pre = [], rig.prescreen
+
+        def spy(router_, ms, sources_, ctx_, writer_vendor, *a, kind=None, plan_only=False, **k):
+            if not plan_only:
+                seen.append((kind, set(writer_vendor), threading.get_ident()))
+            return pre(router_, ms, sources_, ctx_, writer_vendor, *a, kind=kind, plan_only=plan_only, **k)
+        rig.prescreen = spy
+        with mock.patch.object(PK, "STEP_A_PARALLEL_NEW", 1), mock.patch.object(PK, "STEP_A_PARALLEL_WAIT_S", 60.0):
+            out = rig.run()
+        par = out["prescreen"]["parallel_101"]
+        self.assertEqual((par["parallel"], par["n_new"], par["asked"], par["leg"]),
+                         (True, len(self.MS), len(self.MS), "heimdall:glm"))
+        main = threading.get_ident()
+        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall", "heimdall/glm"}]   # off every
+        # Heimdall family and the writers
+        self.assertEqual(len(ahead), 1)                                   # Grok's confirm: once,
+        self.assertNotEqual(ahead[0], main)                               # on its own thread,
+        self.assertIn(("step_a_first", {"heimdall"}, main), seen)         # beside the filter on the build's thread
+        self.assertEqual(par["used"], 0)              # here every first verdict is Grok's own: the second screen
+        self.assertEqual(rig.screens[-1][0], "heimdall:deepseek")         # screens off it as before
+
+    def test_ruling_101_used_counts_only_a_verdict_off_the_first(self):
+        class B:
+            def __init__(self, vendor, family):
+                self.vendor, self.family = vendor, family
+        r = type("R", (), {"backends": {"heimdall:ds": B("heimdall/deepseek", "deepseek"), "xai:grok": B("xai", "grok"),
+                                        "heimdall:glm": B("heimdall/glm", "glm")}})()
+        a_by = {"a": {"backend": "heimdall:ds"}, "b": {"backend": "xai:grok"}, "c": {"backend": "heimdall:glm"},
+                "d": {"backend": "heimdall:ds"}}
+        pre_by = {"a": "xai:grok", "b": "xai:grok", "c": "xai:grok"}      # d: no verdict ahead
+        self.assertEqual(PK.prewarm_used(r, ["a", "b", "c", "d"], a_by, pre_by), 2)   # a and c; b is Grok's own
 
     def test_ruling_88_grok_confirms_in_its_own_batches_under_heimdall_first(self):
         """RULING 88 (c): under heimdall_first the second step-A verdict is Grok confirming Heimdall's passes: Grok's own

@@ -121,6 +121,31 @@ class TestBreaker(unittest.TestCase):
             self.rec("slow", at(51))
 
 
+class TestReadOnly(unittest.TestCase):
+    """RULING 101's estimate reads the breakers without touching them (is_open never claims a trial)."""
+
+    def test_is_open_reads_and_never_claims(self):
+        with tempfile.TemporaryDirectory() as d:
+            state = os.path.join(d, "BREAKERS.json")
+            self.assertFalse(CB.is_open(GLM, state, now=at(0)))                     # no state: closed
+            CB.record(GLM, "miss", state, now=at(0))
+            CB.record(GLM, "miss", state, now=at(1))                                 # open until 15:31
+            self.assertTrue(CB.is_open(GLM, state, now=at(30, 59)))
+            before = open(state).read()
+            self.assertFalse(CB.is_open(GLM, state, now=at(31)))                    # the window passed: a call may
+            self.assertEqual(open(state).read(), before)                            # try it, and nothing was claimed
+            self.assertEqual(CB.allow(GLM, state, now=at(31), hold_s=180.0), (True, "trial"))
+            self.assertTrue(CB.is_open(GLM, state, now=at(33, 59)))                 # its one trial in flight
+            self.assertFalse(CB.is_open(GLM, state, now=at(34)))
+            with open(state, "w") as f:
+                f.write("{ broken")
+            self.assertFalse(CB.is_open(GLM, state, now=at(35)))                    # unreadable: skips nothing
+            r = router(d, [Fake(GLM, "heimdall", answer="x", family="glm")], {"c": [GLM]}, breakers=state)
+            self.assertFalse(r.breaker_open(GLM))
+            r.breakers = None
+            self.assertFalse(r.breaker_open(GLM))
+
+
 class TestRouterBreaker(unittest.TestCase):
     """providers.Router: live calls only. Two real deadline misses (P._within) open the breaker, the next family leads,
     and the open is one line in the evidence file."""

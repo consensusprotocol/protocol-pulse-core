@@ -1,0 +1,115 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence that breaks it.
+
+BACKGROUND (static):
+- providers.Router.call walks a role's chain of model back-ends. A live call on a leg gets a deadline (the caller's
+  deadline_s, else Router.role_deadline(role, backend)); at the deadline the leg is abandoned and the chain moves on.
+  Ruling 99's circuit breaker skips a model for 30 minutes after it misses its deadline twice in a row.
+- STEP A (law L-s) screens each moment's own context twice: the FIRST screen (package.prescreen, kind step_a_first,
+  chain heimdall_first = [glm, deepseek, Grok], 2 clips a call) on every usable moment; later, on the moments that
+  cleared, were cuttable and passed the hook rules, the SECOND screen (package.second_screen: kind step_a_second,
+  chain [Grok, glm, deepseek], 8 clips a call) for a verdict OFF the first verdict's vendor and family. A clip passes
+  only if BOTH pass. Verdicts are cached across builds in a shared step-A cache keyed by moment, text, context and
+  prompt version, per back-end.
+- Before this change: under heimdall_first the first screen passed an explicit flat deadline of 120 s
+  (first_bounds -> SECOND_VERDICT_DEADLINE_S), and every other Heimdall verdict call got the gateway's 120 s
+  (role_deadline). deepseek's recorded step A answers take median 165 s, p90 272 s (33 answers), so it "missed" its
+  deadline on normal calls, its breaker opened, and at 12:24 and 12:40 ET two spotlight candidates with hooks rated
+  4 died at the second screen with every leg unavailable (Grok was their first verdict's own vendor, glm's and
+  deepseek's breakers open).
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- providers.Router.call: `dl = deadline_s or self.role_deadline(role, b)` per leg; a recorded reply is served before
+  any deadline or breaker applies; replay never makes a live call.
+- package.prescreen (:494) builds each moment's context and cache key, takes a verdict from this build's store or the
+  shared cache when one exists off the given writer vendor/family, and asks the rest in batches on PRESCREEN_WORKERS
+  (6) threads. The cache is merged by _cache_put (:475) under CACHE_LOCK (:456), re-reading the file inside the lock,
+  so two prescreens in one process cannot lose each other's verdicts.
+- package.second_screen (:682) calls prescreen per group with writer sets = the FIRST verdict's (vendor, family) and
+  kind step_a_second; through the cache lookup it reuses a cached verdict from any back-end off those sets.
+- package._writers(router) returns the angle writer's (vendor, family); step A never runs on it.
+- Under heimdall_first each Heimdall family is its own vendor ("heimdall/deepseek", "heimdall/glm"; ruling 85).
+
+THE ORCHESTRATOR'S RULINGS (12:16 ET Nov 14), verbatim:
+"100. DEADLINES FOLLOW THE MODEL, NOT ONE NUMBER. My 120 s (ruling 82) sits on top of deepseek's NORMAL step A time
+(about 105 s recorded), so the breaker opened on a healthy model and Grok decided step A alone again. Per (model,
+verdict type) the deadline is the recorded p90 of that pair's answered calls x 1.5, floor 60 s, ceiling 300 s,
+recomputed from the records daily (say the table on STATE once). The breaker's 'two misses in a row' is against THAT
+deadline. glm's recorded step A median was 45 s, so its 483-532 s today still trips it; deepseek at 105 s does not.
+Close deepseek's breaker now by this rule.
+101. STEP A ORDER WHILE HEIMDALL IS SLOW: the filter is worth its wait only if it saves more than it costs. Rule: step
+A asks the Heimdall filter and Grok's confirm IN PARALLEL when the pool to screen is over 20 new moments and a build
+would otherwise wait more than 10 minutes on the filter; a clip passes only if BOTH pass (unchanged); Grok's call is
+then not saved, and you report the extra spend per build. Under 20 new moments, sequential as ruled (Heimdall first,
+Grok only on a pass). Time to a video comes before the 18 cents."
+
+THE CHANGE (the diff follows):
+1. pipeline/deadline_table.py (new): from the build's recorded exchanges (one JSON per ANSWERED call: backend, role,
+   seconds), per (backend, role) with at least MIN_N = 3 answers: p50, p90 and deadline = clamp(1.5 x p90, 60, 300).
+   Saved with computed_at; load() reuses it for a day, else (or when unreadable) recomputes and saves.
+   Measured now (the rows a Router applies): deepseek step A 300 s (n 33, p90 272); deepseek coherence 213 s; qwen step
+   A 67 s; qwen coherence 60 s; glm step A 60 s (n 3, p90 39).
+2. providers.Router(deadlines=table). role_deadline: where a deadline applies today (a verdict role on a gateway with
+   a configured deadline: Heimdall), the pair's own row if it has one, else the gateway's 120 s; where none applies
+   (Grok, a non-verdict role) none applies now, row or not. Router.breaker_open(name): a READ-ONLY breaker check
+   (circuit_breaker.is_open, new: it never claims a trial).
+3. package.first_bounds under heimdall_first: no flat deadline (deadline_s None, failover True, 2 clips a call kept),
+   so each leg gets its own deadline from the Router.
+4. Ruling 101 in package.build:
+   - step_a_plan(): the moments NEW to the first screen (prescreen(plan_only=True): no verdict in the store or the
+     cache; nothing asked, nothing written). Over STEP_A_PARALLEL_NEW (20) new, the estimated filter wait is rounds
+     (ceil(new / batch) / PRESCREEN_WORKERS, rounded up) x the deadline of the filter's leading leg: the first leg of
+     the step_a_first chain off the writers, not down this run and not breaker-open. The plan is parallel when that
+     wait is over STEP_A_PARALLEL_WAIT_S (600 s); a leading leg with no deadline (Grok) is sequential.
+   - When parallel, confirm_ahead() runs on its own thread BESIDE the first screen: prescreen(kind step_a_second) on
+     every new moment with every Heimdall vendor and family added to the writer sets (so only a non-Heimdall leg, Grok,
+     answers), into the shared cache. The later second screen is unchanged; it reads those verdicts from the cache
+     where they are off the first verdict's vendor and family (a moment whose first verdict was Grok's own is
+     screened off it as before).
+   - The spend is tallied through a router view (_Tally: vendor-reported dollars, else the estimate).
+     prewarm_used() counts the verdicts the second screen could use. The build prints the extra spend
+     (usd x unused / asked) per build (proof_ledger.ruling_101_line).
+5. tests/package/proof_ledger.py: the build router loads the table (DT.load, from its own record dir) and prints the
+   rows it applies; the ruling-101 line per build.
+6. Tests: test_deadline_table.py (new, 6), test_circuit_breaker.py (+1), test_medley.py (+5, one updated: the first
+   screen passes no flat deadline). 22 mutations, each killed; 22 suites, 590 tests.
+
+ATTACK:
+(a) Ruling 100: can a pair's deadline come out under 60 or over 300? Can a row apply where no deadline applied before
+    (Grok) or vanish where one did? A pair with 1-2 answers? A stale or unreadable table? Does the breaker now measure
+    deepseek against 300 s, and glm against 60 s?
+(b) The first screen with no flat deadline: can any leg now wait unbounded where it was bounded before? Failover kept?
+(c) Ruling 101: can a clip now pass with only ONE screen's pass? Can the confirm-ahead's verdict be used against its own
+    vendor (same vendor twice)? Can the two prescreens running at once corrupt the cache or the store? Is "new
+    moments" counted right (cached ones excluded)? Is the 10-minute estimate sound, and what if the leading leg's
+    breaker opens mid-build? Is the extra spend reported honestly?
+(d) Anything else that could seal a wrong pin, starve a build, or spend past ruling 48's cap.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".
+
+CHANGED AFTER CYCLE 1. Review the diff AS IT STANDS NOW. Items 2 and 3 of THE CHANGE are REPLACED by 2' and 3':
+2'. providers.Router.effective_deadline(role, b, deadline_s) (new, providers.py:1020) gives the deadline a live call
+    is held to. Router.call uses it (providers.py:1246, changed; the local judge's floor and the breaker follow it,
+    unchanged).
+    - Where a deadline applies (the caller's deadline_s, else role_deadline's gateway number), a VERDICT role's pair
+      row of the table replaces it.
+    - Without a row, the number that applied.
+    - Where none applies, none is added (Grok with no caller deadline; any writer, whose own deadline is kept).
+    - role_deadline (providers.py:1007) is back to its old text (the gateway's number).
+3'. package.first_bounds is back to its old text: under heimdall_first {batch 2, deadline_s 120}. prescreen's failover
+    default follows the deadline (package.py:551, unchanged).
+    - So every first-screen leg keeps a bound: glm 60 s, deepseek 300 s, Grok its own row, 118.1 s.
+    - The second screen under heimdall_first passes no deadline (_second_bounds, package.py:681, unchanged; ruling
+      88 (c)), so its Grok leg stays unbounded as before.
+Also changed:
+- step_a_plan is parallel only when a HEIMDALL family leads the filter (package._heimdall: providers.gateway ==
+  "heimdall"). confirm_ahead uses the same predicate.
+- deadline_table: compute(None) reads no files, a record that is not an object is skipped, load() never saves
+  without a record dir, and deadline() clamps any row to 60-300 s.
+- proof_ledger.applied lists the rows the build uses.
+CYCLE 2 ATTACK, in addition to (a)-(d):
+(e) Does any leg now wait LONGER than its own row, or without a bound where it had one before this change?
+(f) Can effective_deadline put a verdict row on a writer call, or on a probe?
+(g) Can the parallel plan run when its confirm-ahead could serve no moment?

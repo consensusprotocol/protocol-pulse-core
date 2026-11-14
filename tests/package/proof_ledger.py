@@ -58,6 +58,7 @@ import eligibility as E  # noqa: E402
 import candidates as CA  # noqa: E402
 import heimdall_health as HH  # noqa: E402
 import circuit_breaker as CB  # noqa: E402
+import deadline_table as DT  # noqa: E402
 import shadow86 as SH  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import moments as M  # noqa: E402
@@ -104,12 +105,49 @@ def delivered_pins(paths):
 
 def build_router(routing, shadow, shadow_log):
     """The build's router: ruling 48's ledger and limit, the routing's chains (frozen legs out), the evidence file
-    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker."""
+    (item 55), ruling 86's shadow, ruling 87's shared Heimdall health and Plan B chains, ruling 99's circuit breaker,
+    ruling 100's deadline table (recomputed daily from the build's own recorded answers)."""
     return P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
                     limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
                     routing=routing, shadow=shadow, shadow_log=shadow_log,
                     health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD,      # ruling 87
-                    breakers=CB.STATE)                                                         # ruling 99
+                    breakers=CB.STATE,                                                         # ruling 99
+                    deadlines=DT.load(DT.STATE, PL.REPLIES))                                   # ruling 100
+
+
+def applied(router):
+    """RULING 100: which rows of the deadline table the build's router uses: a verdict pair on which a deadline applies
+    today, the role's (a gateway with a configured deadline: Heimdall) or the caller's (step A's first screen passes one
+    to every leg of its chain under heimdall_first, Grok's included: package.first_bounds). -> applies(key)."""
+    fb = PK.first_bounds(router).get("deadline_s")
+    first = set(router.chain("context_verdict", "step_a_first")) if fb else set()
+
+    def applies(key):
+        name, _, role = key.partition("|")
+        b = router.backends.get(name)
+        dl = fb if role == "context_verdict" and name in first else None
+        return b is not None and router.effective_deadline(role, b, dl) is not None and \
+            role in set((router.config.get("routing") or {}).get("verdict_roles") or ())
+    return applies
+
+
+def ruling_101_line(par):
+    """RULING 101 (12:16 Nov 14): the build's line on step A's order, with the extra spend when Grok's confirm ran in
+    parallel (its verdicts the second screen could not use: the dollars sequential would have saved). -> str or ""."""
+    if not par:
+        return ""
+    if par.get("parallel"):
+        asked = par.get("asked", 0) or 0
+        extra = (par.get("usd", 0) or 0) * (asked - (par.get("used", 0) or 0)) / max(1, asked)
+        return (f"  RULING 101 (step A in parallel): {par.get('n_new')} new moments; the filter ({par.get('leg')}) "
+                f"would have held the build about {(par.get('est_wait_s') or 0) / 60:.0f} min. Grok's confirm was asked "
+                f"on {asked} at once ({par.get('verdicts')} verdicts, ${par.get('usd', 0) or 0:.4f} vendor-reported); "
+                f"the second screen used {par.get('used')}, so about ${extra:.4f} was spent that sequential would have "
+                f"saved" + (f"; {par['error']}" if par.get("error") else ""))
+    wait = par.get("est_wait_s")
+    return (f"  RULING 101: step A sequential ({par.get('n_new')} new moments" +
+            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')})" if isinstance(wait, (int, float))
+             else f", not over {PK.STEP_A_PARALLEL_NEW})"))
 
 
 def main(argv=None):
@@ -207,6 +245,8 @@ def main(argv=None):
     router = build_router(routing, shadow, os.path.join(out_dir, "SHADOW86.jsonl"))
     say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
         + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
+    say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
+        f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
     if spent0 >= PL.LY_STOP_USD:
         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
@@ -367,6 +407,9 @@ def main(argv=None):
         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
                               "stop": PL.LY_STOP_USD, "basis": PL.LY_LIMIT_BASIS}
+    line101 = ruling_101_line((res.get("prescreen") or {}).get("parallel_101"))   # RULING 101: the extra spend
+    if line101:
+        say(line101)
     vis = res.get("visual") or {}
     say(f"  visual (ruling 70): {vis.get('calls', 0)} sheet(s) asked ({vis.get('unmeasured', 0)} not measured), "
         f"{vis.get('cached', 0)} cached, {vis.get('flags', 0)} flag(s); cost ${vis.get('usd_reported', 0):.4f} "

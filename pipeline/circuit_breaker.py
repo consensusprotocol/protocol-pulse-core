@@ -112,6 +112,25 @@ def allow(name, path=STATE, now=None, hold_s=None):
         return True, "trial"
 
 
+def is_open(name, path=STATE, now=None):
+    """READ ONLY (it never claims a trial): would allow() skip `name` now? Its window open, or its one trial in flight.
+    RULING 101's estimate of the filter's wait reads it. An unreadable state skips nothing: False."""
+    now = _now(now)
+    try:
+        with _Locked(path):
+            s = _load(path)
+    except (BreakerUnreadable, OSError):
+        return False
+    m = s["models"].get(name)
+    until = _t(m.get("open_until")) if isinstance(m, dict) else None
+    if until is None:
+        return False
+    if now < until:
+        return True
+    ta, tu = _t(m.get("trial_at")), _t(m.get("trial_until"))
+    return ta is not None and now < (tu or ta + timedelta(seconds=TRIAL_HOLD_S))
+
+
 def record(name, outcome, path=STATE, now=None, deadline_s=None, seconds=None, tokens=None, max_out=None):
     """One live call's outcome: "answer", "miss" (its deadline passed) or "runaway" (more than RUNAWAY_X times the cap
     it was sent). -> the event for the evidence file ({"kind": "breaker_open" | "breaker_close", "model", "why",

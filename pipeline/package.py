@@ -492,7 +492,7 @@ def src_of(x, sources):
 
 
 def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
-              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None):
+              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None, plan_only=False):
     """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
     {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
     first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
@@ -501,7 +501,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     context step A reads (its window, title, channel, publish time and the show date, so time words are judged again on
     a new show date) and the step-A prompt's version. The batches run in parallel (PRESCREEN_WORKERS), each with the
     seed of its place in the queue. Only a parsed verdict is stored: a call that fails is no verdict (law L-m), never
-    remembered. writer_vendor / writer_family: of the writers, so step A never runs on them."""
+    remembered. writer_vendor / writer_family: of the writers, so step A never runs on them. plan_only (ruling 101):
+    no call is made; -> the moments this screen would ask (no verdict in the ledger or the cache), nothing written."""
     import providers as P
     ranked = sorted(ms, key=lambda m: (-m["rank_score"], m["moment_id"]))
     if n is None:
@@ -539,6 +540,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
             families.add(b.family)
         else:
             todo.append(m)
+    if plan_only:                                        # ruling 101: what this screen would ask, nothing asked
+        return todo
     chunks = [todo[i:i + batch] for i in range(0, len(todo), batch)]
 
     def screen(i, chunk):
@@ -578,9 +581,101 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
 def first_bounds(router):
     """The kwargs of step A's FIRST screen. RULING 85: under heimdall_first the first verdict is a Heimdall family's,
     2 clips and 120 s a call (Heimdall needs a median 268 s on 8 clips); today it keeps its batches with no deadline.
-    One helper for both builds (the medley's and the spotlight's)."""
+    RULING 100 (12:16 Nov 14): the Router replaces the 120 s with each leg's own deadline where it has a row
+    (providers.Router.effective_deadline). One helper for both builds (the medley's and the spotlight's)."""
     return {"batch": SECOND_VERDICT_BATCH, "deadline_s": SECOND_VERDICT_DEADLINE_S} \
         if getattr(router, "routing", "today") == "heimdall_first" else {}
+
+
+STEP_A_PARALLEL_NEW = 20           # RULING 101 (12:16 Nov 14): over 20 new moments to screen, AND
+STEP_A_PARALLEL_WAIT_S = 600.0     # the filter would hold the build over 10 minutes: Grok's confirm goes in parallel
+
+
+class _Tally:
+    """A router seen through one task (ruling 101's confirm-ahead): every reply's vendor-reported dollars (else its
+    estimate) summed; everything else is the router's own."""
+
+    def __init__(self, router):
+        self._r, self.usd, self.calls = router, 0.0, 0
+        self._lock = threading.Lock()
+
+    def call(self, *a, **k):
+        rep = self._r.call(*a, **k)
+        u = getattr(rep, "usage", None)
+        rep_usd = u.get("usd_reported") if isinstance(u, dict) else None
+        with self._lock:
+            self.calls += 1
+            self.usd += float(rep_usd) if isinstance(rep_usd, (int, float)) else float(getattr(rep, "usd", 0) or 0)
+        return rep
+
+    def __getattr__(self, name):
+        return getattr(self._r, name)
+
+
+def _heimdall(b):
+    """A Heimdall back-end, under either routing (providers.gateway: "heimdall" for every Heimdall family)."""
+    import providers as P
+    return P.gateway(b) == "heimdall"
+
+
+def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **first):
+    """RULING 101 (12:16 Nov 14): does step A ask the Heimdall filter and Grok's confirm IN PARALLEL? Yes when more than
+    STEP_A_PARALLEL_NEW moments are NEW to the first screen (no verdict in this build's ledger or the shared cache) AND
+    the filter would hold the build longer than STEP_A_PARALLEL_WAIT_S: its rounds (the new moments' batches over
+    PRESCREEN_WORKERS) x the deadline of the filter's leading leg (the step_a_first chain's first back-end off the
+    writers, not down and not breaker-open, at ruling 100's deadline for it: Router.effective_deadline). The filter is
+    Heimdall's: when no Heimdall family leads (Grok leads: every family is the writer's, down or breaker-open), the first
+    verdicts are Grok's own, which a confirm off Heimdall could never serve: sequential, whatever the wait.
+    -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg"}."""
+    new = prescreen(router, ms, sources, ctx, wv, wf, store=store, cache=cache, plan_only=True,
+                    **{k: v for k, v in first.items() if k in ("batch", "kind")})
+    if len(new) <= STEP_A_PARALLEL_NEW:                  # under the line: sequential whatever the wait
+        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None}
+    leg, dl, heim = None, None, False
+    for name in router.chain("context_verdict", kind="step_a_first"):
+        b = router.backends.get(name)
+        if b is None or b.vendor in set(wv) or b.family in set(wf) or name in getattr(router, "down", {}) or \
+                (hasattr(router, "breaker_open") and router.breaker_open(name)):
+            continue
+        leg, dl, heim = name, router.effective_deadline("context_verdict", b, first.get("deadline_s")), _heimdall(b)
+        break
+    batch = first.get("batch") or PRESCREEN_BATCH
+    rounds = math.ceil(math.ceil(len(new) / batch) / PRESCREEN_WORKERS) if new else 0
+    wait = rounds * dl if dl else 0.0
+    return {"parallel": heim and len(new) > STEP_A_PARALLEL_NEW and wait > STEP_A_PARALLEL_WAIT_S, "new": new,
+            "n_new": len(new), "est_wait_s": round(wait, 1), "leg": leg}
+
+
+def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
+    """RULING 101: Grok's confirm asked AT ONCE on every new moment, beside the Heimdall filter: each one's step_a_second
+    verdict, off every Heimdall family and off the writers, into the step-A cache that the second screen reads later
+    (it then reuses the verdict off the first's vendor; 'a clip passes only if BOTH pass' is unchanged, and a moment
+    whose first verdict came from Grok itself is screened off it as before). -> {"asked", "verdicts", "usd", "calls",
+    "by": {moment id: back-end}}: the spend is reported per build (a verdict the second screen cannot use is extra)."""
+    hv = {b.vendor for b in router.backends.values() if _heimdall(b)}
+    hf = {b.family for b in router.backends.values() if _heimdall(b)}
+    tally = _Tally(router)
+    try:
+        got, _fails, _, _ = prescreen(tally, new, sources, ctx, set(wv) | hv, set(wf) | hf, n=len(new), store=None,
+                                      log=log, cache=cache, batch=PRESCREEN_BATCH, deadline_s=None,
+                                      kind="step_a_second", failover=True)
+    except Exception as e:                               # noqa: BLE001 (the sequential second screen still runs)
+        return {"asked": len(new), "verdicts": 0, "usd": round(tally.usd, 4), "calls": tally.calls,
+                "error": f"{type(e).__name__}: {str(e)[:160]}"}
+    return {"asked": len(new), "verdicts": len(got), "usd": round(tally.usd, 4), "calls": tally.calls,
+            "by": {mid: a.get("backend") for mid, a in got.items() if isinstance(a, dict)}}
+
+
+def prewarm_used(router, mids, a_by, pre_by):
+    """RULING 101: how many of `mids` (the moments reaching the second screen) the confirm-ahead served: it has a
+    verdict for the moment AND that verdict is off the moment's first verdict's vendor and family (the second screen
+    reads only such a verdict; a moment whose first verdict came from Grok itself is screened off it as before)."""
+    n = 0
+    for mid in mids:
+        b1 = router.backends.get((a_by.get(mid) or {}).get("backend"))
+        b2 = router.backends.get(pre_by.get(mid))
+        n += b1 is not None and b2 is not None and b2.vendor != b1.vendor and b2.family != b1.family
+    return n
 
 
 def _second_bounds(router):
@@ -2386,9 +2481,21 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)
-    a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
-                                                   cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
-                                                   **first_bounds(router))
+    fb = first_bounds(router)
+    plan = step_a_plan(router, ms, sources, ctx, wv, wf, store=store, cache=step_a_cache, **fb)   # RULING 101
+    ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None
+    ahead = ahead_pool.submit(confirm_ahead, router, plan["new"], sources, ctx, wv, wf, log, step_a_cache) \
+        if ahead_pool is not None else None              # Grok's confirm beside the Heimdall filter, at once
+    par = {**{k: plan[k] for k in ("parallel", "n_new", "est_wait_s", "leg")}, "used": 0}
+    try:
+        a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
+                                                       cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
+                                                       **fb)
+    finally:
+        if ahead is not None:
+            par.update(ahead.result())
+            ahead_pool.shutdown()
+    pre_by = par.pop("by", None) or {}                   # which back-end confirmed each moment ahead (not reported)
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
@@ -2396,7 +2503,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
            "reposted": reposted,
            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
-                         "failed": {mid: f for mid, f in fails.items() if f}}, "angles": [], "takeaways": [],
+                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par},
+           "angles": [], "takeaways": [],
            "package": None}
     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
         f"the original publisher's kept), {len(no_role)} left out by the render's STAND_ALONE (an opener the clip scorer "
@@ -2487,6 +2595,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                       f"{b['why']}" for b in best) if openers else
             "no cleared, cuttable moment can open (hook eligibility, G17a, the render's hook rule)"))
         return out
+    par["used"] = prewarm_used(router, cleared, a_by, pre_by)    # ruling 101: the confirm-ahead verdicts it reads
     a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
                                     cache=step_a_cache)                  # ORDER 06:22 item 45
     out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else

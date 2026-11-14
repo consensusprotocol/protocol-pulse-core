@@ -1,0 +1,6 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 71 s finish=stop usage in 23183 / out 236 usd~0.122 (upper-bound price)
+
+<medium>pipeline/package.py:286 (plan = step_a_plan(...)); concrete sequence: >20 new moments, leading leg=heimdall:ds (dl=300s from table row, breaker closed), rounds=4 (37 new, batch=2, workers=6) yields est_wait_s=1200 > 600 so parallel=True; if first prescreen raises before cleared computed, finally does ahead.result() but par["used"] never set (remains 0 in "parallel_101" dict written to output).</medium>
+<medium>pipeline/deadline_table.py:235 (wait = rounds * dl if dl else 0.0); concrete sequence: leading leg has no row + no gateway verdict_deadline_s (e.g. grok on verdict role under heimdall_first), dl=None, wait=0 even if table row exists and p90*1.5 would be 180; plan["est_wait_s"]=0 forces sequential (matches ruling but estimate ignores table row).</medium>
+
+SHIP: yes with conditions (document the unset-"used" edge and grok-leg wait=0 case in proof_ledger)

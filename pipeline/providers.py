@@ -720,7 +720,7 @@ class Router:
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
                  local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
                  routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None,
-                 breakers=None):
+                 breakers=None, deadlines=None):
         with open(config) as f:
             self.config = json.load(f)
         rt = self.config.get("routing") or {}
@@ -759,6 +759,8 @@ class Router:
         # its deadline twice in a row, or runs past twice the cap it was sent, is skipped by every list for 30 minutes
         # (live calls only: a recorded reply, replay, probes and shadow calls never touch it)
         self.breakers, self.breaker_events = breakers, []
+        # RULING 100 (12:16 Nov 14): the per-(model, verdict type) deadlines (pipeline/deadline_table.py's table)
+        self.deadlines = deadlines
         if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
             for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
                 if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
@@ -1005,7 +1007,7 @@ class Router:
     def role_deadline(self, role, b):
         """The 20:33 order (ruling 82's chain on the verdicts): a call of a verdict role on a back-end whose gateway
         names a deadline (model_providers.json routing.verdict_deadline_s, e.g. {"heimdall": 120}) gets it when the
-        caller sets none. -> seconds or None."""
+        caller sets none. -> seconds or None. (Ruling 100's per-model deadline: effective_deadline.)"""
         rt = self.config.get("routing") or {}
         bounded = set(rt.get("verdict_roles") or ())
         if self.routing == "today":                   # step A's first screen and step C keep no deadline today:
@@ -1014,6 +1016,20 @@ class Router:
             return None
         d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
         return float(d) if _num(d) and d > 0 else None
+
+    def effective_deadline(self, role, b, deadline_s=None):
+        """RULING 100 (12:16 Nov 14): DEADLINES FOLLOW THE MODEL, NOT ONE NUMBER. The deadline a live call of `role` on
+        `b` gets: where one applies (the caller's, else the role's: role_deadline), a verdict role takes the pair's own
+        row of the deadline table instead (p90 of its recorded answers x 1.5, 60-300 s), so step A's first screen keeps a
+        bound on every leg (deepseek 300 s, glm 60 s, Grok its own); without a row, the number that applied. Where no
+        deadline applies (a Heimdall-less second screen's Grok, any writer), none does now either. -> seconds or None."""
+        dl = deadline_s or self.role_deadline(role, b)
+        if dl and role in set((self.config.get("routing") or {}).get("verdict_roles") or ()):
+            import deadline_table as DT
+            own = DT.deadline(self.deadlines, b.name, role)
+            if own is not None:
+                dl = own
+        return dl
 
     def _breaker_live(self, role):
         """RULING 99: the breaker counts and skips only this builder's LIVE calls (never replay, a probe or a shadow)."""
@@ -1039,6 +1055,13 @@ class Router:
                 self.notices.append(n)
             return None
         return None if ok else why
+
+    def breaker_open(self, name):
+        """RULING 99, read only (ruling 101's wait estimate): whether a live call would skip `name` now."""
+        if not self.breakers:
+            return False
+        import circuit_breaker as CB
+        return CB.is_open(name, self.breakers)
 
     def _breaker(self, role, name, outcome, **kw):
         """RULING 99: one live call's outcome to the breaker; an open or a close is one line in the evidence file."""
@@ -1220,7 +1243,7 @@ class Router:
             if self.replay:
                 tried.append((name, "replay: not recorded"))
                 continue
-            dl = deadline_s or self.role_deadline(role, b)      # the caller's deadline, else the role's (20:33)
+            dl = self.effective_deadline(role, b, deadline_s)   # the caller's, else the role's (20:33): ruling 100's
             if dl and _num(b.spec.get("deadline_floor_s")):     # ruling 87: the local judge waits out a render
                 dl = max(dl, float(b.spec["deadline_floor_s"]))
             bwhy = self._breaker_allow(role, name, dl)          # ruling 99: an open breaker skips it; the next leads
