@@ -6,6 +6,16 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 00:45 RULING 94 MERGED, my side (agreed with the builder; audits batch 75 x2, cycle 2 clean with Grok). A first- or second-person pronoun no longer faults a hook; a third-person or demonstrative opener opens only with the clip scorer's affirmation; a conjunction or reply-word hook still opens only through ruling 33's trim. stand_alone.py sha256 14f30115284e859e..., new scorer_sha 91d75457ceec.
+- stand_alone.py:
+  - FIRST_SECOND = {i, me, my, we, us, our, you, your}; THIRD = PRONOUNS - FIRST_SECOND.
+  - opener("hook"): conjunction / reply word -> fault (unchanged; ruling 94 (a) is check_edl's trim rule, which already rated every trimmed segment, the hook included, and required the scorer's yes); THIRD -> affirmed(score, fault, moments) or a fault (no verdict: fail closed); anything else opens.
+  - check_edl rates a hook that opens on a THIRD word. The clip rule is unchanged.
+- Tests: the ruling's own examples ('I will bet you one Bitcoin that...' opens; 'This is ultimately...' opens only when affirmed); a trimmed hook left on 'we' opens, on 'they' it needs the scorer; the auto-selection screen's example becomes a third-person opener. The 3 new tests fail on the old file.
+- regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, the references reproduced; suites 91 passed.
+- THE SCORER: stopped at 00:39:52 when the merge was staged, because it re-reads scorer_sha from the files every pass but runs the code it loaded at start. Its last verdicts were at 00:14:47, so nothing was mislabelled. Restarted with its identical command after this commit, on the new sha; the builder copies stand_alone.py byte for byte.
+- The builder's counts for the orchestrator (from its message proposing the opener change): of the 13 Bitcoin Magazine moments failing the hook opener, 9 are conjunctions (all one-word trims; after the trim 2 still open on a conjunction, 1 on 'there'), 2 are first / second person, 2 are third-person or demonstrative, 0 are reply words.
+
 ## 00:16 RULING 93 MERGED (audits batch 74 x2: cycle 1's one consensus finding fixed, cycle 2 clean on qwen27b, glm and Grok). No channel is ineligible by name; G10 runs on every clip (MONITORING); the 9:16 single crop keeps a lower third whole where a face-safe crop allows. On the published CNBC clip no whole-shot crop allows it, so that shot keeps x 94, recorded cut.
 - CODE:
   - vertical_layout.lower_third_spans (Law-20 constants: band 0.70-0.985 H, Canny 80/200, close 13x5, element 14-90 px) and single_crop: today's face-centred x unless a crop edge falls inside an element; then the nearest x in the face-safe range (every sampled face box inside, 10 % of the crop width from both edges) with no edge inside an element; else today's x, recorded cut.

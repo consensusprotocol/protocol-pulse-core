@@ -333,8 +333,11 @@ class TestStandAloneScorer(unittest.TestCase):
         self.assertFalse(out["ok"])
         out, _ = self.check(self.edl(hook_text="we saw bitcoin fall six weeks.", hook_trim=True, clip_trim=False,
                                      clip_text="Bitcoin holders sold."), {"hook": (5.0, "ok", None)})
-        self.assertFalse(out["ok"])                                # a pronoun still never opens a hook
-        self.assertIn("hook opens on the pronoun 'we'", out["rows"][0]["opener"]["why"])
+        self.assertTrue(out["ok"], out)                            # ruling 94 (b): a first-person opener is no fault
+        out, _ = self.check(self.edl(hook_text="they saw bitcoin fall six weeks.", hook_trim=True, clip_trim=False,
+                                     clip_text="Bitcoin holders sold."), {"hook": (3.0, "weak", None)})
+        self.assertFalse(out["ok"])                                # ruling 94 (b): a third-person opener needs the
+        self.assertIn("hook opens on 'they'", out["rows"][0]["opener"]["why"])    # scorer's yes
 
     def test_an_untrimmed_segment_is_asked_exactly_as_before(self):
         out, asked = self.check(self.edl(clip_trim=False), {})
