@@ -276,3 +276,92 @@ tests use `_samples`, `_status`, `tail_rows` and the text of `stage_gates`).
   hedge_matched_attribution__07's `why` notes the clip was recorded two days before the show ('later this year' is the
   same year).
 - Spend of these audits: see STATE (top).
+
+## INTEGRATOR MERGE CYCLE 2 (pipeline_pp_dod, 2026-11-14 ~07:00 ET): three wall failures against law L-r, answered
+
+The message (essentials): B1-B4 VERIFIED in 7a9a3555; the merge into release HEAD 6d7d4287 (which now carries law L-l
+and law L-r's GPU leases, pipeline/gpu0.py) is conflict-free but HELD: `CUDA_VISIBLE_DEVICES= python3 -m pytest
+tests/adversarial -q` -> 375 passed, 39 xfailed, 3 skipped, 3 FAILED: (1) test_f0's setter scan `{'conftest',
+'qa_gates'} != {'qa_gates'}`; (2) test_f0's Whisper test "DID NOT RAISE RuntimeError"; (3) test_f2's R-27 pin meets
+gpu0.LeaseMissing (gpu0.py:287) before its mocked failure: "decide whether the test should fake the failure below the
+lease, or whether you see a real defect ... do not loosen the lease". Plus three questions about running the exam.
+
+What was done:
+- Merge commit f69497b5: the release line (combo-letterbox-quoteonly-v2 4286d879 = 6d7d4287 + one docs-only DoD commit)
+  merged INTO pp-tests, so the wall is fixed against the code it will run on. Clean, no conflict, no content of mine:
+  `git diff --stat cc8cccd0 f69497b5` lists only 4286d879's two docs files. Reproduced there first: the same 3 FAILED,
+  375 passed, 39 xfailed, 3 skipped.
+- The fix commit after it (tests and docs only):
+  1. Setter scan: a TEST bug. It mapped each imported NAME to pipeline/<name>.py, so the suite's own `import conftest`
+     blamed pipeline/conftest.py, which `pytest tests/adversarial` never imports. `_resolve(name)` now gives the file the
+     interpreter gives this suite (`sys.modules[name].__file__`, else `importlib.util.find_spec`), with a control that
+     `conftest` is the suite's own. Measured: old resolution 18 modules, setters {conftest, qa_gates}; new 17 modules,
+     setters {qa_gates}; `conftest` is the only name that changed. KNOWN_CUDA_SETTERS stays {"qa_gates"}.
+  2. Whisper: under L-r `word_diff.Transcriber()` is lazy and every pipeline load goes through gpu0. The test asserts
+     both layers: at the transcriber's first use (span on a 1 s ffmpeg tone) gpu0.LeaseMissing with its exact message,
+     nothing reaching faster_whisper, the gpu0 model not loaded, LeaseMissing not an Exception; and the stub still
+     refuses and records a direct faster_whisper load.
+  3. R-27: the TEST's layer, not a lease defect. The ordinary failure is injected at select's own seam
+     (`_whisper_transcribe` returns None, its documented failure); R-27 is re-measured OPEN on the release line
+     (`KeyError: 'VIDAAAAAAAA'` at select_passages.py:314). A lease refusal during select's transcription is L-r's
+     design (a Gpu0Stop passes every `except Exception` to run_fresh's stage runner, which HOLDs): pinned PASSING by
+     test_a_gpu_stop_during_transcription_leaves_select_and_writes_nothing (LeaseMissing with its message; the whole run
+     directory identical before and after; nothing reaches faster_whisper). No request.
+  4. R-10 (not failing, but broken by L-r): its proof of re-transcription was the stub's record, which L-r never
+     reaches, so R-10's fix would have shown as an error, not an XPASS. Now: a LeaseMissing raised while select's seam
+     is transcribing the replaced HOOK (the real function runs, wrapped to record which source).
+  5. Docs: REQUESTS R-10 / R-27 notes and a new R-29 (for the builder: the exam adapter predates vo_fidelity v1.1);
+     BIBLE PP-E26 (name-based import scans), PP-E27 (a newer, earlier guard takes over from a test's own), PP-E28 (an
+     adapter older than its format); COVERAGE; XFAIL_EVIDENCE regenerated; STATE (top, and the exam answers).
+
+Verification (merged tree, CPU only, nothing on any GPU, no network):
+- Whole wall: 421 tests = 378 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors.
+- `--runxfail`: exactly the 40 fail, each an AssertionError in its own test file (pp-tests_XFAIL_EVIDENCE.md).
+- Scratch mutations (plugins loaded with -p from the scratchpad, never in the worktree): R-10's fix emulated for the
+  hook -> XPASS(strict); a record written into the run directory before the GPU stop -> the snapshot test fails naming
+  the file.
+- regression_test.sh: 26 PASS / 0 FAIL / 5 WARN (relay key check, uncommitted files, shared stash count, two health
+  URLs: the same five as on Nov 12).
+
+How it was audited (spend freeze 05:30 ET Nov 12: $3.00 for audits; every call checked against and logged in the
+ledger pp-tests_AUDIT_SPEND_0530.jsonl):
+- Cycle 1, the repo tool's own package (utils/cross_llm_audit.py built it from pp-tests_AUDIT_CYCLE2_BRIEF.md and the
+  diff; the brief is one "## THE LAWS" section, its extraction replayed before paying: 26,633 of 26,741 bytes reach the
+  reviewers):
+  - gemini-2.5-pro (the tool's leg): 100/100, no finding.
+  - Heimdall qwen/qwen3.8-27b, reasoning effort none: 100/100, no finding.
+  - Heimdall z-ai/glm-5.3-flash, reasoning effort none: 94/100, ready, five items.
+  - gpt-4o: not reviewed (OpenAI HTTP 429 insufficient_quota). Grok: not run (xAI goes through its gateway with
+    urllib, which this session's ledger cannot meter).
+  - The tool's consensus step (claude-sonnet-4-6) failed: Anthropic HTTP 400, credit balance too low. The consensus
+    was therefore written by the session, by pp-ingest's rule (same finding from >= 2 reviewers, or one reviewer's
+    finding verified against the code): pp-tests_AUDIT_CYCLE2_C1_CONSENSUS.md.
+- Cycle-1 dispositions:
+  - glm P1, a control that `qa_gates` resolves to the expected file: REFUTED. The check is an equality with
+    {"qa_gates"}: a qa_gates resolved elsewhere drops out of the set and FAILS the test (measured: it resolves to
+    segment_v1/qa_gates.py; there is no pipeline/qa_gates.py).
+  - glm P2, R-10's `whisper:` control too loose: ROOT CAUSE ACCEPTED (nothing tied the stop to the hook; my own review
+    found the same): the hook attribution above. The exact model key is NOT pinned: a correct fix may use another
+    Whisper variant.
+  - glm P2, "writes nothing" claimed more than it asserted: ACCEPTED: the whole-run-directory snapshot.
+  - glm P3, the ffmpeg timeout: not acted on (the test's own 1 s tone). glm P3, `_resolve` and packages: docstring.
+- Cycle 2, the tool's own build_cycle2_prompt on the diff AFTER those dispositions:
+  - Heimdall qwen3.8-27b: agrees with the cycle-1 consensus and the snapshot; "Yes with conditions". One new item,
+    P1 "replace the ffmpeg tone with a pure-Python WAV": REFUTED. Transcriber.span() itself runs ffmpeg on the media
+    before it reaches the model (word_diff.py:128), so the test cannot avoid ffmpeg. The order says "synthesise
+    audio/video with ffmpeg on CPU", and the suite already depends on ffmpeg throughout (adv_helpers.make_media,
+    ALLOWED_PROGRAMS, test_f0's own ffmpeg control). Its P2 (sys.modules and conftest) is covered by the control it
+    names.
+  - gemini-2.5-pro (retried once after HTTP 503 "high demand"): "Production ready: Yes"; agrees with every cycle-1
+    disposition; no new finding.
+  - Heimdall glm-5.3-flash (retried once; its first reply was cut by IncompleteRead, logged as an estimate): "Yes";
+    agrees with every disposition and writes out the verifications (the anchored LeaseMissing regex, Model.__getattr__
+    re-entering get(), `_whisper_transcribe -> None` as the documented ordinary failure, the unchanged 40-xfail
+    count). Two P2s: N1, a missing ffmpeg should fail as a precondition (pytest.fail), not as an error: CONSENSUS
+    with qwen's ffmpeg item in the form that fits the suite's convention, IMPLEMENTED (`H.control(shutil.which
+    ("ffmpeg") ...)` and a control on the synthesis; with ffmpeg off PATH the test fails "CONTROL (test setup, not
+    the pinned defect): ffmpeg is on PATH ..."); N2, record the R-10 mutation in the repo: already in REQUESTS R-10
+    and in these committed records.
+  - Final: no P0 or P1 stands (pp-tests_AUDIT_CYCLE2_FINAL_CONSENSUS.md). Records: pp-tests_AUDIT_CYCLE2_*.md.
+- Spend of this audit: $0.177 over 7 calls (gemini-2.5-pro 2 calls $0.165; Heimdall qwen 2 calls $0.007; Heimdall glm 2
+  calls $0.003 + $0.002 estimated for the lost reply). The audit ledger now stands at $1.850 of the $3.00 cap.

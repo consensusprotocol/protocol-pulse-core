@@ -22,6 +22,7 @@ New findings from this wall (not in the ledger): PP-01 canon is not a fixpoint o
 R-01); PP-02 verify_lock never compares the lock's words with its transcript (f2, XFAIL R-11); PP-03 G4s / G14 / G19
 pass on nothing (f4, XFAIL R-15); PP-04 L-b measured on the references disagrees with G17c's dispositions (f5, pinned
 table, a decision: pp-tests_REQUESTS.md).
+Integrator merge cycle 2 (2026-11-14, the wall on the release line with law L-r): R-27 re-measured open (its failure now injected at `_whisper_transcribe`); a GPU stop during select's transcription leaves select at once and writes nothing, L-r's design (f2, PASSING test, no request); the exam's adapter predates vo_fidelity v1.1 (REQUESTS R-29, for pp-selectid).
 Found while answering the integrator's merge audit (2026-11-12): PP-05 a failed transcription crashes select's slot fallback with a KeyError (f2, XFAIL R-27); PP-04b a gate's own skip (G12 / G15 with no shout-out) is written as a PASS row by run_all_gates / stage_gates (f4, XFAIL R-28 x2).
 
 Correction to the ledger, measured: Claude-gates T1 is marked CONFIRMED-FIXED ("never substrings"), but G3b's

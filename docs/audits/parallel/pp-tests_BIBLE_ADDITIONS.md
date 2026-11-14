@@ -218,3 +218,39 @@ model, never just the pin. **Detection:** test_f4 test_the_production_reading_is
 test_the_required_inventory_is_the_pinned_one, test_f0 test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed,
 test_f5 test_window_audio_reads_the_edges_the_whole_file_decode_reads. (The R-19 withdrawal is the matching rule for
 requests: when a proposed fix would loosen what a check accepts, withdraw the proposal, never the law: PP-E11.)
+
+## Integrator merge cycle 2 (pipeline_pp_dod, 2026-11-14 07:00 ET): the wall meets law L-r's GPU leases
+
+### PP-E26: A static import scan that matches module NAMES against a directory blames a same-named stranger
+**Evidence (integrator cycle 2, 2026-11-14):** test_f0's setter scan took every name this suite imports and looked for
+`pipeline/<name>.py`. The suite's `import conftest` is its OWN conftest (tests/adversarial/conftest.py), but once law
+L-r put a `pipeline/conftest.py` (the E-FAIL-053 teardown) on the release line, the scan blamed that file: `{'conftest',
+'qa_gates'} != {'qa_gates'}`, a false failure on the merged tree. **Rule:** resolve an import the way the interpreter
+does for THAT process (`sys.modules[name].__file__`, else `importlib.util.find_spec(name)` on the suite's sys.path),
+never by a file name in a directory; and when a branch's base is older than the line it merges into, re-run its
+brittle pins (PP-E25) on the merged tree before calling the branch ready. **Detection:** test_f0
+test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed (`_resolve`, with the control that `conftest` is
+the suite's own).
+
+### PP-E27: A newer, earlier guard silently takes over from the test's own guard
+**Evidence (integrator cycle 2):** the wall refused Whisper with a faster_whisper stub that records every attempt, and
+three tests read that record (or the stub's RuntimeError) as the proof of an attempt. Law L-r then routed every
+pipeline Whisper load through gpu0 (gpu0.whisper -> Model.get -> require), which refuses a CPU session FIRST, with a
+Gpu0Stop (a BaseException), and made the transcriber lazy. Result on the merged tree: 'DID NOT RAISE' (constructing the
+transcriber loads nothing), R-27's pin stopped at the lease before its injected failure, and R-10's pin would have
+shown its future fix as an error instead of an XPASS. **Rule:** when production adds a refusal ahead of a test's own
+stub, the test names the layer it means: assert the production refusal where production refuses (here
+gpu0.LeaseMissing with its message), keep the stub as the backstop for code outside it, and inject an ordinary failure
+at the production seam that carries it (`_whisper_transcribe -> None`), not below a guard that now never runs.
+**Detection:** test_f0 test_every_whisper_load_is_refused_and_recorded; test_f2
+test_a_failed_transcription_stops_select_cleanly (R-27), test_a_transcript_of_other_bytes_is_never_used (R-10),
+test_a_gpu_stop_during_transcription_leaves_select_and_writes_nothing.
+
+### PP-E28: An exam's adapter can be older than its format
+**Evidence (2026-11-14, read at origin/pp-selectid aef73873):** the builder's moments_gate_adapter.py was written
+against vo_fidelity v1 and never passes v1.1's `title` or `universe` to the gate. The two stale-title cases are
+must-fail only through the title, so a run would pass them whatever the gate judges: the exam would report a gate miss
+that is an adapter omission. **Rule:** a format version bump names the fields an adapter must forward, and before a
+paid run the adapter is checked against the current format (field by field; a case that is must-fail only through a
+field the adapter drops is a guaranteed false pass). **Detection:** REQUESTS R-29; the format sections of
+pp-tests_STATE.md (v1, v1.1).

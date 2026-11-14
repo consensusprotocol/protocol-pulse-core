@@ -9,7 +9,9 @@ entry points:
   sentence_law.write_lock_cut_table      cuts inside the locked pauses
   sentence_law.gate_g16 / verify_lock    the lock checked against the transcript (and the media) on disk
 yt-dlp is replaced by a stand-in that fails like a machine without network (it must not even be called on a cache
-hit) and Whisper by a stub that refuses to load, so nothing leaves the CPU.
+hit). Whisper never loads: select's load goes through law L-r's GPU0 lease (pipeline/gpu0.py), which refuses this CPU
+suite (a Gpu0Stop), and the faster_whisper stub (conftest.py) refuses any load outside it; nothing leaves the CPU. A
+test that needs a transcription to FAIL in the ordinary way injects it at select's seam (_whisper_transcribe -> None).
 """
 import json
 import os
@@ -84,6 +86,18 @@ def _edl(run):
     return json.load(open(os.path.join(run["dir"], "edl.json")))
 
 
+def _tree(d):
+    """The whole state of a run directory: {relative path: (size, mtime_ns)} of every file, None for a directory."""
+    out = {}
+    for root, dirs, files in os.walk(d):
+        for name in dirs:
+            out[os.path.relpath(os.path.join(root, name), d) + os.sep] = None
+        for name in files:
+            st = os.stat(os.path.join(root, name))
+            out[os.path.relpath(os.path.join(root, name), d)] = (st.st_size, st.st_mtime_ns)
+    return out
+
+
 def _replace_source(run, vid, passage, seed, voice, offset):
     """New bytes under the same name: the same speech timing (every pause where it was), other content, and the
     download record rewritten for them (a re-download properly recorded), so only a binding of the transcript /
@@ -146,21 +160,33 @@ class TestDirtyCache:
 
     @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F10 (OPEN): the transcript cache is keyed by video id, not "
                                            "by the bytes it transcribed; REQUESTS.md R-10")
-    def test_a_transcript_of_other_bytes_is_never_used(self, cut_run, whisper_attempts):
+    def test_a_transcript_of_other_bytes_is_never_used(self, cut_run, monkeypatch):
         """The source's bytes changed under the same name (same timing, other content); its cached transcript
-        describes the old bytes. select must transcribe the new bytes (here: refused) or stop; it must never use
-        the old transcript. What select does AFTER the refused transcription is not this pin's subject (today the
-        slot fallback then crashes with a KeyError: R-27, pinned on its own below), so an exception counts here only
-        when the transcription was attempted first; one raised before that is a control failure."""
+        describes the old bytes. select must transcribe the new bytes or stop; it must never use the old
+        transcript. Here a transcription is refused at law L-r's GPU0 lease (this CPU suite holds none): the
+        refusal is a Gpu0Stop that leaves select at once, so it is this pin's proof that the new bytes were sent to
+        Whisper (integrator cycle 2: the fixed code then flips this pin to XPASS instead of erroring). The stop must
+        come from the HOOK's transcription: select's seam is wrapped (the real function runs, its cache check is
+        this pin's subject) to record which source it was transcribing; a stop on another source is a control
+        failure."""
+        import gpu0
+        import select_passages as SP
         run = cut_run
         os.remove(os.path.join(run["dir"], "edl.json"))
         _replace_source(run, HOOK_VID, H.HOOK_TEXT, seed=99, voice=3.0, offset=HOOK_OFFSET)
+        real, asked = SP._whisper_transcribe, []
+
+        def recording(path, vid, run_dir):
+            asked.append(vid)
+            return real(path, vid, run_dir)
+        monkeypatch.setattr(SP, "_whisper_transcribe", recording)
         try:
             ok = _select(run)
-        except Exception as e:                             # noqa: BLE001 (R-27's crash after the attempt)
-            H.control(bool(whisper_attempts()), f"select raised before any transcription attempt: {e!r}")
-            ok = None
-        assert ok is False or whisper_attempts(), "the old transcript was used for new bytes"
+        except gpu0.LeaseMissing as e:                     # the new bytes went to Whisper (refused at the lease)
+            H.control(str(e).startswith("whisper:") and asked[-1:] == [HOOK_VID],
+                      f"a lease refusal that is not the hook's transcription: {asked} {e}")
+            ok = "transcribed"
+        assert ok in (False, "transcribed"), "the old transcript was used for new bytes"
 
     @pytest.mark.xfail(strict=True, raises=AssertionError, reason="GPT-select F23 (OPEN): yt-dlp's exit status is ignored and a partial "
                                            "file already under the name is taken as the download; REQUESTS.md R-22")
@@ -194,17 +220,43 @@ class TestDirtyCache:
 
     @pytest.mark.xfail(strict=True, raises=AssertionError, reason="PP-05 (new): a source whose transcription failed crashes select's slot "
                                            "fallback (KeyError) instead of a STOP; REQUESTS.md R-27")
-    def test_a_failed_transcription_stops_select_cleanly(self, run, whisper_attempts):
-        """The hook's source is cached (valid download record) but has no transcript, and transcribing it fails
-        (Whisper refused here, as when Whisper fails on a run). select must refill the hook slot from the shortlist
-        or STOP (return False, its documented failure); a KeyError out of it is neither."""
+    def test_a_failed_transcription_stops_select_cleanly(self, run, monkeypatch):
+        """The hook's source is cached (valid download record) but has no transcript, and transcribing it fails:
+        select_passages._whisper_transcribe returns None, its documented failure (Whisper raised an ordinary error on
+        a run: an unreadable file, a decode error). select must refill the hook slot from the shortlist or STOP
+        (return False, its documented failure); a KeyError out of it is neither. The failure is injected at that seam
+        (integrator cycle 2): under law L-r this CPU suite's Whisper use stops at the GPU0 lease before any decode,
+        and that stop is a different path, pinned PASSING by the next test."""
+        import select_passages as SP
         os.remove(os.path.join(run["dir"], "transcripts", f"{HOOK_VID}.json"))
+        real, asked = SP._whisper_transcribe, []
+
+        def failing(path, vid, run_dir):
+            asked.append(vid)
+            return None if vid == HOOK_VID else real(path, vid, run_dir)
+        monkeypatch.setattr(SP, "_whisper_transcribe", failing)
         try:
             ok = _select(run)
         except KeyError as e:                              # the measured crash (a different exception is FAILED)
+            H.control(HOOK_VID in asked, f"select raised before the hook's transcription was attempted: {e!r}")
             raise AssertionError(f"select crashed after a failed transcription: KeyError {e}") from e
-        H.control(bool(whisper_attempts()), "the hook's transcription was attempted (and refused)")
+        H.control(HOOK_VID in asked, "the hook's transcription was attempted (and failed)")
         assert ok is False
+
+    def test_a_gpu_stop_during_transcription_leaves_select_and_writes_nothing(self, run, whisper_attempts):
+        """Law L-r (integrator cycle 2's question: does select stop cleanly on a lease refusal? It does): the hook has
+        no transcript, so select loads Whisper; the load meets the GPU0 lease first (this CPU suite holds none and
+        hides every GPU). The refusal is a Gpu0Stop, a BaseException: it passes select's `except Exception` (never
+        'transcription failed', E-FAIL-052) and leaves select at once, for run_fresh's stage runner to HOLD on. select
+        leaves the run directory exactly as it found it (every file's size and mtime, every directory: no EDL, no
+        transcript, no record), and nothing reaches faster_whisper."""
+        import gpu0
+        os.remove(os.path.join(run["dir"], "transcripts", f"{HOOK_VID}.json"))
+        before = _tree(run["dir"])
+        with pytest.raises(gpu0.LeaseMissing, match=r"^whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0"):
+            _select(run)
+        assert _tree(run["dir"]) == before, "select changed the run directory before its GPU stop"
+        assert whisper_attempts() == []
 
 
 class TestSelectContract:

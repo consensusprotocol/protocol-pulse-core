@@ -170,10 +170,14 @@ wrong: integrator merge audit.)
   reuses a cached transcript only when it matches; `make_lock(..., source_sha256=...)` records it;
   `verify_lock(lock, transcript_path, source_path=None)` compares it when given; `write_lock_cut_table` and `gate_g16`
   pass `sources/<vid>.mp4`. (The fixtures write `media_sha256`; the byte-replacement probes also rewrite a CONSISTENT
-  download record for the new bytes, so only this binding, not R-09's record, can flip them.) With the two-clip
-  template, select's re-transcription after this fix is refused in the test and the slot fallback then hits R-27's
-  KeyError; the select probe asserts only its own subject (the old transcript is never used: a transcription was
-  attempted), and accepts an exception only AFTER that attempt (one raised before it is a control failure).
+  download record for the new bytes, so only this binding, not R-09's record, can flip them.) The select probe asserts
+  only its own subject (the old transcript is never used): on the release line (law L-r) the re-transcription after
+  this fix goes through gpu0 and is refused at the GPU0 lease, which this CPU suite never holds; that refusal
+  (gpu0.LeaseMissing naming the `whisper:` key, a BaseException that leaves select at once, raised while select's
+  seam `_whisper_transcribe` is transcribing the HOOK: the probe wraps the real function to record which source) is
+  the probe's proof that the new bytes went to Whisper, so the fix flips the pin to XPASS (integrator cycle 2,
+  2026-11-14: before, the probe waited for the faster_whisper stub, which L-r never reaches, and the fixed code would
+  have shown as an error). Checked with a scratch mutation that emulates the fix for the hook: XPASS(strict).
 
 ## R-11 — PP-02 (new): verify_lock never compares the lock's words with its transcript
 - Defect: a lock built from other words (first 'Ether', last 'carefully.') but carrying the sha256 of the transcript
@@ -290,6 +294,16 @@ wrong: integrator merge audit.)
 - Minimal fix: in `_source_for`, `if vid not in transcripts: return "transcription failed"` (or retry the
   transcription there), so the slot is refilled from another candidate or select STOPs with the reason in
   SELECT_BOUNDARIES.json. The pin catches KeyError only: any other exception shows as FAILED.
+- Still open on the release line (re-measured 2026-11-14 on 4286d879 merged: `KeyError: 'VIDAAAAAAAA'` at
+  pipeline/select_passages.py:314). The pin injects the failure at select's own seam since integrator cycle 2:
+  `_whisper_transcribe` returns None for the hook (its documented failure: an ordinary error inside it, e.g. an
+  unreadable file). Under law L-r a Whisper use in this CPU suite stops at the GPU0 lease before any decode, so the
+  faster_whisper stub the pin used to rely on is never reached.
+- NOT this defect: a GPU stop. A lease refusal (or any Gpu0Stop) during select's transcription is a BaseException
+  that passes select's `except Exception` and leaves select at once, for run_fresh's stage runner to HOLD on. That is
+  L-r's design, not a crash: select writes no EDL and no transcript. Pinned PASSING by test_f2
+  TestDirtyCache::test_a_gpu_stop_during_transcription_leaves_select_and_writes_nothing (the integrator's cycle-2
+  question; no request).
 
 ## R-28 — PP-04b (new, 2026-11-12, integrator merge audit): a gate's own "skip" is written as a PASS row
 - Defect (read in the code; pinned by test_f4 test_a_required_gate_never_passes_on_nothing[G12 no shoutout / G15 no
@@ -336,6 +350,24 @@ wrong: integrator merge audit.)
 - Question for the orchestrator (from the exam's audit): does L-u's 'buy / sell / leverage imperatives' cover a
   sarcastic imperative ('Sell your Bitcoin, all of it', BTC Sessions jTuJ8PXhRV4 k179-180, mocking central bankers)?
   Two of three frontier models said no (intent), one said yes (form). The case is out of the exam until decided.
+
+## R-29 — the exam's adapter (for pp-selectid, pipeline/moments_gate_adapter.py): it predates vo_fidelity v1.1
+- Gap (read 2026-11-14 at origin/pp-selectid; the adapter's one commit is aef73873 of 2026-11-12 07:01; of every
+  origin branch and the main tree, only origin/pp-selectid has a moments_gate_adapter.py, and the release line has
+  none): `vo_fidelity(case)` passes
+  VF.check the segments, the lines and the manifest, and `current_levels` only when the case carries that key. It
+  never passes v1.1's `title` (judged like a line), derives no current price level from v1.1's `universe` (tonight's
+  news), and drops `lines[i].after` (which clip a line follows).
+- Effect on a run, by construction (no model needed to see it): vo_fidelity__stale_price_title__01 / __02 are
+  must-fail ONLY through the title (`bad_line` null, `bad_title` true), so the adapter passes them whatever the gate
+  would say, and the exam's 'every must-fail rejected' threshold fails on the adapter, not on the gate.
+  vo_fidelity__stale_price_line__01 ('And Bitcoin is still holding seventy-six thousand.') is must-fail only against
+  the universe, which the gate never sees. The other 49 v1.1 cases reach the gate with all their lines; whether
+  dropping `after` changes any of their verdicts is not measured.
+- Minimal fix (the builder's file): add the title as a line (`{"slot": "title", "text": case["title"], "cites": []}`,
+  as the packager passes it) and derive `current_levels` from `case["universe"]["news"]` the way
+  package.current_levels does from sources (VF.current_level_values on the headline and summary of each item naming
+  Bitcoin, published <= 24 h before `universe.date`). The exam's harness and corpus stay as they are.
 
 ## Not code requests: measured facts and decisions for the orchestrator
 

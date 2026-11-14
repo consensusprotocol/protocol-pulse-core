@@ -7,8 +7,11 @@ directory, and only for it (integrator merge audit 2026-11-12: they used to stay
   - CUDA_VISIBLE_DEVICES is emptied (segment_v1/qa_gates.py sets it to "0" at import: it is imported here first and
     the variable emptied again; the function fixture empties it before and after every test), so no CUDA library sees
     a device; test_f0 checks that no module this suite imported initialised CUDA or sets the variable unexpectedly;
-  - faster_whisper is replaced by a stub whose WhisperModel raises (and records the attempt), so no Whisper model
-    can load; a test that needs a transcript injects it (qa_gates.whisper_segment, gate_g18's transcriber);
+  - no Whisper model can load: the pipeline loads Whisper only through law L-r's GPU0 lease (pipeline/gpu0.py:
+    gpu0.whisper -> Model.get -> require), which refuses this process (CUDA_VISIBLE_DEVICES is '' and it holds no
+    lease) with a Gpu0Stop, a BaseException; and faster_whisper is replaced by a stub whose WhisperModel raises (and
+    records the attempt) for any load outside gpu0; a test that needs a transcript injects it
+    (qa_gates.whisper_segment, gate_g18's transcriber, select_passages._whisper_transcribe);
   - no socket can connect, connect_ex, sendto or sendmsg over AF_INET / AF_INET6 (loopback included: a real Ollama
     listens on 127.0.0.1) and no name can be resolved (getaddrinfo, gethostbyname[_ex], gethostbyaddr): a missing
     fake or a regressed send path raises NetworkBlocked (a BaseException, so no `except Exception` in the code under
@@ -197,7 +200,8 @@ def _cpu_only():
 
 @pytest.fixture
 def whisper_attempts():
-    """The Whisper loads attempted during one test (each one was refused)."""
+    """The faster_whisper loads attempted during one test (each one was refused by the stub). A pipeline load stops
+    at the GPU0 lease before the stub (law L-r), so it is not listed here: it raises gpu0.LeaseMissing."""
     start = len(_NoWhisper.attempts)
     yield lambda: _NoWhisper.attempts[start:]
 

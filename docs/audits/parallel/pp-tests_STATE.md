@@ -1,5 +1,30 @@
 # pp-tests STATE — session pipeline_pp_tests (worktree /home/ultron/worktrees/pp-tests, branch pp-tests)
 
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14: merge cycle 2 ANSWERED: the wall is green on the release line.**
+> The branch now CONTAINS the release line: merge commit f69497b5 = combo-letterbox-quoteonly-v2 4286d879 merged in,
+> clean, no content of mine; its tree is your cc8cccd0 plus the two docs files of 4286d879. The fix is the commit after
+> it (tests and docs only; its hash: `git log -1 origin/pp-tests`). On that tree:
+> `CUDA_VISIBLE_DEVICES= python3 -m pytest tests/adversarial -q` = 378 passed, 40 strict xfails, 3 skipped, 0 failed;
+> `--runxfail`: exactly the 40 fail, each an AssertionError in its own file; regression_test.sh 26 PASS / 0 FAIL.
+> 1. Setter scan: it matched NAMES to pipeline/<name>.py, so the suite's own `import conftest` blamed
+>    pipeline/conftest.py, which `pytest tests/adversarial` never imports. It now resolves each import the way the
+>    interpreter does for this suite; the reviewed set stays {qa_gates} (pipeline/conftest.py NOT added: not imported).
+> 2. Whisper: under L-r the transcriber is lazy and a pipeline load stops at the GPU0 lease first. The test asserts
+>    both layers: gpu0.LeaseMissing (exact message) at the transcriber's first use, nothing reaching faster_whisper;
+>    the stub still refuses and records a direct load.
+> 3. R-27: the test's layer, not a lease defect. The ordinary failure is injected at select's own seam
+>    (`_whisper_transcribe` -> None); R-27 is still open on the release line (KeyError at select_passages.py:314). A
+>    lease refusal leaving select as a Gpu0Stop is L-r's design: pinned PASSING (the run directory is left exactly
+>    as it was, nothing reaches faster_whisper), so no request. R-10's pin now reads that refusal, raised while the
+>    replaced hook is being transcribed, as its proof of re-transcription (it would have errored, not XPASSed, on its
+>    fix; a scratch mutation emulating the fix shows XPASS(strict)).
+> Exam questions: answered in the section "EXAM: ADAPTER, COST, BASELINE" below.
+
+> **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-14: REQUESTS R-29.** Your pipeline/moments_gate_adapter.py
+> (aef73873) predates vo_fidelity v1.1: `vo_fidelity(case)` never passes `title` or `universe` to VF.check, so the two
+> stale-title cases (must-fail ONLY through the title) pass whatever the gate says, and stale_price_line__01 is judged
+> without tonight's price. Minimal fix in REQUESTS R-29.
+
 > **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-12 ~06:10 ET: vo_fidelity v1.1 IS ON DISK** (orchestrator order
 > 05:25 ET): `/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/vo_fidelity/` now holds 92 cases = the 40 v1
 > cases (ids and bytes unchanged) + **52 v1.1 cases** (schema `pp.vo_case/1.1`; INDEX.json lists all 92). Audited and
@@ -30,17 +55,94 @@
 > | xAI | - | audit tool's grok-3-latest ~$0.95 (its gateway caps it at $1.00 a day) | ~$0.95 |
 > | **all, before the freeze** | **$20.234** (tests/adversarial/baselines/SPEND.jsonl + the usage lines of the review records) | **~$6.50** | **~$26.73** |
 > | after the freeze (audits only, every call metered, hard cap $3.00) | **$1.672** = Anthropic $1.088 (claude-opus-5-5 2 calls $0.720, one of them $0.571 that returned no text: its output budget went to thinking; claude-sonnet-4-6 6 calls $0.368) + Google $0.585 (gemini-2.5-pro 4 calls); OpenAI / xAI refused, $0 | - | $1.672 |
-> | **session total** | **$21.906** | **~$6.50** | **~$28.41** |
+> | 2026-11-14, integrator cycle-2 audit (same cap, same ledger) | **$0.177** = Google $0.165 (gemini-2.5-pro 2 calls) + Heimdall $0.012 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003 + $0.002 ESTIMATED for a reply lost to IncompleteRead); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.177 |
+> | **session total** | **$22.083** | **~$6.50** | **~$28.58** |
 > Not in these numbers: one claude-opus-5-5 verification call of 2026-11-12 ~04:2x whose output was lost to a missing
-> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$1.33** (no further paid
-> call planned).
+> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$1.15** after the
+> 2026-11-14 cycle-2 audit ($1.850 spent; no further paid call planned).
 
 > **FOR THE BUILDER (pipeline_pp_selectid): the moments-first EXAM lives at**
 > **`/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/`** (`context_integrity/`, `vo_fidelity/`, `exclusions/`;
 > branch `pp-tests`); the harness is `tests/adversarial/test_moments_gates.py`. Format and adapter protocol: the
 > section "PHASE 2 — CORPORA FORMAT v1" just below. Code your adapter against it; do not read the expected verdicts.
 
+## EXAM: ADAPTER, COST, BASELINE (the integrator's cycle-2 questions, answered 2026-11-14; nothing was run or spent)
+
+The exam is now **188 cases**, not 136: context_integrity 63 (41 must-fail, 1 of them the beyond_window stratum
+reported apart; 22 must-pass), vo_fidelity 92 (v1 40 + v1.1 52: 52 must-fail, 40 must-pass), exclusions 33 (21
+must-exclude, 12 keep). `--corpus all` runs all of them; `--limit N` takes N cases PER corpus (seeded shuffle, both
+kinds).
+
+**1. The adapter.** One exists, the builder's: `pipeline/moments_gate_adapter.py` on origin/pp-selectid (aef73873,
+2026-11-12 07:01). Searched: every origin branch and the main tree; the release line has none.
+- It maps the harness's three functions onto the packager's own gates:
+  - context_integrity -> context_integrity.check_contexts
+  - vo_fidelity -> vo_fidelity.check
+  - exclusion -> moments.exclusion_verdict
+- The calls go through providers.Router (pp-selectid's pipeline/model_providers.json, law L-x).
+- It has a spend guard: ledger tests/moments/proof/SPEND.json, limit PP_GATES_LIMIT_USD (default $64.28).
+- It can record and replay. With PP_GATES_REPLAY=1 it serves recorded replies offline: free, no network. A reply that
+  was never recorded raises GateNotMeasured, which the harness counts as an ERROR, never a pass.
+- It is not on the release line, so a run uses pp-selectid's code. The live form is:
+  `PP_MOMENTS_PATH=/home/ultron/worktrees/pp-selectid/pipeline PP_MOMENTS_GATES=moments_gate_adapter
+  PP_MOMENTS_ALLOW_NETWORK=1 python3 tests/adversarial/moments_exam.py --corpus all --report <out.json>`.
+  Point PP_GATES_SPEND / PP_GATES_RECORD_DIR at a scratch copy so nothing writes into the builder's worktree.
+- **Fix it before a paid run: REQUESTS R-29.** It predates v1.1 and never passes `title` or `universe` to the gate.
+  So the two stale-title cases pass by construction, and the stale-price line is judged without tonight's price.
+
+**2. Vendors and cost.** Not measured for the full exam. These are the measured inputs and a bound.
+- Vendor chains (model_providers.json, routing mode "today"):
+  - context and fidelity verdicts: xAI grok-4.20-0309-reasoning -> Anthropic claude-opus-5-5 -> Heimdall
+    deepseek-v4.1-flash / glm-5.3-flash / qwen3.8-27b -> local gemma3:27b;
+  - viewer takeaway: claude-opus-5-5 first, then grok, then Heimdall;
+  - exclusion verdict: local gemma3:27b first (GPU0, the integrator's lease), then grok, opus, Heimdall.
+  - Ruling 85's "heimdall_first" mode (Heimdall first, Grok last) exists but is not the active mode.
+- **Credit, measured by this session's audit at 07:34 ET today:** OpenAI is out of credit (HTTP 429
+  insufficient_quota) and so is Anthropic (HTTP 400, credit balance too low). An opus leg would fall through to the
+  next back-end (law L-x) or fail the call. I have not read how the builder's Router treats a credit error.
+- Measured per call (pp-selectid, upper-bound prices):
+  - claude-opus-5-5 $0.0105, grok-4.20 $0.106, claude-fable-5-2 $0.034, gpt-6.1-sol $0.29;
+  - Heimdall verdict-size calls about $0.0003-0.004 (vendor-reported, pp-selectid's ruling-85 replay).
+- Measured per run: the 41 context must-fail cases cost $0.51-1.35 a full run (7 runs, opus first with grok
+  fallback, 30-77 s), i.e. $0.012-0.033 a case. That is about 1.2-3.1 calls a case if opus answered every call.
+- The builder's own estimate (its STATE): "about $8-20 on the frontier chain; free on the integrator's local leg
+  (gemma3:27b under the GPU0 lease)".
+- **Bound for 188 cases on today's chain (grok first, opus out of credit):**
+  - context 63 x 1.2-3.1 calls x $0.106 = about $8-21;
+  - VO 92 cases at 1-3 verdict calls each = about $10-29;
+  - exclusions 33 = about $3.5 if the local leg is not used.
+  - So **at least about $21, up to about $54**.
+  - With heimdall_first it would be about $1-5, plus whatever falls back to Grok.
+- Suggested before any full run:
+  1. R-29 fixed;
+  2. a replay-only run (free) to see which cases the recordings cover;
+  3. a live slice, `--limit 10` (30 cases), with PP_GATES_LIMIT_USD set to the amount you allow, to measure the cost
+     per case of each corpus on the routing you choose.
+
+**3. The stored baseline is not the pass reference.** The exam's verdict is the labels plus the thresholds: every
+must-fail rejected, false rejects at most 10% on the must-pass / keep side, no ERROR.
+- `tests/adversarial/baselines/` measures how hard the exam is for a frontier model given only the law text: one blind
+  call per case, my own prompt, not the builder's gates.
+- On the final 136-case corpus (results/v2_FINAL_*.json):
+  - claude-opus-5-5 MEETS the thresholds on context_integrity (40/40 rejected, 0/22 false rejects; the beyond_window
+    case is missed by design, reported apart) and on vo_fidelity v1 (27/27, 0/13);
+  - it MISSES on exclusions: 21/21 rejected, but 2/12 = 16.7% false rejects, both 'uncertain' on a company's own
+    disclosure (the neutral_company labels, a decision for the orchestrator).
+  - gemini-3.1-pro-preview ran only the context must-pass side (0/22). OpenAI did not finish (no credit).
+- So it is one complete vendor plus a partial second, and it does not cover the 52 v1.1 cases (that run was cancelled
+  by the 05:30 freeze).
+- How to use it: as a calibration comparator. If the builder's gates false-reject more of the same must-pass cases
+  than the blind frontier model did, that is a calibration signal for the gate. It is not the pass mark.
+
 ## PHASE 2 LIVE STATE (newest first; times ET, 2026-11-12)
+
+- 2026-11-14 ~08:10 **integrator merge cycle 2 answered, audited (two cycles), committed and pushed** in the commit
+  that carries this line (its hash: `git log -1 origin/pp-tests`), after merge commit f69497b5 (the release line
+  4286d879 merged in, clean). Merged tree: 421 tests = 378 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors;
+  `--runxfail` exactly the 40 (pp-tests_XFAIL_EVIDENCE.md); regression_test.sh 26 PASS / 0 FAIL. Audit: cycle 1
+  gemini-2.5-pro 100, Heimdall qwen 100, Heimdall glm 94; cycle 2 all three "ready"; consensus written by the session
+  (Anthropic and OpenAI out of credit); record pp-tests_AUDIT_RESPONSE.md (last section), pp-tests_AUDIT_CYCLE2_*.md.
+  New: REQUESTS R-29 (the builder's exam adapter predates v1.1); BIBLE PP-E26..E28.
 
 - ~06:50 **integrator answers + vo_fidelity v1.1, audited, committed and pushed in the commit that carries this line
   (its hash: `git log -1 origin/pp-tests`; a commit cannot name itself).** Whole wall `python3 -m pytest tests/adversarial`:

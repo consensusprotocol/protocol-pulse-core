@@ -1,10 +1,12 @@
 """The suite's own guard (order: no GPU at all; GPU0 is leased to the live run, GPU1 is quarantined; nothing reaches
 the network): no module this suite imports may expose a device unnoticed, no CUDA runtime is initialised, every
-Whisper load is refused and recorded, no socket / name lookup / network tool gets out, and the guards are this
-directory's only (conftest.py)."""
+Whisper load is refused (at law L-r's GPU0 lease, or at the faster_whisper stub, which records it), no socket / name
+lookup / network tool gets out, and the guards are this directory's only (conftest.py)."""
 import ast
+import importlib.util
 import os
 import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -34,19 +36,34 @@ def _imported_names():
     return names
 
 
+def _resolve(name):
+    """The file `import <name>` gives THIS suite: the module already imported under that name, else what the suite's
+    sys.path finds (a package resolves to its __init__.py, scanned like any module; a compiled or stub module without
+    a .py file is not scanned). Never a bare file-name match: `import conftest` is this directory's own conftest
+    (pytest's), and matching the name against pipeline/ blamed pipeline/conftest.py (law L-r's teardown, on the
+    release line since Nov 12), which this suite never imports (integrator cycle 2, 2026-11-14)."""
+    m = sys.modules.get(name)
+    f = getattr(m, "__file__", None) if m is not None else None
+    if m is None:
+        spec = importlib.util.find_spec(name)
+        f = spec.origin if spec is not None else None
+    return os.path.realpath(f) if f and f.endswith(".py") else None
+
+
 def test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed():
     """Static (integrator audit: the old check read back the value the fixture had just written): every pipeline /
     segment_v1 module this suite imports is scanned for code that sets CUDA_VISIBLE_DEVICES. A setter not reviewed
     here (KNOWN_CUDA_SETTERS) could expose GPU0 in the middle of a test, so it fails until it is reviewed.
     INTENTIONALLY BRITTLE: a new import of a module that sets the variable fails here on purpose; review where it
     sets it (at import or in a function the suite calls) before adding it to KNOWN_CUDA_SETTERS."""
-    roots = [os.path.join(H.REPO, d) for d in ("pipeline", "segment_v1")]
+    roots = tuple(os.path.join(os.path.realpath(H.REPO), d) + os.sep for d in ("pipeline", "segment_v1"))
+    own = os.path.realpath(os.path.join(H.HERE, "conftest.py"))
+    H.control(_resolve("conftest") == own, f"the suite's `import conftest` is its own conftest: {_resolve('conftest')}")
     found = {}
     for name in _imported_names():
-        for r in roots:
-            p = os.path.join(r, name + ".py")
-            if os.path.exists(p):
-                found[name] = p
+        f = _resolve(name)
+        if f and f.startswith(roots):
+            found[name] = f
     H.control(len(found) >= 15, f"the suite's pipeline imports were found: {sorted(found)}")
     setters = {n for n, p in found.items() if _SETTER.search(open(p).read())}
     assert setters == KNOWN_CUDA_SETTERS, sorted(setters)
@@ -164,11 +181,30 @@ def test_the_guards_are_this_directorys_only():
     assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
 
 
-def test_every_whisper_load_is_refused_and_recorded(whisper_attempts):
+def test_every_whisper_load_is_refused_and_recorded(whisper_attempts, tmp_path):
+    """No Whisper model loads in this suite, by either way in (integrator cycle 2: law L-r reached the release line
+    after this suite's first base):
+    - the pipeline's way: every load AND every use goes through gpu0 (gpu0.whisper -> Model.get -> require), which
+      refuses a process whose CUDA_VISIBLE_DEVICES is not '0' or that lacks the GPU0 lease; this suite has neither.
+      G18's default transcriber is built lazily (constructing it loads nothing), so it is refused at its first use,
+      before faster_whisper is reached; the refusal is a Gpu0Stop, a BaseException that no `except Exception` absorbs;
+    - a direct faster_whisper load (outside gpu0): the stub refuses it and records the attempt."""
     import faster_whisper
+    import gpu0
     import word_diff
     with pytest.raises(RuntimeError, match="forbidden"):
         faster_whisper.WhisperModel("large-v3", device="cuda", compute_type="float16")
-    with pytest.raises(RuntimeError, match="forbidden"):
-        word_diff.Transcriber()                       # G18's default transcriber cannot start
-    assert len(whisper_attempts()) == 2
+    H.control(len(whisper_attempts()) == 1, "the direct load reached the stub and was recorded")
+    wav = str(tmp_path / "tone.wav")                   # preconditions (audit cycle 2): the transcriber runs ffmpeg too
+    H.control(shutil.which("ffmpeg") is not None, "ffmpeg is on PATH (Transcriber.span runs it before the model)")
+    r = subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "sine=frequency=440:duration=1", "-ar", "16000",
+                        wav], capture_output=True, text=True, timeout=60)
+    H.control(r.returncode == 0 and os.path.exists(wav) and os.path.getsize(wav) > 0,
+              f"the 1 s tone was synthesised: {r.stderr[-200:]}")
+    tr = word_diff.Transcriber()                       # G18's default transcriber: nothing loaded yet (lazy)
+    with pytest.raises(gpu0.LeaseMissing, match=r"^whisper:large-v3: GPU0 loads need CUDA_VISIBLE_DEVICES=0 "
+                                                 r"\(it is ''"):
+        tr.span(wav, 0.0, 1.0)                         # its first use: refused at the lease
+    assert not issubclass(gpu0.LeaseMissing, Exception)
+    assert len(whisper_attempts()) == 1, "the refused transcriber reached faster_whisper"
+    assert not gpu0.whisper(word_diff.ASR["model"]).loaded
