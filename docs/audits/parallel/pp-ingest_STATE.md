@@ -33,6 +33,19 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 21:25 Nov 13 RULING 87 (orchestrator 21:18, relayed by the builder, NOT YET RECEIVED HERE DIRECTLY): one shared
+  "Heimdall down" signal for the builder and this watcher (pp-selectid pipeline/heimdall_health.py, state under an
+  flock in the builder's tree; down = no Heimdall family answering for 15 min; plan_b; probes). Answered the builder:
+  it fits the watcher's outage handling (videos wait, no try used, STATE line 1 after 30 min, the breaker's 5-min
+  probe); once the module is committed the watcher will call HH.note after its Heimdall calls and use HH.mode /
+  probe_due / probe_result. MY MINER'S PLAN B IS "QUEUE AND WAIT": the spend freeze (05:30 Nov 12, "until told
+  otherwise") still binds this watcher; plan_b never sends it to a paid frontier vendor unless the orchestrator lifts
+  the freeze for pp-ingest directly. Raised: (1) a drill (overrides.json pointing Heimdall at a dead port) must never
+  flip the fleet's signal (no HH.note while an override is active; asked for a drill flag in the module); (2) call
+  volume (up to ~20 in flight: a note per call under an flock would contend; asked whether HH.note writes only on
+  transitions); (3) the state file is in the builder's tree: written only through its module, once committed, and
+  only with the ruling's text from the orchestrator.
+
 - 20:25 Nov 13 RULING 40 P1 IS LIVE: imperative and single_source_breaking stand as hard flags only when BOTH models
   agree. Audited 2 cycles (cycle 1: glm / muse no P0, qwen's P0 the append race already refuted; cycle 2: qwen "P0
   None", glm "production ready, with two conditions", both implemented; muse timed out; pp-ingest_audit/r40p1/),
