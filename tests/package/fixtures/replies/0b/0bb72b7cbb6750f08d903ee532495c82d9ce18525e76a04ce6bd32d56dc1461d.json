@@ -1,0 +1,266 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e7cbf99e39d8eb884ecf99d5745a64cb6dc1bbb59c9407e79ca507efb49fcdee",
+ "result": {
+  "text": "6%. Not enough to be compelling. Bitcoin's 36% a year. You can create a credit dividend of 12%. Tw- anything more than 9% is enough, uh, to be interesting to a credit investor, and they'll embrace a new idea. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.16,
+    "end": 17.06,
+    "text": "6%. Not enough to be compelling. Bitcoin's 36% a year. You can create a credit dividend of 12%. Tw- anything more than 9% is enough, uh, to be interesting to a credit investor, and they'll embrace a new idea. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "6%.",
+    "start": 0.16,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Not",
+    "start": 1.64,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough",
+    "start": 1.86,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.22,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 2.34,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "compelling.",
+    "start": 2.48,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 3.94,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "36%",
+    "start": 4.66,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.4,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 5.5,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 5.74,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 5.82,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "create",
+    "start": 5.94,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 6.16,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit",
+    "start": 6.24,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dividend",
+    "start": 6.56,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.86,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "12%.",
+    "start": 7.1,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Tw-",
+    "start": 8.58,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anything",
+    "start": 8.9,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 9.38,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 9.58,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "9%",
+    "start": 10.0,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 11.16,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough,",
+    "start": 11.32,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 11.98,
+    "end": 12.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.46,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 12.58,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interesting",
+    "start": 12.74,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.26,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.42,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit",
+    "start": 13.54,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investor,",
+    "start": 13.92,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.46,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they'll",
+    "start": 14.58,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "embrace",
+    "start": 14.78,
+    "end": 15.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.18,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "new",
+    "start": 15.26,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idea.",
+    "start": 15.5,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.8,
+    "end": 17.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.38
+ },
+ "usd": 0.003476,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-14T17:41:36Z"
+}

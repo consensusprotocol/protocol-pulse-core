@@ -1,0 +1,200 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "70c5228125979ab003ca8c791521a792cad97a5ae66b5e2a382d54ac270c5e41",
+ "result": {
+  "text": "to disrupt, uh, different store of value assets. So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.52,
+    "end": 10.66,
+    "text": "to disrupt, uh, different store of value assets. So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this"
+   }
+  ],
+  "words": [
+   {
+    "text": "to",
+    "start": 0.52,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "disrupt,",
+    "start": 0.62,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 1.72,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "different",
+    "start": 2.26,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "store",
+    "start": 2.6,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.82,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 2.9,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets.",
+    "start": 3.22,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.78,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 4.66,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "core",
+    "start": 5.12,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purpose",
+    "start": 5.46,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hasn't",
+    "start": 5.78,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changed.",
+    "start": 6.06,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 6.64,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 6.8,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adopted",
+    "start": 6.96,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 7.34,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions",
+    "start": 7.44,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 7.92,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recognize",
+    "start": 8.119,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.64,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 8.76,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 8.88,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 9.26,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.02,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 10.16,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 10.5,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.02
+ },
+ "usd": 0.002204,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-14T17:41:32Z"
+}

@@ -16807,5 +16807,688 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "88b47fefa2c68c1a227a~trim:37736ae3f02e8af446c3a8455771e01b8bbec8f7506e115f944aace34b353e9c:0be4a117d323015fa7da27d0a764419e0abb84efc053ca1d6b19dd4c0bc6aae4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "88b47fefa2c68c1a227a~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "applying the volatility/DCA strategy further to Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "you",
+     "refers_to": "the Bitcoin investor/owner",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the biggest risk with Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "the biggest risk with Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you have volatility and you have time to consistently allocate capital throughout drawdowns and dips and bear markets",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Theoretically one could extend the volatility-outperformance strategy one step further to Bitcoin, where the biggest risk is the holder themselves making a self-custody mistake such as falling for a phishing attack or trusting the wrong custodian rather than price volatility.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a49592a93a4a81a8d050:53a0da5ef4b141cad94af4f0acf6b244e0d4b16ff31bec01721db5a7675af166:435dd1c3b5e9180bb94bff6db54a90be7118c3c7f3d2d1a7ac3df78d6ff7cb0a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a49592a93a4a81a8d050",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "consistently accumulating Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Time and volatility are friends to the investor, and the speaker's preferred way to consistently accumulate Bitcoin is by running mining machines.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b5980c46a8ca2fe572c7:cce7774ff8d41e0036877ad48b2ceefe445ee2d3a513c6d9bae292d8f4649a51:1b29dfe9602f93f0689e1dd6920b4416ac778ff642d391e4d029d543a6911512:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b5980c46a8ca2fe572c7",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "these",
+     "refers_to": "the dips Bitcoin has (bear markets/drawdowns)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you have a long time horizon and are not forced to sell during drawdowns",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's volatility is your friend because you do not need to save or invest additional money when it has dips under a DCA strategy.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "which I'm Generation Z, I've got plenty of it, Lord willing",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c7b73b3449d57df7912a:5882c7817befc4d56fd1dc8c72b9b39df1225dfaf434e4c24da789cad7e11a37:76c76021c59f430e3a6ec3b08d4995771e201976ffcf60a56d4285018607d5d5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c7b73b3449d57df7912a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "trillions of dollars of digital credit from selling credit",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "the digital credit that will flow into the crypto economy",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The proceeds from selling trillions of digital credit will flow into the crypto economy, drive up Bitcoin's price, and make Bitcoin a $20 trillion asset.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Michael Saylor Keynote at Cantor Convergence 4th Annual Conference 2026",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "cb80340f857a99178919:fc16c3be55c55c4770fa4dc4492c8767aed8b0cd346cf29a111828ccf3e7da61:94a46ed21806837953fea0650456968d072800c5084bcc59080cb4cc3fd63bdb:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "cb80340f857a99178919",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "People",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the fact that people don't understand Bitcoin is capital and digital credit is mispriced",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the mispricing due to lack of understanding",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "that being the case (misunderstanding and mispricing)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People don't understand that Bitcoin is capital and that its digital credit is mispriced, but given that situation it is just an opportunity.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7f9187e95075b8dcb74a:7c9dec6b6658337e8d571e64deb5d25023de09a3f5287fc4dbfc86f35005de2d:92db56eb22557ba70577e753e60a6c6431507d6f18674e4a7a042373601a62c6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7f9187e95075b8dcb74a",
+   "speaker_changes_inside": "no",
+   "view": "conditional",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the situation of banks creating credit on Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "crypto",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If a bank wants to create credit and wants to cover crypto, in this case Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If a bank wants to create credit covering crypto like Bitcoin then it is going to be very good for the asset class.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "994b5c8a4b7e00490500:9c984d1729aa57ffa3a4679bb6fac0c18ba5c9f537aec351e296471bdb5969fb:4f2ae33bca3fbb9f8e209b33db532fe452089d6372ff74a7803a3ccfa3647558:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "994b5c8a4b7e00490500",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "they",
+     "refers_to": "credit investors",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin returns 36% a year, enabling a 12% credit dividend that is compelling to credit investors who will embrace the new digital credit idea.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c9a9722716033dbb9cf6:1e0f2825685f4a3e1a5dc741f6b23af0cf3735637db6c79f4830ca6a51350ba8:88b539027b737ac1f732a30ab18ca5cade2dfe7962d68816b981f832bb0683c6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c9a9722716033dbb9cf6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MSTR/MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "being like the central bank of the crypto economy",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MSTR is like the central bank of the crypto economy, the Bank of Bitcoin analogous to the Bank of England.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9e059304bfc5bc1e2d85~trim:3a09518ca8ee3e2a524be0d37b69066ab1d21bda475aa2e98370ac964f16949b:98abde9413734b173a36ff2b034211065fff44b1e60f183879eb9e82f9e6bb5b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9e059304bfc5bc1e2d85~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's core purpose remains unchanged as it is adopted by institutions that view it as digital gold.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ee12dbbe04fc4b9b1c36:2022116cdcfdb47dbca393183e00cf0b3aa41c02e920d26472bccd76de1d8539:25429fb110aa77dd839afd000bf5aa7fbfbd7cf5579bb96fcd3c859f0d3b9993:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ee12dbbe04fc4b9b1c36",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if we needed to",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy can sell Bitcoin if needed in order to buy back the credit as part of its digital treasury framework.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d62a1004294ea1c5b1e5:649efed69d2d29f90fee380e50f0526d5e5b258e56a0703d05a5b609ca5c6e42:fc145366d6d9619debdd14f65520b8cb0355f9f4c09a06265e89f9e24d693f8a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d62a1004294ea1c5b1e5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "the statement about Bitcoin's expected appreciation and outperformance",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "long term / for the foreseeable future",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Long term, the speaker expects Bitcoin to appreciate 20 to 30% a year for the foreseeable future and to outperform the S&P, NASDAQ, and Magnificent Seven.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6b33291720bfc3eab9fe:e0879ab72fa5f509dea4b2d16fe0b99b93ef2461662aee06b609281239e8e9ad:4cbddc51552a1381dbf7b8cecab4aea579c903d66a5aba66836a18553ed00abd:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6b33291720bfc3eab9fe",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "MicroStrategy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "This",
+     "refers_to": "the current year",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "this year / in a bad crypto year",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy owns about 4.05% of all the Bitcoin that will ever exist, is a company with about $55 billion market cap, and raised nearly $22 billion this bad year in crypto winter.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7c5844550969e471cd1f:bc43eb3720b95b55c50bb70299f96388feb5dcc4c63be9c65c60bc11a5327b2b:ce3e55dfe1722a86d1df9f4573535330169d68acdcc6423b71497a54dd3f323b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7c5844550969e471cd1f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "accumulating Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "these",
+     "refers_to": "Bitcoin mining machines",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Time and volatility are friends to those accumulating Bitcoin, which the speaker does consistently using depreciable mining machines that lower his taxable income and save him five figures annually.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "f8fa70776de5b2d2e4ac:a937a89d0ab8c07be475df682c67c9a415071f1480799e8680e07323d6655e27:caac31e8ff49e1b2887faa19b21730ccaa1d42407592e48cf8f7906bcb6f0619:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "f8fa70776de5b2d2e4ac",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "his",
+     "refers_to": "Bitcoin's",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "people not understanding that Bitcoin is capital and digital credit which is mispriced",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the mispricing or lack of understanding about Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "us",
+     "refers_to": "MicroStrategy/Saylor's company",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy/Saylor's company",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the high dividend attracting capital",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "People don't understand Bitcoin is capital and his digital credit is mispriced",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "People do not understand that Bitcoin is capital and digital credit which is mispriced, but that situation is an opportunity that the speaker's company does not mind because the high dividend attracts more capital into the digital economy.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "129d962df2f71d53ef75~trim:0b32ef4ef1d25df5deb02bbd11dc8352e9a7174c41dbef65c9a3aabc23238d66:4d80b4f5c31a8d514e95498ea939a7e4679fd2b2d5c937f50a7dc5e6c6318fed:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "129d962df2f71d53ef75~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "credit/digital credit",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the alloy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "the alloy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "which",
+     "refers_to": "something (the created digital credit)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if the alloy is 98% Bitcoin $2",
+     "inside": true
+    },
+    {
+     "text": "if the alloy becomes 25, 30, 40 percent dollars",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Digital credit is an alloy of Bitcoin and dollars that buckles like weak material at 98% Bitcoin / 2% dollars but becomes very strong like stainless steel at 25-40% dollars, so the key to creating it is blending the right proportion of dollars with Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1306d03f2a72fd0af4d0:130b5733ef26bc0116081ed71934cceb84ed9b8987aac3f1d95dc9c5d330d6c5:548cbe1e15e3ac8dc9d8b51f58acc5f66e9b7883e2c4357518d5a9bf868c2200:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1306d03f2a72fd0af4d0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "a bank creating credit on crypto/Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "This",
+     "refers_to": "a bank wanting to create credit on Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the preceding point about the most important driver",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "J.P. Morgan",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "J.P. Morgan's announcement and view",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "If a bank wants to create credit and wants to cover crypto",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If banks create credit on Bitcoin it will be very good for the asset class as this is the most important driver, which is why J.P. Morgan announcing that Bitcoin will appreciate 10% a year is profound since it legitimizes the asset.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "139139443bdc32ae3e3b~trim:b7279e9ee4344eabc5b7a21ddbdd51ca9e33e5f80e2191e07adf56b6240a14cb:94908cd51137305f5e48cc5c7efda9e3e0200f6bf4237872f63d4317752a112b:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "139139443bdc32ae3e3b~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "bank credit's impact on asset values, holding incentives, and network effects",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that asset",
+     "refers_to": "iBit (Bitcoin held in the ETF)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "banks (JP Morgan, Morgan Stanley or Schwab)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if Bitcoin flows into an ETF like IBIT and banks extend credit against it",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Extending bank credit against Bitcoin ETFs such as IBIT produces a profound network effect that makes investors more inclined to hold the asset and less inclined to sell, with better credit terms increasing buying and reducing selling pressure.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "8ff932fc2cd797f3a4ae:0843f66f96994fff11550c9deb604e4ba4d2451461ee2e449a4fbd343ed4ad32:0e5e76f2e4a467d684a5476075d715e8f8da3cf6a013bebee95811b8544a05f4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "8ff932fc2cd797f3a4ae",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the creators of digital credit products such as STRC",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "credit investors",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin delivers 36% annual returns, enabling a 12% credit dividend that exceeds the 9% threshold needed to attract credit investors by offering double-digit returns and tax efficiency akin to an equity portfolio like the S&P index.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

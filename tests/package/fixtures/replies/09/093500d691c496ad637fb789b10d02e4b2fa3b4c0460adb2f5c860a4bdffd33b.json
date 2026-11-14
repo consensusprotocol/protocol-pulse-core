@@ -1,0 +1,260 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6235d9058f8b88b3a16513ecce47fc3a1e228d719086665f4f73228951064daa",
+ "result": {
+  "text": "Now, and that's because why? The asset class is one year old. People don't understand Bitcoin as capital. They don't understand it as digital credit. It's mispriced. But that being the case, it's just an opportunity. And for us",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.92,
+    "text": "Now, and that's because why? The asset class is one year old. People don't understand Bitcoin as capital. They don't understand it as digital credit. It's mispriced. But that being the case, it's just an opportunity. And for us"
+   }
+  ],
+  "words": [
+   {
+    "text": "Now,",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.26,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 0.38,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 0.56,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why?",
+    "start": 0.92,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 1.9,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 2.06,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "class",
+    "start": 2.38,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.66,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.84,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 3.0,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "old.",
+    "start": 3.18,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "People",
+    "start": 4.019,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.3,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 4.5,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.1,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 5.44,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital.",
+    "start": 5.6,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They",
+    "start": 6.1,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 6.24,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 6.42,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 7.0,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.1,
+    "end": 7.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 7.24,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "credit.",
+    "start": 7.68,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 8.08,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mispriced.",
+    "start": 8.24,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 8.98,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.1,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 10.3,
+    "end": 10.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.46,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "case,",
+    "start": 10.6,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.86,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 10.98,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 11.16,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "opportunity.",
+    "start": 11.3,
+    "end": 11.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 12.32,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.54,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 12.74,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 13.32
+ },
+ "usd": 0.002664,
+ "seconds": 0.7,
+ "recorded_at": "2026-11-14T17:41:23Z"
+}

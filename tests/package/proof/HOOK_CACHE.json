@@ -416,5 +416,49 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "a49592a93a4a81a8d050:53a0da5ef4b141cad94af4f0acf6b244e0d4b16ff31bec01721db5a7675af166:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 3,
+   "rating": 3,
+   "why": "calm, low-tension setup",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "cb80340f857a99178919:fc16c3be55c55c4770fa4dc4492c8767aed8b0cd346cf29a111828ccf3e7da61:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 3,
+   "setup": 4,
+   "rating": 3,
+   "why": "confusing 'his digital credit'",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "7c5844550969e471cd1f:bc43eb3720b95b55c50bb70299f96388feb5dcc4c63be9c65c60bc11a5327b2b:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 3,
+   "rating": 3,
+   "why": "complete claim, little forward pull",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "1306d03f2a72fd0af4d0:130b5733ef26bc0116081ed71934cceb84ed9b8987aac3f1d95dc9c5d330d6c5:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "slow conditional opening",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }
