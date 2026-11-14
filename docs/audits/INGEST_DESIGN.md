@@ -423,9 +423,10 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   quote), `asked_at` (the calibration's start) and `seconds` (its duration), and `calibration_crashes` (the crash
   events of the last 12 h: audit f1 c2); the log line says the same.
 - A RESTART keeps the last live calibration when it is under a day old (`service._reuse_calibration`, Nov 14): the
-  stored record must name exactly the role's callable back-ends with their current models, carry ONE `asked_at` (the
-  live calibration's start) under CHECK_RECALIBRATE_S old, and show at least one back-end that answered all 16 quotes
-  right; then that back-end may answer at once, no quote is asked, the next calibration stays due a day after the
+  stored record must name exactly the role's callable back-ends with their current models, have been measured on the
+  same prompts (`prompts_sha`: `flagcheck.calibration_sha`, a sha256 of every calibration prompt with its expected
+  answer; a record without it is refused: audit reuse c2), carry ONE `asked_at` (the live calibration's start) under
+  CHECK_RECALIBRATE_S old, and show at least one back-end that answered all 16 quotes right; then that back-end may answer at once, no quote is asked, the next calibration stays due a day after the
   live one, and the event `check_calibration_reused` and the log say so ("calibration reused (asked live at ...)").
   Anything else (an older record, a changed model or chain, a record without `asked_at` from the cached era, one in
   which nobody passed, an outage calibration) is asked live as before, and the log says why ("the stored calibration

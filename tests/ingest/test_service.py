@@ -639,7 +639,7 @@ def test_a_reused_calibration_keeps_the_live_ones_day_not_the_restarts(svc):
     assert _asked_calibration(b2["fallback"]) and s2.check_calibrated == t[0]
 
 
-@pytest.mark.parametrize("edit", ["old", "model", "no_asked_at", "none_passed"])
+@pytest.mark.parametrize("edit", ["old", "model", "no_asked_at", "none_passed", "prompts", "no_prompts_sha"])
 def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_failed(svc, edit):
     """Anything but a live, under-a-day, same-model calibration with a back-end that passed is asked again at start:
     an old one, a changed model, the record of the cached era (no asked_at), one in which nobody passed."""
@@ -656,6 +656,10 @@ def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_faile
             c["model"] = "another-model"
         elif edit == "no_asked_at":
             c.pop("asked_at")
+        elif edit == "prompts":                                    # measured on other quotes or wording
+            c["prompts_sha"] = "0" * 64
+        elif edit == "no_prompts_sha":                             # a record written before the hash (audit reuse c2)
+            c.pop("prompts_sha")
         else:
             c["right"] = c["of"] - 1
     s.q.kv_set("check_calibration", json.dumps(cal))
@@ -667,7 +671,8 @@ def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_faile
     assert _asked_calibration(b2["fallback"]) and s2.check_allowed == ["fallback"]
     assert s2.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_reused'")[0]["n"] == 0
     why = {"old": "asked 25.0 h ago", "model": "its back-ends or models are not the role's now",
-           "no_asked_at": "no single zoned asked_at", "none_passed": "no back-end passed it"}[edit]
+           "no_asked_at": "no single zoned asked_at", "none_passed": "no back-end passed it",
+           "prompts": "measured on other prompts", "no_prompts_sha": "measured on other prompts"}[edit]
     assert any(m.startswith("check: the stored calibration is not reused (" + why) for m in msgs)   # audit reuse c1
 
 

@@ -21,6 +21,7 @@ read runs on a copy of the ledger in which every flag the checker answered "no" 
 the flag: fail closed, law L-j), against the same read of the real ledger.
 """
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -271,6 +272,10 @@ def ask(router, row, flag, miner, can_spend=lambda: True, sharpened=False, allow
     return {"answer": None, "unmeasured": tried}
 
 
+def _probe_row(text):
+    return {"channel_name": "Calibration", "title": "Bitcoin news", "published_at": "2026-11-12", "text": text}
+
+
 def calibrate(router, workers=6, probes=PROBES, sharpened=False, fresh=False, rounds=1):
     """Every callable back-end of the role answers the probes (the fallback's accuracy is known too):
     {back-end: {model, right, of (answered), unmeasured, by_flag {flag: [right, of]}, wrong [...]}}.
@@ -283,7 +288,7 @@ def calibrate(router, workers=6, probes=PROBES, sharpened=False, fresh=False, ro
     def one(job):
         bid, i = job
         flag, _, text = probes[i]
-        row = {"channel_name": "Calibration", "title": "Bitcoin news", "published_at": "2026-11-12", "text": text}
+        row = _probe_row(text)
         try:
             out = router.run(ROLE, prompt(row, flag, sharpened), SCHEMA, validator(text), tag={"probe": i}, only=bid,
                              use_cache=not fresh)
@@ -336,6 +341,14 @@ WATCHER_FLAGS = ("imperative", "single_source_breaking")    # the flags the watc
 def watcher_probes(flags=WATCHER_FLAGS):
     """The calibration quotes of the flags the watcher may release (16: 4 yes + 4 no for each of the two)."""
     return tuple(p for p in PROBES if p[0] in flags)
+
+
+def calibration_sha(flags=WATCHER_FLAGS):
+    """What the watcher's calibration measures, as one sha256: every prompt it puts to a model (the definitions, the
+    questions, the quotes) with the answer expected. A stored calibration is reused at a restart only under the same
+    hash (audit reuse c2, minimax): a changed quote, question or wording is asked live."""
+    rows = [[flag, gold, prompt(_probe_row(text), flag)] for flag, gold, text in watcher_probes(flags)]
+    return hashlib.sha256(json.dumps(rows).encode()).hexdigest()
 
 
 def watcher_checkers(router, workers=4, flags=WATCHER_FLAGS, rounds=CALIBRATION_ROUNDS):

@@ -286,3 +286,21 @@ def test_option_a_changes_only_the_three_flag_lines_of_the_miners_prompt():
     p = mine.prompt({"exact_title": "t"}, {"display_name": "c"}, win, template=t)
     assert "S3 00:00" in p and FC.DEFINITIONS["imperative"] in p and mine.prompt({"exact_title": "t"},
                                                                                 {"display_name": "c"}, win) != p
+
+
+def test_the_calibration_hash_changes_with_any_prompt_or_expected_answer_and_only_then(monkeypatch):
+    """Audit reuse c2 (minimax): a stored calibration is reused only under the same calibration_sha; it must move
+    with a quote, an expected answer or the wording, and stay put otherwise."""
+    base = FC.calibration_sha()
+    assert base == FC.calibration_sha() and len(base) == 64
+    probes = list(FC.PROBES)
+    i = next(k for k, p in enumerate(probes) if p[0] == "imperative")
+    flag, gold, text = probes[i]
+    monkeypatch.setattr(FC, "PROBES", tuple(probes[:i] + [(flag, gold, text + " Now.")] + probes[i + 1:]))
+    assert FC.calibration_sha() != base                              # a quote
+    monkeypatch.setattr(FC, "PROBES", tuple(probes[:i] + [(flag, "no" if gold == "yes" else "yes", text)] +
+                                            probes[i + 1:]))
+    assert FC.calibration_sha() != base                              # an expected answer
+    monkeypatch.setattr(FC, "PROBES", tuple(probes))
+    monkeypatch.setattr(FC, "PROMPT", FC.PROMPT + " ")
+    assert FC.calibration_sha() != base                              # the wording

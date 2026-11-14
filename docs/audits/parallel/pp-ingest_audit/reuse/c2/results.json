@@ -1,0 +1,83 @@
+{
+ "results": {
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 150034,
+    "completion_tokens": 5494,
+    "total_tokens": 155528,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.00533231
+   },
+   "cost_usd": 0.00533231,
+   "seconds": 245.2,
+   "finish_reason": "stop"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 147437,
+    "completion_tokens": 2454,
+    "total_tokens": 149891,
+    "prompt_tokens_details": {
+     "cached_tokens": 208,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 51
+    },
+    "cost": 0.029220042
+   },
+   "cost_usd": 0.029220042,
+   "seconds": 285.4,
+   "finish_reason": "stop"
+  },
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 166191,
+    "completion_tokens": 2197,
+    "total_tokens": 168388,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    },
+    "cost": 0.0092943425
+   },
+   "cost_usd": 0.0092943425,
+   "seconds": 319.6,
+   "finish_reason": "stop"
+  },
+  "heimdall_minimax": {
+   "model": "minimax/minimax-m3.1-flash",
+   "usage": {
+    "prompt_tokens": 147563,
+    "completion_tokens": 14796,
+    "total_tokens": 162359,
+    "prompt_tokens_details": {
+     "cached_tokens": 128
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 11318
+    },
+    "cost": 0.0096089739
+   },
+   "cost_usd": 0.0096089739,
+   "seconds": 360.9,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {},
+ "error_costs": {},
+ "skipped": {
+  "gpt4o": "spend freeze: vendor 'openai'",
+  "grok": "spend freeze: vendor 'xai'",
+  "gemini": "spend freeze: vendor 'google'"
+ },
+ "earlier_attempts": []
+}

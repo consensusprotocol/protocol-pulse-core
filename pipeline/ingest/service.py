@@ -561,8 +561,10 @@ class Service:
             self.q.kv_set("check_calibration", json.dumps({}))
             self.log(f"check: calibration crashed after {secs:.0f} s: {crash}; every flag stands; {nxt}")
             return
+        sha = flagcheck.calibration_sha()                 # what was measured (the reuse gate: audit reuse c2)
         self.q.kv_set("check_calibration", json.dumps({b: dict(
             {k: c[k] for k in ("model", "right", "of", "unmeasured")}, asked_at=asked, seconds=round(secs, 1),
+            prompts_sha=sha,
             wrong=[{"flag": w["flag"], "gold": w["gold"], "answer": w["answer"], "text": w["text"][:80]}
                    for w in c["wrong"]]) for b, c in cal.items()}))     # asked_at: the calibration's start
         got = [(b, c["right"], c["of"], c["unmeasured"]) for b, c in cal.items()]
@@ -575,11 +577,14 @@ class Service:
         """At start only: a restart within CHECK_RECALIBRATE_S of the last LIVE calibration keeps its measured result
         instead of asking the 32 quotes again (F1 holds: that result was asked live, with its asked_at; nothing comes
         from the reply cache). Reused only when the stored calibration names exactly the role's callable back-ends with
-        their current models, carries one asked_at (the live calibration's start) that is under a day old, and let at
-        least one back-end answer; anything else (a failed or outage calibration, an old record without asked_at, a
-        changed model) is asked live as before. Why (09:16 ET Nov 14): each restart's live calibration ended on muse's
-        502s, and on a quiet watcher that dangling failure became a false plan_b 15 minutes later. -> True when
-        reused."""
+        their current models, was measured on the same prompts (prompts_sha: flagcheck.calibration_sha, audit reuse
+        c2), carries one asked_at (the live calibration's start) that is under a day old, and let at least one
+        back-end answer every quote right; anything else (a failed or outage calibration, an old record without
+        asked_at or prompts_sha, a changed model) is asked live as before. Because only a passed calibration is
+        reused, the wait is reset to the daily one here: an outage calibration's shorter retry (CHECK_RETRY_S) is never
+        skipped by a reuse, and relaxing the 'one passed' gate would break that (audit reuse c2, glm). Why (09:16 ET
+        Nov 14): each restart's live calibration ended on muse's 502s, and on a quiet watcher that dangling failure
+        became a false plan_b 15 minutes later. -> True when reused."""
         try:
             cal = json.loads(self.q.kv_get("check_calibration") or "null")
         except ValueError:
@@ -590,6 +595,8 @@ class Service:
         elif set(cal) != set(eff) or not all(isinstance(c, dict) and c.get("model") == self.router.backends[b].model
                                              for b, c in cal.items()):
             why = "its back-ends or models are not the role's now"
+        elif any(c.get("prompts_sha") != flagcheck.calibration_sha() for c in cal.values()):
+            why = "measured on other prompts, or before they were recorded"
         else:
             asked = {c.get("asked_at") for c in cal.values()}
             t = config.aware(asked.pop()) if len(asked) == 1 else None
