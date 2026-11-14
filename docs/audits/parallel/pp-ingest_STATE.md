@@ -33,6 +33,23 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 20:25 Nov 13 RULING 40 P1 IS LIVE: imperative and single_source_breaking stand as hard flags only when BOTH models
+  agree. Audited 2 cycles (cycle 1: glm / muse no P0, qwen's P0 the append race already refuted; cycle 2: qwen "P0
+  None", glm "production ready, with two conditions", both implemented; muse timed out; pp-ingest_audit/r40p1/),
+  commit 3c8132ed, the watcher restarted on it 20:09 ET. The builder was told at 20:25.
+  - HOW: the watcher's `check` loop (every 30 s, 4 rows at once, newest first) asks the second model (glm-5.3-flash
+    on Heimdall, never a model that mined the row's video) the narrow question with the ruling's definition for every
+    imperative / single_source_breaking flag of a moment still inside 12 h; the answer goes into a new line of the
+    moment (`risk_checks`). The adapter excludes on the EFFECTIVE flags: a counting "no" (another model than the
+    miner, the current definitions) moves the label to `risk_notes` on the returned row (a recorded note, not an
+    exclusion); "yes", "unsure", no answer keep it. The ledger keeps the miner's labels. Accusation is never released
+    (P2 below). Only checkers that answer every calibration quote of these two flags right may answer: at 20:20 glm
+    16/16 (allowed), muse 11/11 with 5 unanswered (not allowed).
+  - FIRST ANSWERS (20:20-20:23): single_source_breaking yes 2, imperative yes 4, imperative NO 1 (released: Altcoin
+    Daily 5dd8d204 "Buying crypto today ... is like buying Bitcoin over five years ago, but completely derisked", now
+    returned with risk ['time_sensitive'] and the note). Cost $0.002 so far (cents a day). Live: live.json
+    `second_model_checks_12h`; the adapter's report `released_by_the_second_model`.
+
 - 19:50 Nov 13 RULING 40 P2 MEASURED: THE SHARPENED DEFINITION DOES NOT MAKE THE SECOND MODEL SAFE ON ACCUSATION.
   ACCUSATION STAYS HARD AS THE MINER LABELS IT; I recommend no release path for it with this checker.
   - WHAT: the same 200 rows as this morning's table, the accusation question asked again under the sharpened
