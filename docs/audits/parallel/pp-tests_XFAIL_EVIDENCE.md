@@ -1,8 +1,8 @@
 # pp-tests XFAIL EVIDENCE — each strict xfail fails on its own assertion (the second angle of the triple check)
 
-Generated (2026-11-14, on the release line merged at 4286d879, law L-r included; integrator cycle 2) from two runs of
+Generated (2026-11-14, integrator batch 78; the release line merged at 4286d879, law L-r included) from two runs of
 `CUDA_VISIBLE_DEVICES= python3 -m pytest tests/adversarial`:
-a normal run lists the 40 strict-xfail instances; with `--runxfail` exactly those fail (381 others pass or
+a normal run lists the 40 strict-xfail instances; with `--runxfail` exactly those fail (384 others pass or
 skip), every one with an AssertionError raised at an assertion of the test itself (file:line below), never in a fixture
 or a control (those are pytest.fail, which would show as Failed). Each mark is `xfail(strict=True, raises=AssertionError)`;
 when a fix lands, that test XPASSes and strict turns it into a failure (remove the mark then).
@@ -15,7 +15,7 @@ when a fix lands, that test XPASSes and strict turns it into a failure (remove t
 | test_f1_text_meaning.py::TestG3b::test_a_longer_word_containing_the_last_word_is_a_different_word | test_f1_text_meaning.py:411 | AssertionError | [{'dissent': False, 'edl_last': 'week', 'last_found': True, 'next_leaked': False, ...}] assert not True |
 | test_f1_text_meaning.py::TestG3b::test_a_next_word_equal_to_the_last_word_still_leaks | test_f1_text_meaning.py:420 | AssertionError | [{'dissent': False, 'edl_last': 'week', 'last_found': True, 'next_leaked': False, ...}] assert not True |
 | test_f1_text_meaning.py::TestQuoteVerification::test_a_quote_never_matches_inside_a_longer_word_or_number | test_f1_text_meaning.py:189 | AssertionError | [('$81,000 by the weekend and then it fell further', 'It went from above $181,000 by the weekend and then it f |
-| test_f1_text_meaning.py::TestQuoteVerification::test_a_quote_never_straddles_two_excerpts | test_f1_text_meaning.py:216 | AssertionError | assert not True  +  where True = <function quote_in at 0x778410d5b2e0>('flows turned negative. Bitcoin is up f |
+| test_f1_text_meaning.py::TestQuoteVerification::test_a_quote_never_straddles_two_excerpts | test_f1_text_meaning.py:216 | AssertionError | assert not True  +  where True = <function quote_in at 0x7c63e935d2d0>('flows turned negative. Bitcoin is up f |
 | test_f1_text_meaning.py::TestQuoteVerification::test_adjudicate_counts_a_quote_only_with_the_chunk_that_says_it | test_f1_text_meaning.py:240 | AssertionError | {'_model': 'fake-model', '_prompt_sha': '5ab8da42e9ce0256', '_support_prompt_sha': 'a54b00548e75894d', 'confid |
 | test_f1_text_meaning.py::TestSelectionAnchors::test_align_quote_never_moves_a_quote_onto_a_different_claim | test_f1_text_meaning.py:264 | AssertionError | (233, [('dollars', 'digits swapped', "Yesterday BlackRock's fund closed above 94,000 dollars after a quiet wee |
 | test_f1_text_meaning.py::TestSelectionAnchors::test_sentence_law_anchor_never_locks_a_different_claim | test_f1_text_meaning.py:272 | AssertionError | (233, [('dollars', 'digits swapped', "Yesterday BlackRock's fund closed above 94,000 dollars after a quiet wee |

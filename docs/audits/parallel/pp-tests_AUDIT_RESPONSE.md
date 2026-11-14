@@ -365,3 +365,70 @@ ledger pp-tests_AUDIT_SPEND_0530.jsonl):
   - Final: no P0 or P1 stands (pp-tests_AUDIT_CYCLE2_FINAL_CONSENSUS.md). Records: pp-tests_AUDIT_CYCLE2_*.md.
 - Spend of this audit: $0.177 over 7 calls (gemini-2.5-pro 2 calls $0.165; Heimdall qwen 2 calls $0.007; Heimdall glm 2
   calls $0.003 + $0.002 estimated for the lost reply). The audit ledger now stands at $1.850 of the $3.00 cap.
+
+## INTEGRATOR AUDIT BATCH 78 (pipeline_pp_dod, 2026-11-14 ~08:15 ET): two consensus findings, answered
+
+The message (essentials): 621604bb verified (every path under tests/adversarial or docs/audits/parallel/pp-tests_*;
+0 conflicts against release HEAD 1e48bd02; the integrator's own wall run on the merge: 378 passed, 40 xfailed, 3
+skipped, 0 failed). The merge stays HELD on two CONSENSUS findings (qwen27b + glm, verified in the code):
+(1) baselines/frontier_blind.py hard-codes the main tree's key file and parses it, against the house rule "read keys by
+NAME through the pipeline's loader, as scripts/integrator/grok_audit.py does"; (2) moments_exam.refuse_network does not
+patch socket.gethostbyaddr ("your child guard covers it; the runner's own guard does not"): patch it and add one
+must-fail line to the runner's network test. Three single-reviewer notes left to my judgment.
+
+What was done (tests and docs only):
+1. frontier_blind: the key-file constant and its parser are gone; `_key(name)` returns relay.get_key(name).
+   - The loader is the main tree's video_pipeline_v3/relay.py, which finds the project's key file beside itself.
+   - It is loaded by file path, without the sys.path change of grok_audit.py, because the exam process imports gate
+     modules by name. Bytecode writing is off during the load, so nothing is written in the main tree.
+   - Measured: three keys resolve by name (booleans only printed); sys.path unchanged; a missing key raises KeyError;
+     the main tree's relay .pyc keeps its mtime.
+2. Reverse lookups, the root cause fixed across the class:
+   - the runner now refuses gethostbyaddr AND getnameinfo, the other reverse lookup, which none of the three guards
+     covered;
+   - conftest.py and the child guard refuse getnameinfo too;
+   - all three guards now take their calls from ONE list, child_guard/netguard_names.py (audit, Gemini).
+3. The runner's network test:
+   - parametrised over the connect toy and a new reverse-lookup toy (moments_toy_gates/network_reverse.py);
+   - every row must be the RUNNER's refusal ("NetworkRefused: moments_exam: ..."); the old substring also matched the
+     child guard's message, which is how the gap stayed invisible (BIBLE PP-E30);
+   - checked against the runner from before the fix, with the new child guard loaded so nothing could leave the box:
+     both reverse lookups came back ChildNetworkBlocked, so the new line fails there;
+   - plus test_the_runner_refuses_every_call_of_the_suites_list.
+4. The notes:
+   - (a) the preflight docstring says it is an estimate and that a run can stop part-way at BudgetExhausted;
+   - (b) the child guard documents the .pth caveat, measured on this interpreter (only coloredlogs.pth can import
+     socket, and only by attribute);
+   - (c) test_f0 fails, listing them, on names that have a pipeline / segment_v1 module or package but resolve
+     elsewhere or to nothing; the suite's own conftest is the one exception.
+5. The key rule is now a test: test_f0 test_keys_are_read_only_by_name_through_the_pipelines_loader (audit, glm P1).
+   No string of the suite names the key file, and `_key` only calls relay.get_key. Mutation: a throwaway suite file
+   naming the key file fails it (deleted after).
+6. Docs: BIBLE PP-E29 (reverse lookups; one list), PP-E30 (with layered guards, name which guard refused), PP-E31
+   (keys through the loader, its path pinned); XFAIL_EVIDENCE regenerated.
+
+Verification (release line merged, CPU only, no network):
+- Whole wall: 424 tests = 381 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors.
+- `--runxfail`: exactly the 40 fail, each an AssertionError in its own test file.
+- regression_test.sh: 26 PASS / 0 FAIL / 5 WARN.
+
+How it was audited (two cycles; every call checked against and logged in the $3.00 ledger):
+- Cycle 1, the repo tool's package (brief pp-tests_AUDIT_B78_BRIEF.md): gemini-2.5-pro 96, Heimdall qwen3.8-27b 94,
+  Heimdall glm-5.3-flash 92, all "ready".
+- Cycle 2, the tool's cycle-2 template on the diff after the cycle-1 dispositions: all three "Yes".
+- The consensus is written by the session (the tool's claude-sonnet-4-6 step: Anthropic out of credit; gpt-4o: OpenAI
+  out of credit; Grok not run, unmetered).
+- Implemented:
+  - one shared guard list, with a runner-coverage test;
+  - the key-rule test;
+  - package awareness in the unscanned-names check;
+  - len(rows) in the reverse-lookup assertion (qwen and glm);
+  - one shared refused_target for messages (a sendmsg without an address showed its flags);
+  - five docstring / BIBLE sentences.
+- Refuted with evidence:
+  - a relative or env-var loader path (relay finds its key file beside itself; an env path would choose executed
+    code);
+  - "a missing loader gives AttributeError" (measured: FileNotFoundError naming the path);
+  - glm's evidence-count gap (glm read a diff built before the evidence was regenerated; it closes at 384).
+- Records: pp-tests_AUDIT_B78_*.md.
+- Spend: $0.170 (gemini-2.5-pro 2 calls $0.160; Heimdall $0.010). The ledger stands at $2.019 of $3.00.

@@ -55,16 +55,22 @@ def test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed():
     segment_v1 module this suite imports is scanned for code that sets CUDA_VISIBLE_DEVICES. A setter not reviewed
     here (KNOWN_CUDA_SETTERS) could expose GPU0 in the middle of a test, so it fails until it is reviewed.
     INTENTIONALLY BRITTLE: a new import of a module that sets the variable fails here on purpose; review where it
-    sets it (at import or in a function the suite calls) before adding it to KNOWN_CUDA_SETTERS."""
+    sets it (at import or in a function the suite calls) before adding it to KNOWN_CUDA_SETTERS. Nothing is skipped
+    silently (integrator batch 78, glm): a name that has a pipeline / segment_v1 file but resolves elsewhere or to
+    nothing (no .py behind it) fails, listed, except the suite's own conftest."""
     roots = tuple(os.path.join(os.path.realpath(H.REPO), d) + os.sep for d in ("pipeline", "segment_v1"))
     own = os.path.realpath(os.path.join(H.HERE, "conftest.py"))
     H.control(_resolve("conftest") == own, f"the suite's `import conftest` is its own conftest: {_resolve('conftest')}")
-    found = {}
-    for name in _imported_names():
+    names, found = _imported_names(), {}
+    for name in names:
         f = _resolve(name)
         if f and f.startswith(roots):
             found[name] = f
     H.control(len(found) >= 15, f"the suite's pipeline imports were found: {sorted(found)}")
+    unscanned = {n for n in names - set(found)          # a module file or a package (glm, batch 78)
+                 if any(os.path.exists(os.path.join(r, n + ".py")) or os.path.exists(os.path.join(r, n, "__init__.py"))
+                        for r in roots)}
+    assert unscanned <= {"conftest"}, f"pipeline / segment_v1 modules the scan cannot see: {sorted(unscanned)}"
     setters = {n for n, p in found.items() if _SETTER.search(open(p).read())}
     assert setters == KNOWN_CUDA_SETTERS, sorted(setters)
 
@@ -124,10 +130,11 @@ def test_no_datagram_and_no_name_lookup_gets_out():
             u.sendmsg([b"x"], [], 0, ("192.0.2.1", 53))
     finally:
         u.close()
-    for fn, arg in ((socket.getaddrinfo, "api.telegram.org"), (socket.gethostbyname, "example.com"),
-                    (socket.gethostbyname_ex, "example.com"), (socket.gethostbyaddr, "192.0.2.1")):
+    for fn, args in ((socket.getaddrinfo, ("api.telegram.org", 443)), (socket.gethostbyname, ("example.com",)),
+                     (socket.gethostbyname_ex, ("example.com",)), (socket.gethostbyaddr, ("192.0.2.1",)),
+                     (socket.getnameinfo, (("192.0.2.1", 443), 0))):        # the two reverse lookups (batch 78)
         with pytest.raises(NetworkBlocked, match="network is disabled"):
-            fn(arg) if fn is not socket.getaddrinfo else fn(arg, 443)
+            fn(*args)
 
 
 def test_a_network_tool_cannot_be_started():
@@ -149,18 +156,44 @@ def test_a_python_child_refuses_the_network_too():
     exam's documented opt-in (PP_MOMENTS_ALLOW_NETWORK=1) is the only way around it, and a flag that would skip the
     guard is refused. Nothing here touches the network: a numeric getaddrinfo needs none."""
     from adv_helpers import NetworkBlocked
-    probe = "import socket; print(socket.socket.connect.__name__, socket.socket.sendto.__name__, socket.getaddrinfo.__name__)"
+    probe = ("import socket; print(socket.socket.connect.__name__, socket.socket.sendto.__name__, "
+             "socket.getaddrinfo.__name__, socket.gethostbyaddr.__name__, socket.getnameinfo.__name__)")
     out = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, timeout=60)
-    assert out.stdout.split() == ["_child_no_connect", "_child_no_sendto", "_child_no_getaddrinfo"], out
+    assert out.stdout.split() == ["_child_no_connect", "_child_no_sendto", "_child_no_getaddrinfo",
+                                  "_child_no_gethostbyaddr", "_child_no_getnameinfo"], out
     r = subprocess.run([sys.executable, "-c", "import socket; socket.getaddrinfo('127.0.0.1', 1)"],
                        capture_output=True, text=True, timeout=60)
     assert r.returncode != 0 and "network is disabled" in r.stderr, r.stderr[-400:]
     allowed = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, timeout=60,
                              env=dict(os.environ, PP_MOMENTS_ALLOW_NETWORK="1"))
-    assert allowed.stdout.split() == ["connect", "sendto", "getaddrinfo"], allowed
+    assert allowed.stdout.split() == ["connect", "sendto", "getaddrinfo", "gethostbyaddr", "getnameinfo"], allowed
     for flags in (["-I"], ["-S"], ["-E"], ["-IS"], ["-u", "-E"]):
         with pytest.raises(NetworkBlocked, match="without the network guard"):
             subprocess.run([sys.executable, *flags, "-c", "pass"], capture_output=True)
+
+
+def test_keys_are_read_only_by_name_through_the_pipelines_loader():
+    """Secrets (integrator batch 78, PP-E31; the detection glm asked for): no .py file of this suite names a key file
+    (no string constant ends in, or contains a path to, the project's key file name), and the frontier baseline's
+    key path is the pipeline's loader: relay.get_key of the main tree's video_pipeline_v3, opening no file itself.
+    Nothing is loaded and no key is read here: the check is on the source."""
+    import inspect
+    from baselines import frontier_blind as FB
+    key_file = "." + "env"                               # spelled apart, so this file names none either
+    named, scanned = [], 0
+    for root, dirs, files in os.walk(H.HERE):
+        dirs[:] = [d for d in dirs if d != "__pycache__"]
+        for f in (f for f in files if f.endswith(".py")):
+            p, scanned = os.path.join(root, f), scanned + 1
+            for node in ast.walk(ast.parse(open(p).read())):
+                if isinstance(node, ast.Constant) and isinstance(node.value, str) and (
+                        node.value.endswith(key_file) or "/" + key_file in node.value):
+                    named.append(f"{os.path.relpath(p, H.HERE)}:{node.lineno}")
+    H.control(scanned >= 20, f"the scan walked the suite's .py files ({scanned})")
+    assert named == [], f"a key file is named in the suite (read keys by name through relay.get_key): {named}"
+    assert FB.KEY_LOADER == "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py" and os.path.isfile(FB.KEY_LOADER)
+    src = inspect.getsource(FB._key)
+    assert ".get_key" in src and "open(" not in src, "frontier_blind._key must only call relay.get_key"
 
 
 def test_the_guards_are_this_directorys_only():

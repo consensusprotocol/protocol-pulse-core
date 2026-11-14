@@ -20,11 +20,13 @@ Exit status: 0 thresholds met; 1 thresholds missed; 2 at least one ERROR; 3 modu
 THREAD_SAFE = True (no shared mutable state without a lock); any other gate runs one case at a time whatever --jobs
 says (the run says so). An ERROR row keeps the exception and its traceback tail.
 CPU only (CUDA hidden). No network unless PP_MOMENTS_ALLOW_NETWORK=1 (a model-backed gate or the frontier
-baseline); without it every AF_INET / AF_INET6 connect raises, as in tests/adversarial/conftest.py."""
+baseline); without it every AF_INET / AF_INET6 connect, datagram send and name lookup (forward and reverse)
+raises, as in tests/adversarial/conftest.py."""
 import argparse
 import copy
 import hashlib
 import importlib
+import importlib.util
 import json
 import os
 import random
@@ -60,36 +62,43 @@ class NetworkRefused(BaseException):
     """Not an Exception: a gate's `except Exception` cannot turn a refused connection into a verdict."""
 
 
+def _netguard_names():
+    """The suite's one list of refused network calls (child_guard/netguard_names.py, shared with conftest.py and the
+    child guard; integrator batch 78: this runner's own list had drifted), loaded by path."""
+    spec = importlib.util.spec_from_file_location("_pp_netguard_names",
+                                                  os.path.join(HERE, "child_guard", "netguard_names.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def refuse_network():
-    """connect / connect_ex / sendto / sendmsg over AF_INET(6) and name resolution all raise NetworkRefused (a gate
-    in this process cannot reach a model, a DNS server or a UDP endpoint; a subprocess it starts is not covered)."""
-    real, real_ex = socket.socket.connect, socket.socket.connect_ex
-    real_sendto, real_sendmsg = socket.socket.sendto, socket.socket.sendmsg
+    """Every call of the suite's list raises NetworkRefused: connect / connect_ex / sendto / sendmsg over AF_INET(6),
+    and every name lookup, forward and reverse (getaddrinfo, gethostbyname[_ex], gethostbyaddr, getnameinfo). A gate
+    in this process cannot reach a model, a DNS server or a UDP endpoint; a subprocess it starts is not covered."""
+    ng = _netguard_names()
 
-    def no(self, address, *a, **k):
-        if self.family in (socket.AF_INET, socket.AF_INET6):
-            raise NetworkRefused(f"moments_exam: network is disabled (connect to {address!r}); "
-                                 f"set PP_MOMENTS_ALLOW_NETWORK=1 for a model-backed gate")
-        return real(self, address, *a, **k)
+    def no_inet(name):
+        real = getattr(socket.socket, name)
 
-    def no_ex(self, address, *a, **k):
-        if self.family in (socket.AF_INET, socket.AF_INET6):
-            raise NetworkRefused(f"moments_exam: network is disabled (connect to {address!r})")
-        return real_ex(self, address, *a, **k)
-
-    def no_send(real_fn):
         def f(self, *a, **k):
             if self.family in (socket.AF_INET, socket.AF_INET6):
-                raise NetworkRefused("moments_exam: network is disabled (datagram send)")
-            return real_fn(self, *a, **k)
+                raise NetworkRefused(f"moments_exam: network is disabled ({name} to {ng.refused_target(name, a)!r}); "
+                                     f"set PP_MOMENTS_ALLOW_NETWORK=1 for a model-backed gate")
+            return real(self, *a, **k)
+        f.__name__ = f"_exam_no_{name}"
         return f
 
-    def no_resolve(*a, **k):
-        raise NetworkRefused(f"moments_exam: network is disabled (name resolution of {a[:1]!r})")
+    def no_resolve(name):
+        def f(*a, **k):
+            raise NetworkRefused(f"moments_exam: network is disabled ({name} of {a[:1]!r})")
+        f.__name__ = f"_exam_no_{name}"
+        return f
 
-    socket.socket.connect, socket.socket.connect_ex = no, no_ex
-    socket.socket.sendto, socket.socket.sendmsg = no_send(real_sendto), no_send(real_sendmsg)
-    socket.getaddrinfo = socket.gethostbyname = socket.gethostbyname_ex = no_resolve
+    for name in ng.INET_METHODS:
+        setattr(socket.socket, name, no_inet(name))
+    for name in ng.LOOKUPS:                          # set over any guard already there (the suite's child guard)
+        setattr(socket, name, no_resolve(name))
 
 
 def load_corpus(name, root=None):

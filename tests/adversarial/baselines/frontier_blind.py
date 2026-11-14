@@ -5,10 +5,12 @@ the blinded case only (no expected verdict, no class, no provenance). It is an a
     PP_BASELINE_VENDOR=anthropic|openai PP_MOMENTS_ALLOW_NETWORK=1 \
       python3 tests/adversarial/moments_exam.py --gates baselines.frontier_blind --jobs 6 --report <out.json>
 
-It measures how hard the exam is before the real gates sit it; it is not a gate. Keys are read by name from the
-project's secrets file inside this process and never printed. Every call's cost (from the reply's usage) is
-appended to SPEND.jsonl next to this file; a call whose estimated cost would take the cumulative spend over
-$PP_BASELINE_BUDGET_USD (default 15) is refused (an ERROR row, reported), so the guard holds across both vendors."""
+It measures how hard the exam is before the real gates sit it; it is not a gate. Keys are read by NAME through the
+pipeline's own loader (video_pipeline_v3/relay.get_key, the main tree's copy, as scripts/integrator/grok_audit.py
+reads them) inside this process and never printed; no key-file path is parsed here. Every call's cost (from the
+reply's usage) is appended to SPEND.jsonl next to this file; a call whose estimated cost would take the cumulative
+spend over $PP_BASELINE_BUDGET_USD (default 15) is refused (an ERROR row, reported), so the guard holds across both
+vendors."""
 import contextlib
 import fcntl
 import json
@@ -19,7 +21,10 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-ENV_FILE = "/home/ultron/protocol_pulse/.env"
+# the pipeline's key loader (integrator batch 78: keys by NAME through it, never a key-file path parsed in a test
+# directory). It finds the project's key file next to itself, so it is the main tree's copy, loaded by file path:
+# the exam process imports gate modules by name, so its sys.path is left alone, and no bytecode is written there
+KEY_LOADER = "/home/ultron/protocol_pulse/video_pipeline_v3/relay.py"
 SPEND = os.path.join(HERE, "SPEND.jsonl")          # pinned: one ledger, so no run can start a budget of its own
 BUDGET = float(os.environ.get("PP_BASELINE_BUDGET_USD", "15"))
 VENDOR = os.environ.get("PP_BASELINE_VENDOR", "anthropic")
@@ -36,7 +41,10 @@ PER_CASE_USD = {"anthropic": 0.016, "openai": 0.035, "google": 0.012}   # measur
 
 def preflight(counts):
     """Called by moments_exam before the run: refuse a run whose expected cost would take the ledger over the
-    budget, rather than truncating it into ERROR rows."""
+    budget, rather than truncating it into ERROR rows. It is an ESTIMATE (measured per-case averages, +25 %); the
+    guard is _call's reservation of each call's worst case before it is sent (input at 2.5 characters a token, the
+    full output cap), so a run preflight admits can still stop part-way at BudgetExhausted: those cases are ERROR
+    rows, reported, never verdicts."""
     n = sum(counts.values())
     need = n * PER_CASE_USD.get(VENDOR, 0.05) * 1.25
     spent = _spent()
@@ -64,15 +72,26 @@ class BudgetExhausted(Exception):
     pass
 
 
+_GET_KEY = []
+
+
 def _key(name):
-    with open(ENV_FILE) as f:
-        for line in f:
-            s = line.strip()
-            if s and not s.startswith("#") and "=" in s:
-                k, _, v = s.partition("=")
-                if k.strip() == name:
-                    return v.strip().strip('"').strip("'")
-    raise KeyError(f"{name} not set in the project's secrets file")
+    """The key named `name`, from relay.get_key (the process environment first, then the project's key files; a
+    missing key raises KeyError; a missing loader file raises FileNotFoundError naming it). Called under _TLOCK (from
+    _client). sys.dont_write_bytecode is process-wide: while the loader loads (once), an import by another thread
+    would skip writing its own .pyc too, which is harmless."""
+    if not _GET_KEY:
+        import importlib.util
+        import sys
+        spec = importlib.util.spec_from_file_location("_pp_baseline_relay", KEY_LOADER)
+        mod = importlib.util.module_from_spec(spec)
+        prev, sys.dont_write_bytecode = sys.dont_write_bytecode, True     # no __pycache__ in the main tree
+        try:
+            spec.loader.exec_module(mod)
+        finally:
+            sys.dont_write_bytecode = prev
+        _GET_KEY.append(mod.get_key)
+    return _GET_KEY[0](name)
 
 
 def _client():

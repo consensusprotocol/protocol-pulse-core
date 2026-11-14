@@ -440,10 +440,39 @@ def test_the_gate_never_sees_the_answer(tmp_path):
     assert status == 2 and all(r["verdict"] == ME.ERROR and "KeyError" in r["why"] for r in rows), out
 
 
-def test_the_network_is_refused_unless_allowed(tmp_path):
-    status, rep, out = _run("moments_toy_gates.network", "exclusions", tmp_path)
+@pytest.mark.parametrize("gate", ["moments_toy_gates.network", "moments_toy_gates.network_reverse"])
+def test_the_network_is_refused_unless_allowed(gate, tmp_path):
+    """The RUNNER's own guard refuses (NetworkRefused, 'moments_exam: ...'), not only this suite's child guard (the
+    runner is a Python child of this suite, so tests/adversarial/child_guard is under it too and would refuse with its
+    own message): a connect, and the reverse lookups gethostbyaddr / getnameinfo (integrator batch 78: the runner let
+    gethostbyaddr out). The prefix is the runner's ERROR row format, `{type(e).__name__}: {e}` (moments_exam._judge):
+    a change there fails this test, on purpose. It also holds only because refuse_network() sets its wrappers over the
+    child guard's unconditionally (a 'patch only if unpatched' runner would fail it, rightly)."""
+    status, rep, out = _run(gate, "exclusions", tmp_path)
     rows = rep["corpora"]["exclusions"]["rows"]
-    assert status == 2 and all("network is disabled" in r["why"] for r in rows), out
+    assert status == 2 and all(r["why"].startswith("NetworkRefused: moments_exam: network is disabled")
+                               for r in rows), out
+    if gate.endswith("_reverse"):                    # the toy alternates per case: both need >= 2 rows (33 today)
+        assert {n for n in ("gethostbyaddr", "getnameinfo") if any(f"({n} of " in r["why"] for r in rows)} == \
+            {"gethostbyaddr", "getnameinfo"}, (len(rows), [r["why"][:120] for r in rows[:4]])
+
+
+def test_the_runner_refuses_every_call_of_the_suites_list():
+    """One list, three guards (integrator batch 78): after refuse_network() every call of child_guard/netguard_names.py
+    is the runner's own refusal. Run in a child, because refuse_network patches the socket module for good."""
+    probe = ("import importlib.util, socket, sys; "
+             f"s = importlib.util.spec_from_file_location('me', {os.path.join(HERE, 'moments_exam.py')!r}); "
+             "m = importlib.util.module_from_spec(s); s.loader.exec_module(m); m.refuse_network(); "
+             "ng = m._netguard_names(); "
+             "print(' '.join([getattr(socket.socket, n).__name__ for n in ng.INET_METHODS] + "
+             "[getattr(socket, n).__name__ for n in ng.LOOKUPS]))")
+    out = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True, timeout=60)
+    names = out.stdout.split()
+    if len(names) < 9:
+        pytest.fail(f"CONTROL (test setup, not the pinned defect): the probe ran: {out.stderr[-300:]}")
+    expected = ("connect", "connect_ex", "sendto", "sendmsg",                     # pinned here, not read from the list
+                "getaddrinfo", "gethostbyname", "gethostbyname_ex", "gethostbyaddr", "getnameinfo")
+    assert names == [f"_exam_no_{n}" for n in expected], names
 
 
 @pytest.mark.parametrize("corpus", list(ME.GATES))

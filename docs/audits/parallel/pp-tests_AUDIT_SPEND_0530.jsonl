@@ -17,3 +17,9 @@
 {"t": "2026-11-14T07:51:16-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": null, "out": null, "usd": 0.002, "note": "ESTIMATE: cycle-2 reply lost to IncompleteRead (cut at 43,669 of 46,261 bytes); may have been billed; assumed about its cycle-1 call"}
 {"t": "2026-11-14T07:52:09-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 19351, "out": 5003, "usd": 0.074219, "note": ""}
 {"t": "2026-11-14T07:57:30-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 16618, "out": 11650, "usd": 0.00171, "note": "vendor usage.cost"}
+{"t": "2026-11-14T08:27:11-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 15072, "out": 6276, "usd": 0.0816, "note": ""}
+{"t": "2026-11-14T08:28:03-0500", "vendor": "heimdall", "model": "qwen/qwen3.8-27b", "in": 14194, "out": 3005, "usd": 0.002803, "note": "vendor usage.cost"}
+{"t": "2026-11-14T08:30:20-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 12932, "out": 5199, "usd": 0.001046, "note": "vendor usage.cost"}
+{"t": "2026-11-14T08:36:19-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 19137, "out": 5459, "usd": 0.078511, "note": ""}
+{"t": "2026-11-14T08:36:29-0500", "vendor": "heimdall", "model": "qwen/qwen3.8-27b", "in": 17877, "out": 1909, "usd": 0.003752, "note": "vendor usage.cost"}
+{"t": "2026-11-14T08:41:42-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 16396, "out": 11260, "usd": 0.001905, "note": "vendor usage.cost"}

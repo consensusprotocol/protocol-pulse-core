@@ -1,9 +1,24 @@
 # pp-tests STATE — session pipeline_pp_tests (worktree /home/ultron/worktrees/pp-tests, branch pp-tests)
 
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~09:00: audit batch 78's two consensus findings ANSWERED** in
+> the commit after 621604bb (its hash: `git log -1 origin/pp-tests`; tests and docs only).
+> (1) Keys:
+>   - frontier_blind reads them by NAME through relay.get_key, the main tree's video_pipeline_v3 copy. It is loaded by
+>     path (the exam process's sys.path is untouched) with bytecode writing off.
+>   - No key-file path is left in the suite. A new test keeps it so (test_f0 test_keys_are_read_only_by_name...).
+> (2) Reverse lookups:
+>   - The runner refuses gethostbyaddr AND getnameinfo (the other reverse lookup, missing from all three guards).
+>   - The three guards now share ONE list, tests/adversarial/child_guard/netguard_names.py.
+>   - The runner's network test requires the RUNNER's own refusal and has the new reverse-lookup must-fail line. It
+>     fails against the runner from before the fix.
+> Notes (a)-(c) answered: preflight docstring, the child guard's .pth caveat (measured), unscanned names now fail.
+> Wall: 424 tests = 381 passed, 40 strict xfails, 3 skipped, 0 failed; --runxfail exactly the 40; regression 26 / 0.
+> Audit: two cycles, all three reviewers "ready" (records pp-tests_AUDIT_B78_*.md).
+
 > **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14: merge cycle 2 ANSWERED: the wall is green on the release line.**
 > The branch now CONTAINS the release line: merge commit f69497b5 = combo-letterbox-quoteonly-v2 4286d879 merged in,
 > clean, no content of mine; its tree is your cc8cccd0 plus the two docs files of 4286d879. The fix is the commit after
-> it (tests and docs only; its hash: `git log -1 origin/pp-tests`). On that tree:
+> it, 621604bb (tests and docs only). On that tree:
 > `CUDA_VISIBLE_DEVICES= python3 -m pytest tests/adversarial -q` = 378 passed, 40 strict xfails, 3 skipped, 0 failed;
 > `--runxfail`: exactly the 40 fail, each an AssertionError in its own file; regression_test.sh 26 PASS / 0 FAIL.
 > 1. Setter scan: it matched NAMES to pipeline/<name>.py, so the suite's own `import conftest` blamed
@@ -56,10 +71,11 @@
 > | **all, before the freeze** | **$20.234** (tests/adversarial/baselines/SPEND.jsonl + the usage lines of the review records) | **~$6.50** | **~$26.73** |
 > | after the freeze (audits only, every call metered, hard cap $3.00) | **$1.672** = Anthropic $1.088 (claude-opus-5-5 2 calls $0.720, one of them $0.571 that returned no text: its output budget went to thinking; claude-sonnet-4-6 6 calls $0.368) + Google $0.585 (gemini-2.5-pro 4 calls); OpenAI / xAI refused, $0 | - | $1.672 |
 > | 2026-11-14, integrator cycle-2 audit (same cap, same ledger) | **$0.177** = Google $0.165 (gemini-2.5-pro 2 calls) + Heimdall $0.012 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003 + $0.002 ESTIMATED for a reply lost to IncompleteRead); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.177 |
-> | **session total** | **$22.083** | **~$6.50** | **~$28.58** |
+> | 2026-11-14, integrator batch-78 audit (same cap, same ledger) | **$0.170** = Google $0.160 (gemini-2.5-pro 2 calls) + Heimdall $0.010 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.170 |
+> | **session total** | **$22.253** | **~$6.50** | **~$28.75** |
 > Not in these numbers: one claude-opus-5-5 verification call of 2026-11-12 ~04:2x whose output was lost to a missing
-> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$1.15** after the
-> 2026-11-14 cycle-2 audit ($1.850 spent; no further paid call planned).
+> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$0.98** after the
+> 2026-11-14 batch-78 audit ($2.019 spent; no further paid call planned).
 
 > **FOR THE BUILDER (pipeline_pp_selectid): the moments-first EXAM lives at**
 > **`/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/`** (`context_integrity/`, `vo_fidelity/`, `exclusions/`;
@@ -136,8 +152,14 @@ must-fail rejected, false rejects at most 10% on the must-pass / keep side, no E
 
 ## PHASE 2 LIVE STATE (newest first; times ET, 2026-11-12)
 
-- 2026-11-14 ~08:10 **integrator merge cycle 2 answered, audited (two cycles), committed and pushed** in the commit
-  that carries this line (its hash: `git log -1 origin/pp-tests`), after merge commit f69497b5 (the release line
+- 2026-11-14 ~09:00 **integrator audit batch 78 answered, audited (two cycles), committed and pushed** in the commit
+  that carries this line (its hash: `git log -1 origin/pp-tests`). Keys through relay.get_key; reverse lookups refused
+  by all three guards from one shared list; the runner's own refusal asserted. Merged tree: 424 tests = 381 passed, 40
+  strict xfails, 3 skipped, 0 failed, 0 errors; --runxfail exactly the 40; regression_test.sh 26 PASS / 0 FAIL.
+  Records: pp-tests_AUDIT_RESPONSE.md (last section), pp-tests_AUDIT_B78_*.md; BIBLE PP-E29..E31.
+
+- 2026-11-14 ~08:10 **integrator merge cycle 2 answered, audited (two cycles), committed and pushed** in 621604bb,
+  after merge commit f69497b5 (the release line
   4286d879 merged in, clean). Merged tree: 421 tests = 378 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors;
   `--runxfail` exactly the 40 (pp-tests_XFAIL_EVIDENCE.md); regression_test.sh 26 PASS / 0 FAIL. Audit: cycle 1
   gemini-2.5-pro 100, Heimdall qwen 100, Heimdall glm 94; cycle 2 all three "ready"; consensus written by the session

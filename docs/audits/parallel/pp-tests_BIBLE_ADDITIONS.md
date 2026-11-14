@@ -254,3 +254,38 @@ that is an adapter omission. **Rule:** a format version bump names the fields an
 paid run the adapter is checked against the current format (field by field; a case that is must-fail only through a
 field the adapter drops is a guaranteed false pass). **Detection:** REQUESTS R-29; the format sections of
 pp-tests_STATE.md (v1, v1.1).
+
+## Integrator audit batch 78 (pipeline_pp_dod, 2026-11-14 ~08:20 ET): consensus of qwen27b and glm, both verified
+
+### PP-E29: A network guard that lists forward lookups only lets reverse lookups out
+**Evidence (integrator batch 78, consensus):** the exam runner's refuse_network patched getaddrinfo, gethostbyname
+and gethostbyname_ex but not socket.gethostbyaddr, so a gate's reverse lookup still sent a DNS query. Checking the
+class found the second reverse lookup, socket.getnameinfo (a PTR query unless numeric flags are given), missing from
+ALL THREE guards: the runner's, conftest.py's and the child guard's. **Rule:** a network guard covers connect /
+connect_ex / sendto / sendmsg and every name lookup, forward AND reverse (getaddrinfo, gethostbyname[_ex],
+gethostbyaddr, getnameinfo). When one guard misses a call, check every guard for the same class of call; better,
+keep ONE list for all of them (since batch 78: tests/adversarial/child_guard/netguard_names.py, which conftest.py,
+the child guard and the runner all use). The list is shared; each guard's exception type and restore behaviour stay
+its own (PP-E30: the type names the guard). **Detection:** test_f0 test_no_datagram_and_no_name_lookup_gets_out and
+test_a_python_child_refuses_the_network_too; test_moments_gates test_the_network_is_refused_unless_allowed
+[moments_toy_gates.network_reverse] and test_the_runner_refuses_every_call_of_the_suites_list.
+
+### PP-E30: With layered guards, a test must name WHICH guard refused
+**Evidence (the same finding):** the runner runs as a Python child of this suite, so the child guard sits under it
+too, and the runner's network test asserted only `"network is disabled" in why`. Both guards' messages contain that
+phrase, so the child guard's refusal hid the runner's missing patch: the test passed with the defect present.
+**Rule:** where guards stack, assert the guard under test by its own exception type and message prefix (here
+`NetworkRefused: moments_exam: network is disabled`), and check the must-fail line against the code from before the
+fix (measured: the runner from before refused neither reverse lookup itself; only ChildNetworkBlocked came back).
+**Detection:** test_moments_gates test_the_network_is_refused_unless_allowed (both parameters).
+
+### PP-E31: Keys by NAME through the pipeline's loader, never a key-file path parsed in a test directory
+**Evidence (integrator batch 78, consensus):** baselines/frontier_blind.py hard-coded the main tree's key file and
+parsed it. It read one key by name and printed nothing, but it duplicated the house loader and fixed a secrets path
+inside the test tree. **Rule:** read keys through video_pipeline_v3/relay.get_key (process environment first, then
+the project's key files), as scripts/integrator/grok_audit.py does. Load the MAIN tree's copy, because it finds the
+key file next to itself, and pin its path: a loader path taken from the environment would choose a file to EXECUTE
+in a process that holds keys. In a long-lived process that imports modules by name, load it by file path without
+changing sys.path and with sys.dont_write_bytecode set, so no __pycache__ lands in the main tree. **Detection:**
+test_f0 test_keys_are_read_only_by_name_through_the_pipelines_loader (added in the same batch on glm's P1: no string
+constant of the suite names the key file; the baseline's `_key` only calls relay.get_key).

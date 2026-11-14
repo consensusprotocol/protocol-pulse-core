@@ -13,9 +13,9 @@ directory, and only for it (integrator merge audit 2026-11-12: they used to stay
     records the attempt) for any load outside gpu0; a test that needs a transcript injects it
     (qa_gates.whisper_segment, gate_g18's transcriber, select_passages._whisper_transcribe);
   - no socket can connect, connect_ex, sendto or sendmsg over AF_INET / AF_INET6 (loopback included: a real Ollama
-    listens on 127.0.0.1) and no name can be resolved (getaddrinfo, gethostbyname[_ex], gethostbyaddr): a missing
-    fake or a regressed send path raises NetworkBlocked (a BaseException, so no `except Exception` in the code under
-    test and no pytest.raises(RuntimeError) in a test can absorb it);
+    listens on 127.0.0.1) and no name can be looked up, forward or reverse (getaddrinfo, gethostbyname[_ex],
+    gethostbyaddr, getnameinfo): a missing fake or a regressed send path raises NetworkBlocked (a BaseException, so
+    no `except Exception` in the code under test and no pytest.raises(RuntimeError) in a test can absorb it);
   - a child process may only be one of ALLOWED_PROGRAMS (local tools: ffmpeg / ffprobe on local files, git on this
     repository, read-only nvidia-smi queries) or a Python interpreter, which always starts with child_guard/ first on
     its PYTHONPATH so that its sitecustomize refuses the network exactly like this process (the one way around it is
@@ -62,10 +62,21 @@ class _NoWhisper:
 _FW = types.ModuleType("faster_whisper")
 _FW.WhisperModel = _NoWhisper
 _INET = (socket.AF_INET, socket.AF_INET6)
-_REAL = {"connect": socket.socket.connect, "connect_ex": socket.socket.connect_ex,
-         "sendto": socket.socket.sendto, "sendmsg": socket.socket.sendmsg,
-         "getaddrinfo": socket.getaddrinfo, "gethostbyname": socket.gethostbyname,
-         "gethostbyname_ex": socket.gethostbyname_ex, "gethostbyaddr": socket.gethostbyaddr,
+
+
+def _netguard_names():
+    """The suite's one list of refused network calls (child_guard/netguard_names.py, shared with the child guard and
+    the exam runner), loaded by path: the child guard's directory is never put on this process's sys.path."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("_pp_netguard_names", os.path.join(CHILD_GUARD, "netguard_names.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_NG = _netguard_names()
+INET_METHODS, LOOKUPS = _NG.INET_METHODS, _NG.LOOKUPS
+_REAL = {**{n: getattr(socket.socket, n) for n in INET_METHODS}, **{n: getattr(socket, n) for n in LOOKUPS},
          "popen_init": subprocess.Popen.__init__}
 
 
@@ -78,7 +89,7 @@ def _guard_inet(name):
 
     def guarded(self, *a, **k):
         if self.family in _INET:
-            target = a[-1] if (name in ("sendto", "sendmsg") and a) else (a[0] if a else "?")
+            target = _NG.refused_target(name, a)
             _blocked(f"{name} to {target!r}")
         return real(self, *a, **k)
     guarded.__name__ = f"_no_{name}"
@@ -122,9 +133,8 @@ def _guarded_popen_init(self, args, *a, **k):
     return _REAL["popen_init"](self, args, *a, **k)
 
 
-_GUARDED = {"connect": _guard_inet("connect"), "connect_ex": _guard_inet("connect_ex"),
-            "sendto": _guard_inet("sendto"), "sendmsg": _guard_inet("sendmsg")}
-_LOOKUPS = {n: _guard_lookup(n) for n in ("getaddrinfo", "gethostbyname", "gethostbyname_ex", "gethostbyaddr")}
+_GUARDED = {n: _guard_inet(n) for n in INET_METHODS}
+_LOOKUPS = {n: _guard_lookup(n) for n in LOOKUPS}
 _SAVED = {}
 
 
