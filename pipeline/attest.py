@@ -10,7 +10,10 @@ refused). The takeaway, title and caption are re-gated only if they quote the ch
 The diff is the render's own (pipeline/pinned.adjudicate_lock): canon.canon_tokens of the run's decode against the
 approved text, difflib.SequenceMatcher(autojunk=False) opcodes. canon.py here is byte-identical to the render's, and
 critical() is the render's _lv2_critical with its lists. CPU only, no model call. Imports nothing from package.py
-(package_pin, which the integrator's check imports, must never pull it in)."""
+(package_pin, which the integrator's check imports, must never pull it in).
+
+RULING 84 (orchestrator 20:41 Nov 13) has its own class, class_84, for the render's lock pre-check only (the
+second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged."""
 import re
 from difflib import SequenceMatcher
 
@@ -36,6 +39,10 @@ and or but so because if then when while though although whether
 is are was were be been being am do does did have has had will would can could shall should may might must
 what which who whom whose why how where
 """.split())
+
+
+# RULING 84 (a): the fillers the second recogniser hears and Whisper drops, exactly the ruling's list (canon tokens)
+FILLERS = frozenset(("um", "uh", "er", "ah", "mm", "hmm"))
 
 
 def critical(tok, texts):
@@ -76,6 +83,39 @@ def carry_class(r, p, op, texts):
     if not all(repeats(x, lo, hi) or all(t in FUNCTION_WORDS for t in x[lo:hi]) for x, lo, hi in sides):
         return None
     return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
+
+
+def class_84(spoken, approved):
+    """RULING 84 (orchestrator 20:41 Nov 13): the render's lock pre-check class, as the integrator's pre-check applies
+    it (its message of 20:4x Nov 13), on this side's comparison: the spoken text (the second recogniser's reading)
+    against the approved text. -> [{"spoken", "approved", "class"}], one per difference; a class None holds.
+    1. A filler (FILLERS) inside a difference is dropped from the SPOKEN side only: class "filler". A filler on the
+       approved side alone is not in the class.
+    2. The fillers dropped, the texts are compared again. A number, a negation or a name on either side holds.
+    3. One token against one token, both function words: "one function word". At most ONE per span; another holds.
+    4. Any other substitution (both sides non-empty) holds, a 2-for-2 or 1-for-2 of function words included.
+    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text."""
+    texts = (spoken, approved)
+    r, p, ops = diff(spoken, approved)
+    drop = {i for _tag, a, b, _c, _d in ops for i in range(a, b) if r[i] in FILLERS}
+    out = [{"spoken": r[i], "approved": "", "class": "filler"} for i in sorted(drop)]
+    r2 = [t for i, t in enumerate(r) if i not in drop]
+    one = 0
+    for op in SequenceMatcher(None, r2, p, autojunk=False).get_opcodes():
+        tag, a, b, c, d = op
+        if tag == "equal":
+            continue
+        rs, ps = r2[a:b], p[c:d]
+        if any(critical(t, texts) for t in rs + ps):
+            k = None
+        elif rs and ps:
+            k = "one function word" if (len(rs) == len(ps) == 1 and rs[0] in FUNCTION_WORDS and
+                                        ps[0] in FUNCTION_WORDS and one == 0) else None
+            one += k is not None
+        else:
+            k = carry_class(r2, p, op, texts)
+        out.append({"spoken": " ".join(rs), "approved": " ".join(ps), "class": k})
+    return out
 
 
 def reads(x, s, lo, hi):

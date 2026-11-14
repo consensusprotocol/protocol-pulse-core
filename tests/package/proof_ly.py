@@ -47,9 +47,9 @@ import speakers as SP  # noqa: E402
 REPLIES = os.path.join(HERE, "fixtures", "replies")
 OUT = os.path.join(HERE, "proof")
 SPEND = os.path.join(OUT, "SPEND_LY.json")
-LY_LIMIT_USD = 12.0                # ruling 48 (07:02 Nov 13): $12.00 VENDOR-REPORTED in total for this order (the
-LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate read ~12x high: $39.49 = $3.46 reported);
-LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
+LY_LIMIT_USD = 20.0                # RULING 83 (b) (20:33 Nov 13): $20.00 VENDOR-REPORTED for this order (ruling 48's
+LY_LIMIT_BASIS = "reported"        # $12 before; the old $40 cap by the price-table estimate read ~12x high);
+LY_STOP_USD = 16.0                 # the estimate counts only where a vendor reports none. At $16 no build starts.
                                    # Each paid call still RESERVES its price-table upper bound while in flight.
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
 DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55

@@ -1,0 +1,616 @@
+diff --git a/pipeline/attest.py b/pipeline/attest.py
+index 78a4fde..f45e4d5 100644
+--- a/pipeline/attest.py
++++ b/pipeline/attest.py
+@@ -10,7 +10,10 @@ refused). The takeaway, title and caption are re-gated only if they quote the ch
+ The diff is the render's own (pipeline/pinned.adjudicate_lock): canon.canon_tokens of the run's decode against the
+ approved text, difflib.SequenceMatcher(autojunk=False) opcodes. canon.py here is byte-identical to the render's, and
+ critical() is the render's _lv2_critical with its lists. CPU only, no model call. Imports nothing from package.py
+-(package_pin, which the integrator's check imports, must never pull it in)."""
++(package_pin, which the integrator's check imports, must never pull it in).
++
++RULING 84 (orchestrator 20:41 Nov 13) has its own class, class_84, for the render's lock pre-check only (the
++second recogniser against the lock): fillers, and ONE function word. carry_class (ruling 67's re-seal) is unchanged."""
+ import re
+ from difflib import SequenceMatcher
+ 
+@@ -38,6 +41,10 @@ what which who whom whose why how where
+ """.split())
+ 
+ 
++# RULING 84 (a): the fillers the second recogniser hears and Whisper drops, exactly the ruling's list (canon tokens)
++FILLERS = frozenset(("um", "uh", "er", "ah", "mm", "hmm"))
++
++
+ def critical(tok, texts):
+     """Law L-v 2 as the render tests it (pinned._lv2_critical): a number, a negation, or a name (in either text, a
+     capitalised word that does not open a sentence; 'I' excepted). A doubtful token is critical."""
+@@ -78,6 +85,39 @@ def carry_class(r, p, op, texts):
+     return "immediate repetition" if any(repeats(*s) for s in sides) else "function word"
+ 
+ 
++def class_84(spoken, approved):
++    """RULING 84 (orchestrator 20:41 Nov 13): the render's lock pre-check class, as the integrator's pre-check applies
++    it (its message of 20:4x Nov 13), on this side's comparison: the spoken text (the second recogniser's reading)
++    against the approved text. -> [{"spoken", "approved", "class"}], one per difference; a class None holds.
++    1. A filler (FILLERS) inside a difference is dropped from the SPOKEN side only: class "filler". A filler on the
++       approved side alone is not in the class.
++    2. The fillers dropped, the texts are compared again. A number, a negation or a name on either side holds.
++    3. One token against one token, both function words: "one function word". At most ONE per span; another holds.
++    4. Any other substitution (both sides non-empty) holds, a 2-for-2 or 1-for-2 of function words included.
++    5. An insert or a drop: ruling 67's class (carry_class), unchanged, on the filler-free spoken text."""
++    texts = (spoken, approved)
++    r, p, ops = diff(spoken, approved)
++    drop = {i for _tag, a, b, _c, _d in ops for i in range(a, b) if r[i] in FILLERS}
++    out = [{"spoken": r[i], "approved": "", "class": "filler"} for i in sorted(drop)]
++    r2 = [t for i, t in enumerate(r) if i not in drop]
++    one = 0
++    for op in SequenceMatcher(None, r2, p, autojunk=False).get_opcodes():
++        tag, a, b, c, d = op
++        if tag == "equal":
++            continue
++        rs, ps = r2[a:b], p[c:d]
++        if any(critical(t, texts) for t in rs + ps):
++            k = None
++        elif rs and ps:
++            k = "one function word" if (len(rs) == len(ps) == 1 and rs[0] in FUNCTION_WORDS and
++                                        ps[0] in FUNCTION_WORDS and one == 0) else None
++            one += k is not None
++        else:
++            k = carry_class(r2, p, op, texts)
++        out.append({"spoken": " ".join(rs), "approved": " ".join(ps), "class": k})
++    return out
++
++
+ def reads(x, s, lo, hi):
+     """The second recogniser's tokens s read x's tokens lo..hi-1 AT this position (pinned.adjudicate_lock's reads):
+     they and one neighbour on each side are aligned and consecutive in s; at x's start / end nothing may precede /
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 0cc5e96..4ca0726 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -12,7 +12,7 @@ and answers each name and content once.
+ Results: read only, in /home/ultron/protocol_pulse/data/lock_precheck/results/
+ <video_id>.<start %.3f>-<end %.3f>.<decoder[:12]>.json. Each file is a list. The answer is the newest entry (by "at")
+ that meets all of these:
+-- rules == RULES ("ruling 17 + ruling 72 + ruling 73" since 18:43 Nov 13; an answer under any other rules string,
++- rules == RULES ("ruling 17 + ruling 72 + ruling 73 + ruling 84" since ruling 84; an answer under any other rules string,
+   or in a file named for another decoder, is not valid for the render's code and is never read);
+ - its window is the segment's [start, end];
+ - its role, approved_text, trimmed_leading and untrimmed_start equal the request's.
+@@ -21,9 +21,11 @@ Entries without "rules" are ruling 68's, from before, and are never read.
+ Outcomes:
+ - no_difference, adopted, two_readings: pass. The approved text stands.
+ - adopt_spoken: the text to seal is "spoken_text", already through the render's validate_range + segment_lock. It is
+-  adopted only when this side's own check agrees that every difference is in ruling 67's carry-over class
+-  (attest.carry_class: a function word, or the speaker's own immediate repetition; never a number, a name or a
+-  negation). Otherwise it is a hold (fail closed).
++  adopted only when this side's own check agrees that every difference is in ruling 84's class (attest.class_84,
++  the integrator's class: a filler the second recogniser heard, ONE 1-for-1 function word, else ruling 67's
++  carry-over class for an insert or a drop; never a number, a name or a negation). Otherwise it is a hold (fail
++  closed). Under ruling 84 (b) the spoken text holds the second recogniser's reading of the one function word; the
++  render's lock keeps its decode's word and records the other reading (the entry's "alternatives").
+ - hold: the clip may not be used with that text. The reason says why.
+ - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
+   is sent again rather than reusing an error.
+@@ -38,7 +40,8 @@ from datetime import datetime, timezone
+ 
+ import attest as AT
+ 
+-RULES = "ruling 17 + ruling 72 + ruling 73"   # RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # RULING 84 (orchestrator 20:41 Nov 13): the integrator's
++#   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+ DECODER = "8a101f222598"                      # side): the render's own cut placement joins the pre-check, so its
+ #   decoder_sha changed (8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7); a passing entry carries
+ #   "cut", and a span the render cannot cut holds ("ruling 73: the render cannot cut this span: ...")
+@@ -137,15 +140,12 @@ def decide(seg, e):
+     spoken, approved = e.get("spoken_text"), seg["approved_text"]
+     if not isinstance(spoken, str) or not spoken.strip():
+         return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
+-    r, p, ops = AT.diff(spoken, approved)
+-    if not ops:                                       # the same canonical words: the approved text stands
++    diffs = AT.class_84(spoken, approved)
++    if not diffs:                                     # the same canonical words: the approved text stands
+         return {"verdict": "pass", "outcome": out, "why": "adopt_spoken with no canonical difference"}
+-    classes = [AT.carry_class(r, p, o, (spoken, approved)) for o in ops]
+-    diffs = [{"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "class": k}
+-             for (_, a, b, c, d), k in zip(ops, classes)]
+-    if None in classes:                               # this side's ruling-67 check disagrees: fail closed
++    if any(x["class"] is None for x in diffs):        # this side's ruling-84 check disagrees: fail closed
+         return {"verdict": "hold", "outcome": out, "differences": diffs,
+-                "why": "adopt_spoken, but by this side's attest.carry_class a difference is outside ruling 67's "
++                "why": "adopt_spoken, but by this side's attest.class_84 a difference is outside ruling 84's "
+                        "class: " + str([[x["spoken"], x["approved"]] for x in diffs if x["class"] is None])[:300]}
+     return {"verdict": "adopt", "outcome": out, "why": why, "spoken_text": spoken, "differences": diffs}
+ 
+@@ -180,11 +180,12 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
+             "error": "; ".join(errs)[:600] or None}
+ 
+ 
+-def attested(row, run_rule="ruling 72 (live 17:17 Nov 13): adopt_spoken, in ruling 67's carry-over class"):
++def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
+     """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
+     return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
+             "carried": "every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
+-                       "ruling 67's carry-over class (checked on this side too), and no line quotes the changed words",
++                       "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
++                       "or a drop; checked on this side too), and no line quotes the changed words",
+             "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
+ 
+ 
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index aa6c175..55b66b3 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -178,12 +178,22 @@ class Backend:
+         """The most output tokens this back-end may bill for one call (its own floor applied)."""
+         return max(int(self.spec.get("min_out", 0)), max_tokens)
+ 
+-    def upper_usd(self, prompt, max_tokens, system=None):
+-        """The call's spend upper bound: every prompt character a token (a safe over-estimate), IMAGE_TOKENS_UPPER per
+-        image of a vision prompt, + the output cap."""
++    @staticmethod
++    def prompt_tokens_upper(prompt, system=None):
++        """A prompt's input tokens, counted from above: every character a token (a safe over-estimate), + 200 for the
++        message frame, IMAGE_TOKENS_UPPER per image of a vision prompt."""
+         n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
+-        return self.usd({"in": len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img,
+-                         "out": self.max_out(max_tokens)})
++        return len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img
++
++    def upper_usd(self, prompt, max_tokens, system=None):
++        """The call's spend upper bound: its prompt tokens (prompt_tokens_upper) + the output cap."""
++        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": self.max_out(max_tokens)})
++
++    def prompt_usd(self, prompt, system=None):
++        """RULING 83 (a) (orchestrator 20:33 Nov 13): what a call abandoned at its deadline is booked at: its PROMPT
++        tokens at the listed input rate, no output. A call that never answered has no vendor token count, so the
++        prompt is counted from above (prompt_tokens_upper): never an under-booking."""
++        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": 0})
+ 
+     def key(self, name):
+         k = env_value(self.env_path, name)
+@@ -249,22 +259,35 @@ class DeadlineExceeded(Exception):
+     more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
+ 
+ 
+-def _within(seconds, fn):
++def _within(seconds, fn, on_abandon=None, on_late=None):
+     """fn() in a daemon thread, waited for at most `seconds`. -> its value, or its own exception re-raised, or
+-    DeadlineExceeded. An abandoned thread finishes (or times out) on its own; its result is dropped unrecorded."""
++    DeadlineExceeded. At the deadline on_abandon() runs (it books the abandoned call) BEFORE DeadlineExceeded is
++    raised, under a lock the thread takes when it ends, so the booking always comes first. An abandoned thread finishes
++    (or times out) on its own; then on_late(on_abandon's value, fn's value or None, fn's exception or None) runs in
++    it (ruling 83 (a): a late answer's own figure replaces the booking). Its text is dropped unrecorded. An exception
++    from on_late is dropped (it runs where nobody can catch it); the booking then stands."""
+     import threading
+-    box, done = {}, threading.Event()
++    box, done, lock = {}, threading.Event(), threading.Lock()
+ 
+     def run():
+         try:
+             box["value"] = fn()
+         except BaseException as e:            # handed back to the caller below
+             box["error"] = e
+-        finally:
++        with lock:
+             done.set()
++            late = "abandoned" in box
++        if late and on_late is not None:
++            try:
++                on_late(box["abandoned"], box.get("value"), box.get("error"))
++            except Exception:                 # noqa: BLE001 (no caller is left; the booking stands)
++                pass
+     threading.Thread(target=run, daemon=True, name="pp-deadline").start()
+     if not done.wait(seconds):
+-        raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
++        with lock:
++            if not done.is_set():             # still running: abandoned (an answer at the deadline is used below)
++                box["abandoned"] = on_abandon() if on_abandon is not None else None
++                raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
+     if "error" in box:
+         raise box["error"]
+     return box["value"]
+@@ -670,7 +693,7 @@ class Router:
+         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
+         bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
+         estimate for each call whose vendor reports none (usd_unreported_estimate: those calls, and a call abandoned at
+-        its deadline, booked at its upper bound)."""
++        its deadline, booked at its prompt tokens (ruling 83 (a), 20:33 Nov 13) until a late answer replaces it)."""
+         if self.limit_basis == "reported":
+             if d.get("calls", 0) and "usd_reported" not in d and "usd_unreported_estimate" not in d:
+                 raise SpendLimit("the ledger has calls but keeps no vendor-reported figures: the reported basis "
+@@ -735,6 +758,62 @@ class Router:
+                     d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) + usd, 6)
+             self._save(d)
+ 
++    def _late(self, ab, value, error):
++        """RULING 83 (a): an abandoned call that ended after its deadline (in its own thread). An answer is accounted
++        as an on-time one would have been, in place of its prompt-token booking: the vendor's reported figure, or,
++        with none, the estimate from its own token counts. No answer (an error): the booking stands. Either way one
++        line goes to the deadline log (item 55). The answer's text is never used or recorded."""
++        b, role, booked = ab["backend"], ab["role"], float(ab["usd"])
++        rec = {"kind": "late_answer" if error is None else "late_error", "role": role, "model": b.name,
++               "vendor": b.vendor, "deadline_s": ab.get("deadline_s"),
++               "seconds": round(time.time() - ab["t0"] + float(ab.get("deadline_s") or 0), 2), "booked_usd": booked}
++        if error is None:
++            try:
++                _text, usage, _secs = value
++                usage = dict(usage or {})
++            except (TypeError, ValueError):
++                usage = None
++            if usage is None:
++                rec.update(kind="late_error", error="no (text, usage, seconds) from the back-end")
++            else:
++                usd, rep = b.usd(usage), usage.get("usd_reported")
++                rec.update({"in": usage.get("in"), "out": usage.get("out"), "usd_estimate": usd,
++                            "usd_reported": float(rep) if _num(rep) else None})
++                if self.spend_path:
++                    try:
++                        self._replace_booking(b, role, booked, usage, usd, rep)
++                        rec["replaced"] = True
++                    except Exception as e:             # noqa: BLE001 (audit 2048 C1: on record; the prompt-token
++                        rec.update(replaced=False,     # booking stands, the ledger written whole or not at all)
++                                   ledger_error=f"{type(e).__name__}: {str(e)[:200]}")
++        else:
++            rec["error"] = f"{type(error).__name__}: {str(error)[:200]}"
++        self._log_slow(rec)
++
++    def _replace_booking(self, b, role, booked, usage, usd, rep):
++        """RULING 83 (a): a late answer's accounting in place of its prompt-token booking, in one ledger write: its
++        own token counts, its estimate (usd) for the estimate basis, and on the reported basis the vendor's figure
++        (rep) or, with none, the estimate. The call was counted when it was booked; it is not counted again."""
++        with self._lock():
++            d = self._ledger()
++            bb = d["by_backend"].setdefault(b.name, {"calls": 0, "in": 0, "out": 0, "usd_estimate": 0.0,
++                                                     "price_usd_per_1m": list(b.price)})
++            r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
++            delta = usd - booked
++            bb.update(usd_estimate=round(bb["usd_estimate"] + delta, 6),
++                      **{"in": bb["in"] + int(usage.get("in", 0)), "out": bb["out"] + int(usage.get("out", 0))})
++            r["usd_estimate"] = round(r["usd_estimate"] + delta, 6)
++            d["usd_estimate"] = round(d["usd_estimate"] + delta, 6)
++            d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) - booked, 6)
++            if _num(rep):
++                bb.update(usd_reported=round(bb.get("usd_reported", 0.0) + float(rep), 8),
++                          reported_calls=bb.get("reported_calls", 0) + 1)
++                d["usd_reported"] = round(d.get("usd_reported", 0.0) + float(rep), 8)
++            else:
++                d["usd_unreported_estimate"] = round(d["usd_unreported_estimate"] + usd, 6)
++            d["late_answers"] = d.get("late_answers", 0) + 1
++            self._save(d)
++
+     def reject(self, reply, why=""):
+         """The caller found this reply out of its contract: drop its recording, so the exchange is asked again next
+         time instead of served again (fable C1 U1). Offline replay keeps its recordings. -> True if one was dropped."""
+@@ -810,18 +889,25 @@ class Router:
+                 n = self.heimdall_tripwire()
+                 if n:
+                     notices.append(n)
++
++            def abandon(b=b, key=key, name=name):      # RULING 83 (a): booked at its PROMPT tokens (input rate), an
++                booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
++                self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
++                                "deadline_s": deadline_s, "seconds": deadline_s,
++                                "prompt_chars": len(prompt_text(prompt)),
++                                "max_tokens": max_tokens, "booked_usd": booked})   # evidence first (audit 2048 C1)
++                self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
++                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
+             try:
+                 if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
+-                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system))
++                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system),
++                                                on_abandon=abandon, on_late=self._late)
+                 else:
+                     text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+-            except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
+-                self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
+-                tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
+-                self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
+-                                "deadline_s": deadline_s, "seconds": deadline_s,
+-                                "prompt_chars": len(prompt_text(prompt)),
+-                                "max_tokens": max_tokens})
++            except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
++                booked = b.prompt_usd(prompt, system)  # abandon()
++                tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
++                                    "ruling 83 (a))"))
+                 continue
+             except RequestRejected as e:
+                 self._settle(key)
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 24e4276..dc5fe4a 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -47,9 +47,9 @@ import speakers as SP  # noqa: E402
+ REPLIES = os.path.join(HERE, "fixtures", "replies")
+ OUT = os.path.join(HERE, "proof")
+ SPEND = os.path.join(OUT, "SPEND_LY.json")
+-LY_LIMIT_USD = 12.0                # ruling 48 (07:02 Nov 13): $12.00 VENDOR-REPORTED in total for this order (the
+-LY_LIMIT_BASIS = "reported"        # old $40 cap by the price-table estimate read ~12x high: $39.49 = $3.46 reported);
+-LY_STOP_USD = 10.0                 # the estimate counts only where a vendor reports none. At $10 no build starts.
++LY_LIMIT_USD = 20.0                # RULING 83 (b) (20:33 Nov 13): $20.00 VENDOR-REPORTED for this order (ruling 48's
++LY_LIMIT_BASIS = "reported"        # $12 before; the old $40 cap by the price-table estimate read ~12x high);
++LY_STOP_USD = 16.0                 # the estimate counts only where a vendor reports none. At $16 no build starts.
+                                    # Each paid call still RESERVES its price-table upper bound while in flight.
+ TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
+ DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
+diff --git a/tests/package/test_attest.py b/tests/package/test_attest.py
+index 5263b7a..522a7b9 100644
+--- a/tests/package/test_attest.py
++++ b/tests/package/test_attest.py
+@@ -72,6 +72,41 @@ class TestAttest(unittest.TestCase):
+         self.assertEqual(AT.quotes(["No single owner controls the bitcoin network"], r, p, ops), [])
+ 
+ 
++
++class TestClass84(unittest.TestCase):
++    """RULING 84 (orchestrator 20:41 Nov 13): the pre-check's class, as the integrator applies it, on this side's
++    comparison (the spoken text against the approved text)."""
++
++    def k(self, spoken, approved):
++        return [(x["spoken"], x["approved"], x["class"]) for x in AT.class_84(spoken, approved)]
++
++    def test_fillers_on_the_spoken_side_and_one_function_word(self):
++        self.assertEqual(self.k("So over time, um, I came to think, uh, or the", "So over time, I came to think, so the"),
++                         [("um", "", "filler"), ("uh", "", "filler"), ("or", "so", "one function word")])
++        self.assertEqual(self.k("hmm mm er ah uh um yes", "yes"),
++                         [(f, "", "filler") for f in ("hmm", "mm", "er", "ah", "uh", "um")])
++        self.assertEqual(self.k("Um, the", "the"), [("um", "", "filler")])         # capitalised, still not a name
++        self.assertEqual(self.k("came um came to", "came to"),                      # the repetition, filler-free
++                         [("um", "", "filler"), ("came", "", "immediate repetition")])
++        self.assertEqual(self.k("I think the Bitcoin", "I think Bitcoin"), [("the", "", "function word")])
++        self.assertEqual(self.k("the same", "the same"), [])
++
++    def test_what_holds(self):
++        self.assertEqual(self.k("in the house on it", "on the house in it"),        # a second 1-for-1 holds
++                         [("in", "on", "one function word"), ("on", "in", None)])
++        self.assertEqual(self.k("we went to the store", "we went to a shop"), [("the store", "a shop", None)])
++        self.assertEqual(self.k("went in a store", "went to the store"), [("in a", "to the", None)])   # 2-for-2
++        self.assertEqual(self.k("the", "the um"), [("", "um", None)])              # a filler on the approved side
++        self.assertEqual(self.k("I paid 5 dollars", "I paid 6 dollars"), [("5", "6", None)])
++        self.assertEqual(self.k("it is not", "it is"), [("not", "", None)])
++        self.assertEqual(self.k("um I asked Mike", "I asked mike"), [("um", "", "filler")])   # canon: the same name
++
++    def test_ruling_67s_class_is_unchanged(self):
++        r, p, ops = AT.diff("so um I came", "so I came")
++        self.assertEqual([AT.carry_class(r, p, o, ("so um I came", "so I came")) for o in ops], [None])
++        self.assertEqual(AT.FILLERS, frozenset({"um", "uh", "er", "ah", "mm", "hmm"}))
++
++
+ class TestReseal(unittest.TestCase):
+     """reseal() on the pin the render held, with its run's records rebuilt in a temporary directory."""
+ 
+diff --git a/tests/package/test_lock_precheck.py b/tests/package/test_lock_precheck.py
+index b65d9d9..229792d 100644
+--- a/tests/package/test_lock_precheck.py
++++ b/tests/package/test_lock_precheck.py
+@@ -118,11 +118,48 @@ class TestDecide(unittest.TestCase):
+                        "I think Bitcoin never dropped like 5, 6%."):                      # a number, a name, a negation
+             d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
+             self.assertEqual(d["verdict"], "hold", spoken)
+-            self.assertIn("outside ruling 67's class", d["why"])
++            self.assertIn("outside ruling 84's class", d["why"])
+         same = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text="i think bitcoin only dropped like 5 6%"))
+         self.assertEqual(same["verdict"], "pass")                                          # no canonical difference
+ 
+ 
++
++class TestRuling84(unittest.TestCase):
++    """RULING 84 (orchestrator 20:41 Nov 13): fillers the second recogniser hears adopt; ONE 1-for-1 function word
++    adopts (the render's lock keeps its decode's word and records the other reading); two hold; any other
++    substitution holds. The 20:12 build's held span: [['', 'um'], ['', 'uh'], ['so', 'or']]."""
++    BREEDLOVE = {"moment_id": "b", "video_id": "uaHNzi-Kgr8", "start": 100.0, "end": 112.6,
++                 "text": "So over time, I came to think so the money itself was broken."}
++    s = LP.segments_of([BREEDLOVE])[0]
++
++    def test_the_rules_string_is_the_integrators(self):
++        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84")
++
++    def test_the_held_span_of_the_20_12_build_now_adopts(self):
++        spoken = "So over time, um, I came to think, uh, or the money itself was broken."
++        d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
++        self.assertEqual(d["verdict"], "adopt")
++        self.assertEqual([(x["spoken"], x["approved"], x["class"]) for x in d["differences"]],
++                         [("um", "", "filler"), ("uh", "", "filler"), ("or", "so", "one function word")])
++        row = dict(self.s, **d, entry={"request_id": "r1"})
++        self.assertIn("ruling 84", LP.attested(row)["rule"])
++        self.assertIn("ruling 84's class", LP.attested(row)["carried"])
++
++    def test_what_still_holds(self):
++        for spoken in ("So over time, I came to think or the money itself is broken.",    # two 1-for-1 function words
++                       "So over time, I came to think in a the money itself was broken.", # a 1-for-2 substitution
++                       "So over time, I came to believe so the money itself was broken.", # a content word
++                       "So over time, I came to think so the money itself was not broken.",   # a negation
++                       "So over time, I came to think so the money itself was broken 2."):    # a number
++            d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
++            self.assertEqual(d["verdict"], "hold", spoken)
++            self.assertIn("outside ruling 84's class", d["why"])
++        e = entry(self.s, "adopt_spoken", spoken_text="So over time, I came to think so the money itself was broken.")
++        e["approved_text"] = "So over time, um, I came to think so the money itself was broken."
++        s2 = dict(self.s, approved_text=e["approved_text"])               # a filler on the approved side alone
++        self.assertEqual(LP.decide(s2, e)["verdict"], "hold")
++
++
+ class TestCheck(Dirs):
+     def run_check(self, segs, appear=None, timeout=60.0):
+         t = [0.0]
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index ffb9037..b7498ef 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -78,15 +78,40 @@ class Slow(Fake):
+         return super().complete(prompt, max_tokens, seed, system)
+ 
+ 
++class SlowFail(Slow):
++    """A back-end that fails only after `delay` seconds (a call abandoned at its deadline that never answers)."""
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        import time as _t
++        _t.sleep(self.delay)
++        raise P.Unavailable("HTTP 504 after the deadline")
++
++
++def wait_for(path, kind, timeout=5.0):
++    """The deadline log's lines once one of `kind` is in it (an abandoned thread ends on its own clock)."""
++    import time as _t
++    t0 = _t.time()
++    while _t.time() - t0 < timeout:
++        if os.path.exists(path):
++            with open(path) as f:
++                log = [json.loads(x) for x in f]
++            if any(x["kind"] == kind for x in log):
++                return log
++        _t.sleep(0.05)
++    raise AssertionError(f"no {kind} line in {timeout} s")
++
++
+ class TestDeadline(unittest.TestCase):
+     """Orchestrator 22:40 ruling 5: one writer call never waits more than its deadline; it fails over to the next
+-    back-end, the failover is recorded, and the abandoned call's upper bound is booked as spent."""
++    back-end, and the failover is recorded. RULING 83 (a) (20:33 Nov 13): the abandoned call is booked at its PROMPT
++    tokens at the listed input rate (not the upper bound of a full answer); a late answer's own figure replaces it."""
+ 
+     def test_a_call_that_passes_its_deadline_fails_over_and_is_recorded(self):
+         import tempfile
+         import time as _t
+         with tempfile.TemporaryDirectory() as d:
+-            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
++            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=0.8, family="deepseek",
++                        usage={"in": 1000, "out": 100, "usd_reported": 0.0123})
+             next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
+             r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
+                        spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0,
+@@ -100,12 +125,128 @@ class TestDeadline(unittest.TestCase):
+             self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
+             self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
+             self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
+-            self.assertIn("abandoned at the deadline", rep.tried[0][1])
++            self.assertIn("abandoned at the deadline; booked at its prompt tokens", rep.tried[0][1])
+             led = json.load(open(os.path.join(d, "SPEND.json")))
+-            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)       # booked, at its upper bound
+-            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"],
+-                                   slow.upper_usd("p", 100), places=6)
++            booked = slow.prompt_usd("p")                              # ruling 83 (a): 201 tokens at $10 / 1M
++            self.assertAlmostEqual(booked, 201 * 10 / 1e6, places=9)
++            self.assertLess(booked, slow.upper_usd("p", 100) / 5)     # not the upper bound of a full answer
++            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)
++            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"], booked, places=6)
++            self.assertAlmostEqual(led["usd_unreported_estimate"], booked + next_.usd({"in": 1000, "out": 100}),
++                                   places=6)                           # the answer that was used: no vendor figure
++            self.assertAlmostEqual(log[0]["booked_usd"], booked, places=9)
+             self.assertEqual(led["reserved"], {})                      # no reservation left behind
++            log = wait_for(os.path.join(d, "DEADLINES.jsonl"), "late_answer")   # then the vendor's figure arrives
++            late = [x for x in log if x["kind"] == "late_answer"]
++            self.assertEqual([(x["model"], x["usd_reported"], x["replaced"], x["booked_usd"]) for x in late],
++                             [("heimdall:deepseek", 0.0123, True, booked)])
++            led = json.load(open(os.path.join(d, "SPEND.json")))
++            b = led["by_backend"]["heimdall:deepseek"]
++            self.assertEqual((b["calls"], b["in"], b["out"], b["reported_calls"], led["late_answers"]),
++                             (1, 1000, 100, 1, 1))                     # still one call, now with its own counts
++            self.assertAlmostEqual(b["usd_reported"], 0.0123, places=9)
++            self.assertAlmostEqual(b["usd_estimate"], slow.usd({"in": 1000, "out": 100}), places=6)
++            self.assertAlmostEqual(led["usd_reported"], 0.0123, places=9)        # the booking is replaced, not added
++            self.assertAlmostEqual(led["usd_unreported_estimate"], next_.usd({"in": 1000, "out": 100}), places=6)
++            self.assertAlmostEqual(led["usd_estimate"], slow.usd({"in": 1000, "out": 100}) +
++                                   next_.usd({"in": 1000, "out": 100}), places=6)
++            self.assertEqual(led["reserved"], {})
++
++    def test_ruling_83_a_a_late_error_leaves_the_booking_and_a_late_answer_without_a_figure_is_its_estimate(self):
++        import tempfile
++        for cls, usage, kind in ((SlowFail, None, "late_error"), (Slow, {"in": 3000, "out": 500}, "late_answer")):
++            with tempfile.TemporaryDirectory() as d:
++                slow = cls("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.5, family="glm", usage=usage)
++                next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen",
++                             usage={"in": 10, "out": 10, "usd_reported": 0.001})
++                path = os.path.join(d, "DEADLINES.jsonl")
++                r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]},
++                           spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0, limit_basis="reported",
++                           deadline_log=path)
++                self.assertEqual(r.call("check", "pp", 100, 7, deadline_s=0.1).backend, "heimdall:qwen")
++                booked = slow.prompt_usd("pp")
++                self.assertAlmostEqual(r.spent(), booked + 0.001, places=6)   # the reported basis: booking + figure
++                log = wait_for(path, kind)
++                led = json.load(open(os.path.join(d, "SPEND.json")))
++                if kind == "late_error":                               # no answer: the booking stands
++                    self.assertIn("HTTP 504", [x for x in log if x["kind"] == kind][0]["error"])
++                    self.assertAlmostEqual(led["usd_unreported_estimate"], booked, places=6)
++                    self.assertNotIn("late_answers", led)
++                else:                                                  # an answer, no vendor figure: its estimate
++                    est = slow.usd(usage)
++                    self.assertAlmostEqual(led["usd_unreported_estimate"], est, places=6)
++                    self.assertAlmostEqual(r.spent(), est + 0.001, places=6)
++                    self.assertIsNone([x for x in log if x["kind"] == kind][0]["usd_reported"])
++
++    def test_ruling_83_a_an_unreadable_ledger_at_the_deadline_stops_the_call_and_the_miss_is_logged(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            spend, path = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
++
++            class Corrupts(Slow):                                       # the ledger breaks while the call is out
++                def complete(self, prompt, max_tokens, seed, system=None):
++                    with open(spend, "w") as f:
++                        f.write("{ corrupt")
++                    return super().complete(prompt, max_tokens, seed, system)
++            slow = Corrupts("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.4, family="glm")
++            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
++            r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]}, spend_path=spend,
++                       limit_usd=50.0, deadline_log=path)
++            with self.assertRaises(P.SpendLimit):                       # fail closed: no paid call on an unreadable
++                r.call("check", "pp", 100, 7, deadline_s=0.1)          # total, as before
++            self.assertEqual(next_.calls, 0)
++            with open(path) as f:                                       # the miss is on record all the same
++                self.assertEqual([json.loads(x)["kind"] for x in f], ["missed_deadline"])
++            import time as _t
++            _t.sleep(0.6)                                               # the abandoned thread ends: nothing to do
++            with open(path) as f:
++                self.assertEqual([json.loads(x)["kind"] for x in f], ["missed_deadline"])
++            self.assertEqual(open(spend).read(), "{ corrupt")          # never overwritten
++
++    def test_ruling_83_a_a_late_answer_that_cannot_be_booked_is_on_record_and_the_booking_stands(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            spend, path = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
++            slow = Slow("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.5, family="glm",
++                        usage={"in": 1000, "out": 100, "usd_reported": 0.0123})
++            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
++            r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]}, spend_path=spend,
++                       limit_usd=50.0, deadline_log=path)
++            r.call("check", "pp", 100, 7, deadline_s=0.1)
++            with open(spend, "w") as f:                                  # the ledger breaks before the late answer
++                f.write("{ corrupt")
++            late = [x for x in wait_for(path, "late_answer") if x["kind"] == "late_answer"]
++            self.assertEqual((late[0]["replaced"], late[0]["usd_reported"]), (False, 0.0123))
++            self.assertIn("SpendLimit", late[0]["ledger_error"])
++            self.assertEqual(open(spend).read(), "{ corrupt")
++
++    def test_ruling_83_a_the_booking_always_comes_before_the_late_answer(self):
++        import threading
++        go, order = threading.Event(), []
++
++        def fn():                                                       # answers only once the test lets it
++            go.wait(5)
++            order.append("answered")
++            return "late"
++
++        def abandon():
++            order.append("booked")
++            go.set()                                                    # the answer races the booking
++            import time as _t
++            _t.sleep(0.3)
++            order.append("booked done")
++            return {"k": 1}
++        done = threading.Event()
++
++        def late(ab, value, error):
++            order.append(("late", ab, value, error))
++            done.set()
++        with self.assertRaises(P.DeadlineExceeded):
++            P._within(0.05, fn, on_abandon=abandon, on_late=late)
++        self.assertTrue(done.wait(5))
++        self.assertEqual(order, ["booked", "answered", "booked done", ("late", {"k": 1}, "late", None)])
++        self.assertEqual(P._within(1.0, lambda: 7, on_abandon=abandon, on_late=late), 7)   # in time: neither runs
++        self.assertEqual(len(order), 4)
+ 
+     @staticmethod
+     def lines(path):

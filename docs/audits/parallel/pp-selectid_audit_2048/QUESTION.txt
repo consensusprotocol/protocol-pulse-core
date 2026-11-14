@@ -1,0 +1,88 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins). Only state what
+you can verify from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- providers.Router.call tries a role's chain of back-ends in order. Each paid call RESERVES its price-table upper
+  bound on the spend ledger (a JSON file under an flock) before it runs, and settles after. Ruling 48: the cap is
+  checked on the vendors' own reported dollars (usd_reported), plus an estimate for each call whose vendor reports
+  none (usd_unreported_estimate). A call with deadline_s runs in a daemon thread (_within). At the deadline it is
+  abandoned (Python cannot stop the thread), and the router moves on to the next back-end.
+- BEFORE this change, an abandoned call was booked at its UPPER bound as an unreported estimate: every prompt
+  character a token, plus the back-end's 16,000-token output floor at $15/1M. That is about $0.26 for a Heimdall call.
+  On 20:12 Nov 13, 11 calls abandoned at 120 s booked $2.90 of a build's $2.99. Real answers were $0.09.
+- The render's lock pre-check is the integrator's service (ruling 72). It compares the render's lock (its Whisper
+  decode) with a second recogniser. Its outcome "adopt_spoken" hands over spoken_text, the second recogniser's text,
+  to seal. This side (pipeline/lock_precheck.decide) adopts it only when its OWN check agrees that every difference
+  (spoken_text against the approved text) is in the class. Otherwise it holds (fail closed). The integrator's verdict
+  comes first: this side never sees adopt_spoken for a span the integrator held.
+- pipeline/attest.carry_class is ruling 67's class (an immediate repetition, or all function words; never a number,
+  a name or a negation). Ruling 67's re-seal tool (tests/package/reseal_attested.py) uses it too.
+
+The orders:
+- RULING 83 (orchestrator 20:33 Nov 13): "(a) A call abandoned at the deadline is booked at its PROMPT tokens at the
+  model's listed input rate, not at the upper bound of a full answer; if the vendor later reports a cost for it, the
+  reported figure replaces it. (b) The cap for this order becomes $20.00 vendor-reported, stop-and-tell at $16."
+  "Outages must not be what spends the budget."
+- RULING 84 (orchestrator 20:41 Nov 13): "(a) FILLERS the second recogniser hears and Whisper drops (um, uh, er, ah, mm,
+  hmm) are in the adopt class with the speaker's own repetitions: the lock takes the spoken text, verdicts carry over,
+  G18 compares against it. (b) ONE function-word disagreement between the two recognisers in a span (so / or, a / the,
+  in / on) is the 'one ambiguous token' already ruled acceptable with acoustic identity (numbers, names, negations and
+  content words always hold); the lock keeps the render decode's word and records the other reading. Two or more such
+  disagreements in one span still hold."
+- The integrator's class for ruling 84 (its message, 20:4x Nov 13), difference by difference:
+  1. FILLERS = {um, uh, er, ah, mm, hmm} as canon tokens, dropped from the SECOND RECOGNISER's side only. A difference
+     that is only fillers is "filler" and adopts. A filler on the lock side alone is not in the class.
+  2. A number, negation or name on either side holds.
+  3. One token against one token after fillers, both function words and different: "one function word". At most ONE
+     per span; two or more hold.
+  4. Any other substitution (both sides non-empty after fillers) holds, 2-for-2 and 1-for-2 included.
+  5. A pure insert or drop: ruling 67's class unchanged, on the filler-free sequence.
+  Its RULES string is "ruling 17 + ruling 72 + ruling 73 + ruling 84". Its spoken_text carries the second
+  recogniser's reading of the one function word; the render's lock keeps the decode's word and records the other.
+  Its decoder sha also changes. That value arrives only when the integrator's change is live. It is the ONE line of
+  this change not in the diff: DECODER in pipeline/lock_precheck.py, a 12-hex constant naming the result files.
+
+The change:
+1. pipeline/providers.py:
+   - Backend.prompt_tokens_upper (shared with upper_usd) and Backend.prompt_usd (input tokens only).
+   - _within(seconds, fn, on_abandon, on_late). At the deadline, on_abandon runs under a lock BEFORE
+     DeadlineExceeded is raised. The worker thread takes the same lock when it ends, so the booking always comes
+     before on_late.
+   - Router.call: abandon() books prompt_usd as an unreported estimate and releases the reservation.
+   - Router._late: a late ANSWER is accounted as an on-time answer would have been, in place of the booking: the
+     vendor's figure, or with none, the estimate from its own tokens. A late ERROR leaves the booking. One line goes
+     to the deadline log either way. The late text is never used or recorded.
+2. tests/package/proof_ly.py: LY_LIMIT_USD 12 -> 20, LY_STOP_USD 10 -> 16.
+3. pipeline/attest.py: FILLERS and class_84 (new). carry_class is unchanged.
+4. pipeline/lock_precheck.py:
+   - RULES is the integrator's string;
+   - decide() classifies with class_84;
+   - attested()'s rule and carried texts name ruling 84.
+5. Tests:
+   - providers: the prompt-token booking, then the late vendor figure replacing it (no double count); a late error
+     leaves the booking; a late answer without a figure books its estimate; the ordering of _within with a racing
+     answer.
+   - attest: class_84 case by case; carry_class unchanged.
+   - lock_precheck: the 20:12 held span (um, uh, so/or) now adopts; two 1-for-1 function words, a 1-for-2, a content
+     word, a negation, a number, and a filler on the approved side alone all hold; RULES is the integrator's string.
+
+Design choices to check (each is a decision, say if you think it is wrong):
+- A late answer WITHOUT a vendor figure is booked at the estimate from its own tokens (more than the prompt booking).
+  The ruling names only the reported figure. This keeps a call that measurably used output tokens from being booked
+  below them.
+- The reservation is released at the deadline: the guard no longer holds the in-flight remainder of an abandoned
+  call.
+- Prompt tokens are counted one per character (+200): an abandoned call has no vendor token count.
+- This side's class matches the integrator's exactly. The integrator also allowed a wider one ("every token a
+  function word or a filler").
+
+Check, against the diff:
+- the ledger arithmetic of _late: no double count; usd_unreported_estimate ends exactly as if the call had answered on
+  time; usd_reported moves only on a vendor figure;
+- the ordering: the booking always precedes the late replacement; no deadlock; what happens when on_abandon raises
+  (SpendLimit on an unreadable ledger) and when on_late raises;
+- thread safety of ledger writes from the abandoned thread;
+- class_84 against the integrator's five rules;
+- that nothing the integrator held can be sealed on this side; the cap / stop change.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".

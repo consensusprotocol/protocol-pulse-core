@@ -58,7 +58,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")             # ruling 73's decoder
+                         "DcUbBkyeh9M.216.054-228.674.962353613cb0.json")             # ruling 84's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -118,9 +118,46 @@ class TestDecide(unittest.TestCase):
                        "I think Bitcoin never dropped like 5, 6%."):                      # a number, a name, a negation
             d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
             self.assertEqual(d["verdict"], "hold", spoken)
-            self.assertIn("outside ruling 67's class", d["why"])
+            self.assertIn("outside ruling 84's class", d["why"])
         same = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text="i think bitcoin only dropped like 5 6%"))
         self.assertEqual(same["verdict"], "pass")                                          # no canonical difference
+
+
+
+class TestRuling84(unittest.TestCase):
+    """RULING 84 (orchestrator 20:41 Nov 13): fillers the second recogniser hears adopt; ONE 1-for-1 function word
+    adopts (the render's lock keeps its decode's word and records the other reading); two hold; any other
+    substitution holds. The 20:12 build's held span: [['', 'um'], ['', 'uh'], ['so', 'or']]."""
+    BREEDLOVE = {"moment_id": "b", "video_id": "uaHNzi-Kgr8", "start": 100.0, "end": 112.6,
+                 "text": "So over time, I came to think so the money itself was broken."}
+    s = LP.segments_of([BREEDLOVE])[0]
+
+    def test_the_rules_string_is_the_integrators(self):
+        self.assertEqual(LP.RULES, "ruling 17 + ruling 72 + ruling 73 + ruling 84")
+
+    def test_the_held_span_of_the_20_12_build_now_adopts(self):
+        spoken = "So over time, um, I came to think, uh, or the money itself was broken."
+        d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
+        self.assertEqual(d["verdict"], "adopt")
+        self.assertEqual([(x["spoken"], x["approved"], x["class"]) for x in d["differences"]],
+                         [("um", "", "filler"), ("uh", "", "filler"), ("or", "so", "one function word")])
+        row = dict(self.s, **d, entry={"request_id": "r1"})
+        self.assertIn("ruling 84", LP.attested(row)["rule"])
+        self.assertIn("ruling 84's class", LP.attested(row)["carried"])
+
+    def test_what_still_holds(self):
+        for spoken in ("So over time, I came to think or the money itself is broken.",    # two 1-for-1 function words
+                       "So over time, I came to think in a the money itself was broken.", # a 1-for-2 substitution
+                       "So over time, I came to believe so the money itself was broken.", # a content word
+                       "So over time, I came to think so the money itself was not broken.",   # a negation
+                       "So over time, I came to think so the money itself was broken 2."):    # a number
+            d = LP.decide(self.s, entry(self.s, "adopt_spoken", spoken_text=spoken))
+            self.assertEqual(d["verdict"], "hold", spoken)
+            self.assertIn("outside ruling 84's class", d["why"])
+        e = entry(self.s, "adopt_spoken", spoken_text="So over time, I came to think so the money itself was broken.")
+        e["approved_text"] = "So over time, um, I came to think so the money itself was broken."
+        s2 = dict(self.s, approved_text=e["approved_text"])               # a filler on the approved side alone
+        self.assertEqual(LP.decide(s2, e)["verdict"], "hold")
 
 
 class TestCheck(Dirs):
@@ -143,7 +180,7 @@ class TestCheck(Dirs):
             self.put(s, entry(s))
         rep, sleeps = self.run_check([HOOK, CLIP])
         self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
-        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.8a101f222598.json")
+        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.962353613cb0.json")
 
     def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -166,14 +203,16 @@ class TestCheck(Dirs):
         self.assertEqual(sleeps, [10.0, 10.0, 10.0])
 
     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
-        """Audit 1845 C2 (glm): ruling 73 changed the decoder; a file named for 25cd6f15e6c9 is never opened, even with a
-        matching, newer entry under the current rules."""
+        """Audit 1845 C2 (glm): ruling 73 changed the decoder, and ruling 84 changed it again; a file named for an
+        older decoder (25cd6f15e6c9, 8a101f222598) is never opened, even with a matching, newer entry under the current
+        rules."""
         s = LP.segments_of([HOOK])[0]
-        old = LP.result_file(s, self.res, decoder="25cd6f15e6c9")
-        with open(old, "w") as f:
-            json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
-        self.assertTrue(old.endswith(".25cd6f15e6c9.json"))
-        self.assertIsNone(LP.answer(s, self.res))                                         # only 8a101f222598's file
+        for dec in ("25cd6f15e6c9", "8a101f222598"):
+            old = LP.result_file(s, self.res, decoder=dec)
+            with open(old, "w") as f:
+                json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
+            self.assertTrue(old.endswith(f".{dec}.json"))
+        self.assertIsNone(LP.answer(s, self.res))                                         # only 962353613cb0's file
 
     def test_ruling_73_holds_a_span_the_render_cannot_cut(self):
         segs = LP.segments_of([HOOK, CLIP])

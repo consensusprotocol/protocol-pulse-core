@@ -178,12 +178,22 @@ class Backend:
         """The most output tokens this back-end may bill for one call (its own floor applied)."""
         return max(int(self.spec.get("min_out", 0)), max_tokens)
 
-    def upper_usd(self, prompt, max_tokens, system=None):
-        """The call's spend upper bound: every prompt character a token (a safe over-estimate), IMAGE_TOKENS_UPPER per
-        image of a vision prompt, + the output cap."""
+    @staticmethod
+    def prompt_tokens_upper(prompt, system=None):
+        """A prompt's input tokens, counted from above: every character a token (a safe over-estimate), + 200 for the
+        message frame, IMAGE_TOKENS_UPPER per image of a vision prompt."""
         n_img, text = (len(prompt["images"]), prompt["text"]) if is_vision(prompt) else (0, prompt)
-        return self.usd({"in": len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img,
-                         "out": self.max_out(max_tokens)})
+        return len(text) + len(system or "") + 200 + IMAGE_TOKENS_UPPER * n_img
+
+    def upper_usd(self, prompt, max_tokens, system=None):
+        """The call's spend upper bound: its prompt tokens (prompt_tokens_upper) + the output cap."""
+        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": self.max_out(max_tokens)})
+
+    def prompt_usd(self, prompt, system=None):
+        """RULING 83 (a) (orchestrator 20:33 Nov 13): what a call abandoned at its deadline is booked at: its PROMPT
+        tokens at the listed input rate, no output. A call that never answered has no vendor token count, so the
+        prompt is counted from above (prompt_tokens_upper): never an under-booking."""
+        return self.usd({"in": self.prompt_tokens_upper(prompt, system), "out": 0})
 
     def key(self, name):
         k = env_value(self.env_path, name)
@@ -249,22 +259,35 @@ class DeadlineExceeded(Exception):
     more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
 
 
-def _within(seconds, fn):
+def _within(seconds, fn, on_abandon=None, on_late=None):
     """fn() in a daemon thread, waited for at most `seconds`. -> its value, or its own exception re-raised, or
-    DeadlineExceeded. An abandoned thread finishes (or times out) on its own; its result is dropped unrecorded."""
+    DeadlineExceeded. At the deadline on_abandon() runs (it books the abandoned call) BEFORE DeadlineExceeded is
+    raised, under a lock the thread takes when it ends, so the booking always comes first. An abandoned thread finishes
+    (or times out) on its own; then on_late(on_abandon's value, fn's value or None, fn's exception or None) runs in
+    it (ruling 83 (a): a late answer's own figure replaces the booking). Its text is dropped unrecorded. An exception
+    from on_late is dropped (it runs where nobody can catch it); the booking then stands."""
     import threading
-    box, done = {}, threading.Event()
+    box, done, lock = {}, threading.Event(), threading.Lock()
 
     def run():
         try:
             box["value"] = fn()
         except BaseException as e:            # handed back to the caller below
             box["error"] = e
-        finally:
+        with lock:
             done.set()
+            late = "abandoned" in box
+        if late and on_late is not None:
+            try:
+                on_late(box["abandoned"], box.get("value"), box.get("error"))
+            except Exception:                 # noqa: BLE001 (no caller is left; the booking stands)
+                pass
     threading.Thread(target=run, daemon=True, name="pp-deadline").start()
     if not done.wait(seconds):
-        raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
+        with lock:
+            if not done.is_set():             # still running: abandoned (an answer at the deadline is used below)
+                box["abandoned"] = on_abandon() if on_abandon is not None else None
+                raise DeadlineExceeded(f"no answer within {seconds:.0f} s")
     if "error" in box:
         raise box["error"]
     return box["value"]
@@ -670,7 +693,7 @@ class Router:
         """The ledger total limit_usd is checked against. "estimate": the price-table estimate of every call (an upper
         bound). "reported" (ruling 48, orchestrator 2026-11-13 07:02): the vendors' own reported dollars, plus the
         estimate for each call whose vendor reports none (usd_unreported_estimate: those calls, and a call abandoned at
-        its deadline, booked at its upper bound)."""
+        its deadline, booked at its prompt tokens (ruling 83 (a), 20:33 Nov 13) until a late answer replaces it)."""
         if self.limit_basis == "reported":
             if d.get("calls", 0) and "usd_reported" not in d and "usd_unreported_estimate" not in d:
                 raise SpendLimit("the ledger has calls but keeps no vendor-reported figures: the reported basis "
@@ -733,6 +756,62 @@ class Router:
                     d["usd_reported"] = round(d.get("usd_reported", 0.0) + rep, 8)
                 else:                                  # no vendor figure: the estimate stands for this call
                     d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) + usd, 6)
+            self._save(d)
+
+    def _late(self, ab, value, error):
+        """RULING 83 (a): an abandoned call that ended after its deadline (in its own thread). An answer is accounted
+        as an on-time one would have been, in place of its prompt-token booking: the vendor's reported figure, or,
+        with none, the estimate from its own token counts. No answer (an error): the booking stands. Either way one
+        line goes to the deadline log (item 55). The answer's text is never used or recorded."""
+        b, role, booked = ab["backend"], ab["role"], float(ab["usd"])
+        rec = {"kind": "late_answer" if error is None else "late_error", "role": role, "model": b.name,
+               "vendor": b.vendor, "deadline_s": ab.get("deadline_s"),
+               "seconds": round(time.time() - ab["t0"] + float(ab.get("deadline_s") or 0), 2), "booked_usd": booked}
+        if error is None:
+            try:
+                _text, usage, _secs = value
+                usage = dict(usage or {})
+            except (TypeError, ValueError):
+                usage = None
+            if usage is None:
+                rec.update(kind="late_error", error="no (text, usage, seconds) from the back-end")
+            else:
+                usd, rep = b.usd(usage), usage.get("usd_reported")
+                rec.update({"in": usage.get("in"), "out": usage.get("out"), "usd_estimate": usd,
+                            "usd_reported": float(rep) if _num(rep) else None})
+                if self.spend_path:
+                    try:
+                        self._replace_booking(b, role, booked, usage, usd, rep)
+                        rec["replaced"] = True
+                    except Exception as e:             # noqa: BLE001 (audit 2048 C1: on record; the prompt-token
+                        rec.update(replaced=False,     # booking stands, the ledger written whole or not at all)
+                                   ledger_error=f"{type(e).__name__}: {str(e)[:200]}")
+        else:
+            rec["error"] = f"{type(error).__name__}: {str(error)[:200]}"
+        self._log_slow(rec)
+
+    def _replace_booking(self, b, role, booked, usage, usd, rep):
+        """RULING 83 (a): a late answer's accounting in place of its prompt-token booking, in one ledger write: its
+        own token counts, its estimate (usd) for the estimate basis, and on the reported basis the vendor's figure
+        (rep) or, with none, the estimate. The call was counted when it was booked; it is not counted again."""
+        with self._lock():
+            d = self._ledger()
+            bb = d["by_backend"].setdefault(b.name, {"calls": 0, "in": 0, "out": 0, "usd_estimate": 0.0,
+                                                     "price_usd_per_1m": list(b.price)})
+            r = d["by_role"].setdefault(role, {"calls": 0, "usd_estimate": 0.0})
+            delta = usd - booked
+            bb.update(usd_estimate=round(bb["usd_estimate"] + delta, 6),
+                      **{"in": bb["in"] + int(usage.get("in", 0)), "out": bb["out"] + int(usage.get("out", 0))})
+            r["usd_estimate"] = round(r["usd_estimate"] + delta, 6)
+            d["usd_estimate"] = round(d["usd_estimate"] + delta, 6)
+            d["usd_unreported_estimate"] = round(d.get("usd_unreported_estimate", 0.0) - booked, 6)
+            if _num(rep):
+                bb.update(usd_reported=round(bb.get("usd_reported", 0.0) + float(rep), 8),
+                          reported_calls=bb.get("reported_calls", 0) + 1)
+                d["usd_reported"] = round(d.get("usd_reported", 0.0) + float(rep), 8)
+            else:
+                d["usd_unreported_estimate"] = round(d["usd_unreported_estimate"] + usd, 6)
+            d["late_answers"] = d.get("late_answers", 0) + 1
             self._save(d)
 
     def reject(self, reply, why=""):
@@ -810,18 +889,25 @@ class Router:
                 n = self.heimdall_tripwire()
                 if n:
                     notices.append(n)
-            try:
-                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
-                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system))
-                else:
-                    text, usage, secs = b.complete(prompt, max_tokens, seed, system)
-            except DeadlineExceeded as e:              # abandoned; the vendor may still bill it, so its UPPER bound is
-                self._settle(key, b, {"in": 0, "out": 0}, upper, role)     # booked as spent (estimate, unreported)
-                tried.append((name, f"{e} (abandoned at the deadline; its upper bound ${upper:.2f} booked as spent)"))
+
+            def abandon(b=b, key=key, name=name):      # RULING 83 (a): booked at its PROMPT tokens (input rate), an
+                booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
                 self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
                                 "deadline_s": deadline_s, "seconds": deadline_s,
                                 "prompt_chars": len(prompt_text(prompt)),
-                                "max_tokens": max_tokens})
+                                "max_tokens": max_tokens, "booked_usd": booked})   # evidence first (audit 2048 C1)
+                self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
+                return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
+            try:
+                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
+                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system),
+                                                on_abandon=abandon, on_late=self._late)
+                else:
+                    text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+            except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
+                booked = b.prompt_usd(prompt, system)  # abandon()
+                tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
+                                    "ruling 83 (a))"))
                 continue
             except RequestRejected as e:
                 self._settle(key)

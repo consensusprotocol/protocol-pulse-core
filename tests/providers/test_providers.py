@@ -78,15 +78,40 @@ class Slow(Fake):
         return super().complete(prompt, max_tokens, seed, system)
 
 
+class SlowFail(Slow):
+    """A back-end that fails only after `delay` seconds (a call abandoned at its deadline that never answers)."""
+
+    def complete(self, prompt, max_tokens, seed, system=None):
+        import time as _t
+        _t.sleep(self.delay)
+        raise P.Unavailable("HTTP 504 after the deadline")
+
+
+def wait_for(path, kind, timeout=5.0):
+    """The deadline log's lines once one of `kind` is in it (an abandoned thread ends on its own clock)."""
+    import time as _t
+    t0 = _t.time()
+    while _t.time() - t0 < timeout:
+        if os.path.exists(path):
+            with open(path) as f:
+                log = [json.loads(x) for x in f]
+            if any(x["kind"] == kind for x in log):
+                return log
+        _t.sleep(0.05)
+    raise AssertionError(f"no {kind} line in {timeout} s")
+
+
 class TestDeadline(unittest.TestCase):
     """Orchestrator 22:40 ruling 5: one writer call never waits more than its deadline; it fails over to the next
-    back-end, the failover is recorded, and the abandoned call's upper bound is booked as spent."""
+    back-end, and the failover is recorded. RULING 83 (a) (20:33 Nov 13): the abandoned call is booked at its PROMPT
+    tokens at the listed input rate (not the upper bound of a full answer); a late answer's own figure replaces it."""
 
     def test_a_call_that_passes_its_deadline_fails_over_and_is_recorded(self):
         import tempfile
         import time as _t
         with tempfile.TemporaryDirectory() as d:
-            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=2.0, family="deepseek")
+            slow = Slow("heimdall:deepseek", "heimdall", '{"ok": 1}', delay=0.8, family="deepseek",
+                        usage={"in": 1000, "out": 100, "usd_reported": 0.0123})
             next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
             r = router(d, [slow, next_], {"angle_write": ["heimdall:deepseek", "heimdall:qwen"]},
                        spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0,
@@ -100,12 +125,128 @@ class TestDeadline(unittest.TestCase):
             self.assertLess(_t.time() - t0, 1.5)                       # never waited for the slow one
             self.assertEqual((rep.backend, rep.text), ("heimdall:qwen", '{"ok": 2}'))
             self.assertIn("no answer within 0 s", rep.tried[0][1])   # the failover is recorded on the reply
-            self.assertIn("abandoned at the deadline", rep.tried[0][1])
+            self.assertIn("abandoned at the deadline; booked at its prompt tokens", rep.tried[0][1])
             led = json.load(open(os.path.join(d, "SPEND.json")))
-            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)       # booked, at its upper bound
-            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"],
-                                   slow.upper_usd("p", 100), places=6)
+            booked = slow.prompt_usd("p")                              # ruling 83 (a): 201 tokens at $10 / 1M
+            self.assertAlmostEqual(booked, 201 * 10 / 1e6, places=9)
+            self.assertLess(booked, slow.upper_usd("p", 100) / 5)     # not the upper bound of a full answer
+            self.assertEqual(led["by_backend"]["heimdall:deepseek"]["calls"], 1)
+            self.assertAlmostEqual(led["by_backend"]["heimdall:deepseek"]["usd_estimate"], booked, places=6)
+            self.assertAlmostEqual(led["usd_unreported_estimate"], booked + next_.usd({"in": 1000, "out": 100}),
+                                   places=6)                           # the answer that was used: no vendor figure
+            self.assertAlmostEqual(log[0]["booked_usd"], booked, places=9)
             self.assertEqual(led["reserved"], {})                      # no reservation left behind
+            log = wait_for(os.path.join(d, "DEADLINES.jsonl"), "late_answer")   # then the vendor's figure arrives
+            late = [x for x in log if x["kind"] == "late_answer"]
+            self.assertEqual([(x["model"], x["usd_reported"], x["replaced"], x["booked_usd"]) for x in late],
+                             [("heimdall:deepseek", 0.0123, True, booked)])
+            led = json.load(open(os.path.join(d, "SPEND.json")))
+            b = led["by_backend"]["heimdall:deepseek"]
+            self.assertEqual((b["calls"], b["in"], b["out"], b["reported_calls"], led["late_answers"]),
+                             (1, 1000, 100, 1, 1))                     # still one call, now with its own counts
+            self.assertAlmostEqual(b["usd_reported"], 0.0123, places=9)
+            self.assertAlmostEqual(b["usd_estimate"], slow.usd({"in": 1000, "out": 100}), places=6)
+            self.assertAlmostEqual(led["usd_reported"], 0.0123, places=9)        # the booking is replaced, not added
+            self.assertAlmostEqual(led["usd_unreported_estimate"], next_.usd({"in": 1000, "out": 100}), places=6)
+            self.assertAlmostEqual(led["usd_estimate"], slow.usd({"in": 1000, "out": 100}) +
+                                   next_.usd({"in": 1000, "out": 100}), places=6)
+            self.assertEqual(led["reserved"], {})
+
+    def test_ruling_83_a_a_late_error_leaves_the_booking_and_a_late_answer_without_a_figure_is_its_estimate(self):
+        import tempfile
+        for cls, usage, kind in ((SlowFail, None, "late_error"), (Slow, {"in": 3000, "out": 500}, "late_answer")):
+            with tempfile.TemporaryDirectory() as d:
+                slow = cls("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.5, family="glm", usage=usage)
+                next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen",
+                             usage={"in": 10, "out": 10, "usd_reported": 0.001})
+                path = os.path.join(d, "DEADLINES.jsonl")
+                r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]},
+                           spend_path=os.path.join(d, "SPEND.json"), limit_usd=50.0, limit_basis="reported",
+                           deadline_log=path)
+                self.assertEqual(r.call("check", "pp", 100, 7, deadline_s=0.1).backend, "heimdall:qwen")
+                booked = slow.prompt_usd("pp")
+                self.assertAlmostEqual(r.spent(), booked + 0.001, places=6)   # the reported basis: booking + figure
+                log = wait_for(path, kind)
+                led = json.load(open(os.path.join(d, "SPEND.json")))
+                if kind == "late_error":                               # no answer: the booking stands
+                    self.assertIn("HTTP 504", [x for x in log if x["kind"] == kind][0]["error"])
+                    self.assertAlmostEqual(led["usd_unreported_estimate"], booked, places=6)
+                    self.assertNotIn("late_answers", led)
+                else:                                                  # an answer, no vendor figure: its estimate
+                    est = slow.usd(usage)
+                    self.assertAlmostEqual(led["usd_unreported_estimate"], est, places=6)
+                    self.assertAlmostEqual(r.spent(), est + 0.001, places=6)
+                    self.assertIsNone([x for x in log if x["kind"] == kind][0]["usd_reported"])
+
+    def test_ruling_83_a_an_unreadable_ledger_at_the_deadline_stops_the_call_and_the_miss_is_logged(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            spend, path = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
+
+            class Corrupts(Slow):                                       # the ledger breaks while the call is out
+                def complete(self, prompt, max_tokens, seed, system=None):
+                    with open(spend, "w") as f:
+                        f.write("{ corrupt")
+                    return super().complete(prompt, max_tokens, seed, system)
+            slow = Corrupts("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.4, family="glm")
+            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
+            r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]}, spend_path=spend,
+                       limit_usd=50.0, deadline_log=path)
+            with self.assertRaises(P.SpendLimit):                       # fail closed: no paid call on an unreadable
+                r.call("check", "pp", 100, 7, deadline_s=0.1)          # total, as before
+            self.assertEqual(next_.calls, 0)
+            with open(path) as f:                                       # the miss is on record all the same
+                self.assertEqual([json.loads(x)["kind"] for x in f], ["missed_deadline"])
+            import time as _t
+            _t.sleep(0.6)                                               # the abandoned thread ends: nothing to do
+            with open(path) as f:
+                self.assertEqual([json.loads(x)["kind"] for x in f], ["missed_deadline"])
+            self.assertEqual(open(spend).read(), "{ corrupt")          # never overwritten
+
+    def test_ruling_83_a_a_late_answer_that_cannot_be_booked_is_on_record_and_the_booking_stands(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            spend, path = os.path.join(d, "SPEND.json"), os.path.join(d, "DEADLINES.jsonl")
+            slow = Slow("heimdall:glm", "heimdall", '{"ok": 1}', delay=0.5, family="glm",
+                        usage={"in": 1000, "out": 100, "usd_reported": 0.0123})
+            next_ = Fake("heimdall:qwen", "heimdall", answer='{"ok": 2}', family="qwen")
+            r = router(d, [slow, next_], {"check": ["heimdall:glm", "heimdall:qwen"]}, spend_path=spend,
+                       limit_usd=50.0, deadline_log=path)
+            r.call("check", "pp", 100, 7, deadline_s=0.1)
+            with open(spend, "w") as f:                                  # the ledger breaks before the late answer
+                f.write("{ corrupt")
+            late = [x for x in wait_for(path, "late_answer") if x["kind"] == "late_answer"]
+            self.assertEqual((late[0]["replaced"], late[0]["usd_reported"]), (False, 0.0123))
+            self.assertIn("SpendLimit", late[0]["ledger_error"])
+            self.assertEqual(open(spend).read(), "{ corrupt")
+
+    def test_ruling_83_a_the_booking_always_comes_before_the_late_answer(self):
+        import threading
+        go, order = threading.Event(), []
+
+        def fn():                                                       # answers only once the test lets it
+            go.wait(5)
+            order.append("answered")
+            return "late"
+
+        def abandon():
+            order.append("booked")
+            go.set()                                                    # the answer races the booking
+            import time as _t
+            _t.sleep(0.3)
+            order.append("booked done")
+            return {"k": 1}
+        done = threading.Event()
+
+        def late(ab, value, error):
+            order.append(("late", ab, value, error))
+            done.set()
+        with self.assertRaises(P.DeadlineExceeded):
+            P._within(0.05, fn, on_abandon=abandon, on_late=late)
+        self.assertTrue(done.wait(5))
+        self.assertEqual(order, ["booked", "answered", "booked done", ("late", {"k": 1}, "late", None)])
+        self.assertEqual(P._within(1.0, lambda: 7, on_abandon=abandon, on_late=late), 7)   # in time: neither runs
+        self.assertEqual(len(order), 4)
 
     @staticmethod
     def lines(path):

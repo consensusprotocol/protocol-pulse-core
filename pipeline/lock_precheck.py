@@ -12,7 +12,7 @@ and answers each name and content once.
 Results: read only, in /home/ultron/protocol_pulse/data/lock_precheck/results/
 <video_id>.<start %.3f>-<end %.3f>.<decoder[:12]>.json. Each file is a list. The answer is the newest entry (by "at")
 that meets all of these:
-- rules == RULES ("ruling 17 + ruling 72 + ruling 73" since 18:43 Nov 13; an answer under any other rules string,
+- rules == RULES ("ruling 17 + ruling 72 + ruling 73 + ruling 84" since ruling 84; an answer under any other rules string,
   or in a file named for another decoder, is not valid for the render's code and is never read);
 - its window is the segment's [start, end];
 - its role, approved_text, trimmed_leading and untrimmed_start equal the request's.
@@ -21,9 +21,11 @@ Entries without "rules" are ruling 68's, from before, and are never read.
 Outcomes:
 - no_difference, adopted, two_readings: pass. The approved text stands.
 - adopt_spoken: the text to seal is "spoken_text", already through the render's validate_range + segment_lock. It is
-  adopted only when this side's own check agrees that every difference is in ruling 67's carry-over class
-  (attest.carry_class: a function word, or the speaker's own immediate repetition; never a number, a name or a
-  negation). Otherwise it is a hold (fail closed).
+  adopted only when this side's own check agrees that every difference is in ruling 84's class (attest.class_84,
+  the integrator's class: a filler the second recogniser heard, ONE 1-for-1 function word, else ruling 67's
+  carry-over class for an insert or a drop; never a number, a name or a negation). Otherwise it is a hold (fail
+  closed). Under ruling 84 (b) the spoken text holds the second recogniser's reading of the one function word; the
+  render's lock keeps its decode's word and records the other reading (the entry's "alternatives").
 - hold: the clip may not be used with that text. The reason says why.
 - error, an outcome this module does not know, or no answer in time: no verdict. Never a pass (law L-m). A request
   is sent again rather than reusing an error.
@@ -38,10 +40,12 @@ from datetime import datetime, timezone
 
 import attest as AT
 
-RULES = "ruling 17 + ruling 72 + ruling 73"   # RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
-DECODER = "8a101f222598"                      # side): the render's own cut placement joins the pre-check, so its
-#   decoder_sha changed (8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7); a passing entry carries
-#   "cut", and a span the render cannot cut holds ("ruling 73: the render cannot cut this span: ...")
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # RULING 84 (orchestrator 20:41 Nov 13): the integrator's
+#   RULES string (its message of 20:4x Nov 13). RULING 73 (live 18:43:08 Nov 13, merged 585b6da5 on the integrator's
+DECODER = "962353613cb0"                      # side): the render's own cut placement joins the pre-check (a passing
+#   entry carries "cut"; a span the render cannot cut holds: "ruling 73: the render cannot cut this span: ..."). RULING
+#   84 changes the render's adjudicate_lock (pinned.py), so the decoder_sha changed again: 962353613cb0e065008ab0405ca8550111ddd3ca3ba70f0ae65b4b77ab1876d8
+#   (ruling 73's was 8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7)
 RESULTS = "/home/ultron/protocol_pulse/data/lock_precheck/results"        # the integrator's; read only
 REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
                         "lock_requests")      # this worktree's; the service only reads it
@@ -137,15 +141,12 @@ def decide(seg, e):
     spoken, approved = e.get("spoken_text"), seg["approved_text"]
     if not isinstance(spoken, str) or not spoken.strip():
         return {"verdict": "error", "outcome": out, "why": "adopt_spoken without a spoken_text"}
-    r, p, ops = AT.diff(spoken, approved)
-    if not ops:                                       # the same canonical words: the approved text stands
+    diffs = AT.class_84(spoken, approved)
+    if not diffs:                                     # the same canonical words: the approved text stands
         return {"verdict": "pass", "outcome": out, "why": "adopt_spoken with no canonical difference"}
-    classes = [AT.carry_class(r, p, o, (spoken, approved)) for o in ops]
-    diffs = [{"spoken": " ".join(r[a:b]), "approved": " ".join(p[c:d]), "class": k}
-             for (_, a, b, c, d), k in zip(ops, classes)]
-    if None in classes:                               # this side's ruling-67 check disagrees: fail closed
+    if any(x["class"] is None for x in diffs):        # this side's ruling-84 check disagrees: fail closed
         return {"verdict": "hold", "outcome": out, "differences": diffs,
-                "why": "adopt_spoken, but by this side's attest.carry_class a difference is outside ruling 67's "
+                "why": "adopt_spoken, but by this side's attest.class_84 a difference is outside ruling 84's "
                        "class: " + str([[x["spoken"], x["approved"]] for x in diffs if x["class"] is None])[:300]}
     return {"verdict": "adopt", "outcome": out, "why": why, "spoken_text": spoken, "differences": diffs}
 
@@ -180,11 +181,12 @@ def check(segs, request_id, requests_dir=REQUESTS, results_dir=RESULTS, timeout_
             "error": "; ".join(errs)[:600] or None}
 
 
-def attested(row, run_rule="ruling 72 (live 17:17 Nov 13): adopt_spoken, in ruling 67's carry-over class"):
+def attested(row, run_rule="ruling 72 + ruling 84 (20:41 Nov 13): adopt_spoken, in ruling 84's class"):
     """The sealed record of an adopted text (package_pin.SEALED_LATER "attested"), as ruling 67's re-seal records it."""
     return {"rule": run_rule, "was": row["approved_text"], "differences": row["differences"],
             "carried": "every verdict and gate of this line-up, judged on the text it replaces: each difference is in "
-                       "ruling 67's carry-over class (checked on this side too), and no line quotes the changed words",
+                       "ruling 84's class (a filler, one function word, or ruling 67's carry-over class for an insert "
+                       "or a drop; checked on this side too), and no line quotes the changed words",
             "render": {"precheck": row["entry"], "spoken_text": row["spoken_text"]}}
 
 

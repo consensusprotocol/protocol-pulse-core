@@ -72,6 +72,43 @@ class TestAttest(unittest.TestCase):
         self.assertEqual(AT.quotes(["No single owner controls the bitcoin network"], r, p, ops), [])
 
 
+
+class TestClass84(unittest.TestCase):
+    """RULING 84 (orchestrator 20:41 Nov 13): the pre-check's class, as the integrator applies it, on this side's
+    comparison (the spoken text against the approved text)."""
+
+    def k(self, spoken, approved):
+        return [(x["spoken"], x["approved"], x["class"]) for x in AT.class_84(spoken, approved)]
+
+    def test_fillers_on_the_spoken_side_and_one_function_word(self):
+        self.assertEqual(self.k("So over time, um, I came to think, uh, or the", "So over time, I came to think, so the"),
+                         [("um", "", "filler"), ("uh", "", "filler"), ("or", "so", "one function word")])
+        self.assertEqual(self.k("hmm mm er ah uh um yes", "yes"),
+                         [(f, "", "filler") for f in ("hmm", "mm", "er", "ah", "uh", "um")])
+        self.assertEqual(self.k("Um, the", "the"), [("um", "", "filler")])         # capitalised, still not a name
+        self.assertEqual(self.k("came um came to", "came to"),                      # the repetition, filler-free
+                         [("um", "", "filler"), ("came", "", "immediate repetition")])
+        self.assertEqual(self.k("I think the Bitcoin", "I think Bitcoin"), [("the", "", "function word")])
+        self.assertEqual(self.k("the same", "the same"), [])
+        self.assertEqual(self.k("so, um, yes", "so um yes"), [])                  # a filler both sides heard stays
+        self.assertEqual(self.k("so, um, the", "so um a"), [("the", "a", "one function word")])   # (audit 2048 glm)
+
+    def test_what_holds(self):
+        self.assertEqual(self.k("in the house on it", "on the house in it"),        # a second 1-for-1 holds
+                         [("in", "on", "one function word"), ("on", "in", None)])
+        self.assertEqual(self.k("we went to the store", "we went to a shop"), [("the store", "a shop", None)])
+        self.assertEqual(self.k("went in a store", "went to the store"), [("in a", "to the", None)])   # 2-for-2
+        self.assertEqual(self.k("the", "the um"), [("", "um", None)])              # a filler on the approved side
+        self.assertEqual(self.k("I paid 5 dollars", "I paid 6 dollars"), [("5", "6", None)])
+        self.assertEqual(self.k("it is not", "it is"), [("not", "", None)])
+        self.assertEqual(self.k("um I asked Mike", "I asked mike"), [("um", "", "filler")])   # canon: the same name
+
+    def test_ruling_67s_class_is_unchanged(self):
+        r, p, ops = AT.diff("so um I came", "so I came")
+        self.assertEqual([AT.carry_class(r, p, o, ("so um I came", "so I came")) for o in ops], [None])
+        self.assertEqual(AT.FILLERS, frozenset({"um", "uh", "er", "ah", "mm", "hmm"}))
+
+
 class TestReseal(unittest.TestCase):
     """reseal() on the pin the render held, with its run's records rebuilt in a temporary directory."""
 
