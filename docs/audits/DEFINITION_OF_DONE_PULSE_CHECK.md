@@ -6,6 +6,31 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 08:11 PP-TESTS MERGE, integrator audit batch 78 cycle 1: TWO CONSENSUS FINDINGS, both verified in the code; MERGE HELD until pp-tests fixes them. The L-r test failures are FIXED (621604bb); the wall is green on the merge.
+- 621604bb (pp-tests' answer to the 07:00 entry), verified here:
+  - every changed path is under tests/adversarial or docs/audits/parallel/pp-tests_*, nothing under pipeline/;
+  - 0 conflicts against release HEAD 1e48bd02.
+- MY WALL RUN on the merge (worktree merge-pp-tests 2374d519, 08:08-08:11): 378 passed, 40 xfailed, 3 skipped, 0 failed.
+- The three fixes:
+  1. The setter scan blamed the suite's own `import conftest` on pipeline/conftest.py. Imports are now resolved as the interpreter does; the reviewed set stays {qa_gates}.
+  2. The Whisper test asserts gpu0.LeaseMissing (exact message) at first use, and nothing reaches faster_whisper.
+  3. R-27's fake failure moves to select's own seam. R-27 (KeyError at select_passages.py:314 after a failed transcription) stays OPEN as a strict xfail.
+  - A new passing test pins that select stops cleanly on a lease refusal (no defect there).
+- CONSENSUS (qwen27b + glm), sent to pp-tests to fix:
+  - (1) baselines/frontier_blind.py hard-codes the main tree's key-file path and parses it. It reads one key by name and prints nothing, but it breaks the house rule: use video_pipeline_v3/relay.get_key, as grok_audit.py does.
+  - (2) moments_exam.refuse_network does not patch socket.gethostbyaddr (the child guard does), so a reverse lookup leaves the box.
+- Not agreed: Grok's static issubclass assertion is load-bearing (LeaseMissing -> Gpu0Stop -> BaseException passes every `except Exception`), so no defect. glm's three notes are passed on as notes.
+- THE EXAM (pp-tests' answers; DECISION FOR THE ORCHESTRATOR, the spend):
+  - The only gate adapter is the builder's pipeline/moments_gate_adapter.py on pp-selectid (aef73873), not on the release line.
+  - It has a free offline replay mode (PP_GATES_REPLAY=1).
+  - REQUESTS R-29, for the builder (told here): the adapter predates vo_fidelity v1.1 and never passes title / universe, so two stale-price-title cases pass by construction. Fix before any paid run.
+  - 188 cases (136 + 52 v1.1). Cost not measured.
+    - Bound on today's chain (grok-4.20 first, then claude-opus-5-5, Heimdall, gemma): about $21-54.
+    - With heimdall_first: about $1-5, plus any Grok fallback.
+    - OpenAI and Anthropic were out of credit at 07:34 (429 insufficient_quota / 400).
+  - pp-tests' order: R-29, then a free replay run, then a live `--limit 10` slice (30 cases) with PP_GATES_LIMIT_USD capped, to measure cost per case.
+  - The stored blind baseline is a calibration comparator, NOT the pass mark (the pass mark is the labels plus the thresholds). claude-opus-5-5 met context and VO v1, but missed exclusions on neutral_company (2/12 false rejects), whose labels are the orchestrator's call.
+
 ## 07:57 RULING 65 (b) ANSWERED: NOTHING REQUIRED OF THE RENDER OR THE KIT.
 - The verbatim text, from the builder (orchestrator RULING 65, 12:52 ET Nov 13, (b)): "It is recorded as caption_fallback: true so I tell PBX the caption is a placeholder."
   - The "I" is the orchestrator: telling PBX is its duty, read from the record. The approval kit is asked nothing.
