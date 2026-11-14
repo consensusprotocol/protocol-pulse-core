@@ -29,6 +29,9 @@ Rules:
                               takeaway after the last clip and at most ONE line
                               before it (intro slot or between clips), only with
                               the package's recorded, confirmed bridge. No minimum.
+    takeaway_value (ruling 91, medley half): NOT a validate_edl rule (the
+                              references predate it); the live path calls it: a
+                              medley's takeaway only with its sealed value verdict.
 """
 import math
 import argparse
@@ -802,6 +805,48 @@ def rule_r11(edl):
         return False, "R11 FAIL (law L-y): " + "; ".join(failures)
     return True, (f"R11 PASS (law L-y): {len(before)} bridge (recorded and confirmed) before the takeaway; "
                   f"{closing} takeaway line(s)")
+
+
+TAKEAWAY_VALUE_ROW = "takeaway_value"      # ruling 91's MEDLEY half: the builder's sealed row (agreed 2026-11-14)
+
+
+def takeaway_value(edl):
+    """Ruling 91, the MEDLEY half (law L-ab (91): 'the same value verdict also applies to a MEDLEY's takeaway going
+    forward'). A package of type 'moments' that is not a spotlight and voices a takeaway (the line after the LAST clip)
+    renders it only with the builder's sealed value verdict on THAT line: moments_gates[TAKEAWAY_VALUE_ROW] (copied by
+    pinned.build_edl from moments_package.gates) is an object with status exactly "PASS", replayed exactly False, and
+    text equal to the takeaway after strip (R11's moments_bridge rule), so a verdict on a first draft never carries the
+    one rewrite. No takeaway (L-y's no-voice shape) needs no row. Story-type, untyped and spotlight EDLs are not this
+    check (a spotlight's closing line has its own sealed rows, pinned._spotlight_vo). NOT a validate_edl rule: the
+    protected references' pins predate the ruling ('going forward'); the live path (run_fresh.stage_validate) and
+    scripts/integrator/check_pin_only.py call it. Fail closed: a malformed vo, clips or line, or two takeaways."""
+    if edl.get("package_type") != "moments" or _spotlight(edl):
+        return True, "ruling 91 (medley): not a medley (story-type, untyped or spotlight): no takeaway verdict"
+    vo, clips = edl.get("vo"), edl.get("clips")
+    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips or not isinstance(vo.get("bridges"), list):
+        return False, "ruling 91 (medley): a moments EDL without a vo object, a bridges list and clips"
+    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+    lines = [b.get("after_clip") if isinstance(b, dict) else None for b in vo["bridges"]]
+    if any(type(i) is not int for i in idx + lines):
+        return False, f"ruling 91 (medley): clip indexes {idx!r} or line slots {lines!r} are not integers"
+    takeaways = [b for b in vo["bridges"] if b["after_clip"] == max(idx)]
+    if not takeaways:
+        return True, "ruling 91 (medley): no takeaway (the no-voice shape): no value verdict needed"
+    if len(takeaways) > 1:
+        return False, f"ruling 91 (medley): {len(takeaways)} lines after the last clip (one takeaway)"
+    line = takeaways[0].get("text")
+    if not isinstance(line, str) or not line.strip():
+        return False, "ruling 91 (medley): the takeaway after the last clip is not text"
+    gates = edl.get("moments_gates")
+    row = gates.get(TAKEAWAY_VALUE_ROW) if isinstance(gates, dict) else None
+    if not isinstance(row, dict):
+        return False, f"ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.{TAKEAWAY_VALUE_ROW})"
+    if row.get("status") != "PASS" or row.get("replayed") is not False:
+        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live (status "
+                       f"{row.get('status')!r}, replayed {row.get('replayed')!r})")
+    if not isinstance(row.get("text"), str) or row["text"].strip() != line.strip():
+        return False, "ruling 91 (medley): the value verdict judged another line (its text is not the takeaway)"
+    return True, f"ruling 91 (medley): the takeaway carries its sealed value verdict (by {row.get('by')!r})"
 
 
 def validate_edl(edl, channels_registry=None, layout_tables_dir=None,

@@ -1,13 +1,15 @@
 """A sealed moments-first pin checked on its OWN content (CPU only; orchestrator '06:22': render the instant the pin is
 readable). Ready = type 'moments'; every required gate of the sealed inventory exactly PASS and not replayed
 (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
-the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it.
+the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
+main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch.
 Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
 import importlib.util
 import json
 import sys
 
 sys.path.insert(0, "/home/ultron/protocol_pulse/pipeline")
+import edl_rules  # noqa: E402
 import pinned  # noqa: E402
 
 
@@ -36,8 +38,15 @@ def main(path, want=None):
     pinned.validate_schema(pin)
     segs = pin["segments"]
     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
+    view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
+            "moments_gates": mp.get("gates")}                 # the EDL fields pinned.build_edl writes from this pin
+    if mp.get("shape") == "spotlight":
+        view["package_shape"] = "spotlight"
+    ok91, why91 = edl_rules.takeaway_value(view)
+    if not ok91:
+        return False, why91
     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
-           f"bridges after {[b['after_clip'] for b in vo['bridges']]}"]
+           f"bridges after {[b['after_clip'] for b in vo['bridges']]}", f"  {why91}"]
     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
             for s in segs]
     return True, "\n".join(out)

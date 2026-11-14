@@ -6,6 +6,36 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 06:31 RULING 91's MEDLEY HALF MERGED, the render side (branch ruling91-medley-takeaway, ef602580; the row agreed with the builder; audits batch 76 x2: cycle 1 had no consensus finding, cycle 2 clean on qwen27b, glm and Grok; both regressions green on the staged merge). From now on, a medley's takeaway renders only with the builder's sealed value verdict on THAT line.
+- THE RULE (law L-ab (91): "The same value verdict also applies to a MEDLEY's takeaway going forward"):
+  - The agreed row: moments_package.gates.takeaway_value {status exactly "PASS", replayed exactly false, text = the line judged}.
+  - Text binding: the row's text must equal the takeaway after strip (R11's moments_bridge rule). A verdict on a first draft therefore never carries the one rewrite.
+  - No takeaway (L-y's no-voice shape) needs no row.
+  - The builder's side (pp-selectid-0b's agreement message):
+    - the row's ok means all four value answers a clear yes and at most 20 words (house style);
+    - its to_pin refuses a row whose text is not the shipped takeaway;
+    - until its half lands, it sends no medley with a takeaway that lacks the row.
+- CODE (3 files; pinned.py untouched, so no service restarts):
+  - edl_rules.takeaway_value(edl): applies to a moments package that is not a spotlight. Malformed vo, clips or slots, a non-text line, and two takeaways fail closed.
+    - It is NOT a validate_edl rule: the protected references' takeaways predate the ruling, and all three moments references fail it, by design.
+  - run_fresh.stage_validate: calls it right after the EDL rules and before the editorial gate. On a fail it HOLDs naming the reason; the result goes to PROVENANCE takeaway_value.
+  - scripts/integrator/check_pin_only.py: runs the same function on the pin's own view, so a non-compliant pin is refused before launch, not after acquisition.
+- MUST-FAIL:
+  - Unit: test_edl_rules TestRuling91MedleyTakeaway (6): no row; FAIL / NOT RUN / 'pass'; replayed true / null / missing; another draft's text; malformed shapes; the references' own EDLs.
+  - Wiring: test_ruling91_takeaway (2): stage_validate HOLDs before the editorial gate; with the row, or with no takeaway, it goes on.
+  - On the old files the unit module cannot import, and the old stage let a medley with no verdict reach the editorial gate.
+- REAL DATA: the builder's last sealed medley 13949b7c (19-word takeaway, no row).
+  - The old readiness check, on 5a71f1b5: "READY (pin only) 13949b7c2779021c", exit 0.
+  - The new one, on the staged merge (the command started 06:23:00): "ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.takeaway_value)", exit 1.
+  - In the worktree, the same pin with a live PASS row on its line, resealed with the builder's own seal(), was READY; with the row's text from another draft, it was refused.
+- CHECKS ON THE STAGED MERGE:
+  - regression_test.sh 26 PASS / 0 FAIL.
+  - pipeline/regression.sh exit 0 (06:22:50-06:27:33): step 1 101 passed + 14 subtests; the preview, moments, medley and first-pass references all reproduced.
+  - The 15 suites that touch stage_validate, edl_rules, pinned and the spotlight, run one file at a time: 339 passed, 4 skipped, 0 failed.
+  - shas from disk unchanged: decoder c705b20ed800, scorer 91d75457ceec, judge c62a1e12088c.
+  - Observation, not caused here: the baseline's combined 22-file CPU run on 5a71f1b5 hit its 25-minute timeout past 55 %. A suite outside the 15 waits (pre-existing; the 15 ran per file with no hang).
+- Records: docs/audits/pulse-sentence-law/batch76_r91_medley_takeaway/cycle{1,2}/. PIPELINE_LAWS.md L-ab ("91, ITS MEDLEY HALF") and INTEGRATOR_HANDOFF.md (the carrier; last batch 76).
+
 ## FRESH SESSION UP 05:45 ET (orchestrator '05:41'): the integrator is a fresh session (still "protocol-pulse-68") at release HEAD eac318d0. Tree GREEN: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, every protected reference reproduced. All four services UP on their handoff shas, none restarted. GPU0 free. No pin pending.
 - Read in order: PIPELINE_LAWS.md (whole), INTEGRATOR_HANDOFF.md (whole), this file's top 60 lines; CONSTITUTION.md (CLAUDE.md's rule).
 - REGRESSIONS on HEAD eac318d0, nothing staged:

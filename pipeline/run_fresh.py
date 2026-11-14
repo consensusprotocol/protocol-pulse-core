@@ -438,7 +438,7 @@ def stand_alone_subject(edl, story):
 
 
 def stage_validate(run):
-    from edl_rules import validate_edl
+    from edl_rules import validate_edl, takeaway_value
     from editorial_gate import run_gate
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
@@ -451,6 +451,11 @@ def stage_validate(run):
     if not ok:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(
             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
+    ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
+    print(f"  {why91}")
+    run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
+    if not ok91:
+        raise Hold(why91)
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
