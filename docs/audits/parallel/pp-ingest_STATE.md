@@ -1,4 +1,4 @@
-HANDOFF READY 3af063d0 (docs/audits/parallel/pp-ingest_HANDOFF.md) | # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
+FRESH SESSION UP 07:31 ET Nov 14 (a new session; the laws and the handoff 3af063d0 read): the watcher alive (pid 4164250, tmux pipeline_pp_ingest_watch, up since 06:46 ET, not restarted); its last watch cycle 07:26 ET: 64 channels, 2 new, 0 errors (rss 64); the ledger 3,046 rows (7.97 MB), newest row 04:16 ET (TFTC ZtnhDQODni8, 36 moments: a stream YouTube processed for ~12 h, already past its 12 h when mined); inside 12 h: 22 moments from 2 videos (Altcoin Daily 13 (hooks 3) to 07:56 ET, Stephan Livera 9 (hooks 2) to 10:17 ET), 5 of them hooks; the flag check's calibration glm 16/16, muse 16/16 BUT REPLAYED FROM THE REPLY CACHE (answers measured 20:10-23:05 ET Nov 13; the daily re-calibration replays them too: finding F1, LIVE STATE); Heimdall $0.29 in 24 h, the meter $39.42 of $460 (8.6 %), ok; the shared signal heimdall_first, the paid route closed ($0.00 of $2.00 today); tests/ingest 282 passed; QUESTIONS FOR THE ORCHESTRATOR (THE BUILT DEFAULT STANDS UNTIL ANSWERED): (1) A32, RULING 98'S PAID-ROUTE ORDER: CONVERSATIONS FIRST, THEN NEWEST (AS BUILT), OR NEWEST FIRST WITH CONVERSATIONS BREAKING TIES? (2) RULING 92, THE HOOK PASS: (B) UP TO 5 CANDIDATES A WINDOW IN CONVERSATION EPISODES, (C) A 12-35 S SPOTLIGHT QUESTION FOR THEM, OR NEITHER (AS BUILT)? (3) A19, THE PURGE: KEEP EVERY CACHED COPY OF A DELIVERED VIDEO'S MEDIA (AS BUILT: 154 FILES, 7.27 GB KEPT AT THE LAST PASS) OR ONE COPY PER DELIVERY? | # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
 ## TOTAL SPEND BY VENDOR (this session, every use, to 06:48 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12, except ruling 98's capped paid route (unused so far: $0.00)
 | vendor | total | measured part | where it went | since the freeze |
@@ -34,6 +34,45 @@ parties); P3 the tighter miner prompt is not the fix (measured: no precision gai
 moment 12 h after publish, which removes most of what P1 would have released (the released rows were up to 72 h old).
 
 ## LIVE STATE (newest first; ET)
+
+- 07:31 Nov 14 FRESH SESSION UP: a new pipeline_pp_ingest session took over from the handoff 3af063d0 (the previous
+  one ran out of context). Read PIPELINE_LAWS.md in full, the HANDOFF in full, this file's top. Line 1 was "HANDOFF
+  READY 3af063d0 (docs/audits/parallel/pp-ingest_HANDOFF.md)"; it now carries the facts below and the orchestrator's
+  three open questions (A32, ruling 92 (b) / (c), A19), each with the built default that stands until answered.
+  - THE WATCHER: alive, pid 4164250 (cwd the worktree) in tmux pipeline_pp_ingest_watch, up since 06:46 ET on 13de013b
+    (ruling 98 live); not restarted. Last watch cycle 07:26 ET: 64 channels, 2 new, 0 errors, rss 64, 2.8 s. The
+    listing reads RSS again since 03:28 ET (uploads playlists before). Queue: captions_pending 1, live_waiting 1,
+    mined 381, no_captions 1, probe_retry 2, seen_old 956, short 549, too_long 1, upcoming_waiting 3.
+  - THE LEDGER: 3,046 rows (7.97 MB). Newest row 04:16 ET: TFTC ZtnhDQODni8, 36 moments, published (stream start)
+    12:44 ET Nov 13. Its queue history: upcoming, live, then post_live re-probed every 20 min (36 times) from 14:12 ET
+    Nov 13 to 01:56 ET Nov 14 (YouTube's processing), 'VOD without English captions yet' at 02:16, captions at 04:16
+    and mined at once: already past its 12 h, so every row was written expired (the design's receipt, section 12:
+    first-said, the dedupe against re-posts) and no hook pass ran (outside 12 h). Nothing broken on this side. No row
+    since (the uploads mined after it gave 0 moments: Bloomberg Television x2, Fox Business x2), so 0 rows carry
+    miner_route yet (ruling 98's field arrives with the next mined video).
+  - THE 12 H POOL (the adapter, the packager's read, at 07:31 ET): 22 moments from 2 videos: Altcoin Daily 13 (hooks
+    3) to 07:56 ET, Stephan Livera 9 (hooks 2) to 10:17 ET; 5 hook rows; refused: 288 expired, 1 hard exclusion flag,
+    1 altcoin or not about Bitcoin; 1 returned with a flag released by the second model. live.json hooks_12h.hook_rows
+    says 1: it sums the queue's LATEST hook pass per video (mine-hook/2), while the ledger also holds the mine-hook/1
+    rows of the same videos (written before ruling 92) and the adapter serves them (5 v1 hook rows of the pool's
+    videos): the stat under-reports the pool's hooks until the last v1 row expires (10:17 ET). Reporting only; no
+    change.
+  - FINDING F1, THE FLAG CHECK'S CALIBRATION IS A REPLAY: at the 06:46 start the calibration read glm 16/16, muse
+    16/16, but all 32 answers came from the reply cache (the queue's calls since the start: flagcheck cache 32); the
+    cached answers were measured glm53flash 20:10-20:12 ET Nov 13; muse 20:11-23:05 ET Nov 13. flagcheck.calibrate()
+    calls router.run with the default use_cache=True, so the daily re-calibration (service.CHECK_RECALIBRATE_S, 'once
+    a day (and at every start)') replays the same answers forever and never re-measures the models it releases hard
+    flags on (ruling 40 P1); the router's own comment: a stored reply 'calls nobody, proves nothing about health'. A
+    model changed behind the same gateway name would keep releasing flags on a stale calibration. Fix to follow (the
+    calibration asks live; build, test, 2 audit cycles, then live).
+  - THE SECOND MODEL, 12 h: 39 rows checked, 8 released, $0.0072. Back-ends, 24 h: qwen 525 calls, 8.6 % errors (40
+    invalid, 5 routing); glm 73 calls, 24.7 % errors (15 invalid, 2 timeout, 1 empty); muse 43 calls, 62.8 % errors
+    (27 server).
+  - SPEND: Heimdall $0.2856 in 24 h (all of it); the meter $39.42 of $460 (8.57 %, ok, read 2026-11-14T12:26:45Z);
+    paid frontier $0.00; the paid route closed (the signal says heimdall_first), $0.00 of $2.00 today.
+  - THE SIGNAL: heimdall_first; since the start 0 answers and 0 failures noted, 0 probes (no real Heimdall call was
+    made: the uploads since were screened out before any model call), switches seen 0.
+  - TESTS: tests/ingest 282 passed (34.8 s).
 
 - 06:46 Nov 14 RULING 98 IS LIVE: THE MINER'S PLAN B (orchestrator 06:13 ET Nov 14). Audited 2 cycles
   (pp-ingest_audit/r98/: c1 no P0 after verification, six fixes in; c2 glm "production ready with one condition" and
