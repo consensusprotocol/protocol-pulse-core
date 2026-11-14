@@ -182,12 +182,12 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
   - Requests are read only from the builder's `tests/package/proof/lock_requests/`. Results go to `data/lock_precheck/results/<vid>.<start>-<end>.<sha12>.json`.
 - **Scorer** (item 56, rulings 60 / 94), tmux `pipeline_pp_scorer`:
   `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/stand_alone_scorer.py serve --candidates /home/ultron/worktrees/pp-selectid/docs/audits/parallel/pp-selectid_SCORER_CANDIDATES.json 2>&1 | tee -a logs/stand_alone_scorer.log`
-  - scorer_sha **91d75457ceec**.
+  - scorer_sha **edd54964a5ab** (since the L-l merge 6d7d4287, 2026-11-14 06:53; was 91d75457ceec).
   - It re-reads its sha from disk every pass but runs the code it loaded at start. So STOP it (C-c) before staging any change to stand_alone.py or story_semantics.py, and restart it after the merge.
   - The builder must be told the new scorer_sha.
 - **Judge** (ruling 87, Plan B's local verdict), tmux `pipeline_pp_judge`:
   `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=0 python3 pipeline/local_judge.py serve 2>&1 | tee -a data/local_judge/serve.log`
-  - judge_sha **c62a1e12088c**.
+  - judge_sha **37c0f8a5e49e** (since the L-l merge 6d7d4287, 2026-11-14 06:53; was c62a1e12088c).
   - Requests are read only from the builder's `tests/package/proof/judge_requests/`. Results go to `data/local_judge/results/<request_id>.<prompt_id>.json`.
 - **Word-pass worker** (rulings 2 / 77.4), GPU1, tmux `pipeline_pp_wordpass`:
   `cd /home/ultron/protocol_pulse && CUDA_VISIBLE_DEVICES=1 python3 pipeline/word_pass_worker.py 2>&1 | tee -a logs/word_pass_worker.log`

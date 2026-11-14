@@ -6,6 +6,23 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:00 PP-TESTS MERGE (handoff item 4), cycle 2: B1-B4 VERIFIED, MERGE HELD on 3 test-wall failures against law L-r; pp-tests asked to fix on its branch. The exam is not run yet: it needs a gate adapter, network and vendor spend, asked first.
+- VERIFIED in the code of 7a9a3555 (the answers to the integrator's cycle 1 of Nov 12 04:47):
+  - B1: plain imports in test_f3, no importorskip.
+  - B2: the F2 template is hook + two clips from three channels, and each half of R-23 is pinned alone.
+  - B3: R-19's pin removed (it loosened the quote check).
+  - B4: quote_in's 5-token minimum kept, pinned by test_an_empty_or_short_quote_is_never_verified.
+  - Non-blocking items answered too: network blocked in the wall's guards (DNS / sendto / sendmsg); child processes guarded.
+- THE MERGE: conflict-free into release HEAD 6d7d4287 (git 2.34 merge-tree; worktree /home/ultron/worktrees/merge-pp-tests, branch merge-pp-tests, cc8cccd0).
+  - It is test- and doc-only: tests/adversarial, docs/audits/parallel. Nothing under pipeline/, so no service sha moves.
+- THE WALL on the merged tree (CUDA_VISIBLE_DEVICES= python3 -m pytest tests/adversarial, 06:56-06:59): 375 passed, 39 xfailed, 3 skipped, 3 FAILED. All three are the wall's CPU guard meeting law L-r's leases (pipeline/gpu0.py), which reached the release line after pp-tests' base:
+  1. test_f0 "no module sets CUDA_VISIBLE_DEVICES unreviewed": pipeline/conftest.py (L-r's E-FAIL-053 teardown) is not in its reviewed set.
+  2. test_f0 "every whisper load is refused and recorded": DID NOT RAISE RuntimeError, because gpu0.LeaseMissing refuses first.
+  3. test_f2 "a failed transcription stops select cleanly": select hits LeaseMissing (gpu0.py:287) before the mocked failure. pp-tests is to decide whether this is the test's layer or a real defect: select not stopping cleanly on a lease refusal. If a defect, it files a request; the lease is not loosened.
+- NOT MERGED until pp-tests sends the fix and the wall is green on the merged tree. Then both regressions run on the staged merge, as for every merge.
+- THE EXAM ("then run it"): tests/adversarial/moments_exam.py tests a gate module (default moments_gate_adapter) on the corpora: 136 real-material cases, every must-fail rejected, false rejects at most 10 %. The live gates are the builder's model-backed ones, so a real run needs an adapter to them and PP_MOMENTS_ALLOW_NETWORK=1, i.e. vendor spend. pp-tests is asked which adapter exists, the cost of a full run, and whether the stored blind two-vendor baseline is the reference. Nothing is spent before that answer; the builder's spend stands at $13.83 of $20.00 (its stop is $16).
+- Also: INTEGRATOR_HANDOFF.md section 4 now names scorer_sha edd54964a5ab and judge_sha 37c0f8a5e49e (since the L-l merge).
+
 ## 06:53 LAW L-l MERGED (hardening-redteam c1451047, red-team order '21:55' B: "a model reply counts only whole"; integrator merge d3f03ff7, resolved here; audits batch 77 x2: no finding to implement, cycle 2 clean on qwen27b, glm and Grok; both regressions green on the staged merge). New scorer_sha edd54964a5ab and judge_sha 37c0f8a5e49e; decoder_sha c705b20ed800 unchanged.
 - WHY NOW: handoff items 4 / 5. pp-tests (the exam) is built on c1451047, so L-l merges first. pp-tests' own four commits are tests and docs only and follow.
 - WHAT L-l DOES: story_semantics._field / _str_list and strict validators (_v_derive, _v_adj, _v_sup, _v_react, _v_label, _v_rate) run inside LocalLLM.chat_json. A reply missing a field, of the wrong type, outside its values or ranges, or (rate_passages) leaving a passage unrated or rating one twice is a failed call: never clamped, never read as agreement.
