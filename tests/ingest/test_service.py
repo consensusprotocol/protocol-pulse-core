@@ -693,6 +693,37 @@ def test_the_hook_note_says_which_question_failed(svc):
     assert row["hook_ts"] is None and row["hook_tries"] == 1 and "(hook 0, spotlight " in row["hook_note"]
 
 
+def test_a_crashing_spotlight_question_never_holds_back_the_hook_rows(svc, monkeypatch):
+    """Audit hk3 c2 (all three reviewers): the spotlight question RAISING (a crash, not a model failure) after the hook
+    question answered: the hook rows are written, the pass completes marked 'spotlight crashed' (hooks --rerun asks it
+    again), the crash is an event, and the pass does not loop."""
+    s, vids, b = svc(_every_question, _every_question, n_videos=1)
+    ts = config.ts()
+
+    def captions(meta, work):
+        lead = [(">> " if i % 4 == 3 else "") + f"Bitcoin show {meta['video_id']} opens with {i} new facts."
+                for i in range(30)]
+        rec, _ = H.caption_record(meta["video_id"], n_rep=8, lead=lead)
+        return "ok", ts._make_record(meta, "yt_auto:en-orig", "youtube captions (auto-subs, en-orig)", rec["segments"])
+    monkeypatch.setattr(ts, "fetch_captions", captions)
+    real = mine.mine_video
+
+    def crash(*a, **k):
+        if k.get("kind") == "spotlight":
+            raise RuntimeError("a spotlight bug")
+        return real(*a, **k)
+    monkeypatch.setattr(service.mine, "mine_video", crash)
+    run_once(s)
+    assert s.hook_once(wait=True) == 1
+    row = s.q.video(vids[0])
+    hooks = [l for l in ledger.read(s.p["ledger"])[0] if l.get("role_hint") == "hook" and l["video_id"] == vids[0]]
+    assert hooks and row["hook_ts"] and row["hook_rows"] == len(hooks) and row["spot_rows"] is None
+    assert row["hook_version"] == f"{mine.HOOK_PROMPT_VERSION} (spotlight crashed)"
+    assert "the spotlight question crashed: RuntimeError: a spotlight bug" in row["hook_note"]
+    assert s.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='spotlight_crash'")[0]["n"] == 1
+    assert s.hook_once(wait=True) == 0                                   # done: no loop
+
+
 def test_every_mining_question_needs_its_role_to_start():
     """The 08:15 ruling 2: the spotlight question has its own role; a provider config without it, or without the
     second-model check's (audit hk3 c1, glm), stops the start (every pass of it would crash)."""

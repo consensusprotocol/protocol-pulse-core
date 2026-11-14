@@ -302,7 +302,10 @@ builder's spotlight.CONVERSATION_TPM; unmarked or unmeasured captions are never 
   adapter and re-judges it (role_hint is advisory; `carry_forward` carries any hint, a later line's own winning).
 - The pass records its version (`hook_version` mine-hook/3), the spotlight rows (`spot_rows`; NULL for a video that
   is not a conversation) and its cost over both roles (`hook_cost_usd`); live.json `hooks_12h.conversations` and
-  `spotlight_rows`. A pass with failed windows in either question is retried as before. `tools/ingest_watch.py hooks
+  `spotlight_rows`. A pass with failed windows in either question is retried as before (the hook question's replies
+  come back from the reply cache, free). A spotlight question that CRASHES (an exception, not a model failure) never
+  holds back the hook rows: they are written, the crash is an event (`spotlight_crash`) and the pass's note, and the
+  pass is recorded as "mine-hook/3 (spotlight crashed)", so `hooks --rerun` asks it again (audit hk3 c2). `tools/ingest_watch.py hooks
   --rerun` re-asks every video of the 12 h window whose pass is older. A provider config without a role for every
   mining question stops the start (`service.check_roles`).
 
