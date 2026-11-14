@@ -49,7 +49,15 @@ moment 12 h after publish, which removes most of what P1 would have released (th
     Magazine 3kV3nWC5SAY 6 ($0.0021); Yahoo Finance Z1RFzHDftu8 2 ($0.0008); Bitcoin Magazine w6eeNCfT4yY 3 ($0.0022);
     CoinTelegraph VqNMYCgZ3Vw 11 ($0.0052); Stephan Livera NVUxOhIV3K8 16 ($0.0067); Robert Breedlove uaHNzi-Kgr8 27
     ($0.0112); Yahoo Finance MqVqfEDXgLo 1 ($0.0007); Bitcoin Magazine kqAD0sjfkz0 2 ($0.0019); Digital Asset News
-    m83V9Xl9wLg 3 ($0.0016); Scott Melker KJRod6tJ_w8 19 ($0.0070); (waiting) Simply Bitcoin NtaQGnfWRR8 23.
+    m83V9Xl9wLg 3 ($0.0016); Scott Melker KJRod6tJ_w8 19 ($0.0070); Simply Bitcoin NtaQGnfWRR8 23 ($0.0138; written
+    19:36 ET after its one bad window failed 3 passes). BACKFILL TOTAL: 129 hook rows from 15 of 102 videos, $0.062.
+  - THE BUILDER'S RESULT (pp-selectid, its 19:23 build on these rows): "the hook stage now PASSES. Before your rows, 0
+    hooks rated >= 4": 378 adapter rows, 196 moments inside 12 h, 121 usable, 21 cleared step A, 14 cuttable, 7 can
+    open, 1 rated >= 4: OUR hook, Simply Bitcoin L6H7538ogGs "AI can copy software, undercut margins, replace
+    employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin." (scroll 5, alone 4,
+    setup 3; its visual check clean). That build then died at the line-up (a clip whose eligibility says not_statement;
+    6 cuttable clips without a second-vendor step-A verdict: a Heimdall deepseek outage on its side). It rebuilds with
+    NtaQGnfWRR8's 23 hooks (told 19:38).
     Live: `python3 tools/ingest_watch.py hooks`; live.json `hooks_12h`.
   - FROM NOW: every new upload gets the hook pass right after its moment pass (the `hook` loop, every 5 s; at most 4
     hook calls in flight, so new uploads' moment passes are never starved).
