@@ -5,14 +5,22 @@ state file under its own flock).
 NOTE  every real call of this watcher to a back-end of the signal's vendor (providers.json down_signal) is one outcome:
       answered (ok, invalid: the gateway answered inside the back-end's deadline) or not (any other kind of a real call:
       down, refusing, empty, past the deadline). No note: a stored reply or a missing key (no call was made), a probe
-      call (its outcome is the probe's, never a verdict answer), another vendor's back-end. A back-end under a runtime
+      call's attempt (the probe reports its own outcome, below), another vendor's back-end. A back-end under a runtime
       base_url override (this watcher's outage drill) is noted drill=True: recorded by the module, never counted.
 ONE   thread owns the shared file (tick, the service's signal loop): the router's threads only leave a pending outcome
       under a local lock (the latest answer and the first failure after it, each with its own time), so a held or
       stuck shared lock never stalls the miner.
 TICK  pending notes; every SIGNAL_MODE_S: mode() (the 15-minute rule on the clock) and, while probe_due(), the probe
-      role asked in its own thread (never from a stored reply, never while a probe back-end is under an override); its
-      outcome goes to probe_result() at the next tick (a probe whose back-ends could not be called is no probe).
+      in its own thread (never from a stored reply, never while a probe back-end is under an override): RULING 87
+      AMENDED (orchestrator 10:05 ET Nov 14: 'down' is no answer of any kind for 15 minutes; any answered call or
+      answered probe resets the clock; a probe is a real model call on the family that failed and one other, never a
+      ping): EVERY back-end of the probe role, one per family this watcher calls, is asked at once, and any answer is
+      the probe's answer, reported to probe_result() at the next tick with the time of the LATEST answer received
+      (the amended module resets the clock on it when it is not older than the failure that started the clock; a
+      probe whose back-ends could not be called is no probe). FAMILIES (the builder's amended API, pp-selectid audit
+      1008): each failure is noted with its family (providers.json `family`), and probe_due() is told the families
+      this watcher's probe asks, so a slot whose failed families it cannot ask is left to the prober that can; both
+      keywords are passed only to a module whose signature takes them (as `who`).
 SEEN  every switch in the shared state, whoever made it, once: at the start of this watcher's STATE line 1
       (spend.write_switch_head) and in its evidence file (the number seen is kept in the queue; the history before
       this watcher was wired is not announced). The module is given no STATE path: its own head writer would leave a
@@ -58,6 +66,14 @@ def load_module(path):
     if len(mod.MODES) != 2 or DOWN not in mod.MODES:
         raise ImportError(f"{path}: modes {mod.MODES!r}, not one up mode and {DOWN!r}")
     return mod
+
+
+def _takes(fn, name):
+    """True when the module's function takes the keyword `name` (False when its signature cannot be read)."""
+    try:
+        return name in inspect.signature(fn).parameters
+    except (TypeError, ValueError):
+        return False
 
 
 def _utc(t):
@@ -115,14 +131,14 @@ class DownSignal:
         self.router, self.overrides, self.q, self.clock, self.log = router, overrides, q, clock, log
         self.evidence, self.notify = paths["signal"], paths["notify"]
         self.lock = threading.Lock()
-        self.pending = {"answer": None, "fail": None, "drills": 0}
+        self.pending = {"answer": None, "fail": None, "families": {}, "drills": 0}
         self.probe_out, self.probe_thread, self.next_mode = None, None, 0.0
         self.mode, self.last_probe, self.head_error, self.drill_logged = None, None, None, False
         self.error = self.error_since = self.busy_since = None
         self.n = {"answers_noted": 0, "failures_noted": 0, "drill_notes": 0, "unnoted": 0, "probes": 0,
                   "probe_answers": 0, "probes_not_made": 0, "probe_reports_lost": 0}
         self.module_path, self.state_path, self.hh, self.up = module_path or ds["module"], state_path, None, None
-        self.probe_kw = {}
+        self.probe_kw, self.note_family = {}, False
         try:
             self.hh = load_module(self.module_path)
             self.state_path = state_path or self.hh.STATE
@@ -134,6 +150,10 @@ class DownSignal:
             # probe_kw: the name this watcher's claims carry (the state's last_probe_by names whoever won the latest
             # slot). Without it the fallback is said once (audit r87claim c2, its condition), never silent.
             self.probe_kw = {"who": WHO + " probe"} if takes_who else {}
+            fams = sorted({f for f in map(self._family, self.router.chain(self.probe_role)) if f})
+            if fams and _takes(self.hh.probe_due, "families"):   # RULING 87 AMENDED (pp-selectid audit 1008): the
+                self.probe_kw["families"] = fams                  # families this watcher's probe asks
+            self.note_family = _takes(self.hh.note, "family")    # each failure noted with its family
             if not takes_who:
                 self.log("RULING 87: the shared module's probe_due takes no `who`: this watcher's probes are not "
                          "named (a module older than pp-selectid 11ed255f has no slot claim; a probe_due whose "
@@ -154,11 +174,20 @@ class DownSignal:
                 if drill:
                     self.pending["drills"] += 1
                 elif kind in ANSWERED:
-                    self.pending["answer"], self.pending["fail"] = t, None
-                elif self.pending["fail"] is None:
-                    self.pending["fail"] = t
+                    self.pending["answer"], self.pending["fail"], self.pending["families"] = t, None, {}
+                else:
+                    if self.pending["fail"] is None:
+                        self.pending["fail"] = t
+                    fam = self._family(bid)
+                    if fam and fam not in self.pending["families"]:
+                        self.pending["families"][fam] = t
         except Exception:                            # noqa: BLE001 (the signal never decides a call)
             pass
+
+    def _family(self, bid):
+        """The back-end's family (providers.json `family`; the builder's module compares them as plain strings)."""
+        f = (self.router.cfg["backends"].get(bid) or {}).get("family")
+        return f if isinstance(f, str) and f else None
 
     def _drill(self, bid):
         return bool(self.overrides is not None and self.overrides.get(bid, "base_url"))
@@ -286,15 +315,24 @@ class DownSignal:
 
     def _flush(self):
         with self.lock:
-            p, self.pending = self.pending, {"answer": None, "fail": None, "drills": 0}
+            p, self.pending = self.pending, {"answer": None, "fail": None, "families": {}, "drills": 0}
         if p["drills"]:
             if self._call("note", False, now=_utc(self.clock()), evidence=self.evidence, who=WHO, drill=True) \
                     is not None:
                 self.n["drill_notes"] += 1
-        for answered, t in ((True, p["answer"]), (False, p["fail"])):     # the failure, if any, came after the answer
+        notes = [(True, p["answer"], None)]                 # the failures, if any, came after the answer
+        if p["fail"] is not None and self.note_family and p["families"]:
+            fams = sorted(p["families"].items(), key=lambda kv: kv[1])    # each family that failed, at its first
+            if p["fail"] < fams[0][1]:                                    # failure; one without a family first, so
+                notes.append((False, p["fail"], None))                    # the clock starts at the first failure
+            notes += [(False, t, f) for f, t in fams]
+        else:
+            notes.append((False, p["fail"], None))
+        for answered, t, fam in notes:
             if t is None:
                 continue
-            m = self._call("note", answered, now=_utc(t), evidence=self.evidence, who=WHO)
+            m = self._call("note", answered, now=_utc(t), evidence=self.evidence, who=WHO,
+                           **({"family": fam} if fam else {}))
             if m is None:
                 self.n["unnoted"] += 1
                 continue
@@ -302,19 +340,39 @@ class DownSignal:
             self.n["answers_noted" if answered else "failures_noted"] += 1
 
     def _start_probe(self):
-        def run():
+        """RULING 87 AMENDED: every back-end of the probe role (one per family this watcher calls) asked at once, each
+        under its own deadline. Until 10:05 ET Nov 14 they were asked in order and the first answer ended the probe,
+        so a family that failed (muse's 502 at 09:01 ET) was never asked while another answered first."""
+        def ask(bid, outs):
             t0 = self.clock()
             try:
-                out = self.router.run(self.probe_role, PROBE_PROMPT, None, _any_text, tag="probe87", use_cache=False)
-                res = (True, f"{out.backend} answered in {self.clock() - t0:.0f} s")
+                self.router.run(self.probe_role, PROBE_PROMPT, None, _any_text, tag="probe87", only=bid,
+                                use_cache=False)
+                outs[bid] = (True, f"{bid} answered in {self.clock() - t0:.0f} s", self.clock())
             except providers.AllBackendsFailed as e:
-                tried = "; ".join(f"{b} {s} ({str(w)[:100]})" for b, s, w in e.tried)
                 called = any(s in ("unavailable", "rejected") for _, s, _ in e.tried)
-                res = (False, tried) if called else (None, "no probe back-end could be called: " + tried)
-            except Exception as e:                   # noqa: BLE001 (a probe that breaks is no probe)
-                res = (None, f"the probe broke: {type(e).__name__}: {e}")
-            with self.lock:
-                self.probe_out = {"t": self.clock(), "answered": res[0], "why": res[1], "logged": False}
+                outs[bid] = (False if called else None,
+                             "; ".join(f"{b} {s} ({str(w)[:100]})" for b, s, w in e.tried) or f"{bid} not tried",
+                             None)
+            except Exception as e:                   # noqa: BLE001 (a family whose probe breaks was not asked)
+                outs[bid] = (None, f"{bid}: the probe broke: {type(e).__name__}: {str(e)[:100]}", None)
+
+        def run():
+            outs = {}
+            asks = [threading.Thread(target=ask, args=(b, outs), daemon=True, name=f"probe87-{b}")
+                    for b in self.router.chain(self.probe_role)]
+            for a in asks:
+                a.start()
+            for a in asks:
+                a.join()
+            got = [outs[b] for b in sorted(outs)]
+            answered = True if any(a is True for a, _, _ in got) else False if any(a is False for a, _, _ in got) \
+                else None
+            why = "; ".join(w for _, w, _ in got) or "the probe role names no back-end"
+            at = [ts for a, _, ts in got if a is True]       # an answered probe: the LATEST answer's time (each one
+            with self.lock:                                   # a real answer then); else when the last one ended
+                self.probe_out = {"t": max(at) if at else self.clock(), "answered": answered, "logged": False,
+                                  "why": why if answered is not None else "no probe back-end could be called: " + why}
         self.probe_thread = threading.Thread(target=run, daemon=True, name="probe87")
         self.probe_thread.start()
 
@@ -451,7 +509,8 @@ class DownSignal:
                 "not_read": self.error, "not_read_since": _iso(self.error_since),
                 "call_waiting_s": round(now - busy) if busy is not None else None, "last_probe": self.last_probe,
                 "counts": dict(self.n), "switches_seen": self.q.kv_get("signal_switches_seen"),
-                "probe_claimed_as": self.probe_kw.get("who"),
+                "probe_claimed_as": self.probe_kw.get("who"), "probe_families": self.probe_kw.get("families"),
+                "failures_noted_with_family": self.note_family,
                 "paid_route": self._route_snapshot(),
                 "miner_plan_b": self.miner_plan_b}
 

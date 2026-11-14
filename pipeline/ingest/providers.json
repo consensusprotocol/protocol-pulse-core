@@ -16,7 +16,7 @@
       "price": {"in_per_mtok": 0.0, "out_per_mtok": 0.0, "basis": "local"}
     },
     "heimdall_qwen27b": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "qwen", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "qwen/qwen3.8-27b", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "none"}, "provider": {"only": ["consensusprotocol"]}},
@@ -26,7 +26,7 @@
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
     "heimdall_glm53flash": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "note": "a model family other than the miner's, for checks of the miner's labels (ruling 40, 2026-11-13); short prompts only. Its default reasoning: 24/24 on the flag-check calibration quotes (about 300 reply tokens, median 26 s); at effort none 21/24 (a yes to a speaker's own purchase, a historical fact and a prediction), at effort low 22/24 (2026-11-13). On a 111k-token review package its default reasoning used a whole 16k reply budget (freeze audit c1: empty content). Timeout 300 s: at 8 in flight its replies took p50 5 s but p90 74 s, and a quarter of the first 110 questions ran past 120 s (a timed-out request restarts from zero and, at temperature 0, reasons the same way again).",
@@ -35,7 +35,7 @@
       "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-13"}
     },
     "heimdall_muse": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "muse", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "meta-models/muse-spark-open-816b-a42b", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "none"}},
@@ -45,7 +45,7 @@
       "price": {"in_per_mtok": 0.186, "out_per_mtok": 0.744, "basis": "GET /models pricing 2026-11-13"}
     },
     "heimdall_deepseek": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": false,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "deepseek", "enabled": false,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "deepseek/deepseek-v4.1-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "low"}},
@@ -76,7 +76,7 @@
       "daily_budget_usd": 10.0
     },
     "heimdall_qwen27b_probe": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "qwen", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "qwen/qwen3.8-27b", "key_env_prefix": "HEIMDALL_API_KEY",
       "extra_body": {"reasoning": {"effort": "none"}, "provider": {"only": ["consensusprotocol"]}},
@@ -85,12 +85,21 @@
       "price": {"in_per_mtok": 0.0465, "out_per_mtok": 0.713, "basis": "GET /models pricing 2026-11-12"}
     },
     "heimdall_glm53flash_probe": {
-      "kind": "openai_compat", "vendor": "heimdall", "enabled": true,
+      "kind": "openai_compat", "vendor": "heimdall", "family": "glm", "enabled": true,
       "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
       "model": "z-ai/glm-5.3-flash", "key_env_prefix": "HEIMDALL_API_KEY",
       "note": "ruling 87's probe only (the probe role): a second Heimdall family, 60 s deadline, one in flight",
       "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
       "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-13"}
+    },
+    "heimdall_muse_probe": {
+      "kind": "openai_compat", "vendor": "heimdall", "family": "muse", "enabled": true,
+      "base_url": "https://api-staging.heimdallm.com/api/v1", "base_url_env": "PP_INGEST_HEIMDALL_BASE",
+      "model": "meta-models/muse-spark-open-816b-a42b", "key_env_prefix": "HEIMDALL_API_KEY",
+      "extra_body": {"reasoning": {"effort": "none"}},
+      "note": "ruling 87 amended (orchestrator 10:05 ET Nov 14): the probe asks every family this watcher calls, so the checker's second family is probed too (its 502 at 09:01 ET Nov 14 started a clock no probe of it could stop); 60 s deadline, one in flight",
+      "max_inflight": 1, "timeout_s": 60, "cost_from_usage": true, "spend_meter": true,
+      "price": {"in_per_mtok": 0.186, "out_per_mtok": 0.744, "basis": "GET /models pricing 2026-11-13"}
     }
   },
   "paid_route": {
@@ -117,9 +126,9 @@
                   "freeze_lifted": "ruling 98 (orchestrator 06:13 ET Nov 14): the miner's Plan B; the Nov 12 spend freeze is lifted for this one route and this cap only",
                   "daily_cap_usd": 2.0, "cap_reserve_usd": 0.25,
                   "note": "ruling 98: Grok first, then the Gemini key (fenced to this pipeline: allowed); others only if a probe shows credit (none wired). Used only while paid_route is open. The cap is per ET day across both back-ends, counted from each call's recorded cost (xAI's own usage.cost_in_usd_ticks; Gemini reports none: its price-table estimate counts), with cap_reserve_usd held for every call in flight so the calls never start past it; then the videos queue and wait."},
-    "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_glm53flash_probe"], "attempts": 1, "max_tokens": 512,
-              "transport_retries": 0, "breaker": false,
-              "note": "ruling 87: the cheap probe while Heimdall calls fail (and in Plan B): one call per back-end, the first answer ends it; never from a stored reply (use_cache False), never held back by a breaker (breaker false: it is the breaker's evidence, not its patient), no transport retry (each back-end's 60 s deadline is the probe's). 512 tokens: room for the second family's default reasoning."}
+    "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_glm53flash_probe", "heimdall_muse_probe"], "attempts": 1,
+              "max_tokens": 512, "transport_retries": 0, "breaker": false,
+              "note": "ruling 87, amended by the orchestrator at 10:05 ET Nov 14 (a probe is a real model call on the family that failed and one other, never a ping; any answered probe resets the clock): the cheap probe while Heimdall calls fail (and in Plan B): EVERY back-end here (one per family this watcher calls) is asked at once, one call each, any answer is the probe's answer, and an answered probe is noted as an answer; never from a stored reply (use_cache False), never held back by a breaker (breaker false: it is the breaker's evidence, not its patient), no transport retry (each back-end's 60 s deadline is the probe's). 512 tokens: room for the second family's default reasoning."}
   },
   "spend_meter": {
     "backend": "heimdall_qwen27b", "label": "HEIMDALL", "baseline_usage": 0.2036796658, "cap_usd": 460.0, "notify_fraction": 0.9,

@@ -153,9 +153,12 @@ def sig(monkeypatch, tmp_path):
     monkeypatch.setattr(config, "STATE_DOC", str(doc))              # never the real STATE file
     t, made, msgs = [T0], [], []
 
-    def make(module=MODULE, probe_enabled=True, probes=None):
+    def make(module=MODULE, probe_enabled=True, probes=None, families=None):
         cfg = probe_cfg(chain=("hv_p1", "hv_p2"))
         cfg["backends"]["hv1"] = {"kind": "openai_compat", "vendor": "hv", "model": "model-hv1", "enabled": True}
+        cfg["backends"]["hv2"] = {"kind": "openai_compat", "vendor": "hv", "model": "model-hv2", "enabled": True}
+        for bid, f in (families or {}).items():                       # ruling 87 amended: providers.json `family`
+            cfg["backends"][bid]["family"] = f
         cfg["backends"]["local"] = {"kind": "openai_compat", "vendor": "lv", "model": "model-local", "enabled": True}
         for r in ("mine", "hook", "flagcheck", "judge"):
             cfg["roles"][r]["chain"] = ["hv1", "local"]
@@ -163,7 +166,8 @@ def sig(monkeypatch, tmp_path):
         cpath = tmp_path / "providers.json"
         cpath.write_text(json.dumps(cfg))
         probes = probes or {}
-        backends = {"hv1": H.FakeBackend("hv1", fn=lambda p: "x"), "local": H.FakeBackend("local", fn=lambda p: "x")}
+        backends = {"hv1": H.FakeBackend("hv1", fn=lambda p: "x"), "hv2": H.FakeBackend("hv2", fn=lambda p: "x"),
+                    "local": H.FakeBackend("local", fn=lambda p: "x")}
         for b in ("hv_p1", "hv_p2"):
             backends[b] = H.FakeBackend(b, fn=probes.get(b, lambda p: "OK"), enabled=probe_enabled)
         s = service.Service(providers_path=str(cpath), backends=backends, gate=H.FakeGate(), log=msgs.append,
@@ -192,17 +196,17 @@ def test_what_the_watcher_notes_and_what_it_does_not(sig):
     for r in (rec(kind="cache"), rec(kind="disabled"), rec(role="probe", backend="hv_p1", kind="timeout"),
               rec(backend="local", kind="timeout")):
         s._on_attempt(r)
-    assert hs.pending == {"answer": None, "fail": None, "drills": 0}
+    assert hs.pending == {"answer": None, "fail": None, "families": {}, "drills": 0}
     hs.noted(rec(kind="timeout"))
     assert hs.pending["fail"] == T0 and hs.pending["answer"] is None
     t[0] += 10
     hs.noted(rec(kind="invalid"))                                     # the gateway answered: an answer
-    assert hs.pending == {"answer": T0 + 10, "fail": None, "drills": 0}
+    assert hs.pending == {"answer": T0 + 10, "fail": None, "families": {}, "drills": 0}
     for k in ("network", "http_429", "overloaded", "server", "empty", "refusal", "http_auth", "http_4xx", "routing",
               "redirect"):
         t[0] += 1
         hs.noted(rec(kind=k))
-    assert hs.pending == {"answer": T0 + 10, "fail": T0 + 11, "drills": 0}   # the first failure after the answer
+    assert hs.pending == {"answer": T0 + 10, "fail": T0 + 11, "families": {}, "drills": 0}   # the first failure after
     hs.tick(wait=True)
     st = state(tmp)
     assert st["notes"] == 2 and st["last_answer_utc"] == iso(T0 + 10) and st["failing_since_utc"] == iso(T0 + 11)
@@ -245,6 +249,21 @@ def test_one_failed_call_then_an_answered_probe_is_never_down(sig):
     assert len(b["hv_p1"].calls) == 1 and hs.paid_open is False
 
 
+def test_the_probe_asks_every_family_at_once_and_any_answer_counts(sig):
+    """RULING 87 AMENDED: a probe is a real model call on the family that failed and one other: every back-end of the
+    probe role is asked (it stopped at the first answer before, so the family that failed went unasked)."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(probes={"hv_p1": lambda p: BackendError("server", "502")})
+    hs = s.hsig
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1           # both families asked
+    assert b["hv_p2"].calls[0] == downsignal.PROBE_PROMPT
+    assert hs.last_probe["answered"] is True and "hv_p2 answered" in hs.last_probe["why"] and \
+        "hv_p1 unavailable" in hs.last_probe["why"]
+    assert state(tmp)["failing_since_utc"] is None or not amended(hs)  # one family's answer resets the clock
+
+
 def test_fifteen_minutes_with_no_answer_of_any_kind_switch_to_plan_b_and_three_probe_answers_bring_it_back(sig):
     """Plan B when the clock reaches 15 minutes with ZERO answers (every probe failing too; ruling 87 amended); back on
     3 good probes in a row, as before."""
@@ -285,6 +304,7 @@ def test_fifteen_minutes_with_no_answer_of_any_kind_switch_to_plan_b_and_three_p
     kinds = [json.loads(x)["kind"] for x in open(s.p["signal"]).read().splitlines()]
     assert kinds.count("switch") == 2 and kinds.count("seen") == 2 and kinds.count("probe") == 11 and "wired" in kinds
     assert all(c == downsignal.PROBE_PROMPT for c in b["hv_p1"].calls) and len(b["hv_p1"].calls) == 11   # 8 failing
+    assert len(b["hv_p2"].calls) == 11                                # every family asked at every probe
     s.close()                                                         # (the 15-minute tick is 53 s after the 8th), 3
     s2, b2 = make()                                                   # answering; a restart announces nothing again
     s2.hsig.tick(wait=True)
@@ -638,3 +658,126 @@ probe_due = _Unsigned()
     hs.noted(rec(kind="timeout"))
     hs.tick(wait=True)                                                # probe_due called without `who`: it works
     assert hs.snapshot()["not_read"] is None and state(tmp)["probe_streak"] == 1 and len(b["hv_p1"].calls) == 1
+
+
+# ── RULING 87 AMENDED (orchestrator 10:05 ET Nov 14), the builder's amended API (pp-selectid audit 1008) ──
+
+FAKE_MODULE = """
+STATE = "/nonexistent/HH.json"
+MODES = ("heimdall_first", "plan_b")
+CALLS = []
+
+
+class HealthUnreadable(Exception):
+    pass
+
+
+def note(answered, path=STATE, now=None, evidence=None, state_md=None, who="", drill=False{fam}):
+    CALLS.append(("note", answered, now.timestamp(){famv}))
+    return "heimdall_first"
+
+
+def mode(path=STATE, now=None, evidence=None, state_md=None, who=""):
+    return "heimdall_first"
+
+
+def probe_due(path=STATE, now=None, who=""{fams}):
+    CALLS.append(("probe_due", who{famsv}))
+    return True
+
+
+def probe_result(answered, path=STATE, now=None, evidence=None, state_md=None, who=""):
+    CALLS.append(("probe_result", answered, now.timestamp()))
+    return "heimdall_first"
+"""
+
+
+def fake_module(tmp, amended=True):
+    path = tmp / ("hh_amended.py" if amended else "hh_old.py")
+    path.write_text(FAKE_MODULE.format(fam=", family=None" if amended else "", famv=", family" if amended else "",
+                                       fams=", families=None" if amended else "", famsv=", families" if amended else ""))
+    return str(path)
+
+
+FAMS = {"hv1": "fam_a", "hv2": "fam_b", "hv_p1": "fam_a", "hv_p2": "fam_b"}
+
+
+def test_each_family_that_failed_is_noted_once_at_its_first_failure_and_the_probe_names_its_families(sig):
+    """The amended module records the failed families (note(False, family=)) so a slot whose failed families a prober
+    cannot ask goes to the prober that can (probe_due(families=)): each family once, at its first failure after the
+    latest answer, in time order; the families this watcher's probe asks (its probe back-ends') on probe_due."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=fake_module(tmp), families=FAMS)
+    hs = s.hsig
+    assert hs.note_family is True and hs.probe_kw == {"who": "pp-ingest probe", "families": ["fam_a", "fam_b"]}
+    hs.noted(rec(kind="ok"))                                          # an answer, then failures after it
+    t[0] += 1
+    hs.noted(rec(backend="hv2", kind="timeout"))
+    t[0] += 1
+    hs.noted(rec(kind="server"))
+    t[0] += 1
+    hs.noted(rec(backend="hv2", kind="network"))                      # fam_b again: not noted twice
+    hs.tick(wait=True)
+    notes = [c for c in hs.hh.CALLS if c[0] == "note"]
+    assert notes == [("note", True, T0, None), ("note", False, T0 + 1, "fam_b"), ("note", False, T0 + 2, "fam_a")]
+    assert ("probe_due", "pp-ingest probe", ["fam_a", "fam_b"]) in hs.hh.CALLS
+    assert hs.n["failures_noted"] == 2 and hs.snapshot()["probe_families"] == ["fam_a", "fam_b"]
+
+
+def test_a_first_failure_without_a_family_still_starts_the_clock(sig):
+    """A back-end with no `family` in providers.json: its failure is noted without one, and first when it came first,
+    so the clock starts at the first failure."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=fake_module(tmp), families={"hv1": "fam_a", "hv_p1": "fam_a", "hv_p2": "fam_b"})
+    hs = s.hsig
+    hs.noted(rec(backend="hv2", kind="timeout"))                      # hv2 names no family
+    t[0] += 1
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    assert [c for c in hs.hh.CALLS if c[0] == "note"] == [("note", False, T0, None), ("note", False, T0 + 1, "fam_a")]
+
+
+def test_an_older_module_is_given_neither_new_keyword(sig):
+    """A module without the amendment (no `family`, no `families`): the calls are exactly as before (one failure
+    noted, at the first failure; probe_due without families)."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=fake_module(tmp, amended=False), families=FAMS)
+    hs = s.hsig
+    assert hs.note_family is False and hs.probe_kw == {"who": "pp-ingest probe"}
+    hs.noted(rec(kind="timeout"))
+    t[0] += 1
+    hs.noted(rec(backend="hv2", kind="timeout"))
+    hs.tick(wait=True)
+    assert [c for c in hs.hh.CALLS if c[0] == "note"] == [("note", False, T0)]
+    assert ("probe_due", "pp-ingest probe") in hs.hh.CALLS
+
+
+@pytest.mark.parametrize("p2,expect", [("answers", 30), ("fails", 0)])
+def test_an_answered_probe_is_reported_at_its_latest_answer_not_when_the_slowest_family_ended(sig, p2, expect):
+    """The amended probe_result resets the clock only on an answer not older than the failure that started it: the
+    probe reports the time of the LATEST answer received (each a real answer then), not when its slowest family gave
+    up. Here hv_p1 answers at T0, hv_p2 answers or fails at T0 + 30, and the probe ends at T0 + 31."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=fake_module(tmp), families=FAMS,
+                probes={"hv_p2": (lambda p: "OK") if p2 == "answers" else (lambda p: BackendError("server", "502"))})
+    hs = s.hsig
+    at = {"probe87-hv_p1": T0, "probe87-hv_p2": T0 + 30, "probe87": T0 + 31}
+    hs.clock = lambda: at.get(threading.current_thread().name, t[0])
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    assert [c for c in hs.hh.CALLS if c[0] == "probe_result"] == [("probe_result", True, T0 + expect)]
+    assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1
+
+
+def test_the_live_probe_asks_every_family_the_watcher_calls():
+    """The live config: every enabled back-end of the signal's vendor in any role names its family, and the probe
+    role has one back-end per family, so the family that failed is always among those asked (ruling 87 amended)."""
+    cfg = providers.load_config()
+    ds = cfg["down_signal"]
+    vendor_of = {b: c.get("vendor") for b, c in cfg["backends"].items()}
+    used = {b for r, rc in cfg["roles"].items() if r != ds["probe_role"] for b in rc["chain"]
+            if vendor_of.get(b) == ds["vendor"] and cfg["backends"][b].get("enabled", True)}
+    fam = {b: cfg["backends"][b].get("family") for b in used}
+    assert used and all(fam.values()), fam
+    probe = [cfg["backends"][b].get("family") for b in cfg["roles"][ds["probe_role"]]["chain"]]
+    assert all(probe) and len(probe) == len(set(probe)) and set(fam.values()) <= set(probe)

@@ -339,21 +339,37 @@ ONE "Heimdall down" signal for the builder and this watcher: the builder's modul
 `pipeline/heimdall_health.py`, 125e7381), loaded by path at the watcher's start and used through its API only
 (`note`, `mode`, `probe_due`, `probe_result`); its state file `tests/package/proof/HEIMDALL_HEALTH.json` in the
 builder's worktree under its own flock. Down = no Heimdall family answering for 15 min (`plan_b`); back after 3 probe
-answers in a row. This side (`pipeline/ingest/downsignal.py`, the `signal` loop every 5 s):
+answers in a row. RULING 87 AMENDED (orchestrator 10:05 ET Nov 14, after the false outages of 09:16 and 10:12 ET: one
+failed call, then no real call, every probe answering while the clock ran): 'down' is NO answer of ANY kind for 15
+minutes; any answered call OR answered probe resets the clock; a probe is a real model call on the family that failed
+and one other, never a ping; plan_b still closes on 3 good probes. The builder's module implements the clock (its
+amended `probe_result` resets it in both modes, unless the answer is older than the failure that started it; a failed
+probe never starts it; its switch reads "no answer of any kind (no call and no probe answered)": pp-selectid 3cf4c42f,
+audited 2 cycles as its audit 1008), loaded by this watcher since its start at 10:36:55 ET Nov 14. This side
+(`pipeline/ingest/downsignal.py`, the `signal` loop every 5 s):
 - NOTES: every real call of the watcher to a back-end of `providers.json down_signal.vendor` (mining, hooks, the
   second-model check) is one outcome: answered (`ok`, or `invalid`: the gateway answered inside the back-end's
   deadline) or not (any other outcome of a real call: down, refusing, empty, late, 429). No note for a stored reply or
   a missing key (no call), a probe call (its outcome is the probe's), another vendor. A back-end under an
   overrides.json `base_url` override (the outage drill) is noted `drill=True` (recorded, never counted). The router's
   threads only leave the outcome in memory (the latest answer and the first failure after it, each with its time):
-  one thread calls the module, so a held or stuck shared lock never stalls the miner.
-- THE PROBE (role `probe`: the miner's qwen3.8-27b, then glm-5.3-flash, each a probe-only back-end with the builder's
-  60 s deadline, one in flight): while `probe_due`, "Reply with the single word OK."; the first answer ends it; never
-  from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`), no
-  transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called is
-  no probe. Since pp-selectid 11ed255f (this branch's REQUESTS R12) `probe_due` CLAIMS its 2-minute slot for the whole
+  one thread calls the module, so a held or stuck shared lock never stalls the miner. FAMILIES (the amended API): a
+  failure is noted with its back-end's family (providers.json `family`: qwen, glm, muse, deepseek), each family once,
+  at its first failure after the latest answer, in time order (a first failure of a back-end naming no family is
+  noted first, without one, so the clock starts at it); the module keeps them as `failing_families`.
+- THE PROBE (role `probe`: one probe-only back-end per family this watcher calls, qwen, glm and muse, each with the
+  builder's 60 s deadline, one in flight): while `probe_due`, "Reply with the single word OK." to EVERY one of them at
+  once (ruling 87 amended; until then they were asked in order and the first answer ended the probe, so the family
+  that failed, muse at 09:01 ET Nov 14, went unasked while qwen answered); any answer is the probe's answer, reported
+  with the time of the LATEST answer received, never when the slowest family gave up (the module's time check);
+  never from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`),
+  no transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called
+  is no probe. A config test holds that every enabled back-end of the vendor in any role names a family the probe
+  asks. Since pp-selectid 11ed255f (this branch's REQUESTS R12) `probe_due` CLAIMS its 2-minute slot for the whole
   fleet: this watcher passes who="pp-ingest probe" when the loaded module's `probe_due` takes it (said once in the log
-  when it does not); a slot claimed and then not probed stays spent from its claim.
+  when it does not), and families=[the probe's families] when it takes that (amended: in heimdall_first a prober that
+  can ask none of the failed families leaves the slot to one that can); a slot claimed and then not probed stays spent
+  from its claim. `family` and `families` go only to a module whose signature takes them.
 - SWITCHES: every switch in the shared state, whoever made it, goes once to the top of `pp-ingest_STATE.md` (line 1,
   the module's words IN CAPITALS with the time ET, plus who made it and the miner's Plan B; newest first on one
   physical line, kept first whatever other notice comes or goes) and to the evidence file
