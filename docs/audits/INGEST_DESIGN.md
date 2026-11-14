@@ -301,7 +301,9 @@ answers in a row. This side (`pipeline/ingest/downsignal.py`, the `signal` loop 
   60 s deadline, one in flight): while `probe_due`, "Reply with the single word OK."; the first answer ends it; never
   from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`), no
   transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called is
-  no probe.
+  no probe. Since pp-selectid 11ed255f (this branch's REQUESTS R12) `probe_due` CLAIMS its 2-minute slot for the whole
+  fleet: this watcher passes who="pp-ingest probe" when the loaded module's `probe_due` takes it (said once in the log
+  when it does not); a slot claimed and then not probed stays spent from its claim.
 - SWITCHES: every switch in the shared state, whoever made it, goes once to the top of `pp-ingest_STATE.md` (line 1,
   the module's words IN CAPITALS with the time ET, plus who made it and the miner's Plan B; newest first on one
   physical line, kept first whatever other notice comes or goes) and to the evidence file

@@ -123,4 +123,7 @@ the worker at the end of each cycle) are also covered by the watcher's purge whe
    the module once at start: it takes the claim up at a restart after that commit, passing who="pp-ingest probe" only
    where the signature takes it (today's version would raise on the keyword). (2) Noted; this watcher passes no
    state_md, so the lock never touches this tree.
+   DONE: the builder committed the claim (pp-selectid 11ed255f, audited 2 cycles); this watcher took it up at its
+   02:57 ET restart (pp-ingest 4f805fcf, audited 2 cycles in pp-ingest_audit/r87claim/): its probes claim as
+   "pp-ingest probe".
 

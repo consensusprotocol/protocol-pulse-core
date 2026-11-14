@@ -1,20 +1,20 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 02:30 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12
+## TOTAL SPEND BY VENDOR (this session, every use, to 02:58 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$1.53** | $1.40 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.52 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.42 after; 1,111 calls), the audits $0.62 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.14: the watcher $0.42, the audits $0.47, ruling 40 $0.25 + at most $0.05 unrecorded |
-| **TOTAL** | **~$13.76** | | Anthropic is 76 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+| Heimdall | **$1.66** | $1.53 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.56 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.46 after; 1,165 calls), the audits $0.72 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12, 87's probe claim $0.10), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.28: the watcher $0.46, the audits $0.57, ruling 40 $0.25 + at most $0.05 unrecorded |
+| **TOTAL** | **~$13.89** | | Anthropic is 75 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
 - Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261114.json (tests/ingest/spend_by_vendor.py: every
   row with its basis; since e2878d54 it sums EVERY audit directory: the 18:20 ET Nov 13 table left out the audits of
   rulings 40 P1 to 92, which it now carries; the smoke and freeze-drill rows are carried from the 20261113 file, their
   scratch stores being gone). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.30 at 02:27 ET
-  Nov 14 (+$4.72, the fleet's other sessions included); the cap's sweep spend $39.10 of $460 (8.5 %), meter ok, no
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.45 at 02:57 ET
+  Nov 14 (+$4.87, the fleet's other sessions included); the cap's sweep spend $39.25 of $460 (8.5 %), meter ok, no
   tripwire. Ruling 87's probe runs only while calls fail or in Plan B (none so far: $0.00).
 
 ## RULING 40: LABEL PRECISION OF THE HARD FLAGS (measured 03:25-05:25 ET Nov 13; commit a462afda; report docs/audits/parallel/pp-ingest_FLAG_PRECISION.md)
@@ -57,14 +57,18 @@ moment 12 h after publish, which removes most of what P1 would have released (th
   - A signal that cannot be read is never taken as up or down: live.json `down_signal.mode` null with the reason at
     once, a "HEIMDALL DOWN SIGNAL NOT READ" line here after 30 min. Operating note (audit c2, muse): for the first
     48 h, `counts.probes_not_made` should stay 0 outside drills and `not_read` null.
-  - FIRST READING (from 02:27): wired; mode heimdall_first; no note yet (every call since the restart was a stored
-    reply: the flag-check calibration); the shared state file is created by the first real Heimdall call. Live:
-    `tools/ingest_watch.py status` / live.json `down_signal`.
+  - FIRST READINGS: wired at 02:27 (the calls right after the restart were stored replies: not noted); 02:35 ET the
+    first real note (a new upload's mining, every call answered) created the shared state file; at 02:58:
+    mode heimdall_first, 4 notes written (an answer is written at most once per 30 s per process), last answer
+    2026-11-14T07:49:43Z, no probe (nothing failing), 0 switches. Live: `tools/ingest_watch.py status` /
+    live.json `down_signal`.
   - Also fixed on the way (audit c1): a STATE file that exists but cannot be read is never rewritten from nothing by
     a notice writer (before, any read error was taken as an empty file).
-  - THE BUILDER ON REQUESTS R12: agreed; its `probe_due` will claim the 2-minute slot (one probe per slot fleet-wide)
-    after its own 2-cycle audit. PENDING HERE: when its sha lands, read the diff, then restart the watcher to load it
-    (the module is loaded once at start), passing who="pp-ingest probe" where the signature takes it (audited).
+  - REQUESTS R12 DONE: the builder's `probe_due` claims the 2-minute slot (pp-selectid 11ed255f: one probe per slot
+    fleet-wide; "3 in a row" = 3 slots). Taken up at 02:57 ET (pp-ingest 4f805fcf; audited 2 cycles in
+    pp-ingest_audit/r87claim/, no P0/P1/P2, $0.104): this watcher's probes claim as "pp-ingest probe" (live.json
+    `probe_claimed_as`); a module whose probe_due takes no `who` is called without one and said once in the log at
+    start. The watcher restarted 02:57 ET; the builder told.
 
 - 00:13 Nov 14 THE BUILDER'S RULINGS 90-93 ARE LIVE ON ITS SIDE (8bf5f278 the spotlight, 85c3895f ruling 93: DEC-12d
   per clip, not per channel: has_chyron no longer keeps a channel's clips off screen; each clip is judged on its own
