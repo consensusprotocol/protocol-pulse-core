@@ -124,7 +124,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
    - It runs in a detached tmux `pipeline_pulse_check_<UTC>`.
    - Log: `logs/pulse_check/run_<stamp>.log`. Run dir: `runs/pinned_<stamp>/`.
 6. **Release the flag:** `rm /tmp/pulse_gpu0.yield` once the render holds the lease.
-7. **Report:** when it ends, the DoD's first line is the PASS path with its ids, or HOLD with the stage, the row and the facts. Commit the DoD only after the run.
+7. **Report:** when it ends, the DoD's first line is the PASS path with its ids, or HOLD with the stage, the row and the facts. Commit the DoD only after the run. If the pin carries `caption_fallback: true`, that first line also says CAPTION IS THE FIXED FALLBACK (ruling 65 (b), verbatim: "It is recorded as caption_fallback: true so I tell PBX the caption is a placeholder."; the "I" is the orchestrator; nothing in the kit changes).
 
 **Stages** (`pipeline/run_fresh.py`):
 - **env**

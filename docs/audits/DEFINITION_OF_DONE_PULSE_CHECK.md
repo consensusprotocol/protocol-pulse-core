@@ -6,6 +6,12 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:57 RULING 65 (b) ANSWERED: NOTHING REQUIRED OF THE RENDER OR THE KIT.
+- The verbatim text, from the builder (orchestrator RULING 65, 12:52 ET Nov 13, (b)): "It is recorded as caption_fallback: true so I tell PBX the caption is a placeholder."
+  - The "I" is the orchestrator: telling PBX is its duty, read from the record. The approval kit is asked nothing.
+- The builder names any caption_fallback pin on its STATE line 1 in capitals when it sends it.
+- This side, at no cost: a render of such a pin says CAPTION IS THE FIXED FALLBACK on its DoD first line, so the orchestrator sees it in both places. That practice is now in INTEGRATOR_HANDOFF.md section 3, step 7. No code changes.
+
 ## 07:56 ORCHESTRATOR '07:30' (A) / (C), as relayed by the builder (7eee2b46 on pp-selectid; its audit 0734, three cycles): NO RENDER CHANGE. One record corrected: the render does not read caption_fallback.
 - (A) A takeaway lost to ruling 91's value verdict takes ruling 3's no-voice shape, so the pin may carry an ADDED clip (moments_package.no_voice.added_clip). The builder re-judges that line-up on the clips alone and runs every clip gate.
   - This answers the question the builder had open: "does 91 also end ruling 3's added clip?" No, the added clip stays.
