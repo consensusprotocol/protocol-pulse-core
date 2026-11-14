@@ -1,0 +1,49 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 135830,
+    "completion_tokens": 2570,
+    "total_tokens": 138400,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.019255743
+   },
+   "cost_usd": 0.019255743,
+   "seconds": 215.4,
+   "finish_reason": "stop"
+  },
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 122428,
+    "completion_tokens": 4674,
+    "total_tokens": 127102,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.004374844
+   },
+   "cost_usd": 0.004374844,
+   "seconds": 262.3,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {
+  "heimdall_muse": "BackendError: timeout: TimeoutError"
+ },
+ "error_costs": {
+  "heimdall_muse": {
+   "usage": {},
+   "cost_usd": null,
+   "kind": "timeout",
+   "seconds": 1800.4
+  }
+ },
+ "skipped": {},
+ "earlier_attempts": []
+}

@@ -11,7 +11,8 @@ Loops (threads, one process):
           at start, then every new upload once its moment pass is done; its rows are moments with role_hint "hook"
   check   every 30 s (ruling 40 P1): the second model's narrow question on every imperative / single_source_breaking
           flag of a moment still usable (published in the last 12 h, newest first) that has no answer that counts; the
-          answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no"
+          answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no". The
+          checker is calibrated at start and daily inside this loop (16 short calls; the loop waits for it)
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
 Nothing is dropped (integrator B2; orchestrator 05:30 "if both are down, queue the videos and mine later"):
@@ -423,9 +424,12 @@ class Service:
         try:
             got = {}
             for f in flags:
-                rec = flagcheck.record(flagcheck.ask(self.router, l, f, miner, allowed=self.check_allowed))
+                ans = flagcheck.ask(self.router, l, f, miner, allowed=self.check_allowed, sharpened=False)
+                rec = flagcheck.record(ans, version=flagcheck.PROMPT_VERSION)
                 if rec is not None:
                     got[f] = rec
+                elif "no checker" in str(ans.get("unmeasured")):          # never silent (audit r40p1 c2, glm)
+                    self.log(f"check {key}: {f} not asked: {ans['unmeasured']}")
             if len(got) < len(flags):
                 with self.clock_lock:
                     self.check_next[key] = self.clock() + CHECK_RETRY_S

@@ -264,7 +264,8 @@ def ask(router, row, flag, miner, can_spend=lambda: True, sharpened=False, allow
             tried += [list(t) for t in e.tried]
             continue
         return dict(out.obj, backend=out.backend, model=out.model, cached=out.cached, attempt=out.attempt,
-                    prompt_sha256=out.prompt_sha256, reply_sha256=out.reply_sha256)
+                    prompt_sha256=out.prompt_sha256, reply_sha256=out.reply_sha256,
+                    prompt_version=SHARPENED_VERSION if sharpened and flag in SHARPENED else PROMPT_VERSION)
     return {"answer": None, "unmeasured": tried}
 
 
@@ -309,15 +310,19 @@ def record(ans, version=PROMPT_VERSION):
     if not isinstance(ans, dict) or ans.get("answer") not in ANSWERS:
         return None
     return {"answer": ans["answer"], "evidence": ans.get("evidence", ""), "why": ans.get("why", ""),
-            "model": ans.get("model"), "backend": ans.get("backend"), "prompt_version": version,
-            "at": config.iso()}
+            "model": ans.get("model"), "backend": ans.get("backend"),
+            "prompt_version": ans.get("prompt_version") or version,      # the definitions of the prompt ASKED
+            "at": config.iso()}                                          # (audit r40p1 c2, glm)
 
 
-def watcher_checkers(router, workers=4):
-    """The back-ends allowed to answer in the watcher: those that answered EVERY calibration quote, right (ruling 40
-    P1 releases a hard flag on their answer: a checker that misses a known case never does). -> (ids, calibration)."""
-    cal = calibrate(router, workers)
-    return [b for b, c in cal.items() if c["of"] == len(PROBES) and c["right"] == c["of"]], cal
+def watcher_checkers(router, workers=4, flags=("imperative", "single_source_breaking")):
+    """The back-ends allowed to answer in the watcher: those that answered EVERY calibration quote of the flags the
+    watcher can release, right (ruling 40 P1 releases a hard flag on their answer: a checker that misses a known case
+    never does; accusation is never released, so its quotes are not asked here: audit r40p1 c2, glm). -> (ids,
+    calibration)."""
+    probes = tuple(p for p in PROBES if p[0] in flags)
+    cal = calibrate(router, workers, probes)
+    return [b for b, c in cal.items() if c["of"] == len(probes) and c["right"] == c["of"]], cal
 
 
 def cell(check):
