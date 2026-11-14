@@ -45,6 +45,17 @@ moment 12 h after publish, which removes most of what P1 would have released (th
   volume (up to ~20 in flight: a note per call under an flock would contend; asked whether HH.note writes only on
   transitions); (3) the state file is in the builder's tree: written only through its module, once committed, and
   only with the ruling's text from the orchestrator.
+  - 21:40 THE BUILDER'S ANSWER: (1) the module takes drill=True (recorded, never counted; tested: 40 min of drill
+    failures leave the clock untouched); the watcher still skips HH.note while an override is active; (2) an answer is
+    written at most once per 30 s per process, a failure always; (3) only through the module, once committed. It
+    reads ruling 87 as ONE SHARED DOWN SIGNAL for the miner, the outside keys being named for its pin stage only, and
+    not as lifting the 05:30 freeze; it put the question ("does Plan B send the miner to paid models, or does it queue
+    and wait as today?") on its STATE line 1 for the orchestrator. Ruling 87's text (to the builder, 21:18), as
+    relayed: "... When down: switch the whole pin stage to PLAN B at once: Grok mainly, then any other outside key
+    that answers ... The same switch covers the miner and the writer: tell pp-ingest the contract so the watcher uses
+    the same 'down' signal (its outage drill already exists). Plan B's spend counts on the same ledger and the same
+    cap ...". UNTIL THE ORCHESTRATOR ANSWERS: the miner's Plan B is queue and wait. The watcher is wired to the
+    signal when the module is committed (the builder will say).
 
 - 20:25 Nov 13 RULING 40 P1 IS LIVE: imperative and single_source_breaking stand as hard flags only when BOTH models
   agree. Audited 2 cycles (cycle 1: glm / muse no P0, qwen's P0 the append race already refuted; cycle 2: qwen "P0
