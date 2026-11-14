@@ -1,0 +1,626 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d3620e8c44fc23c354913473a255bf577197d9b4bac1402194592d9f0f970be1",
+ "result": {
+  "text": "frustrated and bored and agitated, and you wish that Bitcoin was higher. There is a point in every bull cycle where you look back and go, \"Oh, shit, it feels expensive now.\" Like, \"I don't know if I can buy anymore.\" You know what I mean? Like it f- you get that Bitcoin feels expensive again. Once we approach 100K, there will be a collective feeling that that is true, and that is where we start the acceleration. I, I think once you start approaching 100K, it's just gonna be off to the races. Now, I don't think that's gonna-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 25.8,
+    "text": "frustrated and bored and agitated, and you wish that Bitcoin was higher. There is a point in every bull cycle where you look back and go, \"Oh, shit, it feels expensive now.\" Like, \"I don't know if I can buy anymore.\" You know what I mean? Like it f- you get that Bitcoin feels expensive again. Once we approach 100K, there will be a collective feeling that that is true, and that is where we start the acceleration. I, I think once you start approaching 100K, it's just gonna be off to the races. Now, I don't think that's gonna-"
+   }
+  ],
+  "words": [
+   {
+    "text": "frustrated",
+    "start": 0.0,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.24,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bored",
+    "start": 0.44,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.36,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agitated,",
+    "start": 1.52,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.12,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.22,
+    "end": 2.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wish",
+    "start": 2.32,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.48,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.56,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 2.84,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher.",
+    "start": 2.98,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There",
+    "start": 4.26,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.48,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.62,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point",
+    "start": 4.74,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.0,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 5.12,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 5.36,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle",
+    "start": 5.62,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 6.44,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.64,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 6.76,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 6.94,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 7.12,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go,",
+    "start": 7.22,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh,",
+    "start": 7.44,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shit,",
+    "start": 7.84,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.22,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feels",
+    "start": 8.32,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expensive",
+    "start": 8.54,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.\"",
+    "start": 9.06,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 9.46,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"I",
+    "start": 9.6,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 9.7,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 9.8,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 9.9,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.02,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.08,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 10.2,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anymore.\"",
+    "start": 10.4,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 10.9,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 10.96,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 11.0,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.1,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean?",
+    "start": 11.14,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like",
+    "start": 11.22,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 11.32,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "f-",
+    "start": 11.52,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.76,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 11.86,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.98,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.32,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feels",
+    "start": 12.7,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expensive",
+    "start": 12.96,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again.",
+    "start": 13.4,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Once",
+    "start": 14.66,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 14.94,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "approach",
+    "start": 15.06,
+    "end": 15.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100K,",
+    "start": 15.42,
+    "end": 16.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 16.64,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 16.8,
+    "end": 16.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 16.92,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.1,
+    "end": 17.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "collective",
+    "start": 17.24,
+    "end": 17.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feeling",
+    "start": 17.76,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.06,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 18.2,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 18.4,
+    "end": 18.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "true,",
+    "start": 18.54,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.54,
+    "end": 19.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 19.66,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 19.8,
+    "end": 19.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 19.9,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 20.0,
+    "end": 20.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "start",
+    "start": 20.12,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.32,
+    "end": 20.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "acceleration.",
+    "start": 20.44,
+    "end": 21.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 21.38,
+    "end": 21.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 21.5,
+    "end": 21.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 21.56,
+    "end": 21.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "once",
+    "start": 21.86,
+    "end": 21.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 22.02,
+    "end": 22.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "start",
+    "start": 22.12,
+    "end": 22.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "approaching",
+    "start": 22.32,
+    "end": 22.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100K,",
+    "start": 22.72,
+    "end": 23.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 23.38,
+    "end": 23.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 23.52,
+    "end": 23.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 23.62,
+    "end": 23.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 23.76,
+    "end": 23.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "off",
+    "start": 23.84,
+    "end": 23.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 23.96,
+    "end": 24.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 24.04,
+    "end": 24.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "races.",
+    "start": 24.14,
+    "end": 24.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 25.16,
+    "end": 25.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 25.32,
+    "end": 25.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 25.36,
+    "end": 25.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 25.48,
+    "end": 25.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 25.6,
+    "end": 25.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna-",
+    "start": 25.72,
+    "end": 25.8,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.9
+ },
+ "usd": 0.00518,
+ "seconds": 1.19,
+ "recorded_at": "2026-11-14T16:38:52Z"
+}

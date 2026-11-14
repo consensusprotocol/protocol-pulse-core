@@ -1,0 +1,560 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f30be8e489021097edffa3dc76cb4e02e37c10bac3accde795c6ac91111c78e2",
+ "result": {
+  "text": "That being like a centerpiece of, of the equation. Bitcoin absolutely can be, should be, and probably will be used as a medium of exchange in some way, shape, or form. But we are so far away from that, that I don't think it's something that we should be stressing about if it's not happening. You know what I mean? Uh, I think that you have to go through, and this is goes back to the original point, things just take a long time to happen. Um, you know-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 24.08,
+    "text": "That being like a centerpiece of, of the equation. Bitcoin absolutely can be, should be, and probably will be used as a medium of exchange in some way, shape, or form. But we are so far away from that, that I don't think it's something that we should be stressing about if it's not happening. You know what I mean? Uh, I think that you have to go through, and this is goes back to the original point, things just take a long time to happen. Um, you know-"
+   }
+  ],
+  "words": [
+   {
+    "text": "That",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 0.18,
+    "end": 0.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.54,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.08,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "centerpiece",
+    "start": 1.2,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of,",
+    "start": 2.62,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.84,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.96,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equation.",
+    "start": 3.06,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.24,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "absolutely",
+    "start": 4.7,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 5.54,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 5.82,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 6.14,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be,",
+    "start": 6.38,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.58,
+    "end": 6.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 6.74,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 7.18,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 7.36,
+    "end": 7.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "used",
+    "start": 7.52,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 7.68,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.74,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "medium",
+    "start": 7.82,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.02,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exchange",
+    "start": 8.039,
+    "end": 8.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.4,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 8.56,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way,",
+    "start": 8.72,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shape,",
+    "start": 8.88,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 9.04,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "form.",
+    "start": 9.14,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 9.32,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 9.5,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 9.74,
+    "end": 9.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 10.14,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "far",
+    "start": 10.46,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "away",
+    "start": 10.7,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 10.98,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 11.18,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.02,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.26,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 12.4,
+    "end": 12.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 12.68,
+    "end": 12.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 12.9,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something",
+    "start": 13.04,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 13.3,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 13.4,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 13.48,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 13.58,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stressing",
+    "start": 13.72,
+    "end": 14.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 14.06,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 14.26,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 14.32,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 14.44,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happening.",
+    "start": 14.6,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 15.22,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 15.28,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 15.34,
+    "end": 15.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.42,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean?",
+    "start": 15.48,
+    "end": 15.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 16.26,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 16.44,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 16.5,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 16.64,
+    "end": 16.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.88,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 17.1,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 17.32,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 17.42,
+    "end": 17.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through,",
+    "start": 17.6,
+    "end": 17.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.76,
+    "end": 17.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 17.84,
+    "end": 17.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 17.98,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 18.12,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 18.36,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.56,
+    "end": 18.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.64,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "original",
+    "start": 18.72,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point,",
+    "start": 19.08,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 19.86,
+    "end": 20.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 20.22,
+    "end": 20.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "take",
+    "start": 20.46,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 20.82,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 21.1,
+    "end": 21.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time",
+    "start": 21.78,
+    "end": 22.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 22.28,
+    "end": 22.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happen.",
+    "start": 22.4,
+    "end": 22.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 23.46,
+    "end": 23.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 23.94,
+    "end": 23.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know-",
+    "start": 24.0,
+    "end": 24.08,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.24
+ },
+ "usd": 0.004848,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-14T16:39:03Z"
+}

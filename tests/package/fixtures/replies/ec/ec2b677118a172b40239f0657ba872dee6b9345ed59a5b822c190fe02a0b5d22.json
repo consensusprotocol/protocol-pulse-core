@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fd27d9611512a96186baa445066b78fcc5eadf67d4dc7f9cbd524257c5b2b09f",
+ "result": {
+  "text": "Does that cause issues for Bitcoin? What do you think the ramifications are? Anytime MicroStrategy isn't doing well, it has issues for Bitcoin for no other reason than people view them the same. Um,",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.4,
+    "end": 3.6,
+    "text": "Does that cause issues for Bitcoin? What do you think the ramifications are?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.059,
+    "end": 10.64,
+    "text": "Anytime MicroStrategy isn't doing well, it has issues for Bitcoin for no other reason than people view them the same. Um,"
+   }
+  ],
+  "words": [
+   {
+    "text": "Does",
+    "start": 0.4,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.6,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cause",
+    "start": 0.82,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "issues",
+    "start": 1.34,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 1.64,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin?",
+    "start": 1.78,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 2.42,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 2.52,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.56,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 2.62,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.74,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ramifications",
+    "start": 2.84,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are?",
+    "start": 3.52,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Anytime",
+    "start": 4.059,
+    "end": 4.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "MicroStrategy",
+    "start": 4.46,
+    "end": 5.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "isn't",
+    "start": 5.42,
+    "end": 5.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "doing",
+    "start": 5.86,
+    "end": 6.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "well,",
+    "start": 6.34,
+    "end": 6.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 6.84,
+    "end": 6.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "has",
+    "start": 6.94,
+    "end": 7.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "issues",
+    "start": 7.2,
+    "end": 7.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 7.52,
+    "end": 7.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.68,
+    "end": 8.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "for",
+    "start": 8.14,
+    "end": 8.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "no",
+    "start": 8.26,
+    "end": 8.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "other",
+    "start": 8.4,
+    "end": 8.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "reason",
+    "start": 8.56,
+    "end": 8.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "than",
+    "start": 8.88,
+    "end": 8.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "people",
+    "start": 9.02,
+    "end": 9.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "view",
+    "start": 9.32,
+    "end": 9.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "them",
+    "start": 9.5,
+    "end": 9.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 9.68,
+    "end": 9.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "same.",
+    "start": 9.84,
+    "end": 10.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Um,",
+    "start": 10.46,
+    "end": 10.64,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.7
+ },
+ "usd": 0.00234,
+ "seconds": 0.68,
+ "recorded_at": "2026-11-14T16:33:00Z"
+}

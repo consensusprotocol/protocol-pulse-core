@@ -1,0 +1,614 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "9deab2bc1dfd6f68408ee5fc59432888fdfec4595c1788296286b1a3d1e5d40e",
+ "result": {
+  "text": "Talked about enough that like there is holes in it I don't think it's appreciated at all No. And, and I think, you know, there, there was this whole, if you, if you wind back the clock, what, three months ago? Not even? With the, the, the primary debate was that Bitcoin Core is crooked and corrupt. And then I just look at it as like, well, those crooked c- and corrupt folks have written some of the most amazing code ever. So let's give them some props there. That's pretty remarkable. So I mean, that's-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 1.68,
+    "text": "Talked about enough that like there is holes in it"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.68,
+    "end": 2.66,
+    "text": "I don't think it's appreciated at all"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 3.36,
+    "end": 25.26,
+    "text": "No. And, and I think, you know, there, there was this whole, if you, if you wind back the clock, what, three months ago? Not even? With the, the, the primary debate was that Bitcoin Core is crooked and corrupt. And then I just look at it as like, well, those crooked c- and corrupt folks have written some of the most amazing code ever. So let's give them some props there. That's pretty remarkable. So I mean, that's-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Talked",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 0.22,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "enough",
+    "start": 0.46,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.02,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 1.18,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 1.4,
+    "end": 1.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.66,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holes",
+    "start": 1.68,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.68,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.68,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.68,
+    "end": 1.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't",
+    "start": 1.68,
+    "end": 1.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 1.76,
+    "end": 1.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 1.76,
+    "end": 1.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "appreciated",
+    "start": 1.76,
+    "end": 2.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "at",
+    "start": 2.3,
+    "end": 2.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "all",
+    "start": 2.5,
+    "end": 2.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "No.",
+    "start": 3.36,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 3.82,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 3.94,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.1,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 4.18,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.44,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.5,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there,",
+    "start": 4.66,
+    "end": 4.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 4.86,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 4.98,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.08,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole,",
+    "start": 5.24,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.6,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you,",
+    "start": 5.7,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 5.88,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.0,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wind",
+    "start": 6.16,
+    "end": 6.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 6.58,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.82,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "clock,",
+    "start": 6.98,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what,",
+    "start": 8.119,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "three",
+    "start": 8.74,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 9.0,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago?",
+    "start": 9.26,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Not",
+    "start": 10.08,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even?",
+    "start": 10.26,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "With",
+    "start": 11.22,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 11.38,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 11.56,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.74,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "primary",
+    "start": 11.9,
+    "end": 12.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "debate",
+    "start": 12.48,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 12.86,
+    "end": 12.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.98,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.14,
+    "end": 13.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Core",
+    "start": 13.6,
+    "end": 13.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 13.94,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crooked",
+    "start": 14.16,
+    "end": 14.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.56,
+    "end": 14.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "corrupt.",
+    "start": 14.74,
+    "end": 15.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 15.56,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 15.66,
+    "end": 15.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.84,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 15.92,
+    "end": 16.079,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 16.14,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 16.26,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.3,
+    "end": 16.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 16.36,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 16.5,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well,",
+    "start": 17.36,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 17.56,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crooked",
+    "start": 17.84,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "c-",
+    "start": 18.2,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.34,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "corrupt",
+    "start": 18.5,
+    "end": 18.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "folks",
+    "start": 18.86,
+    "end": 19.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 19.22,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "written",
+    "start": 19.34,
+    "end": 19.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 19.58,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 19.72,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.78,
+    "end": 19.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 19.86,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amazing",
+    "start": 20.1,
+    "end": 20.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 20.76,
+    "end": 21.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ever.",
+    "start": 21.54,
+    "end": 21.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 22.22,
+    "end": 22.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 22.92,
+    "end": 23.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "give",
+    "start": 23.1,
+    "end": 23.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 23.2,
+    "end": 23.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 23.3,
+    "end": 23.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "props",
+    "start": 23.46,
+    "end": 23.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 23.72,
+    "end": 23.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 23.88,
+    "end": 24.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pretty",
+    "start": 24.12,
+    "end": 24.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remarkable.",
+    "start": 24.32,
+    "end": 24.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 24.86,
+    "end": 24.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 24.9,
+    "end": 24.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 24.96,
+    "end": 25.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's-",
+    "start": 25.1,
+    "end": 25.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 25.36
+ },
+ "usd": 0.005072,
+ "seconds": 1.6,
+ "recorded_at": "2026-11-14T16:39:18Z"
+}

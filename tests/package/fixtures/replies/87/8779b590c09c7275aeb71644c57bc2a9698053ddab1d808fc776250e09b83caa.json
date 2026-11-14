@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 900,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"b3ad2b8356e4a8d70dd9\" (on screen: TFTC): \"I think one of the best starting points is January 1st, 2023. The bottom of the 22 bear market, which wasn't a Bitcoin bear market. It was a global bear market. Bonds lost 50 % of their value. TLT went down 50%.\"\nCANDIDATE id=\"704fa6e1af4a86ff1d07\" (on screen: Coin Bureau): \"On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"b3ad2b8356e4a8d70dd9\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"704fa6e1af4a86ff1d07\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"b3ad2b8356e4a8d70dd9\": {\"scroll\": 2, \"alone\": 4, \"setup\": 3, \"why\": \"uncompelling opening phrase doesn't stop scrolls\"}, \"704fa6e1af4a86ff1d07\": {\"scroll\": 4, \"alone\": 3, \"setup\": 4, \"why\": \"lacks context for the event described\"}}}",
+ "usage": {
+  "in": 679,
+  "out": 2668,
+  "usd_reported": 0.00738435
+ },
+ "usd": 0.070095,
+ "seconds": 20.23,
+ "recorded_at": "2026-11-14T16:33:50Z"
+}

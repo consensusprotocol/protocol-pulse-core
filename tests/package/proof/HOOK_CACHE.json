@@ -317,5 +317,38 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "b3ad2b8356e4a8d70dd9:a39f24ac84fd0971138e784e14449e891044f4f6a01b75ada594d1e64dbf5a2d:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "'I think one of the best starting points' is a soft, mid-thought opener that reads as someone already deep in a conversation, not a hook.",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "704fa6e1af4a86ff1d07:0ee211cfb364bb90fcd2cfb0179c6c86a418f8ed3472b73abb5c6a8edbf082fa:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "rating": 4,
+   "why": "The statement is a complete factual summary; the dramatic $6.3B loss grabs attention but the clip resolves itself, slightly reducing the pull toward the next clip.",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "2e3622d2282ef2692994:8430b762a254b65f570a468593f720803f1be5731f987df8d7fcd6b1e22734ab:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 2,
+   "rating": 2,
+   "why": "Weakest is 'alone': 'this goes back to the original point' explicitly references prior context, and the long, measured opening sentence lacks a scroll-stopping punch.",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

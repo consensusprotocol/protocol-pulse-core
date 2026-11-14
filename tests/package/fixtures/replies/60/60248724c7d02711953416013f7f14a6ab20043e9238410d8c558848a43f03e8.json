@@ -1,0 +1,578 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "6ca212b251986a150accd3a0361be1588bfd57be64ed4c549f6818e790f4d484",
+ "result": {
+  "text": "It's a commodity. So how many commodity businesses and, uh, you know, just commodity elements are going to be super, super profitable in the way that they have been in recent, um, months regarding the AI trade? Probably not as many. So this idea of like what can stand the test of time, it really is a s- quite a small basket and a j- I mean, to me, Bitcoin's one of the few things that has a very, very defensible moat, uh, across a number of levels. But I've been told-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 26.02,
+    "text": "It's a commodity. So how many commodity businesses and, uh, you know, just commodity elements are going to be super, super profitable in the way that they have been in recent, um, months regarding the AI trade? Probably not as many. So this idea of like what can stand the test of time, it really is a s- quite a small basket and a j- I mean, to me, Bitcoin's one of the few things that has a very, very defensible moat, uh, across a number of levels. But I've been told-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It's",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.02,
+    "end": 0.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "commodity.",
+    "start": 0.08,
+    "end": 0.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 0.98,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 1.6,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 1.76,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "commodity",
+    "start": 2.0,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "businesses",
+    "start": 2.46,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 3.78,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 4.22,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.4,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.46,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 4.58,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "commodity",
+    "start": 4.7,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "elements",
+    "start": 5.08,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.48,
+    "end": 5.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 5.66,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.92,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 6.06,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "super,",
+    "start": 7.06,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "super",
+    "start": 7.36,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profitable",
+    "start": 7.64,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.039,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.1,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 8.18,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.32,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 8.42,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 8.54,
+    "end": 8.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 8.68,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 8.9,
+    "end": 8.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recent,",
+    "start": 9.02,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 9.84,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "months",
+    "start": 10.38,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "regarding",
+    "start": 10.64,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.92,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 11.04,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade?",
+    "start": 11.32,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Probably",
+    "start": 11.54,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 11.74,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 12.06,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many.",
+    "start": 12.26,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 12.56,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 13.28,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idea",
+    "start": 13.5,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.76,
+    "end": 13.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 13.86,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 14.12,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 14.36,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stand",
+    "start": 14.62,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.04,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "test",
+    "start": 15.18,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.46,
+    "end": 15.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "time,",
+    "start": 15.62,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.72,
+    "end": 16.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 16.92,
+    "end": 17.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 17.28,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.42,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "s-",
+    "start": 17.52,
+    "end": 17.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quite",
+    "start": 17.66,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.88,
+    "end": 17.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "small",
+    "start": 18.0,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basket",
+    "start": 18.3,
+    "end": 18.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.84,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 19.08,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "j-",
+    "start": 19.24,
+    "end": 19.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 19.36,
+    "end": 19.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 19.4,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 19.64,
+    "end": 19.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 19.78,
+    "end": 20.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 20.1,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 20.42,
+    "end": 20.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 20.5,
+    "end": 20.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.54,
+    "end": 20.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 20.66,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 20.86,
+    "end": 21.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 21.04,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 21.12,
+    "end": 21.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 21.32,
+    "end": 21.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very,",
+    "start": 21.42,
+    "end": 21.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 21.64,
+    "end": 21.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "defensible",
+    "start": 21.84,
+    "end": 22.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moat,",
+    "start": 22.64,
+    "end": 22.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 23.34,
+    "end": 23.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "across",
+    "start": 23.48,
+    "end": 23.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 23.74,
+    "end": 23.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 23.86,
+    "end": 24.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 24.14,
+    "end": 24.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "levels.",
+    "start": 24.26,
+    "end": 24.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 25.52,
+    "end": 25.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 25.62,
+    "end": 25.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 25.68,
+    "end": 25.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "told-",
+    "start": 25.86,
+    "end": 26.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 26.06
+ },
+ "usd": 0.005212,
+ "seconds": 1.01,
+ "recorded_at": "2026-11-14T16:39:05Z"
+}

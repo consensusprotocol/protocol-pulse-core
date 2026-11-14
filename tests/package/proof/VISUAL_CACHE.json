@@ -38,6 +38,68 @@
   },
   "version": "visual-1"
  },
+ "704fa6e1af4a86ff1d07:82.470-95.810:visual-2:0e3b064cc95cb6f2": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [
+   {
+    "kind": "on_screen_text",
+    "text": "Inside the largest crypto hack on record: How attackers breached Binance for $6.3 billion",
+    "why": "The narration never calls it the largest hack on record or says attackers breached Binance; it only says the hot wallets gave up listed tokens worth about $6.3 billion."
+   },
+   {
+    "kind": "on_screen_text",
+    "text": "Onchain investigators suggest the attackers exploited Binance's internal systems and wallet-signing mechanisms to move funds across multiple blockchains.",
+    "why": "The narration does not mention onchain investigators, an exploit of internal systems, or wallet-signing mechanisms."
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": true,
+    "text": "Inside the largest crypto hack on record: How attackers breached Binance for $6.3 billion",
+    "why": "The narration never calls it the largest hack on record or says attackers breached Binance; it only says the hot wallets gave up listed tokens worth about $6.3 billion."
+   },
+   {
+    "asserts_beyond_words": true,
+    "text": "Onchain investigators suggest the attackers exploited Binance's internal systems and wallet-signing mechanisms to move funds across multiple blockchains.",
+    "why": "The narration does not mention onchain investigators, an exploit of internal systems, or wallet-signing mechanisms."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_dd2465e05dbb26a7.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_dd2465e05dbb26a7.jpg",
+   "sha256": "dd2465e05dbb26a7214a3e1c3cfc24e3385c647317e94ecba3e8f5ec6e85926e",
+   "times": [
+    82.47,
+    84.47,
+    86.47,
+    88.47,
+    90.47,
+    92.47,
+    94.47,
+    95.76
+   ]
+  },
+  "third_person": {
+   "finding": "No still, photo, or graphic of anyone but the speaker appears; the other frames are an article and a title card, so no on-screen name is attached to a depicted person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3067,
+   "out": 7002,
+   "usd_reported": 0.046418
+  },
+  "version": "visual-2"
+ },
  "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],

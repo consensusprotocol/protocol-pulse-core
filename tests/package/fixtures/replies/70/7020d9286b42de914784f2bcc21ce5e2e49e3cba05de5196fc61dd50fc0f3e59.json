@@ -1,0 +1,398 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "986b6e502147804d4df9a9795516253698b06b14ff78a9471395652f3d05f8b0",
+ "result": {
+  "text": "Bitcoin's bear market, you got the same return right now, right? A lot of ink has been spilled about how AI has eaten Bitcoin's lunch. N- yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry-pick from the top of the Bitcoin bull market and then go, \"Look, here's the explosive part of the AI trade,\" yes. They're called alligator",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 21.1,
+    "text": "Bitcoin's bear market, you got the same return right now, right? A lot of ink has been spilled about how AI has eaten Bitcoin's lunch. N- yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry-pick from the top of the Bitcoin bull market and then go, \"Look, here's the explosive part of the AI trade,\" yes. They're called alligator"
+   }
+  ],
+  "words": [
+   {
+    "text": "Bitcoin's",
+    "start": 0.0,
+    "end": 0.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 0.34,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 0.58,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.78,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "got",
+    "start": 1.86,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.98,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 2.08,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "return",
+    "start": 2.24,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 2.56,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 2.72,
+    "end": 2.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 3.58,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "A",
+    "start": 4.24,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 4.36,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.56,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ink",
+    "start": 4.8,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.94,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 5.06,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spilled",
+    "start": 5.3,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 5.58,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 5.78,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 6.06,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 6.34,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "eaten",
+    "start": 6.56,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 6.76,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lunch.",
+    "start": 7.18,
+    "end": 7.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "N-",
+    "start": 8.38,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 8.9,
+    "end": 9.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "during",
+    "start": 9.82,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 10.18,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idiosyncratic",
+    "start": 11.26,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 12.02,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market,",
+    "start": 12.26,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yes,",
+    "start": 12.68,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.14,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "course.",
+    "start": 13.28,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 14.04,
+    "end": 14.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.14,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cherry-pick",
+    "start": 14.32,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 14.78,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.92,
+    "end": 15.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 15.08,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 15.28,
+    "end": 15.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.36,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 15.44,
+    "end": 15.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 15.84,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 16.059,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 17.26,
+    "end": 17.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 17.44,
+    "end": 17.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go,",
+    "start": 17.62,
+    "end": 17.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Look,",
+    "start": 17.8,
+    "end": 17.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here's",
+    "start": 18.04,
+    "end": 18.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.24,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "explosive",
+    "start": 18.34,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part",
+    "start": 18.86,
+    "end": 18.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 19.0,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.08,
+    "end": 19.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 19.18,
+    "end": 19.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade,\"",
+    "start": 19.48,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yes.",
+    "start": 19.78,
+    "end": 20.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They're",
+    "start": 20.34,
+    "end": 20.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "called",
+    "start": 20.48,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "alligator",
+    "start": 20.74,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.16
+ },
+ "usd": 0.004232,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-14T16:38:51Z"
+}
