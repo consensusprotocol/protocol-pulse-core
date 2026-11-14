@@ -1,0 +1,356 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5714e633f6ce4bf428295b56763afd73ee3a4a6c09498e83ade6019e8a477d33",
+ "result": {
+  "text": "It creates fragility in the market that's why we have these big crashes. But here's the thing about Bitcoin. There's no CEO there's no central bank. There's no capital allocator, just the code and the rules 21 million Bitcoin and nodes all across the globe running this code willingly choosing to do it no espionage.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 16.239,
+    "text": "It creates fragility in the market that's why we have these big crashes. But here's the thing about Bitcoin. There's no CEO there's no central bank. There's no capital allocator, just the code and the rules 21 million Bitcoin and nodes all across the globe running this code willingly choosing to do it no espionage."
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.18,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "creates",
+    "start": 0.3,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fragility",
+    "start": 0.6,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 1.26,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.36,
+    "end": 1.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 1.48,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.22,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 2.46,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 2.62,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 2.8,
+    "end": 2.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 2.94,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 3.12,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crashes.",
+    "start": 3.3,
+    "end": 3.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.98,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here's",
+    "start": 4.059,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.22,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 4.32,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 4.52,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 4.74,
+    "end": 5.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 5.4,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 5.58,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO",
+    "start": 5.78,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there's",
+    "start": 6.68,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 6.84,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "central",
+    "start": 7.0,
+    "end": 7.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bank.",
+    "start": 7.3,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 7.58,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 7.74,
+    "end": 7.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital",
+    "start": 7.9,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "allocator,",
+    "start": 8.3,
+    "end": 8.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 8.84,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.0,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 9.16,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.38,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.48,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rules",
+    "start": 9.64,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "21",
+    "start": 10.06,
+    "end": 10.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 10.34,
+    "end": 10.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.64,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 11.0,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nodes",
+    "start": 11.14,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 11.42,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "across",
+    "start": 11.54,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.88,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "globe",
+    "start": 11.98,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "running",
+    "start": 12.54,
+    "end": 12.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 12.84,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "code",
+    "start": 13.04,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "willingly",
+    "start": 13.52,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "choosing",
+    "start": 14.12,
+    "end": 14.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 14.48,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 14.6,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.76,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 15.38,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "espionage.",
+    "start": 15.6,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.46
+ },
+ "usd": 0.003292,
+ "seconds": 1.12,
+ "recorded_at": "2026-11-14T00:40:43Z"
+}

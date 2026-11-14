@@ -1,0 +1,158 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "55f6832f88dc091cf5ab41fa4172d1d9f48ec48f90a245fad3bc371cdd321e41",
+ "result": {
+  "text": "What else we have today? 25K for Bitcoin and below. Who knows? That would be something. That'd be over 80% plus down",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 13.08,
+    "text": "What else we have today? 25K for Bitcoin and below. Who knows? That would be something. That'd be over 80% plus down"
+   }
+  ],
+  "words": [
+   {
+    "text": "What",
+    "start": 0.1,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "else",
+    "start": 0.22,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 0.42,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.54,
+    "end": 0.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today?",
+    "start": 0.7,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "25K",
+    "start": 3.92,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 4.54,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.76,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.08,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below.",
+    "start": 5.2,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Who",
+    "start": 6.12,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "knows?",
+    "start": 6.3,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 7.3,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 7.4,
+    "end": 7.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 7.56,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "something.",
+    "start": 7.74,
+    "end": 8.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That'd",
+    "start": 8.94,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 9.12,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 11.44,
+    "end": 11.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%",
+    "start": 11.68,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "plus",
+    "start": 12.2,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down",
+    "start": 12.76,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 14.57
+ },
+ "usd": 0.002914,
+ "seconds": 0.93,
+ "recorded_at": "2026-11-14T00:40:50Z"
+}

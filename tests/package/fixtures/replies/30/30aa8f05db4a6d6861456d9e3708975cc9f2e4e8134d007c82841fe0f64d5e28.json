@@ -1,0 +1,434 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e24c91353a7492008f4c7a6fc6f0f98073e763a7a36712057a0852be3735fb32",
+ "result": {
+  "text": "easily hack. It's a network that foreign adversaries can't lobby to change. It's a network who doesn't have a CEO that you can blackmail into selling chips to your greatest adversaries. Over the next year, Bitcoin is gonna prove to itself, even if the price doesn't reflect it today or in the short term, that it's the last thing standing, and that's why it should be a part-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.72,
+    "text": "easily hack. It's a network that foreign adversaries can't lobby to change. It's a network who doesn't have a CEO that you can blackmail into selling chips to your greatest adversaries. Over the next year, Bitcoin is gonna prove to itself, even if the price doesn't reflect it today or in the short term, that it's the last thing standing, and that's why it should be a part-"
+   }
+  ],
+  "words": [
+   {
+    "text": "easily",
+    "start": 0.0,
+    "end": 0.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hack.",
+    "start": 0.42,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 1.02,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.16,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 1.26,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.66,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "foreign",
+    "start": 1.88,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adversaries",
+    "start": 2.32,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 2.88,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lobby",
+    "start": 3.12,
+    "end": 3.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.4,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change.",
+    "start": 3.56,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 3.98,
+    "end": 4.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.14,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 4.24,
+    "end": 4.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 5.0,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 5.14,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 5.4,
+    "end": 5.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 5.56,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO",
+    "start": 5.68,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.12,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.24,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 6.34,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "blackmail",
+    "start": 6.52,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 7.1,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 8.06,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chips",
+    "start": 8.46,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.22,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 9.34,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "greatest",
+    "start": 9.5,
+    "end": 9.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adversaries.",
+    "start": 9.9,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Over",
+    "start": 10.88,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.1,
+    "end": 11.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 11.24,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year,",
+    "start": 11.56,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 12.38,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.88,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 13.0,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prove",
+    "start": 13.28,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.62,
+    "end": 13.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "itself,",
+    "start": 13.74,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 14.64,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 14.88,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.0,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 15.16,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 15.44,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reflect",
+    "start": 15.7,
+    "end": 16.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.04,
+    "end": 16.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 16.16,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 16.48,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 16.6,
+    "end": 16.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.68,
+    "end": 16.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short",
+    "start": 16.8,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "term,",
+    "start": 17.04,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.9,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 18.04,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 18.22,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 18.36,
+    "end": 18.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 18.64,
+    "end": 18.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "standing,",
+    "start": 18.88,
+    "end": 19.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.58,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 19.7,
+    "end": 19.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 19.96,
+    "end": 20.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 20.12,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 20.2,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 20.34,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 20.48,
+    "end": 20.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "part-",
+    "start": 20.56,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.78
+ },
+ "usd": 0.004156,
+ "seconds": 0.82,
+ "recorded_at": "2026-11-14T00:40:43Z"
+}

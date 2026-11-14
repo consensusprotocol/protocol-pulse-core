@@ -1,8 +1,26 @@
 {
- "generated_at": "2026-11-14T00:23:11+00:00",
- "build": "ledger_20261114_002300",
+ "generated_at": "2026-11-14T00:38:35+00:00",
+ "build": "ledger_20261114_003823",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "28ebdcede4ba375f2607",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.98,
+   "text": "And the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
+   "text_sha256": "9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "05c4700757ff96dd6aca",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 6.56,
+   "text": "But still, you have to understand that Bitcoin is the only asset that will not be affected by AI today.",
+   "text_sha256": "4fc1ab6a6dfacb64116289b84ff900a7a9d2fa333053422ac52ac72d8524510e",
+   "trimmed_leading": null
+  },
   {
    "pid": "79054d4b967721a77c40",
    "video_id": "L6H7538ogGs",
@@ -10,6 +28,15 @@
    "duration": 10.96,
    "text": "But here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
    "text_sha256": "5c65b0fe2e247888f39c43a5c026968ee30f092c4fc13ac2839a74473284704f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "386ba605afd505c5732e",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 14.24,
+   "text": "And the number one lesson you need to learn about a good index with the back test is the minute it goes mainstream, it's over. That's exactly what happened to Bitcoin and Cryptos. The minute it went mainstream with ETFs and they got pumped up by Mr. Trump's transition in 2004, the Faustian bargain that Helm got elected.",
+   "text_sha256": "054f7f5d0c129d2a69ca207b3bfb658649a52f3e656d26c48357cdd1ba591707",
    "trimmed_leading": null
   },
   {
@@ -31,12 +58,48 @@
    "trimmed_leading": null
   },
   {
+   "pid": "d7adaf1865a474f779b1",
+   "video_id": "uaHNzi-Kgr8",
+   "channel": "Robert Breedlove",
+   "duration": 6.58,
+   "text": "And the demonetization of real estate is happening with the monetization of Bitcoin.",
+   "text_sha256": "fb78d800878564c9980a8f2ff38f373016c10d2a366397eb57e30cde69190e58",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "57a39773d4e8a6019e3a",
+   "video_id": "NVUxOhIV3K8",
+   "channel": "Stephan Livera",
+   "duration": 6.9,
+   "text": "And broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
+   "text_sha256": "9bd73f9d85cf332582be22eda150cdba1c536f00379efc812396ed8af81547bc",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5b8effa74a967fb0ebed",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
    "duration": 8.84,
    "text": "But the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
    "text_sha256": "13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7d8a34d13e1187f7b2f3",
+   "video_id": "uaHNzi-Kgr8",
+   "channel": "Robert Breedlove",
+   "duration": 11.86,
+   "text": "So within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
+   "text_sha256": "d9cf362d0449a70b48341f3c8e175e5e4194dab308a54d2edfeb68188aa87c91",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9e2fb1d929e7a62b3f4d",
+   "video_id": "KJRod6tJ_w8",
+   "channel": "Scott Melker",
+   "duration": 7.0,
+   "text": "So Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon.",
+   "text_sha256": "ac755f0000c22f1de9a4078aee0795024ba5d6a74263300a80be975027229a50",
    "trimmed_leading": null
   },
   {
@@ -49,12 +112,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "9e342190702c908e0051",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 16.59,
-   "text": "So if you're a real estate operator and there's a liquidity crisis or whatever, and you have large Bitcoin reserve. you can now be more opportunistic as a buyer than your competitors could have been, right? So not only are you resilient to the shock, but you can benefit from the shock.",
-   "text_sha256": "ced3950de8005224269accd32b199a52e0cfa207ed883a89cc112b7a6f60ab75",
+   "pid": "c56f5d80b4cbb332cbc0",
+   "video_id": "KJRod6tJ_w8",
+   "channel": "Scott Melker",
+   "duration": 4.36,
+   "text": "And ETFs are Binance. Okay. Finance isn't Bitcoin.",
+   "text_sha256": "3c532bda751f01f9c96ce3e1be09525be056d169ca8d38a556db41f6f13fe246",
    "trimmed_leading": null
   },
   {
@@ -121,15 +184,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "28ebdcede4ba375f2607",
-   "video_id": "NtaQGnfWRR8",
-   "channel": "Simply Bitcoin",
-   "duration": 9.98,
-   "text": "And the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
-   "text_sha256": "9cd30b22dcc6e260deed771ede8ccd1e8e557aba086cc94b2a5df07b131854fc",
-   "trimmed_leading": null
-  },
-  {
    "pid": "6b9f456a6df29f234434",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -139,30 +193,21 @@
    "trimmed_leading": null
   },
   {
-   "pid": "94ca04cde8d0380acfe8",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 11.47,
-   "text": "So Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August.",
-   "text_sha256": "7dfa8d1e62c67b823dbe070898eca69f3a450616c55eeaba7e51e6145b8355d6",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d6b855ab3f12b6436727",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 9.94,
-   "text": "And big investors are not stepping in to buy the dip. More than half a billion dollars has flowed out of those U.S. spot Bitcoin ETFs this week, most of it from BlackRock's fund.",
-   "text_sha256": "9d15148fcffddddeabc9b9f6380fe403971f1b42bbc0605d194eabb50d6cddac",
-   "trimmed_leading": null
-  },
-  {
    "pid": "3465caacf939425298e9",
    "video_id": "XXfT9oeM14c",
    "channel": "CNBC Television",
    "duration": 13.5,
    "text": "So John, Bitcoin briefly falling below $68,000 earlier today. Breaking through its closely watched 200 -week moving average, it is now down 17 % in the past month and on track for a six straight weekly loss.",
    "text_sha256": "7bf029888505ab3d8822c297a154b47f6a76afe3b77a004ca70967a44a3e4235",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "45d9b39296c39a885ab5",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 7.86,
+   "text": "And why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
+   "text_sha256": "37c28248637ee8060b66a6fb3189623d9c3e78bfc6d47c3618e01d26e90a412d",
    "trimmed_leading": null
   },
   {
@@ -337,6 +382,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "28ebdcede4ba375f2607~trim",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 9.9,
+   "text": "the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
+   "text_sha256": "d0d7afa1b5cf39cc595971a312d875288357d88a8d03a650e5326c662f14373d",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "05c4700757ff96dd6aca~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 6.46,
+   "text": "still, you have to understand that Bitcoin is the only asset that will not be affected by AI today.",
+   "text_sha256": "4e2ef9d35093c5db6a36f5334623933abe8dc9dba3ed8e3b2e064dae4e7c706d",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "79054d4b967721a77c40~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -344,6 +407,15 @@
    "text": "here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
    "text_sha256": "20018e3838b693fe28c2e84848cba1197af5a59280ae7899cd9b7c8e6210ef93",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "386ba605afd505c5732e~trim",
+   "video_id": "VqNMYCgZ3Vw",
+   "channel": "CoinTelegraph",
+   "duration": 14.22,
+   "text": "the number one lesson you need to learn about a good index with the back test is the minute it goes mainstream, it's over. That's exactly what happened to Bitcoin and Cryptos. The minute it went mainstream with ETFs and they got pumped up by Mr. Trump's transition in 2004, the Faustian bargain that Helm got elected.",
+   "text_sha256": "7536e180854b0cedf4663af440d10f3d2c373a581d3c6a17fbdc898b20c5631c",
+   "trimmed_leading": "And"
   },
   {
    "pid": "6058ee583d6fb7dce57c~trim",
@@ -364,6 +436,24 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "d7adaf1865a474f779b1~trim",
+   "video_id": "uaHNzi-Kgr8",
+   "channel": "Robert Breedlove",
+   "duration": 6.28,
+   "text": "the demonetization of real estate is happening with the monetization of Bitcoin.",
+   "text_sha256": "93247a79dc1019de640091040155cd0a54a70213191cc3a596f40bd948693633",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "57a39773d4e8a6019e3a~trim",
+   "video_id": "NVUxOhIV3K8",
+   "channel": "Stephan Livera",
+   "duration": 6.82,
+   "text": "broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
+   "text_sha256": "15e6e668b792e570c6606c3f5e5a6aac08769dbaa199110ee501aeaaaf1e39a9",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "5b8effa74a967fb0ebed~trim",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -371,6 +461,24 @@
    "text": "the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
    "text_sha256": "a6781110f7a6e60bd4dddaddc1c59d46933118261981a3dfc41fb24f723cbae8",
    "trimmed_leading": "But"
+  },
+  {
+   "pid": "7d8a34d13e1187f7b2f3~trim",
+   "video_id": "uaHNzi-Kgr8",
+   "channel": "Robert Breedlove",
+   "duration": 11.34,
+   "text": "within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
+   "text_sha256": "cf0445ca9c2becaccb48e107f332925664cd3ea30c80870453920a6f88d5a7e8",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "9e2fb1d929e7a62b3f4d~trim",
+   "video_id": "KJRod6tJ_w8",
+   "channel": "Scott Melker",
+   "duration": 6.94,
+   "text": "Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon.",
+   "text_sha256": "b74d9da82d2cb64a4e03ad146654478f4c9cba4993c843007225b5c7f6ee230b",
+   "trimmed_leading": "So"
   },
   {
    "pid": "7f2bf26b73cabe67ba12~trim",
@@ -382,13 +490,13 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "9e342190702c908e0051~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 16.47,
-   "text": "if you're a real estate operator and there's a liquidity crisis or whatever, and you have large Bitcoin reserve. you can now be more opportunistic as a buyer than your competitors could have been, right? So not only are you resilient to the shock, but you can benefit from the shock.",
-   "text_sha256": "901cc077c23a84c9b0f3180f55b3908220ec8cea885148fe6ed074e6dbeea9eb",
-   "trimmed_leading": "So"
+   "pid": "c56f5d80b4cbb332cbc0~trim",
+   "video_id": "KJRod6tJ_w8",
+   "channel": "Scott Melker",
+   "duration": 4.36,
+   "text": "ETFs are Binance. Okay. Finance isn't Bitcoin.",
+   "text_sha256": "ad21b662abed7cbf462d00c9ffe2cdf8a891d629eac279433cfbf99bfaddafa8",
+   "trimmed_leading": "And"
   },
   {
    "pid": "445810538f12ebf89b11~trim",
@@ -445,15 +553,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "28ebdcede4ba375f2607~trim",
-   "video_id": "NtaQGnfWRR8",
-   "channel": "Simply Bitcoin",
-   "duration": 9.9,
-   "text": "the real hard truth that you need to hear is you can't wait to live your life for Bitcoin price to hit X.",
-   "text_sha256": "d0d7afa1b5cf39cc595971a312d875288357d88a8d03a650e5326c662f14373d",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "6b9f456a6df29f234434~trim",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -463,24 +562,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "94ca04cde8d0380acfe8~trim",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 11.41,
-   "text": "Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August.",
-   "text_sha256": "745bc73aa86f19ceb11f6bc4adfba1f51655e8e71d0718c77c398ec9a06fed5d",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "d6b855ab3f12b6436727~trim",
-   "video_id": "XXfT9oeM14c",
-   "channel": "CNBC Television",
-   "duration": 9.9,
-   "text": "big investors are not stepping in to buy the dip. More than half a billion dollars has flowed out of those U.S. spot Bitcoin ETFs this week, most of it from BlackRock's fund.",
-   "text_sha256": "8feb5ceb3066f9841073dda9a52bb3ce44a10f7dc2c0599b552e47110e76cf87",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "3465caacf939425298e9~trim",
    "video_id": "XXfT9oeM14c",
    "channel": "CNBC Television",
@@ -488,6 +569,15 @@
    "text": "John, Bitcoin briefly falling below $68,000 earlier today. Breaking through its closely watched 200 -week moving average, it is now down 17 % in the past month and on track for a six straight weekly loss.",
    "text_sha256": "ca7be9f06c7a4ad08aafa996ce8634b575a6ab6818a9e7293d630c257c450659",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "45d9b39296c39a885ab5~trim",
+   "video_id": "L6H7538ogGs",
+   "channel": "Simply Bitcoin",
+   "duration": 7.8,
+   "text": "why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
+   "text_sha256": "ce6f945927af4f54d32a0494c9139cb4e9e3c5cd1d4d0e018636ea92e217eaab",
+   "trimmed_leading": "And"
   },
   {
    "pid": "d4dccaa1203e4725dc05~trim",

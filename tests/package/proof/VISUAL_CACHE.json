@@ -239,5 +239,42 @@
    "usd_reported": 0.030056
   },
   "version": "visual-1"
+ },
+ "f063cce3e0c86a774f63:897.877-906.587:visual-1:8341d19d6b173dc7": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_b95b7958ad45052a.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_b95b7958ad45052a.jpg",
+   "sha256": "b95b7958ad45052a4f25c2bbb2ec1f4f5881aada42e865da44174fc0eadc8685",
+   "times": [
+    897.88,
+    899.88,
+    901.88,
+    903.88,
+    905.88,
+    906.54
+   ]
+  },
+  "third_person": {
+   "finding": "No still, photo, or graphic of anyone other than the speaker appears while the negative claims are spoken.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 2740,
+   "out": 1479,
+   "usd_reported": 0.012626
+  },
+  "version": "visual-1"
  }
 }

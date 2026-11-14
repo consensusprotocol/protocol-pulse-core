@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "92915297d55d4a65beedaea6638c596efb78613cb6b1e6a7bc6d3a26214561a8",
+ "result": {
+  "text": "For the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August. I mean, it's so funny",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.02,
+    "end": 9.26,
+    "text": "For the year. Recent rapid redemptions explain the market swoon. Bitcoin spot price fell below 70,000 on Friday, the lowest since August. I mean, it's so funny"
+   }
+  ],
+  "words": [
+   {
+    "text": "For",
+    "start": 0.02,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.16,
+    "end": 0.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year.",
+    "start": 0.32,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Recent",
+    "start": 1.18,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rapid",
+    "start": 1.5,
+    "end": 1.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "redemptions",
+    "start": 1.78,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "explain",
+    "start": 2.3,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.62,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 2.7,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "swoon.",
+    "start": 3.08,
+    "end": 3.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.88,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "spot",
+    "start": 4.26,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 4.5,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fell",
+    "start": 4.76,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 4.94,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "70,000",
+    "start": 5.32,
+    "end": 5.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.76,
+    "end": 5.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Friday,",
+    "start": 5.92,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.3,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lowest",
+    "start": 6.44,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "since",
+    "start": 7.02,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "August.",
+    "start": 7.52,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.0,
+    "end": 8.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean,",
+    "start": 8.06,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 8.94,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funny",
+    "start": 9.14,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.28
+ },
+ "usd": 0.001856,
+ "seconds": 0.58,
+ "recorded_at": "2026-11-14T00:40:54Z"
+}

@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "139eebe30d5eb80689555e879c938144642a6bcdbd67f8dbb9608690322af0eb",
+ "result": {
+  "text": "Mentally, financially, socially. I remember when I came up into Bitcoin, there was this idea of Bitcoiners being elite capital. Like, we're the smartest, you know? We understand how the world works. Like, we're gonna be the richest, we're gonna be the ones in power",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 15.28,
+    "text": "Mentally, financially, socially. I remember when I came up into Bitcoin, there was this idea of Bitcoiners being elite capital. Like, we're the smartest, you know? We understand how the world works. Like, we're gonna be the richest, we're gonna be the ones in power"
+   }
+  ],
+  "words": [
+   {
+    "text": "Mentally,",
+    "start": 0.0,
+    "end": 0.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financially,",
+    "start": 0.6,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "socially.",
+    "start": 2.12,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.08,
+    "end": 4.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "remember",
+    "start": 4.2,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.68,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.86,
+    "end": 4.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "came",
+    "start": 4.96,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 5.14,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 5.26,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 5.44,
+    "end": 5.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 5.82,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 5.96,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 6.1,
+    "end": 6.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "idea",
+    "start": 6.3,
+    "end": 6.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 6.58,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners",
+    "start": 6.72,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 7.24,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "elite",
+    "start": 7.46,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital.",
+    "start": 7.74,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 8.84,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 8.98,
+    "end": 9.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.14,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "smartest,",
+    "start": 9.3,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.56,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know?",
+    "start": 10.64,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 10.86,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 11.0,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 11.46,
+    "end": 11.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.6,
+    "end": 11.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 11.7,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "works.",
+    "start": 12.04,
+    "end": 12.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 12.56,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 12.92,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 13.08,
+    "end": 13.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 13.28,
+    "end": 13.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.44,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "richest,",
+    "start": 13.58,
+    "end": 13.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 14.02,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 14.14,
+    "end": 14.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 14.3,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.4,
+    "end": 14.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ones",
+    "start": 14.56,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.74,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power",
+    "start": 14.92,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.32
+ },
+ "usd": 0.003064,
+ "seconds": 0.84,
+ "recorded_at": "2026-11-14T00:41:01Z"
+}

@@ -207,5 +207,49 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "f063cce3e0c86a774f63:eb68b2fd0b735909b56f5e1bde9c958cc0265aecbb808700977de0f9e3e12ff3:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 5,
+   "rating": 4,
+   "why": "delayed Bitcoin mention",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "3754ba04fb4573be1fe7:94e45ecd1767c9234a7b4a45fdc34a00e4d06036e0e6436840a56f5bfc399aec:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 3,
+   "rating": 2,
+   "why": "unclear starting reference to Strategy",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "bacb2f01f3a6e5f57a70:a85e438d66ddf346da4a747d496fb555bd8878fa49bc499defa9d522e689258a:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "common price news lacks uniqueness",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "94bd089fb811e443f4a5:bc43b5d2369bb091fbd9f5ad4b94135ae52d8771d4cdb80794e4edae357cfe0a:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 2,
+   "setup": 4,
+   "rating": 2,
+   "why": "assumes prior context",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

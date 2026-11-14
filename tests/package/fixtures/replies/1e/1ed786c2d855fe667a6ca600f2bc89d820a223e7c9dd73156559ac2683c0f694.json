@@ -1,0 +1,230 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "4f3269190227d4a3c3590f71db3f93e53b7c49e123c9ba228b49bafe82bc0736",
+ "result": {
+  "text": "Trading like Jensen Huang announced that Bitcoin was his fourth affair. I don't really understand why Bitcoin is taking it on the chin so badly when the broader market is bouncing. But now, um-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 11.34,
+    "text": "Trading like Jensen Huang announced that Bitcoin was his fourth affair. I don't really understand why Bitcoin is taking it on the chin so badly when the broader market is bouncing. But now, um-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Trading",
+    "start": 0.14,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.56,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jensen",
+    "start": 1.0,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Huang",
+    "start": 1.5,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "announced",
+    "start": 1.86,
+    "end": 2.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.42,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 2.64,
+    "end": 3.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 3.06,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "his",
+    "start": 3.2,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fourth",
+    "start": 3.38,
+    "end": 3.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "affair.",
+    "start": 3.64,
+    "end": 3.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.08,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 4.14,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 4.3,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 4.56,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 5.2,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.42,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.88,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 6.04,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 6.34,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 6.46,
+    "end": 6.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.56,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chin",
+    "start": 6.7,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 7.42,
+    "end": 7.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "badly",
+    "start": 7.7,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 8.119,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.26,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "broader",
+    "start": 8.38,
+    "end": 8.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 8.72,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.28,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bouncing.",
+    "start": 9.46,
+    "end": 9.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 10.64,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 10.8,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um-",
+    "start": 11.34,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.36
+ },
+ "usd": 0.002272,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-14T00:40:56Z"
+}

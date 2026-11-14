@@ -1,0 +1,242 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "8bc284af511b996049d7c1594975027497d321d776adb043f60feccec18aa26c",
+ "result": {
+  "text": "I'm gonna air quote it right there. Part of the bad news here is what happened to Strategy. Strategy, the world's biggest corporate Bitcoin holder to be dropped from MSCI indexes. Strategy described the proposal as",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.22,
+    "end": 10.54,
+    "text": "I'm gonna air quote it right there. Part of the bad news here is what happened to Strategy. Strategy, the world's biggest corporate Bitcoin holder to be dropped from MSCI indexes. Strategy described the proposal as"
+   }
+  ],
+  "words": [
+   {
+    "text": "I'm",
+    "start": 0.22,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 0.28,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "air",
+    "start": 0.5,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quote",
+    "start": 0.72,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.96,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 1.08,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 1.28,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Part",
+    "start": 1.52,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 1.64,
+    "end": 1.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bad",
+    "start": 1.8,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news",
+    "start": 2.02,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 2.28,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.54,
+    "end": 2.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 2.68,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happened",
+    "start": 2.84,
+    "end": 3.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.18,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy.",
+    "start": 3.32,
+    "end": 3.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy,",
+    "start": 4.0,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.46,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world's",
+    "start": 4.56,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "biggest",
+    "start": 4.82,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "corporate",
+    "start": 5.1,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.38,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holder",
+    "start": 5.74,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.04,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 6.12,
+    "end": 6.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dropped",
+    "start": 6.3,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 7.04,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSCI",
+    "start": 7.36,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "indexes.",
+    "start": 8.58,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Strategy",
+    "start": 9.16,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "described",
+    "start": 9.58,
+    "end": 9.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.92,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "proposal",
+    "start": 10.02,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 10.46,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.56
+ },
+ "usd": 0.002112,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-14T00:40:57Z"
+}
