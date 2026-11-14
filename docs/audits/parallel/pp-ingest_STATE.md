@@ -33,6 +33,20 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 23:10 Nov 13 RULING 92 (orchestrator 22:52, relayed by the builder, NOT RECEIVED HERE DIRECTLY): spotlights (ruling
+  90: one 12-35 s moment, >= 4 as a cold opener and >= 4 standing alone) only from a CONVERSATION (two or more
+  speakers by the caption turn structure) or a first-hand statement; "the hook pass should favour conversations for
+  this purpose; role_hint stays 'hook'". MEASURED here first (the '>>' markers, stored escaped as &gt;&gt; in the
+  captions): the live 12 h pool ALREADY holds 22 hook rows from conversation episodes (BTC Sessions nvEftLDdab4 2.51
+  turns/min: 6; Bitcoin Magazine 1.18-1.64: 16) against 36 from solo recaps (Simply Bitcoin 0.48 / 0.05: 30; Altcoin
+  Daily 0.21: 3; Digital Asset News 0.17: 3) and 4 from news networks; so the conversations' hooks exist and did not
+  reach 4 at the builder's judge. QUESTION FOR THE ORCHESTRATOR (asked of the builder too: where did the 22 stop?):
+  which miner change, if any? (a) every row carries its episode's turn measure (no model cost); (b) up to 5 hook
+  candidates per window (not 3) in conversation and first-hand episodes (+ about $0.0002 a window); (c) for those
+  episodes only, a spotlight question per ruling 90 (one 12-35 s cold opener that stands alone, role_hint "hook"; a
+  new miner question, about $0.0004 a window). Until ruled, the hook pass stays as ruling 80 defines it (4-14 s, every
+  mined video), audited.
+
 - 21:25 Nov 13 RULING 87 (orchestrator 21:18, relayed by the builder, NOT YET RECEIVED HERE DIRECTLY): one shared
   "Heimdall down" signal for the builder and this watcher (pp-selectid pipeline/heimdall_health.py, state under an
   flock in the builder's tree; down = no Heimdall family answering for 15 min; plan_b; probes). Answered the builder:
