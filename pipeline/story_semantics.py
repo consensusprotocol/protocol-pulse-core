@@ -5,7 +5,8 @@ Resources (all local, GPU0 only):
   embeddings  BAAI/bge-base-en-v1.5 (pinned revision), transformers, fp16 on cuda:0
   LLM         gemma3:27b via the shared Ollama service on :11434, used only after proving from
               the live process environment and nvidia-smi that it is GPU0-only. The separate
-              Ollama on :11435 is pinned to the quarantined GPU1 and is never called.
+              Ollama on :11435 belongs to GPU1 (the watchdog, the site's fallback, local A/B runs;
+              law L-r layout) and is never called by this layer.
 
 Identity rules (nothing lexical stands in for semantics):
   - retrieval  = embedding similarity + word-boundary alias hits (recall only)
@@ -28,6 +29,7 @@ import os
 import re
 import subprocess
 import time
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -62,7 +64,8 @@ class LLMParseError(Exception):
 
 def _gpu_guard():
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise RuntimeError("semantic layer requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
+        raise RuntimeError("semantic layer requires CUDA_VISIBLE_DEVICES=0 (law L-r layout: the editorial models "
+                           "run on GPU0)")
 
 
 # ── embeddings ──
@@ -71,11 +74,14 @@ class Embedder:
     def __init__(self):
         _gpu_guard()
         import torch
+        import gpu0
         from transformers import AutoModel, AutoTokenizer
         from huggingface_hub import snapshot_download
         path = snapshot_download(EMBED_MODEL, revision=EMBED_REVISION, local_files_only=True)
         self.tok = AutoTokenizer.from_pretrained(path)
-        self.model = AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval()
+        # L-r: the weights reach GPU0 only through gpu0.swap_to("embedder") (Model.get), and any later swap deletes them
+        self.model = gpu0.model("embedder", lambda: AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval())
+        self.gpu0 = gpu0
         self.torch = torch
         self.model_id = f"{EMBED_MODEL}@{EMBED_REVISION[:12]}"
 
@@ -84,10 +90,12 @@ class Embedder:
         with self.torch.no_grad():
             for i in range(0, len(texts), batch):
                 bt = [(EMBED_QUERY_PREFIX + t) if query else t for t in texts[i:i + batch]]
-                enc = self.tok(bt, padding=True, truncation=True, max_length=512,
-                               return_tensors="pt").to("cuda:0")
-                cls = self.model(**enc).last_hidden_state[:, 0].float()
-                out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
+                self.model.get()                                  # resident before any tensor goes to GPU0
+                with self.gpu0.guard("embedder: encode"):
+                    enc = self.tok(bt, padding=True, truncation=True, max_length=512,
+                                   return_tensors="pt").to("cuda:0")
+                    cls = self.model(**enc).last_hidden_state[:, 0].float()
+                    out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
         return np.vstack(out) if out else np.zeros((0, 768), np.float32)
 
     def chunk_vectors(self, rec, chunks):
@@ -105,7 +113,7 @@ class Embedder:
         return ids, vecs
 
     def close(self):
-        del self.model
+        self.model.unload()
         self.torch.cuda.empty_cache()
 
 
@@ -136,8 +144,8 @@ def parse_json_lenient(txt):
 class LocalLLM:
     """Uses the shared Ollama service on :11434 ONLY after proving it is GPU0-only:
     the listening process must run with CUDA_VISIBLE_DEVICES=0, and after the first call every
-    runner under it must sit on GPU0. (A separate instance on :11435 is pinned to the
-    quarantined GPU1 and is never used.)"""
+    runner under it must sit on GPU0. (The instance on :11435 belongs to GPU1 under the law L-r
+    layout and is never used here: the editorial models run on GPU0.)"""
 
     def __init__(self, model=LLM_MODEL, host=LLM_HOST):
         _gpu_guard()
@@ -188,13 +196,38 @@ class LocalLLM:
         return sorted(gpus.get(u, u) for u in mine)
 
     def _post(self, prompt, max_tokens, seed):
+        import gpu0
+        gpu0.require(f"ollama:{self.model}")          # L-r: every request under the lease, not only the first
+        if getattr(self, "_gpu0_gen", None) != gpu0.generation() or self.model not in gpu0.ollama_loaded() \
+                or self.model not in gpu0._ollama_ours:                 # ownership pruned: a newcomer is foreign
+            gpu0.swap_to(f"ollama:{self.model}")        # L-r: nothing else resident, the memory proven free
+            self._gpu0_gen = gpu0.generation()
         body = json.dumps({"model": self.model, "stream": False, "format": "json",
                            "messages": [{"role": "user", "content": prompt}],
                            "options": {"temperature": 0, "seed": seed, "num_ctx": LLM_CTX,
                                        "num_predict": max_tokens}}).encode()
         req = urllib.request.Request(f"http://{self.host}/api/chat", data=body,
                                      headers={"Content-Type": "application/json"})
-        resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
+        try:
+            resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
+        except urllib.error.HTTPError as e:
+            text = e.read().decode(errors="replace")             # classified whole, reported truncated
+            gone = self.model not in gpu0.ollama_loaded()
+            gpu0.ollama_settle(self.model)
+            if gpu0.is_oom(RuntimeError(text)) or gone:
+                raise gpu0.GpuOOM(f"ollama {self.model}: HTTP {e.code} with "
+                                  f"{'the model no longer resident (out-of-memory suspected)' if gone else 'a CUDA out of memory'}: "
+                                  f"{text[-400:]}") from None
+            raise RuntimeError(f"Ollama HTTP {e.code}: {text[:400]}") from None
+        except (urllib.error.URLError, ConnectionError, TimeoutError) as e:   # the runner died mid-request?
+            if isinstance(e, ConnectionRefusedError) or isinstance(getattr(e, "reason", None), ConnectionRefusedError):
+                raise RuntimeError(f"Ollama {self.host} refused the connection (the server is down): {e}") from None
+            gone = self.model not in gpu0.ollama_loaded()
+            gpu0.ollama_settle(self.model)
+            if gpu0.is_oom(e) or gone:
+                raise gpu0.GpuOOM(f"ollama {self.model}: the runner was lost mid-request and the model is no longer "
+                                  f"resident (out-of-memory suspected): {type(e).__name__}: {e}") from None
+            raise
         self.calls += 1
         if not self.placement_checked:
             placement = self.gpu_placement()
@@ -255,8 +288,11 @@ class LocalLLM:
         raise LLMParseError(f"no valid JSON after {attempts} attempts", log)
 
     def stop(self):
-        """Release our model from GPU0 VRAM (keep_alive 0)."""
-        _unload(self.host, self.model)
+        """Release our model from GPU0 VRAM (keep_alive 0) when it is this run's; a model another client loaded is
+        never unloaded (law L-r)."""
+        import gpu0
+        if self.model in gpu0.ollama_loaded() and self.model in gpu0._ollama_ours:
+            gpu0._ollama_unload([self.model])
 
 
 def _unload(host, model):
@@ -297,26 +333,15 @@ def loaded_models(host=LLM_HOST):
 
 
 def release_gpu0_for_whisper(llm, need_free_mib=7000, wait_s=180, log=print):
-    """Unload every model on the GPU0 Ollama, wait until GPU0 has need_free_mib free.
-    Returns an evidence dict; raises RuntimeError (infrastructure) if release can't be proven."""
-    ev = {"before": gpu0_memory(), "unloaded": []}
-    deadline = time.time() + wait_s
-    while True:
-        for name, _ in loaded_models(llm.host):
-            _unload(llm.host, name)
-            ev["unloaded"].append(name)
-        gc.collect()
-        used, total = gpu0_memory()
-        if not loaded_models(llm.host) and total - used >= need_free_mib:
-            ev["after"] = (used, total)
-            ev["free_mib"] = total - used
-            log(f"  GPU0 released for Whisper: {total - used} MiB free, unloaded {sorted(set(ev['unloaded']))}")
-            return ev
-        if time.time() > deadline:
-            ev["after"] = (used, total)
-            raise RuntimeError(f"GPU0 release not proven: {total - used} MiB free "
-                               f"(need {need_free_mib}), models still loaded {loaded_models(llm.host)}")
-        time.sleep(5)
+    """GPU0 made ready for the Whisper word pass. Returns an evidence dict. L-r: gpu0.swap_to does it all (every other
+    model of this run unloaded, a foreign GPU0 user refused and named, never unloaded; the batched word-pass model's
+    measured need + margin proven free by nvidia-smi); a refusal is a Gpu0Stop that no caller can rename. need_free_mib
+    stays for the callers' signature: the measured requirement (9600 + 1024) is stricter than any value they pass."""
+    import gpu0
+    ev = gpu0.swap_to("whisper:large-v3:batched", wait_s=wait_s)
+    log(f"  GPU0 released for Whisper: {ev['free_mib']} MiB free, unloaded {sorted(set(ev['unloaded']))}")
+    return {"before": tuple(ev["before"]), "unloaded": ev["unloaded"], "after": tuple(ev["after"]),
+            "free_mib": ev["free_mib"]}
 
 
 # ── untrusted transcript text (prompt-injection hardening) ──
@@ -918,4 +943,55 @@ def rate_passages(llm, q, passages):
         pid = str(x["id"])
         if pid in by_id:
             out[by_id[pid]] = (float(x["score"]), str(x.get("reason", "")), x["fault"])
+    return out, None
+
+
+# RULING 60 (orchestrator 2026-11-13 '11:01'): for a MOMENTS pin the scorer judges STAND-ALONE ONLY. Topicality is
+# ruling 34's (the miner's screen per clip, the medley names Bitcoin) and is not asked again; no event headline; the
+# model judges the clip as spoken (no fixed score for an opener word). The story path (CLIP_PROMPT) is unchanged.
+ALONE_PROMPT = """You judge clips for a short Bitcoin video built from other people's spoken clips. Each clip below is
+heard ON ITS OWN: the viewer hears nothing said before it and nothing said after it.
+
+{note}
+For each clip judge ONE thing: does a viewer who hears only this clip understand what is being claimed, with nothing
+in it depending on words outside the clip?
+Judge the clip as spoken. Do not judge its topic, importance, accuracy or style. A first word such as "but", "and",
+"so", "well", "now" or "yeah" is not by itself a dependence: judge whether what is claimed is complete and clear
+without the words said before it.
+Rate each clip 1-5:
+5 = what is claimed is fully understood from this clip alone;
+4 = understood alone; any gap is one a viewer fills without effort;
+3 = partly understood: one piece needed to know what is claimed is outside the clip;
+2 = mostly depends on words outside the clip;
+1 = cannot be understood without words outside the clip.
+Also name each clip's main fault: "none"; "starts_mid_thought" ONLY when what is claimed cannot be understood without
+words said BEFORE the clip (it answers an unheard question, or a word such as "it", "that", "this", "they" or "he"
+points to something only said before); an opening word or phrase alone ("but", "and", "so", "well", "now",
+"however", "I mean", "yeah") is never this fault; "ends_mid_thought" when what is claimed is cut off before it is
+complete; "other" for anything else.
+{passages}
+Return ONLY JSON: {{"ratings": [{{"id": clip id, "score": 1-5, "fault": one of the four, "reason": short}}]}}"""
+
+ALONE_FAULTS = ("none", "starts_mid_thought", "ends_mid_thought", "other")
+
+
+def rate_alone(llm, passages):
+    """RULING 60: the moments scorer. ({pid: (score, reason, fault)}, error_or_None), read exactly as rate_passages
+    reads its reply; an unknown fault is "unspecified"; unparseable -> no ratings (never invented)."""
+    ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
+                   f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
+    try:
+        r = llm.chat_json(ALONE_PROMPT.format(note=UNTRUSTED_NOTE, passages=ex), max_tokens=1200, validate=_v_rate)
+    except LLMParseError as e:
+        return {}, {"error": str(e), "llm_attempts": e.attempts}
+    out = {}
+    valid = {p["pid"] for p in passages}
+    for x in r.get("ratings", []) or []:
+        try:
+            pid = str(x["id"])
+            if pid in valid:
+                fault = x.get("fault") if x.get("fault") in ALONE_FAULTS else "unspecified"
+                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
+        except Exception:
+            pass
     return out, None

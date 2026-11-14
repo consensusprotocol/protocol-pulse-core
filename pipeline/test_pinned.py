@@ -10,12 +10,14 @@ Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_pinned.py
 """
 import copy
 import json
+import time
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 PIPELINE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(PIPELINE)
@@ -64,6 +66,8 @@ class Fixture(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
+    RECENT = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(time.time() - 3600))   # law L-v 3 fields (a moments
+                                                                                     # pin states them on every segment)
     def pin(self, **kw):
         p = {"schema": pinned.SCHEMA, "story_id": "t1", "label": "test label", "approved_by": "PBX",
              "approved_at": "2026-11-06T21:00:00-05:00",
@@ -74,6 +78,8 @@ class Fixture(unittest.TestCase):
                   "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"]},
                  {"role": "clip", "video_id": "AAAAAAAAAA1", "channel": APPROVED, "start": 14.02, "end": 27.88,
                   "time_coords": "source_file", "source": self.src["AAAAAAAAAA1"]}]}
+        for seg in p["segments"]:
+            seg.update(time_sensitive=False, source_published_at=self.RECENT)
         p.update(kw)
         return p
 
@@ -81,6 +87,90 @@ class Fixture(unittest.TestCase):
         path = os.path.join(self.tmp, "pin.json")
         json.dump(p, open(path, "w"))
         return path
+
+
+class TestRecencyRenderClock(Fixture):
+    """Law L-v 3 amended (orchestrator 2026-11-12 '22:40'): recency is checked on the RENDER clock at the pinned stage.
+    A time_sensitive clip whose source is more than 24 h old at render time holds the run; a moments pin states
+    time_sensitive and source_published_at on every segment (fail closed); other pins only where a segment says
+    time_sensitive. The real case: the 41f29b1f medley's clip_02 (published 2026-11-11T18:03:23Z) passed at its universe
+    (11.0 h) and is 33.3 h old at the night's delivery."""
+    NOW = 1794540000.0                                                     # 2026-11-13T03:20:00Z
+
+    def at(self, hours):
+        return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.NOW - hours * 3600))
+
+    def mpin(self, *segs):
+        p = self.pin(moments_package={"type": "moments"})
+        for seg in p["segments"]:                         # every segment on THIS class's fixed clock, never the wall
+            seg.update(time_sensitive=False, source_published_at=self.at(1))   # clock (E-FAIL-080)
+        for seg, (ts, pub) in zip(p["segments"], segs):
+            seg.update(time_sensitive=ts, source_published_at=pub)
+        return p
+
+    def test_a_time_sensitive_clip_over_24_h_at_render_holds_and_under_passes(self):
+        bad, recs = pinned.recency_problems(self.mpin((False, self.at(60)), (True, self.at(24.1))), now=self.NOW)
+        self.assertEqual(len(bad), 1)
+        self.assertIn("segment 1 (clip BBBBBBBBBB2): time-sensitive", bad[0])
+        self.assertIn("24.1 h before this render (limit 24 h, law L-v 3)", bad[0])
+        ok, recs = pinned.recency_problems(self.mpin((False, self.at(60)), (True, self.at(23.9))), now=self.NOW)
+        self.assertEqual(ok, [])
+        self.assertEqual(pinned.recency_problems(self.mpin((True, self.at(24.0))), now=self.NOW)[0], [])  # 'older than
+        self.assertEqual(len(pinned.recency_problems(self.mpin((True, self.at(24.01))), now=self.NOW)[0]), 1)  # 24 h'
+        with self.assertRaisesRegex(pinned.PinError, "segments must be a non-empty list"):         # audit batch 44 c1
+            pinned.validate_schema(self.pin(moments_package={"type": "moments"}, segments=[]), REG)
+        self.assertEqual([r["age_h_at_render"] for r in recs][:2], [60.0, 23.9])
+
+    def test_the_real_clip_02_passed_at_its_universe_and_holds_tonight(self):
+        p = self.mpin((False, "2026-11-10T13:45:51Z"), (False, "2026-11-09T17:00:09Z"),      # the pin's real publish
+                      (True, "2026-11-11T18:03:23Z"))                                         # times (its sources file)
+        self.assertEqual(pinned.recency_problems(p, now=1794474360.0)[0], [])              # 2026-11-12T05:06Z: 11.0 h
+        bad = pinned.recency_problems(p, now=self.NOW)[0]                                 # 2026-11-13T03:20Z
+        self.assertEqual(len(bad), 1)
+        self.assertIn("segment 2 (clip AAAAAAAAAA1): time-sensitive", bad[0])
+        self.assertIn("33.3 h before this render", bad[0])
+
+    def test_a_moments_pin_must_state_both_fields_on_every_segment(self):
+        for mutate, part in ((lambda s: s.pop("time_sensitive"), "time_sensitive must be true or false"),
+                             (lambda s: s.update(time_sensitive="true"), "time_sensitive must be true or false"),
+                             (lambda s: s.update(time_sensitive=1), "time_sensitive must be true or false"),
+                             (lambda s: s.pop("source_published_at"), "is not an ISO 8601 time with its offset"),
+                             (lambda s: s.update(source_published_at="2026-11-12T10:00:00"), "with its offset"),
+                             (lambda s: s.update(source_published_at="yesterday"), "with its offset")):
+            p = self.mpin((False, self.at(1)), (False, self.at(1)), (False, self.at(1)))
+            mutate(p["segments"][2])
+            bad = pinned.recency_problems(p, now=self.NOW)[0]
+            self.assertEqual(len(bad), 1, bad)
+            self.assertIn(part, bad[0])
+
+    def test_a_publish_time_in_the_future_fails_beyond_15_min_of_skew(self):
+        bad = pinned.recency_problems(self.mpin((False, self.at(-0.5))), now=self.NOW)[0]
+        self.assertEqual(len(bad), 1)
+        self.assertIn("in the future of this render", bad[0])
+        self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.2))), now=self.NOW)[0], [])
+        self.assertEqual(pinned.recency_problems(self.mpin((False, self.at(-0.25))), now=self.NOW)[0], [])  # exactly 15 min
+        self.assertEqual(len(pinned.recency_problems(self.mpin((False, self.at(-0.26))), now=self.NOW)[0]), 1)
+
+    def test_other_pins_are_checked_only_where_a_segment_is_time_sensitive(self):
+        p = self.pin()
+        for seg in p["segments"]:
+            seg.pop("time_sensitive"), seg.pop("source_published_at")
+        self.assertEqual(pinned.recency_problems(p, now=self.NOW), ([], []))           # the protected references' pins
+        p["segments"][1].update(time_sensitive=True, source_published_at=self.at(30))
+        bad = pinned.recency_problems(p, now=self.NOW)[0]
+        self.assertEqual(len(bad), 1)
+        self.assertIn("30.0 h before this render", bad[0])
+
+    def test_prepare_holds_a_stale_pin_before_any_download_and_records_the_check(self):
+        p = self.pin(moments_package={"type": "moments"})
+        p["segments"][1].update(time_sensitive=True, source_published_at="2026-11-11T18:03:23Z")
+        with self.assertRaisesRegex(pinned.PinError, "law L-v 3 \\(render clock\\): segment 1"):
+            pinned.prepare(self.write(p), self.run_dir, log=lambda s: None)
+        self.assertFalse(os.path.exists(os.path.join(self.run_dir, "edl.json")))
+        self.assertFalse(os.path.exists(os.path.join(self.run_dir, "PINNED_DECISION.json")))
+        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)              # a human pin: recorded
+        rec = json.load(open(os.path.join(self.run_dir, "PINNED_DECISION.json")))["recency"]
+        self.assertEqual((rec["limit_h"], rec["segments"]), (24.0, []))
 
 
 class TestSchema(Fixture):
@@ -261,12 +351,282 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
 
 
+ROWS_PASS = {k: {"status": "PASS", "by": "test", "replayed": False, "n": 1} for k in pinned.SPOTLIGHT_ROWS}
+FIRST_COMMENT = "the take nobody wants to hear.\n\nCredits \U0001F9E1\n\n@someone"
+
+
+class TestSpotlight(Fixture):
+    """Law L-ab SPOTLIGHT (rulings 90 / 91 / 92, the contract agreed with the builder 22:44): moments_package.shape
+    'spotlight' = ONE segment (role hook), no clips; edl_vo {intro: null, bridges: [], closing: null by default}; a
+    closing line (<= 12 words) only with closing_value / closing_fidelity / closing_context; every required row exactly
+    PASS and live; first_comment carried verbatim. A medley is unchanged (TestMomentsPackage)."""
+
+    def spin(self, gates=None, **kw):
+        p = self.pin()
+        p["segments"] = p["segments"][:1]
+        mp = {"type": "moments", "shape": "spotlight", "title": "T", "caption": "c", "package_sha256": "cd" * 32,
+              "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+              "edl_vo": {"intro": None, "bridges": [], "closing": None},
+              "sources_30s_before": [f"https://www.youtube.com/watch?v={s['video_id']}&t=0s" for s in p["segments"]],
+              "gates": dict(ROWS_PASS) if gates is None else gates, "first_comment": FIRST_COMMENT}
+        mp.update(kw)
+        p["moments_package"] = mp
+        return p
+
+    def edl(self, pin):
+        pinned.prepare(self.write(pin), self.run_dir, log=lambda s: None)
+        return json.load(open(os.path.join(self.run_dir, "edl.json")))
+
+    def test_the_default_spotlight_is_one_moment_and_no_line(self):
+        edl = self.edl(self.spin())
+        self.assertEqual((edl["clips"], edl["vo"]), ([], {"intro": None, "bridges": []}))
+        self.assertEqual((edl["package_type"], edl["package_shape"], edl["first_comment"]),
+                         ("moments", "spotlight", FIRST_COMMENT))
+        self.assertEqual(edl["hook"]["video_id"], "AAAAAAAAAA1")
+
+    def test_a_closing_line_is_kept_only_with_its_value_verdict(self):
+        line = "Nobody voted for the rules, and nobody can bend them."
+        with self.assertRaisesRegex(pinned.PinError, "closing_value"):
+            self.edl(self.spin(edl_vo={"intro": None, "bridges": [], "closing": line}))
+        rows = dict(ROWS_PASS, **{k: {"status": "PASS", "replayed": False} for k in pinned.SPOTLIGHT_CLOSING_ROWS})
+        edl = self.edl(self.spin(gates=rows, edl_vo={"intro": None, "bridges": [], "closing": line}))
+        self.assertEqual(edl["vo"], {"intro": line, "bridges": []})        # the intro slot: after the moment
+
+    def test_the_contract_refuses(self):
+        rows = dict(ROWS_PASS, **{k: {"status": "PASS", "replayed": False} for k in pinned.SPOTLIGHT_CLOSING_ROWS})
+        two = self.spin()
+        two["segments"] = self.pin()["segments"][:2]
+        two["moments_package"]["sources_30s_before"] *= 2
+        cases = {
+            "exactly ONE segment": two,
+            "intro null, bridges": self.spin(edl_vo={"intro": "x", "bridges": [], "closing": None}),
+            "states intro null": self.spin(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": 1}],
+                                                   "closing": None}),
+            "and closing": self.spin(edl_vo={"intro": None, "bridges": []}),
+            "at most 12 words": self.spin(gates=rows, edl_vo={"intro": None, "bridges": [],
+                                                              "closing": " ".join(["word"] * 13)}),
+            "spotlight_source": self.spin(gates=dict(ROWS_PASS, spotlight_source={"status": "FAIL",
+                                                                                  "replayed": False})),
+            "'hook_own'": self.spin(gates=dict(ROWS_PASS, hook_own={"status": "PASS", "replayed": True})),
+            "'precheck'": self.spin(gates={k: v for k, v in ROWS_PASS.items() if k != "precheck"}),
+            "first comment": self.spin(first_comment="  "),
+        }
+        for why, pin in cases.items():
+            with self.subTest(why=why), self.assertRaisesRegex(pinned.PinError, why):
+                self.edl(pin)
+        p = self.pin()                                              # a medley keeps its rule: clips required
+        p["segments"] = p["segments"][:1]
+        with self.assertRaisesRegex(pinned.PinError, "at least one clip required"):
+            self.edl(p)
+
+
+class TestMomentsPackage(Fixture):
+    """pp-selectid REQUESTS R7 item 1 (laws L-q, L-t): a moments-first package rides the pinned path: its VO (intro, a
+    bridge after each clip but the last), its ONE title and caption, its sha256 and gate verdicts enter the EDL; a
+    package whose VO-fidelity and context-integrity gates did not both pass, or a bridge the renderer cannot place, is
+    refused; a pin without a package is unchanged (no body VO)."""
+
+    def mp(self, segs=None, **kw):
+        segs = segs or self.pin()["segments"]
+        m = {"title": "T", "caption": "C", "package_sha256": "ab" * 32,
+             "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+             "edl_vo": {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]},
+             "sources_30s_before": [f"https://www.youtube.com/watch?v={s['video_id']}&t=0s" for s in segs]}
+        m.update(kw)
+        return m
+
+    def test_the_package_vo_title_and_caption_enter_the_edl(self):
+        pinned.prepare(self.write(self.pin(moments_package=self.mp())), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["vo"], {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]})
+        self.assertEqual((edl["title"], edl["caption"], edl["moments_package_sha256"]), ("T", "C", "ab" * 32))
+        self.assertEqual(edl["moments_checks"], {"vo_fidelity_ok": True, "context_integrity_ok": True})
+        self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
+
+    def test_the_packages_recorded_bridge_reaches_the_edl(self):
+        """Law L-y 2 (orchestrator 2026-11-12 '20:30'): the package's record of its one bridge (moments_package.bridge:
+        text, why, confirmed_by) is copied into the EDL as moments_bridge, where edl_rules R11 reads it; a package
+        without one leaves it null."""
+        rec = {"after": "clip_01", "after_clip": 1, "join": "clip_01 -> clip_02", "text": "x",
+               "why": "clip 2's 'it' is clip 1's subject", "confirmed_by": "blind clips-alone check"}
+        vo = {"intro": None, "bridges": [{"text": "x", "after_clip": 1}, {"text": "y", "after_clip": 2}]}
+        pinned.prepare(self.write(self.pin(moments_package=self.mp(type="moments", edl_vo=vo, bridge=rec))),
+                       self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["moments_bridge"], rec)
+        self.assertEqual(edl["vo"]["bridges"], vo["bridges"])
+        import edl_rules
+        self.assertTrue(edl_rules.rule_r11(edl)[0], edl_rules.rule_r11(edl))
+
+    def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
+        """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
+        (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,
+        or two on one slot, is refused."""
+        segs = self.pin()["segments"]
+        clips = [{"index": 1}, {"index": 2}]
+
+        def br(*items):
+            return {"intro": "Intro.", "bridges": [dict(text="x", after_clip=a) for a in items]}
+        got = pinned.moments_vo(self.mp(type="moments", edl_vo=br(1, 2)), clips, segs)
+        self.assertEqual([b["after_clip"] for b in got["bridges"]], [1, 2])
+        for typ, items in (("story", (2,)), (None, (2,)), ("Moments", (2,)), ("moments", (3,)), ("moments", (2, 2)),
+                           ("moments", (0,)), ("moments", (2, 1))):
+            mp = self.mp(edl_vo=br(*items), **({"type": typ} if typ is not None else {}))
+            with self.assertRaisesRegex(pinned.PinError, "after_clip must be", msg=(typ, items)):
+                pinned.moments_vo(mp, clips, segs)
+        pinned.prepare(self.write(self.pin(moments_package=self.mp(type="moments", edl_vo=br(1, 2)))), self.run_dir,
+                       log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual((edl["package_type"], [b["after_clip"] for b in edl["vo"]["bridges"]]), ("moments", [1, 2]))
+        import edl_rules                                       # end to end: build_edl's shape is what R4 (moments) reads
+        ok, why = edl_rules.rule_r4(edl)
+        self.assertIn("(moments)", why)
+        for shape in ("without a validated moments package", "is not a measured positive number", "clip indexes",
+                      "has no slot", "is empty"):
+            self.assertNotIn(shape, why)
+
+    def test_a_pin_without_a_package_is_unchanged(self):
+        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual(edl["vo"], {"intro": None, "bridges": []})
+        for k in ("title", "caption", "moments_package_sha256", "moments_checks"):
+            self.assertNotIn(k, edl)
+
+    def test_refused_packages(self):
+        """Every shape the renderer cannot place, every verdict that is not exactly true, every malformed field: a
+        PinError naming it (cycle 1 of the R7 audit), never a KeyError / AttributeError / TypeError, never ignored."""
+        def br(*items):
+            return {"intro": None, "bridges": [dict(text="x", after_clip=a) for a in items]}
+        cases = [("gates not both passed", self.mp(checks={"vo_fidelity_ok": True}), "did not both pass"),
+                 ("a verdict that is truthy but not true", self.mp(checks={"vo_fidelity_ok": "false",
+                                                                          "context_integrity_ok": True}), "did not both pass"),
+                 ("checks null", self.mp(checks=None), "did not both pass"),
+                 ("checks a list", self.mp(checks=[True]), "did not both pass"),
+                 ("another check failed", self.mp(checks={"vo_fidelity_ok": True, "context_integrity_ok": True,
+                                                          "title_ok": False}), "checks not passed"),
+                 ("bridge after the last clip", self.mp(edl_vo=br(2)), "after_clip must be"),
+                 ("bridge after no clip", self.mp(edl_vo=br(7)), "after_clip must be"),
+                 ("bridge after the hook", self.mp(edl_vo=br(0)), "after_clip must be"),
+                 ("bool index", self.mp(edl_vo=br(True)), "after_clip must be"),
+                 ("float index", self.mp(edl_vo=br(1.0)), "after_clip must be"),
+                 ("string index", self.mp(edl_vo=br("1")), "after_clip must be"),
+                 ("unhashable index", self.mp(edl_vo=br([1])), "after_clip must be"),
+                 ("empty bridge", self.mp(edl_vo={"intro": None, "bridges": [{"text": " ", "after_clip": 1}]}), "text"),
+                 ("non-string bridge text", self.mp(edl_vo={"intro": None, "bridges": [{"text": 5, "after_clip": 1}]}), "text"),
+                 ("bridges not a list", self.mp(edl_vo={"intro": None, "bridges": 5}), "must be a list"),
+                 ("edl_vo not an object", self.mp(edl_vo=[1]), "edl_vo must be"),
+                 ("edl_vo missing", {k: v for k, v in self.mp().items() if k != "edl_vo"}, "edl_vo must be"),
+                 ("empty intro", self.mp(edl_vo={"intro": "  ", "bridges": []}), "intro must be"),
+                 ("non-string intro", self.mp(edl_vo={"intro": 123, "bridges": []}), "intro must be"),
+                 ("title missing", {k: v for k, v in self.mp().items() if k != "title"}, "title must be"),
+                 ("caption empty", self.mp(caption=" "), "caption must be"),
+                 ("sha not hex", self.mp(package_sha256="zz"), "package_sha256"),
+                 ("package not an object", "not a package", "not an object"),
+                 ("package null", None, "not an object"),
+                 ("package a list", [], "not an object"),
+                 ("package false", False, "not an object"),
+                 ("package empty object", {}, "sources_30s_before"),
+                 ("bridges key missing", self.mp(edl_vo={"intro": None}), "must state both"),
+                 ("intro key missing", self.mp(edl_vo={"bridges": []}), "must state both"),
+                 ("edl_vo empty", self.mp(edl_vo={}), "must state both"),
+                 ("non-object bridge", self.mp(edl_vo={"intro": None, "bridges": ["x"]}), "needs non-empty text"),
+                 ("null bridge", self.mp(edl_vo={"intro": None, "bridges": [None]}), "needs non-empty text"),
+                 ("after_clip missing", self.mp(edl_vo={"intro": None, "bridges": [{"text": "x"}]}), "after_clip must be"),
+                 ("negative after_clip", self.mp(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": -1}]}),
+                  "after_clip must be"),
+                 ("verdict 1, not true", self.mp(checks={"vo_fidelity_ok": 1, "context_integrity_ok": True}),
+                  "did not both pass"),
+                 ("sha upper case", self.mp(package_sha256="AB" * 32), "package_sha256"),
+                 ("sha 63 characters", self.mp(package_sha256="a" * 63), "package_sha256"),
+                 ("sha missing", {k: v for k, v in self.mp().items() if k != "package_sha256"}, "package_sha256"),
+                 ("links for other videos", self.mp(sources_30s_before=["https://www.youtube.com/watch?v=ZZZ"] * 3),
+                  "sources_30s_before"),
+                 ("one link short", self.mp(sources_30s_before=self.mp()["sources_30s_before"][:2]), "sources_30s_before"),
+                 ("hook first words of another sentence", self.mp(hook_first_words="Something else entirely"),
+                  "hook_first_words")]
+        for name, m, why in cases:
+            with self.subTest(name):
+                edl_path = os.path.join(self.run_dir, "edl.json")
+                if os.path.exists(edl_path):
+                    os.remove(edl_path)
+                with self.assertRaisesRegex(pinned.PinError, why):
+                    pinned.prepare(self.write(self.pin(moments_package=m)), self.run_dir, log=lambda s: None)
+                self.assertFalse(os.path.exists(edl_path))                   # nothing built from a refused package
+
+    def test_duplicate_or_reordered_bridges_are_refused_with_three_clips(self):
+        segs = self.pin()["segments"] + [{"role": "clip", "video_id": "BBBBBBBBBB2", "channel": PENDING, "start": 18.5,
+                                          "end": 28.9, "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"],
+                                          "time_sensitive": False, "source_published_at": self.RECENT}]   # law L-v 3
+        for name, bridges in (("duplicate", [1, 1]), ("reordered", [2, 1])):
+            with self.subTest(name):
+                m = self.mp(segs, edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": a} for a in bridges]})
+                with self.assertRaisesRegex(pinned.PinError, "strictly increasing"):
+                    pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir,
+                                   log=lambda s: None)
+        m = self.mp(segs, edl_vo={"intro": "I.", "bridges": [{"text": "a", "after_clip": 1}, {"text": "b", "after_clip": 2}]})
+        pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir, log=lambda s: None)
+        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
+        self.assertEqual([b["after_clip"] for b in edl["vo"]["bridges"]], [1, 2])
+
+
+class TestPinnedStageFreesGpu0First(Fixture):
+    """E-FAIL-052: pinned.acquire transcribes every downloaded source with Whisper on GPU0, so the editorial model the
+    preflight's Ollama check loaded is released first, as before every other Whisper stage (runs/pinned_20261112_064032:
+    gemma3:27b held 20548 of 24564 MiB and Whisper ran out of memory)."""
+
+    def test_the_release_comes_before_the_pin_is_acquired_and_a_failed_release_holds(self):
+        import run_fresh as rf
+        events = []
+        orig_free, orig_prep = rf.free_gpu0_for_whisper, pinned.prepare
+
+        def release(run, stage, **kw):
+            events.append(("release", stage))
+
+        def prep(*a, **k):
+            events.append("prepare")
+            raise pinned.PinError("stopped once the order is seen")
+
+        def refuse(run, stage, **kw):
+            events.append(("release", stage))
+            raise rf.Hold(f"infrastructure: {stage}: GPU0 release not proven")
+        try:
+            rf.free_gpu0_for_whisper, pinned.prepare = release, prep
+            run = rf.Run(self.run_dir)
+            with self.assertRaisesRegex(rf.Hold, "pinned decision rejected"):
+                rf.stage_pinned(run, self.write(self.pin()))
+            self.assertEqual(events, [("release", "pinned"), "prepare"])
+            events.clear()
+            rf.free_gpu0_for_whisper = refuse
+            with self.assertRaisesRegex(rf.Hold, "^infrastructure: pinned") as cm:    # anchored (fable audit of 456a440f)
+                rf.stage_pinned(run, self.write(self.pin()))
+            self.assertNotIn("pinned decision rejected", str(cm.exception))
+            self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
+        finally:
+            rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+
+
 @unittest.skipUnless(HAVE_REF, "v2f reference sources not present")
 class TestV2fProofPins(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix="pin_v2f_")
         for sub in ("sources", "transcripts"):
             os.makedirs(os.path.join(self.tmp, sub))
+        # ruling 17: the v2f proof pins predate it, and their third range's approved text covers a different word
+        # range than its lock (3 words before it, 11 fewer at its end). These are cut-acceptance tests: they inject a
+        # second recogniser that reads the approved text over the lock's span, so the lock adopts it and the cut
+        # checks run as before (the adjudication itself: test_ruling17_lock). No paid call (conftest guard).
+        orig = pinned.adjudicate_lock
+
+        def reads_approved(lock, src, words, recognise=None, log=print):
+            t0, t1 = float(words[lock["i0"]]["start"]), float(words[lock["i1"]]["end"])
+            ws = lock["selected_text"].split()
+            step = (t1 - t0) / max(len(ws), 1)
+            fake = [{"word": w, "start": t0 + k * step, "end": t0 + (k + 0.8) * step} for k, w in enumerate(ws)]
+            return orig(lock, src, words, recognise=lambda s: (fake, 0.0), log=log)
+        patcher = mock.patch.object(pinned, "adjudicate_lock", reads_approved)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)

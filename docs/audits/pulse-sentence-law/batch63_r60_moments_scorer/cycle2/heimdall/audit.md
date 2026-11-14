@@ -1,0 +1,24 @@
+# Heimdall audit
+
+**Question:** Batch 63 cycle 2 (verification). Cycle 1: no consensus findings; glm F1 (1 vote) answered on the code in CONSENSUS.md; the diff is unchanged.
+
+Batch 63 = RULING 60 (orchestrator 2026-11-13 '11:01' B), verbatim: "for a MOMENTS pin the scorer judges STAND-ALONE ONLY: 'a viewer who hears only this clip understands what is being claimed, and nothing in it depends on words outside it'. Topicality for moments pins is ruling 34's (the miner's Bitcoin screen per clip, the medley names Bitcoin) and is not asked of the scorer again; an event headline is not part of the moments prompt. Same model, temperature 0, bar 3.5, no fixed score for an opener word: the model judges the clip as spoken. The story path is unchanged. PROVE IT before it counts: the 9 delivered spans must pass; the clips that step A rejected for REFERENT_OUTSIDE tonight must fail at least 80 % of the time."
+Background (facts measured before the change): the clip scorer (story_semantics.CLIP_PROMPT via rate_passages, gemma3:27b, temperature 0) asks "a complete, strong, specific statement about this event" and calls a clip 'off_topic' "when it does not state this event" (the event = 'Pinned: <headline>'); its rubric anchors 5 / 3 / 1 in words, 3 = "dependent on missing context"; on the 9 delivered PBX-approved spans with their own events only 2 of 9 passed. stand_alone.affirmed(score, fault) = score >= 3.5 and fault != starts_mid_thought; stand_alone.check_edl asks the scorer for clips opening on a conjunction / reply word and every trimmed segment; run_fresh.stage_validate calls stand_alone.clip_scorer(event) and check_edl; pipeline/stand_alone_scorer.py serves the same scorer to the builder at the pin stage.
+The change:
+- story_semantics.ALONE_PROMPT + rate_alone(llm, passages): the stand-alone question only (no event, no topic / importance / accuracy / style), all five scores described, "an opening word or phrase alone (...) is never" the starts_mid_thought fault; the reply read exactly as rate_passages reads its own (faults none / starts_mid_thought / ends_mid_thought / other, else "unspecified"). CLIP_PROMPT and rate_passages are not touched.
+- stand_alone.affirmed(score, fault, moments=False): for moments the score alone (>= 3.5). MEASURED WHY: with the story rule the delivered spans passed 6 / 9, the 3 refused scoring 4.0 'understood alone' but labelled starts_mid_thought for an opening 'I mean' / 'However' / 'Now' (a second prompt wording did not stop the label), while every REFERENT_OUTSIDE refusal scored <= 3 by its score: the label added only a fixed opener penalty.
+- clip_scorer(event, llm=None, moments=False) -> rate_alone when moments; opener / trimmed_opener / check_edl take moments; run_fresh.stage_validate passes moments = ("moments_package_sha256" in edl) to both.
+- stand_alone_scorer: requests carry kind "moments" (no event; refused if one is given) or "story" (event required); entries record kind; latest() filters by kind and event; the builder's candidates are rated as kind moments; the verdicts file states kind, rubric, rule, event null.
+- The proof (final prompt): the 9 delivered spans 9 / 9 pass (scores 4-5); 29 REFERENT_OUTSIDE moments from the builder's step-A records fail 27 / 29 (93 %).
+- Tests: test_stand_alone_scorer (moments prompt has no event and the stand-alone question, the story prompt unchanged, the moments threshold vs the story one, check_edl with moments, kind validation, candidates as moments).
+FIND: anything still open; any change to the story path; a moments clip affirmed without a rating; topicality leaking back into the moments scorer; validate and the pin stage asking different questions for the same moments pin; a fail-open; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0017
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] The log line's affirmed count passes `moments` as a positional third arg of affirmed, which is correct, but the count uses ratings.get(...)[::2] giving (score, fault) — fine — yet when a rating is missing the tuple (None, None) is scored; consistent with the entry. No defect. Instead: latest() for kind 'moments' filters e.get('event') == event (None), so a legacy moments-less entry with event 'Pinned: bitcoin' recorded under kind 'moments' would never match; but legacy entries have kind 'story' by the .get default, so they are correctly excluded. No defect found. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none

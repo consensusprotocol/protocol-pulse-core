@@ -19,7 +19,8 @@ Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
 import json, os, re, subprocess, sys, math, struct, wave, time
 import numpy as np
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r (E-FAIL-053): an explicit CPU request stays CPU;
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0 only (GPU1 is quarantined)
 
 BASE = "/home/ultron/protocol_pulse/segment_v1"
 VO_DIR = os.path.join(BASE, "vo_audio")
@@ -38,6 +39,22 @@ FPS = 24
 # named exception to Law 20 / M2, recorded under 'Decisions (orchestrator, delegated by PBX)' there.
 G3C_VALLEY_DEPTH_DB = {"16x9": 11.63, "9x16": 11.65}    # was 12.0: strictest depth at which the v2f hook tail passes (11.6301 / 11.6543)
 G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f segment_vertical.mp4 true peak -1.3 dBFS (16x9 -2.2 passed)
+G5_DURATION_ACCEPT_S = (58.0, 72.0)   # ruling 12 ('09:32'): the measured final's accepted runtime, both aspects
+G5_DURATION_TARGET_S = (60.0, 70.0)   # law L-o: PBX's format target; outside it = a recorded deviation
+G5_SPOTLIGHT_S = (28.0, 50.0)         # law L-ab (ruling 90): a spotlight's format, accepted = target, both aspects
+
+
+def g5_window(edl_path):
+    """(accepted, target) runtime for G5: a spotlight EDL (law L-ab: package_type 'moments', package_shape
+    'spotlight') is 28-50 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
+    try:
+        with open(edl_path) as f:
+            edl = json.load(f)
+    except (TypeError, OSError, ValueError):
+        return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
+    if isinstance(edl, dict) and edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight":
+        return G5_SPOTLIGHT_S, G5_SPOTLIGHT_S
+    return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
 G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
 G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)
 G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED spread (the outro's encode depends on its GOP
@@ -47,16 +64,21 @@ G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED sprea
     # made a correct render pass or fail by encoder state (OD-4).
 G9_LUMA_FLOOR = {k: round(G9_V2F_LUMA[k] - G9_REENCODE_SPREAD[k], 4) for k in G9_V2F_LUMA}   # 14.2857 / 14.7315
 
-# ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
-_FW_MODEL = None
+# ── Faster-Whisper medium (float16, GPU0, vad OFF, word timestamps): law L-r, through pipeline/gpu0.py ──
+
+def _gpu0():
+    """pipeline/gpu0.py (law L-r), importable when this file runs on its own too."""
+    p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")
+    if p not in sys.path:
+        sys.path.insert(0, p)
+    import gpu0
+    return gpu0
+
 
 def _get_fw_model():
-    """Load faster-whisper medium model once per gate run."""
-    global _FW_MODEL
-    if _FW_MODEL is None:
-        from faster_whisper import WhisperModel
-        _FW_MODEL = WhisperModel("medium", device="cuda", compute_type="float16")
-    return _FW_MODEL
+    """The process's one faster-whisper medium: gpu0.whisper loads it through swap_to on first use (every other
+    GPU0 model unloaded, the memory proven free), any later swap deletes it, and it reloads when used again."""
+    return _gpu0().whisper("medium")
 
 
 def fw_transcribe(wav_path, word_timestamps=True):
@@ -146,7 +168,7 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
     from resemblyzer import VoiceEncoder, preprocess_wav
 
     print("\n=== G1: VOICE IDENTITY ===")
-    encoder = VoiceEncoder()
+    encoder = _gpu0().model("resemblyzer", VoiceEncoder)     # L-r: loaded through swap_to; calls inside guard()
 
     if vo_assembled_tracks is None:
         vo_assembled_tracks = {}
@@ -669,8 +691,9 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None)
 # G5: DURATION / LOUDNESS
 # ==============================================================
 
-def gate_g5(final_mp4, fmt):
-    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, vertical<=75s."""
+def gate_g5(final_mp4, fmt, window=None):
+    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, duration 58-72 s (ruling 12; target 60-70 s); window:
+    (accepted, target), g5_window's (a spotlight: 28-50 s, law L-ab)."""
     print("\n=== G5: DURATION / LOUDNESS ===")
 
     probe = ffprobe_json(final_mp4)
@@ -712,15 +735,20 @@ def gate_g5(final_mp4, fmt):
         print(f"  SAR: {sar} [{'PASS' if sar_ok else 'FAIL'}]")
         print(f"  FPS: {fps_val} [{'PASS' if fps_ok else 'FAIL'}]")
 
-    # Duration window: 60-120s for both aspects (R2-14)
-    dur_min = 60.0
-    dur_max = 120.0
+    # Duration, both aspects (ruling 12, orchestrator 2026-11-12 '09:32'; was 60-120 s, R2-14): 60-70 s is PBX's
+    # FORMAT TARGET (law L-o); the measured final is ACCEPTED from 58.0 to 72.0 s, a value outside 60-70 s recorded
+    # as a deviation (named in the caption); outside 58-72 s it fails
+    (dur_min, dur_max), (lo, hi) = window or (G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S)
     dur_ok = dur_min <= dur <= dur_max
     results["duration"] = dur
     results["dur_ok"] = dur_ok
+    if dur_ok and not lo <= dur <= hi:
+        results["duration_deviation"] = (f"{dur:.3f} s is {(lo - dur) if dur < lo else (dur - hi):.3f} s "
+                                         f"{'under' if dur < lo else 'over'} the {lo:.0f}-{hi:.0f} s format target")
     if not dur_ok:
         all_pass = False
-    print(f"  Duration: {dur:.2f}s ({dur_min:.0f}-{dur_max:.0f}s) [{'PASS' if dur_ok else 'FAIL'}]")
+    print(f"  Duration: {dur:.2f}s ({dur_min:.0f}-{dur_max:.0f}s accepted, {lo:.0f}-{hi:.0f}s target) "
+          f"[{'PASS' if dur_ok else 'FAIL'}]{' DEVIATION ' + results['duration_deviation'] if 'duration_deviation' in results else ''}")
 
     # EBU R128
     r = subprocess.run([
@@ -1083,6 +1111,12 @@ def gate_g9(final_mp4, qa_dir, fmt="16x9"):
 # ==============================================================
 # G10: TEXT CROP (CoinDesk lower-third chyron protection)
 # ==============================================================
+
+def g10_clip_ids(segments):
+    """Ruling 93 (orchestrator 2026-11-13 '23:59'): G10 runs on EVERY clip of the final, every talking head; no
+    channel is judged by name (the registry's has_chyron is a hint, nothing more)."""
+    return {seg["label"] for seg in segments if seg.get("type") == "talking_head"}
+
 
 def gate_g10(final_mp4, segments, crop_rects, qa_dir, chyron_clip_ids=None):
     """IMAGE-BASED chyron check on the FINAL output picture.
@@ -1553,8 +1587,12 @@ def gate_g13(final_mp4, segments, qa_dir, edl_path=None, channels_json_path=None
 # G3c: ACOUSTIC_TAIL (M19 — last 120ms of each clip < -35 dBFS)
 # ==============================================================
 
-def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
+def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9", source_clips=None):
     """M19a: Acoustic tail check on each talking-head clip in the OUTPUT.
+    Ruling 21 (orchestrator 2026-11-12 '13:06'): with source_clips (label -> the PREPARED clip, the speech stem before
+    the music bed and loudness normalisation) each clip is measured on its prepared clip from its start, like G17c
+    (the bed moves with the VO timeline and is not the clip's audio); a label without a prepared clip fails closed.
+    The final's clip edges stay protected by G17b and G3b. Without source_clips (direct calls): the final, as before.
 
     Two checks per clip:
       TAIL — last 120ms must show declining energy and no onset (no next-word
@@ -1586,7 +1624,13 @@ def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
             full_wav = tmp.name
         try:
-            _extract_audio_mono(final_mp4, seg_start, seg_dur, full_wav)
+            if source_clips is not None:                      # ruling 21: the prepared clip (speech stem)
+                prep = source_clips.get(label)
+                if not prep or not os.path.exists(str(prep)):
+                    raise FileNotFoundError(f"ruling 21: no prepared clip for {label}")
+                _extract_audio_mono(str(prep), 0.0, seg_dur, full_wav)
+            else:
+                _extract_audio_mono(final_mp4, seg_start, seg_dur, full_wav)
             samples, sr = _load_wav_samples(full_wav)
             rms_db, times = rms_envelope(samples, sr)
 
@@ -1688,7 +1732,7 @@ def gate_g3c(final_mp4, segments, qa_dir, fmt="16x9"):
 
 def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
                    vo_assembled_tracks=None, edl_path=None, channels_json_path=None,
-                   horiz_mp4=None):
+                   horiz_mp4=None, prepared_clips=None):
     """Run all gates. Returns (all_pass, results_dict).
     source_clips: dict mapping clip label -> source mp4 path (for G4 layout classification).
     vo_assembled_tracks: dict mapping VO label -> assembled WAV path (silence + stem, no BGM).
@@ -1754,7 +1798,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         any_fail = True
 
     # G3c: Acoustic tail (M19 — last 120ms of each clip < -35 dBFS, no onset)
-    g3c_pass, g3c_table = gate_g3c(final_mp4, segments, qa_dir, fmt=fmt)
+    g3c_pass, g3c_table = gate_g3c(final_mp4, segments, qa_dir, fmt=fmt, source_clips=prepared_clips)   # ruling 21
     results["G3c_acoustic_tail"] = {"pass": g3c_pass, "table": g3c_table}
     if not g3c_pass:
         any_fail = True
@@ -1767,7 +1811,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         any_fail = True
 
     # G5: Duration/loudness
-    g5_pass, g5_results = gate_g5(final_mp4, fmt)
+    g5_pass, g5_results = gate_g5(final_mp4, fmt, window=g5_window(edl_path))   # law L-ab: a spotlight's 28-50 s
     results["G5_tech"] = {"pass": g5_pass, "data": g5_results}
     if not g5_pass:
         any_fail = True
@@ -1801,30 +1845,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     else:
         results["G11_parity"] = {"pass": True, "skip": True, "reason": "no horiz_mp4"}
 
-    # G10: Chyron (channels with has_chyron=true in registry)
-    chyron_clip_ids = set()
-    if edl_path and channels_json_path:
-        try:
-            with open(edl_path) as f:
-                edl = json.load(f)
-            with open(channels_json_path) as f:
-                ch_registry = json.load(f)
-            chyron_channels = {
-                entry["display_name"]
-                for entry in ch_registry
-                if entry.get("has_chyron", False)
-            }
-            # Map hook
-            hook = edl.get("hook", {})
-            if hook.get("channel") in chyron_channels:
-                chyron_clip_ids.add("hook")
-            # Map clips
-            for clip in edl.get("clips", []):
-                if clip.get("channel") in chyron_channels:
-                    chyron_clip_ids.add(f"clip_{clip['index']:02d}")
-        except Exception as e:
-            print(f"  G10 registry lookup error: {e}")
-
+    # G10: Chyron, on EVERY clip (ruling 93, orchestrator 2026-11-13 '23:59': no channel is judged by name; the
+    # registry's has_chyron is a hint that orders the pin-stage visual check, nothing more). Still MONITORING.
+    chyron_clip_ids = g10_clip_ids(segments)
     g10_pass, g10_table = gate_g10(final_mp4, segments, {}, qa_dir,
                                     chyron_clip_ids=chyron_clip_ids)
     results["G10_chyron"] = {"pass": g10_pass, "data": g10_table}
@@ -1910,7 +1933,20 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     return not any_fail, results
 
 
+def _standalone_lease():
+    """L-r: run on its own, this file is a GPU0 job: it holds the lease (or names the holder and exits 75)."""
+    g = _gpu0()
+    cm = g.lease(f"qa_gates standalone (pid {os.getpid()})")
+    try:
+        cm.__enter__()
+    except g.Gpu0Stop as e:
+        print(f"qa_gates: GPU0 {type(e).__name__}: {e}", file=sys.stderr)
+        sys.exit(75)
+    return cm
+
+
 if __name__ == "__main__":
+    _LEASE = _standalone_lease()
     if len(sys.argv) < 3:
         print(f"Usage: {sys.argv[0]} <final_mp4> <concat_manifest.json> "
               f"[--qa-dir DIR] [--source-clip label:path ...]")

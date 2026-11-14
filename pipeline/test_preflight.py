@@ -53,35 +53,35 @@ class TestChecks(unittest.TestCase):
         P._run = self.saved_run
 
     def test_a_foreign_job_on_gpu0_fails_and_our_ollama_runner_does_not(self):
-        import story_semantics as sm
-        saved = (sm.LocalLLM._listener_pid, sm.gpu0_memory, os.environ.get("CUDA_VISIBLE_DEVICES"))
-        os.environ["CUDA_VISIBLE_DEVICES"] = "0"                       # as the wrapper exports it
-        sm.LocalLLM._listener_pid = lambda self: 100
-        sm.gpu0_memory = lambda: (19000, 24564)
-
-        def run(cmd, timeout=30):
-            if "--query-gpu=index,uuid" in cmd:
-                return R("0, GPU-A\n1, GPU-B\n")
-            if "--query-compute-apps=pid,gpu_uuid,used_memory" in cmd:
-                return R(self.apps)
-            if cmd[0] == "pgrep":
-                return R("101\n")
-            return R("python3 something\n")
-        P._run = run
+        """Law L-r: a foreign compute process on GPU0 fails the check, named; so does a model resident on the shared
+        Ollama that this run did not request (cycle 1 of its audit: the Ollama server is not a lease-free door); the
+        Ollama listener and runners themselves are not foreign; enough room = the largest single model + margin."""
+        from unittest import mock
+        import gpu0
+        state = {"procs": [], "used": 600, "ollama": []}
+        patches = [mock.patch.object(gpu0, "processes", side_effect=lambda: list(state["procs"])),
+                   mock.patch.object(gpu0, "memory", side_effect=lambda: (state["used"], 24564)),
+                   mock.patch.object(gpu0, "ollama_resident", side_effect=lambda: list(state["ollama"])),
+                   mock.patch.object(gpu0, "_ollama_pids", return_value={100, 101})]
+        for x in patches:
+            x.start()
         try:
-            self.apps = "101, GPU-A, 18900\n555, GPU-B, 21000\n"          # our runner on GPU0, GPU1 busy
+            state["procs"] = [(101, "ollama", 500)]                    # the runner, idle: ours, nothing resident
             ok, d = P.check_gpu0()
             self.assertTrue(ok, d)
-            self.apps = "101, GPU-A, 18900\n777, GPU-A, 1962\n"          # a foreign job on GPU0
+            state["procs"] = [(101, "ollama", 500), (777, "python3", 1962)]   # a foreign job on GPU0
+            state["used"] = 2562
             ok, d = P.check_gpu0()
             self.assertFalse(ok)
-            self.assertIn("pid 777", d)
+            self.assertIn("pid 777 python3 1962 MiB", d)
+            state["procs"], state["used"] = [(101, "ollama", 18900)], 19000
+            state["ollama"] = [("gemma3:27b", 18900)]                 # resident, not requested by this run
+            ok, d = P.check_gpu0()
+            self.assertFalse(ok)
+            self.assertIn("ollama model gemma3:27b (not requested by this run)", d)
         finally:
-            sm.LocalLLM._listener_pid, sm.gpu0_memory, cvd = saved
-            if cvd is None:
-                os.environ.pop("CUDA_VISIBLE_DEVICES", None)
-            else:
-                os.environ["CUDA_VISIBLE_DEVICES"] = cvd
+            for x in reversed(patches):
+                x.stop()
 
     def test_a_dirty_or_unpushed_tree_fails(self):
         replies = {"status": R(" M pipeline/editorial_select.py\n")}

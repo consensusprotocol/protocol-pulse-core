@@ -1,0 +1,25 @@
+Batch 55 = ORCHESTRATOR ORDER '02:46' (b): make the word-pass worker faster inside the law. "fetch audio in parallel ahead of the GPU step, bigger cycles, order = last 10 h, then last 24 h, then older. Target: the 332 waiting rows done within the hour."
+Measured before: cycles of 40 took 4.5, 14 and 22 min. The structure:
+- each video's audio was downloaded sequentially, before any GPU work;
+- each window then swapped the two Whisper models (the verbatim WHISPER_MODEL, then REFERENCE_MODEL for punctuation), so two loads per moment, because gpu0.swap_to keeps one model per GPU;
+- one 216 s wait on the foreign GPU1 user (the media-sync cron), the correct wait-out.
+The change:
+- PER_CYCLE 40 -> 120 (PER_CHANNEL = ceil(120/6) = 20); BATCH 8 -> 16.
+- pick: tiers in the adapter's rank order: the last 10 h (capped, then uncapped), the last 24 h (capped, then uncapped), older (capped).
+- _fetch(vid): meta + the audio once + every window cut, in a 4-thread ThreadPoolExecutor (never under a lease). The main thread runs a GPU batch as soon as BATCH jobs are ready, or when the fetches are done.
+- gpu_batch: under gpu0.lease (GPU1), the windows without a record go through decode_batch:
+  - every verbatim decode first (one model load);
+  - then the punctuation reference only where punctuation.needs_restoration (one load);
+  - a failed window returns its exception and the others go on.
+  Then _one writes the record and the row (or the failure row, or reuses an existing record without decoding). release_whisper; the lease is left.
+- The report adds fetch_s, lease_wait_s, foreign_wait_s (from gpu0.events) and gpu_s.
+Tests: 15.
+FIND:
+- a race in the fetch threads (temp names, MEDIA_DIR, meta.json writes, the shared report dict mutated from threads);
+- a job decoded twice or never;
+- a record written for a failed decode;
+- the lease held across fetches or never left;
+- the tier order wrong;
+- an exception in a fetch thread lost;
+- tests that do not test what they claim.
+Reply with the JSON verdict; keep the reasoning short; at most 3 findings.

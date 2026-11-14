@@ -1,0 +1,111 @@
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index bc32c967..74e03b7f 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -311,20 +311,45 @@ def build_edl(pin, acq, registry=None, log=print):
+     for i, c in enumerate(clips, 1):
+         c["index"] = i
+     channels = sorted({x["channel"] for x in segs})
++    mp = pin.get("moments_package")            # pp-selectid R7: a moments-first package (law L-q) as the decision
++    vo = _generate_vo_script(pin["label"], hook["text"], clips, channels)
++    if isinstance(mp, dict):
++        vo = moments_vo(mp, clips)
+     edl = {
+         "topic": pin["label"],
+         "angle": f"Pinned: {pin.get('headline') or pin['label']}",
+         "hook": hook,
+         "clips": clips,
+-        "vo": _generate_vo_script(pin["label"], hook["text"], clips, channels),
++        "vo": vo,
+         "total_clip_duration": round(hook["duration"] + sum(c["duration"] for c in clips), 2),
+         "mode": "pinned",
+         "pinned_story_id": pin["story_id"],
+     }
++    if isinstance(mp, dict):                   # law L-t: the ONE title and caption travel with the EDL to release
++        edl.update(title=mp["title"], caption=mp["caption"], moments_package_sha256=mp["package_sha256"],
++                   moments_checks=mp.get("checks"))
+     overrides = build_vertical_overrides(hook, clips, registry)
+     return edl, overrides, report
+ 
+ 
++def moments_vo(mp, clips):
++    """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
++    one bridge after each clip but the last, in the EDL's shape ({"text", "after_clip"}). Fail closed on any shape
++    the renderer cannot place (a bridge after the hook, after the last clip, or after a missing clip)."""
++    v = mp.get("edl_vo") or {}
++    intro = v.get("intro")
++    bridges = v.get("bridges") or []
++    idx = {c["index"] for c in clips}
++    for b in bridges:
++        if not isinstance(b, dict) or not str(b.get("text") or "").strip() or b.get("after_clip") not in idx or                 b["after_clip"] == max(idx):
++            raise PinError(f"moments_package bridge {b!r}: needs text and after_clip in 1..{max(idx) - 1}")
++    if intro is not None and not str(intro).strip():
++        raise PinError("moments_package intro is empty")
++    if not mp.get("checks", {}).get("vo_fidelity_ok") or not mp.get("checks", {}).get("context_integrity_ok"):
++        raise PinError("moments_package: the VO-fidelity and context-integrity gates did not both pass")
++    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
++
++
+ def prepare(pin_path, run_dir, log=print):
+     """Validate + acquire + build. Writes edl.json, vertical_overrides.json, PINNED_DECISION.json.
+     Returns the PINNED_DECISION record. Raises PinError."""
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index ff16fc2f..041fc06c 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -261,6 +261,43 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
+         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
+ 
+ 
++class TestMomentsPackage(Fixture):
++    """pp-selectid REQUESTS R7 item 1 (laws L-q, L-t): a moments-first package rides the pinned path: its VO (intro, a
++    bridge after each clip but the last), its ONE title and caption, its sha256 and gate verdicts enter the EDL; a
++    package whose VO-fidelity and context-integrity gates did not both pass, or a bridge the renderer cannot place, is
++    refused; a pin without a package is unchanged (no body VO)."""
++
++    def mp(self, **kw):
++        m = {"title": "T", "caption": "C", "package_sha256": "ab" * 32,
++             "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
++             "edl_vo": {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]}}
++        m.update(kw)
++        return m
++
++    def test_the_package_vo_title_and_caption_enter_the_edl(self):
++        pinned.prepare(self.write(self.pin(moments_package=self.mp())), self.run_dir, log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual(edl["vo"], {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]})
++        self.assertEqual((edl["title"], edl["caption"], edl["moments_package_sha256"]), ("T", "C", "ab" * 32))
++        self.assertEqual(edl["moments_checks"], {"vo_fidelity_ok": True, "context_integrity_ok": True})
++
++    def test_a_pin_without_a_package_is_unchanged(self):
++        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual(edl["vo"], {"intro": None, "bridges": []})
++        self.assertNotIn("title", edl)
++
++    def test_refused_packages(self):
++        for name, m in (("gates not both passed", self.mp(checks={"vo_fidelity_ok": True})),
++                        ("bridge after the last clip", self.mp(edl_vo={"intro": None,
++                                                                       "bridges": [{"text": "x", "after_clip": 2}]})),
++                        ("bridge after no clip", self.mp(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": 7}]})),
++                        ("empty bridge", self.mp(edl_vo={"intro": None, "bridges": [{"text": " ", "after_clip": 1}]})),
++                        ("empty intro", self.mp(edl_vo={"intro": "  ", "bridges": []}))):
++            with self.assertRaises(pinned.PinError, msg=name):
++                pinned.prepare(self.write(self.pin(moments_package=m)), self.run_dir, log=lambda s: None)
++
++
+ class TestPinnedStageFreesGpu0First(Fixture):
+     """E-FAIL-052: pinned.acquire transcribes every downloaded source with Whisper on GPU0, so the editorial model the
+     preflight's Ollama check loaded is released first, as before every other Whisper stage (runs/pinned_20261112_064032:
+@@ -289,8 +326,9 @@ class TestPinnedStageFreesGpu0First(Fixture):
+             self.assertEqual(events, [("release", "pinned"), "prepare"])
+             events.clear()
+             rf.free_gpu0_for_whisper = refuse
+-            with self.assertRaisesRegex(rf.Hold, "infrastructure: pinned"):
++            with self.assertRaisesRegex(rf.Hold, "^infrastructure: pinned") as cm:    # anchored (fable audit of 456a440f)
+                 rf.stage_pinned(run, self.write(self.pin()))
++            self.assertNotIn("pinned decision rejected", str(cm.exception))
+             self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
+         finally:
+             rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+

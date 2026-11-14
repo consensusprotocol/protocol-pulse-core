@@ -1,0 +1,17 @@
+# Heimdall audit
+
+**Question:** Batch 40 cycle 4 (verification) = LAW L-y R11 (edl_rules.rule_r11, moments packages: one takeaway after the LAST clip; at most ONE line before it, in the intro slot or after clip k, only with the package's recorded and confirmed bridge). This diff implements the cycle-3 findings: (glm F1) clip indexes must be exactly 1..n inside R11 (the takeaway slot is index n, so a duplicated or out-of-order index could otherwise hide a second takeaway); (qwen F1/F2) the takeaway line itself must be non-empty text (None, '', whitespace, a number or a list fail). Tests added in TestR11VoShape.
+FIND: whether each fix is correct and complete, and anything it breaks (the default shape, the exception in either slot, story / untyped EDLs). Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0008
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] The takeaway-text check only runs on lines whose after_clip equals max(idx); a line with after_clip == 0 (or any non-index value) is caught by the after_clip check, but a line with a valid non-last after_clip whose text is non-text is never validated, so the 'non-text line' guarantee in the docstring is only enforced for the takeaway slot, not the intro/bridge slot (agree: 1)
+
+## Added in cross-examination (not voted on)
+- glm: [low] The new 1..n check changes the failure message for the pre-existing non-integer case, but the test only asserts the substring 'are not 1..3' — for a non-int like 1.0 the message reads 'clip indexes [1, 1.0, 3] are not 1..3', which is fine, yet the old test's expectation 'are not all integers' was updated correctly; no break. Real (minor) gap: the 1..n check uses idx != list(range(1, len(clips)+1)) which also catches duplicates, but the new duplicate test only covers a duplicated LAST index (clips[2].index=2), not a duplicated earlier index or an out-of-order-but-all-int case like [2,1,3] — those pass through the same code path, so coverage is thin but the code is correct.
+
+
+saved: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch40_ly_r11/cycle4/heimdall

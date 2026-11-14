@@ -1,0 +1,228 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index 17352392..36ac0547 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -25,6 +25,9 @@ Rules:
+     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
+                               that ends a sentence (. ? !) plus 0.20-0.45s tail
+                               pause, strictly before the next source word starts.
++    R11 VO_SHAPE:             (law L-y) a package of type 'moments': no VO intro;
++                              at most ONE bridge between clips, with its recorded
++                              reason ('why'). No minimum VO.
+ """
+ import math
+ import argparse
+@@ -648,6 +651,47 @@ def rule_r10(edl, transcripts=None):
+ # VALIDATE ALL
+ # ==============================================================
+ 
++# ==============================================================
++# R11: VO_SHAPE (law L-y, orchestrator 2026-11-12 '20:30')
++# ==============================================================
++
++def rule_r11(edl):
++    """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): (1) no VO intro after
++    the hook; (2) at most ONE bridge BETWEEN clips (a VO line after any clip but the last), carrying the package's
++    recorded reason why it was needed ('why', non-empty text, from moments_package edl_vo via pinned.moments_vo). The
++    one line after the LAST clip is the takeaway (its slot and its 30-word cap are R4's). No minimum: a package with no
++    VO line passes this rule. Story-type and untyped EDLs (the protected references) are not moments packages and are
++    unchanged. Fail closed: a 'moments' EDL without a vo object and clips, or whose bridges are not a list, fails; a line
++    whose slot is not the last clip counts as a bridge between clips."""
++    if edl.get("package_type") != "moments":
++        return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
++    vo, clips = edl.get("vo"), edl.get("clips")
++    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
++        return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
++    bridges = vo.get("bridges") if vo.get("bridges") is not None else []
++    if not isinstance(bridges, list):
++        return False, "R11 FAIL (law L-y): vo bridges is not a list"
++    failures = []
++    intro = vo.get("intro")
++    if intro is not None and (not isinstance(intro, str) or intro.strip()):
++        failures.append("law L-y 1: a VO intro after the hook (a moments package opens hook -> clip)")
++    last = max((c.get("index") for c in clips if isinstance(c, dict) and type(c.get("index")) is int), default=None)
++    between = [b for b in bridges
++               if not (isinstance(b, dict) and type(b.get("after_clip")) is int and b["after_clip"] == last)]
++    if len(between) > 1:
++        failures.append(f"law L-y 2: {len(between)} bridges between clips (at most one; two or more = the line-up "
++                        f"is wrong)")
++    for b in between:
++        why = b.get("why") if isinstance(b, dict) else None
++        if not isinstance(why, str) or not why.strip():
++            failures.append(f"law L-y 2: the bridge after clip {(b.get('after_clip') if isinstance(b, dict) else None)!r}"
++                            f" has no recorded reason ('why')")
++    if failures:
++        return False, "R11 FAIL (law L-y): " + "; ".join(failures)
++    return True, (f"R11 PASS (law L-y): no intro; {len(between)} bridge(s) between clips; "
++                  f"{len(bridges) - len(between)} takeaway line(s)")
++
++
+ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
+                   transcripts=None):
+     """Run all rules. Returns (all_pass, results list).
+@@ -666,6 +710,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
+         (rule_r8, (edl, channels_registry)),
+         (rule_r9, (edl, transcripts)),
+         (rule_r10, (edl, transcripts)),
++        (rule_r11, (edl,)),
+     ]:
+         ok, reason = rule_fn(*args)
+         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index 25c3ba5f..96c381d8 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -526,7 +526,9 @@ def moments_vo(mp, clips, segments=None):
+             raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{top}, "
+                            f"strictly increasing")
+         prev = a
+-    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
++    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"],   # law L-y 2: a bridge's
++                                         **({"why": b["why"]} if "why" in b else {})}       # recorded reason,
++                                        for b in bridges]}                                   # read by R11
+ 
+ 
+ def prepare(pin_path, run_dir, log=print):
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 10a0f245..210bf67a 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -12,7 +12,7 @@ import unittest
+ 
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
+-                       rule_r9, validate_edl)
++                       rule_r9, rule_r11, validate_edl)
+ 
+ # Load fixtures
+ FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
+@@ -1057,6 +1057,106 @@ class TestR4Moments(unittest.TestCase):
+             self.assertNotIn("moments", why, t)
+ 
+ 
++
++class TestR11VoShape(unittest.TestCase):
++    """Law L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30', PBX on the review video: 'too much voiceover ...
++    only one input at the end'): for a package of type 'moments', R11 refuses a VO intro and more than one bridge
++    between clips, and a bridge between clips without its recorded reason; the default shape (clips back to back, one
++    takeaway after the LAST clip) and a package with no VO line at all pass. R4-moments has no minimum VO share (only its
++    45 % upper bound). Story-type and untyped EDLs (the protected references) are unchanged."""
++    MARK = TestR4Moments.MARK
++
++    def edl(self, clips=(12, 12, 8), intro=None, bridges=(), t="moments", hook=10.0):
++        e = {"hook": {"duration": hook, "channel": "H"},
++             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
++             "vo": {"intro": intro, "bridges": [dict(b) if isinstance(b, dict) else b for b in bridges]},
++             "total_clip_duration": round(hook + sum(clips), 2)}
++        if t is not None:
++            e["package_type"] = t
++        if t == "moments":
++            e.update(self.MARK)
++        return e
++
++    TAKE = {"text": " ".join(["w"] * 24), "after_clip": 3}            # the takeaway: the line after the LAST clip
++
++    def test_the_default_shape_passes_and_r4_has_no_minimum(self):
++        for bridges, hook in (((), 15.0), ((self.TAKE,), 10.0)):     # no VO line at all; one takeaway
++            e = self.edl(bridges=bridges, hook=hook)
++            ok, why = rule_r11(e)
++            self.assertTrue(ok, why)
++            ok, why = rule_r4(e)                                      # 47 + 0 + 14.3 = 61.3 s; 42 + 10.6 + 14.3 = 66.9 s
++            self.assertTrue(ok, why)
++        ok, why = rule_r11(self.edl(intro="", bridges=(self.TAKE,)))  # an empty intro is no intro
++        self.assertTrue(ok, why)
++
++    def test_an_intro_fails(self):
++        for intro in ("Bitcoin does not have any authority.", "w", 5, ["w"]):
++            ok, why = rule_r11(self.edl(intro=intro, bridges=(self.TAKE,)))
++            self.assertFalse(ok, intro)
++            self.assertIn("law L-y 1", why, intro)
++            self.assertNotIn("law L-y 2", why, intro)
++
++    def test_two_bridges_between_clips_fail(self):
++        two = ({"text": "a b", "after_clip": 1, "why": "the referent of 'it' in clip 2 is clip 1's"},
++               {"text": "c d", "after_clip": 2, "why": "clip 3 names no subject"}, self.TAKE)
++        ok, why = rule_r11(self.edl(bridges=two))
++        self.assertFalse(ok, why)
++        self.assertIn("law L-y 2: 2 bridges between clips", why)
++        ok, why = rule_r11(self.edl(bridges=two[1:]))                 # one bridge with its reason + the takeaway
++        self.assertTrue(ok, why)
++
++    def test_a_bridge_between_clips_needs_its_reason(self):
++        for why in (None, "", "   ", 5):
++            b = {"text": "a b", "after_clip": 1, **({} if why is None else {"why": why})}
++            ok, reason = rule_r11(self.edl(bridges=(b, self.TAKE)))
++            self.assertFalse(ok, why)
++            self.assertIn("the bridge after clip 1 has no recorded reason", reason, why)
++        for bad in ({"text": "a b", "after_clip": "3", "why": ""}, {"text": "a b"}, "a b"):   # no valid slot = between
++            ok, reason = rule_r11(self.edl(bridges=(bad,)))
++            self.assertFalse(ok, bad)
++            self.assertIn("has no recorded reason", reason, bad)
++
++    def test_fail_closed_shapes(self):
++        e = self.edl()
++        e["vo"]["bridges"] = "a b"
++        self.assertFalse(rule_r11(e)[0])
++        for drop in ("vo", "clips"):
++            e = self.edl()
++            del e[drop]
++            self.assertFalse(rule_r11(e)[0], drop)
++
++    def test_story_type_and_untyped_edls_are_unchanged(self):
++        busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})
++        for t in ("story", None, "Moments"):
++            ok, why = rule_r11(self.edl(intro="An intro line.", bridges=busy, t=t))
++            self.assertTrue(ok, (t, why))
++            self.assertIn("not a moments package", why)
++
++    def test_validate_edl_rejects_a_moments_edl_with_an_intro(self):
++        ok, results = validate_edl(self.edl(intro="An intro line.", bridges=(self.TAKE,)))
++        self.assertFalse(ok)
++        row = next(r for r in results if r["rule"] == "rule_r11")
++        self.assertFalse(row["pass"])
++        self.assertIn("law L-y 1", row["reason"])
++
++    RUN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "runs", "pinned_20261112_165629")
++
++    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "edl.json")), "the delivered review run not on this machine")
++    def test_the_delivered_review_video_fails_and_its_l_y_reshape_passes(self):
++        """The video PBX was 'very pleased' with, but with 'too much voiceover': its real EDL (an intro and a bridge
++        between its two clips, no recorded reason) fails both parts; the same package reshaped to L-y (no intro, its
++        own takeaway after the last clip) passes R11."""
++        with open(os.path.join(self.RUN, "edl.json")) as f:
++            e = json.load(f)
++        ok, why = rule_r11(e)
++        self.assertFalse(ok)
++        self.assertIn("law L-y 1", why)
++        self.assertIn("law L-y 2: the bridge after clip 1 has no recorded reason", why)
++        e["vo"] = {**e["vo"], "intro": None, "bridges": [b for b in e["vo"]["bridges"] if b["after_clip"] == 2]}
++        ok, why = rule_r11(e)
++        self.assertTrue(ok, why)
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+ 
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index d0ad0a55..1aa52c9c 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -286,6 +286,18 @@ class TestMomentsPackage(Fixture):
+         self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
+         self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
+ 
++    def test_a_bridges_recorded_reason_reaches_the_edl(self):
++        """Law L-y 2 (orchestrator 2026-11-12 '20:30'): a bridge between clips carries the package's recorded reason
++        ('why'); moments_vo copies it into the EDL, where edl_rules R11 reads it; a line without one stays without."""
++        segs = self.pin()["segments"]
++        clips = [{"index": 1}, {"index": 2}]
++        vo = {"intro": None, "bridges": [{"text": "x", "after_clip": 1, "why": "clip 2's 'it' is clip 1's subject"},
++                                         {"text": "y", "after_clip": 2}]}
++        got = pinned.moments_vo(self.mp(type="moments", edl_vo=vo), clips, segs)
++        self.assertEqual(got["bridges"], [{"text": "x", "after_clip": 1, "why": "clip 2's 'it' is clip 1's subject"},
++                                          {"text": "y", "after_clip": 2}])
++        self.assertIsNone(got["intro"])
++
+     def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
+         """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
+         (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,

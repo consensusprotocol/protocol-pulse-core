@@ -1,0 +1,38 @@
+{
+ "question": "Batch 41 = PROTECTED REFERENCE (orchestrator order 2026-11-12 '20:30' (c)): the review video PBX was very pleased with is copied read-only to references/pulse_moments_2026-11-12/ with SHA256SUMS ('<sha256>  ./<relative path>' per file; the manifest does not list itself). New pipeline/check_reference_manifest.py check(ref) returns (exit code, problems, files listed): 0 = every listed file present with its listed sha256 and no unlisted file; 1 = a changed, missing or added file, an unreadable manifest line, or an empty manifest; 2 = no manifest (the reference is not on this machine: SKIP). pipeline/regression.sh step 7 runs it and fails the regression on any exit other than 0 or 2.\nFIND: any way a changed, removed or added file in the reference passes; a manifest problem that does not fail; a path-normalisation hole (e.g. './a' vs 'a', a subdirectory); the shell step not failing when it should; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 82.5,
+   "cost": 0.0053610005,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 365.6,
+   "cost": 0.003204346,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0085653465,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch41_ref_manifest/cycle1/heimdall"
+}

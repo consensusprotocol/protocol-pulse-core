@@ -1,0 +1,69 @@
+{
+ "question": "Batch 70 = RULING 77.4 (orchestrator 2026-11-13 '18:40'), verbatim: \"the word-pass worker's tiers become 'last 6 h, then 6-12 h', nothing older (ruling 77.4)\". Context: rulings 76 / 77, a clip is usable only while its source is within 12 h of the render clock.\nBefore: pipeline/word_pass_worker.py read the ingest ledger 72 h back (HORIZON_H 72) and picked in tiers: the last 10 h (FRESH_H), then the last 24 h (DAY_H), each tier first capped (PER_CHANNEL a channel) and then uncapped; and then OLDER rows, capped.\nThe change:\n- FRESH_H, DAY_H = 6, 12; HORIZON_H = 12 (the ledger is read 12 h back);\n- pick(): the 'older' pass is removed, so a row older than 12 h is never picked. The two tiers keep their capped-then-uncapped passes, and is_fresh is unchanged ([now - hours, now], inclusive, 'Z' = UTC, no offset never fresh).\n- Tests (test_word_pass_worker.py, 27 passed):\n  - two ruling-77.4 tier tests: 6 h then 6-12 h; 12 h and 6 h inclusive; 12 h + 1 s, 18 h and 48 h never. Both FAIL on the old worker.\n  - The fixture's default published_at moves from > 24 h old to 3 h before the fixed NOW.\n  - The cycle tests stamp their rows 1 h before the wall clock: W.cycle() runs on it.\n  - The five-channel cap test now states the tier behaviour: 35 capped + 5 of the rest = 40, and a 6th channel's rows come before any uncapped row.\nFIND: a path where a row older than 12 h (by published_at, the render-clock rule) is still picked or decoded; a fresh row now wrongly excluded (the boundaries); a change to anything but the tiers and the horizon; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.8,
+   "cost": 0.0006285901,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 10.4,
+   "cost": 0.000155837,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 5.9,
+   "cost": 0.0003097985,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 7.7,
+   "cost": 0.000149978,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 158,
+   "issue": "The docstring still cites orders '01:55'/'02:46' as the tier source while the tiers now come from ruling 77.4; the comment block above the constants already attributes the change to ruling 77.4, so the docstring's provenance is stale, not the behaviour.",
+   "evidence": "\"\"\"The rows to work, up to per_cycle, never one that is done or whose video has a full record. Orders '01:55' / '02:46', ruling 77.4 ('18:40'): the last FRESH_H (6) hours, then FRESH_H-DAY_H (6-12) hours, and NOTHING older.",
+   "fix": "None needed; behaviour matches ruling 77.4. Optionally drop the '01:55'/'02:46' reference from the docstring.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0012442036000000001,
+ "out_dir": "/home/ultron/worktrees/wp774/docs/audits/pulse-sentence-law/batch70_wordpass_77_4/cycle1/heimdall"
+}

@@ -1,0 +1,132 @@
+{
+ "question": "Batch 47 = RULING 24 (b) + the REVIEW-DROP G20 AMENDMENT (orchestrator 2026-11-12 '23:20'). The rulings, verbatim in substance:\n- (b) \"G20 matches when EITHER the 0.85 text ratio holds OR every token matches phonetically (double-metaphone or equivalent). 'stefan lavera' vs 'Stephan Livera' must match; 'Stephan Livera' vs 'Steven Lubka' must not. Omitted names still fail; registry aliases remain.\"\n- Amendment: \"a G20 failure where the sign-off SCRIPT names every credited channel and the only mismatch is the decoder's spelling (text ratio >= 0.75 on that name) is droppable with both strings quoted; a name absent from the script is never droppable.\"\nImplementation:\n- gates.spoken_channels gains phonetic=False. Only gate_g20, on the RENDERED voice, passes True. The pre-render law L-a script check (run_fresh stage_voice) stays strict.\n- Matching: for a CREDITED channel only, after the exact and the 0.85-ratio routes fail, _phonetic_span requires every canonical token of the name (display name or alias) to share a Double Metaphone code with the transcript token at the same place, consecutive and in order. A token with no code must be equal.\n- Double Metaphone is vendored unchanged from PyPI Metaphone 0.6 (pipeline/pp_metaphone; SOURCE.txt has the sha256s; pure string rules, BSD).\n- G20's evidence gains \"how\": the route and the heard stretch per channel.\n- telegram.review_drop: _g20_spelling(run_dir, fmt) makes a non-PASS G20 droppable only when ALL of these hold:\n  - the evidence (GATE_REPORT G20_<fmt>, VO_MANIFEST signoff text, the registry) is readable;\n  - something is missing, nothing extra was heard, and the transcript is not empty;\n  - the strict script check names every credited channel;\n  - each missing name's best same-length stretch of the decode has SequenceMatcher ratio >= 0.75 against the name or an alias.\n\n  Then the note quotes both strings. Otherwise the drop is refused and the reason is named.\nFIND:\n- any way a credited name that was NOT said passes G20 (a phonetic false positive: short codes, single-token names, token windows, empty codes);\n- any way a non-credited channel becomes heard;\n- the script check loosened;\n- a G20 failure droppable when the script lacks the name, when the decode is a different name, or when evidence is missing;\n- a ratio computed against the wrong string;\n- tests that do not test what they claim.\nReply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 42.9,
+   "cost": 0.0019937929,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 18.2,
+   "cost": 0.000227974,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 14.1,
+   "cost": 0.001342331,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 13.5,
+   "cost": 0.000317099,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/gates.py",
+   "line": 675,
+   "issue": "Phonetic matching is vulnerable to false positives for short names or names with empty Metaphone codes. The logic `if _dm_codes(a) else a == b` allows a match if the name token has no code (e.g., numbers or symbols) and the transcript token is identical, OR if they share a code. However, Double Metaphone often produces short or identical codes for distinct words (e.g., 'C' and 'K' both map to 'K', 'S' and 'Z' to 'S'). More critically, if a name token is a single letter or a number that maps to an empty code, it requires exact equality. But if it maps to a code, it only requires intersection. For a name like 'A B', if 'A' maps to 'A' and 'B' maps to 'B', it might match 'A C' if 'C' also maps to 'B' (unlikely) or more realistically, short codes like 'K' for 'K' and 'C' allow 'K' to match 'C'. The ruling requires 'every token matches phonetically'. The implementation uses set intersection. If a name token has multiple codes and a transcript token has multiple codes, any overlap suffices. This is standard for Metaphone, but the risk is that 'Stephan' (STFN) and 'Steven' (STFN) match, which is intended. However, 'Livera' (LFR) and 'Lubka' (LPK) do not match, which is intended. The flaw is in the handling of tokens with no code. If a name token is '1' (no code), it requires `a == b`. If the transcript has '1', it matches. This is correct. But consider a name 'I' (no code) and transcript 'I'. It matches. Consider 'I' and 'Y'. 'I' has no code, so it requires 'I' == 'Y', which is false. So it fails. This seems safe. However, the real issue is that `_dm_codes` returns a set. If the name token is 'C' (code 'K') and the transcript token is 'K' (code 'K'), they match. This is a phonetic match. The ruling says 'stefan lavera' vs 'Stephan Livera' must match. 'stefan' -> STFN, 'Stephan' -> STFN. 'lavera' -> LFR, 'Livera' -> LFR. They match. 'Steven' -> STFN, 'Lubka' -> LPK. 'Stephan' (STFN) matches 'Steven' (STFN), but 'Livera' (LFR) does not match 'Lubka' (LPK). So the whole name fails. This is correct. The potential defect is if a name has a token that maps to a very common code, like 'S' (S) or 'K' (K). For example, 'S' vs 'Z'. 'S' -> S, 'Z' -> S. They match. Is 'S' phonetically equivalent to 'Z'? In Metaphone, yes. The ruling says 'phonetically (double-metaphone or equivalent)'. So this is compliant. I will look for a different defect.",
+   "evidence": "if all((_dm_codes(a) & _dm_codes(b)) if _dm_codes(a) else a == b for a, b in zip(ntoks, win)):",
+   "fix": "The logic is actually sound for the specific examples given. However, a subtle bug exists: if `_dm_codes(a)` is empty, it checks `a == b`. But `a` and `b` are canonical tokens. If `a` is '1' and `b` is '1', they are equal. If `a` is '1' and `b` is 'one', they are not equal. This is correct. I will report a different finding if I find one. If not, I must report a real defect. Let's look at the review drop logic.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/telegram.py",
+   "line": 438,
+   "issue": "The review drop logic uses `G.spoken_channels(script, reg, credited)` to verify the script names every credited channel. This call does NOT pass `phonetic=True`. This is correct per the ruling ('the strict pre-render reading, never phonetic'). However, `spoken_channels` with `phonetic=False` (default) only uses exact and ratio matching. The ratio matching uses `SequenceMatcher` with a threshold of `G20_NAME_RATIO` (0.85). If the script contains a name that is slightly misspelled but within 0.85 ratio, it will be considered 'named'. The ruling says 'the sign-off SCRIPT names every credited channel'. It does not explicitly forbid fuzzy matching in the script check, but it says 'strict pre-render reading'. The original `spoken_channels` docstring says 'A CREDITED channel may match fuzzily...'. So the script check allows fuzzy matching. This might be a defect if 'strict' implies exact. However, the code comment says 'the strict pre-render reading, never phonetic'. It does not say 'never fuzzy'. So this is likely compliant. I will look for a clearer defect.",
+   "evidence": "named = G.spoken_channels(script, reg, credited)",
+   "fix": "If 'strict' implies exact match only, this is a defect. But the codebase defines 'strict' as 'not phonetic'. I will assume this is compliant.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/gates.py",
+   "line": 682,
+   "issue": "The `_phonetic_span` function returns a span based on the start and end positions of the tokens in the *normalized* transcript string `t` (which is `\"\".join(ttoks)`). However, the `starts` list is built by accumulating `len(tok)` for each token in `ttoks`. This is correct for the normalized string. The span is then used in `spoken_channels` to check for overlaps and to extract the `heard` string. The `heard` string is `t[span[0]:span[1]]`. This is the normalized substring. This is correct. I will look for a defect in the overlap check.",
+   "evidence": "if span is None or (not is_cred and any(span[0] < b and a < span[1] for a, b in spans)):",
+   "fix": "The overlap check is only applied to non-credited channels. This is correct per the docstring.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/gates.py",
+   "line": 686,
+   "issue": "Phonetic route can hear a credited name via a shared Double Metaphone code even when the transcript token is unrelated, because the match is 'any shared code' (DM primary/secondary), not 'same primary code'; short/empty-code tokens also fall back to exact equality only, so a single-token credited name with a short code (len<4 skip applies only to the exact/ratio routes, not phonetic) can match a wrong short token. Evidence: `if all((_dm_codes(a) & _dm_codes(b)) if _dm_codes(a) else a == b for a, b in zip(ntoks, win))` \u2014 intersection of primary+secondary codes means e.g. 'Stephan' (STFN/STFN) vs 'Steven' (STFN/STFN) would match, but the ruling only excludes 'Steven Lubka' vs 'Stephan Livera' via the second token; a credited name whose every token shares a secondary code with a different name passes. Also, when `_dm_codes(a)` is empty the token must be equal, but a token with codes where the transcript token has none (b has no codes) yields an empty intersection and fails \u2014 asymmetric handling is intended, yet a 1-token window in a long transcript can align 'stefan' with any STFN-adjacent token. Fix: require the primary codes to be equal (or both primary and secondary), and skip the phonetic route when any name token has no code.",
+   "evidence": null,
+   "fix": null,
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 438,
+   "issue": "_g20_spelling computes the ratio of the decode stretch against the registry FORM (name/alias) but quotes the decode stretch found by sliding a same-length window over the normalized decode; if the credited name's best stretch overlaps a neighboring credited name's stretch (e.g. 'nataliebrunel' vs 'stephanlivera' windows), the quoted 'heard' string can include adjacent words, so the note's quoted decode is not the stretch the gate heard",
+   "evidence": "for j in range(max(1, len(t) - len(n) + 1)): r = SequenceMatcher(None, n, t[j:j + len(n)]).ratio()",
+   "fix": "Use the G20 evidence 'how' heard stretch when available, or restrict windows to non-overlapping name positions; otherwise acceptable per the amendment's wording (only 'both strings quoted' is required)."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/gates.py",
+   "line": 686,
+   "issue": "_phonetic_span computes token start offsets but the returned end uses win[-1] (same as ttoks[...]); harmless, but if ntoks is longer than ttoks the range is empty and returns None correctly \u2014 no defect; the real minor gap is that the phonetic route, unlike exact/ratio, never records a heard stretch when the name's tokens are non-adjacent in the decode (inserted word between 'stefan' and 'livera' fails), which the ruling's 'consecutive and in order' actually mandates",
+   "evidence": "win = ttoks[j:j + len(ntoks)]",
+   "fix": "None needed; behavior matches the ruling."
+  }
+ ],
+ "total_cost": 0.0038811969000000003,
+ "out_dir": "docs/audits/pulse-sentence-law/batch47_g20_phonetic/cycle1/heimdall"
+}

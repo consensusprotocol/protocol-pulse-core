@@ -1,0 +1,3091 @@
+{
+  "inventory_version": 1,
+  "rows": {
+    "16x9": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G14_av_alignment": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "PASS",
+      "G8_sharpness": "PASS",
+      "G9_tail": "PASS",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "V1_visual_checklist": "PASS"
+    },
+    "9x16": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G11_parity": "PASS",
+      "G14_audio_offset": "PASS",
+      "G14_frame_similarity": "LIMITED",
+      "G14c_duration_parity": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "PASS",
+      "G8_sharpness": "PASS",
+      "G9_tail": "PASS",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "vertical_silent_fallback": "PASS",
+      "V1_visual_checklist": "PASS"
+    }
+  },
+  "notes": {
+    "16x9": {},
+    "9x16": {
+      "G14_frame_similarity": "not valid for 9:16 crop vs 16:9 source",
+      "vertical_silent_fallback": "no fallback"
+    }
+  },
+  "evidence": {
+    "16x9": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G14_av_alignment": {
+        "executed": true,
+        "samples": 25
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 7
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 6
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 17
+      }
+    },
+    "9x16": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G11_parity": {
+        "executed": true,
+        "samples": 5
+      },
+      "G14_audio_offset": {
+        "executed": true,
+        "samples": 25
+      },
+      "G14_frame_similarity": {
+        "executed": true,
+        "samples": 0
+      },
+      "G14c_duration_parity": {
+        "executed": true,
+        "samples": 3
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 7
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 6
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "vertical_silent_fallback": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 23
+      }
+    }
+  },
+  "measured_files": {
+    "out/segment.mp4": "b348444cbfe411b874aef0e2da49778f15c0b6ef206257d1434343dd70a27d56",
+    "out/segment_vertical.mp4": "f56391b65a7d84e713e86b8405f648e71744bf0cce4bceab1553520fee8508ca",
+    "qa/concat_manifest_16x9.json": "fccd501d4b85116ed111bf298890e5c1c678c2a994a70b3d51a59d16b467b32a",
+    "qa/concat_manifest_9x16.json": "a3e179721842e1dc1c9471344246184784fab47d03d1ab98e6d973ae47657877"
+  },
+  "flags": {
+    "16x9": [],
+    "9x16": []
+  },
+  "limitations": {
+    "16x9": [
+      "G14: static talking-head temporal slips can pass frame_sim (v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll declared), plate correctness not verified"
+    ],
+    "9x16": [
+      "G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive control: 0.24-0.54 on correct frames); only the audio-offset part is scored; VO sections auto-PASS"
+    ]
+  },
+  "G11": {
+    "vert_dur": 62.959,
+    "horiz_dur": 62.959,
+    "delta": 0.0,
+    "dur_ok": true,
+    "vert_segments": 6,
+    "horiz_segments": 6,
+    "count_ok": true,
+    "pass": true
+  },
+  "G14_16x9": [
+    {
+      "label": "hook",
+      "output_time": 0.2,
+      "status": "PASS",
+      "matched_src_s": 14.715,
+      "expected_src_s": 14.715,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.3028,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "hook",
+      "output_time": 2.0,
+      "status": "PASS",
+      "matched_src_s": 16.515,
+      "expected_src_s": 16.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0414,
+      "frame_sim": 0.994
+    },
+    {
+      "label": "hook",
+      "output_time": 4.0,
+      "status": "PASS",
+      "matched_src_s": 18.515,
+      "expected_src_s": 18.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.7278,
+      "frame_sim": 0.995
+    },
+    {
+      "label": "hook",
+      "output_time": 8.0,
+      "status": "PASS",
+      "matched_src_s": 22.515,
+      "expected_src_s": 22.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0473,
+      "frame_sim": 0.936
+    },
+    {
+      "label": "hook",
+      "output_time": 10.0,
+      "status": "PASS",
+      "matched_src_s": 24.515,
+      "expected_src_s": 24.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.9878,
+      "frame_sim": 0.991
+    },
+    {
+      "label": "hook",
+      "output_time": 12.0,
+      "status": "PASS",
+      "matched_src_s": 26.515,
+      "expected_src_s": 26.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1579,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "hook",
+      "output_time": 14.0,
+      "status": "PASS",
+      "matched_src_s": 28.515,
+      "expected_src_s": 28.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1751,
+      "frame_sim": 0.991
+    },
+    {
+      "label": "hook",
+      "output_time": 16.0,
+      "status": "PASS",
+      "matched_src_s": 30.515,
+      "expected_src_s": 30.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1207,
+      "frame_sim": 0.976
+    },
+    {
+      "label": "hook",
+      "output_time": 16.358,
+      "status": "PASS",
+      "matched_src_s": 30.873,
+      "expected_src_s": 30.873,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.8824,
+      "frame_sim": 0.997
+    },
+    {
+      "label": "hook",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 9,
+      "conclusive_mismatches": 0,
+      "samples": 9,
+      "layout": "fixed",
+      "speech_windows": 9,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_01",
+      "output_time": 17.158,
+      "status": "PASS",
+      "matched_src_s": 15.295,
+      "expected_src_s": 15.3,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.8262,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "output_time": 18.958,
+      "status": "PASS",
+      "matched_src_s": 17.095,
+      "expected_src_s": 17.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.3678,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "clip_01",
+      "output_time": 20.958,
+      "status": "PASS",
+      "matched_src_s": 19.095,
+      "expected_src_s": 19.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.1137,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "output_time": 22.958,
+      "status": "PASS",
+      "matched_src_s": 21.095,
+      "expected_src_s": 21.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.3873,
+      "frame_sim": 0.992
+    },
+    {
+      "label": "clip_01",
+      "output_time": 24.958,
+      "status": "PASS",
+      "matched_src_s": 23.095,
+      "expected_src_s": 23.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.8263,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "output_time": 26.958,
+      "status": "PASS",
+      "matched_src_s": 25.095,
+      "expected_src_s": 25.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.4582,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "clip_01",
+      "output_time": 28.958,
+      "status": "PASS",
+      "matched_src_s": 27.095,
+      "expected_src_s": 27.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.81,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 7,
+      "conclusive_mismatches": 0,
+      "samples": 7,
+      "layout": "fixed",
+      "speech_windows": 7,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_02",
+      "output_time": 31.575,
+      "status": "PASS",
+      "matched_src_s": 15.485,
+      "expected_src_s": 15.485,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.2049,
+      "frame_sim": 0.989
+    },
+    {
+      "label": "clip_02",
+      "output_time": 33.375,
+      "status": "PASS",
+      "matched_src_s": 17.285,
+      "expected_src_s": 17.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.9281,
+      "frame_sim": 0.993
+    },
+    {
+      "label": "clip_02",
+      "output_time": 35.375,
+      "status": "PASS",
+      "matched_src_s": 19.285,
+      "expected_src_s": 19.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.4169,
+      "frame_sim": 0.993
+    },
+    {
+      "label": "clip_02",
+      "output_time": 37.375,
+      "status": "PASS",
+      "matched_src_s": 21.285,
+      "expected_src_s": 21.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.4291,
+      "frame_sim": 0.976
+    },
+    {
+      "label": "clip_02",
+      "output_time": 39.375,
+      "status": "PASS",
+      "matched_src_s": 23.285,
+      "expected_src_s": 23.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.6524,
+      "frame_sim": 0.991
+    },
+    {
+      "label": "clip_02",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 5,
+      "conclusive_mismatches": 0,
+      "samples": 5,
+      "layout": "fixed",
+      "speech_windows": 5,
+      "status": "PASS"
+    },
+    {
+      "label": "vo_bridge_01",
+      "status": "PASS",
+      "reason": "VO pre-roll declared"
+    }
+  ],
+  "G14_9x16": [
+    {
+      "label": "hook",
+      "output_time": 0.2,
+      "status": "PASS",
+      "matched_src_s": 14.715,
+      "expected_src_s": 14.715,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.3028
+    },
+    {
+      "label": "hook",
+      "output_time": 2.0,
+      "status": "PASS",
+      "matched_src_s": 16.515,
+      "expected_src_s": 16.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0414
+    },
+    {
+      "label": "hook",
+      "output_time": 4.0,
+      "status": "PASS",
+      "matched_src_s": 18.515,
+      "expected_src_s": 18.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.7278
+    },
+    {
+      "label": "hook",
+      "output_time": 8.0,
+      "status": "PASS",
+      "matched_src_s": 22.515,
+      "expected_src_s": 22.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0473
+    },
+    {
+      "label": "hook",
+      "output_time": 10.0,
+      "status": "PASS",
+      "matched_src_s": 24.515,
+      "expected_src_s": 24.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.9878
+    },
+    {
+      "label": "hook",
+      "output_time": 12.0,
+      "status": "PASS",
+      "matched_src_s": 26.515,
+      "expected_src_s": 26.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1579
+    },
+    {
+      "label": "hook",
+      "output_time": 14.0,
+      "status": "PASS",
+      "matched_src_s": 28.515,
+      "expected_src_s": 28.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1751
+    },
+    {
+      "label": "hook",
+      "output_time": 16.0,
+      "status": "PASS",
+      "matched_src_s": 30.515,
+      "expected_src_s": 30.515,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1207
+    },
+    {
+      "label": "hook",
+      "output_time": 16.358,
+      "status": "PASS",
+      "matched_src_s": 30.873,
+      "expected_src_s": 30.873,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.8824
+    },
+    {
+      "label": "hook",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 9,
+      "conclusive_mismatches": 0,
+      "samples": 9,
+      "layout": "fixed",
+      "speech_windows": 9,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_01",
+      "output_time": 17.158,
+      "status": "PASS",
+      "matched_src_s": 15.295,
+      "expected_src_s": 15.3,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.8262
+    },
+    {
+      "label": "clip_01",
+      "output_time": 18.958,
+      "status": "PASS",
+      "matched_src_s": 17.095,
+      "expected_src_s": 17.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.3678
+    },
+    {
+      "label": "clip_01",
+      "output_time": 20.958,
+      "status": "PASS",
+      "matched_src_s": 19.095,
+      "expected_src_s": 19.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.1137
+    },
+    {
+      "label": "clip_01",
+      "output_time": 22.958,
+      "status": "PASS",
+      "matched_src_s": 21.095,
+      "expected_src_s": 21.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 1.3873
+    },
+    {
+      "label": "clip_01",
+      "output_time": 24.958,
+      "status": "PASS",
+      "matched_src_s": 23.095,
+      "expected_src_s": 23.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.8263
+    },
+    {
+      "label": "clip_01",
+      "output_time": 26.958,
+      "status": "PASS",
+      "matched_src_s": 25.095,
+      "expected_src_s": 25.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.4582
+    },
+    {
+      "label": "clip_01",
+      "output_time": 28.958,
+      "status": "PASS",
+      "matched_src_s": 27.095,
+      "expected_src_s": 27.1,
+      "delta_ms": 5.3,
+      "xcorr_peak": 0.81
+    },
+    {
+      "label": "clip_01",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 7,
+      "conclusive_mismatches": 0,
+      "samples": 7,
+      "layout": "fixed",
+      "speech_windows": 7,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_02",
+      "output_time": 31.575,
+      "status": "PASS",
+      "matched_src_s": 15.485,
+      "expected_src_s": 15.485,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.2049
+    },
+    {
+      "label": "clip_02",
+      "output_time": 33.375,
+      "status": "PASS",
+      "matched_src_s": 17.285,
+      "expected_src_s": 17.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.9281
+    },
+    {
+      "label": "clip_02",
+      "output_time": 35.375,
+      "status": "PASS",
+      "matched_src_s": 19.285,
+      "expected_src_s": 19.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.4169
+    },
+    {
+      "label": "clip_02",
+      "output_time": 37.375,
+      "status": "PASS",
+      "matched_src_s": 21.285,
+      "expected_src_s": 21.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.4291
+    },
+    {
+      "label": "clip_02",
+      "output_time": 39.375,
+      "status": "PASS",
+      "matched_src_s": 23.285,
+      "expected_src_s": 23.285,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.6524
+    },
+    {
+      "label": "clip_02",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 5,
+      "conclusive_mismatches": 0,
+      "samples": 5,
+      "layout": "fixed",
+      "speech_windows": 5,
+      "status": "PASS"
+    },
+    {
+      "label": "vo_bridge_01",
+      "status": "PASS",
+      "reason": "VO pre-roll declared"
+    }
+  ],
+  "G14c": {
+    "dur_16": 62.959,
+    "dur_9": 62.959,
+    "delta_ms": 0.0
+  },
+  "G15_16x9": {
+    "card_continuous": true,
+    "mid_scene_changes": [],
+    "ring_aspect_ok": true,
+    "rings": [
+      {
+        "pct": 0.25,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.3,
+          276.4
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1280,
+          370,
+          281,
+          280
+        ],
+        "axes": [
+          277.6,
+          278.0
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.5,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.4,
+          276.4
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1280,
+          370,
+          282,
+          280
+        ],
+        "axes": [
+          277.7,
+          277.9
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.75,
+        "cx": 1420.1,
+        "cy": 509.9,
+        "bbox": [
+          1280,
+          370,
+          282,
+          280
+        ],
+        "axes": [
+          277.7,
+          277.9
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.75,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.75,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.5,
+          276.7
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.9,
+          276.9
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.9,
+          276.9
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1282,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      }
+    ],
+    "avatar_ok": true,
+    "avatars": [
+      {
+        "pct": 0.25,
+        "channel": "Simply Bitcoin",
+        "r": 0.998
+      },
+      {
+        "pct": 0.25,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.25,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.5,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.75,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.9,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Scott Melker",
+        "r": 1.0
+      }
+    ],
+    "method": "DEC-11 ring mask + registered-avatar disc"
+  },
+  "G15_9x16": {
+    "card_continuous": true,
+    "mid_scene_changes": [],
+    "ring_aspect_ok": true,
+    "rings": [
+      {
+        "pct": 0.25,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          278,
+          278
+        ],
+        "axes": [
+          276.3,
+          276.4
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          775,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 540.1,
+        "cy": 1345.8,
+        "bbox": [
+          400,
+          1206,
+          282,
+          280
+        ],
+        "axes": [
+          277.7,
+          278.1
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          774,
+          278,
+          278
+        ],
+        "axes": [
+          276.2,
+          276.5
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.2,
+        "cy": 1345.8,
+        "bbox": [
+          401,
+          1206,
+          279,
+          280
+        ],
+        "axes": [
+          277.4,
+          278.1
+        ],
+        "aspect": 0.997
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          774,
+          278,
+          278
+        ],
+        "axes": [
+          276.6,
+          276.7
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 1345.9,
+        "bbox": [
+          400,
+          1206,
+          282,
+          280
+        ],
+        "axes": [
+          277.5,
+          277.7
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          278,
+          278
+        ],
+        "axes": [
+          276.9,
+          276.9
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          774,
+          278,
+          278
+        ],
+        "axes": [
+          276.8,
+          277.0
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 1346.0,
+        "bbox": [
+          402,
+          1208,
+          277,
+          277
+        ],
+        "axes": [
+          276.0,
+          276.2
+        ],
+        "aspect": 0.999
+      }
+    ],
+    "avatar_ok": true,
+    "avatars": [
+      {
+        "pct": 0.25,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.25,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.25,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.5,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.75,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Scott Melker",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Simply Bitcoin",
+        "r": 0.999
+      },
+      {
+        "pct": 0.9,
+        "channel": "CNBC Television",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Scott Melker",
+        "r": 1.0
+      }
+    ],
+    "method": "DEC-11 ring mask + registered-avatar disc"
+  },
+  "G20_16x9": {
+    "transcript": "clips today from simplybitcoin, cnbc television, and scott melker.  go follow them.  links are below in the description.",
+    "credited": [
+      "CNBC Television",
+      "Scott Melker",
+      "Simply Bitcoin"
+    ],
+    "spoken": [
+      "CNBC Television",
+      "Scott Melker",
+      "Simply Bitcoin"
+    ],
+    "missing": [],
+    "extra": [],
+    "how": {
+      "Scott Melker": {
+        "name": "Scott Melker",
+        "route": "exact",
+        "heard": "scottmelker"
+      },
+      "Simply Bitcoin": {
+        "name": "Simply Bitcoin",
+        "route": "exact",
+        "heard": "simplybitcoin"
+      },
+      "CNBC Television": {
+        "name": "CNBC Television",
+        "route": "exact",
+        "heard": "cnbctelevision"
+      }
+    },
+    "pass": true
+  },
+  "G20_9x16": {
+    "transcript": "clips today from simplybitcoin, cnbc television, and scott melker.  go follow them.  links are below in the description.",
+    "credited": [
+      "CNBC Television",
+      "Scott Melker",
+      "Simply Bitcoin"
+    ],
+    "spoken": [
+      "CNBC Television",
+      "Scott Melker",
+      "Simply Bitcoin"
+    ],
+    "missing": [],
+    "extra": [],
+    "how": {
+      "Scott Melker": {
+        "name": "Scott Melker",
+        "route": "exact",
+        "heard": "scottmelker"
+      },
+      "Simply Bitcoin": {
+        "name": "Simply Bitcoin",
+        "route": "exact",
+        "heard": "simplybitcoin"
+      },
+      "CNBC Television": {
+        "name": "CNBC Television",
+        "route": "exact",
+        "heard": "cnbctelevision"
+      }
+    },
+    "pass": true
+  },
+  "G17c": {
+    "hook": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          14.61,
+          14.91
+        ],
+        "worst_db": 0.18,
+        "shift_hops": 0,
+        "compared_frames": 28,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          31.15,
+          31.45
+        ],
+        "worst_db": 0.03,
+        "shift_hops": 0,
+        "compared_frames": 29,
+        "why": "edge word at full level"
+      }
+    },
+    "clip_01": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          15.22,
+          15.52
+        ],
+        "worst_db": 0.07,
+        "shift_hops": 0,
+        "compared_frames": 28,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          29.19,
+          29.49
+        ],
+        "worst_db": 0.2,
+        "shift_hops": 0,
+        "compared_frames": 14,
+        "why": "edge word at full level"
+      }
+    },
+    "clip_02": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          15.31,
+          15.61
+        ],
+        "worst_db": 0.14,
+        "shift_hops": 0,
+        "compared_frames": 15,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          24.29,
+          24.59
+        ],
+        "worst_db": 0.17,
+        "shift_hops": 0,
+        "compared_frames": 13,
+        "why": "edge word at full level"
+      }
+    }
+  },
+  "L-c": {
+    "16x9": {
+      "g3b_dissent": [],
+      "g3b_unproved": [],
+      "g3c_failed_edges": [],
+      "final_proof": {}
+    },
+    "9x16": {
+      "g3b_dissent": [],
+      "g3b_unproved": [],
+      "g3c_failed_edges": [],
+      "final_proof": {}
+    }
+  },
+  "G8": {
+    "production_result_16x9": true,
+    "production_result_9x16": true,
+    "relative_reference": "prepared 1920x1080 clip (source camera, scaled) at the same relative offset",
+    "relative_16x9": [
+      {
+        "segment": "hook",
+        "out_variances": [
+          583.45,
+          600.24,
+          626.57,
+          1438.7,
+          619.25
+        ],
+        "src_variances": [
+          606.92,
+          619.05,
+          657.42,
+          1472.1,
+          639.75
+        ],
+        "out_median": 619.25,
+        "src_median": 639.75,
+        "ratio": 0.968,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "out_variances": [
+          882.25,
+          887.44,
+          733.42,
+          752.89,
+          765.92
+        ],
+        "src_variances": [
+          894.36,
+          896.12,
+          749.4,
+          769.27,
+          779.87
+        ],
+        "out_median": 765.92,
+        "src_median": 779.87,
+        "ratio": 0.982,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "out_variances": [
+          93.17,
+          103.49,
+          102.32,
+          82.42,
+          77.98
+        ],
+        "src_variances": [
+          92.93,
+          106.23,
+          104.95,
+          81.06,
+          77.06
+        ],
+        "out_median": 93.17,
+        "src_median": 92.93,
+        "ratio": 1.003,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      }
+    ],
+    "degraded_below_0.85": {}
+  },
+  "G9": {
+    "16x9": {
+      "gate": {
+        "mean_luma": 14.3,
+        "luma_ok": "True",
+        "rms_db": -43.9,
+        "audio_ok": true,
+        "pass": true
+      },
+      "outro_master_sha256": "7c2cc7ae6efa9b276144f51b33290b190120470a36541e977f52c25b1e614e58",
+      "outro_conformed_sha256": "b8a402947c42017e7f448fba05306cad2dc052eb5c9097415582c1624d9fefc6",
+      "hash_identical_to_locked_outro": true,
+      "last_segment": "outro",
+      "conform_fallback": false
+    },
+    "9x16": {
+      "gate": {
+        "mean_luma": 14.8,
+        "luma_ok": "True",
+        "rms_db": -43.9,
+        "audio_ok": true,
+        "pass": true
+      },
+      "outro_master_sha256": "48d114daab327aa9695cdebf25fec3ca5186113322fd29feedbcb035f2e421f9",
+      "outro_conformed_sha256": "1af99ca7c21a72fc085ea66f99a264fb2360b72f250b68c88b1a4caef0042883",
+      "hash_identical_to_locked_outro": true,
+      "last_segment": "outro",
+      "conform_fallback": false
+    }
+  },
+  "G16": [
+    {
+      "segment": "hook",
+      "video_id": "DcUbBkyeh9M",
+      "errors": [],
+      "in": {
+        "cut": 14.52,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.52,
+          "end": 14.61,
+          "ms": 90
+        },
+        "lexical": "punctuation",
+        "after_word": "printer.",
+        "before_word": "A",
+        "cut_lo": 14.43,
+        "cut_hi": 14.61,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 31.46,
+        "boundary_valid": true,
+        "pause": {
+          "start": 31.38,
+          "end": 31.49,
+          "ms": 110
+        },
+        "lexical": "punctuation",
+        "after_word": "debate.",
+        "before_word": "And",
+        "cut_lo": 31.29,
+        "cut_hi": 31.49,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 30,
+          "worst_db_after_fade": -59.6,
+          "valley_db": -24.4,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'A' ... 'debate.' (50 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_01",
+      "video_id": "GXWj2JO9bz8",
+      "errors": [],
+      "in": {
+        "cut": 15.1,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.16,
+          "end": 15.35,
+          "ms": 1190
+        },
+        "lexical": "punctuation",
+        "after_word": "day?",
+        "before_word": "I",
+        "cut_lo": 13.87,
+        "cut_hi": 15.64,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 29.51,
+        "boundary_valid": true,
+        "pause": {
+          "start": 29.19,
+          "end": 29.67,
+          "ms": 480
+        },
+        "lexical": "punctuation",
+        "after_word": "world.",
+        "before_word": "And",
+        "cut_lo": 28.89,
+        "cut_hi": 29.69,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'I' ... 'world.' (40 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_02",
+      "video_id": "mKNAcOFMYD4",
+      "errors": [],
+      "in": {
+        "cut": 15.29,
+        "boundary_valid": true,
+        "pause": {
+          "start": 15.29,
+          "end": 15.53,
+          "ms": 240
+        },
+        "lexical": "punctuation",
+        "after_word": "biggest.",
+        "before_word": "my",
+        "cut_lo": 15.18,
+        "cut_hi": 15.53,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 24.59,
+        "boundary_valid": true,
+        "pause": {
+          "start": 24.29,
+          "end": 24.85,
+          "ms": 560
+        },
+        "lexical": "punctuation",
+        "after_word": "bitcoin.",
+        "before_word": "my",
+        "cut_lo": 24.19,
+        "cut_hi": 24.86,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 210,
+          "worst_db_after_fade": -50.1,
+          "valley_db": -36.7,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'my' ... 'bitcoin.' (42 words)",
+      "pass": true
+    }
+  ],
+  "G17": {
+    "prepared": [
+      {
+        "segment": "hook",
+        "onset": 0.09,
+        "offset": 16.810000000000002,
+        "lead_ms": 90,
+        "tail_ms": 40,
+        "quiet_db": {
+          "head": -36.8,
+          "tail": -28.7
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset": 0.5,
+        "offset": 13.93,
+        "lead_ms": 160,
+        "tail_ms": 10,
+        "quiet_db": {
+          "head": -37.7,
+          "tail": -32.6
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset": 0.24,
+        "offset": 9.0,
+        "lead_ms": 240,
+        "tail_ms": 300,
+        "quiet_db": {
+          "head": -48.5,
+          "tail": -52.5
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ],
+    "16x9": [
+      {
+        "segment": "hook",
+        "onset_late_ms": 0,
+        "offset_early_ms": -20,
+        "first_word_ratio": 1.0,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset_late_ms": -18,
+        "offset_early_ms": -82,
+        "first_word_ratio": 1.0,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset_late_ms": 5,
+        "offset_early_ms": -25,
+        "first_word_ratio": 0.981,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "onset_late_ms": 0,
+        "offset_early_ms": -20,
+        "first_word_ratio": 1.0,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset_late_ms": -18,
+        "offset_early_ms": -82,
+        "first_word_ratio": 1.0,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset_late_ms": 5,
+        "offset_early_ms": -25,
+        "first_word_ratio": 0.981,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "G18": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "heard": "A CEO makes a personal mistake in shareholders' pay. A government mismanages its currencies and its savers' pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "source_span_heard": "A CEO makes a personal mistake in shareholders' pay. A government mismanages its currencies and its savers' pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "lock_text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "heard": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for 350 Americans and 8 billion people around the world.",
+        "source_span_heard": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for 350 Americans and 8 billion people around the world.",
+        "lock_text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [
+          [
+            "delete",
+            "would",
+            ""
+          ]
+        ],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "heard": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+        "source_span_heard": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.",
+        "lock_text": "my biggest fear is that i go to the bank and i punch in my code and the money's not there because the bank owns the money and they could just take it from me. and that's why that's why we bitcoin.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "repeat_only_adjudication": {
+          "same_audio": true,
+          "gain_db_range": [
+            4.05,
+            9.39
+          ],
+          "shift_hops": 0,
+          "longest_mismatch_ms": 0,
+          "longest_added_speech_ms": 0,
+          "mismatch_frames": 0,
+          "speech_frames": 435,
+          "compared_both_ways": true
+        },
+        "identity_repeats_only": [
+          [
+            "insert",
+            "",
+            "that's why"
+          ]
+        ],
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "heard": "A CEO makes a personal mistake in shareholders' pay. A government mismanages its currencies and its savers' pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "source_span_heard": "A CEO makes a personal mistake in shareholders' pay. A government mismanages its currencies and its savers' pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "lock_text": "A CEO makes a personal mistake in shareholders pay. A government mismanages its currencies and its savers pay. Bitcoin's rules aren't kept by a single executive or a single central bank. They're enforced by thousands of independent computers running the same code. No CEO, no compromise, no committee to debate.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "heard": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for 350 Americans and 8 billion people around the world.",
+        "source_span_heard": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we create financial freedom for 350 Americans and 8 billion people around the world.",
+        "lock_text": "I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [
+          [
+            "delete",
+            "would",
+            ""
+          ]
+        ],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "heard": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why that's why we Bitcoin.",
+        "source_span_heard": "My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.",
+        "lock_text": "my biggest fear is that i go to the bank and i punch in my code and the money's not there because the bank owns the money and they could just take it from me. and that's why that's why we bitcoin.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "repeat_only_adjudication": {
+          "same_audio": true,
+          "gain_db_range": [
+            4.05,
+            9.39
+          ],
+          "shift_hops": 0,
+          "longest_mismatch_ms": 0,
+          "longest_added_speech_ms": 0,
+          "mismatch_frames": 0,
+          "speech_frames": 435,
+          "compared_both_ways": true
+        },
+        "identity_repeats_only": [
+          [
+            "insert",
+            "",
+            "that's why"
+          ]
+        ],
+        "pass": true
+      }
+    ]
+  },
+  "G19": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "speech": [
+          0.09,
+          16.86
+        ],
+        "clean_span": [
+          0.0,
+          16.958
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "speech": [
+          17.208,
+          31.048
+        ],
+        "clean_span": [
+          16.958,
+          31.375
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "speech": [
+          31.615,
+          40.375
+        ],
+        "clean_span": [
+          31.375,
+          40.708
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "speech": [
+          0.09,
+          16.86
+        ],
+        "clean_span": [
+          0.0,
+          16.958
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "speech": [
+          17.208,
+          31.048
+        ],
+        "clean_span": [
+          16.958,
+          31.375
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "speech": [
+          31.615,
+          40.375
+        ],
+        "clean_span": [
+          31.375,
+          40.708
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      }
+    ]
+  },
+  "G4_per_shot": {
+    "16x9": [
+      {
+        "segment": "hook#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "hook#1",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          1,
+          2,
+          1,
+          1,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "hook#2",
+        "layout": "screenshare",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          0,
+          2,
+          3,
+          2,
+          1
+        ],
+        "min_required": 0,
+        "pass": true
+      },
+      {
+        "segment": "hook#3",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          3,
+          1,
+          1,
+          1,
+          2,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_01#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          2,
+          3,
+          3,
+          2,
+          2
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_02#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          3,
+          2,
+          2,
+          1,
+          2,
+          3
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "shoutout_circle",
+        "faces": 1,
+        "circle_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "min_required": 2,
+        "pass": true
+      },
+      {
+        "segment": "hook#1",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "hook#2",
+        "layout": "screenshare",
+        "source_layout": "unknown",
+        "face_counts": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "min_required": 0,
+        "pass": true
+      },
+      {
+        "segment": "hook#3",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          3,
+          1,
+          2,
+          1,
+          1,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_01#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          2,
+          1,
+          2,
+          2,
+          2
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_02#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          2,
+          2,
+          1,
+          3,
+          2
+        ],
+        "min_required": 2,
+        "pass": true
+      },
+      {
+        "segment": "shoutout_circle",
+        "faces": 2,
+        "circle_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "G4s": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 1,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 2,
+        "label": "screen",
+        "measured": [
+          "screen",
+          "screen",
+          "screen",
+          "screen",
+          "screen"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 3,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": -0.03,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 1,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": 0.183,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 2,
+        "label": "screen",
+        "measured": [
+          "screen",
+          "screen",
+          "screen",
+          "screen",
+          "screen"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": true,
+        "band_corr": 1.0,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "hook",
+        "shot": 3,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": 0.154,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": -0.115,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": -0.24,
+        "vertical_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "run_gates_overall": {
+    "16x9": true,
+    "9x16": true
+  },
+  "V1": {
+    "16x9": {
+      "ok": true,
+      "per_model": {
+        "qwen/qwen3.8-27b": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "Full-res credits card shows three round, undistorted circles: Simply Bitcoin's orange 'SB' monogram, CNBC Television's blue 'CNBC TV' logo (both matching their registered monogram/logo avatars), and Scott Melker's B&W headshot profile picture (no headline text). Names under the circles (Simply Bitcoin, CNBC Television, Scott Melker) match the channel list.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "n/a",
+              "why": "Sheet is 16:9, so the vertical centring rule does not apply.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "n/a",
+              "why": "Sheet is 16:9, so the letterbox rule does not apply.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "All -3f/+3f boundary stills show live content (talking heads, charts, two-person panels, credits circles, outro logo); no frozen, black, or duplicated frames at any boundary.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "The Simply Bitcoin orange 'B' logo / 'SIMPLY BITCOIN' watermark is visible in the top-right corner of the hook content stills before the credits.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "Each -3f still shows only the outgoing shot (hook speaker, CNBC chart, two-person panel, credits circles) with no element of the following shot already visible.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "qwen/qwen3.8-27b",
+            "content": "\n\n{\"answers\": {\"credits_round_and_match\": {\"answer\": \"yes\", \"why\": \"Full-res credits card shows three round, undistorted circles: Simply Bitcoin's orange 'SB' monogram, CNBC Television's blue 'CNBC TV' logo (both matching their registered monogram/logo avatars), and Scott Melker's B&W headshot profile picture (no headline text). Names under the circles (Simply Bitcoin, CNBC Television, Scott Melker) match the channel list.\"}, \"vertical_speaker_centred\": {\"answer\": \"n/a\", \"why\": \"Sheet is 16:9, so the vertical centring rule does not apply.\"}, \"no_letterbox_on_talking_heads\": {\"answer\": \"n/a\", \"why\": \"Sheet is 16:9, so the letterbox rule does not apply.\"}, \"no_bad_boundary_frames\": {\"answer\": \"yes\", \"why\": \"All -3f/+3f boundary stills show live content (talking heads, charts, two-person panels, credits circles, outro logo); no frozen, black, or duplicated frames at any boundary.\"}, \"watermark_present\": {\"answer\": \"yes\", \"why\": \"The Simply Bitcoin orange 'B' logo / 'SIMPLY BITCOIN' watermark is visible in the top-right corner of the hook content stills before the credits.\"}, \"no_next_shot_before_transition\": {\"answer\": \"yes\", \"why\": \"Each -3f still shows only the outgoing shot (hook speaker, CNBC chart, two-person panel, credits circles) with no element of the following shot already visible.\"}}",
+            "usage": {
+              "prompt_tokens": 5554,
+              "completion_tokens": 1749,
+              "total_tokens": 7303,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "cost": 0.0020613884
+            }
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "The credits card shows three round avatars: the 'SB' monogram for Simply Bitcoin, the 'CNBC TV' logo for CNBC Television, and a headshot for Scott Melker. The names match the channel list, and none are squashed, stretched, or video thumbnails with headline text.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "n/a",
+              "why": "The sheet is 16:9, so the vertical speaker centring rule does not apply.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "n/a",
+              "why": "The sheet is 16:9, so the letterbox rule does not apply.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The boundary stills labelled -3f / +3f show valid content frames with no black, frozen, or duplicated frames visible at the segment cuts.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "Channel watermarks/logos are visible on the content stills before the credits, such as the Simply Bitcoin logo in the hook and CNBC branding in clip_01.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "In the visible '-3f' stills before boundaries (e.g., hook|clip_01 and clip_01|clip_02), only the current segment's content is shown, with no part of the next shot visible.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "nvidia/nemotron-3.5-super-vl",
+            "content": "{\n  \"answers\": {\n    \"credits_round_and_match\": {\n      \"answer\": \"yes\",\n      \"why\": \"The credits card shows three round avatars: the 'SB' monogram for Simply Bitcoin, the 'CNBC TV' logo for CNBC Television, and a headshot for Scott Melker. The names match the channel list, and none are squashed, stretched, or video thumbnails with headline text.\"\n    },\n    \"vertical_speaker_centred\": {\n      \"answer\": \"n/a\",\n      \"why\": \"The sheet is 16:9, so the vertical speaker centring rule does not apply.\"\n    },\n    \"no_letterbox_on_talking_heads\": {\n      \"answer\": \"n/a\",\n      \"why\": \"The sheet is 16:9, so the letterbox rule does not apply.\"\n    },\n    \"no_bad_boundary_frames\": {\n      \"answer\": \"yes\",\n      \"why\": \"The boundary stills labelled -3f / +3f show valid content frames with no black, frozen, or duplicated frames visible at the segment cuts.\"\n    },\n    \"watermark_present\": {\n      \"answer\": \"yes\",\n      \"why\": \"Channel watermarks/logos are visible on the content stills before the credits, such as the Simply Bitcoin logo in the hook and CNBC branding in clip_01.\"\n    },\n    \"no_next_shot_before_transition\": {\n      \"answer\": \"yes\",\n      \"why\": \"In the visible '-3f' stills before boundaries (e.g., hook|clip_01 and clip_01|clip_02), only the current segment's content is shown, with no part of the next shot visible.\"\n    }\n  }\n}",
+            "usage": {
+              "prompt_tokens": 4044,
+              "completion_tokens": 6445,
+              "total_tokens": 10489,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 6066
+              },
+              "cost": 0.001187021
+            }
+          }
+        }
+      },
+      "sheet_next_shot_advisory": {
+        "qwen/qwen3.8-27b": {
+          "answer": "yes",
+          "why": "Each -3f still shows only the outgoing shot (hook speaker, CNBC chart, two-person panel, credits circles) with no element of the following shot already visible.",
+          "ok": true
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "answer": "yes",
+          "why": "In the visible '-3f' stills before boundaries (e.g., hook|clip_01 and clip_01|clip_02), only the current segment's content is shown, with no part of the next shot visible.",
+          "ok": true
+        }
+      },
+      "boundaries": {
+        "ok": true,
+        "cuts": [
+          {
+            "boundary": "hook|clip_01",
+            "before_s": 16.833,
+            "after_s": 17.083,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_16x9/bd_hook_clip_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame shows only the podcast host in a 'Simply Bitcoin' studio (patterned shirt, mic, bookshelf, plants). There is no trace of the RIGHT frame's CNBC 'STRATEGY MSTR' stock graphic, the suited man, or the 'CRYPTO COMPLEX UNDER PRESSURE' banner, nor any dissolve/double-exposure mixing the two"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a man in a patterned shirt in a studio setting, which is completely different from the right frame showing a man in a suit with a stock chart and CNBC graphics. The left frame is clearly its own segment's picture."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_01|clip_02",
+            "before_s": 31.25,
+            "after_s": 31.5,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_16x9/bd_clip_01_clip_02_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a self-contained CNBC segment: an Asian man in a suit (Strategy CEO) beside a 'BITCOIN/USD COIN METRICS' chart with the lower thirds 'STRATEGY CEO ON THE BLUE WAVE' and 'STREAM NOW'. The RIGHT frame is a completely different two-person interview shot (Scott Melker and Mark W. Yusko"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a CNBC segment featuring a Bitcoin chart and a different speaker, while the right frame shows a completely different interview setup with Scott Melker and Mark W. Yusko. There is no visual overlap or transition indicating the next shot is present in the left frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_02|vo_bridge_01",
+            "before_s": 40.583,
+            "after_s": 40.833,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_16x9/bd_clip_02_vo_bridge_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a sharp, in\u2011focus split\u2011screen of Scott Melker and Mark W. Yusco with crisp name lower\u2011thirds and the 'Wolf of All Streets x Kalshi' logo \u2014 clearly its own segment's picture. The RIGHT frame is a blurred/out\u2011of\u2011focus version of the same layout with a progress\u2011bar overlay and faded "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a clear, sharp shot of the two speakers (Scott Melker and Mark W. Yusko) with a logo overlay. The right frame shows the same speakers but blurred with a black audio bar at the bottom. The left frame does not contain the visual content of the right frame; it is the distinct 'befo"
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "vo_bridge_01|shoutout",
+            "before_s": 49.25,
+            "after_s": 49.5,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_16x9/bd_vo_bridge_01_shoutout_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a split-screen interview with two men (younger man left, older man right) in indoor settings, while the RIGHT frame is a black graphic card with an orange 'SB' Simply Bitcoin logo. The LEFT frame contains no trace of the logo, the black background, or any dissolve/double-exposure o"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a split-screen video interview with two men, while the right frame shows a 'Simply Bitcoin' logo on a black background. They are completely different visuals, so the left frame does not show the next segment."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "shoutout|outro",
+            "before_s": 58.375,
+            "after_s": 58.625,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_16x9/bd_shoutout_outro_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a clean end-card showing three sponsor/host logos (Simply Bitcoin, CNBC Television, Scott Melker) on a black background, with no trace of the RIGHT frame's 'PROTOCOL PULSE' title card, waveform, or grid. There is no dissolve or double-exposure mixing the next shot into the left fra"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame displays a static graphic with logos and names (Simply Bitcoin, CNBC Television, Scott Melker), while the right frame shows a completely different animated title card for 'PROTOCOL PULSE'. There is no visual overlap or dissolve indicating the next shot is present in the left frame."
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      }
+    },
+    "9x16": {
+      "ok": true,
+      "per_model": {
+        "qwen/qwen3.8-27b": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "Credits card shows three round, undistorted circles: Simply Bitcoin with its 'SB' monogram, CNBC Television with its 'CNBC TV' logo (both matching the registered monograms), and Scott Melker with a plain face profile photo (no headline text). Names under the circles match the three channels in the edit list.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "yes",
+              "why": "In the two STACK spans each face is centred within its own top/bottom panel with no panel edge cutting a face; in the single-speaker spans (CNBC suit, Scott Melker black shirt, older man) the speaker is centred in the 9:16 frame.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "yes",
+              "why": "Every talking-head still and the full-resolution first-frame panels show the person filling the tall frame top-to-bottom (or as a proper stack panel); no horizontal picture band with black/blurred bars above and below is present.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The -3f/+3f boundary stills all show live content (stack panels, CNBC frames, etc.); no frozen, black, or duplicated frame is visible at any segment boundary.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "The 'SIMPLY BITCOIN' logo (orange B mark) appears on the host's content stills and a small red pulse watermark is visible in the corner of content frames before the credits.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "The -3f stills preceding each boundary show only the outgoing shot's content; no element of the incoming/next shot is already visible.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "qwen/qwen3.8-27b",
+            "content": "\n\n{\"answers\": {\"credits_round_and_match\": {\"answer\": \"yes\", \"why\": \"Credits card shows three round, undistorted circles: Simply Bitcoin with its 'SB' monogram, CNBC Television with its 'CNBC TV' logo (both matching the registered monograms), and Scott Melker with a plain face profile photo (no headline text). Names under the circles match the three channels in the edit list.\"}, \"vertical_speaker_centred\": {\"answer\": \"yes\", \"why\": \"In the two STACK spans each face is centred within its own top/bottom panel with no panel edge cutting a face; in the single-speaker spans (CNBC suit, Scott Melker black shirt, older man) the speaker is centred in the 9:16 frame.\"}, \"no_letterbox_on_talking_heads\": {\"answer\": \"yes\", \"why\": \"Every talking-head still and the full-resolution first-frame panels show the person filling the tall frame top-to-bottom (or as a proper stack panel); no horizontal picture band with black/blurred bars above and below is present.\"}, \"no_bad_boundary_frames\": {\"answer\": \"yes\", \"why\": \"The -3f/+3f boundary stills all show live content (stack panels, CNBC frames, etc.); no frozen, black, or duplicated frame is visible at any segment boundary.\"}, \"watermark_present\": {\"answer\": \"yes\", \"why\": \"The 'SIMPLY BITCOIN' logo (orange B mark) appears on the host's content stills and a small red pulse watermark is visible in the corner of content frames before the credits.\"}, \"no_next_shot_before_transition\": {\"answer\": \"yes\", \"why\": \"The -3f stills preceding each boundary show only the outgoing shot's content; no element of the incoming/next shot is already visible.\"}}",
+            "usage": {
+              "prompt_tokens": 16634,
+              "completion_tokens": 1366,
+              "total_tokens": 18000,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "cost": 0.0031728314
+            }
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "The credits panel displays three round avatars matching the channel list: 'SB' for Simply Bitcoin, 'CNBC TV' for CNBC Television, and a headshot for Scott Melker. The monograms and logos match the registered avatars described in the ruling.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "yes",
+              "why": "In the 9:16 format, all visible talking heads are centred within their respective panels, and no panel edges cut through any faces.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "yes",
+              "why": "Every talking-head segment fills the frame vertically; there are no horizontal bands with blurred or black areas above or below the speakers.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "There are no visible frozen, black, or duplicated frames at the segment boundaries in the provided stills.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "Channel watermarks/logos are visible on content stills, such as the 'SIMPLY BITCOIN' logo on the speaker in the patterned shirt and CNBC branding on the other panel.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "No elements from the next shot are visible in the stills preceding the boundaries.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "nvidia/nemotron-3.5-super-vl",
+            "content": "{\n  \"answers\": {\n    \"credits_round_and_match\": {\n      \"answer\": \"yes\",\n      \"why\": \"The credits panel displays three round avatars matching the channel list: 'SB' for Simply Bitcoin, 'CNBC TV' for CNBC Television, and a headshot for Scott Melker. The monograms and logos match the registered avatars described in the ruling.\"\n    },\n    \"vertical_speaker_centred\": {\n      \"answer\": \"yes\",\n      \"why\": \"In the 9:16 format, all visible talking heads are centred within their respective panels, and no panel edges cut through any faces.\"\n    },\n    \"no_letterbox_on_talking_heads\": {\n      \"answer\": \"yes\",\n      \"why\": \"Every talking-head segment fills the frame vertically; there are no horizontal bands with blurred or black areas above or below the speakers.\"\n    },\n    \"no_bad_boundary_frames\": {\n      \"answer\": \"yes\",\n      \"why\": \"There are no visible frozen, black, or duplicated frames at the segment boundaries in the provided stills.\"\n    },\n    \"watermark_present\": {\n      \"answer\": \"yes\",\n      \"why\": \"Channel watermarks/logos are visible on content stills, such as the 'SIMPLY BITCOIN' logo on the speaker in the patterned shirt and CNBC branding on the other panel.\"\n    },\n    \"no_next_shot_before_transition\": {\n      \"answer\": \"yes\",\n      \"why\": \"No elements from the next shot are visible in the stills preceding the boundaries.\"\n    }\n  }\n}",
+            "usage": {
+              "prompt_tokens": 4156,
+              "completion_tokens": 4898,
+              "total_tokens": 9054,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 4552
+              },
+              "cost": 0.000952444
+            }
+          }
+        }
+      },
+      "sheet_next_shot_advisory": {
+        "qwen/qwen3.8-27b": {
+          "answer": "yes",
+          "why": "The -3f stills preceding each boundary show only the outgoing shot's content; no element of the incoming/next shot is already visible.",
+          "ok": true
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "answer": "yes",
+          "why": "No elements from the next shot are visible in the stills preceding the boundaries.",
+          "ok": true
+        }
+      },
+      "letterbox_per_shot": {
+        "ok": true,
+        "shots": [
+          {
+            "label": "hook",
+            "shot": 0,
+            "t": 1.479,
+            "class": "stack2",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_hook_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The frame is a two\u2011panel split screen, not a letterbox. The top half is a sharp photo of a gray\u2011haired man with glasses, and the bottom half is a separate sharp shot of a different man with a 'Simply Bitcoin' logo and microphone. Both regions are full, in\u2011focus images (separated by a white border), "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image displays two distinct video frames stacked vertically (one of a man in a suit on top, one of a man in a studio below), rather than a single sharp horizontal band in the middle surrounded by blurred or black areas."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "hook",
+            "shot": 1,
+            "t": 6.583,
+            "class": "single",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_hook_1.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The image is sharp and in focus across the entire frame from top to bottom \u2014 the background (neon 'B' sign, shelves, wood paneling), the subject, and the microphone are all clearly rendered. There are no black bars and no blurred enlarged copies of the image filling the top and bottom regions, so it"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image fills the entire vertical frame with sharp content from top to bottom. There are no blurred or black bands above and below a central horizontal band."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "hook",
+            "shot": 2,
+            "t": 12.104,
+            "class": "screen",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_hook_2.jpg",
+            "asked": false,
+            "ok": true,
+            "why": "layout=screen: letterbox by design (DEC-2)"
+          },
+          {
+            "label": "hook",
+            "shot": 3,
+            "t": 15.48,
+            "class": "single",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_hook_3.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The entire 9:16 frame is a single sharp, in-focus image from top to bottom (neon sign, shelves, microphone, and subject all equally clear). There is no horizontal sharp band with blurred or black enlarged fill above and below, so it is not letterboxed."
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image fills the entire vertical frame with the video content. There are no black bars or blurred enlarged copies of the image at the top or bottom."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "clip_01",
+            "shot": 0,
+            "t": 24.169,
+            "class": "single",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_clip_01_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The upper portion of the frame is a sharp, full\u2011resolution interview video (a man in a suit), not a blurred or black enlarged copy of a middle band. The lower portion is a sharp graphic lower\u2011third (CNBC 'STRATEGY', 'STREAM NOW', 'NBC EXCLUSIVE' banners). Since the image is crisp across the top and "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image fills the entire vertical frame with the subject and a news graphic overlay at the bottom. There are no blurred or black bands above and below a central horizontal strip; the top area shows the room background clearly, and the bottom area contains text graphics, not a blurred copy of the v"
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "clip_02",
+            "shot": 0,
+            "t": 36.042,
+            "class": "stack2",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/shots_9x16/shot_clip_02_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The frame is a vertical split-screen of two separate sharp video feeds (top: man in black shirt with earbuds; bottom: white-haired man labeled 'Mark W. Yusko'). Both halves are full-resolution, not a single sharp middle band with blurred/black enlarged copies above and below."
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image is a split-screen layout showing two different people, one in the top half and one in the bottom half, filling the entire vertical frame. It is not a single centered video with blurred or black bars above and below."
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      },
+      "boundaries": {
+        "ok": true,
+        "cuts": [
+          {
+            "boundary": "hook|clip_01",
+            "before_s": 16.833,
+            "after_s": 17.083,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_9x16/bd_hook_clip_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame shows only the first segment: a Black man in a patterned shirt against an orange-lit background with a neon 'B' logo and a microphone. There is no trace of the RIGHT frame's shot (the Asian man in a suit with the Bitcoin pin and the CNBC 'CRYPTO / STREAM NOW' lower-third), nor any dis"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a different person in a different setting (a podcast-style interview with a neon sign) and lacks the news graphics present in the right frame. It is clearly the segment preceding the cut, not a preview of the next shot."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_01|clip_02",
+            "before_s": 31.25,
+            "after_s": 31.5,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_9x16/bd_clip_01_clip_02_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a clean single shot of a man in a dark suit with a Bitcoin pin and a CNBC 'STRATEGY / STREAM NOW' lower third. It contains no trace, overlay, or double-exposure of either person shown in the RIGHT frame (the man in the black shirt with earbuds or Mark W. Yusko in the green shirt). "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a single interviewee in a suit with a 'STRATEGY' lower-third graphic, which is a completely different shot and layout than the right frame, which displays a split-screen of two different men."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_02|vo_bridge_01",
+            "before_s": 40.583,
+            "after_s": 40.833,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_9x16/bd_clip_02_vo_bridge_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a crisp, fully in\u2011focus split\u2011screen of the two interviewees (man in black shirt on top, Mark W. Yusko on bottom) with a clean lower\u2011third. There is no ghosting, double exposure, or second image mixed in. The RIGHT frame is the same composition but blurred with a loading/progress b"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a clear, sharp split-screen of the two speakers, which is the current segment's picture. The right frame shows a blurry version of the same scene, indicating it is the state after the cut. The left frame does not show the right frame's picture."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "vo_bridge_01|shoutout",
+            "before_s": 49.25,
+            "after_s": 49.5,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_9x16/bd_vo_bridge_01_shoutout_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a split-screen video call showing two men (younger man on top, older man on bottom) in their respective rooms. It contains no trace of the RIGHT frame's black 'Simply Bitcoin' logo card \u2014 no orange SB emblem, no handle text, and no dissolve/double-exposure blending of that shot. Th"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a split-screen video interview with two men, while the right frame shows a 'Simply Bitcoin' logo card. The left frame is clearly its own distinct segment and does not contain the picture from the right frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "shoutout|outro",
+            "before_s": 58.375,
+            "after_s": 58.625,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_211048/VERIFY/cuts_9x16/bd_shoutout_outro_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is its own credits/roll segment: three stacked social logos (Simply Bitcoin, CNBC TV, Scott Melker) on a black background with only a tiny red pulse icon in the bottom-right corner. It does not contain the large centered heartbeat line that defines the RIGHT segment, nor any dissolve/"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame displays social media handles and logos (Simply Bitcoin, CNBC Television, Scott Melker), while the right frame shows a red waveform graphic on a black background. They are completely different visuals."
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      }
+    }
+  }
+}

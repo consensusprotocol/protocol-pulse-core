@@ -1,0 +1,2890 @@
+{
+  "inventory_version": 1,
+  "rows": {
+    "16x9": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G14_av_alignment": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "FAIL",
+      "G8_sharpness": "PASS",
+      "G9_tail": "PASS",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "V1_visual_checklist": "PASS"
+    },
+    "9x16": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G11_parity": "PASS",
+      "G14_audio_offset": "PASS",
+      "G14_frame_similarity": "LIMITED",
+      "G14c_duration_parity": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "FAIL",
+      "G8_sharpness": "FAIL",
+      "G9_tail": "FAIL",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "vertical_silent_fallback": "PASS",
+      "V1_visual_checklist": "PASS"
+    }
+  },
+  "notes": {
+    "16x9": {},
+    "9x16": {
+      "G14_frame_similarity": "not valid for 9:16 crop vs 16:9 source",
+      "vertical_silent_fallback": "no fallback"
+    }
+  },
+  "evidence": {
+    "16x9": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G14_av_alignment": {
+        "executed": true,
+        "samples": 28
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 4
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 3
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 17
+      }
+    },
+    "9x16": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G11_parity": {
+        "executed": true,
+        "samples": 5
+      },
+      "G14_audio_offset": {
+        "executed": true,
+        "samples": 28
+      },
+      "G14_frame_similarity": {
+        "executed": true,
+        "samples": 0
+      },
+      "G14c_duration_parity": {
+        "executed": true,
+        "samples": 3
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 4
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 3
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "vertical_silent_fallback": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 20
+      }
+    }
+  },
+  "measured_files": {
+    "out/segment.mp4": "65a8530260bb2049077ca18c4af970a3bff37902997e1b6e317cafca7dfdffc6",
+    "out/segment_vertical.mp4": "e01c713873e8790591d653984212f874360d0442e7f1da486283b71315852d5c",
+    "qa/concat_manifest_16x9.json": "9f898cfeeb29a9ce63662bcab45eca895ea6e3cce0bc1dbc9ddc7829316d055d",
+    "qa/concat_manifest_9x16.json": "71c5e11f0599980263877fa6dce849ae9c5da3d3627e709770ce85b9b36bbf34"
+  },
+  "flags": {
+    "16x9": [],
+    "9x16": []
+  },
+  "limitations": {
+    "16x9": [
+      "G14: static talking-head temporal slips can pass frame_sim (v2e 18.0-24.0 s precedent); VO sections are auto-PASS (pre-roll declared), plate correctness not verified"
+    ],
+    "9x16": [
+      "G14 frame_sim compares a 9:16 crop with the 16:9 source (v2e positive control: 0.24-0.54 on correct frames); only the audio-offset part is scored; VO sections auto-PASS"
+    ]
+  },
+  "G11": {
+    "vert_dur": 66.334,
+    "horiz_dur": 66.334,
+    "delta": 0.0,
+    "dur_ok": true,
+    "vert_segments": 6,
+    "horiz_segments": 6,
+    "count_ok": true,
+    "pass": true
+  },
+  "G14_16x9": [
+    {
+      "label": "hook",
+      "output_time": 0.853,
+      "status": "PASS",
+      "matched_src_s": 15.228,
+      "expected_src_s": 15.233,
+      "delta_ms": 5.0,
+      "xcorr_peak": 2.0479,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "hook",
+      "output_time": 1.657,
+      "status": "PASS",
+      "matched_src_s": 16.032,
+      "expected_src_s": 16.037,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.9698,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "hook",
+      "output_time": 2.46,
+      "status": "PASS",
+      "matched_src_s": 16.835,
+      "expected_src_s": 16.84,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.8118,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "hook",
+      "output_time": 3.264,
+      "status": "PASS",
+      "matched_src_s": 17.639,
+      "expected_src_s": 17.644,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.5061,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "hook",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 4,
+      "conclusive_mismatches": 0,
+      "samples": 4,
+      "layout": "even",
+      "speech_windows": 4,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_01",
+      "output_time": 4.867,
+      "status": "HOLD",
+      "reason": "inconclusive xcorr (peak=0.222)",
+      "superseded_by": 5.207
+    },
+    {
+      "label": "clip_01",
+      "output_time": 5.207,
+      "status": "PASS",
+      "matched_src_s": 14.835,
+      "expected_src_s": 14.84,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.508,
+      "frame_sim": 1.0,
+      "retake_of": 4.867
+    },
+    {
+      "label": "clip_01",
+      "output_time": 6.667,
+      "status": "PASS",
+      "matched_src_s": 16.295,
+      "expected_src_s": 16.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.7861,
+      "frame_sim": 0.997
+    },
+    {
+      "label": "clip_01",
+      "output_time": 8.667,
+      "status": "PASS",
+      "matched_src_s": 18.295,
+      "expected_src_s": 18.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.7815,
+      "frame_sim": 0.997
+    },
+    {
+      "label": "clip_01",
+      "output_time": 10.667,
+      "status": "PASS",
+      "matched_src_s": 20.295,
+      "expected_src_s": 20.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.3963,
+      "frame_sim": 0.996
+    },
+    {
+      "label": "clip_01",
+      "output_time": 12.667,
+      "status": "PASS",
+      "matched_src_s": 22.295,
+      "expected_src_s": 22.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.2254,
+      "frame_sim": 0.998
+    },
+    {
+      "label": "clip_01",
+      "output_time": 14.667,
+      "status": "PASS",
+      "matched_src_s": 24.295,
+      "expected_src_s": 24.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.078,
+      "frame_sim": 0.999
+    },
+    {
+      "label": "clip_01",
+      "output_time": 16.667,
+      "status": "PASS",
+      "matched_src_s": 26.295,
+      "expected_src_s": 26.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.1527,
+      "frame_sim": 0.996
+    },
+    {
+      "label": "clip_01",
+      "output_time": 18.667,
+      "status": "PASS",
+      "matched_src_s": 28.295,
+      "expected_src_s": 28.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.042,
+      "frame_sim": 0.996
+    },
+    {
+      "label": "clip_01",
+      "output_time": 20.667,
+      "status": "PASS",
+      "matched_src_s": 30.295,
+      "expected_src_s": 30.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.1937,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "output_time": 22.667,
+      "status": "PASS",
+      "matched_src_s": 32.295,
+      "expected_src_s": 32.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.9982,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_01",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 10,
+      "conclusive_mismatches": 0,
+      "samples": 10,
+      "layout": "fixed",
+      "speech_windows": 10,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_02",
+      "output_time": 26.542,
+      "status": "PASS",
+      "matched_src_s": 16.295,
+      "expected_src_s": 16.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1224,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 28.542,
+      "status": "PASS",
+      "matched_src_s": 18.295,
+      "expected_src_s": 18.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.2902,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 30.542,
+      "status": "PASS",
+      "matched_src_s": 20.295,
+      "expected_src_s": 20.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.933,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 32.542,
+      "status": "PASS",
+      "matched_src_s": 22.295,
+      "expected_src_s": 22.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.3338,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 34.542,
+      "status": "PASS",
+      "matched_src_s": 24.295,
+      "expected_src_s": 24.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0611,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 36.542,
+      "status": "PASS",
+      "matched_src_s": 26.295,
+      "expected_src_s": 26.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.8875,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 38.542,
+      "status": "PASS",
+      "matched_src_s": 28.295,
+      "expected_src_s": 28.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.7584,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 40.542,
+      "status": "PASS",
+      "matched_src_s": 30.295,
+      "expected_src_s": 30.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.735,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "output_time": 41.233,
+      "status": "PASS",
+      "matched_src_s": 30.986,
+      "expected_src_s": 30.986,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0321,
+      "frame_sim": 1.0
+    },
+    {
+      "label": "clip_02",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 9,
+      "conclusive_mismatches": 0,
+      "samples": 9,
+      "layout": "fixed",
+      "speech_windows": 9,
+      "status": "PASS"
+    },
+    {
+      "label": "vo_bridge_01",
+      "status": "PASS",
+      "reason": "VO pre-roll declared"
+    }
+  ],
+  "G14_9x16": [
+    {
+      "label": "hook",
+      "output_time": 0.853,
+      "status": "PASS",
+      "matched_src_s": 15.228,
+      "expected_src_s": 15.233,
+      "delta_ms": 5.0,
+      "xcorr_peak": 2.0477
+    },
+    {
+      "label": "hook",
+      "output_time": 1.657,
+      "status": "PASS",
+      "matched_src_s": 16.032,
+      "expected_src_s": 16.037,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.9699
+    },
+    {
+      "label": "hook",
+      "output_time": 2.46,
+      "status": "PASS",
+      "matched_src_s": 16.835,
+      "expected_src_s": 16.84,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.8118
+    },
+    {
+      "label": "hook",
+      "output_time": 3.264,
+      "status": "PASS",
+      "matched_src_s": 17.639,
+      "expected_src_s": 17.644,
+      "delta_ms": 5.0,
+      "xcorr_peak": 0.5061
+    },
+    {
+      "label": "hook",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 4,
+      "conclusive_mismatches": 0,
+      "samples": 4,
+      "layout": "even",
+      "speech_windows": 4,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_01",
+      "output_time": 4.867,
+      "status": "HOLD",
+      "reason": "inconclusive xcorr (peak=0.221)",
+      "superseded_by": 5.207
+    },
+    {
+      "label": "clip_01",
+      "output_time": 5.207,
+      "status": "PASS",
+      "matched_src_s": 14.835,
+      "expected_src_s": 14.84,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.508,
+      "retake_of": 4.867
+    },
+    {
+      "label": "clip_01",
+      "output_time": 6.667,
+      "status": "PASS",
+      "matched_src_s": 16.295,
+      "expected_src_s": 16.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.7862
+    },
+    {
+      "label": "clip_01",
+      "output_time": 8.667,
+      "status": "PASS",
+      "matched_src_s": 18.295,
+      "expected_src_s": 18.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.7816
+    },
+    {
+      "label": "clip_01",
+      "output_time": 10.667,
+      "status": "PASS",
+      "matched_src_s": 20.295,
+      "expected_src_s": 20.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.3964
+    },
+    {
+      "label": "clip_01",
+      "output_time": 12.667,
+      "status": "PASS",
+      "matched_src_s": 22.295,
+      "expected_src_s": 22.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.2255
+    },
+    {
+      "label": "clip_01",
+      "output_time": 14.667,
+      "status": "PASS",
+      "matched_src_s": 24.295,
+      "expected_src_s": 24.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.0781
+    },
+    {
+      "label": "clip_01",
+      "output_time": 16.667,
+      "status": "PASS",
+      "matched_src_s": 26.295,
+      "expected_src_s": 26.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.1528
+    },
+    {
+      "label": "clip_01",
+      "output_time": 18.667,
+      "status": "PASS",
+      "matched_src_s": 28.295,
+      "expected_src_s": 28.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.0416
+    },
+    {
+      "label": "clip_01",
+      "output_time": 20.667,
+      "status": "PASS",
+      "matched_src_s": 30.295,
+      "expected_src_s": 30.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 1.1938
+    },
+    {
+      "label": "clip_01",
+      "output_time": 22.667,
+      "status": "PASS",
+      "matched_src_s": 32.295,
+      "expected_src_s": 32.3,
+      "delta_ms": 4.6,
+      "xcorr_peak": 0.9982
+    },
+    {
+      "label": "clip_01",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 10,
+      "conclusive_mismatches": 0,
+      "samples": 10,
+      "layout": "fixed",
+      "speech_windows": 10,
+      "status": "PASS"
+    },
+    {
+      "label": "clip_02",
+      "output_time": 26.542,
+      "status": "PASS",
+      "matched_src_s": 16.295,
+      "expected_src_s": 16.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.1224
+    },
+    {
+      "label": "clip_02",
+      "output_time": 28.542,
+      "status": "PASS",
+      "matched_src_s": 18.295,
+      "expected_src_s": 18.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.2903
+    },
+    {
+      "label": "clip_02",
+      "output_time": 30.542,
+      "status": "PASS",
+      "matched_src_s": 20.295,
+      "expected_src_s": 20.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.933
+    },
+    {
+      "label": "clip_02",
+      "output_time": 32.542,
+      "status": "PASS",
+      "matched_src_s": 22.295,
+      "expected_src_s": 22.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.3338
+    },
+    {
+      "label": "clip_02",
+      "output_time": 34.542,
+      "status": "PASS",
+      "matched_src_s": 24.295,
+      "expected_src_s": 24.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0612
+    },
+    {
+      "label": "clip_02",
+      "output_time": 36.542,
+      "status": "PASS",
+      "matched_src_s": 26.295,
+      "expected_src_s": 26.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.8875
+    },
+    {
+      "label": "clip_02",
+      "output_time": 38.542,
+      "status": "PASS",
+      "matched_src_s": 28.295,
+      "expected_src_s": 28.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 0.7584
+    },
+    {
+      "label": "clip_02",
+      "output_time": 40.542,
+      "status": "PASS",
+      "matched_src_s": 30.295,
+      "expected_src_s": 30.295,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.735
+    },
+    {
+      "label": "clip_02",
+      "output_time": 41.233,
+      "status": "PASS",
+      "matched_src_s": 30.986,
+      "expected_src_s": 30.986,
+      "delta_ms": 0.0,
+      "xcorr_peak": 1.0323
+    },
+    {
+      "label": "clip_02",
+      "segment_verdict": "PASS",
+      "conclusive_matches": 9,
+      "conclusive_mismatches": 0,
+      "samples": 9,
+      "layout": "fixed",
+      "speech_windows": 9,
+      "status": "PASS"
+    },
+    {
+      "label": "vo_bridge_01",
+      "status": "PASS",
+      "reason": "VO pre-roll declared"
+    }
+  ],
+  "G14c": {
+    "dur_16": 66.334,
+    "dur_9": 66.334,
+    "delta_ms": 0.0
+  },
+  "G15_16x9": {
+    "card_continuous": true,
+    "mid_scene_changes": [],
+    "ring_aspect_ok": true,
+    "rings": [
+      {
+        "pct": 0.25,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.5,
+          276.6
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1280,
+          370,
+          281,
+          280
+        ],
+        "axes": [
+          277.6,
+          277.8
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.5,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.5,
+          276.6
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1280,
+          370,
+          281,
+          280
+        ],
+        "axes": [
+          277.3,
+          277.7
+        ],
+        "aspect": 0.998
+      },
+      {
+        "pct": 0.75,
+        "cx": 1420.0,
+        "cy": 509.9,
+        "bbox": [
+          1280,
+          370,
+          281,
+          280
+        ],
+        "axes": [
+          277.4,
+          278.0
+        ],
+        "aspect": 0.998
+      },
+      {
+        "pct": 0.75,
+        "cx": 960.0,
+        "cy": 510.0,
+        "bbox": [
+          822,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.75,
+        "cx": 500.0,
+        "cy": 510.1,
+        "bbox": [
+          362,
+          372,
+          278,
+          278
+        ],
+        "axes": [
+          276.4,
+          276.5
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 500.0,
+        "cy": 510.0,
+        "bbox": [
+          362,
+          372,
+          277,
+          277
+        ],
+        "axes": [
+          276.2,
+          276.3
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 959.9,
+        "cy": 510.0,
+        "bbox": [
+          820,
+          370,
+          281,
+          280
+        ],
+        "axes": [
+          277.5,
+          277.9
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.9,
+        "cx": 1420.0,
+        "cy": 510.0,
+        "bbox": [
+          1282,
+          372,
+          277,
+          278
+        ],
+        "axes": [
+          276.2,
+          276.3
+        ],
+        "aspect": 1.0
+      }
+    ],
+    "avatar_ok": true,
+    "avatars": [
+      {
+        "pct": 0.25,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.25,
+        "channel": "What Bitcoin Did",
+        "r": 0.998
+      },
+      {
+        "pct": 0.25,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.5,
+        "channel": "What Bitcoin Did",
+        "r": 0.998
+      },
+      {
+        "pct": 0.5,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.75,
+        "channel": "What Bitcoin Did",
+        "r": 0.998
+      },
+      {
+        "pct": 0.75,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.9,
+        "channel": "What Bitcoin Did",
+        "r": 0.998
+      },
+      {
+        "pct": 0.9,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      }
+    ],
+    "method": "DEC-11 ring mask + registered-avatar disc"
+  },
+  "G15_9x16": {
+    "card_continuous": true,
+    "mid_scene_changes": [],
+    "ring_aspect_ok": true,
+    "rings": [
+      {
+        "pct": 0.25,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          278,
+          278
+        ],
+        "axes": [
+          276.3,
+          276.4
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          775,
+          277,
+          277
+        ],
+        "axes": [
+          276.0,
+          276.1
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.25,
+        "cx": 540.1,
+        "cy": 1346.0,
+        "bbox": [
+          401,
+          1206,
+          281,
+          280
+        ],
+        "axes": [
+          277.2,
+          277.3
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          278,
+          278
+        ],
+        "axes": [
+          276.3,
+          276.4
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          775,
+          277,
+          277
+        ],
+        "axes": [
+          276.0,
+          276.1
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.5,
+        "cx": 540.1,
+        "cy": 1346.0,
+        "bbox": [
+          402,
+          1206,
+          278,
+          280
+        ],
+        "axes": [
+          276.9,
+          277.3
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          402,
+          775,
+          277,
+          277
+        ],
+        "axes": [
+          276.0,
+          276.2
+        ],
+        "aspect": 0.999
+      },
+      {
+        "pct": 0.75,
+        "cx": 540.0,
+        "cy": 1345.9,
+        "bbox": [
+          402,
+          1206,
+          278,
+          280
+        ],
+        "axes": [
+          276.9,
+          277.4
+        ],
+        "aspect": 0.998
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 480.0,
+        "bbox": [
+          402,
+          342,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.2
+        ],
+        "aspect": 1.0
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 913.0,
+        "bbox": [
+          401,
+          774,
+          279,
+          280
+        ],
+        "axes": [
+          277.0,
+          277.6
+        ],
+        "aspect": 0.998
+      },
+      {
+        "pct": 0.9,
+        "cx": 540.0,
+        "cy": 1346.0,
+        "bbox": [
+          402,
+          1208,
+          277,
+          277
+        ],
+        "axes": [
+          276.1,
+          276.1
+        ],
+        "aspect": 1.0
+      }
+    ],
+    "avatar_ok": true,
+    "avatars": [
+      {
+        "pct": 0.25,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.25,
+        "channel": "What Bitcoin Did",
+        "r": 0.999
+      },
+      {
+        "pct": 0.25,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.5,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.5,
+        "channel": "What Bitcoin Did",
+        "r": 0.999
+      },
+      {
+        "pct": 0.5,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.75,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.75,
+        "channel": "What Bitcoin Did",
+        "r": 0.999
+      },
+      {
+        "pct": 0.75,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      },
+      {
+        "pct": 0.9,
+        "channel": "Natalie Brunell",
+        "r": 0.999
+      },
+      {
+        "pct": 0.9,
+        "channel": "What Bitcoin Did",
+        "r": 0.999
+      },
+      {
+        "pct": 0.9,
+        "channel": "Stephan Livera",
+        "r": 1.0
+      }
+    ],
+    "method": "DEC-11 ring mask + registered-avatar disc"
+  },
+  "G20_16x9": {
+    "transcript": "clips today from natalie brunel, whatbitcoindid, and stefan lavera.  go follow them for more bitcoin talks.  links below.",
+    "credited": [
+      "Natalie Brunell",
+      "Stephan Livera",
+      "What Bitcoin Did"
+    ],
+    "spoken": [
+      "Natalie Brunell",
+      "What Bitcoin Did"
+    ],
+    "missing": [
+      "Stephan Livera"
+    ],
+    "extra": [],
+    "pass": false
+  },
+  "G20_9x16": {
+    "transcript": "clips today from natalie brunel, whatbitcoindid, and stefan lavera.  go follow them for more bitcoin talks.  links below.",
+    "credited": [
+      "Natalie Brunell",
+      "Stephan Livera",
+      "What Bitcoin Did"
+    ],
+    "spoken": [
+      "Natalie Brunell",
+      "What Bitcoin Did"
+    ],
+    "missing": [
+      "Stephan Livera"
+    ],
+    "extra": [],
+    "pass": false
+  },
+  "G17c": {
+    "hook": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          14.64,
+          14.94
+        ],
+        "worst_db": 0.1,
+        "shift_hops": 0,
+        "compared_frames": 21,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          18.42,
+          18.72
+        ],
+        "worst_db": 0.05,
+        "shift_hops": 0,
+        "compared_frames": 30,
+        "why": "edge word at full level"
+      }
+    },
+    "clip_01": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          14.47,
+          14.77
+        ],
+        "worst_db": 0.34,
+        "shift_hops": 0,
+        "compared_frames": 22,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          33.86,
+          34.16
+        ],
+        "worst_db": 0.21,
+        "shift_hops": 0,
+        "compared_frames": 30,
+        "why": "edge word at full level"
+      }
+    },
+    "clip_02": {
+      "ok": true,
+      "in": {
+        "ok": true,
+        "span": [
+          14.55,
+          14.85
+        ],
+        "worst_db": 0.02,
+        "shift_hops": 0,
+        "compared_frames": 30,
+        "why": "edge word at full level"
+      },
+      "out": {
+        "ok": true,
+        "span": [
+          31.23,
+          31.53
+        ],
+        "worst_db": 0.03,
+        "shift_hops": 0,
+        "compared_frames": 30,
+        "why": "edge word at full level"
+      }
+    }
+  },
+  "L-c": {
+    "16x9": {
+      "g3b_dissent": [],
+      "g3b_unproved": [],
+      "g3c_failed_edges": [],
+      "final_proof": {}
+    },
+    "9x16": {
+      "g3b_dissent": [],
+      "g3b_unproved": [],
+      "g3c_failed_edges": [],
+      "final_proof": {}
+    }
+  },
+  "G8": {
+    "production_result_16x9": true,
+    "production_result_9x16": false,
+    "relative_reference": "prepared 1920x1080 clip (source camera, scaled) at the same relative offset",
+    "relative_16x9": [
+      {
+        "segment": "hook",
+        "out_variances": [
+          206.73,
+          202.99,
+          205.17,
+          205.2,
+          203.25
+        ],
+        "src_variances": [
+          210.39,
+          206.46,
+          209.06,
+          208.98,
+          207.21
+        ],
+        "out_median": 205.17,
+        "src_median": 208.98,
+        "ratio": 0.982,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "out_variances": [
+          58.63,
+          48.25,
+          59.46,
+          62.66,
+          49.23
+        ],
+        "src_variances": [
+          58.01,
+          51.11,
+          60.91,
+          62.27,
+          51.31
+        ],
+        "out_median": 58.63,
+        "src_median": 58.01,
+        "ratio": 1.011,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "out_variances": [
+          79.11,
+          87.51,
+          86.76,
+          75.03,
+          83.44
+        ],
+        "src_variances": [
+          82.84,
+          96.81,
+          94.32,
+          76.49,
+          92.66
+        ],
+        "out_median": 83.44,
+        "src_median": 92.66,
+        "ratio": 0.9,
+        "floor": 27.56,
+        "floor_pass": true,
+        "degradation_pass": true,
+        "degradation_reason": null,
+        "pass": true
+      }
+    ],
+    "degraded_below_0.85": {}
+  },
+  "G9": {
+    "16x9": {
+      "gate": {
+        "mean_luma": 14.3,
+        "luma_ok": "True",
+        "rms_db": -45.6,
+        "audio_ok": true,
+        "pass": true
+      },
+      "outro_master_sha256": "7c2cc7ae6efa9b276144f51b33290b190120470a36541e977f52c25b1e614e58",
+      "outro_conformed_sha256": "b8a402947c42017e7f448fba05306cad2dc052eb5c9097415582c1624d9fefc6",
+      "hash_identical_to_locked_outro": true,
+      "last_segment": "outro",
+      "conform_fallback": false
+    },
+    "9x16": {
+      "gate": {
+        "mean_luma": 13.6,
+        "luma_ok": "False",
+        "rms_db": -39.6,
+        "audio_ok": true,
+        "pass": "False"
+      },
+      "outro_master_sha256": "48d114daab327aa9695cdebf25fec3ca5186113322fd29feedbcb035f2e421f9",
+      "outro_conformed_sha256": "1af99ca7c21a72fc085ea66f99a264fb2360b72f250b68c88b1a4caef0042883",
+      "hash_identical_to_locked_outro": true,
+      "last_segment": "outro",
+      "conform_fallback": false
+    }
+  },
+  "G16": [
+    {
+      "segment": "hook",
+      "video_id": "wdk5JZ9hPzs",
+      "errors": [],
+      "in": {
+        "cut": 14.38,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.37,
+          "end": 14.63,
+          "ms": 260
+        },
+        "lexical": "punctuation",
+        "after_word": "path.",
+        "before_word": "Bitcoin",
+        "cut_lo": 14.32,
+        "cut_hi": 14.99,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 19.01,
+        "boundary_valid": true,
+        "pause": {
+          "start": 18.71,
+          "end": 19.23,
+          "ms": 520
+        },
+        "lexical": "punctuation",
+        "after_word": "ever.",
+        "before_word": "Okay,",
+        "cut_lo": 18.52,
+        "cut_hi": 19.33,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 100,
+          "worst_db_after_fade": -47.9,
+          "valley_db": -36.6,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "neighbour_kept_ms": 90,
+          "worst_db_after_fade": -57.8,
+          "valley_db": -38.4,
+          "why": "below the valley threshold after the fade"
+        }
+      },
+      "locked": "'Bitcoin' ... 'ever.' (11 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_01",
+      "video_id": "c1JGheQBPH4",
+      "errors": [],
+      "in": {
+        "cut": 14.3,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.19,
+          "end": 14.61,
+          "ms": 420
+        },
+        "lexical": "punctuation",
+        "after_word": "all?",
+        "before_word": "I",
+        "cut_lo": 14.16,
+        "cut_hi": 14.3,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 34.16,
+        "boundary_valid": true,
+        "pause": {
+          "start": 34.09,
+          "end": 34.19,
+          "ms": 100
+        },
+        "lexical": "punctuation",
+        "after_word": "well.",
+        "before_word": "I",
+        "cut_lo": 34.05,
+        "cut_hi": 34.25,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'I' ... 'well.' (61 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_02",
+      "video_id": "Sjb6lUiL0m4",
+      "errors": [],
+      "in": {
+        "cut": 14.3,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.09,
+          "end": 14.55,
+          "ms": 460
+        },
+        "lexical": "punctuation",
+        "after_word": "tomorrow.",
+        "before_word": "However,",
+        "cut_lo": 14.07,
+        "cut_hi": 14.57,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 31.56,
+        "boundary_valid": true,
+        "pause": {
+          "start": 31.53,
+          "end": 31.58,
+          "ms": 50
+        },
+        "lexical": "punctuation",
+        "after_word": "undervalued.",
+        "before_word": "Like",
+        "cut_lo": 31.35,
+        "cut_hi": 31.6,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 190,
+          "worst_db_after_fade": -51.8,
+          "valley_db": -26.5,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'However,' ... 'undervalued.' (44 words)",
+      "pass": true
+    }
+  ],
+  "G17": {
+    "prepared": [
+      {
+        "segment": "hook",
+        "onset": 0.26,
+        "offset": 4.34,
+        "lead_ms": 260,
+        "tail_ms": 310,
+        "quiet_db": {
+          "head": -42.7,
+          "tail": -49.1
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset": 0.4,
+        "offset": 19.790000000000003,
+        "lead_ms": 10,
+        "tail_ms": 70,
+        "quiet_db": {
+          "head": -41.7,
+          "tail": -37.9
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset": 0.25,
+        "offset": 17.23,
+        "lead_ms": 40,
+        "tail_ms": 40,
+        "quiet_db": {
+          "head": -39.2,
+          "tail": -38.9
+        },
+        "lead_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ],
+    "16x9": [
+      {
+        "segment": "hook",
+        "onset_late_ms": 10,
+        "offset_early_ms": -240,
+        "first_word_ratio": 0.981,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset_late_ms": 3,
+        "offset_early_ms": -3,
+        "first_word_ratio": 0.994,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset_late_ms": 8,
+        "offset_early_ms": -8,
+        "first_word_ratio": 0.985,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "onset_late_ms": 10,
+        "offset_early_ms": -240,
+        "first_word_ratio": 0.981,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "onset_late_ms": 3,
+        "offset_early_ms": -3,
+        "first_word_ratio": 0.994,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "onset_late_ms": 8,
+        "offset_early_ms": -8,
+        "first_word_ratio": 0.985,
+        "last_word_ratio": 1.0,
+        "head_ok": true,
+        "tail_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "G18": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "heard": "Bitcoin imposes a global free market for the first time ever.",
+        "source_span_heard": "Bitcoin imposes a global free market for the first time ever.",
+        "lock_text": "Bitcoin imposes a global free market for the first time ever.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "heard": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U .S. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "source_span_heard": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U .S. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "lock_text": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [
+          [
+            "replace",
+            "think",
+            "mean"
+          ]
+        ],
+        "identity_reference": "the lock text with its attested alternatives (ruling 18)",
+        "alternatives": [
+          {
+            "readings": [
+              "think",
+              "mean"
+            ],
+            "acoustic_prepared": {
+              "ok": true,
+              "span": [
+                14.84,
+                15.32
+              ],
+              "worst_db": 0.52,
+              "shift_hops": 0,
+              "compared_frames": 41
+            },
+            "final_bytes_evidence": {
+              "ok": false,
+              "span": [
+                14.84,
+                15.32
+              ],
+              "worst_db": 56.79,
+              "shift_hops": -2,
+              "compared_frames": 41
+            }
+          }
+        ],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "heard": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like 1 .5, 1 .4 million dollars per Bitcoin last I checked. It's very, very undervalued.",
+        "source_span_heard": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like one point five, one point four million dollars per Bitcoin. Last I checked, it's very, very undervalued.",
+        "lock_text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "identity_reference": "the adjudicated lock text (ruling 17)",
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "heard": "Bitcoin imposes a global free market for the first time ever.",
+        "source_span_heard": "Bitcoin imposes a global free market for the first time ever.",
+        "lock_text": "Bitcoin imposes a global free market for the first time ever.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "heard": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U .S. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "source_span_heard": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U .S. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "lock_text": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [
+          [
+            "replace",
+            "think",
+            "mean"
+          ]
+        ],
+        "identity_reference": "the lock text with its attested alternatives (ruling 18)",
+        "alternatives": [
+          {
+            "readings": [
+              "think",
+              "mean"
+            ],
+            "acoustic_prepared": {
+              "ok": true,
+              "span": [
+                14.84,
+                15.32
+              ],
+              "worst_db": 0.52,
+              "shift_hops": 0,
+              "compared_frames": 41
+            },
+            "final_bytes_evidence": {
+              "ok": false,
+              "span": [
+                14.84,
+                15.32
+              ],
+              "worst_db": 56.72,
+              "shift_hops": -2,
+              "compared_frames": 41
+            }
+          }
+        ],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "heard": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like 1 .5, 1 .4 million dollars per Bitcoin last I checked. It's very, very undervalued.",
+        "source_span_heard": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like one point five, one point four million dollars per Bitcoin. Last I checked, it's very, very undervalued.",
+        "lock_text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+        "edges": [],
+        "identity": [],
+        "lock_diff_reported": [],
+        "identity_reference": "the adjudicated lock text (ruling 17)",
+        "pass": true
+      }
+    ]
+  },
+  "G19": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "speech": [
+          0.25,
+          4.33
+        ],
+        "clean_span": [
+          0.0,
+          4.667
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "speech": [
+          4.977,
+          24.457
+        ],
+        "clean_span": [
+          4.667,
+          24.542
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "speech": [
+          24.792,
+          41.772
+        ],
+        "clean_span": [
+          24.542,
+          41.833
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "speech": [
+          0.25,
+          4.33
+        ],
+        "clean_span": [
+          0.0,
+          4.667
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "speech": [
+          4.977,
+          24.457
+        ],
+        "clean_span": [
+          4.667,
+          24.542
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "speech": [
+          24.792,
+          41.772
+        ],
+        "clean_span": [
+          24.542,
+          41.833
+        ],
+        "foreign_shot_at": [],
+        "pass": true
+      }
+    ]
+  },
+  "G4_per_shot": {
+    "16x9": [
+      {
+        "segment": "hook#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          3,
+          4,
+          4,
+          6,
+          3,
+          4
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_01#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          1,
+          2,
+          2,
+          1,
+          2
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_02#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "shoutout_circle",
+        "faces": 2,
+        "circle_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook#0",
+        "layout": "2face",
+        "source_layout": "unknown",
+        "face_counts": [
+          4,
+          4,
+          3,
+          4,
+          5,
+          5
+        ],
+        "min_required": 2,
+        "pass": true
+      },
+      {
+        "segment": "clip_01#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          2,
+          2,
+          2,
+          3,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "clip_02#0",
+        "layout": "single",
+        "source_layout": "unknown",
+        "face_counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "min_required": 1,
+        "pass": true
+      },
+      {
+        "segment": "shoutout_circle",
+        "faces": 2,
+        "circle_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "G4s": {
+    "16x9": [
+      {
+        "segment": "hook",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "pass": true
+      }
+    ],
+    "9x16": [
+      {
+        "segment": "hook",
+        "shot": 0,
+        "label": "stack2",
+        "measured": [
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2",
+          "stack2"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": -0.237,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_01",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": -0.067,
+        "vertical_ok": true,
+        "pass": true
+      },
+      {
+        "segment": "clip_02",
+        "shot": 0,
+        "label": "single",
+        "measured": [
+          "single",
+          "single",
+          "single",
+          "single",
+          "single"
+        ],
+        "label_ok": true,
+        "vertical_safe_frame": false,
+        "band_corr": 0.154,
+        "vertical_ok": true,
+        "pass": true
+      }
+    ]
+  },
+  "run_gates_overall": {
+    "16x9": true,
+    "9x16": false
+  },
+  "V1": {
+    "16x9": {
+      "ok": true,
+      "per_model": {
+        "qwen/qwen3.8-27b": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "Full-res credits card shows three round, undistorted profile pictures (no headline text inside) labelled Natalie Brunell, What Bitcoin Did, Stephan Livera, matching the channel list.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "n/a",
+              "why": "This is a 16:9 contact sheet, so the vertical-speaker-centred check does not apply.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "n/a",
+              "why": "This is a 16:9 contact sheet, so the letterbox-on-talking-heads check does not apply.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The -3f/+3f boundary stills show normal live content (hook, clip_01, clip_02, vo_bridge, shoutout, outro) with no frozen, black, or duplicated frames.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "A small red pulse/heartbeat logo is visible in the corner of the content stills before the credits, alongside the speakers' own on-screen branding.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "Each -3f still shows only the outgoing shot's content; no element of the following shot is already visible before the boundary.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "qwen/qwen3.8-27b",
+            "content": "\n\n{\n  \"answers\": {\n    \"credits_round_and_match\": {\n      \"answer\": \"yes\",\n      \"why\": \"Full-res credits card shows three round, undistorted profile pictures (no headline text inside) labelled Natalie Brunell, What Bitcoin Did, Stephan Livera, matching the channel list.\"\n    },\n    \"vertical_speaker_centred\": {\n      \"answer\": \"n/a\",\n      \"why\": \"This is a 16:9 contact sheet, so the vertical-speaker-centred check does not apply.\"\n    },\n    \"no_letterbox_on_talking_heads\": {\n      \"answer\": \"n/a\",\n      \"why\": \"This is a 16:9 contact sheet, so the letterbox-on-talking-heads check does not apply.\"\n    },\n    \"no_bad_boundary_frames\": {\n      \"answer\": \"yes\",\n      \"why\": \"The -3f/+3f boundary stills show normal live content (hook, clip_01, clip_02, vo_bridge, shoutout, outro) with no frozen, black, or duplicated frames.\"\n    },\n    \"watermark_present\": {\n      \"answer\": \"yes\",\n      \"why\": \"A small red pulse/heartbeat logo is visible in the corner of the content stills before the credits, alongside the speakers' own on-screen branding.\"\n    },\n    \"no_next_shot_before_transition\": {\n      \"answer\": \"yes\",\n      \"why\": \"Each -3f still shows only the outgoing shot's content; no element of the following shot is already visible before the boundary.\"\n    }\n  }\n}",
+            "usage": {
+              "prompt_tokens": 5931,
+              "completion_tokens": 972,
+              "total_tokens": 6903,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 609
+              },
+              "cost": 0.0009688275
+            }
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "The credits card at the bottom shows three round avatars with names 'Natalie Brunell', 'What Bitcoin Did', and 'Stephan Livera', matching the channel list. The avatars are profile photos without headline text inside the circles.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "n/a",
+              "why": "The sheet is 16:9, so this rule is not applicable.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "n/a",
+              "why": "The sheet is 16:9, so this rule is not applicable.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The visible stills at segment boundaries (e.g., between hook and clip_01, clip_01 and clip_02) show distinct video frames with no frozen, black, or duplicated frames evident.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "Watermarks/logos are visible on the content stills, such as 'Lebn' in the early clips and 'SLP' in the Stephan Livera clips.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "At the visible transitions (e.g., 4.0s hook to 6.0s clip_01), the frame before the cut only shows the current speaker, with no elements from the next shot visible.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "nvidia/nemotron-3.5-super-vl",
+            "content": "{\n  \"answers\": {\n    \"credits_round_and_match\": {\n      \"answer\": \"yes\",\n      \"why\": \"The credits card at the bottom shows three round avatars with names 'Natalie Brunell', 'What Bitcoin Did', and 'Stephan Livera', matching the channel list. The avatars are profile photos without headline text inside the circles.\"\n    },\n    \"vertical_speaker_centred\": {\n      \"answer\": \"n/a\",\n      \"why\": \"The sheet is 16:9, so this rule is not applicable.\"\n    },\n    \"no_letterbox_on_talking_heads\": {\n      \"answer\": \"n/a\",\n      \"why\": \"The sheet is 16:9, so this rule is not applicable.\"\n    },\n    \"no_bad_boundary_frames\": {\n      \"answer\": \"yes\",\n      \"why\": \"The visible stills at segment boundaries (e.g., between hook and clip_01, clip_01 and clip_02) show distinct video frames with no frozen, black, or duplicated frames evident.\"\n    },\n    \"watermark_present\": {\n      \"answer\": \"yes\",\n      \"why\": \"Watermarks/logos are visible on the content stills, such as 'Lebn' in the early clips and 'SLP' in the Stephan Livera clips.\"\n    },\n    \"no_next_shot_before_transition\": {\n      \"answer\": \"yes\",\n      \"why\": \"At the visible transitions (e.g., 4.0s hook to 6.0s clip_01), the frame before the cut only shows the current speaker, with no elements from the next shot visible.\"\n    }\n  }\n}",
+            "usage": {
+              "prompt_tokens": 4027,
+              "completion_tokens": 4682,
+              "total_tokens": 8709,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 4311
+              },
+              "cost": 0.0009129655
+            }
+          }
+        }
+      },
+      "sheet_next_shot_advisory": {
+        "qwen/qwen3.8-27b": {
+          "answer": "yes",
+          "why": "Each -3f still shows only the outgoing shot's content; no element of the following shot is already visible before the boundary.",
+          "ok": true
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "answer": "yes",
+          "why": "At the visible transitions (e.g., 4.0s hook to 6.0s clip_01), the frame before the cut only shows the current speaker, with no elements from the next shot visible.",
+          "ok": true
+        }
+      },
+      "boundaries": {
+        "ok": true,
+        "cuts": [
+          {
+            "boundary": "hook|clip_01",
+            "before_s": 4.542,
+            "after_s": 4.792,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_16x9/bd_hook_clip_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The left frames show the Natalie Brunell Show interview (man in brown polo and woman at a mic, with the show's logo), a completely different setting and people from the right frame, which shows a man in a dark jacket with the 'Ledn' logo and 'What Bitcoin Did' watermark in a room with ocean/coral ar"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a split-screen interview with a man and a woman in a studio setting, which is distinct from the single man in a different room shown in the right frame. There is no visual overlap or transition effect indicating the next segment is present in the left frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_01|clip_02",
+            "before_s": 24.417,
+            "after_s": 24.667,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_16x9/bd_clip_01_clip_02_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a clean, single shot of its own segment: a bearded man in a dark jacket against a wall with ocean/coral-reef paintings and wicker lampshades, branded 'WHAT BITCOIN DID' (top right) and 'Ledn' (bottom left). The RIGHT frame is a completely different interview setup: a different man "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a different person in a different room with different background art and lighting compared to the right frame. It is a hard cut to a new speaker, not a dissolve or mix showing the next shot."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_02|vo_bridge_01",
+            "before_s": 41.708,
+            "after_s": 41.958,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_16x9/bd_clip_02_vo_bridge_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a sharp, in\u2011focus shot of the speaker with no lower\u2011third graphic, while the RIGHT frame is a defocused (blurred) version of the same scene with a dark lower\u2011third banner overlaid. The left frame shows only its own clean segment picture \u2014 there is no dissolve, double exposure, or p"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a sharp, clear shot of the speaker with a logo in the top left corner. The right frame shows a blurry version of a similar shot with a timeline bar at the bottom. The left frame is clearly its own segment's picture and does not show the right frame's picture."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "vo_bridge_01|shoutout",
+            "before_s": 52.208,
+            "after_s": 52.458,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_16x9/bd_vo_bridge_01_shoutout_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The left frame is a clean talking-head shot of a man speaking into a microphone with a blurred plant background and a lower-third progress bar. It contains no element of the right frame's black graphic card (diagonal red lines, circular portrait of Natalie Brunell, and her handle), nor any dissolve "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a man speaking into a microphone, which is a completely different shot from the right frame, which displays a title card for 'Natalie Brunell'. There is no visual overlap or dissolve indicating the next segment is present in the left frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "shoutout|outro",
+            "before_s": 61.75,
+            "after_s": 62.0,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_16x9/bd_shoutout_outro_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a guest/credits card showing three circular headshots with names and handles on a black background, while the RIGHT frame is a dark 'PROTOCOL PULSE' logo with a waveform on a grid. No element of the right shot (logo, waveform, grid) appears in the left frame, and there is no dissol"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame displays a guest list with three circular profile photos and names (Natalie Brunell, What Bitcoin Did, Stephan Livera), which is distinct from the right frame's title card graphic for 'PROTOCOL PULSE'. There is no visual overlap or dissolve indicating the next shot is present in the l"
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      }
+    },
+    "9x16": {
+      "ok": true,
+      "per_model": {
+        "qwen/qwen3.8-27b": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "Credits card shows three round profile avatars (smiling woman, man at mic, man in suit) with no headline text inside, not squashed, and the names Natalie Brunell, What Bitcoin Did, Stephan Livera exactly match the channel list.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "yes",
+              "why": "In the 9:16 stack hook each face (top man, bottom woman) is centred in its own panel with no panel edge cutting a face; the single-speaker clip_01 and clip_02 segments are also centred.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "yes",
+              "why": "Every talking-head still and the full-resolution first frames fill the frame (or their stack panel) top to bottom; no horizontal picture band with black/blurred bars above and below.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The -3f/+3f boundary stills show normal live content (faces / credits card); no frozen, black or duplicated frames at any boundary.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "A small red pulse/heartbeat show logo is visible in the bottom-right corner of the content stills (hook, clip_01, clip_02) before the credits.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "The -3f stills before each boundary show only the outgoing shot's content; no element of the next shot is already visible.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "qwen/qwen3.8-27b",
+            "content": "\n\n{\"answers\": {\"credits_round_and_match\": {\"answer\": \"yes\", \"why\": \"Credits card shows three round profile avatars (smiling woman, man at mic, man in suit) with no headline text inside, not squashed, and the names Natalie Brunell, What Bitcoin Did, Stephan Livera exactly match the channel list.\"}, \"vertical_speaker_centred\": {\"answer\": \"yes\", \"why\": \"In the 9:16 stack hook each face (top man, bottom woman) is centred in its own panel with no panel edge cutting a face; the single-speaker clip_01 and clip_02 segments are also centred.\"}, \"no_letterbox_on_talking_heads\": {\"answer\": \"yes\", \"why\": \"Every talking-head still and the full-resolution first frames fill the frame (or their stack panel) top to bottom; no horizontal picture band with black/blurred bars above and below.\"}, \"no_bad_boundary_frames\": {\"answer\": \"yes\", \"why\": \"The -3f/+3f boundary stills show normal live content (faces / credits card); no frozen, black or duplicated frames at any boundary.\"}, \"watermark_present\": {\"answer\": \"yes\", \"why\": \"A small red pulse/heartbeat show logo is visible in the bottom-right corner of the content stills (hook, clip_01, clip_02) before the credits.\"}, \"no_next_shot_before_transition\": {\"answer\": \"yes\", \"why\": \"The -3f stills before each boundary show only the outgoing shot's content; no element of the next shot is already visible.\"}}",
+            "usage": {
+              "prompt_tokens": 16526,
+              "completion_tokens": 1232,
+              "total_tokens": 17758,
+              "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "cache_write_tokens": 0
+              },
+              "cost": 0.0030552546
+            }
+          }
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "rows": {
+            "credits_round_and_match": {
+              "answer": "yes",
+              "why": "The bottom-left credits card shows three round avatars for Natalie Brunell, What Bitcoin Did, and Stephan Livera. They are profile pictures, not thumbnails, are not squashed, and the names match the provided channel list.",
+              "ok": true
+            },
+            "vertical_speaker_centred": {
+              "answer": "yes",
+              "why": "The sheet is 9:16. The bottom panels show a stack layout (man above woman) and single speakers. Each face is centered in its own panel, and no panel edge cuts through a face.",
+              "ok": true
+            },
+            "no_letterbox_on_talking_heads": {
+              "answer": "yes",
+              "why": "The talking heads in the full-resolution bottom panels fill the frame from top to bottom; there are no black or blurred bands above or below them.",
+              "ok": true
+            },
+            "no_bad_boundary_frames": {
+              "answer": "yes",
+              "why": "The sequence of stills shows continuous motion and distinct frames at transitions, with no visible frozen, black, or duplicated boundary frames.",
+              "ok": true
+            },
+            "watermark_present": {
+              "answer": "yes",
+              "why": "A red waveform logo (Protocol Pulse) is visible in the corners of the content panels, and a larger logo appears in the grid section before the credits.",
+              "ok": true
+            },
+            "no_next_shot_before_transition": {
+              "answer": "yes",
+              "why": "The stills leading up to layout changes (e.g., to the logo screen) show only the current shot, with no elements of the next shot visible prematurely.",
+              "ok": true
+            }
+          },
+          "raw": {
+            "model": "nvidia/nemotron-3.5-super-vl",
+            "content": "{\n  \"answers\": {\n    \"credits_round_and_match\": {\n      \"answer\": \"yes\",\n      \"why\": \"The bottom-left credits card shows three round avatars for Natalie Brunell, What Bitcoin Did, and Stephan Livera. They are profile pictures, not thumbnails, are not squashed, and the names match the provided channel list.\"\n    },\n    \"vertical_speaker_centred\": {\n      \"answer\": \"yes\",\n      \"why\": \"The sheet is 9:16. The bottom panels show a stack layout (man above woman) and single speakers. Each face is centered in its own panel, and no panel edge cuts through a face.\"\n    },\n    \"no_letterbox_on_talking_heads\": {\n      \"answer\": \"yes\",\n      \"why\": \"The talking heads in the full-resolution bottom panels fill the frame from top to bottom; there are no black or blurred bands above or below them.\"\n    },\n    \"no_bad_boundary_frames\": {\n      \"answer\": \"yes\",\n      \"why\": \"The sequence of stills shows continuous motion and distinct frames at transitions, with no visible frozen, black, or duplicated boundary frames.\"\n    },\n    \"watermark_present\": {\n      \"answer\": \"yes\",\n      \"why\": \"A red waveform logo (Protocol Pulse) is visible in the corners of the content panels, and a larger logo appears in the grid section before the credits.\"\n    },\n    \"no_next_shot_before_transition\": {\n      \"answer\": \"yes\",\n      \"why\": \"The stills leading up to layout changes (e.g., to the logo screen) show only the current shot, with no elements of the next shot visible prematurely.\"\n    }\n  }\n}",
+            "usage": {
+              "prompt_tokens": 4041,
+              "completion_tokens": 3372,
+              "total_tokens": 7413,
+              "prompt_tokens_details": {
+                "cached_tokens": 0
+              },
+              "completion_tokens_details": {
+                "reasoning_tokens": 3001
+              },
+              "cost": 0.0007105665
+            }
+          }
+        }
+      },
+      "sheet_next_shot_advisory": {
+        "qwen/qwen3.8-27b": {
+          "answer": "yes",
+          "why": "The -3f stills before each boundary show only the outgoing shot's content; no element of the next shot is already visible.",
+          "ok": true
+        },
+        "nvidia/nemotron-3.5-super-vl": {
+          "answer": "yes",
+          "why": "The stills leading up to layout changes (e.g., to the logo screen) show only the current shot, with no elements of the next shot visible prematurely.",
+          "ok": true
+        }
+      },
+      "letterbox_per_shot": {
+        "ok": true,
+        "shots": [
+          {
+            "label": "hook",
+            "shot": 0,
+            "t": 2.333,
+            "class": "stack2",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/shots_9x16/shot_hook_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The frame is a vertical split-screen of two fully sharp, in-focus panels stacked top (man in black polo) and bottom (woman in tweed jacket). There is no single central sharp band with a blurred or black enlarged copy filling the areas above and below, so it is not a letterbox layout."
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image is a split-screen showing two different people (a man on top and a woman on bottom), each filling their respective half of the frame. It is not a single sharp horizontal band surrounded by blurred or black areas."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "clip_01",
+            "shot": 0,
+            "t": 14.604,
+            "class": "single",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/shots_9x16/shot_clip_01_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The entire 9:16 frame is in sharp focus from top to bottom \u2014 the man's face, the blue painting on the left, and the woven lamp on the right are all clear. There is no horizontal sharp band with blurred or black filler above and below, so it is not letterboxed."
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The image fills the entire vertical frame with the subject, and there are no blurred or black bands above or below a central sharp area."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "label": "clip_02",
+            "shot": 0,
+            "t": 33.188,
+            "class": "single",
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/shots_9x16/shot_clip_02_0.jpg",
+            "asked": true,
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The entire 9:16 frame is uniformly sharp and in focus from top to bottom (man, microphone, and gray wall background). There is no horizontal band of sharp image surrounded by blurred or black enlarged copies, so it is not a letterbox layout."
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The entire vertical frame is filled with the sharp video of the man speaking. There are no blurred or black bars at the top or bottom."
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      },
+      "boundaries": {
+        "ok": true,
+        "cuts": [
+          {
+            "boundary": "hook|clip_01",
+            "before_s": 4.542,
+            "after_s": 4.792,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_9x16/bd_hook_clip_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame shows only the current studio segment (man in black polo and woman in tweed jacket with microphones in the same plant-decorated room). There is no trace, dissolve, or double exposure of the RIGHT frame's close-up bearded man against the teal background. The left is clearly its own sho"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a split-screen of a man and a woman in a studio setting, while the right frame shows a single different man in a different location. The left frame is clearly its own segment and does not contain the picture from the right frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_01|clip_02",
+            "before_s": 24.417,
+            "after_s": 24.667,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_9x16/bd_clip_01_clip_02_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The left frame is a clean, single shot of a bearded man against a wall featuring a blue coral/underwater painting and a wicker lamp shade. There is no ghosting, overlay, or double-exposure of the right frame's image (plain gray wall, Shure microphone, different face). The left frame is entirely its "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a different shot (a man in a dark jacket against a background with art and a lamp) than the right frame (a man speaking into a microphone against a plain wall). There is no visual mixing or dissolve indicating the next segment is present in the left frame."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "clip_02|vo_bridge_01",
+            "before_s": 41.708,
+            "after_s": 41.958,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_9x16/bd_clip_02_vo_bridge_01_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is a clean, sharp, in\u2011focus shot of the speaker at the microphone with no second image, ghosting, or double\u2011exposure mixed in. The RIGHT frame is a different focus state (soft/blurry) with an added horizontal progress\u2011bar overlay, but none of that blurry next\u2011segment image is present "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a clear, sharp shot of the speaker before the cut. It does not contain any visual elements from the right frame (the post-cut segment), such as a dissolve or double exposure. It is purely the picture of the preceding segment."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "vo_bridge_01|shoutout",
+            "before_s": 52.208,
+            "after_s": 52.458,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_9x16/bd_vo_bridge_01_shoutout_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame shows a man speaking into a microphone against a light background, which is clearly his own segment. There is no trace of the RIGHT frame's black background, circular portrait, or 'Natalie Brunell' graphic, nor any dissolve/double-exposure mixing the two. The cut is a hard transition,"
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame shows a man speaking into a microphone, which is a completely different shot from the right frame, which displays a graphic card for 'Natalie Brunell'. There is no visual overlap or transition effect mixing the two."
+                }
+              ]
+            },
+            "ok": true
+          },
+          {
+            "boundary": "shoutout|outro",
+            "before_s": 61.75,
+            "after_s": 62.0,
+            "path": "/home/ultron/protocol_pulse/runs/pinned_20261113_031328/VERIFY/cuts_9x16/bd_shoutout_outro_pair.jpg",
+            "answers": {
+              "qwen/qwen3.8-27b": "no",
+              "nvidia/nemotron-3.5-super-vl": "no"
+            },
+            "trail": {
+              "qwen/qwen3.8-27b": [
+                {
+                  "answer": "no",
+                  "why": "The LEFT frame is the credits/roll segment: three circular portraits (Natalie Brunell, What Bitcoin Did, Stephan Livera) with names/handles on a plain black background, plus a small pulse logo in the corner. It does not contain the RIGHT frame's shot (large centered red heartbeat line over a dotted "
+                }
+              ],
+              "nvidia/nemotron-3.5-super-vl": [
+                {
+                  "answer": "no",
+                  "why": "The left frame displays a list of people and podcast handles (Natalie Brunell, What Bitcoin Did, Stephan Livera), while the right frame shows a large red audio waveform graphic. The left frame is clearly its own distinct segment (a list/menu) and does not contain the picture from the right frame."
+                }
+              ]
+            },
+            "ok": true
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,313 @@
+diff --git a/pipeline/gates.py b/pipeline/gates.py
+index f6e708ca..e323e220 100644
+--- a/pipeline/gates.py
++++ b/pipeline/gates.py
+@@ -660,13 +660,45 @@ def _g20_norm(s):
+     return "".join(canon.canon_tokens(s))
+ 
+ 
+-def spoken_channels(transcript, registry, credited=()):
++def _dm_codes(token):
++    """The Double Metaphone codes (primary, secondary) of one canonical token, empties dropped."""
++    from pp_metaphone import doublemetaphone          # vendored unchanged (pp_metaphone/SOURCE.txt)
++    return {c for c in doublemetaphone(token) if c}
++
++
++def _phonetic_span(name, ttoks):
++    """Ruling 24 (b) (orchestrator 2026-11-12 '23:20'): the character span, in the transcript's tokens joined without
++    spaces, where EVERY token of `name` matches the transcript token at the same place phonetically (a shared Double
++    Metaphone code; a token with no code must be equal), consecutive and in order; None when there is none. A
++    ONE-word name never matches here (audit batch 47 cycle 1: a single short code, 'Casa' = KS, would hear 'case'): it
++    keeps the exact and 0.85-ratio routes only."""
++    import canon
++    ntoks = canon.canon_tokens(name)
++    if len(ntoks) < 2:
++        return None
++    starts, pos = [], 0
++    for tok in ttoks:
++        starts.append(pos)
++        pos += len(tok)
++    for j in range(len(ttoks) - len(ntoks) + 1) if ntoks else ():
++        win = ttoks[j:j + len(ntoks)]
++        if all((_dm_codes(a) & _dm_codes(b)) if _dm_codes(a) else a == b for a, b in zip(ntoks, win)):
++            return starts[j], starts[j + len(ntoks) - 1] + len(win[-1])
++    return None
++
++
++def spoken_channels(transcript, registry, credited=(), how=None, phonetic=False):
+     """The registry channels whose display name or an alias is heard in `transcript` (spaces and punctuation
+-    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'); any OTHER
+-    channel only by an exact match that does not overlap a credited name ('Bitcoin Magazine Pro' is not heard
+-    in '... Bitcoin Magazine, go follow ...')."""
++    ignored). A CREDITED channel may match fuzzily (a mis-heard letter or two: 'Natalie Brunel'), and, with
++    `phonetic` (G20 on the rendered voice only, ruling 24 (b); never the pre-render script check), phonetically:
++    every token of the name sounds like the transcript's token at that place ('stefan lavera' is 'Stephan Livera';
++    'Steven Lubka' is not). Any OTHER channel only by an exact match that does not overlap a
++    credited name ('Bitcoin Magazine Pro' is not heard in '... Bitcoin Magazine, go follow ...'). `how`, when a dict,
++    gets {display_name: {"name", "route" ('exact' / 'ratio' / 'phonetic'), "heard"}} for each channel heard."""
+     from difflib import SequenceMatcher
+-    t = _g20_norm(transcript)
++    import canon
++    ttoks = canon.canon_tokens(transcript)
++    t = "".join(ttoks)
+     cred = set(credited)
+     heard, spans = set(), []
+     for e in sorted(registry, key=lambda e: e.get("display_name") not in cred):
+@@ -675,18 +707,22 @@ def spoken_channels(transcript, registry, credited=()):
+             n = _g20_norm(name)
+             if len(n) < 4:
+                 continue
+-            i, span = t.find(n), None
++            i, span, route = t.find(n), None, "exact"
+             if i >= 0:
+                 span = (i, i + len(n))
+             elif is_cred:
+                 best = max(((SequenceMatcher(None, n, t[j:j + len(n)]).ratio(), j)
+                             for j in range(0, max(1, len(t) - len(n) + 1))), default=(0, 0))
+                 if best[0] >= G20_NAME_RATIO:
+-                    span = (best[1], best[1] + len(n))
++                    span, route = (best[1], best[1] + len(n)), "ratio"
++                elif phonetic:
++                    span, route = _phonetic_span(name, ttoks), "phonetic"
+             if span is None or (not is_cred and any(span[0] < b and a < span[1] for a, b in spans)):
+                 continue
+             heard.add(e["display_name"])
+             spans.append(span)
++            if isinstance(how, dict):
++                how[e["display_name"]] = {"name": name, "route": route, "heard": t[span[0]:span[1]]}
+             break
+     return heard
+ 
+@@ -710,10 +746,14 @@ def gate_g20(final_mp4, segments, credited, qa_dir, registry=None):
+     sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "segment_v1"))   # this checkout, never a fixed path (Claude-gates C4)
+     import qa_gates
+     text = qa_gates.whisper_segment(wav, qa_dir)
+-    heard = spoken_channels(text, registry, credited)
++    how = {}
++    heard = spoken_channels(text, registry, credited, how=how, phonetic=True)
+     want = set(credited)
+     ok = bool(text.strip()) and heard == want
+     print(f"  transcript: {text.strip()[:160]}")
+     print(f"  credited {sorted(want)} | spoken {sorted(heard)} [{'PASS' if ok else 'FAIL'}]")
++    for k, h in sorted(how.items()):
++        if h["route"] != "exact":
++            print(f"  {k}: heard as '{h['heard']}' ({h['route']} match of '{h['name']}')")
+     return ok, {"transcript": text.strip(), "credited": sorted(want), "spoken": sorted(heard),
+-                "missing": sorted(want - heard), "extra": sorted(heard - want), "pass": ok}
++                "missing": sorted(want - heard), "extra": sorted(heard - want), "how": how, "pass": ok}
+diff --git a/pipeline/telegram.py b/pipeline/telegram.py
+index 2e59f033..b1c497dc 100644
+--- a/pipeline/telegram.py
++++ b/pipeline/telegram.py
+@@ -409,6 +409,50 @@ REVIEW_NOT_DROPPABLE = ("G16_sentence_boundary", "G17_onset_tail", "G12_credits"
+                         "G20_signoff_names_all", "V1_visual_checklist")
+ 
+ 
++G20_DROP_RATIO = 0.75   # the review-drop amendment (orchestrator 2026-11-12 '23:20'): the decoder's spelling of a name
++
++
++def _g20_spelling(run_dir, fmt):
++    """The review-drop amendment to G20 (orchestrator 2026-11-12 '23:20'): (droppable, description) for a G20 row that is
++    not PASS. Droppable ONLY when the sign-off SCRIPT names every credited channel (the strict pre-render reading, never
++    phonetic), nothing was heard that is not credited, and each missing name's closest same-length stretch of the
++    decode is at least G20_DROP_RATIO similar to the name or one of its registry aliases: then the only mismatch is the
++    decoder's spelling, and both strings are quoted. A name absent from the script is never droppable."""
++    from difflib import SequenceMatcher
++    import gates as G
++    try:
++        with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
++            d = json.load(f)[f"G20_{fmt}"]
++        with open(os.path.join(run_dir, "vo_audio", "VO_MANIFEST.json")) as f:
++            script = json.load(f)["signoff"]["text"]
++        with open(REGISTRY) as f:
++            reg = json.load(f)
++        credited, missing, extra = list(d["credited"]), list(d["missing"]), list(d["extra"])
++        t = G._g20_norm(d["transcript"])
++    except (OSError, ValueError, KeyError, TypeError) as e:
++        return False, f"the G20 evidence is not readable ({type(e).__name__}: {e})"
++    if not credited or not missing or extra or not t:
++        return False, f"credited {credited}, missing {missing}, heard but not credited {extra}"
++    named = G.spoken_channels(script, reg, credited)
++    if named != set(credited):
++        return False, f"the sign-off script does not name {sorted(set(credited) - named)}: never droppable"
++    forms = {e["display_name"]: [e["display_name"]] + list(e.get("aliases") or []) for e in reg}
++    desc = []
++    for name in missing:
++        best = (0.0, "", name)
++        for form in forms.get(name, [name]):
++            n = G._g20_norm(form)
++            for j in range(max(1, len(t) - len(n) + 1)):
++                r = SequenceMatcher(None, n, t[j:j + len(n)]).ratio()
++                if r > best[0]:
++                    best = (r, t[j:j + len(n)], form)
++        if best[0] < G20_DROP_RATIO:
++            return False, (f"'{name}': the decode's closest stretch '{best[1]}' is {best[0]:.2f} similar to "
++                           f"'{best[2]}' (< {G20_DROP_RATIO}): not a spelling")
++        desc.append(f"the script says '{best[2]}', the decoder wrote '{best[1]}' ({best[0]:.2f})")
++    return True, "decoder spelling only: " + "; ".join(desc)
++
++
+ def _v1_split(run_dir, fmt, rows):
+     """Ruling 23: (droppable, description) for a V1 row that is not PASS, from VERIFY/VERIFICATION.json."""
+     try:
+@@ -599,14 +643,18 @@ def review_drop(run_dir, send=None):
+     nonpass = review_nonpass(run_dir)
+     with open(os.path.join(run_dir, "GATE_REPORT.json")) as f:
+         rep_rows = json.load(f).get("rows") or {}
+-    v1 = {}
++    v1, g20 = {}, {}
+     for i, (fmt, k, v, why) in enumerate(nonpass):              # ruling 23: a V1 split is droppable, quoted
+         if k == "V1_visual_checklist":
+             v1[fmt] = _v1_split(run_dir, fmt, rep_rows.get(fmt) or {})
+             nonpass[i] = (fmt, k, v, v1[fmt][1])
+-    blocked = sorted({f"{fmt} {k} {v}" + (f" ({v1[fmt][1]})" if k == "V1_visual_checklist" else "")
++        elif k == "G20_signoff_names_all":                      # amendment '23:20': the decoder's spelling only
++            g20[fmt] = _g20_spelling(run_dir, fmt)
++            nonpass[i] = (fmt, k, v, g20[fmt][1])
++    special = {"V1_visual_checklist": v1, "G20_signoff_names_all": g20}
++    blocked = sorted({f"{fmt} {k} {v}" + (f" ({special[k][fmt][1]})" if k in special else "")
+                       for fmt, k, v, _ in nonpass if k in REVIEW_NOT_DROPPABLE
+-                      and not (k == "V1_visual_checklist" and v1.get(fmt, (False,))[0])})
++                      and not (k in special and special[k].get(fmt, (False,))[0])})
+     if blocked:
+         raise RuntimeError("STOP: review drop refused: content-integrity rows not passing: " + ", ".join(blocked))
+     rpath = os.path.join(run_dir, "REVIEW_DROP.json")
+diff --git a/pipeline/pp_metaphone/SOURCE.txt b/pipeline/pp_metaphone/SOURCE.txt
+new file mode 100644
+index 00000000..49d11d27
+--- /dev/null
++++ b/pipeline/pp_metaphone/SOURCE.txt
+@@ -0,0 +1,6 @@
++Double Metaphone (Lawrence Philips), vendored unchanged from PyPI 'Metaphone' 0.6 (Metaphone-0.6.tar.gz, sha256 ad0beadca66cb7ec6ede71ef72bb02da097c493ddf159930d6340bc83f53da27): metaphone.py, word.py, __init__.py and LICENSE (BSD) are byte-identical to the release. Used by gates.spoken_channels for the phonetic name match of G20 (orchestrator ruling 24 (b), 2026-11-12 '23:20').
++
++6e24b19a497372ecfac753ababd12cb097f0a53040b5fce715ac6e563b44f044  metaphone.py
++f614aaa0e426c44d017ce4eb95008f41460b402024b9b488f87a9ee718978225  word.py
++dd9aeb482d7088f75959a65116f175b491e416f3ef74e4ff38fa8b7ac8de3f35  __init__.py
++b2a62d5c8f244be728902df5db3d0ac635629da476d9c4d8059b620b1a08c10f  LICENSE
+diff --git a/pipeline/test_g20_signoff.py b/pipeline/test_g20_signoff.py
+index 4830239b..4430b011 100644
+--- a/pipeline/test_g20_signoff.py
++++ b/pipeline/test_g20_signoff.py
+@@ -121,5 +121,69 @@ class TestSignoffGenerator(unittest.TestCase):
+         self.assertNotEqual(m1["signoff"]["stem_wav"], m2["signoff"]["stem_wav"])
+ 
+ 
++
++MEDLEY = os.path.join(REPO, "references", "pulse_medley_2026-11-12")
++
++
++class TestG20Phonetic(unittest.TestCase):
++    """Ruling 24 (b) (orchestrator 2026-11-12 '23:20'): a credited name is heard when EITHER the 0.85 text ratio holds
++    OR every token of the name matches the transcript phonetically (Double Metaphone); omitted names still fail, the
++    registry aliases remain, and the pre-render SCRIPT check (law L-a) is not phonetic."""
++    reg = json.load(open(os.path.join(PIPELINE, "channels.json")))
++    CRED = ["Natalie Brunell", "What Bitcoin Did", "Stephan Livera"]
++
++    def test_the_decoders_spelling_of_livera_is_heard(self):            # must match
++        how = {}
++        heard = G.spoken_channels("clips today from natalie brunel, whatbitcoindid, and stefan lavera.", self.reg,
++                                  self.CRED, how=how, phonetic=True)
++        self.assertEqual(heard, set(self.CRED))
++        self.assertEqual(how["Stephan Livera"], {"name": "Stephan Livera", "route": "phonetic", "heard": "stefanlavera"})
++
++    def test_another_name_is_not_heard(self):                          # must not match: Steven = STFN, Lubka LPK != LFR
++        heard = G.spoken_channels("clips today from natalie brunell, what bitcoin did, and steven lubka.", self.reg,
++                                  self.CRED, phonetic=True)
++        self.assertNotIn("Stephan Livera", heard)
++
++    def test_every_token_must_match(self):
++        heard = G.spoken_channels("clips today from stefan brunel.", self.reg, ["Stephan Livera"], phonetic=True)
++        self.assertNotIn("Stephan Livera", heard)
++
++    def test_an_omitted_name_still_fails(self):
++        heard = G.spoken_channels("clips today from natalie brunell and what bitcoin did.", self.reg, self.CRED,
++                                  phonetic=True)
++        self.assertEqual(heard, {"Natalie Brunell", "What Bitcoin Did"})
++
++    def test_an_uncredited_channel_is_never_heard_phonetically(self):
++        heard = G.spoken_channels("clips today from natalie brunell and stefan lavera.", self.reg, ["Natalie Brunell"],
++                                  phonetic=True)
++        self.assertEqual(heard, {"Natalie Brunell"})
++
++    def test_a_one_word_name_is_never_heard_phonetically(self):        # 'Casa' = KS = 'case': not evidence of a name
++        self.assertEqual(G._phonetic_span("Casa", ["in", "case", "you", "missed", "it"]), None)
++        heard = G.spoken_channels("clips today from natalie brunell. in case you missed it.", self.reg,
++                                  ["Natalie Brunell", "Casa"], phonetic=True)
++        self.assertEqual(heard, {"Natalie Brunell"})
++
++    def test_the_pre_render_script_check_is_not_phonetic(self):         # law L-a: the script names them exactly
++        heard = G.spoken_channels("Clips today from Natalie Brunell and Stefan Lavera.", self.reg,
++                                  ["Natalie Brunell", "Stephan Livera"])
++        self.assertEqual(heard, {"Natalie Brunell"})
++
++    def test_registry_aliases_remain(self):
++        e = next(x for x in self.reg if x["display_name"] == "Saifedean Ammous")
++        self.assertTrue(e.get("aliases"))
++        heard = G.spoken_channels(f"thanks to {e['aliases'][0]}.", self.reg, ["Saifedean Ammous"], phonetic=True)
++        self.assertEqual(heard, {"Saifedean Ammous"})
++
++    @unittest.skipUnless(os.path.isdir(MEDLEY), "the medley reference is not on this machine")
++    def test_the_medleys_real_decodes_now_name_every_credited_channel(self):   # both formats, as G20 decoded them
++        rep = json.load(open(os.path.join(MEDLEY, "GATE_REPORT.json")))
++        for fmt in ("16x9", "9x16"):
++            d = rep[f"G20_{fmt}"]
++            self.assertEqual(d["missing"], ["Stephan Livera"])                     # what failed at 23:10
++            heard = G.spoken_channels(d["transcript"], self.reg, d["credited"], phonetic=True)
++            self.assertEqual(heard, set(d["credited"]), fmt)
++
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/pipeline/test_review_drop.py b/pipeline/test_review_drop.py
+index 208e0618..da1cb7f8 100644
+--- a/pipeline/test_review_drop.py
++++ b/pipeline/test_review_drop.py
+@@ -179,6 +179,48 @@ class TestReviewDrop(unittest.TestCase):
+                 else:
+                     self._refused("not a split")
+ 
++    MEDLEY_SCRIPT = ("Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more "
++                     "Bitcoin talks. Links below.")
++    MEDLEY_DECODE = ("clips today from natalie brunel, whatbitcoindid, and stefan lavera.  go follow them for more bitcoin "
++                     "talks.  links below.")
++
++    def _g20(self, fmt, transcript, script, missing, extra=()):
++        """The amendment '23:20' fixture: G20 FAIL in `fmt` with the gate's own evidence (GATE_REPORT G20_<fmt>)."""
++        rep = json.loads(json.dumps(self.report))
++        rep["rows"][fmt]["G20_signoff_names_all"] = "FAIL"
++        credited = ["Natalie Brunell", "Stephan Livera", "What Bitcoin Did"]
++        rep[f"G20_{fmt}"] = {"transcript": transcript, "credited": credited, "missing": list(missing),
++                             "extra": list(extra), "spoken": sorted(set(credited) - set(missing)), "pass": False}
++        self._write("GATE_REPORT.json", rep)
++        self._write("vo_audio/VO_MANIFEST.json", {"signoff": {"text": script}})
++
++    def test_amendment_a_g20_decoder_spelling_is_droppable_and_both_strings_quoted(self):
++        self._g20("9x16", self.MEDLEY_DECODE, self.MEDLEY_SCRIPT, ["Stephan Livera"])
++        T.review_drop(self.run, send=self._send)
++        note = self.sent[-1][2]["text"]
++        self.assertIn("9x16 G20_signoff_names_all FAIL: decoder spelling only: the script says 'Stephan Livera', the "
++                      "decoder wrote 'dstefanlavera' (0.77)", note)
++
++    def test_amendment_a_name_absent_from_the_script_is_never_droppable(self):
++        self._g20("16x9", self.MEDLEY_DECODE, "Clips today from Natalie Brunell and What Bitcoin Did. Links below.",
++                  ["Stephan Livera"])
++        self._refused(r"G20_signoff_names_all FAIL \(the sign-off script does not name \['Stephan Livera'\]: never droppable")
++
++    def test_amendment_another_name_in_the_decode_is_not_a_spelling(self):
++        self._g20("16x9", self.MEDLEY_DECODE.replace("stefan lavera", "steven lubka"), self.MEDLEY_SCRIPT,
++                  ["Stephan Livera"])
++        self._refused(r"G20_signoff_names_all FAIL \('Stephan Livera': the decode's closest stretch .* \(< 0.75\): not a spelling")
++
++    def test_amendment_a_name_heard_but_not_credited_is_refused(self):
++        self._g20("16x9", self.MEDLEY_DECODE, self.MEDLEY_SCRIPT, ["Stephan Livera"], extra=["Simply Bitcoin"])
++        self._refused(r"G20_signoff_names_all FAIL \(credited .* heard but not credited \['Simply Bitcoin'\]")
++
++    def test_amendment_unreadable_g20_evidence_is_refused(self):
++        rep = json.loads(json.dumps(self.report))
++        rep["rows"]["16x9"]["G20_signoff_names_all"] = "FAIL"
++        self._write("GATE_REPORT.json", rep)
++        self._refused(r"G20_signoff_names_all FAIL \(the G20 evidence is not readable")
++
+     def test_a_review_drop_never_authorises_release_and_is_not_repeated(self):
+         T.review_drop(self.run, send=self._send)
+         ok, why, _ = release_auth.authorise(self.run)

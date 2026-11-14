@@ -1,0 +1,14 @@
+# Heimdall audit
+
+**Question:** Batch 38b = RULING 22 (orchestrator 2026-11-12 '13:06'): gate G18 (the final's words must be the locked sentences word for word) compares a speech-to-text decode of the final with the lock. A decoder sometimes OMITS soft words that are in the audio (Nov 12: 'it's not, you know,'). Now: when the decode differs from the lock text ONLY by omitted locked words or by repeats of the locked words just before or after the gap (nothing substituted, nothing added; a ruling-18 attested reading counts as the lock's word), G18 decides acoustically: sentence_law.span_fidelity compares the PREPARED clip (speech stem) with the source over the clip's interior (between its edge fades: every 10 ms source frame above -90 dBFS within 1 dB, best of +-2 hops, every frame compared); identical = the omission is recorded and does not fail; not identical = the difference stands (FAIL). Any substituted or added word fails on text. run_fresh passes each cut's fade lengths. Tests: the real omission passes on the audio; a clip with 0.5 s removed fails acoustically; a substituted or an added word fails; text cases for delete / repeat / replace / add.
+FIND: any way a substituted or added word, or a final whose audio is not the source's, passes; boundary errors in the repeat rule; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, deepseek  |  **Cost:** $0.0150
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

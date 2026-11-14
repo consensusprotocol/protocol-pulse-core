@@ -153,6 +153,8 @@ def conform_outro(aspect="16x9"):
 
     if os.path.exists(conformed):
         return conformed
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident (an encode follows)
 
     # Amendment 2 6a: attenuate 9:16 to match 16:9 level (attenuate only, never boost)
     af_parts = []

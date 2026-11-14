@@ -1,0 +1,2059 @@
+{
+ "step_a": {
+  "jobs": 48,
+  "local_out_of_contract": [
+   {
+    "id": "07086c34377786693683",
+    "why": "ValueError: step A must answer exactly the labels ['9c14612153405f8983e4', '39cb7d2a1a661ba699e2', '9eb4b93bfebabd2c853c', '1df196cbd1858b330e38', '6d91c6af0e23f79c946e', '",
+    "error": null
+   },
+   {
+    "id": "0c0739fc937823c8cd40",
+    "why": "ValueError: step A must answer exactly the labels ['8eb7874dda967502eb6b', 'f83f52fc4f432b465030', '05e5643da9b3c67c371a', '6f6d6f54de605b086ab3', 'eb63e8dcd4eb9502451e', '",
+    "error": null
+   },
+   {
+    "id": "1ce03564002ef78d0756",
+    "why": "ValueError: step A must answer exactly the labels ['3ef9d4de892af5cca51a', '95d20143d5e2af5612b1', 'b799cf6a63d3a47d7d9d', 'a45d26b88cd5b176ae13', 'eb63e8dcd4eb9502451e', '",
+    "error": null
+   },
+   {
+    "id": "1ff7230715f3b49aeff8",
+    "why": "ValueError: step A must answer exactly the labels ['128b99b7a2487f58d3ba', '27bf8bffdcdc5f785bb8', '9a9ed680fa64a4ae7305', '0c751a33022013fb3086', '316f66f81603ea55899a', '",
+    "error": null
+   },
+   {
+    "id": "2262eff3cea650a9c15c",
+    "why": "ValueError: step A must answer exactly the labels ['bcb9349c6cc040bc309f', '128b99b7a2487f58d3ba', '36a495fd9f0d9b367149', '8055c5252b61b9639cbe', 'e96018d733a4443e1467', '",
+    "error": null
+   },
+   {
+    "id": "28381f196b466b05d042",
+    "why": "ValueError: step A must answer exactly the labels ['f83f52fc4f432b465030', '6f6d6f54de605b086ab3~trim', '0d4d772b8d54fe42950f~trim', '0f50515021b30ddfbec6~trim', 'bb57e854f",
+    "error": null
+   },
+   {
+    "id": "41dc7468ee5814fcc505",
+    "why": "ValueError: step A must answer exactly the labels ['326b88b0592bba35452b', '16df0954cc411a943bbc', '3a6cb29a4d904118192c', '2e77a0a7af2aab66a3a4', '8935a0b351127fe16b1c', '",
+    "error": null
+   },
+   {
+    "id": "43b58583dc303cf82564",
+    "why": "ValueError: step A must answer exactly the labels ['55722e7365cc43558d7e', '876662b7dc4e961d47e1', 'e375df8065e9bd8f421b', 'f91c4a6b4a5ea9388c32', '81f9b98d79dddabc360a', '",
+    "error": null
+   },
+   {
+    "id": "5b6ceb79cee006c75526",
+    "why": "ValueError: step A must answer exactly the labels ['06f73bef2e37ba14bee4', '3a6cb29a4d904118192c', 'c3be6f1c71c4397b081a', '2e77a0a7af2aab66a3a4', '8eb7874dda967502eb6b', '",
+    "error": null
+   },
+   {
+    "id": "5d192e87effd4c533c43",
+    "why": "ValueError: step A must answer exactly the labels ['95d20143d5e2af5612b1', 'a45d26b88cd5b176ae13', 'c7646b4ee91f955cf58f', '06f73bef2e37ba14bee4', '3a6cb29a4d904118192c', '",
+    "error": null
+   },
+   {
+    "id": "6800224aa6a3aca61ad7",
+    "why": "ValueError: step A must answer exactly the labels ['8055c5252b61b9639cbe', '876662b7dc4e961d47e1', 'c49cd35dfd86efb624e0', '55722e7365cc43558d7e', 'f3777190a2ef934d854f', '",
+    "error": null
+   },
+   {
+    "id": "744f21d12c58eaada0c5",
+    "why": "ValueError: step A must answer exactly the labels ['cfd41bf59cd3712473e5', 'e1c898006676591f9180', 'f81db985a39acf8dcc8e', '1dd835fcfbdcc4cba847', '1df196cbd1858b330e38', '",
+    "error": null
+   },
+   {
+    "id": "7b67f9d370ac53baef01",
+    "why": "ValueError: step A must answer exactly the labels ['984b91dd88d5f86e3158', 'f91c4a6b4a5ea9388c32', '04a149678014424229d3', '316f66f81603ea55899a', '43e6d312e1a1e6a4e33c', '",
+    "error": null
+   },
+   {
+    "id": "7e0e76feb5b58b1d291d",
+    "why": "ValueError: step A must answer exactly the labels ['180834a8a804c38e8771', '7e3e7de8b12c647dca24', '955704068d8fb8ebaa22', 'a940f5e977ac7b946a09', 'b805e69a19c24703d799', '",
+    "error": null
+   },
+   {
+    "id": "7edd3fdf16ceb906cfa1",
+    "why": "ValueError: step A must answer exactly the labels ['3ef9d4de892af5cca51a', '95d20143d5e2af5612b1', 'b799cf6a63d3a47d7d9d', 'a45d26b88cd5b176ae13', 'a4bfff4015e2bc11a4ab', '",
+    "error": null
+   },
+   {
+    "id": "85b9314918bee1fdb32b",
+    "why": "ValueError: step A must answer exactly the labels ['6353ef6c32236e89f0cc', 'd1e31dd4b7ddb686a18d', 'e8c3738e3d7aff4ba06e', '316f66f81603ea55899a', '9c14612153405f8983e4', '",
+    "error": null
+   },
+   {
+    "id": "8d8241138bdc59578d83",
+    "why": "ValueError: step A must answer exactly the labels ['ce90631aaac92be0d6d1', 'eb5ef19bc37fa4ee9ad5', '88574641595f10d34454', '301b5c1e6f3f2a8a2eb3', '28fb4e4d24ab818032f0', '",
+    "error": null
+   },
+   {
+    "id": "9375146fa1ba2641d497",
+    "why": "ValueError: step A must answer exactly the labels ['f91c4a6b4a5ea9388c32', '0c751a33022013fb3086', '81f9b98d79dddabc360a', '84699cf1156096cda287', '863cc95ab7c5e0c11482', '",
+    "error": null
+   },
+   {
+    "id": "9c3b23785092cbb31191",
+    "why": "ValueError: step A must answer exactly the labels ['876662b7dc4e961d47e1', '8055c5252b61b9639cbe', 'c49cd35dfd86efb624e0', 'e375df8065e9bd8f421b', '55722e7365cc43558d7e', '",
+    "error": null
+   },
+   {
+    "id": "9d3ad25d838ab0bba451",
+    "why": "ValueError: step A must answer exactly the labels ['c7646b4ee91f955cf58f', '3a6cb29a4d904118192c', 'c3be6f1c71c4397b081a', '2e77a0a7af2aab66a3a4', 'c307ee16cc4f5291f784~tri",
+    "error": null
+   },
+   {
+    "id": "a63eaa90bafad3b37162",
+    "why": "ValueError: step A must answer exactly the labels ['128b99b7a2487f58d3ba', '1df196cbd1858b330e38', '6596d98da9d4fe465a8e', '8b0e448545f495ae298d', '9eb4b93bfebabd2c853c', '",
+    "error": null
+   },
+   {
+    "id": "c31d1519a833f4866163",
+    "why": "ValueError: step A must answer exactly the labels ['049e1a336876642b44af', '180834a8a804c38e8771', '7e3e7de8b12c647dca24', '955704068d8fb8ebaa22', 'a940f5e977ac7b946a09', '",
+    "error": null
+   },
+   {
+    "id": "c41b34937fb7d51418da",
+    "why": "ValueError: step A must answer exactly the labels ['9c14612153405f8983e4', 'c356a9fc110380aca230', 'dcf66b69d2de136b5166', 'e8c3738e3d7aff4ba06e', '805a9282d37c5a2aff3e', '",
+    "error": null
+   },
+   {
+    "id": "c47ce854c62220ac8fb6",
+    "why": "ValueError: step A must answer exactly the labels ['876662b7dc4e961d47e1', 'c49cd35dfd86efb624e0', 'e375df8065e9bd8f421b', '55722e7365cc43558d7e', '7a17f3252d14fe2ed7aa', '",
+    "error": null
+   },
+   {
+    "id": "d119e1d561d59e458500",
+    "why": "ValueError: step A must answer exactly the labels ['a68fd9fae23dc07f4eea', '2b01f21fad799cbb0e2e', 'c3f44dbddf9f6d8d9cdf', '2d8a2050417e286fc2eb', '35b7b52533b4220b2672', '",
+    "error": null
+   },
+   {
+    "id": "d7ae9d49251258134e4e",
+    "why": "ValueError: step A must answer exactly the labels ['3ef9d4de892af5cca51a', '95d20143d5e2af5612b1', 'b799cf6a63d3a47d7d9d', 'a45d26b88cd5b176ae13', 'eb63e8dcd4eb9502451e', '",
+    "error": null
+   },
+   {
+    "id": "e1c3ec3260197495f41e",
+    "why": "ValueError: step A must answer exactly the labels ['ce90631aaac92be0d6d1', 'eb5ef19bc37fa4ee9ad5', '88574641595f10d34454', '301b5c1e6f3f2a8a2eb3', '28fb4e4d24ab818032f0', '",
+    "error": null
+   },
+   {
+    "id": "e69432751ae014f153e6",
+    "why": "ValueError: step A must answer exactly the labels ['8eb7874dda967502eb6b', 'f83f52fc4f432b465030', 'eb63e8dcd4eb9502451e', '0d4d772b8d54fe42950f', '8ff542f9877c3a1afc36', '",
+    "error": null
+   },
+   {
+    "id": "f990908c644468a208a6",
+    "why": "ValueError: step A must answer exactly the labels ['c7646b4ee91f955cf58f', '06f73bef2e37ba14bee4', '3a6cb29a4d904118192c', 'c3be6f1c71c4397b081a', '2e77a0a7af2aab66a3a4', '",
+    "error": null
+   }
+  ],
+  "vendor_out_of_contract": 0,
+  "vendor_answers_not_compared": [],
+  "moments": 116,
+  "same_verdict": 59,
+  "same_rules": 57,
+  "local_fail_vendor_pass": [
+   {
+    "id": "3b9ad9af2941f2be99b8",
+    "label": "180834a8a804c38e8771",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "3c9249832d35c130558f",
+    "label": "876662b7dc4e961d47e1",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "3c9249832d35c130558f",
+    "label": "6353ef6c32236e89f0cc",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "4cbbb7a00fb42354a9bc",
+    "label": "98148a8112d2b2a996d6",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "9baf763aec067fdb7d93",
+    "label": "d2edb1d68968426ad68e",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "CONDITION_OUTSIDE"
+    ]
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "35b7b52533b4220b2672",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "d33d1ff8a8d8d41de769",
+    "label": "fda2c6856295ea156a9d",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE",
+     "STALE_TIME"
+    ]
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "180834a8a804c38e8771",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "a940f5e977ac7b946a09",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   }
+  ],
+  "local_pass_vendor_fail": [
+   {
+    "id": "12c23d1d52659bdde299",
+    "label": "301b5c1e6f3f2a8a2eb3",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "12c23d1d52659bdde299",
+    "label": "28fb4e4d24ab818032f0",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE",
+     "CONDITION_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "12c23d1d52659bdde299",
+    "label": "720619e88bc57e6948e8",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3218b2d9326901ba5995",
+    "label": "c6cdbadebbac52e4e623",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3218b2d9326901ba5995",
+    "label": "128b99b7a2487f58d3ba",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3218b2d9326901ba5995",
+    "label": "14daf2da53fd3fe0b104",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3218b2d9326901ba5995",
+    "label": "1df196cbd1858b330e38",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "STALE_TIME"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3b9ad9af2941f2be99b8",
+    "label": "3916a1e40a07d6deabb2",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE",
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3b9ad9af2941f2be99b8",
+    "label": "955704068d8fb8ebaa22",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3b9ad9af2941f2be99b8",
+    "label": "bbfffdc554c309412801",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3c9249832d35c130558f",
+    "label": "316f66f81603ea55899a",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "3fa7cea6c33655d34ed0",
+    "label": "8935a0b351127fe16b1c~trim",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE",
+     "STALE_TIME"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "40ffd4c20910c3684acb",
+    "label": "8935a0b351127fe16b1c",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE",
+     "STALE_TIME"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "40ffd4c20910c3684acb",
+    "label": "4cf7d447e86d85454896",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "4be3ae2bc61e9a832ded",
+    "label": "16df0954cc411a943bbc",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "4be3ae2bc61e9a832ded",
+    "label": "b799cf6a63d3a47d7d9d",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "4be3ae2bc61e9a832ded",
+    "label": "8935a0b351127fe16b1c",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "4cbbb7a00fb42354a9bc",
+    "label": "316f66f81603ea55899a",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE",
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "4cbbb7a00fb42354a9bc",
+    "label": "f81db985a39acf8dcc8e",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "672e1215833fefae4511",
+    "label": "8eb7874dda967502eb6b",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "672e1215833fefae4511",
+    "label": "b805e69a19c24703d799",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9baf763aec067fdb7d93",
+    "label": "1df196cbd1858b330e38",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "STALE_TIME"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9baf763aec067fdb7d93",
+    "label": "39cb7d2a1a661ba699e2",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "a68fd9fae23dc07f4eea",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "SPEAKER_CHANGE",
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "2b01f21fad799cbb0e2e",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "c3f44dbddf9f6d8d9cdf",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "SPEAKER_CHANGE",
+     "NOT_OWN_SINCERE",
+     "REFERENT_OUTSIDE",
+     "UNCERTAIN"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "2d8a2050417e286fc2eb",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "9ccfb50013ece422e2ea",
+    "label": "837731ebe9e38aa0c791",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE",
+     "REFERENT_OUTSIDE",
+     "CONDITION_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cdc43581dc6721a8d161",
+    "label": "5ed74534aaf43ada4547",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cdc43581dc6721a8d161",
+    "label": "8f8b2d388974f1689fe9",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cdc43581dc6721a8d161",
+    "label": "8072c7bcdc1dfe503b69",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "CONDITION_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cfef195921a9b2045d30",
+    "label": "8eb7874dda967502eb6b",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cfef195921a9b2045d30",
+    "label": "a45d26b88cd5b176ae13",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cfef195921a9b2045d30",
+    "label": "fda2c6856295ea156a9d",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "cfef195921a9b2045d30",
+    "label": "c3be6f1c71c4397b081a",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d2fdfe686399474bdfaa",
+    "label": "0d4d772b8d54fe42950f~trim",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d2fdfe686399474bdfaa",
+    "label": "bb57e854fd863e0773ef",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d2fdfe686399474bdfaa",
+    "label": "fda2c6856295ea156a9d",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "STALE_TIME"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d2fdfe686399474bdfaa",
+    "label": "049e1a336876642b44af",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d33d1ff8a8d8d41de769",
+    "label": "8eb7874dda967502eb6b",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "d33d1ff8a8d8d41de769",
+    "label": "bb57e854fd863e0773ef",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "da56128a2eb7fa12bc1b",
+    "label": "ce90631aaac92be0d6d1",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "da56128a2eb7fa12bc1b",
+    "label": "eb5ef19bc37fa4ee9ad5",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "da56128a2eb7fa12bc1b",
+    "label": "301b5c1e6f3f2a8a2eb3",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "049e1a336876642b44af",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "955704068d8fb8ebaa22",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "b805e69a19c24703d799",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   },
+   {
+    "id": "db7ed6df598a69085ee2",
+    "label": "bbfffdc554c309412801",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": []
+   }
+  ],
+  "rule_disagreements": [
+   {
+    "id": "3b9ad9af2941f2be99b8",
+    "label": "049e1a336876642b44af",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "NOT_OWN_SINCERE"
+    ],
+    "local_rules": [
+     "STALE_TIME"
+    ]
+   },
+   {
+    "id": "d2fdfe686399474bdfaa",
+    "label": "ecf5f5b5a4842f10b385~trim",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_rules": [
+     "REFERENT_OUTSIDE"
+    ],
+    "local_rules": [
+     "NOT_OWN_SINCERE"
+    ]
+   }
+  ],
+  "local_seconds": {
+   "n": 48,
+   "mean": 43.4,
+   "max": 79.6
+  }
+ },
+ "clips_alone": {
+  "jobs": 27,
+  "local_out_of_contract": [],
+  "vendor_out_of_contract": 0,
+  "vendor_answers_not_compared": [],
+  "verdicts": 27,
+  "same_ok": 19,
+  "same_flagged": 2,
+  "joins": 65,
+  "same_join": 27,
+  "local_fail_vendor_pass": [
+   {
+    "id": "0111850754271adcc736",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "4e2543d345f73d01c5bd",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 3,
+     "clip_02": 4,
+     "clip_03": 3
+    }
+   },
+   {
+    "id": "4fa6aa3ae92181068623",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 5,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "52c2b263e97f86db4b79",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "6a858de7c2a9912c42ff",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "de85616a6e3df902807f",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 3,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "f1ef43971a632c36434a",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_ok": true,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3,
+     "clip_03": 2
+    }
+   }
+  ],
+  "local_pass_vendor_fail": [
+   {
+    "id": "a4857a7942afef0d1841",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": true,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "local_clips": {
+     "hook": 4,
+     "clip_01": 4,
+     "clip_02": 5
+    }
+   }
+  ],
+  "flag_disagreements": [
+   {
+    "id": "03e8e3a304fbd14e2f21",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5
+    }
+   },
+   {
+    "id": "043ab886e72bce960fb2",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 4,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "35fcdd6ec7fd8c6935df",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 2,
+     "clip_02": 4,
+     "clip_03": 4
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 3
+    }
+   },
+   {
+    "id": "42e207aa443bebbc400e",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 3,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "5cb4e8a7d93169dd9419",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "68dc52801370ca7fb763",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3,
+     "clip_03": 5
+    }
+   },
+   {
+    "id": "849b771e4f040b46dd26",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1,
+     "clip_03": 1
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 4,
+     "clip_03": 3
+    }
+   },
+   {
+    "id": "92ecde1564642338d012",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "94937ff9a81554393a67",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 2,
+     "clip_03": 3
+    },
+    "local_clips": {
+     "hook": 5,
+     "clip_01": 5,
+     "clip_02": 3,
+     "clip_03": 4
+    }
+   },
+   {
+    "id": "9e1200b78eafa2f66029",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 2,
+     "clip_02": 5,
+     "clip_03": 5
+    },
+    "local_clips": {
+     "hook": 4,
+     "clip_01": 3,
+     "clip_02": 5,
+     "clip_03": 4
+    }
+   },
+   {
+    "id": "a0e469197d0bb4b906a3",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 5,
+     "clip_01": 4,
+     "clip_02": 3
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 5,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "a646a6c0bc9bc2de95f5",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5,
+     "clip_03": 4
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 3
+    }
+   },
+   {
+    "id": "c654e54edf53b2665357",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "c794375e80872cf07e6c",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "clip_01 -> clip_02",
+     "clip_02 -> clip_03"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 4,
+     "clip_01": 5,
+     "clip_02": 1,
+     "clip_03": 4
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4,
+     "clip_03": 3
+    }
+   },
+   {
+    "id": "e0ab44f7f10b56a534d1",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 4
+    }
+   },
+   {
+    "id": "e9fbf05f05c03bd4e844",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01",
+     "clip_01 -> clip_02"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 1,
+     "clip_01": 1,
+     "clip_02": 1
+    },
+    "local_clips": {
+     "hook": 2,
+     "clip_01": 4,
+     "clip_02": 3
+    }
+   },
+   {
+    "id": "f230dbc41ddd67194ead",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_ok": false,
+    "local_ok": false,
+    "vendor_flagged": [
+     "hook -> clip_01"
+    ],
+    "local_flagged": [],
+    "vendor_clips": {
+     "hook": 3,
+     "clip_01": 5,
+     "clip_02": 5
+    },
+    "local_clips": {
+     "hook": 3,
+     "clip_01": 4,
+     "clip_02": 5
+    }
+   }
+  ],
+  "join_disagreements": [
+   {
+    "id": "0111850754271adcc736",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "03e8e3a304fbd14e2f21",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "043ab886e72bce960fb2",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "043ab886e72bce960fb2",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "35fcdd6ec7fd8c6935df",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "35fcdd6ec7fd8c6935df",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "42e207aa443bebbc400e",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "42e207aa443bebbc400e",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "4e2543d345f73d01c5bd",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "4fa6aa3ae92181068623",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "52c2b263e97f86db4b79",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "5cb4e8a7d93169dd9419",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "5cb4e8a7d93169dd9419",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "68dc52801370ca7fb763",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "68dc52801370ca7fb763",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "6a858de7c2a9912c42ff",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "849b771e4f040b46dd26",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "849b771e4f040b46dd26",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "849b771e4f040b46dd26",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "92ecde1564642338d012",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "94937ff9a81554393a67",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "94937ff9a81554393a67",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "9e1200b78eafa2f66029",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "9e1200b78eafa2f66029",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "a0e469197d0bb4b906a3",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "a4857a7942afef0d1841",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "a4857a7942afef0d1841",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "a646a6c0bc9bc2de95f5",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "c654e54edf53b2665357",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "c794375e80872cf07e6c",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "c794375e80872cf07e6c",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "de85616a6e3df902807f",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "e0ab44f7f10b56a534d1",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "e0ab44f7f10b56a534d1",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "e9fbf05f05c03bd4e844",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "e9fbf05f05c03bd4e844",
+    "join": "clip_01 -> clip_02",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "f1ef43971a632c36434a",
+    "join": "clip_02 -> clip_03",
+    "vendor": false,
+    "local": true
+   },
+   {
+    "id": "f230dbc41ddd67194ead",
+    "join": "hook -> clip_01",
+    "vendor": false,
+    "local": true
+   }
+  ],
+  "rating_abs_diff": [
+   0,
+   0,
+   1,
+   0,
+   1,
+   0,
+   1,
+   3,
+   2,
+   0,
+   2,
+   1,
+   1,
+   1,
+   2,
+   3,
+   0,
+   1,
+   1,
+   1,
+   3,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   1,
+   1,
+   0,
+   1,
+   1,
+   4,
+   3,
+   2,
+   4,
+   0,
+   0,
+   1,
+   4,
+   3,
+   3,
+   2,
+   0,
+   0,
+   1,
+   0,
+   0,
+   1,
+   1,
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0,
+   1,
+   3,
+   1,
+   0,
+   3,
+   3,
+   4,
+   1,
+   1,
+   1,
+   1,
+   0,
+   0,
+   0,
+   1,
+   0,
+   3,
+   1,
+   0,
+   1,
+   1,
+   0,
+   1,
+   1,
+   1,
+   3,
+   2,
+   0,
+   1,
+   1,
+   2,
+   0,
+   1,
+   0
+  ],
+  "local_seconds": {
+   "n": 27,
+   "mean": 9.9,
+   "max": 29.9
+  }
+ },
+ "angle": {
+  "jobs": 17,
+  "local_out_of_contract": [],
+  "vendor_out_of_contract": 0,
+  "vendor_answers_not_compared": [
+   {
+    "id": "d6c9b58adda95ff7852f",
+    "backend": "heimdall:deepseek/deepseek-v4.1-flash"
+   }
+  ],
+  "compared": 17,
+  "local_valid_angles": 23,
+  "local_angles": 42,
+  "best_jaccard": [
+   0.6,
+   0.6,
+   0.3333333333333333,
+   1.0,
+   1.0,
+   1.0,
+   0.5,
+   0.2857142857142857,
+   0.5,
+   0.3333333333333333,
+   0.3333333333333333,
+   0.3333333333333333,
+   0.0,
+   0.0,
+   0.0,
+   0.6,
+   0.3333333333333333,
+   0.0,
+   0.0,
+   0.0,
+   1.0,
+   1.0,
+   1.0,
+   0.6,
+   0.6,
+   0.6,
+   0.5,
+   0.3333333333333333,
+   0.3333333333333333,
+   0.6,
+   0.125,
+   0.5,
+   1.0,
+   1.0,
+   1.0,
+   0.8,
+   0.6,
+   0.6,
+   0.6,
+   0.6,
+   0.6,
+   0.8,
+   0.2857142857142857,
+   0.5,
+   1.0,
+   0.6,
+   0.6666666666666666
+  ],
+  "first_jaccard": [
+   0.6,
+   1.0,
+   0.5,
+   0.3333333333333333,
+   0.0,
+   0.6,
+   0.0,
+   1.0,
+   0.6,
+   0.5,
+   0.6,
+   0.125,
+   1.0,
+   0.8,
+   0.6,
+   0.8,
+   1.0
+  ],
+  "hook_shared": 11,
+  "first_hook_same": 5,
+  "rows": [
+   {
+    "id": "084e9e276171ce0ee2d6",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.6,
+     0.6,
+     0.33
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "863cc95ab7c5e0c11482",
+     "8055c5252b61b9639cbe",
+     "0c751a33022013fb3086"
+    ],
+    "local_hooks": [
+     "0c751a33022013fb3086"
+    ]
+   },
+   {
+    "id": "0e0ca28c3929a82a9de3",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 1,
+    "best_jaccard": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "326b88b0592bba35452b",
+     "2e77a0a7af2aab66a3a4",
+     "8ff542f9877c3a1afc36"
+    ],
+    "local_hooks": [
+     "326b88b0592bba35452b"
+    ]
+   },
+   {
+    "id": "18cd35a6ee90f58f6446",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.5,
+     0.29,
+     0.5
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "c3be6f1c71c4397b081a",
+     "2e77a0a7af2aab66a3a4",
+     "95d20143d5e2af5612b1"
+    ],
+    "local_hooks": [
+     "95d20143d5e2af5612b1"
+    ]
+   },
+   {
+    "id": "1b7fa6434e3b82e64781",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_angles": 3,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.33,
+     0.33,
+     0.33
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "c3be6f1c71c4397b081a",
+     "a4bfff4015e2bc11a4ab",
+     "eb63e8dcd4eb9502451e"
+    ],
+    "local_hooks": [
+     "a4bfff4015e2bc11a4ab"
+    ]
+   },
+   {
+    "id": "2174816b064020b73cc2",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 0,
+    "best_jaccard": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "863cc95ab7c5e0c11482",
+     "8055c5252b61b9639cbe",
+     "43e6d312e1a1e6a4e33c"
+    ],
+    "local_hooks": []
+   },
+   {
+    "id": "339af26518a9632cbc7c",
+    "vendor": "heimdall:qwen/qwen3.8-27b",
+    "vendor_angles": 2,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.6,
+     0.33
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "8055c5252b61b9639cbe",
+     "9eb4b93bfebabd2c853c"
+    ],
+    "local_hooks": [
+     "0c751a33022013fb3086"
+    ]
+   },
+   {
+    "id": "4b91d3468bdde56472a6",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 0,
+    "best_jaccard": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a"
+    ],
+    "local_hooks": []
+   },
+   {
+    "id": "4f35d84077d9a66d653f",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "cfd41bf59cd3712473e5",
+     "69cd6a94f00b24cc1818",
+     "69cd6a94f00b24cc1818"
+    ],
+    "local_hooks": [
+     "863cc95ab7c5e0c11482",
+     "69cd6a94f00b24cc1818"
+    ]
+   },
+   {
+    "id": "6d04d86425738682cd3b",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     0.6,
+     0.6,
+     0.6
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a"
+    ],
+    "local_hooks": [
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a"
+    ]
+   },
+   {
+    "id": "962d86f7754dcce183a3",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 3,
+    "best_jaccard": [
+     0.5,
+     0.33,
+     0.33
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "c3be6f1c71c4397b081a",
+     "fda2c6856295ea156a9d",
+     "c7646b4ee91f955cf58f"
+    ],
+    "local_hooks": [
+     "95d20143d5e2af5612b1",
+     "7e3e7de8b12c647dca24",
+     "2e77a0a7af2aab66a3a4"
+    ]
+   },
+   {
+    "id": "a16268e4e369f681387d",
+    "vendor": "heimdall:qwen/qwen3.8-27b",
+    "vendor_angles": 1,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.6
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "863cc95ab7c5e0c11482"
+    ],
+    "local_hooks": [
+     "8055c5252b61b9639cbe"
+    ]
+   },
+   {
+    "id": "c9e0852c9cc4013a2cec",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_angles": 2,
+    "local_valid": 1,
+    "best_jaccard": [
+     0.12,
+     0.5
+    ],
+    "hook_shared": false,
+    "vendor_hooks": [
+     "b805e69a19c24703d799",
+     "b805e69a19c24703d799"
+    ],
+    "local_hooks": [
+     "8eb7874dda967502eb6b"
+    ]
+   },
+   {
+    "id": "d5abc83c50029599fdf4",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 1,
+    "best_jaccard": [
+     1.0,
+     1.0,
+     1.0
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "326b88b0592bba35452b",
+     "2e77a0a7af2aab66a3a4",
+     "8ff542f9877c3a1afc36"
+    ],
+    "local_hooks": [
+     "326b88b0592bba35452b"
+    ]
+   },
+   {
+    "id": "d6c9b58adda95ff7852f",
+    "vendor": "xai:grok-4.20-0309-reasoning",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     0.8,
+     0.6,
+     0.6
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "c3be6f1c71c4397b081a",
+     "a45d26b88cd5b176ae13",
+     "95d20143d5e2af5612b1"
+    ],
+    "local_hooks": [
+     "8eb7874dda967502eb6b",
+     "95d20143d5e2af5612b1"
+    ]
+   },
+   {
+    "id": "d6de4bb6768f5b509b5a",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     0.6,
+     0.6,
+     0.6
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "5307d23dced4f444919a",
+     "35b7b52533b4220b2672",
+     "8055c5252b61b9639cbe"
+    ],
+    "local_hooks": [
+     "5307d23dced4f444919a",
+     "5307d23dced4f444919a"
+    ]
+   },
+   {
+    "id": "faa961d4682e5d4fa5d5",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     0.8,
+     0.29,
+     0.5
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "95d20143d5e2af5612b1",
+     "eb63e8dcd4eb9502451e",
+     "c3be6f1c71c4397b081a"
+    ],
+    "local_hooks": [
+     "95d20143d5e2af5612b1",
+     "a45d26b88cd5b176ae13"
+    ]
+   },
+   {
+    "id": "ff850752acf4b6a6d4e3",
+    "vendor": "heimdall:deepseek/deepseek-v4.1-flash",
+    "vendor_angles": 3,
+    "local_valid": 2,
+    "best_jaccard": [
+     1.0,
+     0.6,
+     0.67
+    ],
+    "hook_shared": true,
+    "vendor_hooks": [
+     "7a17f3252d14fe2ed7aa",
+     "0c751a33022013fb3086",
+     "7a17f3252d14fe2ed7aa"
+    ],
+    "local_hooks": [
+     "863cc95ab7c5e0c11482",
+     "0c751a33022013fb3086"
+    ]
+   }
+  ],
+  "local_seconds": {
+   "n": 17,
+   "mean": 26.9,
+   "max": 60.2
+  }
+ },
+ "prefilter_rules": {
+  "step_a": {
+   "local fails CONDITION_OUTSIDE": {
+    "saved": 0,
+    "lost": 1
+   },
+   "local fails NOT_OWN_SINCERE": {
+    "saved": 6,
+    "lost": 8
+   },
+   "local fails STALE_TIME": {
+    "saved": 1,
+    "lost": 1
+   }
+  },
+  "clips_alone": {
+   "a local clip rating <= 1": {
+    "saved": 0,
+    "lost": 0
+   },
+   "a local clip rating <= 2": {
+    "saved": 5,
+    "lost": 2
+   },
+   "a local clip rating <= 3": {
+    "saved": 19,
+    "lost": 7
+   },
+   "no local through-line": {
+    "saved": 0,
+    "lost": 0
+   }
+  }
+ },
+ "_meta": {
+  "model": "gemma3:27b",
+  "digest": "a418f5838eaf7fe2cfe0a3046c8384b68ba43a4435542c942f9db00a5f342203",
+  "builder_rules": "/home/ultron/worktrees/pp-selectid/pipeline @ 88aa6d9c",
+  "answers": "data/local_judge/replay_answers.jsonl"
+ }
+}

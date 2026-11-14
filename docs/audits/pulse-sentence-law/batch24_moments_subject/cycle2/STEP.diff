@@ -1,0 +1,80 @@
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 25fd9438..87b1e458 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -401,6 +401,23 @@ def stage_review(run):
+     print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
+ 
+ 
++def stand_alone_subject(edl, story):
++    """The words every segment must use (stand_alone.subject_terms). A moments-first package (law L-q; pp-selectid
++    REQUESTS R7 item 4, 'its subject for a Bitcoin package is Bitcoin'): its pin label, never its written title (the
++    pinned angle is 'Pinned: <title>'; the title is a package line its own VO-fidelity gate checked), and only a Bitcoin
++    label: any other label, or a moments marker that is not the 64-hex digest pinned.build_edl writes, is an EMPTY
++    subject, which fails closed (stand_alone.topical: no hook names it). Every other run, unchanged: the selected
++    story's object / event, else the EDL angle / topic."""
++    import stand_alone
++    if "moments_package_sha256" in edl:
++        sha = edl["moments_package_sha256"]
++        terms = stand_alone.subject_terms("", edl.get("topic") or "") \
++            if isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{64}", sha) else set()
++        return terms if terms == {"bitcoin", "btc"} else set()
++    return stand_alone.subject_terms(story.get("affected_object", ""),
++                                     story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
++
++
+ def stage_validate(run):
+     from edl_rules import validate_edl
+     from editorial_gate import run_gate
+@@ -446,8 +463,7 @@ def stage_validate(run):
+     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
+         with open(os.path.join(run.dir, "passages.json")) as f:
+             story = json.load(f).get("story") or {}
+-    subject = stand_alone.subject_terms(story.get("affected_object", ""),
+-                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
++    subject = stand_alone_subject(edl, story)
+     sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
+     run.prov["stand_alone"] = sa
+     for r in sa["rows"]:
+diff --git a/pipeline/test_fresh.py b/pipeline/test_fresh.py
+index 99243c09..50dd41ce 100644
+--- a/pipeline/test_fresh.py
++++ b/pipeline/test_fresh.py
+@@ -306,6 +306,37 @@ class TestRunFreshRules(unittest.TestCase):
+                              cwd=PIPELINE).stdout.strip().splitlines()[-1]
+         self.assertEqual(out, "[]")
+ 
++    def test_a_moments_first_package_is_about_its_label_never_its_title(self):
++        """Law L-q / pp-selectid R7 item 4: the stand-alone subject of a moments-first EDL is the pin label; a pinned
++        or auto EDL keeps its story / angle subject (unchanged)."""
++        from run_fresh import stand_alone_subject
++        import stand_alone as SA
++        mf = {"topic": "bitcoin", "angle": "Pinned: Keep your keys off exchanges", "moments_package_sha256": "a" * 64}
++        self.assertEqual(stand_alone_subject(mf, {}), {"bitcoin", "btc"})
++        self.assertEqual(stand_alone_subject(mf, {"affected_object": "Binance hot wallet"}), {"bitcoin", "btc"})
++        for bad in ({"topic": "ethereum"}, {"topic": ""}, {"topic": None}, {"moments_package_sha256": "A" * 64},
++                    {"moments_package_sha256": "abc"}, {"moments_package_sha256": True},
++                    {"moments_package_sha256": None}):
++            self.assertEqual(stand_alone_subject({**mf, **bad}, {}), set(), bad)        # only Bitcoin; else closed
++        no_topic = {k: v for k, v in mf.items() if k != "topic"}
++        self.assertEqual(stand_alone_subject(no_topic, {}), set())
++        hook = {"text": "Bitcoin is money.", "channel": "X"}
++        self.assertFalse(SA.check_edl({"hook": hook, "clips": [{"index": 1, "text": "Bitcoin fixes this."}]},
++                                      subject=set())["ok"])                              # an empty subject HOLDS
++        pinned = {k: v for k, v in mf.items() if k != "moments_package_sha256"}           # every other run: as before
++        self.assertEqual(stand_alone_subject(pinned, {}), {"exchanges", "keep", "keys", "pinned", "your"})
++        self.assertEqual(stand_alone_subject({"topic": "Binance hack"}, {}), {"binance", "hack"})
++        self.assertEqual(stand_alone_subject(pinned, {"affected_object": "Binance hot wallet"}), {"binance", "wallet"})
++        self.assertEqual(stand_alone_subject(pinned, {"underlying_event": "Bitcoin ETF outflows"}), {"bitcoin", "btc"})
++
++    def test_stage_validate_takes_its_subject_from_the_helper(self):
++        import ast
++        tree = ast.parse(open(os.path.join(PIPELINE, "run_fresh.py")).read())
++        fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "stage_validate")
++        calls = [ast.unparse(c.func) for c in ast.walk(fn) if isinstance(c, ast.Call)]
++        self.assertIn("stand_alone_subject", calls)
++        self.assertNotIn("stand_alone.subject_terms", calls)
++
+     def test_fallback_regex(self):
+         from run_fresh import FALLBACK_RE
+         self.assertEqual(FALLBACK_RE.findall("  WARNING: reframe failed for clip_02, using original\n"),

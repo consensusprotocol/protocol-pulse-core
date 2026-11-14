@@ -1,0 +1,108 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index b8a1ab87..7f7db020 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -15,7 +15,7 @@ Rules:
+     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
+                               bridge <= 20 words, signoff <= 24 words.
+                               One bridge per channel transition.
+-    R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
++    R5 CLIP_LENGTH:           (law L-o) 8-25s per clip = TASTE, a recorded deviation. >= 2 distinct
+                               channels. Every channel >= 8s screen time.
+     R6 CREDITS_MATCH:         Channels in shoutout/signoff/reply == channels
+                               in EDL, in EDL order. Unique avatar hashes.
+@@ -213,9 +213,13 @@ def rule_r4(edl):
+ # ==============================================================
+ 
+ def rule_r5(edl):
+-    """8-25s per clip, >= 2 distinct channels, every channel >= 8s."""
++    """>= 2 clips from >= 2 distinct channels: INTEGRITY (law L-o: '>= 2 channels per video'), a failure.
++    The 8-25 s per-clip window and the >= 8 s per-channel total are TASTE under law L-o (orchestrator 2026-11-12
++    '01:50'; pp-selectid REQUESTS R6 item 2): a passage outside them is reported as a deviation with its size, never
++    rejected (a whole sentence always beats a duration window); the only hard duration rule is the format, measured on
++    the final by the gates."""
+     clips = edl.get("clips", [])
+-    failures = []
++    failures, deviations = [], []
+ 
+     if len(clips) < 2:
+         failures.append(f"only {len(clips)} clips (need >= 2)")
+@@ -227,9 +231,9 @@ def rule_r5(edl):
+         idx = clip.get("index", "?")
+ 
+         if dur < 8:
+-            failures.append(f"clip {idx}: {dur:.1f}s (min 8s)")
++            deviations.append(f"clip {idx}: {dur:.1f}s ({8 - dur:.1f}s under the 8s target)")
+         if dur > 25:
+-            failures.append(f"clip {idx}: {dur:.1f}s (max 25s)")
++            deviations.append(f"clip {idx}: {dur:.1f}s ({dur - 25:.1f}s over the 25s target)")
+ 
+         channels.setdefault(ch, 0)
+         channels[ch] += dur
+@@ -239,10 +243,12 @@ def rule_r5(edl):
+ 
+     for ch, total_dur in channels.items():
+         if total_dur < 8:
+-            failures.append(f"channel '{ch}': {total_dur:.1f}s total (min 8s)")
++            deviations.append(f"channel '{ch}': {total_dur:.1f}s total ({8 - total_dur:.1f}s under the 8s target)")
+ 
+     if failures:
+-        return False, "R5 FAIL: " + "; ".join(failures)
++        return False, "R5 FAIL: " + "; ".join(failures + deviations)
++    if deviations:
++        return True, "R5 PASS with law L-o taste deviations (recorded, not rejected): " + "; ".join(deviations)
+     return True, "R5 PASS: clip lengths and channel diversity OK"
+ 
+ 
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index de803615..006ea89b 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -177,7 +177,8 @@ class TestR4VoBudget(unittest.TestCase):
+ 
+ 
+ class TestR5ClipLength(unittest.TestCase):
+-    """R5: 8-25s per clip, >= 2 channels, each >= 8s."""
++    """R5 (law L-o): >= 2 clips from >= 2 channels is integrity (a failure); the 8-25 s window and the per-channel
++    >= 8 s total are taste (a recorded deviation with its size, never a rejection)."""
+ 
+     def test_good_clips_pass(self):
+         edl = {
+@@ -189,16 +190,32 @@ class TestR5ClipLength(unittest.TestCase):
+         ok, reason = rule_r5(edl)
+         self.assertTrue(ok, reason)
+ 
+-    def test_clip_too_short_fails(self):
++    def test_a_short_clip_is_a_recorded_deviation_not_a_failure(self):
++        """Law L-o (taste): until 2026-11-12 this was 'clip too short fails'. A whole sentence beats the window: the
++        6.1 s punchline is kept and its deviation recorded with its size."""
+         edl = {
+             "clips": [
+-                {"index": 1, "duration": 5, "channel": "A"},
+-                {"index": 2, "duration": 15, "channel": "B"},
++                {"index": 1, "duration": 15, "channel": "A"},
++                {"index": 2, "duration": 6.1, "channel": "B"},
+             ]
+         }
+         ok, reason = rule_r5(edl)
+-        self.assertFalse(ok, reason)
+-        self.assertIn("min 8s", reason)
++        self.assertTrue(ok, reason)
++        self.assertIn("clip 2: 6.1s (1.9s under the 8s target)", reason)
++        self.assertIn("channel 'B': 6.1s total (1.9s under the 8s target)", reason)
++        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 30, "channel": "A"},
++                                        {"index": 2, "duration": 12, "channel": "B"}]})
++        self.assertTrue(ok, reason)
++        self.assertIn("5.0s over the 25s target", reason)
++
++    def test_integrity_still_rejects_one_clip_or_one_channel(self):
++        """Must-fail (law L-o integrity: >= 2 channels per video): a short clip never rescues a single channel."""
++        for edl in ({"clips": [{"index": 1, "duration": 12, "channel": "A"}]},
++                    {"clips": [{"index": 1, "duration": 12, "channel": "A"}, {"index": 2, "duration": 5, "channel": "A"}]},
++                    {"clips": []}):
++            ok, reason = rule_r5(edl)
++            self.assertFalse(ok, reason)
++            self.assertTrue(reason.startswith("R5 FAIL"), reason)
+ 
+     def test_single_channel_fails(self):
+         edl = {

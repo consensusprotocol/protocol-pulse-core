@@ -1,0 +1,69 @@
+{
+ "question": "Batch 49 cycle 2 (verification). Cycle 1: no consensus defect (one nit, no fix needed).\n\nBatch 49 = THE SPEAKERS IN THE DELIVERY TEXTS (orchestrator order 2026-11-13 '00:05' item 3: \"Every pin carries, per segment, the SPEAKER'S NAME where the source's title/description names the guest ... with its evidence ... PBX wants to tag the right people when he posts ... Unknown speaker = say unknown, never guess.\").\nThe builder seals a per-segment record in the pin: speaker = {name or \"unknown\", role, line, basis, why, people: [{name, role, line}], measured}. The pin rides into the run's PINNED_DECISION.json.\ntelegram.speaker_lines(run_dir) renders, per segment:\n- \"speaker <name>\" with its role and evidence line, or \"speaker unknown\" with its why;\n- then each person the source names, with its line, or \"the source names nobody\";\n- each quoted line is cut to 140 characters with '...', each why to 120;\n- the whole block is capped at SPEAKERS_MAX = 1200 characters, ending \"- (truncated)\";\n- it returns [] for a pin without records.\n\nreview_texts (the review drop note) and publish_kit (the pass path's kit, before FIRST COMMENT) add the block under SPEAKERS_HEAD. Nothing else changes: no gate, no authorisation, no send logic.\nFIND: anything a delivery could crash on, a speaker invented or upgraded, a note past TEXT_MAX, a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 3.2,
+   "cost": 0.0001482265,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 9.4,
+   "cost": 9.7805e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 3.7,
+   "cost": 0.0002152795,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 8.7,
+   "cost": 0.000100564,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 361,
+   "issue": "A speaker record with a non-string 'why' (e.g. a number or list) crashes the note build; the builder's contract says why is a string, but the reader otherwise tolerates junk (isinstance checks on seg/people, str() on name).",
+   "evidence": "elif sp.get(\"why\"):\n            line += f\" ({_cut(sp['why'], 120)})\"",
+   "fix": "Wrap as _cut(str(sp[\"why\"]), 120) \u2014 or leave it; the builder seals the record and the except clause already covers unreadable pins, so this is a nit, not a consensus defect.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0005618750000000001,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch49_speaker_tags/cycle2/heimdall"
+}

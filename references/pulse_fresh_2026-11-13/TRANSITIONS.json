@@ -1,0 +1,22 @@
+{
+  "style": "crossfade",
+  "lead_tail": {
+    "hook": [
+      0.09,
+      0.04
+    ],
+    "clip_01": [
+      0.16,
+      0.01
+    ],
+    "clip_02": [
+      0.24,
+      0.3
+    ]
+  },
+  "channels": {
+    "hook": "Simply Bitcoin",
+    "clip_01": "CNBC Television",
+    "clip_02": "Scott Melker"
+  }
+}

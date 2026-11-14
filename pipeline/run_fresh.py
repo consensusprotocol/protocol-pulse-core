@@ -39,6 +39,7 @@ Usage:
   cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py --pinned PIN.json
 """
 import argparse
+import contextlib
 import datetime
 import hashlib
 import io
@@ -59,6 +60,12 @@ RUNS_DIR = os.path.join(REPO, "runs")
 CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 REF_DIR = os.path.join(REPO, "references", "v2f_2026-11-06")
 REF_VO_MANIFEST = os.path.join(REF_DIR, "run", "vo_audio", "VO_MANIFEST.json")
+# ruling 27 (orchestrator 2026-11-12 '23:20'): a run is bound to the git TREE of what it executes and reads from git,
+# not to HEAD: pipeline/ (its modules, the registry channels.json, its data), segment_v1/ (the frozen scripts, the
+# brand mark, the face model), scripts/ (the launcher) and video_pipeline_v3/relay.py (the key loader). docs/ and *.md
+# outside them are not code: a docs commit while a run is in flight is accepted. Untracked runtime assets (the brand/
+# outros, the music) are not in any tree: runtime_assets_sha256 records them per run.
+EXEC_PATHS = ("pipeline", "segment_v1", "scripts", "video_pipeline_v3/relay.py")
 
 V2F_VIDEO_IDS = {"RBFN4CB60To", "Pxrak-iMT0g", "QCgW8RlTu5Q"}
 V2F_VO_SHA = {
@@ -85,6 +92,9 @@ G8_DEGRADATION_RATIO = 0.85  # restored from 5409ccce; reporting threshold, not 
 
 class Hold(Exception):
     """Fail-closed stop. The run ends in HOLD with the reason recorded."""
+
+
+import gpu0  # noqa: E402  (law L-r: the one owner of GPU0; pipeline/ is this file's directory)
 
 
 # ── utilities ──
@@ -168,6 +178,78 @@ class Run:
         self.mode = "auto"                  # "auto" | "pinned"
         self.machine_cuts = False          # True only for machine-built PINs (enables snap)
         self.allow_v2f_material = False     # True only for a pin declaring reuses_v2f_material
+        self.sampler = None                 # L-r: gpu0.PeakSampler, started in stage_env
+        self.gpu0_stack = contextlib.ExitStack()   # L-r: holds the GPU0 lease from stage_env to the end of main
+
+    def _attempts(self, name, fn):
+        """Law L-r item 3. A CUDA out-of-memory gets ONE retry of the same step: everything this run owns is released
+        (outside the except clause, the exception chain's frames broken first, so the model that failed can be freed)
+        and nvidia-smi must show GPU0 free; BOTH attempts go to PROVENANCE (gpu0_oom: the first with its error and
+        traceback, the second with its outcome: passed, out of memory again, or the failure that ended it); a second
+        out-of-memory is a HOLD naming every GPU0 process, and any other failure of the retry still carries the first
+        out-of-memory. Every other GPU0 stop is a HOLD carrying its real cause, never another error. Retrying a stage
+        repeats it whole: the stages that change files in place (lead-in pads, shot snaps) do so inside stage_prepare,
+        which regenerates every clip from its source first."""
+        first = None                                      # the first attempt's out-of-memory record, once there is one
+
+        def retry_ended(outcome):
+            self.prov["gpu0_oom"][name].append({"attempt": 2, "at": now_iso(), "outcome": outcome[:600]})
+            self.save()
+        for attempt in (1, 2):
+            if self.sampler:
+                self.sampler.set(name)
+            oom = tb = None
+            try:
+                out = fn()
+                if first is not None:
+                    retry_ended("passed")
+                return out
+            except gpu0.Gpu0Stop as e:
+                if not isinstance(e, gpu0.GpuOOM):
+                    why = f"GPU0 {type(e).__name__}: {e}"
+                    if first is None:
+                        raise Hold(f"infrastructure: {name}: {why}") from None
+                    retry_ended(f"failed: {why}")
+                    raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); "
+                               f"the retry then stopped: {why}") from None
+                oom, tb = f"{type(e).__name__}: {str(e)[:400]}", traceback.format_exc()[-3000:]
+                gpu0.drop_traceback(e)
+            except Hold as h:
+                if first is None:
+                    raise
+                retry_ended(f"held: {h}")
+                raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
+                           f"retry then held: {h}") from None
+            except Exception as e:
+                if not gpu0.is_oom(e):
+                    if first is None:
+                        raise
+                    retry_ended(f"failed: {type(e).__name__}: {e}")
+                    raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
+                               f"retry then failed: {type(e).__name__}: {e}") from None
+                oom, tb = f"{type(e).__name__}: {str(e)[:400]}", traceback.format_exc()[-3000:]
+                gpu0.drop_traceback(e)
+            # here, outside the except clause: the failed call's frames are no longer pinned by a live exception
+            entry = {"attempt": attempt, "at": now_iso(), "error": oom, "traceback": tb}
+            try:
+                entry["gpu0_memory"], entry["gpu0_processes"] = gpu0.memory(), gpu0.processes()
+                on = gpu0.describe(entry["gpu0_processes"])
+            except gpu0.Gpu0Stop as e2:
+                entry["gpu0_unreadable"] = str(e2)
+                on = f"GPU0 unreadable ({e2})"
+            self.prov.setdefault("gpu0_oom", {}).setdefault(name, []).append(entry)
+            self.save()
+            if attempt == 2:
+                raise Hold(f"infrastructure: {name}: CUDA out of memory twice ({oom[:240]}); on GPU0: {on}")
+            first = entry
+            print(f"  GPU0 OUT OF MEMORY in stage {name}: {oom[:200]}; releasing everything this run owns, retrying "
+                  f"once", flush=True)
+            try:
+                entry["release"] = gpu0.release_all()
+            except gpu0.Gpu0Stop as e2:
+                raise Hold(f"infrastructure: {name}: CUDA out of memory ({oom[:200]}) and GPU0 did not come free: "
+                           f"{type(e2).__name__}: {e2}") from None
+            self.save()
 
     def stage(self, name, fn):
         rec = {"name": name, "started": now_iso(), "status": "running"}
@@ -176,7 +258,7 @@ class Run:
         print(f"\n######## STAGE {name} ########", flush=True)
         t0 = time.time()
         try:
-            out = fn()
+            out = self._attempts(name, fn)
             rec["status"] = "passed"
             return out
         except Hold as h:
@@ -198,6 +280,12 @@ class Run:
         finally:
             rec["ended"] = now_iso()
             rec["seconds"] = round(time.time() - t0, 1)
+            if self.sampler:
+                self.sampler.set(None)
+                if name in self.sampler.peaks:
+                    rec["gpu0_peak_mib"] = self.sampler.peaks[name]
+                if name in self.sampler.peaks_by_gpu.get(1, {}):           # law L-r: a table per GPU
+                    rec["gpu1_peak_mib"] = self.sampler.peaks_by_gpu[1][name]
             self.save()
 
     def save(self):
@@ -209,32 +297,28 @@ class Run:
 
 def stage_env(run):
     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise Hold("CUDA_VISIBLE_DEVICES must be exactly '0' (GPU1 quarantined)")
-    # tracked code must be unmodified; untracked pipeline/*.py must not exist (segment_v1
-    # holds historical untracked scratch; executed files are verified tracked+unmodified
-    # at the end of the run from sys.modules)
-    porcelain = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--",
-                                "pipeline", "segment_v1"], cwd=REPO, capture_output=True,
-                               text=True).stdout.strip()
-    untracked_py = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--",
-                                   "pipeline/*.py"], cwd=REPO, capture_output=True,
-                                  text=True).stdout.strip()
-    if porcelain or untracked_py:
-        raise Hold(f"pipeline/segment_v1 not clean at launch:\n{porcelain}\n{untracked_py}")
-    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
-                          text=True).stdout.strip()
+        raise Hold("CUDA_VISIBLE_DEVICES must be exactly '0': renders and their gates run on GPU0 (law L-r layout)")
+    code = launch_code()                          # ruling 27: one snapshot of the executable trees
     tag = subprocess.run(["git", "describe", "--tags", "--always", "--exact-match"], cwd=REPO,
                          capture_output=True, text=True).stdout.strip()
     ffv = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True).stdout.split("\n")[0]
     ytv = subprocess.run(["yt-dlp", "--version"], capture_output=True, text=True).stdout.strip()
     gpu = subprocess.run(["nvidia-smi", "--query-gpu=index,name,memory.used",
                           "--format=csv,noheader"], capture_output=True, text=True).stdout.strip()
-    run.prov["code"] = {"git_head": head, "git_exact_tag": tag or None,
-                        "pipeline_tree_clean_at_launch": True}
+    run.prov["code"] = {**code, "git_exact_tag": tag or None}
     run.prov["env"] = {"CUDA_VISIBLE_DEVICES": "0", "python": sys.version.split()[0],
                        "ffmpeg": ffv, "yt_dlp": ytv, "nvidia_smi": gpu.split("\n")}
     if "telegram" in sys.modules or "telegram_drop" in sys.modules:
         raise Hold("telegram module loaded — publishing path must not be importable here")
+    # L-r: the run holds the GPU0 lease to the end of main (custody of scripts/pulse_check_run.sh's fd 8, else its
+    # own), nothing foreign may hold GPU0 memory at its start, and GPU0 memory is sampled per stage from here on
+    run.gpu0_stack.enter_context(gpu0.lease(f"run_fresh {os.path.basename(run.dir)} (pid {os.getpid()})"))
+    foreign = gpu0.foreign()
+    if foreign:
+        raise Hold(f"infrastructure: env: GPU0 memory is held by a process that is not this run's: "
+                   f"{gpu0.describe(foreign)}")
+    run.prov["gpu0"] = {"at_start": {"memory_mib": gpu0.memory(), "processes": gpu0.processes(),
+                                     "ollama_resident": gpu0.ollama_resident(), "holder": gpu0.holder()}}
 
 
 # ── stage 1: topic ──
@@ -267,6 +351,7 @@ def stage_pinned(run, pin_path):
     """PINNED entry point: validate the human decision and write the canonical EDL. Replaces
     stage_editorial + stage_select only; everything downstream is shared."""
     from pinned import prepare, PinError
+    free_gpu0_for_whisper(run, "pinned")   # pinned.acquire runs Whisper on GPU0 (E-FAIL-052: the preflight's model OOM'd it)
     try:
         rec = prepare(pin_path, run.dir, log=lambda s: print(s, flush=True))
     except PinError as e:
@@ -311,8 +396,49 @@ def stage_review(run):
     print(f"  review by {review['reviewed_by']}: inconclusive={review.get('inconclusive')}")
 
 
+def moments_screen(edl):
+    """Ruling 34: (compiled screen or None, why) for a moments EDL. The miner's about-Bitcoin screen carried on the
+    pin (moments_package.btc_screen = {"pattern", "source"}, copied by pinned.build_edl as moments_btc_screen), only
+    for a moments package stand_alone_subject binds to the subject 'bitcoin'. Absent, malformed (not a str of at most
+    500 characters) or not compiling: None, so every segment must name Bitcoin, as before (never looser)."""
+    if "moments_package_sha256" not in edl or not stand_alone_subject(edl, {}):   # the story path: never a screen
+        return None, "not a bound moments package"
+    sc = edl.get("moments_btc_screen")
+    if sc is None:
+        return None, "the pin carries no btc_screen: every segment names Bitcoin"
+    pat = sc.get("pattern") if isinstance(sc, dict) else None
+    if not isinstance(pat, str) or not pat.strip() or len(pat) > 500:
+        return None, f"btc_screen malformed ({type(sc).__name__}): every segment names Bitcoin"
+    try:
+        return re.compile(pat, re.I), f"the pin's btc_screen ({sc.get('source') or 'source not stated'})"
+    except re.error as e:
+        return None, f"btc_screen does not compile ({e}): every segment names Bitcoin"
+
+
+def stand_alone_subject(edl, story):
+    """The words every segment must use (stand_alone.subject_terms). A moments-first package (law L-q; pp-selectid
+    REQUESTS R7 item 4, 'its subject for a Bitcoin package is Bitcoin'): its pin label, never its written title (the
+    pinned angle is 'Pinned: <title>'; the title is a package line its own VO-fidelity gate checked), and only the label
+    'bitcoin' itself. Anything else carrying the moments marker is an EMPTY subject, which fails closed
+    (stand_alone.topical: no hook names it): another label (even one naming Bitcoin, e.g. 'bitcoin cash'), a marker
+    that is not the 64-hex digest pinned.build_edl writes, a non-pinned EDL, or one without the package's two passed
+    gate verdicts (moments_checks, copied by build_edl from the validated package). Every other run, unchanged: the
+    selected story's object / event, else the EDL angle / topic."""
+    import stand_alone
+    if "moments_package_sha256" in edl:
+        sha, checks = edl["moments_package_sha256"], edl.get("moments_checks")
+        bound = (isinstance(sha, str) and bool(re.fullmatch(r"[0-9a-f]{64}", sha)) and edl.get("mode") == "pinned"
+                 and isinstance(checks, dict) and checks.get("vo_fidelity_ok") is True
+                 and checks.get("context_integrity_ok") is True)
+        label = edl.get("topic")
+        return stand_alone.subject_terms("", "bitcoin") \
+            if bound and isinstance(label, str) and label.strip().lower() == "bitcoin" else set()
+    return stand_alone.subject_terms(story.get("affected_object", ""),
+                                     story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
+
+
 def stage_validate(run):
-    from edl_rules import validate_edl
+    from edl_rules import validate_edl, takeaway_value
     from editorial_gate import run_gate
     with open(os.path.join(run.dir, "edl.json")) as f:
         edl = json.load(f)
@@ -325,6 +451,11 @@ def stage_validate(run):
     if not ok:
         raise Hold("EDL rejected by edl_rules: " + "; ".join(
             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
+    ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
+    print(f"  {why91}")
+    run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
+    if not ok91:
+        raise Hold(why91)
 
     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
@@ -340,33 +471,30 @@ def stage_validate(run):
     # Orchestrator 08:30 (direction 2): every segment stands alone and belongs to a Bitcoin story. The clip
     # scorer (the selection criterion) is asked only about clips that open on a conjunction / reply fragment.
     import stand_alone
-
-    def rate(passages):
-        import story_semantics as sm
-        llm = sm.LocalLLM().start()
-        try:
-            ratings, err = sm.rate_passages(llm, {"underlying_event": edl.get("angle") or edl.get("topic", "")},
-                                            passages)
-        finally:
-            llm.stop()
-        if err:
-            raise RuntimeError(f"clip scorer reply unparseable: {err}")
-        return ratings
+    rate = stand_alone.clip_scorer(edl.get("angle") or edl.get("topic", ""),   # one code path with the pin stage;
+                                   moments="moments_package_sha256" in edl)    # ruling 60: a moments pin, alone only
     story = {}
     if os.path.exists(os.path.join(run.dir, "passages.json")):           # auto: the selected story's query
         with open(os.path.join(run.dir, "passages.json")) as f:
             story = json.load(f).get("story") or {}
-    subject = stand_alone.subject_terms(story.get("affected_object", ""),
-                                        story.get("underlying_event") or edl.get("angle") or edl.get("topic", ""))
-    sa = stand_alone.check_edl(edl, rate=rate, subject=subject)
+    subject = stand_alone_subject(edl, story)
+    screen, screen_why = moments_screen(edl)                            # ruling 34: moments packages only
+    sa = stand_alone.check_edl(edl, rate=rate, subject=subject, screen=screen,
+                               moments="moments_package_sha256" in edl)    # ruling 60: the score alone
+    sa["screen_why"] = screen_why
     run.prov["stand_alone"] = sa
     for r in sa["rows"]:
         print(f"  STAND_ALONE {r['segment']}: [{'PASS' if r['pass'] else 'FAIL'}] opener: {r['opener']['why']} | "
               f"topic: {r['topic']['why']}")
+    if "medley_names_bitcoin" in sa:
+        print(f"  STAND_ALONE medley: [{'PASS' if sa['medley_names_bitcoin']['pass'] else 'FAIL'}] "
+              f"{sa['medley_names_bitcoin']['why']} | screen: {screen_why}")
     if not sa["ok"]:
         raise Hold("stand-alone/topic: " + "; ".join(
-            f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
-            for r in sa["rows"] if not r["pass"]) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
+            [f"{r['segment']}: " + " / ".join(x["why"] for x in (r["opener"], r["topic"]) if not x["pass"])
+             for r in sa["rows"] if not r["pass"]]
+            + ([f"medley: {sa['medley_names_bitcoin']['why']}"] if not sa.get("medley_names_bitcoin", {"pass": True})["pass"]
+               else [])) + (f" (scorer: {sa['rate_error']})" if sa["rate_error"] else ""))
 
     # layout compatibility: approved channels use tested crop; pending channels
     # use the existing safe letterbox fallback. Unknown channels still fail closed.
@@ -507,7 +635,9 @@ def free_gpu0_for_whisper(run, stage, need_free_mib=6000):
     """GPU0 is shared (other sessions load Ollama models on :11434, e.g. a 22 GB qwen3-coder at 06:02 on
     Nov 11, which OOM'd the recut's prepare). Before a Whisper stage, unload the GPU0 Ollama models and
     wait for room, exactly as the editorial stage does (story_semantics.release_gpu0_for_whisper); a
-    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage."""
+    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage. L-r: through
+    gpu0.swap_to (every other GPU0 model unloaded, a foreign process refused, the measured need proven free);
+    a refusal is a Gpu0Stop that Run.stage turns into a HOLD carrying the real cause."""
     import story_semantics as sm
     try:
         ev = sm.release_gpu0_for_whisper(sm.LocalLLM(), need_free_mib=need_free_mib, wait_s=180)
@@ -548,7 +678,8 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     with open(os.path.join(run.dir, "transcripts", f"{c['video_id']}.json")) as f:
         words = json.load(f)["words"]
     src = os.path.join(run.dir, "sources", f"{c['video_id']}.mp4")
-    cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"]))
+    cand = L.cut_candidates(src, L.edge_plan(L.SourceAudio(src), words, lock["i0"], lock["i1"],
+                                             trimmed=lock.get("trimmed_leading")))    # ruling 33 part 2
     from cut_accept import check_cut_acoustics
     pad = float(c.get("lead_in_pad_s") or 0)
     tried = c.setdefault("contract_retries", [])
@@ -587,11 +718,75 @@ def _retry_fade_edges(run, c, d1, prerender_clips, check_clip, fps, qp):
     return False, d1
 
 
+BT601_MATRICES = ("smpte170m", "bt470bg")
+
+
+def to_bt709(run_dir, video_ids):
+    """Ruling 30 (orchestrator 2026-11-13 '01:55'): a source whose MATRIX is BT.601 (color_space smpte170m / bt470bg)
+    is converted to BT.709 before any clip is prepared, so its frames read, and its final's tail measures, as a 709
+    source's do (pin #1: Sjb6lUiL0m4 is smpte170m; its 9:16 and 16:9 finals came out untagged and G9 read 13.6 / 13.9
+    through RGB while the luma plane was the 709 sources' own). The colorspace filter maps the matrix (and the
+    primaries / transfer the source declares, else BT.601's own) to BT.709. It is a lossless x264 encode (qp 0) with
+    every frame's timestamp passed through (-vsync 0), so the cuts' source times and the one lossy encode of prepare
+    are unchanged. The audio is copied. Output tags: bt709 / bt709 / bt709 / tv. The original is kept as
+    sources_bt601/<vid>.mp4. 709 and untagged sources are not touched. Returns {video_id: record}."""
+    out = {}
+    for vid in sorted(set(video_ids)):
+        src = os.path.join(run_dir, "sources", f"{vid}.mp4")
+        tags = media_tags(src)
+        if tags.get("color_space") not in BT601_MATRICES:
+            continue
+        keep = os.path.join(run_dir, "sources_bt601", f"{vid}.mp4")
+        ip = tags.get("color_primaries") if tags.get("color_primaries") not in (None, "", "unknown") else tags["color_space"]
+        it = tags.get("color_transfer") if tags.get("color_transfer") not in (None, "", "unknown") else tags["color_space"]
+        ir = "pc" if tags.get("color_range") == "pc" else "tv"     # a full-range source keeps its own range in
+        vf = (f"colorspace=space=bt709:primaries=bt709:trc=bt709:range=tv:format=yuv420p:"   # (batch 54 C1, glm)
+              f"ispace={tags['color_space']}:iprimaries={ip}:itrc={it}:irange={ir}")
+        tmp = src + ".bt709.mp4"
+        r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-map", "0:v:0", "-map", "0:a?", "-vf", vf,
+                            "-vsync", "0", "-c:v", "libx264", "-qp", "0", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+                            "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+                            "-color_range", "tv", "-c:a", "copy", "-movflags", "+faststart", tmp],
+                           capture_output=True, text=True, timeout=1800)
+        if r.returncode != 0 or not os.path.exists(tmp):
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+            raise Hold(f"ruling 30: the BT.601 -> BT.709 conversion of {vid} failed: {r.stderr.strip()[-200:]}")
+        before = sha256(src)
+        os.makedirs(os.path.dirname(keep), exist_ok=True)              # only once the encode has succeeded
+        os.replace(src, keep)
+        os.replace(tmp, src)
+        out[vid] = {"from": {k: tags.get(k) for k in ("color_space", "color_primaries", "color_transfer", "color_range")},
+                    "filter": vf, "original": os.path.relpath(keep, run_dir), "original_sha256": before,
+                    "converted_sha256": sha256(src), "lossless": "libx264 qp 0, -vsync 0, audio copied"}
+    return out
+
+
+def media_tags(path):
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                        "stream=color_space,color_primaries,color_transfer,color_range", "-of", "json", path],
+                       capture_output=True, text=True, timeout=60)
+    try:
+        return (json.loads(r.stdout).get("streams") or [{}])[0]
+    except ValueError:
+        return {}
+
+
 def stage_prepare(run, cuts):
-    from run_isolated import prerender_clips
+    from run_isolated import prerender_clips as _prerender_isolated
+
+    def prerender_clips(run_dir, table):
+        """L-r: run_isolated.py is a protected file (Law 22; test_fresh.TestProtected), so its NVENC encodes are
+        swapped to here, at their one caller (the fade retry below receives this same function)."""
+        gpu0.swap_to("nvenc")
+        return _prerender_isolated(run_dir, table)
     from clip_contract import check_clip
     from cut_accept import check_edge_words
     from config import FPS, NVENC_QP_INTERMEDIATE
+    run.prov["bt709_conversion"] = {**(run.prov.get("bt709_conversion") or {}),       # ruling 30, before any clip;
+                                    **to_bt709(run.dir, [c["video_id"] for c in cuts])}  # a re-run keeps the record
+    for vid, rec in run.prov["bt709_conversion"].items():
+        print(f"  {vid}: BT.601 ({rec['from'].get('color_space')}) source converted to BT.709 (lossless)")
     prerender_clips(run.dir, cuts)
     pads = {}
     for c in cuts:
@@ -620,6 +815,8 @@ def stage_prepare(run, cuts):
         if ok1 and ok2:                         # V1 (run 6): no frame of a neighbouring shot outside the speech
             import shot_snap
             snap = shot_snap.apply(clip, c, FPS, NVENC_QP_INTERMEDIATE)
+            if snap.get("refused"):             # ruling 71: a snap that cannot keep the required quiet
+                raise Hold(f"{c['clip_id']}: shot snap refused (ruling 71): {snap['refused']}")
             if snap["snapped"]:
                 print(f"  {c['clip_id']}: shot snap: {snap['why']}")
         rec = {"clip_id": c["clip_id"], "sha256": sha256(clip), "contract": d1,
@@ -731,6 +928,11 @@ def stage_render(run):
     with open(os.path.join(run.dir, "render_16x9.log"), "w") as f:
         f.write(cap16.text())
     postflight_check(final9, tot9, "9x16", log_output=log9)
+    # ruling 29 (orchestrator '01:55'): the final mix measured and corrected to target BEFORE the gates (two-pass
+    # loudnorm on the 16:9, its exact audio muxed into the 9:16, both re-measured); G5 unchanged
+    import loudness
+    run.prov["loudness"] = loudness.correct_finals(final16, final9)
+    print(f"  loudness: {run.prov['loudness'].get('action')}")
 
     # Vertical silent-fallback detection (PBX item 6): log evidence + structural evidence
     with open(paths["cuts_json"]) as f:
@@ -824,8 +1026,8 @@ def stage_gates(run, final16, man16, final9, man9):
     # waived): 16:9 = the prepared clips (source camera, 1920x1080), 9:16 = the reframed vertical clips.
     src16 = {c["clip_id"]: os.path.join(qa, f"final_{c['clip_id']}.mp4") for c in cuts}
     src9 = {c["clip_id"]: os.path.join(qa, f"vert_{c['clip_id']}.mp4") for c in cuts}
-    ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16)
-    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9)
+    ok16, r16 = run_gates(run.dir, final16, man16, source_clips=src16, prepared_clips=src16)   # ruling 21: G3c on
+    ok9, r9 = run_gates(run.dir, final9, man9, source_clips=src9, prepared_clips=src9)         # the prepared clips
     import qa_gates  # patched by run_gates (BASE/VO_DIR) — same module instance
 
     rows = {"16x9": {}, "9x16": {}}
@@ -860,12 +1062,9 @@ def stage_gates(run, final16, man16, final9, man9):
     put("9x16", "G11_parity", _status(g11_ok), g11)
 
     # G14 / G14c / G15
-    def _words(vid):                                  # DEC-12e: G14 samples where the transcript has speech
-        tp = os.path.join(run.dir, "transcripts", f"{vid}.json")
-        with open(tp) as f:
-            return [{"start": float(w["start"]), "end": float(w["end"])} for w in json.load(f)["words"]]
+    speech = G.g14_run_speech(run.dir, cuts)         # ruling 13: G14 samples the LOCKED words minus measured pauses
     src_clips = {c["clip_id"]: {"path": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
-                                "cut_in": c["cut_in"], "words": _words(c["video_id"])} for c in cuts}
+                                "cut_in": c["cut_in"], "words": speech[c["clip_id"]]} for c in cuts}
     g14dir16 = os.path.join(qa, "g14_16x9")
     g14dir9 = os.path.join(qa, "g14_9x16")
     os.makedirs(g14dir16, exist_ok=True)
@@ -1027,7 +1226,18 @@ def stage_gates(run, final16, man16, final9, man9):
     g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
                                 "cut_in": c["cut_in"], "cut_out": c["cut_out"],
-                                "pad_s": float(c.get("lead_in_pad_s") or 0.0)} for c in cuts}
+                                "pad_s": float(c.get("lead_in_pad_s") or 0.0),
+                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication")),
+                                "alternatives": (locks.get(c["clip_id"]) or {}).get("alternatives"),
+                                "prepared": os.path.join(qa, f"final_{c['clip_id']}.mp4"),   # the PREPARED clip
+                                "fade_in_s": float(c.get("fade_in_ms") or 0) / 1000,          # ruling 22: the
+                                "fade_out_s": float(c.get("fade_out_ms") or 0) / 1000}        # interior between fades
+                 # (qa/final_<clip>.mp4, the file G17c measures; the finals are out/segment*.mp4)
+                 for c in cuts}
+    run.prov["lock_adjudication"] = {cid: (locks.get(cid) or {}).get("adjudication") for cid in g18_clips
+                                     if (locks.get(cid) or {}).get("adjudication")}         # ruling 17
+    run.prov["lock_alternatives"] = {cid: (locks.get(cid) or {}).get("alternatives") for cid in g18_clips
+                                     if (locks.get(cid) or {}).get("alternatives")}        # ruling 18
     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
     tr = WD.Transcriber()
     g18 = {}
@@ -1079,11 +1289,41 @@ def verdict_for(rows, fmt, evidence):
 
 # ── provenance helpers ──
 
+def launch_code(repo=None):
+    """The launch half of the attestation (ruling 27): tracked files under EXEC_PATHS unmodified and no untracked
+    pipeline/*.py (segment_v1 holds historical untracked scratch; every executed module is verified tracked and
+    unmodified at the end of the run from sys.modules), else a Hold. Returns {"git_head", "exec_trees",
+    "pipeline_tree_clean_at_launch": True}."""
+    repo = repo or REPO
+    porcelain = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", *EXEC_PATHS],
+                               cwd=repo, capture_output=True, text=True).stdout.strip()
+    untracked_py = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--", "pipeline/*.py"],
+                                  cwd=repo, capture_output=True, text=True).stdout.strip()
+    if porcelain or untracked_py:
+        raise Hold(f"executable paths {list(EXEC_PATHS)} not clean at launch:\n{porcelain}\n{untracked_py}")
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    return {"git_head": head, "pipeline_tree_clean_at_launch": True, "exec_trees": exec_trees(head, repo)}
+
+
+def exec_trees(rev, repo=None):
+    """Ruling 27: {path: git object id of EXEC_PATHS[path] at `rev`}. A path git cannot resolve there (missing, or git
+    failing) is recorded as 'UNREADABLE: <git's message>', never as an id: executed_code refuses it (fail closed)."""
+    out = {}
+    for p in EXEC_PATHS:
+        r = subprocess.run(["git", "rev-parse", "--verify", f"{rev}:{p}"], cwd=repo or REPO,
+                           capture_output=True, text=True)
+        oid = r.stdout.strip()
+        out[p] = oid if r.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", oid) else \
+            f"UNREADABLE: {(r.stderr.strip() or oid or 'no output')[:200]}"
+    return out
+
+
 def executed_code(launch, modules=None, repo=None):
     """({rel path: sha256} of every loaded module of this checkout, [why not at the launch revision]). A module whose
     NAME is a pipeline module (any *.py of pipeline/, segment_v1/, video_pipeline_v3/) but whose file is outside
-    this checkout, a module under another protocol_pulse / worktrees checkout, HEAD moved since launch, and a
-    module untracked or modified against the launch revision are all reasons."""
+    this checkout, a module under another protocol_pulse / worktrees checkout, an executable tree (EXEC_PATHS) changed
+    since launch or a file under them differing from the launch revision (ruling 27: HEAD moving for a docs commit is
+    not a reason), and a module untracked or modified against the launch revision are all reasons."""
     repo = repo or REPO
     modules = sys.modules if modules is None else modules
     first_party = {os.path.splitext(fn)[0] for d in ("pipeline", "segment_v1", "video_pipeline_v3")
@@ -1101,9 +1341,21 @@ def executed_code(launch, modules=None, repo=None):
         elif re.search(r"/(protocol_pulse|worktrees)/", f) and \
                 not any(x in f for x in ("site-packages", "dist-packages", "/venv/")):
             why.append(f"{name} from {f} (outside this checkout {repo})")
-    head_now = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
-    if launch != "HEAD" and head_now != launch:
-        why.append(f"HEAD moved during the run: {launch} -> {head_now}")
+    if launch != "HEAD":                          # ruling 27: the executable trees, not HEAD (a docs commit is fine)
+        t0, t1 = exec_trees(launch, repo), exec_trees("HEAD", repo)
+        bad = [f"{p} at {rev}: {t[p]}" for rev, t in (("launch", t0), ("end", t1)) for p in EXEC_PATHS
+               if t[p].startswith("UNREADABLE")]
+        if bad:
+            why.append("executable tree not readable: " + "; ".join(bad))
+        moved = [f"{p} {t0[p]} -> {t1[p]}" for p in EXEC_PATHS if t0[p] != t1[p] and not t1[p].startswith("UNREADABLE")]
+        if moved:
+            why.append("executable tree changed during the run: " + "; ".join(moved))
+        diff = subprocess.run(["git", "diff", "--name-only", launch, "--", *EXEC_PATHS], cwd=repo,
+                              capture_output=True, text=True)
+        if diff.returncode != 0:                                  # could not compare: never a pass
+            why.append(f"git diff against the launch revision failed: {diff.stderr.strip()[:200]}")
+        elif diff.stdout.strip():                                 # working tree vs the launch commit, uncommitted too
+            why.append(f"executable paths differ from the launch revision: {diff.stdout.split()}")
     for rel in sorted(mods):
         tracked = subprocess.run(["git", "ls-files", "--error-unmatch", rel], cwd=repo,
                                  capture_output=True).returncode == 0
@@ -1168,6 +1420,9 @@ def record_assets(run):
     # from this run's revision (Claude-gates C4; by module NAME, not path spelling: GPT audit batch 16 #8)
     launch = (run.prov.get("code") or {}).get("git_head")
     mods, not_clean = executed_code(launch or "HEAD")
+    run.prov.setdefault("code", {}).update(               # ruling 27: the evidence, both ends (HEAD is informational)
+        git_head_at_end=subprocess.run(["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True,
+                                       text=True).stdout.strip(), exec_trees_at_end=exec_trees("HEAD"))
     if not launch:                                   # no recorded launch revision: nothing to compare with (F6)
         not_clean.append("no launch revision recorded")
     run.prov["executed_code_sha256"] = mods
@@ -1230,6 +1485,19 @@ def write_report(run):
     L += ["## Stages", "| stage | status | s | reason |", "|---|---|---|---|"]
     L += [f"| {r['name']} | {r['status']} | {r.get('seconds')} | {r.get('reason', '')[:200]} |"
           for r in s["stages"]]
+    g0 = p.get("gpu0") or {}
+    total = ((g0.get("at_start") or {}).get("memory_mib") or [None, None])[1]
+    if "left" in g0:
+        L += ["", f"- GPU0 at the run's end (law L-r leave): {g0['left']}"]
+    L += ["", f"## Peak memory per stage and GPU (law L-r: every GPU has one owner at a time; nvidia-smi memory.used "
+              f"sampled every 1 s, a lower bound; GPU0 total {total} MiB; the run owns GPU0, GPU1 belongs to others)",
+          "| stage | GPU0 peak MiB | GPU1 peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|---|"]
+    for r in s["stages"]:
+        oom = (p.get("gpu0_oom") or {}).get(r["name"], [])
+        fails = [e for e in oom if e.get("error")]
+        retry = "-" if not fails else ("passed" if any(e.get("outcome") == "passed" for e in oom) else "held")
+        L.append(f"| {r['name']} | {r.get('gpu0_peak_mib', 'not sampled')} | {r.get('gpu1_peak_mib', 'not sampled')} | "
+                 f"{len(fails)} | {retry} |")
     vc = p.get("visual_checklist") or {}
     if vc:
         L += ["", "## Visual checklist (answered FROM the contact sheets qa/contact_sheet_<fmt>.jpg; any no = HOLD)"]
@@ -1343,6 +1611,7 @@ def main():
     run.status["release_state"] = RELEASE_STATE
     run.save()
     t0 = time.time()
+    run.sampler = gpu0.PeakSampler().start()        # L-r item 5: every stage sampled, env included
     try:
         run.stage("env", lambda: stage_env(run))
         if run.mode == "pinned":
@@ -1358,6 +1627,9 @@ def main():
         run_tail(run, cuts)
     except Hold:
         run.status["verdict"] = VERDICT_HOLD
+    except gpu0.Gpu0Stop as e:  # L-r: a GPU0 stop outside any stage is a HOLD carrying its real cause
+        run.status["verdict"] = VERDICT_HOLD
+        run.status["holds"].append(f"orchestrator: infrastructure: GPU0 {type(e).__name__}: {e}")
     except Exception as e:  # defensive: anything unexpected is HOLD
         run.status["verdict"] = VERDICT_HOLD
         run.status["holds"].append(f"orchestrator: {type(e).__name__}: {e}")
@@ -1369,6 +1641,15 @@ def main():
             run.status["holds"].append(f"provenance: {type(e).__name__}: {e}")
         run.status["ended"] = now_iso()
         run.status["elapsed_s"] = round(time.time() - t0, 1)
+        if run.sampler:                        # L-r item 5: peak GPU0 memory per stage, in PROVENANCE and REPORT.md
+            run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
+            run.prov["gpu0"]["sampler_errors"] = run.sampler.errors
+        run.prov.setdefault("gpu0", {})["swaps"] = gpu0.events()
+        try:                                   # L-r: unload this run's models now, so the report records the outcome
+            run.prov["gpu0"]["left"] = gpu0.leave() if gpu0.held() else "no lease held"
+        except gpu0.Gpu0Stop as e:             # the next owner would find a model of this run: said, not hidden
+            run.prov["gpu0"]["left"] = f"FAILED: {type(e).__name__}: {e}"
+            run.status["gpu0_leave_failed"] = run.prov["gpu0"]["left"]
         try:                                   # LAST: the terminal state, any hold included (release_auth)
             attest_run(run)
         except Exception as e:
@@ -1382,6 +1663,9 @@ def main():
         for h in run.status["holds"]:
             print(f"  HOLD: {h}")
         print(f"  report: {os.path.join(run_dir, 'REPORT.md')}  (no publishing)")
+        if run.status.get("gpu0_leave_failed"):
+            print(f"  GPU0 leave: {run.status['gpu0_leave_failed']}", flush=True)
+        run.gpu0_stack.close()                 # the GPU0 lease (law L-r) is held to here
     sys.exit(0 if run.status["verdict"] == VERDICT_CANDIDATE else 3)
 
 

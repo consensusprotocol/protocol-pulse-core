@@ -1,0 +1,96 @@
+{
+ "question": "Batch 43 = V1 SECOND VISION BACK-END, the route (law L-x: every model role has at least two interchangeable back-ends, the local model on Ultron first where it meets the quality bar; law L-r: anything loaded on GPU0 goes through the GPU0 lease and gpu0.swap_to). V1 asks vision models a checklist about contact sheets / frames and fails closed on any 'no' or missing answer. New: visual_check._call_any(path, text, model, timeout) routes a model named 'ollama:<name>' to _call_local (gpu0.swap_to(model) first, which raises a Gpu0Stop (a BaseException) when the caller does not hold the GPU0 lease; then Ollama /api/chat with the image, temperature 0) and any other name to the unchanged Heimdall request; ask_vision, ask_letterbox and ask_boundary call it. The default panel VISION_MODELS is unchanged; LOCAL_VISION is on no panel yet (its quality is measured first on the labelled V1 cases).\nFIND: any way the Heimdall path changed; a local call that can load on GPU0 without the lease or swallow a GPU0 stop as an ordinary route error; a malformed local reply read as a pass (the callers' parsers must still fail closed); tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 280.4,
+   "cost": 0.0176512605,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 11.9,
+   "cost": 0.000113956,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 4.7,
+   "cost": 0.0002499995,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 25.1,
+   "cost": 0.000186248,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/test_v1_local_route.py",
+   "line": 30,
+   "issue": "The lease test's skipIf(gpu0.held()) means that on a GPU session the entire TestLocalRouteNeedsTheLease class is skipped, so the 'no lease \u2192 Gpu0Stop' claim is untested there; also the test never asserts that no Ollama request was made (the 'no_load_no_request' name promises it) \u2014 _call_local is not patched, so a real HTTP call could happen if the lease were somehow held, and nothing checks the request count.",
+   "evidence": "@unittest.skipIf(gpu0.held(), \"a GPU session holds the lease: the refusal is tested in a CPU session\") ... def test_no_lease_no_load_no_request(self): ... with self.assertRaises(gpu0.Gpu0Stop): VC._call_local(img, \"q\", VC.LOCAL_VISION, 5)",
+   "fix": "Assert the Ollama endpoint is never contacted (e.g. patch urllib.request.urlopen with a counter) inside the no-lease test, and/or run the refusal assertions in a session where gpu0.held() is guaranteed False.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/visual_check.py",
+   "line": 199,
+   "issue": "gpu0.swap_to(model) is called with the full 'ollama:gemma3:27b' string; if gpu0.swap_to expects a bare model name (or passes it through to the Ollama/registry loader), the lease-protected load may target the wrong model name \u2014 the 'ollama:' prefix is stripped for the HTTP body (model.split(':',1)[1]) but NOT for swap_to, so the swapped/loaded model and the requested model can diverge.",
+   "evidence": "gpu0.swap_to(model)  # model = 'ollama:gemma3:27b' ... \"model\": model.split(\":\", 1)[1]  # 'gemma3:27b' only here",
+   "fix": "Strip the prefix before swapping: gpu0.swap_to(model.split(':', 1)[1]) (or confirm gpu0.swap_to accepts the 'ollama:'-prefixed name and document it)."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/visual_check.py",
+   "line": 205,
+   "issue": "The image file handle from open(image_path, 'rb') is never closed (no with/finally); under repeated V1 runs this leaks file descriptors until GC, and on some platforms an open handle can interfere with later cleanup of the work dir.",
+   "evidence": "\"images\": [base64.b64encode(open(image_path, \"rb\").read()).decode()]",
+   "fix": "with open(image_path, 'rb') as f: img_b64 = base64.b64encode(f.read()).decode() then use img_b64 in the body."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_v1_local_route.py",
+   "line": 33,
+   "issue": "The second assertRaises wraps VC.ask_vision(..., attempts=1) but the test only proves the Gpu0Stop propagates out of ask_vision; it does not verify the documented 'a run turns it into a HOLD naming the cause' behavior \u2014 ask_vision's except-Exception clause catches only Exception, and Gpu0Stop being a BaseException means it escapes the retry loop, so the HOLD-with-cause path (tries list, answers={}) is never exercised; the docstring/audit claim 'a Gpu0Stop that a run turns into a HOLD naming the cause' is not what the code does.",
+   "evidence": "except Exception as e:  # in ask_vision \u2014 Gpu0Stop is a BaseException, not Exception, so it is NOT caught/retried/HOLDed",
+   "fix": "Either catch BaseException (or (Exception, gpu0.Gpu0Stop)) in ask_vision/ask_letterbox/ask_boundary so a lease refusal becomes answers={} + a named cause in tries, or change the test/docstring to assert propagation instead of HOLD."
+  }
+ ],
+ "total_cost": 0.018201464,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch43_v1_local_route/cycle1/heimdall"
+}

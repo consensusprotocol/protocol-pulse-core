@@ -1,0 +1,53 @@
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index 654202a2..72a2d1e2 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -22,7 +22,8 @@ import wave
+ import numpy as np
+ from PIL import Image, ImageDraw, ImageFilter
+ 
+-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
++if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r (E-FAIL-053): an explicit CPU request stays CPU;
++    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0 only (GPU1 is quarantined)
+ 
+ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, PIPELINE_DIR)
+diff --git a/pipeline/test_gpu0.py b/pipeline/test_gpu0.py
+index 4b8d358c..b2a753b9 100644
+--- a/pipeline/test_gpu0.py
++++ b/pipeline/test_gpu0.py
+@@ -564,6 +564,20 @@ class TestNoDirectLoaders(unittest.TestCase):
+         fn = src[src.index("def prerender_clips(run_dir, table):"):]
+         self.assertLess(fn.index('gpu0.swap_to("nvenc")'), fn.index("_prerender_isolated(run_dir, table)"))
+ 
++    def test_no_module_forces_gpu0_over_an_explicit_cpu_request(self):
++        """E-FAIL-053: render16 (and, found next, render_vertical and qa_gates) set CUDA_VISIBLE_DEVICES=0 on import,
++        overriding a CPU session's ''. Any assignment of the variable must sit under the explicit-CPU guard."""
++        import re
++        bad = []
++        for f in self.FILES:
++            lines = open(f).read().splitlines()
++            for i, line in enumerate(lines):
++                if re.search(r"os\.environ\[['\"]CUDA_VISIBLE_DEVICES['\"]\]\s*=(?!=)", line):
++                    guard = lines[i - 1] if i else ""
++                    if 'not in ("", "-1")' not in guard:
++                        bad.append(f"{os.path.relpath(f, PIPELINE)}:{i + 1}")
++        self.assertEqual(bad, [])
++
+     def test_the_gpu0_ollama_is_called_only_through_gpu0(self):
+         """AST: a string naming the Ollama generate / chat endpoints appears only in LocalLLM._post (chat, after
+         swap_to), story_semantics._unload (keep_alive 0) and preflight.check_ollama (after swap_to)."""
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index caadaa76..4558ee2a 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -19,7 +19,8 @@ Exit non-zero on any FAIL. Writes GATE_FAIL.txt on failure.
+ import json, os, re, subprocess, sys, math, struct, wave, time
+ import numpy as np
+ 
+-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
++if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r (E-FAIL-053): an explicit CPU request stays CPU;
++    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # otherwise GPU0 only (GPU1 is quarantined)
+ 
+ BASE = "/home/ultron/protocol_pulse/segment_v1"
+ VO_DIR = os.path.join(BASE, "vo_audio")

@@ -97,6 +97,20 @@ class TestAuthorisedDrop(Base):
         self.assertTrue(kit.endswith("credits: @YahooFinance @nataliebrunell\n\U0001F9E1"), kit[-80:])
 
 
+    def test_a_moments_kit_carries_the_sealed_title_and_caption(self):
+        # 17:12 (pin 0c68b589, Telegram 67848): the kit suggested 'bitcoin | Pulse Check' from the EDL's topic, not
+        # the ONE sealed title and caption the moments EDL carries (law L-t)
+        edl = json.load(open(os.path.join(make_run(self.tmp, attest=False), "edl.json")))
+        edl.update(topic="bitcoin", headline=None, title="No single owner controls the bitcoin network",
+                   caption="bitcoin is not a partisan issue. no ceo or committee keeps its rules.")
+        _, sent = self.deliver(make_run(self.tmp, edl=edl))
+        kit = sent[-1][2]["text"]
+        self.assertIn("SUGGESTED TITLE: No single owner controls the bitcoin network | Pulse Check", kit)
+        self.assertIn("DESCRIPTION:\nbitcoin is not a partisan issue. no ceo or committee keeps its rules. Every clip",
+                      kit)
+        self.assertNotIn("SUGGESTED TITLE: bitcoin", kit)
+
+
 class TestNothingIsSentUnlessAuthorised(Base):
     def refused(self, rd, label, needle):
         """Nothing sent, for THIS reason (cycle 2 F8: any RuntimeError is not enough)."""

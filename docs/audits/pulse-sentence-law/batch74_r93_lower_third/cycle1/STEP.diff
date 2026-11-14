@@ -1,0 +1,317 @@
+diff --git a/pipeline/editorial_select.py b/pipeline/editorial_select.py
+index 74ba33f5..f72bfb34 100644
+--- a/pipeline/editorial_select.py
++++ b/pipeline/editorial_select.py
+@@ -95,12 +95,12 @@ def _story_published(generated_at, freshness_minutes):
+ def layout_eligible(channel):
+     """Any registered channel with an id is clip-eligible. Presentation safety is
+     enforced later: approved channels crop; pending channels letterbox.
+-    DEC-12d (2026-11-11): a channel the registry marks has_chyron burns a lower third into its picture, which
+-    the 16:9 shows uncropped and G10 fails (Nov 11 recut: Bitcoin Magazine's ticker, 0.0854 vs 0.08); its
+-    videos still count as coverage evidence, but selection never takes a clip from it: the next-ranked legal
+-    window takes the slot (the 4th segment is optional).
++    DEC-12d (2026-11-11) excluded every has_chyron channel. RULING 93 (orchestrator 2026-11-13 '23:59') replaced it:
++    no channel is ineligible by name; every clip is judged on its own frames (the pin-stage visual check; the 9:16
++    reframe keeps a lower third whole where a face-safe crop allows, vertical_layout.single_crop; G10 runs on every
++    clip, monitoring). has_chyron stays in the registry as a hint that orders the visual check, nothing more.
+     """
+-    return bool(channel.get("channel_id")) and not channel.get("has_chyron")
++    return bool(channel.get("channel_id"))
+ 
+ 
+ def story_engine_status(stories, path=STORIES_PATH):
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index 61e25495..e9e9e429 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -21,7 +21,7 @@ Rules:
+                               in EDL, in EDL order. Unique avatar hashes.
+     R7 VERTICAL_LAYOUT_KNOWN: Every (channel, tile_count) must have an
+                               explicit layout table entry.
+-    R8 G10_CHYRON_REGISTRY:   Only channels with has_chyron=true trigger G10.
++    R8 G10_CHYRON_REGISTRY:   informational: has_chyron channels (a hint; G10 runs on every clip, ruling 93).
+     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
+                               that ends a sentence (. ? !) plus 0.20-0.45s tail
+                               pause, strictly before the next source word starts.
+@@ -508,7 +508,8 @@ def rule_r7(edl, layout_tables_dir=None):
+ # ==============================================================
+ 
+ def rule_r8(edl, channels_registry=None):
+-    """Only channels with has_chyron=true should trigger G10 chyron gate."""
++    """Informational: the has_chyron channels in the EDL. Ruling 93 (2026-11-13 '23:59'): G10 runs on EVERY clip;
++    has_chyron is a hint that orders the pin-stage visual check, nothing more."""
+     if not channels_registry:
+         return True, "R8 SKIP: no channels registry provided"
+ 
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index 2ce82c63..dd275bdc 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -400,8 +400,10 @@ def _input_colour(path):
+ def _shot_vf(shot, src_w, src_h):
+     """Filter for one shot of a 1920x1080 prepared clip -> 1080x1920 (approved filters reused)."""
+     cls = shot["class"]
+-    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a)
+-        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))
++    if cls == "single":                                   # v2f fixed speaker-centred crop (Law 18a); ruling 93:
++        x = max(0, min(src_w - CROP_W, int(shot["face_cx"]) - CROP_W // 2))    # the plan's lower-third-clear x
++        if isinstance(shot.get("crop_x"), int) and 0 <= shot["crop_x"] <= src_w - CROP_W:
++            x = shot["crop_x"]
+         return f"crop={CROP_W}:{CROP_H}:{x}:0,scale={VERT_W}:{VERT_H}:flags=lanczos"
+     if cls in ("stack2", "stack3"):                       # equal bands, left to right (Law 18b equal mode)
+         n = int(cls[-1])
+diff --git a/pipeline/test_editorial.py b/pipeline/test_editorial.py
+index cea86c12..2ac428e9 100644
+--- a/pipeline/test_editorial.py
++++ b/pipeline/test_editorial.py
+@@ -111,12 +111,14 @@ class TestChyronChannels(unittest.TestCase):
+         for e in reg:
+             self.assertIsInstance(e.get("has_chyron"), bool, e.get("display_name"))
+ 
+-    def test_a_chyron_channel_never_supplies_a_clip(self):
++    def test_ruling_93_no_channel_is_ineligible_by_name(self):
++        """Ruling 93 (orchestrator 2026-11-13 '23:59') replaces DEC-12d: a has_chyron channel is judged per clip on its
++        own frames, never excluded by name; a channel with no id stays ineligible."""
+         import editorial_select as es
+         chyron = [e for e in REG.values() if e.get("has_chyron")]
+         self.assertIn("Bitcoin Magazine", [e["display_name"] for e in chyron])
+         for e in chyron:                                    # every chyron channel, not one example
+-            self.assertFalse(es.layout_eligible(e), e["display_name"])
++            self.assertTrue(es.layout_eligible(e), e["display_name"])
+         self.assertTrue(es.layout_eligible(REG["The Bitcoin Layer"]))
+         self.assertFalse(es.layout_eligible({"display_name": "x", "has_chyron": False}))   # no channel id
+ 
+diff --git a/pipeline/vertical_layout.py b/pipeline/vertical_layout.py
+index e9b0d073..63417588 100644
+--- a/pipeline/vertical_layout.py
++++ b/pipeline/vertical_layout.py
+@@ -31,6 +31,55 @@ PROMINENT_FRAC = 0.010
+ MIN_BAND_RATIO = 0.35
+ MIN_SHOT_S = 1.0
+ SAFE_FRAME = ("screen", "uncertain")
++# RULING 93 (orchestrator 2026-11-13 '23:59'): the 9:16 single crop must not cut a lower third mid-word where a crop
++# inside the face-safe range keeps every element wholly in or wholly out. Law 20: constants, never tuned to pass.
++# Measured on the published 0c68b589 CNBC clip (DoD 23:51): the band holds the tag, the logo and the banner words.
++LT_BAND = (0.70, 0.985)        # the lower-third band, fractions of the frame height
++LT_CANNY = (80, 200)           # edge thresholds
++LT_CLOSE = (13, 5)             # horizontal closing: letters into a word, not words into a line
++LT_TEXT_H = (14, 90)           # an element's height in pixels (text, not a rule or a bar)
++LT_MIN_W, LT_MIN_AREA = 10, 60
++FACE_MARGIN_FRAC = 0.10        # the face box stays >= 10 % of the crop width from either crop edge
++
++
++def lower_third_spans(frame):
++    """Ruling 93: the x spans [x0, x1] of word-sized, text-like elements in the frame's lower-third band (Canny edges
++    closed horizontally into word-sized boxes)."""
++    import cv2
++    h = frame.shape[0]
++    y0, y1 = int(LT_BAND[0] * h), int(LT_BAND[1] * h)
++    edges = cv2.Canny(cv2.cvtColor(frame[y0:y1], cv2.COLOR_BGR2GRAY), *LT_CANNY)
++    closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, LT_CLOSE))
++    n, _, st, _ = cv2.connectedComponentsWithStats(closed, 8)
++    return sorted({(int(st[i][0]), int(st[i][0] + st[i][2])) for i in range(1, n)
++                   if LT_TEXT_H[0] <= st[i][3] <= LT_TEXT_H[1] and st[i][2] >= LT_MIN_W and st[i][4] >= LT_MIN_AREA})
++
++
++def single_crop(faces, spans, w, h):
++    """Ruling 93: the 9:16 single crop's x for a shot (crop width h * 9 / 16, full height). Today's crop is centred on
++    the median face (render_vertical._shot_vf). When a crop edge falls inside a lower-third element (spans) and some x
++    inside the face-safe range (every sampled face box inside the crop, FACE_MARGIN_FRAC of the crop width from either
++    edge) has no edge inside any element, the nearest such x; else today's x, reported as cut. -> (x, record)."""
++    cw = int(h * 9 / 16)
++    cx = int(np.median([f[1] for f in faces]))
++    base = max(0, min(w - cw, cx - cw // 2))
++
++    def cuts(x):
++        return [[a, b] for a, b in spans if a < x < b or a < x + cw < b]
++    if not cuts(base):
++        return base, {"rule": "ruling 93", "x": base, "moved_px": 0, "cut": False, "spans": len(spans)}
++    sides = [(f[0] * w * h) ** 0.5 for f in faces]
++    left = min(f[1] - s / 2 for f, s in zip(faces, sides))
++    right = max(f[1] + s / 2 for f, s in zip(faces, sides))
++    m = FACE_MARGIN_FRAC * cw
++    lo, hi = max(0, int(np.ceil(right + m - cw))), min(w - cw, int(np.floor(left - m)))
++    clear = [x for x in range(lo, hi + 1) if not cuts(x)]
++    if clear:
++        x = min(clear, key=lambda v: (abs(v - base), v))
++        return x, {"rule": "ruling 93", "x": x, "moved_px": x - base, "cut": False, "spans": len(spans),
++                   "face_safe_x": [lo, hi]}
++    return base, {"rule": "ruling 93", "x": base, "moved_px": 0, "cut": True, "spans": len(spans),
++                  "face_safe_x": [lo, hi], "cut_spans": cuts(base)[:8]}
+ G4_LAYOUT = {"single": "single", "stack2": "2face", "stack3": "3face", "screen": "screenshare",
+              "uncertain": "single"}
+ 
+@@ -115,7 +164,8 @@ def classify(clip_path, detect=None):
+         if not ok:      # never silent (cross-LLM UF-1): counted in the plan, printed in the run log
+             print(f"  WARNING vertical_layout: frame unreadable in {os.path.basename(clip_path)} at {t:.2f} s -> uncertain")
+         samples.append({"t": round(float(t), 3), "class": label, "read_ok": bool(ok),
+-                        "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]]})
++                        "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]],
++                        "lt": [list(s) for s in lower_third_spans(frame)] if ok else []})   # ruling 93
+     cap.release()
+     if not samples:
+         raise RuntimeError(f"no frames sampled from {clip_path}")
+@@ -149,6 +199,8 @@ def classify(clip_path, detect=None):
+         if lab == "single":
+             shot["face_cx"] = int(np.median([f[0][1] for f in faces]))
+             shot["face_cy"] = int(np.median([f[0][2] for f in faces]))
++            spans = sorted({tuple(x) for s in samples[a:b] for x in s.get("lt") or []})   # ruling 93: one static
++            shot["crop_x"], shot["lower_third"] = single_crop([f[0] for f in faces], spans, w, h)  # crop, every sample
+         elif lab in ("stack2", "stack3"):
+             n = int(lab[-1])
+             per = [sorted(f[:n], key=lambda c: c[1]) for f in faces]    # each sample's n faces, left to right
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index bb79d89f..5cbee00f 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -1112,6 +1112,12 @@ def gate_g9(final_mp4, qa_dir, fmt="16x9"):
+ # G10: TEXT CROP (CoinDesk lower-third chyron protection)
+ # ==============================================================
+ 
++def g10_clip_ids(segments):
++    """Ruling 93 (orchestrator 2026-11-13 '23:59'): G10 runs on EVERY clip of the final, every talking head; no
++    channel is judged by name (the registry's has_chyron is a hint, nothing more)."""
++    return {seg["label"] for seg in segments if seg.get("type") == "talking_head"}
++
++
+ def gate_g10(final_mp4, segments, crop_rects, qa_dir, chyron_clip_ids=None):
+     """IMAGE-BASED chyron check on the FINAL output picture.
+     Samples 5 frames inside each chyron-channel segment, takes the bottom 12% band,
+@@ -1839,30 +1845,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
+     else:
+         results["G11_parity"] = {"pass": True, "skip": True, "reason": "no horiz_mp4"}
+ 
+-    # G10: Chyron (channels with has_chyron=true in registry)
+-    chyron_clip_ids = set()
+-    if edl_path and channels_json_path:
+-        try:
+-            with open(edl_path) as f:
+-                edl = json.load(f)
+-            with open(channels_json_path) as f:
+-                ch_registry = json.load(f)
+-            chyron_channels = {
+-                entry["display_name"]
+-                for entry in ch_registry
+-                if entry.get("has_chyron", False)
+-            }
+-            # Map hook
+-            hook = edl.get("hook", {})
+-            if hook.get("channel") in chyron_channels:
+-                chyron_clip_ids.add("hook")
+-            # Map clips
+-            for clip in edl.get("clips", []):
+-                if clip.get("channel") in chyron_channels:
+-                    chyron_clip_ids.add(f"clip_{clip['index']:02d}")
+-        except Exception as e:
+-            print(f"  G10 registry lookup error: {e}")
+-
++    # G10: Chyron, on EVERY clip (ruling 93, orchestrator 2026-11-13 '23:59': no channel is judged by name; the
++    # registry's has_chyron is a hint that orders the pin-stage visual check, nothing more). Still MONITORING.
++    chyron_clip_ids = g10_clip_ids(segments)
+     g10_pass, g10_table = gate_g10(final_mp4, segments, {}, qa_dir,
+                                     chyron_clip_ids=chyron_clip_ids)
+     results["G10_chyron"] = {"pass": g10_pass, "data": g10_table}
+
+diff --git a/pipeline/test_lower_third.py b/pipeline/test_lower_third.py (new file)
++#!/usr/bin/env python3
++"""RULING 93 (orchestrator 2026-11-13 '23:59'): DEC-12d is measured per clip, not per channel. The render side:
++- the 9:16 single crop must not cut a lower third mid-word where a crop inside the face-safe range keeps every element
++  wholly in or wholly out (vertical_layout.lower_third_spans / single_crop; render_vertical._shot_vf reads crop_x);
++- G10 runs on every clip (qa_gates.g10_clip_ids), still monitoring.
++Must-fail on the published 0c68b589 CNBC clip (the protected first-pass reference's prepared clip_01): the old crop
++(x 94, face-centred) cuts the 'CNBC EXCLUSIVE' tag; before the banner a face-safe crop clears it and the rule takes it;
++over the whole shot none does (the banner from 6.2 s), so the old crop stays and the shot is recorded cut.
++No GPU (CUDA_VISIBLE_DEVICES=). Run: cd ~/protocol_pulse && CUDA_VISIBLE_DEVICES= python3 -m pytest -q pipeline/test_lower_third.py"""
++import json
++import os
++import sys
++import unittest
++
++import numpy as np
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++sys.path.insert(1, os.path.join(REPO, "segment_v1"))
++import qa_gates  # noqa: E402
++import render_vertical as RV  # noqa: E402
++import vertical_layout as VL  # noqa: E402
++
++REF = "/home/ultron/protocol_pulse/references/pulse_fresh_2026-11-13"
++CLIP = os.path.join(REF, "qa", "final_clip_01.mp4")
++W, H, CW = 1920, 1080, 607
++FACE = [0.04, 397, 358]                 # [area fraction, cx, cy]: the CNBC speaker (box side ~288 px)
++
++
++class TestSingleCrop(unittest.TestCase):
++    def test_no_lower_third_keeps_todays_crop(self):
++        x, rec = VL.single_crop([FACE], [], W, H)
++        self.assertEqual((x, rec["moved_px"], rec["cut"]), (94, 0, False))           # face_cx - 303
++
++    def test_a_cut_word_moves_the_crop_to_the_nearest_face_safe_clear_x(self):
++        x, rec = VL.single_crop([FACE], [(70, 240)], W, H)                          # the tag under the left edge
++        self.assertFalse(rec["cut"])
++        self.assertTrue(x <= 70 or x >= 240)
++        lo, hi = rec["face_safe_x"]
++        self.assertTrue(lo <= x <= hi)
++        side = (FACE[0] * W * H) ** 0.5                                               # the face stays inside, with
++        self.assertGreaterEqual(FACE[1] - side / 2 - x, VL.FACE_MARGIN_FRAC * CW - 1)   # its margin
++        self.assertGreaterEqual(x + CW - (FACE[1] + side / 2), VL.FACE_MARGIN_FRAC * CW - 1)
++
++    def test_no_clear_face_safe_crop_keeps_todays_and_records_the_cut(self):
++        x, rec = VL.single_crop([FACE], [(0, 1900)], W, H)                            # one element wider than any crop
++        self.assertEqual((x, rec["cut"], rec["moved_px"]), (94, True, 0))
++
++    def test_the_renderer_reads_the_plans_crop_x(self):
++        shot = {"class": "single", "face_cx": 397, "crop_x": 21}
++        self.assertIn("crop=607:1080:21:0", RV._shot_vf(shot, W, H))
++        self.assertIn("crop=607:1080:94:0", RV._shot_vf({"class": "single", "face_cx": 397}, W, H))   # no plan x
++        self.assertIn("crop=607:1080:94:0", RV._shot_vf(dict(shot, crop_x=5000), W, H))  # out of range: today's
++
++
++class TestG10OnEveryClip(unittest.TestCase):
++    def test_every_talking_head_whatever_its_channel(self):
++        segs = [{"label": "hook", "type": "talking_head"}, {"label": "vo_intro", "type": "vo"},
++                {"label": "clip_01", "type": "talking_head"}, {"label": "shoutout", "type": "shoutout"}]
++        self.assertEqual(qa_gates.g10_clip_ids(segs), {"hook", "clip_01"})
++
++
++@unittest.skipUnless(os.path.exists(CLIP), "the protected first-pass reference's prepared clip_01")
++class TestPublishedCnbcClip(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        import cv2
++        lay = json.load(open(os.path.join(REF, "VERTICAL_LAYOUT.json")))["clip_01"]
++        cls.faces = [s["faces"][0] for s in lay["samples"] if s.get("faces")]
++        cap = cv2.VideoCapture(CLIP)
++        fps = cap.get(cv2.CAP_PROP_FPS) or 24.0
++        cls.spans = {}
++        for s in lay["samples"]:
++            cap.set(cv2.CAP_PROP_POS_FRAMES, int(round(s["t"] * fps)))
++            ok, fr = cap.read()
++            if ok:
++                cls.spans[s["t"]] = VL.lower_third_spans(fr)
++        cls.published_x = max(0, min(W - CW, int(np.median([f[1] for f in cls.faces])) - CW // 2))
++
++    def spans_until(self, t1):
++        return sorted({x for t, sp in self.spans.items() if t < t1 for x in sp})
++
++    def test_the_published_crop_cuts_the_lower_third(self):
++        self.assertEqual(self.published_x, 94)
++        cut = [s for s in self.spans_until(6.0) if s[0] < 94 < s[1] or s[0] < 94 + CW < s[1]]
++        self.assertTrue(cut, "the old crop cuts the CNBC EXCLUSIVE tag")
++
++    def test_before_the_banner_the_rule_clears_it(self):
++        x, rec = VL.single_crop(self.faces, self.spans_until(6.0), W, H)
++        self.assertFalse(rec["cut"], rec)
++        self.assertNotEqual(x, self.published_x)
++        self.assertTrue(7 <= x <= 33, (x, rec))                                      # measured DoD 23:51
++
++    def test_over_the_whole_shot_no_crop_clears_it_and_the_cut_is_recorded(self):
++        x, rec = VL.single_crop(self.faces, self.spans_until(99.0), W, H)
++        self.assertEqual((x, rec["cut"]), (self.published_x, True))
++        self.assertTrue(rec["cut_spans"])
++
++
++if __name__ == "__main__":
++    unittest.main()

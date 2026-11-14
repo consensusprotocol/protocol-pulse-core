@@ -1,0 +1,79 @@
+{
+ "question": "Batch 60 cycle 2 (verification). Cycle 1: one consensus [medium] (started fetches keep asking YouTube during a block): implemented with a per-cycle hold event set by the first sign-in failure in its own thread (CONSENSUS.md); the GPU part deliberately not (no platform request; re-downloads would cost more).\n\nBatch 60 = the word-pass worker under a platform block (the integrator's own worker; no orchestrator ruling changes).\nBackground: pipeline/word_pass_worker.py turns ranked ledger moments into sentence-ready window word records on GPU1. Each cycle picks up to 120 moments the rows file has no row for (passed_ids), downloads each video's audio once (transcript_store.download_audio: yt-dlp with data/yt_cookies.txt), cuts windows, decodes them under the GPU1 lease, and appends ONE row per moment (ready, not ready, or failed with its error). A moment with a row is never worked again. On 2026-11-13 at 04:47 ET YouTube began refusing EVERY request from this machine (\"Sign in to confirm you're not a bot. Use --cookies-from-browser or --cookies for the authentication\"): 330 moments got permanent failure rows in 2 minutes (each download fails fast, so the cycles spun), and a metadata probe on a known-public video failed the same way. An age-gated or sign-in-only VIDEO produces the same sign-in wording, so the wording alone cannot say whose failure it is.\nThe change:\n- BLOCK = the sign-in wording; blocked_failure(why) = an 'acquisition:' failure (download or metadata) in that wording.\n- control_ok(): ONE metadata request (the store's own ts._ytdlp: same cookies) for CONTROL_VIDEO (the approved medley reference's public source); True only when yt-dlp exits 0 and prints its id; any exception or failure is False.\n- cycle(): a blocked_failure triggers control_ok() at most once per cycle. Control refused -> the platform's failure: no row is written for it (blocked_rows counts it), the fetches not yet started are cancelled (a cancelled fetch writes no row either), report['blocked'] states why, and main() sleeps before the next cycle. Control answered -> that video's own failure: written as before with control_ok: true. Every other failure: written exactly as before, and the control is never asked.\n- passed_ids(): a blocked_failure row WITHOUT control_ok does not count (so the 330 rows written during the block are retried once; if they fail again while the control answers, they are written with control_ok and stay done).\nTests (6 new in test_word_pass_worker.py; the 20 old pass): a blocked cycle writes nothing, asks the control once, and the next cycle writes every moment; a video's own sign-in failure is written with control_ok and not picked again; old rows: only a sign-in acquisition row without control_ok is retried; a non-sign-in failure never asks the control; control_ok's call and its False cases; main() sleeps after a blocked cycle.\nFIND: anything still open; a moment lost (a row written) because of the platform; more than a handful of requests per blocked cycle; a video's own permanent failure retried forever; a race in the hold event or the futures handling; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.2,
+   "cost": 0.000286192,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 21.4,
+   "cost": 0.000226176,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.6,
+   "cost": 0.0009220299,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 16.3,
+   "cost": 0.000226393,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 401,
+   "issue": "After a platform block, the control verdict is cached for the whole cycle, so a fetch that already started before the block and finishes later with a sign-in failure is counted as the platform's (blocked_rows, no row) even though the control was never asked for it \u2014 but worse, if the control answered (control_ok true) for the first failure, later sign-in failures in the same cycle are written with control_ok: true even though the control was asked once, before those failures, which is the intended design; the real defect is the opposite branch: when the control answers, hold.clear() runs on every subsequent sign-in failure, so a fetch that started before the first failure (hold not yet set) is unaffected, but a fetch that started after the first failure was skipped via hold and its SKIPPED rows are counted in blocked_rows while the control answered \u2014 those moments are silently dropped from this cycle's report counts (neither written nor failed) and only recovered by the next cycle, which is by design; the actual defect: verdict['control_ok'] is only set when the FIRST sign-in failure occurs, so if the first sign-in failure's control check returns True, hold.clear() lets later fetches proceed, but if a later fetch's failure arrives while verdict already says control_ok, the control is never re-asked \u2014 acceptable. The verifiable defect: when the control answers, hold.clear() is executed inside the per-failure loop, so it runs once per sign-in failure, but a fetch thread that passed the hold.is_set() check just before hold.set() races the setter and proceeds to make requests during a block.",
+   "evidence": "if verdict[\"control_ok\"]: _fail(r, report, why, control_ok=True); hold.clear()  /  if hold is not None and hold.is_set(): return [], [(r, SKIPPED) for r in rows], 0.0",
+   "fix": "None needed beyond documenting the benign race; the check-then-act on hold.is_set() vs hold.set() is inherent to Event and the outcome (one extra download attempt during a block) matches the design's 'at most once per cycle' control, not the fetches. Alternatively set hold before the control check so later fetches see it until the verdict arrives.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 401,
+   "issue": "When the control answers (control_ok true), hold.clear() runs inside the per-failure loop, but a fetch that already passed the hold.is_set() check and is mid-download when the first sign-in failure arrives will complete normally; meanwhile a later fetch that starts after hold.set() but before the control answers is skipped (SKIPPED, counted in blocked_rows) even though the control ultimately answers \u2014 those moments are neither written nor failed this cycle and only recovered next cycle, which is by design but means blocked_rows can overcount 'platform' rows when the control answered.",
+   "evidence": "if verdict[\"control_ok\"]: _fail(r, report, why, control_ok=True); hold.clear()  /  if hold is not None and hold.is_set(): return [], [(r, SKIPPED) for r in rows], 0.0",
+   "fix": "None required; if exactness matters, only clear hold after the control verdict is known and re-check it, or count SKIPPED rows separately from blocked_rows."
+  }
+ ],
+ "total_cost": 0.0016607909,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch60_wordpass_block/cycle2/heimdall"
+}

@@ -1,0 +1,1205 @@
+{
+  "hook": {
+    "clip": "final_hook.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 16.96,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 2.9583,
+        "class": "stack2",
+        "flagged": false,
+        "g4_layout": "2face",
+        "n_samples": 6,
+        "band_cx": [
+          472,
+          1482
+        ],
+        "band_cy": [
+          511,
+          313
+        ]
+      },
+      {
+        "start": 2.9583,
+        "end": 10.2083,
+        "class": "single",
+        "flagged": false,
+        "g4_layout": "single",
+        "n_samples": 14,
+        "face_cx": 1016,
+        "face_cy": 339
+      },
+      {
+        "start": 10.2083,
+        "end": 14.0,
+        "class": "screen",
+        "flagged": true,
+        "g4_layout": "screenshare",
+        "n_samples": 8
+      },
+      {
+        "start": 14.0,
+        "end": 16.96,
+        "class": "single",
+        "flagged": false,
+        "g4_layout": "single",
+        "n_samples": 6,
+        "face_cx": 1026,
+        "face_cy": 340
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.097,
+            472,
+            511
+          ],
+          [
+            0.0401,
+            1484,
+            311
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.097,
+            472,
+            511
+          ],
+          [
+            0.0399,
+            1481,
+            314
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0971,
+            473,
+            511
+          ],
+          [
+            0.0392,
+            1468,
+            312
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0972,
+            472,
+            511
+          ],
+          [
+            0.0406,
+            1488,
+            319
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0971,
+            473,
+            511
+          ],
+          [
+            0.0397,
+            1465,
+            314
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0971,
+            472,
+            511
+          ],
+          [
+            0.0388,
+            1490,
+            313
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.035,
+            1022,
+            348
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0353,
+            1022,
+            345
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0344,
+            1020,
+            346
+          ]
+        ]
+      },
+      {
+        "t": 4.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0354,
+            1024,
+            350
+          ]
+        ]
+      },
+      {
+        "t": 5.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0348,
+            1027,
+            347
+          ]
+        ]
+      },
+      {
+        "t": 5.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0466,
+            1032,
+            339
+          ]
+        ]
+      },
+      {
+        "t": 6.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0465,
+            1029,
+            355
+          ]
+        ]
+      },
+      {
+        "t": 6.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0332,
+            983,
+            321
+          ]
+        ]
+      },
+      {
+        "t": 7.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0322,
+            983,
+            316
+          ]
+        ]
+      },
+      {
+        "t": 7.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0356,
+            1013,
+            321
+          ]
+        ]
+      },
+      {
+        "t": 8.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0348,
+            1000,
+            323
+          ]
+        ]
+      },
+      {
+        "t": 8.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0374,
+            1003,
+            337
+          ]
+        ]
+      },
+      {
+        "t": 9.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.038,
+            1006,
+            340
+          ]
+        ]
+      },
+      {
+        "t": 9.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0367,
+            1011,
+            336
+          ]
+        ]
+      },
+      {
+        "t": 10.25,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 10.75,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 11.25,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 11.75,
+        "class": "screen",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0012,
+            1063,
+            432
+          ]
+        ]
+      },
+      {
+        "t": 12.25,
+        "class": "screen",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0013,
+            1062,
+            431
+          ]
+        ]
+      },
+      {
+        "t": 12.75,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 13.25,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 13.75,
+        "class": "screen",
+        "read_ok": true,
+        "faces": []
+      },
+      {
+        "t": 14.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0338,
+            1023,
+            338
+          ]
+        ]
+      },
+      {
+        "t": 14.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0341,
+            1023,
+            339
+          ]
+        ]
+      },
+      {
+        "t": 15.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0341,
+            1026,
+            338
+          ]
+        ]
+      },
+      {
+        "t": 15.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0351,
+            1027,
+            347
+          ]
+        ]
+      },
+      {
+        "t": 16.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0347,
+            1027,
+            342
+          ]
+        ]
+      },
+      {
+        "t": 16.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0343,
+            1026,
+            342
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": true
+  },
+  "clip_01": {
+    "clip": "final_clip_01.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 14.422,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 14.422,
+        "class": "single",
+        "flagged": false,
+        "g4_layout": "single",
+        "n_samples": 29,
+        "face_cx": 397,
+        "face_cy": 358
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0393,
+            412,
+            361
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0397,
+            408,
+            360
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.04,
+            405,
+            344
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0416,
+            387,
+            337
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0407,
+            382,
+            341
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0408,
+            380,
+            344
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0394,
+            383,
+            348
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0388,
+            387,
+            351
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.039,
+            391,
+            356
+          ]
+        ]
+      },
+      {
+        "t": 4.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0389,
+            403,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 5.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0388,
+            403,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 5.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0391,
+            403,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 6.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0386,
+            397,
+            359
+          ]
+        ]
+      },
+      {
+        "t": 6.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0386,
+            399,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 7.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0382,
+            394,
+            352
+          ]
+        ]
+      },
+      {
+        "t": 7.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.039,
+            391,
+            355
+          ]
+        ]
+      },
+      {
+        "t": 8.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.039,
+            390,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 8.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0381,
+            397,
+            356
+          ]
+        ]
+      },
+      {
+        "t": 9.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0386,
+            393,
+            357
+          ]
+        ]
+      },
+      {
+        "t": 9.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.039,
+            397,
+            360
+          ]
+        ]
+      },
+      {
+        "t": 10.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0398,
+            397,
+            370
+          ]
+        ]
+      },
+      {
+        "t": 10.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0395,
+            400,
+            368
+          ]
+        ]
+      },
+      {
+        "t": 11.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0393,
+            393,
+            362
+          ]
+        ]
+      },
+      {
+        "t": 11.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0396,
+            394,
+            361
+          ]
+        ]
+      },
+      {
+        "t": 12.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0397,
+            397,
+            363
+          ]
+        ]
+      },
+      {
+        "t": 12.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0391,
+            400,
+            362
+          ]
+        ]
+      },
+      {
+        "t": 13.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0388,
+            400,
+            361
+          ]
+        ]
+      },
+      {
+        "t": 13.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0384,
+            399,
+            362
+          ]
+        ]
+      },
+      {
+        "t": 14.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0397,
+            398,
+            363
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": false
+  },
+  "clip_02": {
+    "clip": "final_clip_02.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 9.334,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 9.334,
+        "class": "stack2",
+        "flagged": false,
+        "g4_layout": "2face",
+        "n_samples": 19,
+        "band_cx": [
+          454,
+          1460
+        ],
+        "band_cy": [
+          464,
+          601
+        ]
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0934,
+            1390,
+            602
+          ],
+          [
+            0.054,
+            455,
+            464
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0894,
+            1381,
+            574
+          ],
+          [
+            0.0543,
+            455,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0876,
+            1420,
+            574
+          ],
+          [
+            0.0543,
+            455,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0836,
+            1443,
+            585
+          ],
+          [
+            0.0542,
+            454,
+            464
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0876,
+            1473,
+            579
+          ],
+          [
+            0.0538,
+            454,
+            464
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0915,
+            1505,
+            596
+          ],
+          [
+            0.054,
+            454,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0905,
+            1502,
+            598
+          ],
+          [
+            0.0539,
+            454,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0886,
+            1460,
+            602
+          ],
+          [
+            0.0539,
+            454,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0941,
+            1472,
+            620
+          ],
+          [
+            0.054,
+            454,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 4.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.096,
+            1480,
+            621
+          ],
+          [
+            0.054,
+            454,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 5.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0898,
+            1442,
+            616
+          ],
+          [
+            0.0525,
+            447,
+            465
+          ]
+        ]
+      },
+      {
+        "t": 5.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0905,
+            1386,
+            581
+          ],
+          [
+            0.0499,
+            390,
+            443
+          ]
+        ]
+      },
+      {
+        "t": 6.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0891,
+            1441,
+            601
+          ],
+          [
+            0.0506,
+            369,
+            438
+          ]
+        ]
+      },
+      {
+        "t": 6.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0915,
+            1470,
+            594
+          ],
+          [
+            0.0488,
+            446,
+            441
+          ]
+        ]
+      },
+      {
+        "t": 7.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0938,
+            1426,
+            612
+          ],
+          [
+            0.0496,
+            456,
+            437
+          ]
+        ]
+      },
+      {
+        "t": 7.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0935,
+            1497,
+            607
+          ],
+          [
+            0.0489,
+            438,
+            442
+          ]
+        ]
+      },
+      {
+        "t": 8.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0925,
+            1470,
+            615
+          ],
+          [
+            0.0479,
+            422,
+            436
+          ]
+        ]
+      },
+      {
+        "t": 8.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0968,
+            1471,
+            612
+          ],
+          [
+            0.0476,
+            432,
+            438
+          ]
+        ]
+      },
+      {
+        "t": 9.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0895,
+            1424,
+            570
+          ],
+          [
+            0.0488,
+            450,
+            437
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": false
+  }
+}

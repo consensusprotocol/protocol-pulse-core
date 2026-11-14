@@ -1,0 +1,21 @@
+# Heimdall audit
+
+**Question:** Batch 40 = LAW L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30'; PBX: too much voiceover, keep only one line at the end). For a package of type 'moments' the video is hook -> clip -> clip (-> clip) back to back, then ONE takeaway line after the LAST clip, then the sign-off. No VO intro after the hook. A bridge between two clips is the exception: at most ONE per video, and the package records why it was needed. New EDL rule edl_rules.rule_r11 (registered in validate_edl, which rejects the EDL before cutting if any rule fails): for package_type 'moments' only: a non-empty intro (or a non-string intro) fails; every VO line whose after_clip is not exactly the last clip index counts as a bridge between clips; more than one such bridge fails; each such bridge needs a non-empty string 'why'; a malformed vo / clips / bridges fails closed. Story-type and untyped EDLs (protected references) pass unchanged. R4-moments is unchanged (it never had a minimum VO share; its 45 % cap stays an upper bound). pinned.moments_vo now copies a bridge's 'why' from the package into the EDL when present. Tests: test_edl_rules TestR11VoShape, test_pinned test_a_bridges_recorded_reason_reaches_the_edl.
+FIND: any way an intro or a second bridge between clips passes for a moments package; a bridge between clips passing without a usable reason; the takeaway (the line after the last clip) wrongly counted as a bridge; a story-type or untyped EDL wrongly affected; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, deepseek  |  **Cost:** $0.0164
+## Consensus findings (majority of panel agrees)
+- **[high] pipeline/edl_rules.py:669** Malformed clips pass: the rule only checks clips is a non-empty list, not that each clip has a valid integer index. If no clip has an int index, last is None and with no bridges the rule returns True, violating fail-closed for malformed clips.
+  - evidence: `if not isinstance(vo, dict) or not isinstance(clips, list) or not clips: ... last = max((c.get("index") for c in clips if isinstance(c, dict) and type(c.get("index")) is int), default=None)`
+  - fix: Validate each clip is a dict with an int index, or fail if last is None.
+  - raised by deepseek:F1; agree: qwen27b, deepseek
+
+## Raised but not agreed
+- deepseek:F2 [high] Malformed bridges pass: bridges=None is treated as an empty list, and a bridge with an out-of-range after_clip (e.g., 99 when last=3) is counted as a valid bridge if it has a 'why', so malformed bridges do not fail closed. (agree: 1)
+- deepseek:F3 [medium] A whitespace-only intro passes because intro.strip() is falsy, but the spec says a non-empty intro fails; '   ' is a non-empty string. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch40_ly_r11/cycle1/heimdall

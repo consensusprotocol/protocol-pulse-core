@@ -1,0 +1,30 @@
+{
+  "intro": {
+    "stem_wav": "vo_intro_pp2_v1_aaf716b95423.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Bitcoin does not have any authority. That's not a flaw. That's the design.",
+    "key": "aaf716b95423"
+  },
+  "bridge_01": {
+    "stem_wav": "vo_bridge_01_pp2_v1_97e32a95605d.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+    "key": "97e32a95605d"
+  },
+  "bridge_02": {
+    "stem_wav": "vo_bridge_02_pp2_v1_70a07af6e773.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.",
+    "key": "70a07af6e773"
+  },
+  "signoff": {
+    "stem_wav": "vo_signoff_pp2_v1_523ce1e45fc1.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for sharp Bitcoin insights every week. Links below.",
+    "key": "523ce1e45fc1"
+  }
+}

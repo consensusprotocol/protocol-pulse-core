@@ -1,0 +1,2829 @@
+diff --git a/pipeline/backtest.py b/pipeline/backtest.py
+index 5ba6215b..066c177d 100644
+--- a/pipeline/backtest.py
++++ b/pipeline/backtest.py
+@@ -201,17 +201,9 @@ def table(rows):
+     return "\n".join(lines)
+ 
+ 
+-def main(argv=None):
+-    ap = argparse.ArgumentParser()
+-    ap.add_argument("--runs", nargs="*", help="run dir names (default: every saved universe)")
+-    ap.add_argument("--out", default=os.path.join(RUNS_DIR, "backtest_" + datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")))
+-    a = ap.parse_args(argv)
+-    import story_semantics as sm
+-    days = saved_days()
+-    if a.runs:
+-        days = [d for d in days if os.path.basename(d) in set(a.runs)]
+-    os.makedirs(a.out, exist_ok=True)
+-    registry = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
++
++def _backtest_days(days, a, registry, sm):
++    """The GPU0 part of main, run under the lease."""
+     E, L = sm.Embedder(), sm.LocalLLM().start()
+     rows, t0 = [], time.time()
+     try:
+@@ -227,6 +219,23 @@ def main(argv=None):
+     finally:
+         L.stop()
+         E.close()
++    return rows, t0
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--runs", nargs="*", help="run dir names (default: every saved universe)")
++    ap.add_argument("--out", default=os.path.join(RUNS_DIR, "backtest_" + datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")))
++    a = ap.parse_args(argv)
++    import story_semantics as sm
++    days = saved_days()
++    if a.runs:
++        days = [d for d in days if os.path.basename(d) in set(a.runs)]
++    os.makedirs(a.out, exist_ok=True)
++    registry = json.load(open(os.path.join(PIPELINE_DIR, "channels.json")))
++    import gpu0
++    with gpu0.lease(f"backtest {os.path.basename(a.out)} (pid {os.getpid()})"):     # L-r: a GPU0 job holds the lease
++        rows, t0 = _backtest_days(days, a, registry, sm)
+     print(table(rows))
+     print(f"total {round(time.time() - t0)} s -> {a.out}")
+     return 0
+diff --git a/pipeline/config.py b/pipeline/config.py
+index e87c7dc6..4f9e6482 100644
+--- a/pipeline/config.py
++++ b/pipeline/config.py
+@@ -135,6 +135,8 @@ def conform_outro(aspect="16x9"):
+     Content-keyed cache: only re-conforms if master hash changes.
+     Returns path to conformed file, or raises FileNotFoundError.
+     """
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     if aspect == "16x9":
+         master = OUTRO_MASTER_16x9
+         w, h = WIDTH, HEIGHT
+diff --git a/pipeline/cut_accept.py b/pipeline/cut_accept.py
+index 1a6e31c8..6fd8015a 100644
+--- a/pipeline/cut_accept.py
++++ b/pipeline/cut_accept.py
+@@ -152,15 +152,10 @@ def spoken_tokens(words):
+     return canon.canon_tokens(" ".join(words))
+ 
+ 
+-_MODEL = None
+-
+-
+ def _model():
+-    global _MODEL
+-    if _MODEL is None:
+-        from faster_whisper import WhisperModel
+-        _MODEL = WhisperModel("large-v3", device="cuda", compute_type="float16")
+-    return _MODEL
++    """The process's one large-v3 (L-r: gpu0.whisper loads it through swap_to; any later swap deletes it)."""
++    import gpu0
++    return gpu0.whisper("large-v3")
+ 
+ 
+ def _whisper_words(wav_path):
+diff --git a/pipeline/preflight.py b/pipeline/preflight.py
+index 1009b9ee..847fc8d2 100644
+--- a/pipeline/preflight.py
++++ b/pipeline/preflight.py
+@@ -20,12 +20,15 @@ import os
+ import shutil
+ import subprocess
+ import sys
++import time
++import urllib.error
+ import urllib.request
+ 
+ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+ REPO = os.path.dirname(PIPELINE_DIR)
+ sys.path.insert(0, PIPELINE_DIR)
+ sys.path.insert(1, os.path.join(REPO, "video_pipeline_v3"))     # relay.get_key (the pipeline's key loader)
++import gpu0  # noqa: E402  (law L-r)
+ 
+ GPU0_FREE_MIB = 20000             # editorial model ~19 GB + Whisper; counted with our own Ollama model released
+ DISK_FREE_GB = 25
+@@ -43,21 +46,15 @@ def _get_json(url, headers=None, timeout=15, data=None):
+ 
+ 
+ def check_gpu0():
+-    import story_semantics as sm
+-    gpus = dict(l.split(", ") for l in _run(["nvidia-smi", "--query-gpu=index,uuid", "--format=csv,noheader"])
+-                .stdout.strip().splitlines())
+-    apps = [l.split(", ") for l in _run(["nvidia-smi", "--query-compute-apps=pid,gpu_uuid,used_memory",
+-                                         "--format=csv,noheader,nounits"]).stdout.strip().splitlines() if l]
+-    serve = sm.LocalLLM()._listener_pid()
+-    ours = set(_run(["pgrep", "-P", str(serve)]).stdout.split()) | {str(serve)} if serve else set()
+-    others = [(p, m) for p, u, m in apps if u == gpus.get("0") and p not in ours]
+-    if others:
+-        return False, "other job(s) on GPU0: " + ", ".join(
+-            f"pid {p} ({m} MiB) {_run(['ps', '-o', 'args=', '-p', p]).stdout.strip()[:60]}" for p, m in others)
+-    used, total = sm.gpu0_memory()
+-    held = sum(int(m) for p, u, m in apps if u == gpus.get("0") and p in ours)
+-    free = total - used + held
+-    return free >= GPU0_FREE_MIB, f"{free} MiB available with our model released (need {GPU0_FREE_MIB})"
++    """L-r: no foreign process on GPU0 (gpu0.foreign: anything but this run's processes and the GPU0 Ollama's), and
++    room for the largest single model swap_to will load (its measured need + margin) once the Ollama's models, ours
++    to unload, are released."""
++    foreign = gpu0.foreign()
++    if foreign:
++        return False, f"GPU0 is used by something that is not this run's: {gpu0.describe(foreign)}"
++    used, total = gpu0.memory()
++    need = max(GPU0_FREE_MIB, max(gpu0.REQUIREMENT_MIB.values()) + gpu0.MARGIN_MIB)
++    return total - used >= need, f"{total - used} MiB free (need {need}: the largest single model + margin)"
+ 
+ 
+ def check_ollama():
+@@ -65,9 +62,16 @@ def check_ollama():
+     digest = sm.model_digest(sm.LLM_HOST, sm.LLM_MODEL)
+     if not digest:
+         return False, f"{sm.LLM_MODEL} not installed on {sm.LLM_HOST}"
+-    body = json.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False,
+-                       "options": {"num_predict": 1}}).encode()
+-    r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
++    gpu0.swap_to(f"ollama:{sm.LLM_MODEL}")           # L-r: the model reaches GPU0 only through swap_to
++    body = json.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False, "keep_alive": 0,   # unloaded after
++                       "options": {"num_predict": 1}}).encode()                                  # its answer (L-r)
++    try:
++        r = _get_json(f"http://{sm.LLM_HOST}/api/generate", {"Content-Type": "application/json"}, timeout=180, data=body)
++    except urllib.error.HTTPError as e:
++        text = e.read().decode(errors="replace")
++        if gpu0.is_oom(RuntimeError(text)):                # named as what it is, never 'HTTPError (raised)'
++            raise gpu0.GpuOOM(f"{sm.LLM_MODEL}: CUDA out of memory (HTTP {e.code}: {text[-300:]})") from None
++        raise
+     return "response" in r, f"{sm.LLM_MODEL} {digest[:12]} answered"
+ 
+ 
+@@ -149,6 +153,8 @@ def run_checks(checks=None):
+     for name, fn in (CHECKS if checks is None else checks):
+         try:
+             ok, detail = fn()
++        except gpu0.Gpu0Stop as e:                    # a GPU0 refusal names its cause (pids, MiB; never a secret)
++            ok, detail = False, f"GPU0 {type(e).__name__}: {e}"
+         except Exception as e:                        # an exception is a failed check, never a pass; reported by
+             ok, detail = False, f"{type(e).__name__} (raised)"   # TYPE only: a network error's text can carry a
+                                                                   # key or token in its URL (claude-fable audit #6)
+@@ -156,8 +162,37 @@ def run_checks(checks=None):
+     return out
+ 
+ 
++def left_as_found(found_used, found_models, wait_s=60, slack_mib=256):
++    """L-r item 2: (ok, detail): GPU0 holds no more than the preflight found (memory within slack_mib of it, no Ollama
++    model that was not resident before), waiting up to wait_s for an unload to land."""
++    t0 = time.time()
++    while True:
++        used, _ = gpu0.memory()
++        resident = gpu0.ollama_loaded()
++        extra = sorted(set(resident) - set(found_models))
++        if used <= found_used + slack_mib and not extra:
++            return True, f"GPU0 at {used} MiB (found at {found_used} MiB); Ollama resident now {resident or 'none'}"
++        if time.time() - t0 > wait_s:
++            return False, f"the preflight left GPU0 at {used} MiB (found at {found_used} MiB), added {extra}"
++        time.sleep(1)
++
++
+ def main():
+-    res = run_checks()
++    try:
++        with gpu0.lease(f"preflight (pid {os.getpid()})"):   # L-r: custody of the wrapper's fd 8, else its own
++            found_used, found_models = gpu0.memory()[0], gpu0.ollama_loaded()
++            res = run_checks()
++            try:
++                mine = [n for n in gpu0.ollama_loaded() if n in gpu0._ollama_ours]     # what the checks loaded
++                if mine:                                    # keep_alive 0 did not land (e.g. the request failed)
++                    gpu0._ollama_unload(mine)
++                ok, detail = left_as_found(found_used, found_models)
++            except gpu0.Gpu0Stop as e:
++                ok, detail = False, f"GPU0 {type(e).__name__}: {e}"
++            res.append({"check": "gpu0_left", "ok": ok, "detail": detail})
++    except gpu0.Gpu0Stop as e:
++        print(f"HOLD (preflight): GPU0 {type(e).__name__}: {e}", flush=True)
++        return 3
+     for r in res:
+         print(f"  preflight {r['check']:13s} [{'PASS' if r['ok'] else 'FAIL'}] {r['detail']}", flush=True)
+     bad = [r for r in res if not r["ok"]]
+diff --git a/pipeline/pulse_transitions.py b/pipeline/pulse_transitions.py
+index ea2c8141..2d4bbcf2 100644
+--- a/pipeline/pulse_transitions.py
++++ b/pipeline/pulse_transitions.py
+@@ -151,6 +151,8 @@ def wipe_frames(w, h, n=WIPE_FRAMES):
+ 
+ 
+ def render_wipe(path, w, h, qp):
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import tempfile
+     tmp = tempfile.mkdtemp(prefix="wipe_")
+     for k, f in enumerate(wipe_frames(w, h)):
+@@ -181,6 +183,8 @@ def concat(segments, junctions, out_path, qp, w, h, work_dir):
+     """Concatenate (label, path, type) segments with the planned junctions. Every input is normalised
+     to its exact video frame count (audio padded/trimmed to it) so picture and sound stay locked.
+     Returns the timeline [{"label","type","start","end"}] (overlapping entries at dissolves)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     style_c = [j for j in junctions if j["kind"] == "insert"]
+     segs = list(segments)
+     if style_c:
+diff --git a/pipeline/render16.py b/pipeline/render16.py
+index 18962aa2..cc4f68ae 100644
+--- a/pipeline/render16.py
++++ b/pipeline/render16.py
+@@ -21,7 +21,8 @@ import wave
+ import numpy as np
+ from PIL import Image, ImageDraw, ImageFilter
+ 
+-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
++if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r: an explicit CPU request stays CPU (this line
++    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # forced GPU0 into CPU test sessions); else GPU0 only
+ 
+ PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
+ sys.path.insert(0, PIPELINE_DIR)
+@@ -54,6 +55,8 @@ def ease_in_out(t):
+ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label, qa_dir):
+     """R5 VO visual: freeze last frame, blur sigma 6, 1.0x->1.08x zoom, waveform bottom 22%, pre-roll.
+     Returns the path to the assembled VO WAV (silence + stem) for G6 measurement."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     print(f"  Rendering R5 VO visual: {os.path.basename(output_mp4)}")
+ 
+     vo_dur = get_duration(vo_wav)
+@@ -170,7 +173,7 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
+         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", combined_wav,
+     ], capture_output=True, timeout=30, check=True)
+ 
+-    subprocess.run([
++    gpu0.raise_if_oom(subprocess.run([
+         "ffmpeg", "-y",
+         "-framerate", str(FPS),
+         "-i", os.path.join(frames_dir, "frame_%05d.png"),
+@@ -179,7 +182,7 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
+         "-pix_fmt", "yuv420p",
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-shortest", "-movflags", "+faststart", output_mp4,
+-    ], capture_output=True, timeout=120)
++    ], capture_output=True, timeout=120), "render16 nvenc")
+ 
+     if os.path.exists(output_mp4) and os.path.getsize(output_mp4) > 1000:
+         dur = get_duration(output_mp4)
+@@ -193,6 +196,8 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
+ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
+                           opacity, fade_in_dur, shoutout_start):
+     """Overlay alpha watermark on final concat. No black box -- alpha PNG."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     overlay_expr = (
+         f"[1:v]scale={mark_px}:-1,format=rgba,"
+         f"colorchannelmixer=aa={opacity},"
+@@ -213,6 +218,7 @@ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
+         "-c:a", "copy",
+         "-movflags", "+faststart", output_mp4,
+     ], capture_output=True, timeout=600)
++    gpu0.raise_if_oom(r, "render16 nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"    ffmpeg watermark stderr: {r.stderr.decode()[-500:]}")
+@@ -223,6 +229,8 @@ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
+ def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
+                 alimiter_dbfs=-3.0):
+     """Full 16:9 render pipeline. Returns (final_path, manifest_path, vo_assembled_tracks) or raises."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     t0 = time.time()
+     print("=== RENDER 16:9 ===\n")
+ 
+@@ -611,6 +619,9 @@ def _find_outro(qa_dir, segment_dir=None):
+     try:
+         return conform_outro("16x9")
+     except (FileNotFoundError, subprocess.CalledProcessError) as e:
++        import gpu0
++        if gpu0.is_oom(e):           # L-r: an NVENC out-of-memory is never a fallback (E-FAIL-052)
++            raise gpu0.GpuOOM(f"outro conform: CUDA/NVENC out of memory ({e})") from e
+         print(f"  PBX outro conform failed ({e}), falling back to qa_dir")
+     for name in ["final_outro.mp4", "outro.mp4"]:
+         candidate = os.path.join(qa_dir, name)
+diff --git a/pipeline/render_vertical.py b/pipeline/render_vertical.py
+index 418fd124..654202a2 100644
+--- a/pipeline/render_vertical.py
++++ b/pipeline/render_vertical.py
+@@ -64,6 +64,8 @@ def reframe_fixed_crop(seg_path, output_path, seg_label):
+     """Fixed 9:16 crop per clip. Detect faces via mediapipe, use median centre X.
+     Falls back to centre crop if no faces detected.
+     Returns (success: bool, crop_rect: str)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import cv2
+     import mediapipe as mp_lib
+     from mediapipe.tasks.python import vision
+@@ -115,6 +117,7 @@ def reframe_fixed_crop(seg_path, output_path, seg_label):
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=300)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-300:]}")
+@@ -135,6 +138,8 @@ def reframe_stack2(seg_path, output_path, seg_label, layout_cfg):
+     """Stack2: speaker rect on TOP, other person rect on BOTTOM.
+     Each rect cropped from source, scaled to 1080 wide, placed in 1080x960 slot.
+     layout_cfg keys: speaker_rect (x,y,w,h), other_rect (x,y,w,h)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import cv2
+     print(f"    Reframe stack2: {seg_label}")
+ 
+@@ -183,6 +188,7 @@ def reframe_stack2(seg_path, output_path, seg_label, layout_cfg):
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=300)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+@@ -203,6 +209,8 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
+     """Grid: face rect on TOP slot, chart rect on BOTTOM slot.
+     layout_cfg keys: face_rect (x,y,w,h), chart_rect (x,y,w,h),
+                      top_slot_h (default 810), bottom_slot_h (default 1110)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import cv2
+     print(f"    Reframe grid: {seg_label}")
+ 
+@@ -252,6 +260,7 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=300)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+@@ -270,6 +279,8 @@ def reframe_grid(seg_path, output_path, seg_label, layout_cfg):
+ 
+ def reframe_single(seg_path, output_path, seg_label, layout_cfg):
+     """Single: crop one rect from source, scale to 1080 wide, pad to 1920 tall (centred)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     print(f"    Reframe single: {seg_label}")
+ 
+     rect = layout_cfg["rect"]  # [x, y, w, h]
+@@ -289,6 +300,7 @@ def reframe_single(seg_path, output_path, seg_label, layout_cfg):
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=300)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+@@ -310,6 +322,8 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
+     darkened (-35%), 1.25x zoomed copy of the same frame. No crop.
+ 
+     Returns (success: bool, layout_name: str)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     print(f"    Reframe letterbox: {seg_label}")
+ 
+     # Full 16:9 frame scaled to 1080 wide = 1080x608 (at 16:9 ratio)
+@@ -340,6 +354,7 @@ def reframe_letterbox(seg_path, output_path, seg_label, layout_cfg=None):
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=300)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+@@ -395,6 +410,8 @@ def _shot_vf(shot, src_w, src_h):
+ def reframe_auto(seg_path, output_path, seg_label, plan):
+     """Per-shot 9:16 from the PREPARED clip (lead-in pad and fades identical to 16:9). Video only is
+     re-composed; the clip's audio is copied unchanged. Returns (ok, layout_summary)."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     fps = plan["fps"]
+     graph, labels = [], []
+     matrix = _input_matrix(seg_path)
+@@ -413,6 +430,7 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
+         "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", output_path,
+     ], capture_output=True, timeout=600)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+     if r.returncode != 0:
+         print(f"      ffmpeg error: {r.stderr.decode()[-400:]}")
+         return False, "auto"
+@@ -428,6 +446,8 @@ def reframe_auto(seg_path, output_path, seg_label, plan):
+ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4, label, qa_dir):
+     """R5 native 9:16 VO visual: face-crop BG, blur, 1.0x->1.08x zoom, waveform.
+     Returns the path to the assembled VO WAV (silence + stem) for G6 measurement."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import cv2
+     import mediapipe as mp_lib
+     from mediapipe.tasks.python import vision
+@@ -595,7 +615,7 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4,
+     ], capture_output=True, timeout=30, check=True)
+ 
+     # Encode frames + audio
+-    subprocess.run([
++    gpu0.raise_if_oom(subprocess.run([
+         "ffmpeg", "-y",
+         "-framerate", str(FPS),
+         "-i", os.path.join(frames_dir, "frame_%05d.png"),
+@@ -605,7 +625,7 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4,
+         "-pix_fmt", "yuv420p",
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+         "-shortest", "-movflags", "+faststart", output_mp4,
+-    ], capture_output=True, timeout=120)
++    ], capture_output=True, timeout=120), "render_vertical nvenc")
+ 
+     if os.path.exists(output_mp4) and os.path.getsize(output_mp4) > 1000:
+         dur = get_duration(output_mp4)
+@@ -623,6 +643,8 @@ def render_vo_visual_vert(vo_wav, preceding_src, preceding_cut_out, output_mp4,
+ def apply_watermark_alpha_vert(input_mp4, output_mp4, mark_path, mark_px, margin,
+                                opacity, fade_in_dur, shoutout_start):
+     """Overlay alpha watermark on vertical concat. Bottom-right, smaller for 9:16."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     overlay_expr = (
+         f"[1:v]scale={mark_px}:-1,format=rgba,"
+         f"colorchannelmixer=aa={opacity},"
+@@ -643,6 +665,7 @@ def apply_watermark_alpha_vert(input_mp4, output_mp4, mark_path, mark_px, margin
+         "-c:a", "copy",
+         "-movflags", "+faststart", output_mp4,
+     ], capture_output=True, timeout=600)
++    gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+ 
+     if r.returncode != 0:
+         print(f"    ffmpeg watermark stderr: {r.stderr.decode()[-500:]}")
+@@ -658,6 +681,8 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                 alimiter_dbfs=-3.0):
+     """Full 9:16 vertical render pipeline.
+     Returns (final_path, manifest_path, vo_assembled_tracks) or raises."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     t0 = time.time()
+     print("=== RENDER 9:16 ===\n")
+ 
+@@ -714,13 +739,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                 s_start = shot["source_start"]
+                 s_end = shot["source_end"]
+                 s_dur = s_end - s_start
+-                subprocess.run([
++                gpu0.raise_if_oom(subprocess.run([
+                     "ffmpeg", "-y", "-ss", str(s_start), "-i", raw_src, "-t", str(s_dur),
+                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                     "-pix_fmt", "yuv420p", "-r", str(FPS),
+                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                     "-movflags", "+faststart", shot_trimmed,
+-                ], capture_output=True, timeout=300)
++                ], capture_output=True, timeout=300), "render_vertical nvenc")
+                 s_layout = shot.get("layout", "crop")
+                 if s_layout == "stack2":
+                     s_ok, _ = reframe_stack2(shot_trimmed, shot_out, f"{clip_id}_shot{si}", shot)
+@@ -740,13 +765,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                 with open(concat_list, "w") as clf:
+                     for sp in shot_parts:
+                         clf.write(f"file '{sp}'\n")
+-                subprocess.run([
++                gpu0.raise_if_oom(subprocess.run([
+                     "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", concat_list,
+                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                     "-pix_fmt", "yuv420p", "-r", str(FPS),
+                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                     "-movflags", "+faststart", vert_path,
+-                ], capture_output=True, timeout=300)
++                ], capture_output=True, timeout=300), "render_vertical nvenc")
+                 ok = os.path.exists(vert_path) and os.path.getsize(vert_path) > 1000
+                 crop_rect = "shots"
+             elif all_shots_ok and len(shot_parts) == 1:
+@@ -766,13 +791,13 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+                 cut_in = cut.get("cut_in", 0)
+                 cut_dur = cut.get("cut_duration", 15)
+                 trimmed = os.path.join(qa_dir, f"raw_{clip_id}.mp4")
+-                subprocess.run([
++                gpu0.raise_if_oom(subprocess.run([
+                     "ffmpeg", "-y", "-ss", str(cut_in), "-i", raw_src, "-t", str(cut_dur),
+                     "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(NVENC_QP_INTERMEDIATE),
+                     "-pix_fmt", "yuv420p", "-r", str(FPS),
+                     "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+                     "-movflags", "+faststart", trimmed,
+-                ], capture_output=True, timeout=300)
++                ], capture_output=True, timeout=300), "render_vertical nvenc")
+                 if layout == "stack2":
+                     ok, crop_rect = reframe_stack2(trimmed, vert_path, clip_id, override)
+                 elif layout == "grid":
+@@ -936,6 +961,7 @@ def render_9x16(segment_dir, qa_version=None, output_name="segment_vertical.mp4"
+             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
+             "-movflags", "+faststart", concat_raw,
+         ], capture_output=True, timeout=600)
++        gpu0.raise_if_oom(r, "render_vertical nvenc")      # L-r: never a later "render failed"
+         if r.returncode != 0:
+             print(f"  ffmpeg stderr: {r.stderr.decode()[-500:]}")
+     concat_dur = get_duration(concat_raw)
+@@ -1160,6 +1186,9 @@ def _find_outro_vert(qa_dir, segment_dir=None):
+     try:
+         return conform_outro("9x16")
+     except (FileNotFoundError, subprocess.CalledProcessError) as e:
++        import gpu0
++        if gpu0.is_oom(e):           # L-r: an NVENC out-of-memory is never a fallback (E-FAIL-052)
++            raise gpu0.GpuOOM(f"outro conform: CUDA/NVENC out of memory ({e})") from e
+         print(f"  PBX 9:16 outro conform failed ({e}), falling back to qa_dir")
+ 
+     # Fallback: pre-rendered vertical outro in qa_dir
+diff --git a/pipeline/replay.py b/pipeline/replay.py
+index b7522fab..fc871e29 100644
+--- a/pipeline/replay.py
++++ b/pipeline/replay.py
+@@ -75,7 +75,13 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
+         cuts = json.load(f)
+     t0 = time.time()
+     try:
++        # L-r: a replay is a GPU0 job like a run: the lease to its end (custody when a wrapper holds it), the sampler
++        run.gpu0_stack.enter_context(rf.gpu0.lease(f"replay {os.path.basename(dst)} (pid {os.getpid()})"))
++        run.sampler = rf.gpu0.PeakSampler().start()
+         rf.run_tail(run, cuts, start=start, vision=vision)
++    except rf.gpu0.Gpu0Stop as e:                       # the lease is busy: a HOLD carrying the real cause
++        run.status["verdict"] = rf.VERDICT_HOLD
++        run.status["holds"].append(f"replay: infrastructure: GPU0 {type(e).__name__}: {e}")
+     except rf.Hold:
+         run.status["verdict"] = rf.VERDICT_HOLD
+     except Exception as e:                              # as run_fresh.main: anything unexpected is a HOLD
+@@ -86,6 +92,9 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
+     finally:
+         run.status["elapsed_s"] = round(time.time() - t0, 1)
+         run.status["ended"] = rf.now_iso()
++        if run.sampler:
++            run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
++        run.prov.setdefault("gpu0", {})["swaps"] = rf.gpu0.events()
+         try:                                            # attested for its verdict, never deliverable
+             rf.attest_run(run, deliverable=False, why_not="replay: diagnostic, deliver only a full run",
+                           code_checked=False)
+@@ -96,6 +105,7 @@ def replay(run_dir, start="prepare", vision=True, stamp=None):
+         rf.write_report(run)
+         with open(os.path.join(dst, "VERDICT.txt"), "w") as f:
+             f.write(str(run.status["verdict"]) + "\n")
++        run.gpu0_stack.close()                          # the GPU0 lease is held to here
+     print(f"\n=== REPLAY {dst} (from {start}, vision {'on' if vision else 'OFF'}): {run.status['verdict']} ===")
+     for h in run.status["holds"]:
+         print(f"  HOLD: {h}")
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 4b93da2c..567bdb3c 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -39,6 +39,7 @@ Usage:
+   cd ~/protocol_pulse/pipeline && CUDA_VISIBLE_DEVICES=0 python3 run_fresh.py --pinned PIN.json
+ """
+ import argparse
++import contextlib
+ import datetime
+ import hashlib
+ import io
+@@ -87,6 +88,9 @@ class Hold(Exception):
+     """Fail-closed stop. The run ends in HOLD with the reason recorded."""
+ 
+ 
++import gpu0  # noqa: E402  (law L-r: the one owner of GPU0; pipeline/ is this file's directory)
++
++
+ # ── utilities ──
+ 
+ def sha256(path):
+@@ -168,6 +172,68 @@ class Run:
+         self.mode = "auto"                  # "auto" | "pinned"
+         self.machine_cuts = False          # True only for machine-built PINs (enables snap)
+         self.allow_v2f_material = False     # True only for a pin declaring reuses_v2f_material
++        self.sampler = None                 # L-r: gpu0.PeakSampler, started in stage_env
++        self.gpu0_stack = contextlib.ExitStack()   # L-r: holds the GPU0 lease from stage_env to the end of main
++
++    def _attempts(self, name, fn):
++        """Law L-r item 3. A CUDA out-of-memory gets ONE retry of the same step: everything this run owns is released
++        (outside the except clause, the exception chain's frames broken first, so the model that failed can be freed)
++        and nvidia-smi must show GPU0 free; both attempts go to PROVENANCE (gpu0_oom); a second out-of-memory is a HOLD
++        naming every GPU0 process, and any other failure of the retry still carries the first out-of-memory. Every other
++        GPU0 stop is a HOLD carrying its real cause, never another error."""
++        first = None                                      # the first attempt's out-of-memory record, once there is one
++        for attempt in (1, 2):
++            if self.sampler:
++                self.sampler.set(name)
++            oom = None
++            try:
++                out = fn()
++                if first is not None:
++                    self.prov["gpu0_oom"][name].append({"attempt": 2, "at": now_iso(), "outcome": "passed"})
++                    self.save()
++                return out
++            except gpu0.Gpu0Stop as e:
++                if not isinstance(e, gpu0.GpuOOM):
++                    why = f"GPU0 {type(e).__name__}: {e}"
++                    raise Hold(f"infrastructure: {name}: {why}" if first is None else
++                               f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); "
++                               f"the retry then stopped: {why}") from None
++                oom = f"{type(e).__name__}: {str(e)[:400]}"
++                gpu0.drop_traceback(e)
++            except Hold as h:
++                if first is None:
++                    raise
++                raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
++                           f"retry then held: {h}") from None
++            except Exception as e:
++                if not gpu0.is_oom(e):
++                    if first is None:
++                        raise
++                    raise Hold(f"infrastructure: {name}: CUDA out of memory on attempt 1 ({first['error'][:200]}); the "
++                               f"retry then failed: {type(e).__name__}: {e}") from None
++                oom = f"{type(e).__name__}: {str(e)[:400]}"
++                gpu0.drop_traceback(e)
++            # here, outside the except clause: the failed call's frames are no longer pinned by a live exception
++            entry = {"attempt": attempt, "at": now_iso(), "error": oom}
++            try:
++                entry["gpu0_memory"], entry["gpu0_processes"] = gpu0.memory(), gpu0.processes()
++                on = gpu0.describe(entry["gpu0_processes"])
++            except gpu0.Gpu0Stop as e2:
++                entry["gpu0_unreadable"] = str(e2)
++                on = f"GPU0 unreadable ({e2})"
++            self.prov.setdefault("gpu0_oom", {}).setdefault(name, []).append(entry)
++            self.save()
++            if attempt == 2:
++                raise Hold(f"infrastructure: {name}: CUDA out of memory twice ({oom[:240]}); on GPU0: {on}")
++            first = entry
++            print(f"  GPU0 OUT OF MEMORY in stage {name}: {oom[:200]}; releasing everything this run owns, retrying "
++                  f"once", flush=True)
++            try:
++                entry["release"] = gpu0.release_all()
++            except gpu0.Gpu0Stop as e2:
++                raise Hold(f"infrastructure: {name}: CUDA out of memory ({oom[:200]}) and GPU0 did not come free: "
++                           f"{type(e2).__name__}: {e2}") from None
++            self.save()
+ 
+     def stage(self, name, fn):
+         rec = {"name": name, "started": now_iso(), "status": "running"}
+@@ -176,7 +242,7 @@ class Run:
+         print(f"\n######## STAGE {name} ########", flush=True)
+         t0 = time.time()
+         try:
+-            out = fn()
++            out = self._attempts(name, fn)
+             rec["status"] = "passed"
+             return out
+         except Hold as h:
+@@ -198,6 +264,9 @@ class Run:
+         finally:
+             rec["ended"] = now_iso()
+             rec["seconds"] = round(time.time() - t0, 1)
++            if self.sampler:
++                self.sampler.set(None)
++                rec["gpu0_peak_mib"] = self.sampler.peaks.get(name)
+             self.save()
+ 
+     def save(self):
+@@ -235,6 +304,15 @@ def stage_env(run):
+                        "ffmpeg": ffv, "yt_dlp": ytv, "nvidia_smi": gpu.split("\n")}
+     if "telegram" in sys.modules or "telegram_drop" in sys.modules:
+         raise Hold("telegram module loaded — publishing path must not be importable here")
++    # L-r: the run holds the GPU0 lease to the end of main (custody of scripts/pulse_check_run.sh's fd 8, else its
++    # own), nothing foreign may hold GPU0 memory at its start, and GPU0 memory is sampled per stage from here on
++    run.gpu0_stack.enter_context(gpu0.lease(f"run_fresh {os.path.basename(run.dir)} (pid {os.getpid()})"))
++    foreign = gpu0.foreign()
++    if foreign:
++        raise Hold(f"infrastructure: env: GPU0 memory is held by a process that is not this run's: "
++                   f"{gpu0.describe(foreign)}")
++    run.prov["gpu0"] = {"at_start": {"memory_mib": gpu0.memory(), "processes": gpu0.processes(),
++                                     "ollama_resident": gpu0.ollama_resident(), "holder": gpu0.holder()}}
+ 
+ 
+ # ── stage 1: topic ──
+@@ -508,7 +586,9 @@ def free_gpu0_for_whisper(run, stage, need_free_mib=6000):
+     """GPU0 is shared (other sessions load Ollama models on :11434, e.g. a 22 GB qwen3-coder at 06:02 on
+     Nov 11, which OOM'd the recut's prepare). Before a Whisper stage, unload the GPU0 Ollama models and
+     wait for room, exactly as the editorial stage does (story_semantics.release_gpu0_for_whisper); a
+-    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage."""
++    release that cannot be proven is an infrastructure HOLD, never an OOM mid-stage. L-r: through
++    gpu0.swap_to (every other GPU0 model unloaded, a foreign process refused, the measured need proven free);
++    a refusal is a Gpu0Stop that Run.stage turns into a HOLD carrying the real cause."""
+     import story_semantics as sm
+     try:
+         ev = sm.release_gpu0_for_whisper(sm.LocalLLM(), need_free_mib=need_free_mib, wait_s=180)
+@@ -1231,6 +1311,15 @@ def write_report(run):
+     L += ["## Stages", "| stage | status | s | reason |", "|---|---|---|---|"]
+     L += [f"| {r['name']} | {r['status']} | {r.get('seconds')} | {r.get('reason', '')[:200]} |"
+           for r in s["stages"]]
++    g0 = p.get("gpu0") or {}
++    total = ((g0.get("at_start") or {}).get("memory_mib") or [None, None])[1]
++    L += ["", f"## GPU0 peak memory per stage (law L-r; nvidia-smi memory.used sampled every 1 s, a lower bound; GPU0 "
++              f"total {total} MiB)", "| stage | peak MiB | out-of-memory attempts | retry |", "|---|---|---|---|"]
++    for r in s["stages"]:
++        oom = (p.get("gpu0_oom") or {}).get(r["name"], [])
++        fails = [e for e in oom if e.get("error")]
++        retry = "-" if not fails else ("passed" if any(e.get("outcome") == "passed" for e in oom) else "held")
++        L.append(f"| {r['name']} | {r.get('gpu0_peak_mib', 'not sampled')} | {len(fails)} | {retry} |")
+     vc = p.get("visual_checklist") or {}
+     if vc:
+         L += ["", "## Visual checklist (answered FROM the contact sheets qa/contact_sheet_<fmt>.jpg; any no = HOLD)"]
+@@ -1344,6 +1433,7 @@ def main():
+     run.status["release_state"] = RELEASE_STATE
+     run.save()
+     t0 = time.time()
++    run.sampler = gpu0.PeakSampler().start()        # L-r item 5: every stage sampled, env included
+     try:
+         run.stage("env", lambda: stage_env(run))
+         if run.mode == "pinned":
+@@ -1359,6 +1449,9 @@ def main():
+         run_tail(run, cuts)
+     except Hold:
+         run.status["verdict"] = VERDICT_HOLD
++    except gpu0.Gpu0Stop as e:  # L-r: a GPU0 stop outside any stage is a HOLD carrying its real cause
++        run.status["verdict"] = VERDICT_HOLD
++        run.status["holds"].append(f"orchestrator: infrastructure: GPU0 {type(e).__name__}: {e}")
+     except Exception as e:  # defensive: anything unexpected is HOLD
+         run.status["verdict"] = VERDICT_HOLD
+         run.status["holds"].append(f"orchestrator: {type(e).__name__}: {e}")
+@@ -1370,6 +1463,10 @@ def main():
+             run.status["holds"].append(f"provenance: {type(e).__name__}: {e}")
+         run.status["ended"] = now_iso()
+         run.status["elapsed_s"] = round(time.time() - t0, 1)
++        if run.sampler:                        # L-r item 5: peak GPU0 memory per stage, in PROVENANCE and REPORT.md
++            run.prov.setdefault("gpu0", {})["peaks_mib"] = run.sampler.stop()
++            run.prov["gpu0"]["sampler_errors"] = run.sampler.errors
++        run.prov.setdefault("gpu0", {})["swaps"] = gpu0.events()
+         try:                                   # LAST: the terminal state, any hold included (release_auth)
+             attest_run(run)
+         except Exception as e:
+@@ -1383,6 +1480,7 @@ def main():
+         for h in run.status["holds"]:
+             print(f"  HOLD: {h}")
+         print(f"  report: {os.path.join(run_dir, 'REPORT.md')}  (no publishing)")
++        run.gpu0_stack.close()                 # the GPU0 lease (law L-r) is held to here
+     sys.exit(0 if run.status["verdict"] == VERDICT_CANDIDATE else 3)
+ 
+ 
+diff --git a/pipeline/run_isolated.py b/pipeline/run_isolated.py
+index 5ac15517..595fd2c5 100644
+--- a/pipeline/run_isolated.py
++++ b/pipeline/run_isolated.py
+@@ -321,6 +321,8 @@ def prerender_clips(run_dir, cuts_table):
+     (cut["fade_in_ms"], cut["fade_out_ms"]; absent = 20 in / 30 out, the M19 defaults). DEC-10: a cut at an
+     envelope minimum declares 83 ms (2 video frames); v2f's table declares 20 / 30, so its render is unchanged.
+     """
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     qa_dir = os.path.join(run_dir, "qa")
+     sources_dir = os.path.join(run_dir, "sources")
+ 
+diff --git a/pipeline/select_passages.py b/pipeline/select_passages.py
+index e1dcb327..82a54fc1 100644
+--- a/pipeline/select_passages.py
++++ b/pipeline/select_passages.py
+@@ -87,8 +87,8 @@ def _whisper_transcribe(source_path, video_id, run_dir):
+             if result.get("punctuation") or not punctuation.needs_restoration(result.get("words", [])):
+                 return result
+ 
+-        from faster_whisper import WhisperModel
+-        model = WhisperModel("large-v3", device="cuda", compute_type="float16")
++        import gpu0
++        model = gpu0.whisper("large-v3")      # L-r: loaded through swap_to; a GPU0 stop passes the except below
+         if result is None:
+             segments, info = model.transcribe(
+                 source_path, language="en", beam_size=5,
+@@ -112,6 +112,9 @@ def _whisper_transcribe(source_path, video_id, run_dir):
+         return result
+ 
+     except Exception as e:
++        import gpu0
++        if gpu0.is_oom(e):           # L-r: an out-of-memory is never 'transcription failed' (E-FAIL-052)
++            raise gpu0.GpuOOM(f"{video_id}: Whisper: CUDA out of memory ({type(e).__name__}: {str(e)[:200]})") from e
+         print(f"    WARN: whisper failed for {video_id}: {e}")
+         return None
+ 
+diff --git a/pipeline/sentence_law.py b/pipeline/sentence_law.py
+index b283500d..b0c9d836 100644
+--- a/pipeline/sentence_law.py
++++ b/pipeline/sentence_law.py
+@@ -813,6 +813,8 @@ def room_tone(src_path, t0, t1, seconds, sr=48000):
+ def apply_lead_in_pad(run_dir, cut, fps, qp):
+     """Prepend cut['lead_in_pad_s'] of room tone + the held first frame to qa/final_<clip>.mp4
+     (atomic replace). The pad is declared in cuts_final.json, so every gate knows it is there."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     import wave
+     pad = float(cut["lead_in_pad_s"])
+     clip = os.path.join(run_dir, "qa", f"final_{cut['clip_id']}.mp4")
+diff --git a/pipeline/shot_snap.py b/pipeline/shot_snap.py
+index 8898b9b4..e98db5c5 100644
+--- a/pipeline/shot_snap.py
++++ b/pipeline/shot_snap.py
+@@ -48,6 +48,8 @@ def plan(changes, n_frames, fps, speech_on_s, speech_off_s):
+ def apply(clip, cut, fps, qp):
+     """Snap qa/final_<clip>.mp4 in place when a neighbouring shot shows outside the speech. Returns a record
+     (always), {"snapped": False, ...} when nothing changed."""
++    import gpu0
++    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
+     pad = float(cut.get("lead_in_pad_s") or 0.0)
+     pin, pout = cut.get("pause_in") or {}, cut.get("pause_out") or {}
+     on = (pin["end"] - cut["cut_in"] + pad) if "end" in pin else None
+@@ -62,9 +64,13 @@ def apply(clip, cut, fps, qp):
+     vf = f"trim=start_frame={head}:end_frame={tail},setpts=PTS-STARTPTS,tpad=start_mode=clone:start={head}:" \
+          f"stop_mode=clone:stop={n - tail}"
+     part = clip + ".snap.mp4"
+-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", clip, "-map", "0:v:0", "-map", "0:a:0", "-vf", vf,
+-                    "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp), "-pix_fmt", "yuv420p",
+-                    "-r", str(fps), "-c:a", "copy", "-movflags", "+faststart", part], check=True, timeout=600)
++    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", clip, "-map", "0:v:0", "-map", "0:a:0", "-vf", vf,
++                        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", str(qp), "-pix_fmt", "yuv420p",
++                        "-r", str(fps), "-c:a", "copy", "-movflags", "+faststart", part], capture_output=True, timeout=600)
++    if r.returncode != 0:                      # L-r: stderr captured so an NVENC out-of-memory is named, not renamed
++        gpu0.raise_if_oom(r, "shot_snap nvenc")
++        print(r.stderr.decode(errors="replace")[-2000:], flush=True)
++        raise subprocess.CalledProcessError(r.returncode, r.args, r.stdout, r.stderr)
+     if frame_count(part) != n:
+         os.remove(part)
+         raise RuntimeError(f"shot snap changed the frame count of {clip}")
+diff --git a/pipeline/story_semantics.py b/pipeline/story_semantics.py
+index f6cbdc63..7cb984c9 100644
+--- a/pipeline/story_semantics.py
++++ b/pipeline/story_semantics.py
+@@ -27,6 +27,7 @@ import os
+ import re
+ import subprocess
+ import time
++import urllib.error
+ import urllib.request
+ from datetime import datetime, timedelta, timezone
+ 
+@@ -70,11 +71,14 @@ class Embedder:
+     def __init__(self):
+         _gpu_guard()
+         import torch
++        import gpu0
+         from transformers import AutoModel, AutoTokenizer
+         from huggingface_hub import snapshot_download
+         path = snapshot_download(EMBED_MODEL, revision=EMBED_REVISION, local_files_only=True)
+         self.tok = AutoTokenizer.from_pretrained(path)
+-        self.model = AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval()
++        # L-r: the weights reach GPU0 only through gpu0.swap_to("embedder") (Model.get), and any later swap deletes them
++        self.model = gpu0.model("embedder", lambda: AutoModel.from_pretrained(path, dtype=torch.float16).to("cuda:0").eval())
++        self.gpu0 = gpu0
+         self.torch = torch
+         self.model_id = f"{EMBED_MODEL}@{EMBED_REVISION[:12]}"
+ 
+@@ -83,10 +87,12 @@ class Embedder:
+         with self.torch.no_grad():
+             for i in range(0, len(texts), batch):
+                 bt = [(EMBED_QUERY_PREFIX + t) if query else t for t in texts[i:i + batch]]
+-                enc = self.tok(bt, padding=True, truncation=True, max_length=512,
+-                               return_tensors="pt").to("cuda:0")
+-                cls = self.model(**enc).last_hidden_state[:, 0].float()
+-                out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
++                self.model.get()                                  # resident before any tensor goes to GPU0
++                with self.gpu0.guard("embedder: encode"):
++                    enc = self.tok(bt, padding=True, truncation=True, max_length=512,
++                                   return_tensors="pt").to("cuda:0")
++                    cls = self.model(**enc).last_hidden_state[:, 0].float()
++                    out.append(self.torch.nn.functional.normalize(cls, dim=-1).cpu().numpy())
+         return np.vstack(out) if out else np.zeros((0, 768), np.float32)
+ 
+     def chunk_vectors(self, rec, chunks):
+@@ -104,7 +110,7 @@ class Embedder:
+         return ids, vecs
+ 
+     def close(self):
+-        del self.model
++        self.model.unload()
+         self.torch.cuda.empty_cache()
+ 
+ 
+@@ -187,13 +193,28 @@ class LocalLLM:
+         return sorted(gpus.get(u, u) for u in mine)
+ 
+     def _post(self, prompt, max_tokens, seed):
++        import gpu0
++        gpu0.require(f"ollama:{self.model}")          # L-r: every request under the lease, not only the first
++        if getattr(self, "_gpu0_gen", None) != gpu0.generation() or self.model not in gpu0.ollama_loaded():
++            gpu0.swap_to(f"ollama:{self.model}")        # L-r: nothing else resident, the memory proven free
++            self._gpu0_gen = gpu0.generation()
+         body = json.dumps({"model": self.model, "stream": False, "format": "json",
+                            "messages": [{"role": "user", "content": prompt}],
+                            "options": {"temperature": 0, "seed": seed, "num_ctx": LLM_CTX,
+                                        "num_predict": max_tokens}}).encode()
+         req = urllib.request.Request(f"http://{self.host}/api/chat", data=body,
+                                      headers={"Content-Type": "application/json"})
+-        resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
++        try:
++            resp = json.loads(urllib.request.urlopen(req, timeout=600).read())
++        except urllib.error.HTTPError as e:
++            text = e.read().decode(errors="replace")             # classified whole, reported truncated
++            if gpu0.is_oom(RuntimeError(text)):
++                raise gpu0.GpuOOM(f"ollama {self.model}: CUDA out of memory (HTTP {e.code}: {text[-400:]})") from None
++            raise RuntimeError(f"Ollama HTTP {e.code}: {text[:400]}") from None
++        except (urllib.error.URLError, ConnectionError) as e:   # a runner that died mid-request
++            if gpu0.is_oom(e):
++                raise gpu0.GpuOOM(f"ollama {self.model}: CUDA out of memory ({e})") from None
++            raise
+         self.calls += 1
+         if not self.placement_checked:
+             placement = self.gpu_placement()
+@@ -297,7 +318,11 @@ def loaded_models(host=LLM_HOST):
+ 
+ def release_gpu0_for_whisper(llm, need_free_mib=7000, wait_s=180, log=print):
+     """Unload every model on the GPU0 Ollama, wait until GPU0 has need_free_mib free.
+-    Returns an evidence dict; raises RuntimeError (infrastructure) if release can't be proven."""
++    Returns an evidence dict; raises RuntimeError (infrastructure) if release can't be proven.
++    L-r: first gpu0.swap_to (every other GPU0 model unloaded, a foreign process refused, the batched word-pass model's
++    measured need proven free; a refusal is a Gpu0Stop that no caller can rename), then this function's own proof."""
++    import gpu0
++    gpu0.swap_to("whisper:large-v3:batched", wait_s=wait_s)
+     ev = {"before": gpu0_memory(), "unloaded": []}
+     deadline = time.time() + wait_s
+     while True:
+diff --git a/pipeline/test_acoustic.py b/pipeline/test_acoustic.py
+index bdda05e4..38d76722 100644
+--- a/pipeline/test_acoustic.py
++++ b/pipeline/test_acoustic.py
+@@ -67,6 +67,9 @@ def test_magnitude_whisper():
+     if not os.path.exists(source):
+         print("  [SKIP] Real source not found — test_magnitude_whisper")
+         return
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":       # law L-r: Whisper is a GPU0 load, refused in a CPU session
++        print("  [SKIP] CPU session: Whisper is a GPU0 load — test_magnitude_whisper")
++        return
+ 
+     print("\n--- Test 2: Whisper last 1.0s contains 'magnitude' ---")
+     result = compute_acoustic_cut_out(source, 249.22)
+@@ -82,7 +85,8 @@ def test_magnitude_whisper():
+             "ffmpeg", "-y", "-ss", str(cut_out - 1.0), "-t", "1.0",
+             "-i", source, "-ac", "1", "-ar", "16000", "-c:a", "pcm_s16le", tmp_wav,
+         ], capture_output=True, timeout=10, check=True)
+-        model = WhisperModel("medium", device="cuda", compute_type="float16")
++        import gpu0
++        model = gpu0.whisper("medium")          # L-r: through swap_to, under the session's GPU0 lease
+         segments, _ = model.transcribe(tmp_wav, language="en", beam_size=5)
+         text = " ".join(seg.text.strip() for seg in segments).lower()
+         os.unlink(tmp_wav)
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index ff16fc2f..8c962ed0 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -289,8 +289,9 @@ class TestPinnedStageFreesGpu0First(Fixture):
+             self.assertEqual(events, [("release", "pinned"), "prepare"])
+             events.clear()
+             rf.free_gpu0_for_whisper = refuse
+-            with self.assertRaisesRegex(rf.Hold, "infrastructure: pinned"):
++            with self.assertRaisesRegex(rf.Hold, "^infrastructure: pinned") as cm:    # anchored (fable audit of 456a440f)
+                 rf.stage_pinned(run, self.write(self.pin()))
++            self.assertNotIn("pinned decision rejected", str(cm.exception))
+             self.assertEqual(events, [("release", "pinned")])        # nothing downloaded or transcribed after it
+         finally:
+             rf.free_gpu0_for_whisper, pinned.prepare = orig_free, orig_prep
+diff --git a/pipeline/test_preflight.py b/pipeline/test_preflight.py
+index 3d92f72a..c6ed1029 100644
+--- a/pipeline/test_preflight.py
++++ b/pipeline/test_preflight.py
+@@ -53,35 +53,35 @@ class TestChecks(unittest.TestCase):
+         P._run = self.saved_run
+ 
+     def test_a_foreign_job_on_gpu0_fails_and_our_ollama_runner_does_not(self):
+-        import story_semantics as sm
+-        saved = (sm.LocalLLM._listener_pid, sm.gpu0_memory, os.environ.get("CUDA_VISIBLE_DEVICES"))
+-        os.environ["CUDA_VISIBLE_DEVICES"] = "0"                       # as the wrapper exports it
+-        sm.LocalLLM._listener_pid = lambda self: 100
+-        sm.gpu0_memory = lambda: (19000, 24564)
+-
+-        def run(cmd, timeout=30):
+-            if "--query-gpu=index,uuid" in cmd:
+-                return R("0, GPU-A\n1, GPU-B\n")
+-            if "--query-compute-apps=pid,gpu_uuid,used_memory" in cmd:
+-                return R(self.apps)
+-            if cmd[0] == "pgrep":
+-                return R("101\n")
+-            return R("python3 something\n")
+-        P._run = run
++        """Law L-r: a foreign compute process on GPU0 fails the check, named; so does a model resident on the shared
++        Ollama that this run did not request (cycle 1 of its audit: the Ollama server is not a lease-free door); the
++        Ollama listener and runners themselves are not foreign; enough room = the largest single model + margin."""
++        from unittest import mock
++        import gpu0
++        state = {"procs": [], "used": 600, "ollama": []}
++        patches = [mock.patch.object(gpu0, "processes", side_effect=lambda: list(state["procs"])),
++                   mock.patch.object(gpu0, "memory", side_effect=lambda: (state["used"], 24564)),
++                   mock.patch.object(gpu0, "ollama_resident", side_effect=lambda: list(state["ollama"])),
++                   mock.patch.object(gpu0, "_ollama_pids", return_value={100, 101})]
++        for x in patches:
++            x.start()
+         try:
+-            self.apps = "101, GPU-A, 18900\n555, GPU-B, 21000\n"          # our runner on GPU0, GPU1 busy
++            state["procs"] = [(101, "ollama", 500)]                    # the runner, idle: ours, nothing resident
+             ok, d = P.check_gpu0()
+             self.assertTrue(ok, d)
+-            self.apps = "101, GPU-A, 18900\n777, GPU-A, 1962\n"          # a foreign job on GPU0
++            state["procs"] = [(101, "ollama", 500), (777, "python3", 1962)]   # a foreign job on GPU0
++            state["used"] = 2562
+             ok, d = P.check_gpu0()
+             self.assertFalse(ok)
+-            self.assertIn("pid 777", d)
++            self.assertIn("pid 777 python3 1962 MiB", d)
++            state["procs"], state["used"] = [(101, "ollama", 18900)], 19000
++            state["ollama"] = [("gemma3:27b", 18900)]                 # resident, not requested by this run
++            ok, d = P.check_gpu0()
++            self.assertFalse(ok)
++            self.assertIn("ollama model gemma3:27b (not requested by this run)", d)
+         finally:
+-            sm.LocalLLM._listener_pid, sm.gpu0_memory, cvd = saved
+-            if cvd is None:
+-                os.environ.pop("CUDA_VISIBLE_DEVICES", None)
+-            else:
+-                os.environ["CUDA_VISIBLE_DEVICES"] = cvd
++            for x in reversed(patches):
++                x.stop()
+ 
+     def test_a_dirty_or_unpushed_tree_fails(self):
+         replies = {"status": R(" M pipeline/editorial_select.py\n")}
+diff --git a/pipeline/test_pulse_20261110_mustfail.py b/pipeline/test_pulse_20261110_mustfail.py
+index 61d5335a..90e3c888 100644
+--- a/pipeline/test_pulse_20261110_mustfail.py
++++ b/pipeline/test_pulse_20261110_mustfail.py
+@@ -294,8 +294,9 @@ class TestPunctuationLayer(unittest.TestCase):
+         from faster_whisper import WhisperModel
+         raw = json.load(open(os.path.join(FIX, "run", "transcripts", "36HPi9UZPOc.json")))
+         want = json.load(open(os.path.join(FIX, "selection", "transcripts_punctuated", "36HPi9UZPOc.json")))
++        import gpu0
+         got = P.ensure(raw, os.path.join(FIX, "audio", "src_36HPi9UZPOc.flac"),
+-                       WhisperModel("large-v3", device="cuda", compute_type="float16"))
++                       gpu0.whisper("large-v3"))         # L-r: through swap_to, under the session's GPU0 lease
+         self.assertEqual([w["word"] for w in got["words"]], [w["word"] for w in want["words"]])
+ 
+ 
+diff --git a/pipeline/test_punct_word_pass.py b/pipeline/test_punct_word_pass.py
+index 33ecee49..f1b8c06f 100644
+--- a/pipeline/test_punct_word_pass.py
++++ b/pipeline/test_punct_word_pass.py
+@@ -157,34 +157,67 @@ class TestAcquireUpgrade(unittest.TestCase):
+ 
+     def test_a_failed_restoration_is_not_sentence_ready(self):
+         def boom():
+-            raise RuntimeError("CUDA out of memory (simulated)")
++            raise RuntimeError("reference decode failed (simulated)")
+         ts._reference = boom
+         r, st = ts.acquire(self.vid, prefer_words=True)
+         self.assertEqual((st, r["transcript_method"]), ("punctuation_failed", "whisper_words"))
+         self.assertFalse(ts.sentence_ready(r))                 # editorial_select treats it as a failure
+-        self.assertIn("out of memory", ts.LAST_ERROR[self.vid])
++        self.assertIn("reference decode failed", ts.LAST_ERROR[self.vid])
++
++    def test_an_out_of_memory_is_never_a_failure_status(self):
++        """Law L-r (E-FAIL-052): until Nov 12 a simulated out-of-memory here became 'punctuation_failed' (a video's
++        failure). It now leaves acquire as gpu0.GpuOOM for the stage's one bounded retry."""
++        import gpu0
++        def boom():
++            raise RuntimeError("CUDA out of memory (simulated)")
++        ts._reference = boom
++        saved = ts.release_whisper
++        ts.release_whisper = lambda: None
++        try:
++            with self.assertRaisesRegex(gpu0.GpuOOM, "punctuation: CUDA out of memory"):
++                ts.acquire(self.vid, prefer_words=True)
++        finally:
++            ts.release_whisper = saved
+ 
+ 
+ class TestOneWhisperModelAtATime(unittest.TestCase):
+     """Heimdall batch13: the word pass's GPU0 arbitration proves 7 GB free, so distil-large-v3 and the large-v3
+-    reference are never resident together (stubbed models, no GPU)."""
++    reference are never resident together (stubbed models, no GPU). Law L-r makes it so by construction: both are
++    gpu0 Models, and loading one through swap_to deletes the other."""
+     def test_loading_one_drops_the_other(self):
+         import types
++        import tempfile
++        from unittest import mock
++        import gpu0
+         fw = types.ModuleType("faster_whisper")
+         fw.WhisperModel = type("WM", (), {"__init__": lambda self, name, **kw: setattr(self, "name", name)})
+         fw.BatchedInferencePipeline = type("BP", (), {"__init__": lambda self, model: setattr(self, "model", model)})
+         saved = (sys.modules.get("faster_whisper"), os.environ.get("CUDA_VISIBLE_DEVICES"), ts._WHISPER, ts._REFERENCE)
+         sys.modules["faster_whisper"], os.environ["CUDA_VISIBLE_DEVICES"] = fw, "0"
+         ts._WHISPER = ts._REFERENCE = None
++        fake = [mock.patch.object(gpu0, "memory", return_value=(100, 24564)),
++                mock.patch.object(gpu0, "processes", return_value=[]),
++                mock.patch.object(gpu0, "ollama_resident", return_value=[]),
++                mock.patch.object(gpu0, "_ollama_unload", return_value=[]),
++                mock.patch.dict(os.environ, {"PP_GPU0_LEASE": os.path.join(tempfile.mkdtemp(), "lease")})]
++        for f in fake:
++            f.start()
+         try:
+-            a = ts._whisper()
+-            self.assertEqual((a.model.name, ts._REFERENCE), (ts.WHISPER_MODEL, None))
+-            self.assertIs(ts._whisper(), a)
+-            b = ts._reference()
+-            self.assertEqual((b.model.name, ts._WHISPER), (ts.REFERENCE_MODEL, None))
+-            ts._whisper()
+-            self.assertIsNone(ts._REFERENCE)
++            with gpu0.lease("test"):
++                a = ts._whisper()
++                self.assertEqual((a.get().model.name, ts._REFERENCE), (ts.WHISPER_MODEL, None))
++                self.assertIs(ts._whisper(), a)
++                b = ts._reference()
++                self.assertEqual((b.get().model.name, ts._WHISPER), (ts.REFERENCE_MODEL, None))
++                self.assertFalse(a.loaded)                            # deleted by the swap to the reference
++                ts._whisper().get()                                    # loads on first use (lazy)
++                self.assertIsNone(ts._REFERENCE)
++                self.assertFalse(b.loaded)
+         finally:
++            for f in reversed(fake):
++                f.stop()
++            for m in (gpu0.whisper(ts.WHISPER_MODEL, batched=True), gpu0.whisper(ts.REFERENCE_MODEL, batched=True)):
++                m.unload()
+             mod, cvd, ts._WHISPER, ts._REFERENCE = saved
+             if mod is None:
+                 sys.modules.pop("faster_whisper", None)
+diff --git a/pipeline/transcript_store.py b/pipeline/transcript_store.py
+index 4a9ac39c..9be07e13 100644
+--- a/pipeline/transcript_store.py
++++ b/pipeline/transcript_store.py
+@@ -292,6 +292,9 @@ def release_whisper():
+     """Drop the Whisper models and free their GPU memory (E5). Returns GPU0 used MiB after."""
+     global _WHISPER, _REFERENCE
+     _WHISPER = _REFERENCE = None
++    import gpu0
++    for name in (WHISPER_MODEL, REFERENCE_MODEL):
++        gpu0.whisper(name, batched=True).unload()
+     import gc
+     gc.collect()
+     try:
+@@ -304,21 +307,18 @@ def release_whisper():
+ 
+ def _load(name):
+     """One Whisper model on GPU0 at a time (the word pass's arbitration proves 7 GB free, not two models' worth;
+-    Heimdall batch13): loading one drops the other first."""
++    Heimdall batch13): L-r makes it so by construction: gpu0.whisper loads through swap_to, which deletes every
++    other GPU0 model first, and the model reloads through swap_to after any later swap."""
+     global _WHISPER, _REFERENCE
+     if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
+         raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
+-    if (_WHISPER if name == WHISPER_MODEL else _REFERENCE) is None:
+-        import gc
+-        _WHISPER = _REFERENCE = None
+-        gc.collect()
+-        from faster_whisper import WhisperModel, BatchedInferencePipeline
+-        m = BatchedInferencePipeline(model=WhisperModel(name, device="cuda", compute_type="float16"))
+-        if name == WHISPER_MODEL:
+-            _WHISPER = m
+-        else:
+-            _REFERENCE = m
+-    return _WHISPER if name == WHISPER_MODEL else _REFERENCE
++    import gpu0
++    m = gpu0.whisper(name, batched=True)
++    if name == WHISPER_MODEL:
++        _WHISPER, _REFERENCE = m, None
++    else:
++        _WHISPER, _REFERENCE = None, m
++    return m
+ 
+ 
+ def _whisper():
+@@ -478,10 +478,12 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
+                          marks=prec["punctuation"].get("marks_transferred"))
+             status += "+punctuation"
+     except Exception as e:
++        import gpu0
++        if gpu0.is_oom(e):             # L-r: an out-of-memory is never this video's error; it leaves as GpuOOM for
++            _log_attempt(video_id, step=step, status="gpu0_out_of_memory", error=str(e)[-300:])   # the one retry
++            raise gpu0.GpuOOM(f"{video_id}: {step}: CUDA out of memory ({type(e).__name__}: {str(e)[:200]})") from e
+         LAST_ERROR[video_id] = f"{type(e).__name__}: {e}"[-400:]
+         _log_attempt(video_id, step=step, status="error", error=str(e)[-300:])
+-        if "out of memory" in str(e).lower():
+-            release_whisper()          # never keep a half-initialised model around
+         return canonical_transcript(video_id), f"{step}_failed"
+     return canonical_transcript(video_id), status
+ 
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index 386cb7a0..8c25e650 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -70,8 +70,8 @@ def edges(lock_text, heard, n=EDGE_WORDS):
+ 
+ class Transcriber:
+     def __init__(self):
+-        from faster_whisper import WhisperModel
+-        self.model = WhisperModel(ASR["model"], device="cuda", compute_type="float16")
++        import gpu0
++        self.model = gpu0.whisper(ASR["model"])      # L-r: loaded through swap_to on first use
+ 
+     def span(self, media, t0, t1):
+         if t1 - t0 < 0.05:
+diff --git a/scripts/pulse_check_run.sh b/scripts/pulse_check_run.sh
+index 34183a0f..1161b248 100755
+--- a/scripts/pulse_check_run.sh
++++ b/scripts/pulse_check_run.sh
+@@ -72,8 +72,19 @@ if ! flock -n 9; then
+   echo "pulse_check_run: another run holds /tmp/pulse_check_run.lock" | tee -a "$LOG" >&2
+   exit 75
+ fi
++# law L-r ONE OWNER: the GPU0 lease (pipeline/gpu0.py) on fd 8 for the whole run; preflight and run_fresh inherit
++# the descriptor (custody), nothing else may load onto GPU0 meanwhile; released when this script exits
++GPU0_LEASE="${PP_GPU0_LEASE:-/tmp/pulse_gpu0.lease}"
++exec 8>>"$GPU0_LEASE"
++if ! flock -n 8; then
++  echo "pulse_check_run: the GPU0 lease is held: $(cat "$GPU0_LEASE" 2>/dev/null)" | tee -a "$LOG" >&2
++  exit 75
++fi
++python3 -c 'import json, sys, time; json.dump({"pid": int(sys.argv[1]), "owner": "pulse_check_run " + sys.argv[2] + " (" + sys.argv[3] + ")", "since": time.time()}, open(sys.argv[4], "w"))' \
++  "$$" "$STAMP" "${ARGS[*]:-auto}" "$GPU0_LEASE"
+ 
+ export CUDA_VISIBLE_DEVICES=0
++export CUDA_DEVICE_ORDER=PCI_BUS_ID      # law L-r: CUDA device 0 is nvidia-smi GPU 0 (gpu0.require checks it)
+ cd "$REPO/pipeline" || exit 1
+ echo "=== pulse_check_run $STAMP | HEAD $(git -C "$REPO" rev-parse HEAD) | args: ${ARGS[*]:-auto} ===" | tee -a "$LOG"
+ # preflight (orchestrator 2026-11-11 '21:10'): seconds, before any hour is spent; a failure is a HOLD with the reason
+diff --git a/segment_v1/qa_gates.py b/segment_v1/qa_gates.py
+index 19ba78dd..6f4b7f82 100644
+--- a/segment_v1/qa_gates.py
++++ b/segment_v1/qa_gates.py
+@@ -47,16 +47,21 @@ G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED sprea
+     # made a correct render pass or fail by encoder state (OD-4).
+ G9_LUMA_FLOOR = {k: round(G9_V2F_LUMA[k] - G9_REENCODE_SPREAD[k], 4) for k in G9_V2F_LUMA}   # 14.2857 / 14.7315
+ 
+-# ── Faster-Whisper singleton (medium, float16, cuda, vad OFF, word timestamps) ──
+-_FW_MODEL = None
++# ── Faster-Whisper medium (float16, GPU0, vad OFF, word timestamps): law L-r, through pipeline/gpu0.py ──
++
++def _gpu0():
++    """pipeline/gpu0.py (law L-r), importable when this file runs on its own too."""
++    p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "pipeline")
++    if p not in sys.path:
++        sys.path.insert(0, p)
++    import gpu0
++    return gpu0
++
+ 
+ def _get_fw_model():
+-    """Load faster-whisper medium model once per gate run."""
+-    global _FW_MODEL
+-    if _FW_MODEL is None:
+-        from faster_whisper import WhisperModel
+-        _FW_MODEL = WhisperModel("medium", device="cuda", compute_type="float16")
+-    return _FW_MODEL
++    """The process's one faster-whisper medium: gpu0.whisper loads it through swap_to on first use (every other
++    GPU0 model unloaded, the memory proven free), any later swap deletes it, and it reloads when used again."""
++    return _gpu0().whisper("medium")
+ 
+ 
+ def fw_transcribe(wav_path, word_timestamps=True):
+@@ -146,7 +151,7 @@ def gate_g1(final_mp4, manifest, vo_regions, qa_dir, vo_assembled_tracks=None):
+     from resemblyzer import VoiceEncoder, preprocess_wav
+ 
+     print("\n=== G1: VOICE IDENTITY ===")
+-    encoder = VoiceEncoder()
++    encoder = _gpu0().model("resemblyzer", VoiceEncoder)     # L-r: loaded through swap_to; calls inside guard()
+ 
+     if vo_assembled_tracks is None:
+         vo_assembled_tracks = {}
+diff --git a/pipeline/gpu0.py b/pipeline/gpu0.py
+new file mode 100644
+index 00000000..79b81b2f
+--- /dev/null
++++ b/pipeline/gpu0.py
+@@ -0,0 +1,688 @@
++#!/usr/bin/env python3
++"""pipeline/gpu0.py — law L-r GPU0 NEVER SURPRISES A RUN (orchestrator 2026-11-12 '01:55' B; PBX on the pinned run's
++out-of-memory: "let's make sure that never happens again").
++
++ONE OWNER. GPU0 belongs to whoever holds the lease: an exclusive flock on the lease file (/tmp/pulse_gpu0.lease; the
++environment variable PP_GPU0_LEASE overrides it), the holder recorded in the file. Entry points take it:
++scripts/pulse_check_run.sh on fd 8 for the whole run (preflight and run_fresh inherit that descriptor), and run_fresh,
++replay, preflight, backtest and GPU test sessions with lease() when started on their own. held() is a check, never an
++acquisition: true in a process that took the lease with lease(), or that holds a descriptor whose open file description
++holds the flock while it is held (a private probe first proves the lock is held at all; a second flock then succeeds
++only on the holding description). require() runs before every load AND every use of a loaded model: no lease, no load.
++
++ONE MODEL AT A TIME. swap_to(key) is the one way anything gets onto GPU0. It refuses a foreign GPU0 user, unloads
++everything else this run has resident (its Model objects; its models on the GPU0 Ollama via keep_alive=0, confirmed on
++/api/ps), collects garbage and empties torch's cache, then waits until nvidia-smi shows GPU0 free >= REQUIREMENT_MIB[key]
+++ MARGIN_MIB (MARGIN_MIB alone for a model already resident), re-checking for a foreign user while it waits. A Model
++(whisper(), model()) loads through swap_to on first use, is deleted by any later swap, and loads again through swap_to
++when used again; its calls re-resolve the live object and run inside guard(). The GPU0 work of a run is done from one
++thread (the PeakSampler only reads nvidia-smi).
++
++FOREIGN. Not this run's: a GPU0 compute process other than this process, its descendants and the processes holding the
++lease file open (the wrapper that holds it); a model resident on the shared GPU0 Ollama that this process did not
++request; GPU0 memory no listed process accounts for, beyond UNLISTED_MAX_MIB. A foreign user is named and the run HOLDs;
++nothing of it is unloaded or killed.
++
++STOPS. Every refusal is a Gpu0Stop, a BaseException, so no `except Exception` between a load and the stage runner can
++turn it into another error ('transcription failed' hid an out-of-memory on Nov 12, E-FAIL-052): GpuOOM (a CUDA / NVENC
++out-of-memory inside guard() or a finished subprocess), Gpu0Foreign, LeaseMissing, LeaseBusy, Gpu0NotFree (the memory
++did not come free in time), Gpu0Unreadable (nvidia-smi, ss or the Ollama listener cannot be read: never 'nothing
++there'). run_fresh's stage runner owns the one retry of an out-of-memory and turns every other stop into a HOLD."""
++import contextlib
++import fcntl
++import gc
++import json
++import os
++import re
++import subprocess
++import sys
++import threading
++import time
++import urllib.error
++import urllib.request
++
++os.environ.setdefault("CUDA_DEVICE_ORDER", "PCI_BUS_ID")   # CUDA device 0 = nvidia-smi GPU 0 (before any CUDA init)
++
++DEFAULT_LEASE = "/tmp/pulse_gpu0.lease"
++OLLAMA_HOST = "127.0.0.1:11434"            # the GPU0 Ollama listener (story_semantics.LLM_HOST)
++MARGIN_MIB = 1024
++UNLISTED_MAX_MIB = 1024                    # GPU0 memory no listed compute process accounts for, beyond this = foreign
++# Peak GPU0 memory one load needs (MiB, its process's CUDA context included): the peak measured on this host's 24564 MiB
++# GPU0 by pipeline/measure_gpu0.py on 2026-11-12 (Whisper keys on 600 s of speech; DoD 'L-r GPU0 requirements'), rounded
++# up by ~5%; swap_to adds MARGIN_MIB. A key missing here can never be loaded.
++REQUIREMENT_MIB = {
++    "ollama:gemma3:27b": 20600,            # resident 20548-20559 (nvidia-smi 01:43 / 01:55 ET); measured peak 19241
++    "whisper:large-v3": 6000,              # measured 5657 (beam 5, word timestamps, 600 s)
++    "whisper:large-v3:batched": 9600,      # measured 9145 (batch 16 full: 600 s)
++    "whisper:distil-large-v3:batched": 5700,   # measured 5401 (batch 16 full: 600 s)
++    "whisper:medium": 2800,                # measured 2649
++    "embedder": 1500,                      # measured 1379 (bge-base fp16, 64 x 512 tokens)
++    "resemblyzer": 850,                    # measured 775
++    "nvenc": 600,                          # measured 536 (one 1080x1920 h264_nvenc encode at a time)
++}
++WAIT_S = 180
++
++
++class Gpu0Stop(BaseException):
++    """A GPU0 refusal. A BaseException on purpose: it passes every `except Exception` up to the stage runner."""
++
++
++class GpuOOM(Gpu0Stop):
++    """A CUDA / NVENC out-of-memory (the original exception, when there is one, is its __cause__)."""
++
++
++class Gpu0Foreign(Gpu0Stop):
++    """GPU0 is used by something that is not this run's."""
++
++
++class LeaseMissing(Gpu0Stop):
++    """A GPU0 load or use in a process that does not hold the lease (or not on GPU0 only)."""
++
++
++class LeaseBusy(Gpu0Stop):
++    """Another owner holds the lease."""
++
++
++class Gpu0NotFree(Gpu0Stop):
++    """The memory a load needs did not come free in time."""
++
++
++class Gpu0Unreadable(Gpu0Stop):
++    """nvidia-smi, ss or the GPU0 Ollama listener cannot be read."""
++
++
++_lock = threading.RLock()
++_own = {}           # lease path -> {"file", "pid", "depth"}: this process's own lease() holdings
++_resident = []      # Model objects loaded on GPU0 by this process
++_ollama_ours = set()    # models this process asked the GPU0 Ollama for (swap_to('ollama:...'))
++_events = []        # every swap's evidence (run_fresh copies it into PROVENANCE)
++_gen = [0]          # bumped whenever the resident set changes (LocalLLM re-swaps only when it moved)
++
++
++# ── the lease ──
++
++def lease_path():
++    return os.path.realpath(os.environ.get("PP_GPU0_LEASE", DEFAULT_LEASE))
++
++
++def _fds_on(target):
++    out = []
++    for name in os.listdir("/proc/self/fd"):
++        try:
++            if os.path.realpath(os.readlink(f"/proc/self/fd/{name}")) == target:
++                out.append(int(name))
++        except (OSError, ValueError):
++            continue
++    return out
++
++
++def _locked(target):
++    """True when some open file description holds the flock (probed on a private one, released at once); an
++    unopenable lease file counts as held (never 'free')."""
++    try:
++        f = open(target, "a+")
++    except OSError:
++        return True
++    with f:
++        try:
++            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except OSError:
++            return True
++        fcntl.flock(f, fcntl.LOCK_UN)              # this probe's own private description only
++        return False
++
++
++def held():
++    """True when this process holds the lease (see the module docstring). A check, never an acquisition: with the lock
++    free no descriptor is probed. (Were it released between the two probes, the second could take it on this
++    process's own descriptor: the process then holds it.)"""
++    target = lease_path()
++    with _lock:
++        h = _own.get(target)
++        if h and h["pid"] == os.getpid():
++            return True
++    fds = _fds_on(target)
++    if not fds or not _locked(target):
++        return False
++    for fd in fds:
++        try:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)  # succeeds only on the holding description
++            return True
++        except OSError:
++            continue
++    return False
++
++
++def holder():
++    """The recorded holder {"pid", "owner", "since"} while the lease is held, None when it is free."""
++    target = lease_path()
++    if not _locked(target):
++        return None
++    try:
++        with open(target) as f:
++            return _record(f)
++    except OSError as e:
++        return {"pid": None, "owner": f"lease file unreadable ({type(e).__name__})"}
++
++
++def _record(f):
++    try:
++        rec = json.loads(os.pread(f.fileno(), 4096, 0).decode(errors="replace") or "{}")
++    except (OSError, ValueError):
++        rec = {}
++    return rec if isinstance(rec, dict) else {}
++
++
++@contextlib.contextmanager
++def lease(owner, wait_s=0.0, poll_s=0.2):
++    """Hold the lease for the block. Re-entrant (any thread) where this process took it: the descriptor closes when the
++    last holder leaves; custody of an inherited descriptor is used as is (its owner releases it); otherwise acquired
++    within wait_s, or LeaseBusy naming the holder. Released by closing the descriptor (never LOCK_UN)."""
++    target = lease_path()
++    with _lock:
++        h = _own.get(target)
++        if h is not None and h["pid"] == os.getpid():
++            h["depth"] += 1
++        else:
++            h = None
++    if h is None and held():
++        yield
++        return
++    if h is None:
++        f = open(target, "a+")
++        t0 = time.time()
++        while True:
++            try:
++                fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
++                break
++            except OSError:
++                if time.time() - t0 >= wait_s:
++                    rec = _record(f)
++                    f.close()
++                    raise LeaseBusy(f"the GPU0 lease is held by {rec.get('owner', 'an unrecorded owner')} "
++                                    f"(pid {rec.get('pid')})") from None
++                time.sleep(poll_s)
++        f.seek(0)
++        f.truncate()
++        json.dump({"pid": os.getpid(), "owner": owner, "since": time.time()}, f)
++        f.flush()
++        with _lock:
++            h = _own[target] = {"file": f, "pid": os.getpid(), "depth": 1}
++    try:
++        yield
++    finally:
++        with _lock:
++            h["depth"] -= 1
++            if h["depth"] == 0:
++                if _own.get(target) is h:
++                    _own.pop(target)
++                h["file"].close()
++
++
++def require(what):
++    """No lease, no load; GPU0 only (GPU1 is quarantined), CUDA device 0 being nvidia-smi GPU 0."""
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++        raise LeaseMissing(f"{what}: GPU0 loads need CUDA_VISIBLE_DEVICES=0 (it is "
++                           f"{os.environ.get('CUDA_VISIBLE_DEVICES')!r}; GPU1 is quarantined)")
++    if os.environ.get("CUDA_DEVICE_ORDER") != "PCI_BUS_ID":
++        raise LeaseMissing(f"{what}: CUDA_DEVICE_ORDER must be PCI_BUS_ID (CUDA device 0 = nvidia-smi GPU 0)")
++    if not held():
++        raise LeaseMissing(f"{what}: a GPU0 load without the GPU0 lease (law L-r: no lease, no load); "
++                           f"holder: {holder()}")
++
++
++# ── what is on GPU0 ──
++
++def _smi(args, timeout=15):
++    try:
++        r = subprocess.run(["nvidia-smi", *args], capture_output=True, text=True, timeout=timeout)
++    except (OSError, subprocess.TimeoutExpired) as e:
++        raise Gpu0Unreadable(f"nvidia-smi: {type(e).__name__}") from None
++    if r.returncode != 0:
++        raise Gpu0Unreadable(f"nvidia-smi exit {r.returncode}: {r.stderr.strip()[:200]}")
++    return r.stdout
++
++
++def memory():
++    """(used_mib, total_mib) of GPU index 0."""
++    out = _smi(["-i", "0", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits"])
++    try:
++        used, total = (int(x) for x in out.strip().split(","))
++    except ValueError:
++        raise Gpu0Unreadable(f"nvidia-smi memory line unreadable: {out.strip()[:80]!r}") from None
++    return used, total
++
++
++def processes():
++    """[(pid, name, MiB or None)] of every compute process on GPU index 0; an unreadable line is a Gpu0Unreadable."""
++    uuid = _smi(["-i", "0", "--query-gpu=uuid", "--format=csv,noheader"]).strip()
++    if not uuid:
++        raise Gpu0Unreadable("nvidia-smi names no GPU 0")
++    out = []
++    for line in _smi(["--query-compute-apps=pid,gpu_uuid,used_memory,process_name",
++                      "--format=csv,noheader,nounits"]).strip().splitlines():
++        p = [x.strip() for x in line.split(",", 3)]
++        if len(p) != 4 or not p[0].isdigit():
++            raise Gpu0Unreadable(f"nvidia-smi compute-apps line unreadable: {line[:80]!r}")
++        if p[1] == uuid:
++            out.append((int(p[0]), os.path.basename(p[3]), int(p[2]) if p[2].isdigit() else None))
++    return out
++
++
++def describe(procs):
++    return ", ".join(f"pid {p if p is not None else '?'} {n} {m} MiB" for p, n, m in procs) or "no GPU0 process"
++
++
++def _children(pid):
++    out = set()
++    try:
++        tids = os.listdir(f"/proc/{pid}/task")
++    except OSError:
++        return out
++    for tid in tids:
++        try:
++            with open(f"/proc/{pid}/task/{tid}/children") as f:
++                out |= {int(x) for x in f.read().split()}
++        except (OSError, ValueError):
++            continue
++    return out
++
++
++def _descendants(root=None):
++    out, todo = set(), [os.getpid() if root is None else root]
++    while todo:
++        for k in _children(todo.pop()):
++            if k not in out:
++                out.add(k)
++                todo.append(k)
++    return out
++
++
++def _lease_holders():
++    """Pids with the lease file open (the wrapper that holds it on fd 8, a process it handed the descriptor to)."""
++    target, out = lease_path(), set()
++    for pid in os.listdir("/proc"):
++        if not pid.isdigit():
++            continue
++        try:
++            for name in os.listdir(f"/proc/{pid}/fd"):
++                try:
++                    if os.path.realpath(os.readlink(f"/proc/{pid}/fd/{name}")) == target:
++                        out.add(int(pid))
++                        break
++                except OSError:
++                    continue
++        except OSError:
++            continue
++    return out
++
++
++def _ollama_pids():
++    """The GPU0 Ollama listener (the process on its port) and every process under it."""
++    port = OLLAMA_HOST.rsplit(":", 1)[1]
++    try:
++        r = subprocess.run(["ss", "-ltnpH", f"sport = :{port}"], capture_output=True, text=True, timeout=10)
++    except (OSError, subprocess.TimeoutExpired) as e:
++        raise Gpu0Unreadable(f"cannot read the GPU0 Ollama listener: {type(e).__name__}") from None
++    if r.returncode != 0:
++        raise Gpu0Unreadable(f"ss exit {r.returncode}: {r.stderr.strip()[:200]}")
++    serve = {int(p) for p in re.findall(r"pid=(\d+)", r.stdout)}
++    if r.stdout.strip() and not serve:
++        raise Gpu0Unreadable("the GPU0 Ollama listener's pid is not visible to this user")
++    out = set(serve)
++    for p in serve:
++        out |= _descendants(p)
++    return out
++
++
++def foreign():
++    """[(pid, what, MiB)] using GPU0 that is not this run's (see the module docstring)."""
++    procs = processes()
++    ollama = _ollama_pids()
++    ours = {os.getpid()} | _descendants() | _lease_holders() | ollama
++    out = [p for p in procs if p[0] not in ours]
++    for name, mib in ollama_resident():
++        if name not in _ollama_ours:
++            out.append((min(ollama) if ollama else None, f"ollama model {name} (not requested by this run)", mib))
++    used, _ = memory()
++    unlisted = used - sum(m or 0 for _, _, m in procs)
++    if unlisted > UNLISTED_MAX_MIB:
++        out.append((None, "GPU0 memory no listed compute process accounts for", unlisted))
++    return out
++
++
++# ── the GPU0 Ollama ──
++
++def _ollama(path, body=None, timeout=30):
++    req = urllib.request.Request(f"http://{OLLAMA_HOST}{path}",
++                                 data=None if body is None else json.dumps(body).encode(),
++                                 headers={"Content-Type": "application/json"})
++    return json.loads(urllib.request.urlopen(req, timeout=timeout).read() or b"{}")
++
++
++def ollama_resident():
++    """[(name, MiB on the GPU)] of the models resident on the GPU0 Ollama ([] when nothing listens there)."""
++    try:
++        models = _ollama("/api/ps").get("models", [])
++        return [(m["name"], int(m.get("size_vram") or 0) // (1024 * 1024)) for m in models]
++    except urllib.error.URLError as e:
++        if isinstance(getattr(e, "reason", None), ConnectionRefusedError):
++            return []
++        raise Gpu0Unreadable(f"Ollama {OLLAMA_HOST} /api/ps: {e}") from None
++    except (OSError, ValueError, KeyError, TypeError) as e:
++        raise Gpu0Unreadable(f"Ollama {OLLAMA_HOST} /api/ps: {type(e).__name__}: {e}") from None
++
++
++def ollama_loaded():
++    return [n for n, _ in ollama_resident()]
++
++
++def _ollama_unload(names, wait_s=60):
++    """Unload these models (this run's own: swap_to proved nothing foreign first) and confirm on /api/ps."""
++    for n in names:
++        try:
++            _ollama("/api/generate", {"model": n, "keep_alive": 0}, timeout=120)
++        except (OSError, ValueError) as e:
++            raise Gpu0NotFree(f"Ollama would not unload {n}: {type(e).__name__}: {e}") from None
++    t0 = time.time()
++    while True:
++        left = [n for n in ollama_loaded() if n in names]
++        if not left:
++            _ollama_ours.difference_update(names)
++            return list(names)
++        if time.time() - t0 > wait_s:
++            raise Gpu0NotFree(f"Ollama still holds {left} {wait_s}s after keep_alive=0")
++        time.sleep(1)
++
++
++# ── swaps ──
++
++def generation():
++    return _gen[0]
++
++
++def events():
++    return list(_events)
++
++
++def _empty_caches():
++    gc.collect()
++    torch = sys.modules.get("torch")
++    if torch is not None:
++        try:
++            if torch.cuda.is_initialized():
++                torch.cuda.empty_cache()
++        except Exception as e:
++            if is_oom(e):
++                raise GpuOOM(f"torch empty_cache: {e}") from e
++
++
++def _ollama_key(key):
++    return key[len("ollama:"):] if key.startswith("ollama:") else None
++
++
++def _refuse_foreign(what):
++    f = foreign()
++    if f:
++        raise Gpu0Foreign(f"{what}: GPU0 is used by something that is not this run's: {describe(f)}")
++
++
++def swap_to(key, wait_s=WAIT_S, poll_s=2.0):
++    """Make GPU0 ready for `key` and nothing else of this run's (see the module docstring). Returns the evidence it
++    recorded. Raises a Gpu0Stop."""
++    require(f"swap_to({key})")
++    if key not in REQUIREMENT_MIB:
++        raise Gpu0NotFree(f"{key}: no measured GPU0 requirement (gpu0.REQUIREMENT_MIB): never loaded")
++    with _lock:
++        _refuse_foreign(f"swap_to({key})")
++        ev = {"key": key, "at": time.time(), "before": memory(), "unloaded": []}
++        for m in [m for m in _resident if m.key != key]:
++            m.unload()
++            ev["unloaded"].append(m.key)
++        name = _ollama_key(key)
++        drop = [n for n in ollama_loaded() if n != name]          # all this run's: foreign() passed
++        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload(drop)]
++        if name:
++            _ollama_ours.add(name)
++        already = name in ollama_loaded() if name else any(m.key == key for m in _resident)
++        _empty_caches()
++        need = MARGIN_MIB if already else REQUIREMENT_MIB[key] + MARGIN_MIB
++        t0 = time.time()
++        while True:
++            used, total = memory()
++            if total - used >= need:
++                break
++            if time.time() - t0 > wait_s:
++                raise Gpu0NotFree(f"{key}: GPU0 has {total - used} MiB free {wait_s}s after the swap, needs {need} "
++                                  f"({'already resident: the margin' if already else f'{REQUIREMENT_MIB[key]} + margin {MARGIN_MIB}'}); "
++                                  f"on GPU0: {describe(processes())}")
++            time.sleep(poll_s)
++            _refuse_foreign(f"swap_to({key}) while waiting")
++        if not already:
++            _gen[0] += 1
++        ev.update(after=[used, total], free_mib=total - used, already_resident=already,
++                  waited_s=round(time.time() - t0, 1))
++        _events.append(ev)
++        return ev
++
++
++def release_all(wait_s=WAIT_S, poll_s=2.0):
++    """Unload everything this run has on GPU0 (its Models, its models on the GPU0 Ollama), then wait until nvidia-smi
++    shows GPU0 free: room for the largest single model (max REQUIREMENT_MIB + MARGIN_MIB). Under the lease; a foreign
++    user is refused, never unloaded. Returns evidence; Gpu0NotFree names every GPU0 process when it does not come free."""
++    require("release_all")
++    need = max(REQUIREMENT_MIB.values()) + MARGIN_MIB
++    with _lock:
++        _refuse_foreign("release_all")
++        ev = {"at": time.time(), "before": memory(), "unloaded": []}
++        for m in list(_resident):
++            m.unload()
++            ev["unloaded"].append(m.key)
++        ev["unloaded"] += [f"ollama:{n}" for n in _ollama_unload(ollama_loaded())]
++        _empty_caches()
++        _gen[0] += 1
++        t0 = time.time()
++        while True:
++            used, total = memory()
++            if total - used >= need:
++                ev.update(after=[used, total], waited_s=round(time.time() - t0, 1))
++                return ev
++            if time.time() - t0 > wait_s:
++                raise Gpu0NotFree(f"GPU0 has {total - used} MiB free {wait_s}s after releasing everything this run "
++                                  f"owns (free means >= {need}); on GPU0: {describe(processes())}")
++            time.sleep(poll_s)
++            _refuse_foreign("release_all while waiting")
++
++
++# ── out of memory ──
++
++_OOM = re.compile(r"out of memory|CUDA_ERROR_OUT_OF_MEMORY|cudaErrorMemoryAllocation|CUBLAS_STATUS_ALLOC_FAILED|"
++                  r"CUDNN_STATUS_ALLOC_FAILED|NV_ENC_ERR_OUT_OF_MEMORY|OutOfMemoryError|cudaMalloc failed|"
++                  r"unable to allocate (?:a )?(?:CUDA|GPU|CUDA\d+) buffer|failed to allocate (?:CUDA|GPU)", re.I)
++
++
++def is_oom(e):
++    """True for a CUDA / NVENC / Ollama out-of-memory, read from the exception, its type and any captured stderr."""
++    if isinstance(e, GpuOOM):
++        return True
++    parts = [type(e).__name__, str(e)]
++    for attr in ("stderr", "output"):
++        v = getattr(e, attr, None)
++        if isinstance(v, bytes):
++            v = v.decode(errors="replace")
++        if isinstance(v, str):
++            parts.append(v[-4000:])
++    return bool(_OOM.search(" ".join(parts)))
++
++
++def raise_if_oom(result, what):
++    """A finished subprocess (run with capture_output) that failed on a CUDA / NVENC out-of-memory leaves as GpuOOM,
++    never as the caller's later 'render failed' (law L-r item 3)."""
++    if getattr(result, "returncode", 0) != 0:
++        err = result.stderr.decode(errors="replace") if isinstance(result.stderr, bytes) else (result.stderr or "")
++        if _OOM.search(err):
++            raise GpuOOM(f"{what}: out of memory ({err.strip()[-300:]})")
++
++
++@contextlib.contextmanager
++def guard(what):
++    """A CUDA out-of-memory raised inside the block leaves it as GpuOOM (nothing can rename it on the way up)."""
++    try:
++        yield
++    except Gpu0Stop:
++        raise
++    except Exception as e:
++        if is_oom(e):
++            raise GpuOOM(f"{what}: CUDA out of memory ({type(e).__name__}: {str(e)[:300]})") from e
++        raise
++
++
++def guard_iter(it, what):
++    """Iterate a lazily decoding iterator (faster-whisper segments) with every step inside guard(). The iterator keeps
++    its model alive until it is exhausted or dropped."""
++    while True:
++        with guard(what):
++            try:
++                x = next(it)
++            except StopIteration:
++                return
++        yield x
++
++
++def drop_traceback(e):
++    """Break the frames an exception chain pins (the failed call's model and tensors), so a release can free them."""
++    seen = set()
++    while e is not None and id(e) not in seen:
++        seen.add(id(e))
++        e.__traceback__ = None
++        e = e.__cause__ or e.__context__
++
++
++# ── the only GPU0 models ──
++
++class Model:
++    """A GPU0 object loaded only through swap_to (see the module docstring). Every use checks the lease; a call
++    re-resolves the live object (a later swap deleted it: it loads again through swap_to) and runs inside guard();
++    only plain values (str, int, float, bool, None) of the object are readable directly."""
++
++    def __init__(self, key, build):
++        self.key, self._build, self._obj = key, build, None
++
++    def get(self):
++        require(self.key)
++        with _lock:
++            if self._obj is None:
++                swap_to(self.key)
++                with guard(f"{self.key}: load"):
++                    self._obj = self._build()
++                _resident.append(self)
++            return self._obj
++
++    def unload(self):
++        with _lock:
++            self._obj = None
++            if self in _resident:
++                _resident.remove(self)
++
++    @property
++    def loaded(self):
++        return self._obj is not None
++
++    def __getattr__(self, name):
++        if name.startswith("_"):
++            raise AttributeError(name)
++        attr = getattr(self.get(), name)
++        if callable(attr):
++            del attr                                     # no stale reference: each call re-resolves the live object
++            key = self.key
++
++            def call(*a, **k):
++                obj = self.get()
++                with guard(f"{key}: {name}"):
++                    return getattr(obj, name)(*a, **k)
++            return call
++        if isinstance(attr, (str, int, float, bool, type(None))):
++            return attr
++        raise AttributeError(f"gpu0.Model {self.key}: {name!r} is an object inside the model; reach the model only "
++                             f"through its calls (law L-r: nothing may keep it alive past a swap)")
++
++    def __call__(self, *a, **k):
++        obj = self.get()
++        with guard(f"{self.key}: call"):
++            return obj(*a, **k)
++
++
++class Whisper(Model):
++    def transcribe(self, *a, **k):
++        obj = self.get()
++        with guard(f"{self.key}: transcribe"):
++            segments, info = obj.transcribe(*a, **k)
++        del obj
++        return guard_iter(iter(segments), f"{self.key}: decode"), info
++
++
++_models = {}
++
++
++def whisper(name, batched=False):
++    """The process's one faster-whisper model `name` (float16 on GPU0; batched = a BatchedInferencePipeline)."""
++    key = f"whisper:{name}" + (":batched" if batched else "")
++    with _lock:
++        if key not in _models:
++            def build():
++                from faster_whisper import WhisperModel
++                m = WhisperModel(name, device="cuda", compute_type="float16")
++                if batched:
++                    from faster_whisper import BatchedInferencePipeline
++                    m = BatchedInferencePipeline(model=m)
++                return m
++            _models[key] = Whisper(key, build)
++        return _models[key]
++
++
++def model(key, build):
++    """The process's one Model for `key` (a torch module, an encoder...): `build` makes the loaded object."""
++    with _lock:
++        if key not in _models:
++            _models[key] = Model(key, build)
++        return _models[key]
++
++
++# ── evidence ──
++
++class PeakSampler:
++    """GPU0 memory.used sampled every interval_s on a daemon thread; the peak per label (run_fresh: the stage). A sampled
++    maximum: a lower bound of the true peak (transients shorter than the interval are missed)."""
++
++    def __init__(self, interval_s=1.0):
++        self.interval_s, self.label, self.peaks, self.errors = interval_s, None, {}, 0
++        self._stop = threading.Event()
++        self._thread = threading.Thread(target=self._run, daemon=True)
++
++    def start(self):
++        self._thread.start()
++        return self
++
++    def set(self, label):
++        self.label = label
++        self._sample()
++
++    def _sample(self):
++        label = self.label                       # read before the measurement: a sample never crosses a stage edge
++        try:
++            used, _ = memory()
++        except Gpu0Stop:
++            self.errors += 1
++            return
++        if label is not None and self.label == label:
++            self.peaks[label] = max(self.peaks.get(label, 0), used)
++
++    def _run(self):
++        while not self._stop.wait(self.interval_s):
++            self._sample()
++
++    def stop(self):
++        self._stop.set()
++        self._thread.join(timeout=5)
++        self._sample()
++        return dict(self.peaks)
+diff --git a/pipeline/test_gpu0.py b/pipeline/test_gpu0.py
+new file mode 100644
+index 00000000..8d61f11f
+--- /dev/null
++++ b/pipeline/test_gpu0.py
+@@ -0,0 +1,450 @@
++#!/usr/bin/env python3
++"""Law L-r GPU0 NEVER SURPRISES A RUN (pipeline/gpu0.py): CPU tests with a private lease file and stubbed nvidia-smi /
++Ollama readings, so they never touch GPU0. The GPU must-fails (a real allocation on GPU0 before a stage) and the
++back-to-back runs with the per-stage peak table are pipeline/test_gpu0_live.py (GPU0, under the lease)."""
++import json
++import os
++import subprocess
++import sys
++import tempfile
++import textwrap
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import gpu0  # noqa: E402
++
++
++class Box(unittest.TestCase):
++    """A private lease file, CUDA_VISIBLE_DEVICES=0, and a fake GPU0: memory / processes / Ollama are stubs."""
++
++    def setUp(self):
++        self.tmp = tempfile.mkdtemp(prefix="gpu0t_")
++        self.env = mock.patch.dict(os.environ, {"PP_GPU0_LEASE": os.path.join(self.tmp, "lease"),
++                                                "CUDA_VISIBLE_DEVICES": "0"})
++        self.env.start()
++        self.addCleanup(self.env.stop)
++        self.used = [100]                 # MiB used on the fake GPU0 (a list: tests change it)
++        self.procs = []                   # fake GPU0 compute processes
++        self.ollama = []                  # fake resident Ollama models
++        self.unloaded = []
++        for name, fn in (("memory", lambda: (self.used[0], 24564)), ("processes", lambda: list(self.procs)),
++                         ("ollama_resident", lambda: [(n, 0) for n in self.ollama]), ("_ollama_pids", lambda: {999999}),
++                         ("_ollama_unload", self._unload)):
++            p = mock.patch.object(gpu0, name, side_effect=fn)
++            p.start()
++            self.addCleanup(p.stop)
++        saved = (list(gpu0._resident), dict(gpu0._models), list(gpu0._events), set(gpu0._ollama_ours))
++        gpu0._resident.clear()
++        gpu0._models.clear()
++        gpu0._ollama_ours.clear()
++
++        def restore():
++            gpu0._resident[:] = saved[0]
++            gpu0._models.clear()
++            gpu0._models.update(saved[1])
++            gpu0._events[:] = saved[2]
++            gpu0._ollama_ours.clear()
++            gpu0._ollama_ours.update(saved[3])
++        self.addCleanup(restore)
++
++    def _unload(self, names, wait_s=60):
++        self.ollama[:] = [n for n in self.ollama if n not in names]
++        self.unloaded += list(names)
++        gpu0._ollama_ours.difference_update(names)
++        return list(names)
++
++
++class TestLease(Box):
++    def test_no_lease_no_load_and_gpu0_only(self):
++        with self.assertRaises(gpu0.LeaseMissing):
++            gpu0.require("a load")
++        with gpu0.lease("test"):
++            gpu0.require("a load")
++            with mock.patch.dict(os.environ, {"CUDA_VISIBLE_DEVICES": "0,1"}):
++                with self.assertRaisesRegex(gpu0.LeaseMissing, "GPU1 is quarantined"):
++                    gpu0.require("a load")
++        self.assertFalse(gpu0.held())
++
++    def test_held_is_a_check_never_an_acquisition(self):
++        f = open(gpu0.lease_path(), "a+")                # this process has the file open, nobody holds the lock
++        self.addCleanup(f.close)
++        self.assertFalse(gpu0.held())
++        self.assertIsNone(gpu0.holder())                 # still free: held() took nothing
++        with gpu0.lease("t"):
++            self.assertTrue(gpu0.held())
++
++    def test_a_lease_is_released_by_its_last_holder_across_threads(self):
++        import threading
++        inside, leave_a, done_b = threading.Event(), threading.Event(), threading.Event()
++
++        def a():
++            with gpu0.lease("A"):
++                inside.set()
++                leave_a.wait(10)
++
++        def b():
++            inside.wait(10)
++            with gpu0.lease("B"):
++                leave_a.set()
++                t.join(10)                                # A has left: B must still hold it
++                self.assertTrue(gpu0.held())
++                self.assertIsNotNone(gpu0.holder())
++            done_b.set()
++        t = threading.Thread(target=a)
++        u = threading.Thread(target=b)
++        t.start(); u.start(); u.join(20)
++        self.assertTrue(done_b.is_set())
++        self.assertIsNone(gpu0.holder())                  # released by the last one out
++
++    def test_reentrant_and_busy_names_the_holder(self):
++        with gpu0.lease("outer"):
++            with gpu0.lease("inner"):
++                self.assertTrue(gpu0.held())
++            self.assertTrue(gpu0.held())
++            code = textwrap.dedent(f"""
++                import sys; sys.path.insert(0, {PIPELINE!r}); import gpu0
++                try:
++                    with gpu0.lease("second"): print("GOT")
++                except gpu0.LeaseBusy as e: print("BUSY", e)""")
++            out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60).stdout
++            self.assertIn("BUSY", out)
++            self.assertIn("outer", out)                               # the holder is named
++        self.assertIsNone(gpu0.holder())
++
++    def test_an_inherited_descriptor_is_custody_a_reopened_one_is_not(self):
++        with gpu0.lease("parent"):
++            fd = gpu0._own[gpu0.lease_path()]["file"].fileno()
++            os.set_inheritable(fd, True)
++            code = f"import sys; sys.path.insert(0, {PIPELINE!r}); import gpu0; print(gpu0.held())"
++            inherited = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=60,
++                                       pass_fds=(fd,)).stdout.strip()
++            reopened = subprocess.run([sys.executable, "-c", code + f"; f = open({gpu0.lease_path()!r}, 'a+'); "
++                                       "print(gpu0.held())"], capture_output=True, text=True, timeout=60).stdout.split()
++        self.assertEqual(inherited, "True")
++        self.assertEqual(reopened, ["False", "False"])
++
++
++class TestSwap(Box):
++    def test_a_foreign_process_is_refused_and_named(self):
++        self.procs[:] = [(424242, "python3", 4000)]
++        with gpu0.lease("t"):
++            with self.assertRaisesRegex(gpu0.Gpu0Foreign, "pid 424242 python3 4000 MiB"):
++                gpu0.swap_to("whisper:large-v3")
++
++    def test_everything_else_is_unloaded_and_the_memory_proven_free(self):
++        built = []
++        a = gpu0.model("embedder", lambda: built.append("embedder") or object())
++        b = gpu0.whisper("medium")
++        self.ollama[:] = ["gemma3:27b"]
++        gpu0._ollama_ours.add("gemma3:27b")                             # this run asked for it earlier
++        with gpu0.lease("t"):
++            with mock.patch.object(b, "_build", lambda: built.append("medium") or object()):
++                a.get()
++                self.assertEqual(self.unloaded, ["gemma3:27b"])        # the Ollama model went first
++                b.get()
++            self.assertEqual(built, ["embedder", "medium"])
++            self.assertFalse(a.loaded)                                 # one model at a time
++            self.assertTrue(b.loaded)
++            ev = gpu0.events()[-1]
++            self.assertEqual((ev["key"], ev["unloaded"]), ("whisper:medium", ["embedder"]))
++
++    def test_a_model_this_run_did_not_request_is_foreign_and_left_alone(self):
++        self.ollama[:] = ["qwen3-coder:30b"]                            # another client's job on the shared Ollama
++        with gpu0.lease("t"):
++            with self.assertRaisesRegex(gpu0.Gpu0Foreign, "ollama model qwen3-coder:30b .not requested by this run."):
++                gpu0.swap_to("whisper:large-v3")
++        self.assertEqual((self.unloaded, self.ollama), ([], ["qwen3-coder:30b"]))   # nothing of it unloaded
++
++    def test_memory_no_listed_process_accounts_for_is_foreign(self):
++        self.used[0] = 9000                                              # e.g. a graphics client nvidia-smi does not list
++        with gpu0.lease("t"):
++            with self.assertRaisesRegex(gpu0.Gpu0Foreign, "no listed compute process accounts for 9000 MiB"):
++                gpu0.swap_to("nvenc")
++
++    def test_a_cached_model_is_no_licence_without_the_lease(self):
++        m = gpu0.model("embedder", lambda: (lambda x: x * 2))
++        with gpu0.lease("t"):
++            self.assertEqual(m(21), 42)
++        with self.assertRaises(gpu0.LeaseMissing):                      # loaded, but the lease is gone
++            m(21)
++
++    def test_a_stored_call_reresolves_and_objects_inside_never_escape(self):
++        class Enc:
++            name = "enc"
++            inner = object()
++
++            def embed(self, x):
++                return x
++        m = gpu0.model("resemblyzer", Enc)
++        with gpu0.lease("t"):
++            call = m.embed
++            self.assertEqual(m.name, "enc")
++            with self.assertRaisesRegex(AttributeError, "an object inside the model"):
++                m.inner
++            m.unload()                                                   # a later swap deleted it
++            self.assertEqual(call(7), 7)                                 # the stored call loads it again
++            self.assertTrue(m.loaded)
++
++    def test_memory_that_never_comes_free_is_a_stop_naming_every_process(self):
++        self.used[0] = 22000
++        self.procs[:] = [(999999, "ollama", 21000)]                  # the Ollama runner: ours, but not free
++        need = gpu0.REQUIREMENT_MIB["whisper:large-v3"] + gpu0.MARGIN_MIB
++        with gpu0.lease("t"):
++            with self.assertRaisesRegex(gpu0.Gpu0NotFree, rf"needs {need} .*pid 999999 ollama 21000 MiB"):
++                gpu0.swap_to("whisper:large-v3", wait_s=0, poll_s=0)
++
++    def test_an_unknown_model_is_never_loaded(self):
++        with gpu0.lease("t"):
++            with self.assertRaisesRegex(gpu0.Gpu0NotFree, "no measured GPU0 requirement"):
++                gpu0.swap_to("whisper:tiny")
++
++    def test_the_model_already_resident_is_kept(self):
++        self.ollama[:] = ["gemma3:27b"]
++        gpu0._ollama_ours.add("gemma3:27b")
++        self.procs[:] = [(999999, "ollama", 20500)]
++        self.used[0] = 20600                                           # its own memory: not 'not free'
++        with gpu0.lease("t"):
++            ev = gpu0.swap_to("ollama:gemma3:27b", wait_s=0)
++        self.assertEqual((ev["already_resident"], self.unloaded), (True, []))
++
++
++class TestOutOfMemory(Box):
++    def test_every_spelling_is_recognised_and_nothing_else(self):
++        cpe = subprocess.CalledProcessError(1, ["ffmpeg"], stderr=b"OpenEncodeSessionEx failed: out of memory (10)")
++        for e in (RuntimeError("CUDA failed with error out of memory"), cpe,
++                  type("OutOfMemoryError", (RuntimeError,), {})("CUDA"), RuntimeError("CUBLAS_STATUS_ALLOC_FAILED")):
++            self.assertTrue(gpu0.is_oom(e), e)
++        for e in (MemoryError(), OSError(12, "Cannot allocate memory"), RuntimeError("decoder failed"),
++                  subprocess.CalledProcessError(1, ["ffmpeg"], stderr=b"Invalid data found")):
++            self.assertFalse(gpu0.is_oom(e), e)
++
++    def test_a_stop_passes_every_except_exception(self):
++        def helper():                                    # the shape of select_passages._whisper_transcribe
++            try:
++                with gpu0.guard("whisper: transcribe"):
++                    raise RuntimeError("CUDA failed with error out of memory")
++            except Exception:
++                return None                              # 'transcription failed' (E-FAIL-052)
++        with self.assertRaisesRegex(gpu0.GpuOOM, "whisper: transcribe: CUDA out of memory"):
++            helper()
++
++    def test_a_finished_nvenc_subprocess_that_ran_out_of_memory_is_named(self):
++        fail = subprocess.CompletedProcess(["ffmpeg"], 1, b"", b"[h264_nvenc] OpenEncodeSessionEx failed: out of memory (10)")
++        with self.assertRaisesRegex(gpu0.GpuOOM, "render16 nvenc: out of memory"):
++            gpu0.raise_if_oom(fail, "render16 nvenc")
++        gpu0.raise_if_oom(subprocess.CompletedProcess(["ffmpeg"], 1, b"", b"Invalid data found"), "x")   # not OOM
++        gpu0.raise_if_oom(subprocess.CompletedProcess(["ffmpeg"], 0, b"", b""), "x")                     # success
++
++    def test_a_lazily_decoded_out_of_memory_is_converted_too(self):
++        def segs():
++            yield 1
++            raise RuntimeError("CUDA failed with error out of memory")
++        it = gpu0.guard_iter(segs(), "decode")
++        self.assertEqual(next(it), 1)
++        with self.assertRaises(gpu0.GpuOOM):
++            next(it)
++
++    def test_a_model_call_is_guarded_and_a_non_oom_error_is_unchanged(self):
++        class Enc:
++            def embed(self, x):
++                if x == "oom":
++                    raise RuntimeError("CUDA error: out of memory")
++                raise ValueError("bad input")
++        m = gpu0.model("resemblyzer", Enc)
++        with gpu0.lease("t"):
++            with self.assertRaises(gpu0.GpuOOM):
++                m.embed("oom")
++            with self.assertRaises(ValueError):
++                m.embed("x")
++
++
++class TestPeaks(Box):
++    def test_the_peak_per_label(self):
++        s = gpu0.PeakSampler(interval_s=3600)
++        s.set("pinned")
++        self.used[0] = 5000
++        s._sample()
++        self.used[0] = 300
++        s.set("render")
++        s.set(None)
++        self.used[0] = 9999                              # outside any stage: attributed to none
++        s._sample()
++        self.assertEqual(s.peaks, {"pinned": 5000, "render": 300})
++
++
++class TestStageRunner(Box):
++    """run_fresh.Run._attempts: one bounded retry of an out-of-memory, both attempts in PROVENANCE, a second one a
++    HOLD naming every GPU0 process; every other GPU0 stop a HOLD with its real cause."""
++
++    def run_(self):
++        import run_fresh as rf
++        d = tempfile.mkdtemp(dir=self.tmp)
++        return rf, rf.Run(d)
++
++    def test_one_retry_then_success(self):
++        rf, run = self.run_()
++        calls = []
++
++        def stage():
++            calls.append(1)
++            if len(calls) == 1:
++                raise gpu0.GpuOOM("whisper:large-v3: transcribe: CUDA out of memory")
++            return "ok"
++        with mock.patch.object(gpu0, "release_all", return_value={"after": [18, 24564]}) as rel:
++            self.assertEqual(run.stage("pinned", stage), "ok")
++        self.assertEqual((len(calls), rel.call_count), (2, 1))
++        log = run.prov["gpu0_oom"]["pinned"]
++        self.assertEqual((len(log), log[0]["attempt"], log[0]["release"]), (2, 1, {"after": [18, 24564]}))
++        self.assertEqual((log[1]["attempt"], log[1]["outcome"]), (2, "passed"))      # both attempts logged
++
++    def test_a_second_out_of_memory_is_a_hold_naming_every_process(self):
++        rf, run = self.run_()
++        self.procs[:] = [(31337, "python3", 23000)]
++
++        def stage():
++            raise RuntimeError("CUDA failed with error out of memory")   # raw: recognised by the runner too
++        with mock.patch.object(gpu0, "release_all", return_value={}):
++            with self.assertRaises(rf.Hold) as cm:
++                run.stage("gates", stage)
++        msg = str(cm.exception)
++        self.assertTrue(msg.startswith("infrastructure: gates: CUDA out of memory twice"), msg)
++        self.assertIn("pid 31337 python3 23000 MiB", msg)
++        self.assertEqual(len(run.prov["gpu0_oom"]["gates"]), 2)
++
++    def test_a_failed_retry_keeps_the_out_of_memory_in_the_hold(self):
++        rf, run = self.run_()
++        n = []
++
++        def stage():
++            n.append(1)
++            if len(n) == 1:
++                raise gpu0.GpuOOM("whisper:medium: transcribe: CUDA out of memory")
++            raise rf.Hold("cut acceptance failed")
++        with mock.patch.object(gpu0, "release_all", return_value={}):
++            with self.assertRaises(rf.Hold) as cm:
++                run.stage("gates", stage)
++        msg = str(cm.exception)
++        self.assertTrue(msg.startswith("infrastructure: gates: CUDA out of memory on attempt 1"), msg)
++        self.assertIn("the retry then held: cut acceptance failed", msg)
++
++    def test_other_stops_hold_with_the_real_cause_and_ordinary_errors_are_not_retried(self):
++        rf, run = self.run_()
++        with self.assertRaisesRegex(rf.Hold, r"^infrastructure: render: GPU0 Gpu0Foreign: .*pid 7"):
++            run.stage("render", lambda: (_ for _ in ()).throw(gpu0.Gpu0Foreign("held by pid 7 x 1 MiB")))
++        n = []
++        with self.assertRaisesRegex(rf.Hold, "ValueError: no"):
++            run.stage("cut", lambda: n.append(1) or (_ for _ in ()).throw(ValueError("no")))
++        self.assertEqual(n, [1])
++
++    def test_e_fail_052_the_pinned_out_of_memory_is_reported_as_one(self):
++        """Nov 12: Whisper's out-of-memory in the pinned stage read 'pinned decision rejected: R-iKNbc7-zk:
++        transcription failed'. Now it reaches the HOLD as the out-of-memory it is (after one retry)."""
++        rf, run = self.run_()
++        import pinned
++        import select_passages as sp
++
++        class OOMWhisper:                                # what gpu0.whisper's guard makes of a CTranslate2 OOM
++            def transcribe(self, *a, **k):
++                with gpu0.guard("whisper:large-v3: transcribe"):
++                    raise RuntimeError("CUDA failed with error out of memory")
++        src = os.path.join(self.tmp, "src.mp4")
++        open(src, "wb").write(b"x")
++        seg = {"role": "hook", "video_id": "R-iKNbc7-zk", "start": 18.16, "end": 26.4, "source": {"kind": "youtube"}}
++        with mock.patch.object(sp, "_download_window", return_value=(src, 0.0)), \
++                mock.patch.object(gpu0, "whisper", return_value=OOMWhisper()), \
++                mock.patch.object(gpu0, "release_all", return_value={}):
++            with self.assertRaises(rf.Hold) as cm:
++                run.stage("pinned", lambda: pinned.acquire({"segments": [seg]}, run.dir, log=lambda s: None))
++        msg = str(cm.exception)
++        self.assertTrue(msg.startswith("infrastructure: pinned: CUDA out of memory twice"), msg)
++        self.assertNotIn("transcription failed", msg)
++        self.assertNotIn("pinned decision rejected", msg)
++
++
++class TestReadingsFailClosed(unittest.TestCase):
++    """The real parsers (no stubs of their own): a reading that cannot be read is a stop, never 'nothing there'."""
++
++    def test_an_unparsable_nvidia_smi_line_is_unreadable_and_other_gpus_are_ignored(self):
++        def smi(args, timeout=15):
++            if "--query-gpu=uuid" in args:
++                return "GPU-A\n"
++            return "123, GPU-A, 500, /usr/bin/python3\n456, GPU-B, 900, ollama\n" + smi.extra
++        smi.extra = ""
++        with mock.patch.object(gpu0, "_smi", side_effect=smi):
++            self.assertEqual(gpu0.processes(), [(123, "python3", 500)])
++            smi.extra = "[Not Supported]\n"
++            with self.assertRaises(gpu0.Gpu0Unreadable):
++                gpu0.processes()
++
++    def test_ss_failing_or_hiding_the_listener_pid_is_unreadable(self):
++        with mock.patch.object(gpu0.subprocess, "run", return_value=subprocess.CompletedProcess([], 1, "", "boom")):
++            with self.assertRaises(gpu0.Gpu0Unreadable):
++                gpu0._ollama_pids()
++        hidden = subprocess.CompletedProcess([], 0, "LISTEN 0 4096 127.0.0.1:11434 0.0.0.0:*\n", "")
++        with mock.patch.object(gpu0.subprocess, "run", return_value=hidden):
++            with self.assertRaisesRegex(gpu0.Gpu0Unreadable, "not visible to this user"):
++                gpu0._ollama_pids()
++
++
++class TestNoDirectLoaders(unittest.TestCase):
++    """L-r item 2 by construction: in the code a run imports, nothing builds a GPU0 model, moves a tensor to CUDA or calls
++    the GPU0 Ollama except through gpu0, and every function that encodes with NVENC swaps to it first."""
++    import glob as _g
++    FILES = sorted(f for f in _g.glob(os.path.join(PIPELINE, "*.py"))
++                   if not os.path.basename(f).startswith("test_")
++                   and os.path.basename(f) not in ("conftest.py", "gpu0.py", "measure_gpu0.py")) + \
++        [os.path.join(os.path.dirname(PIPELINE), "segment_v1", "qa_gates.py")]
++
++    def test_no_model_is_built_outside_gpu0(self):
++        import re
++        pats = [r"WhisperModel\(", r"BatchedInferencePipeline\(", r"VoiceEncoder\(\)", r"\.to\(['\"]cuda", r"device=['\"]cuda",
++                r"\.cuda\(\)"]
++        allowed = {("story_semantics.py", r"\.to\(['\"]cuda")}     # the Embedder: inside gpu0.model's build and guard
++        bad = []
++        for f in self.FILES:
++            src = open(f).read()
++            for pat in pats:
++                if (os.path.basename(f), pat) in allowed:
++                    continue
++                for m in re.finditer(pat, src):
++                    line = src.count("\n", 0, m.start()) + 1
++                    if not src.splitlines()[line - 1].lstrip().startswith("#"):
++                        bad.append(f"{os.path.relpath(f, PIPELINE)}:{line}: {pat}")
++        self.assertEqual(bad, [])
++
++    def test_every_nvenc_function_swaps_to_nvenc_first(self):
++        import ast
++        bad = []
++        for f in self.FILES:
++            src = open(f).read()
++            for fn in ast.parse(src).body:
++                if isinstance(fn, ast.FunctionDef):
++                    seg = ast.get_source_segment(src, fn)
++                    if "h264_nvenc" in seg and 'gpu0.swap_to("nvenc")' not in seg:
++                        bad.append(f"{os.path.relpath(f, PIPELINE)}: {fn.name}")
++        self.assertEqual(bad, [])
++
++    def test_the_gpu0_ollama_is_called_only_through_gpu0(self):
++        bad = [os.path.basename(f) for f in self.FILES if ("/api/generate" in open(f).read() or "/api/chat" in
++               open(f).read()) and os.path.basename(f) not in ("story_semantics.py", "preflight.py")]
++        self.assertEqual(bad, [])
++
++
++class TestPreflightLeavesGpu0AsFound(Box):
++    def test_a_model_left_resident_or_memory_left_used_fails(self):
++        import preflight
++        self.assertTrue(preflight.left_as_found(100, [], wait_s=0)[0])
++        self.ollama[:] = ["gemma3:27b"]
++        ok, why = preflight.left_as_found(100, [], wait_s=0)
++        self.assertFalse(ok)
++        self.assertIn("gemma3:27b", why)
++        self.ollama[:] = []
++        self.used[0] = 20659
++        ok, why = preflight.left_as_found(100, [], wait_s=0)
++        self.assertEqual((ok, "left GPU0 at 20659 MiB (found at 100 MiB)" in why), (False, True))
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/test_gpu0_live.py b/pipeline/test_gpu0_live.py
+new file mode 100644
+index 00000000..13413205
+--- /dev/null
++++ b/pipeline/test_gpu0_live.py
+@@ -0,0 +1,216 @@
++#!/usr/bin/env python3
++"""Law L-r item 5 on the real GPU0 (a GPU session: CUDA_VISIBLE_DEVICES=0; pipeline/conftest.py holds the GPU0 lease
++for the session). Before each stage a real allocation sits on GPU0, and the stage refuses or recovers as the law says:
++  - a FOREIGN allocation (a process that is not this run's) -> every stage kind HOLDs at once, naming its pid and MiB;
++  - this run's OWN resident model -> the next stage's swap deletes it and the stage passes;
++  - a real CUDA out-of-memory -> released, retried ONCE, both attempts in PROVENANCE; a second one HOLDs naming every
++    GPU0 process.
++TestBackToBack (PP_GPU0_LIVE=1, ~2 x 50 min, a committed clean tree): run_fresh env -> pinned -> ... -> render ->
++gates twice back to back on the protected preview's PIN, printing both runs' per-stage GPU0 peak tables."""
++import json
++import os
++import re
++import signal
++import subprocess
++import sys
++import tempfile
++import time
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import gpu0  # noqa: E402
++
++GPU = os.environ.get("CUDA_VISIBLE_DEVICES") == "0"
++SOURCE = os.path.join(REPO, "references", "pulse_preview_2026-11-11", "sources", "RXTVaDsN11M.mp4")
++
++
++def _wav(tmp, seconds=20):
++    wav = os.path.join(tmp, "a.wav")
++    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "30", "-t", str(seconds), "-i", SOURCE, "-vn", "-ac", "1",
++                    "-ar", "16000", wav], check=True, timeout=120)
++    return wav
++
++
++@unittest.skipUnless(GPU, "GPU0 session only (CUDA_VISIBLE_DEVICES=0)")
++class Live(unittest.TestCase):
++    def setUp(self):
++        self.assertTrue(gpu0.held(), "the session must hold the GPU0 lease (pipeline/conftest.py)")
++        gpu0.release_all()
++        self.tmp = tempfile.mkdtemp(prefix="gpu0live_")
++        self.wav = _wav(self.tmp)
++        import run_fresh as rf
++        self.rf = rf
++        self.run_ = rf.Run(self.tmp)
++        self.run_.sampler = gpu0.PeakSampler(interval_s=0.25).start()
++        self.addCleanup(self.run_.sampler.stop)
++        self.addCleanup(gpu0.release_all)
++
++    def transcribe(self, name):
++        segs, _ = gpu0.whisper(name).transcribe(self.wav, language="en", beam_size=5, word_timestamps=True,
++                                                vad_filter=False)
++        return sum(len(s.words or []) for s in segs)
++
++
++class TestForeignAllocationIsRefused(Live):
++    def test_every_stage_kind_holds_naming_the_foreign_process(self):
++        flag = os.path.join(self.tmp, "allocated")
++        code = ("import torch, time; x = torch.empty(int(2e9), dtype=torch.uint8, device='cuda:0'); "
++                f"open({flag!r}, 'w').write('ok'); time.sleep(900)")
++        # double fork: the allocator is NOT this process's descendant (a foreign job), and holds no lease descriptor
++        out = subprocess.run(["setsid", "bash", "-c", f"{sys.executable} -c \"{code}\" >/dev/null 2>&1 & echo $!"],
++                             capture_output=True, text=True, timeout=30, env={**os.environ, "CUDA_VISIBLE_DEVICES": "0"})
++        pid = int(out.stdout.strip())
++
++        def stop_allocator():                                         # we started it: stop it and wait until it is gone
++            if os.path.exists(f"/proc/{pid}"):
++                os.kill(pid, signal.SIGTERM)
++            for _ in range(120):
++                if not os.path.exists(f"/proc/{pid}") and all(p != pid for p, n, m in gpu0.processes()):
++                    return
++                time.sleep(0.5)
++        self.addCleanup(stop_allocator)
++        for _ in range(120):
++            if os.path.exists(flag) and any(p == pid for p, n, m in gpu0.processes()):
++                break
++            time.sleep(0.5)
++        else:
++            self.fail("the foreign allocation never appeared on GPU0")
++        stages = {"pinned": lambda: self.transcribe("large-v3"),
++                  "review": lambda: gpu0.swap_to("ollama:gemma3:27b"),
++                  "render": lambda: gpu0.swap_to("nvenc"),
++                  "gates": lambda: self.transcribe("medium")}
++        for name, fn in stages.items():
++            with self.assertRaises(self.rf.Hold, msg=name) as cm:
++                self.run_.stage(name, fn)
++            msg = str(cm.exception)
++            self.assertTrue(msg.startswith(f"infrastructure: {name}: GPU0 Gpu0Foreign"), msg)
++            self.assertIn(f"pid {pid} ", msg)
++        self.assertFalse(gpu0.whisper("large-v3").loaded)              # nothing was loaded next to it
++
++
++class TestOwnResidentModelIsSwappedOut(Live):
++    def test_the_next_stage_deletes_it_and_passes(self):
++        import story_semantics as sm
++        E = sm.Embedder()
++        E.encode(["bitcoin " * 200] * 16)                              # resident on GPU0 before the stage
++        self.assertTrue(E.model.loaded)
++        n = self.run_.stage("pinned", lambda: self.transcribe("large-v3"))
++        self.assertGreater(n, 10)
++        self.assertFalse(E.model.loaded)                               # deleted by the swap
++        ev = [e for e in gpu0.events() if e["key"] == "whisper:large-v3"][-1]
++        self.assertIn("embedder", ev["unloaded"])
++        print(f"\n  peaks MiB: {self.run_.sampler.peaks}")
++
++
++class TestRealOutOfMemory(Live):
++    def test_an_oom_caused_by_a_resident_model_is_recovered_by_releasing_it(self):
++        """Load-bearing: the out-of-memory happens BECAUSE Whisper medium is resident and referenced from the failing
++        frame; the retry can succeed only if the release really frees that model (traceback dropped, object deleted,
++        nvidia-smi showing the room). With the model pinned, release_all times out and the stage HOLDs."""
++        import torch
++        state = {}
++
++        def stage():
++            state["n"] = state.get("n", 0) + 1
++            if state["n"] == 1:
++                m = gpu0.whisper("medium")
++                obj = m.get()                                          # resident, referenced from this frame
++                used, total = gpu0.memory()
++                state["mib"] = total - used + 1024                     # 1 GiB more than is free with it loaded
++                with gpu0.guard("allocation next to a resident model"):
++                    torch.empty(state["mib"] * 1024 * 1024, dtype=torch.uint8, device="cuda:0")
++                return obj                                             # never reached
++            x = torch.empty(state["mib"] * 1024 * 1024, dtype=torch.uint8, device="cuda:0")   # fits once it is gone
++            del x
++            return self.transcribe("medium")
++        self.assertGreater(self.run_.stage("gates", stage), 10)
++        log = self.run_.prov["gpu0_oom"]["gates"]
++        self.assertEqual((state["n"], len(log), log[1]["outcome"]), (2, 2, "passed"))
++        self.assertIn("out of memory", log[0]["error"].lower())
++        self.assertIn("whisper:medium", log[0]["release"]["unloaded"])
++
++    def test_two_out_of_memory_attempts_hold_naming_every_gpu0_process(self):
++        import torch
++
++        def always():
++            with gpu0.guard("dummy allocation"):
++                torch.empty(int(40e9), dtype=torch.uint8, device="cuda:0")
++        with self.assertRaises(self.rf.Hold) as cm:
++            self.run_.stage("render", always)
++        msg = str(cm.exception)
++        self.assertTrue(msg.startswith("infrastructure: render: CUDA out of memory twice"), msg)
++        self.assertIn(f"pid {os.getpid()} ", msg)                     # every GPU0 process named (here: this one)
++        self.assertEqual(len(self.run_.prov["gpu0_oom"]["render"]), 2)
++
++
++class TestTheNov12Incident(Live):
++    """runs/pinned_20261112_064032: gemma3:27b resident on GPU0, then Whisper. Replayed both ways."""
++
++    def test_this_runs_editorial_model_is_swapped_out_before_whisper(self):
++        import story_semantics as sm
++        llm = sm.LocalLLM()
++        llm._post("Reply with the JSON object {\"ok\": true}.", 20, seed=7)    # gemma3:27b resident (this run's)
++        self.assertIn(sm.LLM_MODEL, gpu0.ollama_loaded())
++        n = self.run_.stage("pinned", lambda: self.transcribe("large-v3"))
++        self.assertGreater(n, 10)
++        self.assertNotIn(sm.LLM_MODEL, gpu0.ollama_loaded())
++        print(f"\n  peaks MiB: {self.run_.sampler.peaks}")
++
++    def test_a_model_another_client_loaded_holds_the_run_and_is_not_touched(self):
++        import json as _j
++        import urllib.request
++        import story_semantics as sm
++        body = _j.dumps({"model": sm.LLM_MODEL, "prompt": "ok", "stream": False, "options": {"num_predict": 1}}).encode()
++        urllib.request.urlopen(urllib.request.Request(f"http://{gpu0.OLLAMA_HOST}/api/generate", data=body,
++                               headers={"Content-Type": "application/json"}), timeout=300).read()   # another client
++        def unload_it():                                              # this test loaded it as 'another client'
++            urllib.request.urlopen(urllib.request.Request(
++                f"http://{gpu0.OLLAMA_HOST}/api/generate", data=_j.dumps({"model": sm.LLM_MODEL, "keep_alive": 0}).encode(),
++                headers={"Content-Type": "application/json"}), timeout=120).read()
++            for _ in range(120):
++                if sm.LLM_MODEL not in gpu0.ollama_loaded():
++                    return
++                time.sleep(0.5)
++        self.addCleanup(unload_it)
++        with self.assertRaises(self.rf.Hold) as cm:
++            self.run_.stage("pinned", lambda: self.transcribe("large-v3"))
++        msg = str(cm.exception)
++        self.assertIn(f"ollama model {sm.LLM_MODEL} (not requested by this run)", msg)
++        self.assertIn(sm.LLM_MODEL, gpu0.ollama_loaded())             # nothing of it was unloaded
++
++
++# the PBX-approved preview of Nov 11 (law L-d): local sources, every stage through render, gates and verify
++PIN = os.path.join(REPO, "references", "pulse_preview_2026-11-11", "PIN.json")
++
++
++@unittest.skipUnless(GPU and os.environ.get("PP_GPU0_LIVE") == "1", "PP_GPU0_LIVE=1: two full runs (~2 x 50 min)")
++class TestBackToBack(unittest.TestCase):
++    def test_two_runs_back_to_back_with_the_peak_table(self):
++        """Two full runs of the protected preview's PIN back to back, nothing released between them: the second must
++        find GPU0 as the first left it (its env stage refuses anything foreign), every stage must run and be sampled,
++        and no stage may hold for a GPU0 cause."""
++        fd = gpu0._own[gpu0.lease_path()]["file"].fileno()        # the session's lease: run_fresh inherits custody
++        os.set_inheritable(fd, True)
++        want = ["env", "pinned", "review", "validate", "cut", "sentence_law", "voice", "prepare", "layout", "render",
++                "gates", "verify"]
++        tables = []
++        for i in (1, 2):
++            r = subprocess.run([sys.executable, os.path.join(PIPELINE, "run_fresh.py"), "--pinned", PIN],
++                               capture_output=True, text=True, timeout=4 * 3600, pass_fds=(fd,), cwd=PIPELINE)
++            run_dir = re.search(r"=== FRESH-TOPIC RUN (\S+) ===", r.stdout).group(1)
++            report = open(os.path.join(run_dir, "REPORT.md")).read()
++            table = report[report.index("## GPU0 peak memory per stage"):].split("\n\n")[0]
++            tables.append((run_dir, r.returncode, table))
++            stages = {st["name"]: st for st in json.load(open(os.path.join(run_dir, "status.json")))["stages"]}
++            self.assertEqual([n for n in want if n not in stages], [], run_dir)
++            for n in want:
++                st = stages[n]
++                self.assertEqual(st["status"], "passed", (run_dir, n, st.get("reason")))
++                self.assertIsInstance(st.get("gpu0_peak_mib"), int, (run_dir, n))
++        for run_dir, rc, table in tables:
++            print(f"\n{run_dir} (exit {rc})\n{table}")
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/pipeline/conftest.py b/pipeline/conftest.py
+new file mode 100644
+index 00000000..34881961
+--- /dev/null
++++ b/pipeline/conftest.py
+@@ -0,0 +1,65 @@
++"""pytest and GPU0 (law L-r ONE OWNER, pipeline/gpu0.py). Decided once, before collection:
++  unset, '' or '-1'                a CPU session: takes nothing, hides every GPU (CUDA_VISIBLE_DEVICES=''); a GPU0 load in
++                                   it is refused (gpu0.require), and a CUDA context of it on GPU0 stops the session
++  '0'                              a GPU session, GPU0 only: holds the GPU0 lease for the whole session, or stops at
++                                   once with exit 75 naming the holder (a run or another session has GPU0)
++  anything else ('0,1', '1', ...)  refused (exit 2): GPU1 is quarantined"""
++import os
++import sys
++
++import pytest
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # gpu0 lives next to this file
++
++_CVD = os.environ.get("CUDA_VISIBLE_DEVICES")
++_CPU = _CVD in (None, "", "-1")
++_LEASE = []
++if _CPU:
++    import tempfile
++    os.environ["CUDA_VISIBLE_DEVICES"] = ""            # unset would show every GPU to the libraries: hide them all
++    # and a private lease file: code under test that enters gpu0.lease() (preflight.main, replay) never takes or blocks
++    # the production GPU0 lease from a CPU session (Nov 12: test_preflight briefly held /tmp/pulse_gpu0.lease)
++    os.environ["PP_GPU0_LEASE"] = os.path.join(tempfile.mkdtemp(prefix="pp_cpu_session_"), "gpu0.lease")
++
++
++def pytest_configure(config):
++    if _CPU:
++        return
++    if _CVD != "0":
++        pytest.exit(f"CUDA_VISIBLE_DEVICES={_CVD!r}: test sessions run on GPU0 only ('0', or '' for CPU)", returncode=2)
++    import gpu0
++    cm = gpu0.lease(f"pytest session (pid {os.getpid()})")
++    try:
++        cm.__enter__()
++    except gpu0.LeaseBusy as e:
++        pytest.exit(f"GPU0 is busy, no GPU test session now: {e}", returncode=75)
++    _LEASE.append(cm)
++
++
++def pytest_unconfigure(config):
++    while _LEASE:
++        _LEASE.pop().__exit__(None, None, None)
++
++
++def _holds_gpu0_context(pid):
++    import subprocess
++    try:
++        uuid = subprocess.run(["nvidia-smi", "-i", "0", "--query-gpu=uuid", "--format=csv,noheader"],
++                              capture_output=True, text=True, timeout=15).stdout.strip()
++        apps = subprocess.run(["nvidia-smi", "--query-compute-apps=pid,gpu_uuid", "--format=csv,noheader"],
++                              capture_output=True, text=True, timeout=15).stdout
++    except (OSError, subprocess.TimeoutExpired):
++        return False
++    return any([x.strip() for x in line.split(",")][:2] == [str(pid), uuid] for line in apps.splitlines() if uuid)
++
++
++def pytest_runtest_teardown(item, nextitem):
++    """L-r: a CPU session never touches GPU0. After each test module, a CUDA context of this process on GPU0 stops the
++    session at once, naming the module (on Nov 12 render16's import forced CUDA_VISIBLE_DEVICES=0 into a CPU session,
++    which then held 394 MiB on GPU0 without the lease)."""
++    if not _CPU or (nextitem is not None and nextitem.module is item.module):
++        return
++    if _holds_gpu0_context(os.getpid()):
++        pytest.exit(f"law L-r: this CPU test session holds a CUDA context on GPU0 after {item.module.__name__} "
++                    f"(last test {item.nodeid}, CUDA_VISIBLE_DEVICES now {os.environ.get('CUDA_VISIBLE_DEVICES')!r})",
++                    returncode=3)
+diff --git a/pipeline/measure_gpu0.py b/pipeline/measure_gpu0.py
+new file mode 100644
+index 00000000..9d09ad6c
+--- /dev/null
++++ b/pipeline/measure_gpu0.py
+@@ -0,0 +1,107 @@
++#!/usr/bin/env python3
++"""pipeline/measure_gpu0.py — measure the peak GPU0 memory each gpu0.REQUIREMENT_MIB key needs (law L-r item 2:
++'the incoming model's known requirement'). Holds the GPU0 lease for the whole measurement; runs one child process per
++key (it inherits the lease descriptor and loads through gpu0, as the pipeline does) on a representative workload while
++this process samples nvidia-smi every 0.1 s. Prints the peak above the idle baseline per key; changes nothing.
++Usage: CUDA_VISIBLE_DEVICES=0 [MEASURE_SECONDS=600] python3 pipeline/measure_gpu0.py [key ...]"""
++import json
++import os
++import subprocess
++import sys
++import tempfile
++import threading
++import time
++
++PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE_DIR)
++sys.path.insert(0, PIPELINE_DIR)
++import gpu0  # noqa: E402
++
++SOURCE = os.environ.get("MEASURE_SOURCE") or os.path.join(REPO, "references", "pulse_preview_2026-11-11", "sources",
++                                                       "jbDqdLytkNM.mp4")     # 733 s of speech (protected, read-only)
++
++CHILD = r'''
++import os, sys, json, urllib.request
++sys.path.insert(0, sys.argv[1])
++import gpu0
++key, wav = sys.argv[2], sys.argv[3]
++if key.startswith("whisper:"):
++    parts = key.split(":")
++    m = gpu0.whisper(parts[1], batched=len(parts) > 2)
++    kw = {"language": "en", "word_timestamps": True}
++    kw.update({"batch_size": 16} if len(parts) > 2 else {"beam_size": 5, "vad_filter": False})
++    segs, _ = m.transcribe(wav, **kw)
++    n = sum(len(s.words or []) for s in segs)
++    print(json.dumps({"words": n}))
++elif key == "embedder":
++    import story_semantics as sm
++    e = sm.Embedder()                                   # its model loads through gpu0.model('embedder')
++    v = e.encode([("bitcoin price support moving average " * 60)] * 64)
++    print(json.dumps({"vectors": len(v)}))
++elif key == "resemblyzer":
++    from resemblyzer import VoiceEncoder, preprocess_wav
++    enc = gpu0.model("resemblyzer", VoiceEncoder)          # as qa_gates' G1 loads it
++    print(json.dumps({"dims": len(enc.embed_utterance(preprocess_wav(wav)))}))
++elif key == "nvenc":
++    gpu0.swap_to("nvenc")
++    import subprocess
++    for size in ("1920x1080", "1080x1920"):
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"testsrc2=size={size}:rate=30", "-t", "8",
++                        "-c:v", "h264_nvenc", "-preset", "p4", "-rc", "constqp", "-qp", "18", "-f", "null", "-"],
++                       check=True, timeout=300)
++    print(json.dumps({"encoded": 2}))
++elif key.startswith("ollama:"):
++    import story_semantics as sm
++    llm = sm.LocalLLM(model=key.split(":", 1)[1])          # as the editorial stages ask it (swap_to inside _post)
++    out = llm._post("Reply with a JSON object about Bitcoin's 200-day average in 150 words.", 200, seed=7)
++    llm.stop()
++    print(json.dumps({"chars": len(out)}))
++'''
++
++
++def main():
++    keys = sys.argv[1:] or list(gpu0.REQUIREMENT_MIB)
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++        sys.exit("CUDA_VISIBLE_DEVICES must be 0")
++    with gpu0.lease("measure_gpu0 (L-r requirements)"), tempfile.TemporaryDirectory(prefix="gpu0m_") as tmp:
++        lease_fd = gpu0._own[gpu0.lease_path()]["file"].fileno()
++        os.set_inheritable(lease_fd, True)
++        wav = os.path.join(tmp, "a.wav")
++        secs = os.environ.get("MEASURE_SECONDS", "600")    # >= 480 s fills a batched 16 x 30 s window
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "60", "-t", secs, "-i", SOURCE, "-vn", "-ac", "1",
++                        "-ar", "16000", wav], check=True, timeout=120)
++        rows = []
++        for key in keys:
++            gpu0.release_all()
++            base, total = gpu0.memory()
++            peak = [base]
++            stop = threading.Event()
++
++            def sample():
++                while not stop.wait(0.1):
++                    try:
++                        peak[0] = max(peak[0], gpu0.memory()[0])
++                    except gpu0.Gpu0Stop:
++                        pass
++            t = threading.Thread(target=sample, daemon=True)
++            t.start()
++            t0 = time.time()
++            r = subprocess.run([sys.executable, "-c", CHILD, PIPELINE_DIR, key, wav], capture_output=True, text=True,
++                               timeout=1800, pass_fds=(lease_fd,))
++            stop.set()
++            t.join()
++            rows.append({"key": key, "baseline_mib": base, "peak_mib": peak[0], "need_mib": peak[0] - base,
++                         "seconds": round(time.time() - t0, 1), "rc": r.returncode,
++                         "out": (r.stdout.strip().splitlines() or [""])[-1][:120],
++                         "err": "" if r.returncode == 0 else r.stderr.strip()[-300:]})
++            print(json.dumps(rows[-1]), flush=True)
++        gpu0.release_all()
++        print("\n| key | baseline MiB | peak MiB | need MiB | s | rc |\n|---|---|---|---|---|---|")
++        for x in rows:
++            print(f"| {x['key']} | {x['baseline_mib']} | {x['peak_mib']} | {x['need_mib']} | {x['seconds']} | {x['rc']} |")
++        if any(x["rc"] != 0 for x in rows):
++            sys.exit(f"measure_gpu0: {sum(x['rc'] != 0 for x in rows)} key(s) failed; their peaks are not requirements")
++
++
++if __name__ == "__main__":
++    main()

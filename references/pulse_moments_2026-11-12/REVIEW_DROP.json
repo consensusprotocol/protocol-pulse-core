@@ -1,0 +1,64 @@
+{
+ "kind": "review_drop",
+ "label": "REVIEW ONLY - NOT A PASS - not for publishing",
+ "rule": "orchestrator order 2026-11-12 '13:06'",
+ "chat": "the approval chat (TELEGRAM_CHAT_ID)",
+ "nonpass": [
+  [
+   "16x9",
+   "G18_word_for_word",
+   "FAIL",
+   "clip_01: the final's decode omits 'it's not you know'"
+  ],
+  [
+   "16x9",
+   "G3c_acoustic_tail",
+   "FAIL",
+   "clip_02 out edge: acoustic onset on the final; not proved by L-c (the final's gain is not measurable next to this edge); measured over the clip's last 0.4 s: prepared clip median -55.5 dB, final median -33.7 dB"
+  ],
+  [
+   "9x16",
+   "G18_word_for_word",
+   "FAIL",
+   "clip_01: the final's decode omits 'it's not you know'"
+  ],
+  [
+   "9x16",
+   "G3c_acoustic_tail",
+   "FAIL",
+   "clip_02 out edge: acoustic onset on the final; not proved by L-c (the final's gain is not measurable next to this edge); measured over the clip's last 0.4 s: prepared clip median -55.5 dB, final median -33.7 dB"
+  ],
+  [
+   "9x16",
+   "V1_visual_checklist",
+   "FAIL",
+   "split on vertical_speaker_centred: nvidia/nemotron-3.5-super-vl 'yes' (\"On the 9:16 sheet, the talking heads (Saifedean Ammous, the male host, and the split-screen interview) are centred in their frames or use a shared screen layout.\"); qwen/qwen3.8-27b 'no' (\"In the Natalie Brunell / clip_02 talking-head stills and full-res panel the speaker is framed off-centre (right side), not centred in the 9:16 frame.\") | 9:16 layouts: hook single, clip_01 single, clip_02 stack2"
+  ]
+ ],
+ "sha256": {
+  "16x9": "5fb53826d8f45b083bd696abc483a22346cf80fbdcdd8bc418441923b7358265",
+  "9x16": "1b864cd809a70c485dd1a6bae335de2421a2f6496343ef531a3add3b9f7b1d63"
+ },
+ "texts": {
+  "captions": {
+   "16x9": "REVIEW ONLY - NOT A PASS - not for publishing\nNot passing (required): G18_word_for_word FAIL, G3c_acoustic_tail FAIL, V1_visual_checklist FAIL\nrun pinned_20261112_165629 | 16x9 sha256 5fb53826d8f45b083bd696abc483a22346cf80fbdcdd8bc418441923b7358265\nReasons, links and deviations: the review note in this chat.",
+   "9x16": "REVIEW ONLY - NOT A PASS - not for publishing\nNot passing (required): G18_word_for_word FAIL, G3c_acoustic_tail FAIL, V1_visual_checklist FAIL\nrun pinned_20261112_165629 | 9x16 sha256 1b864cd809a70c485dd1a6bae335de2421a2f6496343ef531a3add3b9f7b1d63\nReasons, links and deviations: the review note in this chat."
+  },
+  "note": "REVIEW ONLY - NOT A PASS - not for publishing\n\nRequired rows NOT passing (verbatim, with the measured reason):\n- 16x9 G18_word_for_word FAIL: clip_01: the final's decode omits 'it's not you know'\n- 16x9 G3c_acoustic_tail FAIL: clip_02 out edge: acoustic onset on the final; not proved by L-c (the final's gain is not measurable next to this edge); measured over the clip's last 0.4 s: prepared clip median -55.5 dB, final median -33.7 dB\n- 9x16 G18_word_for_word FAIL: clip_01: the final's decode omits 'it's not you know'\n- 9x16 G3c_acoustic_tail FAIL: clip_02 out edge: acoustic onset on the final; not proved by L-c (the final's gain is not measurable next to this edge); measured over the clip's last 0.4 s: prepared clip median -55.5 dB, final median -33.7 dB\n- 9x16 V1_visual_checklist FAIL: split on vertical_speaker_centred: nvidia/nemotron-3.5-super-vl 'yes' (\"On the 9:16 sheet, the talking heads (Saifedean Ammous, the male host, and the split-screen interview) are centred in their frames or use a shared screen layout.\"); qwen/qwen3.8-27b 'no' (\"In the Natalie Brunell / clip_02 talking-head stills and full-res panel the speaker is framed off-centre (right side), not centred in the 9:16 frame.\") | 9:16 layouts: hook single, clip_01 single, clip_02 stack2\n\nRun pinned_20261112_165629 | HEAD 59068f44847f6d0c85f48347edbaf9933e5918c8\n16:9 sha256 5fb53826d8f45b083bd696abc483a22346cf80fbdcdd8bc418441923b7358265\n9:16 sha256 1b864cd809a70c485dd1a6bae335de2421a2f6496343ef531a3add3b9f7b1d63\n\nTitle: No authority. That's the design.\nCaption: no authority. that's the design. three clips, links below.\n\nSources (~30 s before each clip):\n- hook: Saifedean Ammous | 8.54 s of locked words | https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s\n- clip 1: What Bitcoin Did | 10.34 s of locked words | https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s\n- clip 2: Natalie Brunell | 3.64 s of locked words | https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s\n\nDeviations:\n- clip 1: 10.34 s of locked words, outside the 12-20 s taste target (L-o)\n- clip 1: one unstressed word heard as 'think' or 'mean' by different transcribers; audio is the speaker's own, unedited (ruling 18)\n- clip 2: 3.64 s of locked words, outside the 12-20 s taste target (L-o)\n- sign-off spoken: the renderer's template \"Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for sharp Bitcoin insights every week. Links below.\" (ruling 15)"
+ },
+ "messages": [
+  {
+   "key": "video:16x9",
+   "message_id": 67806
+  },
+  {
+   "key": "video:9x16",
+   "message_id": 67807
+  },
+  {
+   "key": "note",
+   "message_id": 67808
+  }
+ ],
+ "status": "complete"
+}

@@ -1,0 +1,150 @@
+diff --git a/pipeline/test_ruling17_lock.py b/pipeline/test_ruling17_lock.py
+new file mode 100644
+index 00000000..d89f5ea9
+--- /dev/null
++++ b/pipeline/test_ruling17_lock.py
+@@ -0,0 +1,144 @@
++#!/usr/bin/env python3
++"""Ruling 17 (orchestrator 2026-11-12 '10:20'): sentence-lock text adjudication, integrity fail-closed.
++When the run's own decode differs from the pin's approved text inside a locked span, a difference on a number, a
++name or a negation always holds (law L-v 2); otherwise the independent second recogniser on the acquired window
++decides: it reads the approved words at every difference -> the lock takes the approved text and G18 compares the
++final against it; it reads the run's decode, or neither -> HOLD naming the three readings.
++must-fail  the second recogniser siding with the run's decode holds (synthetic, and the real Nov 12 clip_01 head:
++           scribe_v1 reads 'I think' where the pin says 'I mean,'); a negation flip holds even when the second
++           recogniser sides with the pin (2-1); a number or a mid-sentence name difference holds
++must-pass  the second recogniser reading the approved words: the lock takes them, its digest verifies, and G18 then
++           compares the final with the adjudicated text (not a third decode of the source span)
++Run: cd ~/protocol_pulse && python3 -m pytest -q pipeline/test_ruling17_lock.py"""
++import json
++import os
++import sys
++import unittest
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(PIPELINE)
++sys.path.insert(0, PIPELINE)
++import pinned as P  # noqa: E402
++import sentence_law as L  # noqa: E402
++import word_diff as WD  # noqa: E402
++
++NOV12 = os.path.join(REPO, "runs", "pinned_20261112_135315")
++FIX = os.path.join(PIPELINE, "fixtures", "ruling17", "c1JGheQBPH4.scribe.json")
++
++
++def _words(text, t0=10.0, step=0.4):
++    return [{"word": w, "start": t0 + k * step, "end": t0 + k * step + 0.35} for k, w in enumerate(text.split())]
++
++
++def _lock(run_text, approved):
++    w = _words(run_text)
++    return L.make_lock("vid", w, 0, len(w) - 1, "0" * 64, approved, None, 0.9, "pinned approved_text"), w
++
++
++def _reads(text, t0=10.0, step=0.4):
++    calls = []
++
++    def rec(src):
++        calls.append(src)
++        return _words(text, t0, step), 0.01
++    rec.calls = calls
++    return rec
++
++
++class TestAdjudication(unittest.TestCase):
++    RUN = "I think the good news is that it works."
++    PIN = "I mean, the good news is that it works."
++
++    def test_the_second_recogniser_reading_the_approved_words_wins(self):
++        lock, w = _lock(self.RUN, self.PIN)
++        rec = _reads("I mean the good news is that it works.")
++        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None)
++        self.assertEqual(new["text"], self.PIN)
++        self.assertEqual(new["adjudication"]["verdict"], "approved")
++        self.assertEqual(new["adjudication"]["differences"], [["think", "mean"]])
++        self.assertEqual(L.verify_lock(new), [])                       # the digest covers the adjudicated text
++        self.assertEqual(rec.calls, ["src.mp4"])
++
++    def test_the_second_recogniser_siding_with_the_run_decode_holds(self):
++        lock, w = _lock(self.RUN, self.PIN)
++        with self.assertRaises(P.PinError) as e:
++            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(self.RUN), log=lambda *_: None)
++        for part in ("the run decode", "run_decode:", "approved:", "second_recogniser:"):
++            self.assertIn(part, str(e.exception))
++
++    def test_a_reading_of_neither_holds(self):
++        lock, w = _lock(self.RUN, self.PIN)
++        with self.assertRaises(P.PinError) as e:
++            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I guess the good news is that it works."),
++                              log=lambda *_: None)
++        self.assertIn("reads neither", str(e.exception))
++
++    def test_a_negation_flip_holds_even_at_two_to_one(self):
++        lock, w = _lock("Bitcoin is the answer.", "Bitcoin is not the answer.")
++        rec = _reads("Bitcoin is not the answer.")
++        with self.assertRaises(P.PinError) as e:
++            P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None)
++        self.assertIn("L-v 2", str(e.exception))
++        self.assertEqual(rec.calls, [])                                # never put to a vote
++
++    def test_a_number_or_a_name_difference_holds(self):
++        for run_t, pin_t in (("It hit 70 thousand today.", "It hit 17 thousand today."),
++                             ("Ask Saylor about it.", "Ask Taylor about it.")):
++            lock, w = _lock(run_t, pin_t)
++            with self.assertRaises(P.PinError):
++                P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
++
++    def test_no_difference_keeps_the_lock_and_asks_nobody(self):
++        lock, w = _lock(self.PIN, "I mean the good news is that it works.")
++        rec = _reads("anything")
++        self.assertIs(P.adjudicate_lock(lock, "src.mp4", w, recognise=rec, log=lambda *_: None), lock)
++        self.assertEqual(rec.calls, [])
++
++
++@unittest.skipUnless(os.path.isdir(os.path.join(NOV12, "transcripts")) and os.path.exists(FIX),
++                     "the Nov 12 moments run not on this machine")
++class TestNov12Clip01Head(unittest.TestCase):
++    def test_scribe_reads_i_think_so_the_lock_holds(self):
++        edl = json.load(open(os.path.join(NOV12, "edl.json")))
++        lock = edl["clips"][0]["selection_lock"]
++        words = json.load(open(os.path.join(NOV12, "transcripts", "c1JGheQBPH4.json")))["words"]
++        sw = [{"word": x["text"], "start": x["start"], "end": x["end"]}
++              for x in json.load(open(FIX))["words"] if x.get("type") == "word"]
++        with self.assertRaises(P.PinError) as e:
++            P.adjudicate_lock(lock, "unused.mp4", words, recognise=lambda src: (sw, 0.008), log=lambda *_: None)
++        self.assertIn("reads the run decode", str(e.exception))
++        self.assertIn("[['think', 'mean']]", str(e.exception))
++
++
++class _Tr:
++    def __init__(self, final_text, source_text):
++        self.final_text, self.source_text = final_text, source_text
++
++    def span(self, media, t0, t1):
++        return self.final_text if media == "final.mp4" else self.source_text
++
++
++class TestG18AgainstTheAdjudicatedLock(unittest.TestCase):
++    LOCK = "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon us."
++    SEGS = [{"label": "clip_01", "type": "talking_head", "start": 0.0, "end": 10.0}]
++
++    def _g18(self, heard, source_heard, adjudicated):
++        clips = {"clip_01": {"lock_text": self.LOCK, "source": "src.mp4", "cut_in": 1.0, "cut_out": 11.0,
++                             "adjudicated": adjudicated}}
++        return WD.gate_g18("final.mp4", self.SEGS, clips, transcriber=_Tr(heard, source_heard))
++
++    def test_the_final_matching_the_adjudicated_lock_passes(self):
++        third = "The good news about Bitcoin is its success is not dependent upon us."
++        ok, rows = self._g18(self.LOCK, third, adjudicated=True)
++        self.assertTrue(ok, rows)
++        self.assertEqual(rows[0]["identity_reference"], "the adjudicated lock text (ruling 17)")
++        self.assertFalse(self._g18(self.LOCK, third, adjudicated=False)[0])  # unadjudicated: unchanged, fails
++
++    def test_a_dropped_word_against_the_adjudicated_lock_still_fails(self):
++        heard = self.LOCK.replace("is not dependent", "is dependent")
++        ok, rows = self._g18(heard, heard, adjudicated=True)
++        self.assertFalse(ok, rows)
++
++
++if __name__ == "__main__":
++    unittest.main()

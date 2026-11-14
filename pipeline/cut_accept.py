@@ -152,15 +152,10 @@ def spoken_tokens(words):
     return canon.canon_tokens(" ".join(words))
 
 
-_MODEL = None
-
-
 def _model():
-    global _MODEL
-    if _MODEL is None:
-        from faster_whisper import WhisperModel
-        _MODEL = WhisperModel("large-v3", device="cuda", compute_type="float16")
-    return _MODEL
+    """The process's one large-v3 (L-r: gpu0.whisper loads it through swap_to; any later swap deletes it)."""
+    import gpu0
+    return gpu0.whisper("large-v3")
 
 
 def _whisper_words(wav_path):

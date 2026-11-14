@@ -1,0 +1,157 @@
+diff --git a/pipeline/test_v1_local_route.py b/pipeline/test_v1_local_route.py
+index 7f101e97..3dcd0479 100644
+--- a/pipeline/test_v1_local_route.py
++++ b/pipeline/test_v1_local_route.py
+@@ -1,76 +1,52 @@
+ #!/usr/bin/env python3
+-"""Law L-x for V1 (order 2026-11-12 '20:30' (d)): visual_check._call_any routes a model named 'ollama:<name>' to the
+-LOCAL back-end (Ollama on Ultron's GPU0, loaded through gpu0.swap_to under the caller's lease, law L-r) and every
+-other name to the Heimdall gateway, unchanged. CPU tests: the routing, and that the local route refuses (gpu0
+-LeaseMissing, a Gpu0Stop that a run turns into a HOLD naming the cause) before any request when the GPU0 lease is
+-not held. The local model's QUALITY is measured separately, on the labelled V1 cases, before it may sit on the panel."""
++"""Law L-x for V1 (order 2026-11-12 '20:30' (d)): visual_check._call_any routes a model named 'xai:<name>' to the xAI
++vendor and every other name to the Heimdall gateway, unchanged; a garbage, empty or failed reply from the new route is
++'no answer' (fail closed). There is no local vision route: GPU0's Ollama is called only through
++story_semantics.LocalLLM (law L-r; test_gpu0 TestNoDirectLoaders), and the local candidate gemma3:27b failed the V1
++cases (0 of 5 must-fail caught). The candidates' QUALITY is measured on the labelled V1 cases before any is seated."""
+ import os
+ import sys
+-import tempfile
+ import unittest
+ 
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+-import gpu0  # noqa: E402
+ import visual_check as VC  # noqa: E402
+ 
+ 
+-class TestLocalRoute(unittest.TestCase):
++class TestVendorRoute(unittest.TestCase):
+     def setUp(self):
+         self.calls = []
+-        self.saved = (VC._call_local, VC._call, VC._request, VC._call_xai)
+-        VC._call_local = lambda p, t, m, timeout: self.calls.append(("local", m)) or ('{"answers": {}}', {})
++        self.saved = (VC._call, VC._request, VC._call_xai)
+         VC._call_xai = lambda p, t, m, timeout: self.calls.append(("xai", m)) or ('{"answers": {}}', {})
+         VC._request = lambda p, t, m: ("req", m)
+         VC._call = lambda req, timeout: self.calls.append(("heimdall", req[1])) or ('{"answers": {}}', {})
+ 
+     def tearDown(self):
+-        VC._call_local, VC._call, VC._request, VC._call_xai = self.saved
++        VC._call, VC._request, VC._call_xai = self.saved
+ 
+-    def test_ollama_names_go_local_xai_names_to_xai_and_every_other_name_to_heimdall(self):
+-        VC._call_any("x.jpg", "q", VC.LOCAL_VISION, 5)
++    def test_xai_names_go_to_xai_and_every_other_name_to_heimdall(self):
+         VC._call_any("x.jpg", "q", "xai:grok-4.3", 5)
+         for m in VC.VISION_MODELS:
+             VC._call_any("x.jpg", "q", m, 5)
+-        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b"), ("xai", "xai:grok-4.3")]
+-                         + [("heimdall", m) for m in VC.VISION_MODELS])
++        self.assertEqual(self.calls, [("xai", "xai:grok-4.3")] + [("heimdall", m) for m in VC.VISION_MODELS])
+ 
+-    def test_an_unparseable_empty_or_failed_reply_from_a_new_route_is_no_answer(self):
+-        """Audit batch 43 cycle 3 (consensus): the xAI and local replies go through the same fail-closed parsers: garbage,
+-        an empty reply or a route error give no answers, and every checklist line is then 'missing' (not ok)."""
++    def test_no_local_route_and_the_default_panel_is_unchanged(self):
++        self.assertFalse(hasattr(VC, "_call_local"))
++        self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
++
++    def test_an_unparseable_empty_or_failed_reply_from_the_new_route_is_no_answer(self):
++        """Audit batch 43 cycle 3 (consensus): garbage, an empty reply or a route error give no answers, and every
++        checklist line is then 'missing' (not ok)."""
+         def boom(*a, **k):
+             raise OSError("route down")
+         for name, reply in (("garbage", lambda p, t, m, timeout: ("I think it looks fine!", {})),
+                             ("empty", lambda p, t, m, timeout: ("", {})), ("error", boom)):
+-            for model, attr in (("xai:grok-4.3", "_call_xai"), (VC.LOCAL_VISION, "_call_local")):
+-                setattr(VC, attr, reply)
+-                answers, raw = VC.ask_vision("x.jpg", "9x16", model=model, attempts=2)
+-                self.assertEqual(answers, {}, (name, model))
+-                self.assertIn("unparseable", raw, (name, model))
+-                ok, rows = VC.verdict(answers, "9x16")
+-                self.assertFalse(ok)
+-                self.assertTrue(all(r["answer"] == "missing" for r in rows.values()), (name, model))
+-
+-    def test_the_default_panel_is_unchanged(self):
+-        self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
+-        self.assertTrue(VC.LOCAL_VISION.startswith("ollama:") and VC.LOCAL_VISION not in VC.VISION_MODELS)
+-
+-
+-@unittest.skipIf(gpu0.held(), "a GPU session holds the lease: the refusal is tested in a CPU session")
+-class TestLocalRouteNeedsTheLease(unittest.TestCase):
+-    def test_no_lease_no_load_no_request(self):
+-        import urllib.request
+-        img = os.path.join(tempfile.mkdtemp(prefix="v1local_"), "f.jpg")
+-        open(img, "wb").write(b"\xff\xd8\xff\xd9")
+-        sent, real = [], urllib.request.urlopen
+-        urllib.request.urlopen = lambda *a, **k: sent.append(a) or real(*a, **k)   # audit batch 43: count requests
+-        try:
+-            with self.assertRaises(gpu0.Gpu0Stop):
+-                VC._call_local(img, "q", VC.LOCAL_VISION, 5)
+-            with self.assertRaises(gpu0.Gpu0Stop):                     # not swallowed as a route error: a run HOLDs
+-                VC.ask_vision(img, "16x9", model=VC.LOCAL_VISION, attempts=1)
+-        finally:
+-            urllib.request.urlopen = real
+-        self.assertEqual(sent, [])                                     # nothing reached Ollama (or anything else)
++            VC._call_xai = reply
++            answers, raw = VC.ask_vision("x.jpg", "9x16", model="xai:grok-4.3", attempts=2)
++            self.assertEqual(answers, {}, name)
++            self.assertIn("unparseable", raw, name)
++            ok, rows = VC.verdict(answers, "9x16")
++            self.assertFalse(ok)
++            self.assertTrue(all(r["answer"] == "missing" for r in rows.values()), name)
+ 
+ 
+ if __name__ == "__main__":
+diff --git a/pipeline/visual_check.py b/pipeline/visual_check.py
+index e96efa76..8fe803c6 100644
+--- a/pipeline/visual_check.py
++++ b/pipeline/visual_check.py
+@@ -23,8 +23,6 @@ BOUNDARY_FRAMES = 3
+ VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdall gateway, image input
+                                            # (listed 2026-11-11); a "no" from EITHER holds
+ VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
+-LOCAL_VISION = "ollama:gemma3:27b"   # law L-x: V1's second back-end, the local model on Ultron's GPU0 (L-r: lease + swap_to)
+-OLLAMA_URL = "http://localhost:11434"
+ XAI_BASE = "https://api.x.ai/v1"     # law L-x: a second VENDOR for V1's vision ('xai:<model>'); measured before it is seated
+ 
+ CHECKLIST = [
+@@ -196,23 +194,6 @@ def _call(req, timeout):
+     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
+ 
+ 
+-def _call_local(image_path, text, model, timeout):
+-    """(content, raw) of one LOCAL vision call (law L-x second back-end): Ollama on Ultron, loaded through
+-    gpu0.swap_to (law L-r: the caller holds the GPU0 lease; without it swap_to refuses and nothing loads)."""
+-    import urllib.request
+-    import gpu0
+-    gpu0.swap_to(model)                  # gpu0 keys Ollama models 'ollama:<name>' (REQUIREMENT_MIB) and strips the prefix
+-    with open(image_path, "rb") as f:
+-        img = base64.b64encode(f.read()).decode()
+-    body = {"model": model.split(":", 1)[1], "stream": False, "keep_alive": "5m",
+-            "options": {"temperature": 0, "num_predict": 4096, "num_ctx": 8192},
+-            "messages": [{"role": "user", "content": text, "images": [img]}]}
+-    req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=json.dumps(body).encode(),
+-                                 headers={"Content-Type": "application/json"})
+-    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+-    return (raw.get("message") or {}).get("content") or "", raw
+-
+-
+ def _xai_key():
+     env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+     try:
+@@ -238,10 +219,10 @@ def _call_xai(image_path, text, model, timeout):
+ 
+ 
+ def _call_any(image_path, text, model, timeout):
+-    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end, 'xai:<name>' the xAI vendor
+-    (law L-x), any other name the Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
+-    if model.startswith("ollama:"):
+-        return _call_local(image_path, text, model, timeout)
++    """(content, raw) from the model's own route: 'xai:<name>' the xAI vendor (law L-x), any other name the Heimdall
++    gateway. Raises on a route error (callers retry, then HOLD). No local route here: GPU0's Ollama is called only
++    through story_semantics.LocalLLM (law L-r, test_gpu0 TestNoDirectLoaders), and the local candidate measured for V1
++    (gemma3:27b, 2026-11-12: 0 of 5 must-fail cases caught, bible E-FAIL-076) is not seated."""
+     if model.startswith("xai:"):
+         return _call_xai(image_path, text, model, timeout)
+     return _call(_request(image_path, text, model), timeout)

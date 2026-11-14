@@ -1,0 +1,20 @@
+# Heimdall audit
+
+**Question:** Batch 75 = RULING 94 (orchestrator 2026-11-14 '00:40', to the builder, relayed verbatim): "94. Of the 23 Bitcoin Magazine interview moments, 13 never reach a judge because they open on a conjunction or a pronoun. For SPOTLIGHT and for a medley HOOK alike: (a) a leading conjunction or reply word gets ruling 33's ONE-word trim variant and that variant is what is rated as an opener (the trim must cut cleanly and the ALONE scorer must affirm it, as for a clip); (b) a first-person or second-person pronoun opener ('I', 'we', 'you', 'my', 'our') is NOT a cold-open fault at all: 'I will bet you one Bitcoin that...' is a fine first line; only a THIRD-person or demonstrative pronoun with no referent in the clip ('he', 'they', 'it', 'this', 'that') is, and the ALONE scorer + step A already judge exactly that. ... This touches the render's hook opener rule too: agree the change with the integrator, one audited change each side."
+Context: pipeline/stand_alone.py is the render's (stage_validate's) opener / topic check, and the builder copies its bytes. (a) is already in check_edl: every segment whose lock trims a leading word (the hook included) is rated, and trimmed_opener requires the scorer to affirm; the trimmed hook's text starts after the trimmed word; an untrimmed hook opening on a conjunction or reply word stays a fault. Words come from canon.canon_tokens(heads=True) (a contraction reduces to its head: "we've" -> "we").
+The change (agreed with the builder): FIRST_SECOND = {i, me, my, we, us, our, you, your}; THIRD = PRONOUNS - FIRST_SECOND (PRONOUNS unchanged). opener("hook"): a conjunction / reply word -> fault (unchanged); THIRD -> ok only with affirmed(score, fault, moments), no verdict -> fault (fail closed); FIRST_SECOND and anything else -> ok. check_edl's need (who the scorer rates) gains a hook opening on a THIRD word. Tests: test_stand_alone (must-fail / must-pass hooks per the ruling's examples; check_edl rates a THIRD hook and asks nobody for a first-person one; the auto-selection screen's hook example becomes a THIRD opener), test_trimmed_leading (a trimmed hook left opening on 'we' now opens; on 'they' it needs the scorer). 77 related tests pass; the 3 new ones fail on the old file.
+FIND: a hook that opens on a third-person / demonstrative pronoun without an affirming verdict; a conjunction or reply-word hook that now opens untrimmed; a change to the CLIP opener rule; a word placed in the wrong set; a path where the scorer's verdict for the hook is not requested but read (fail open). Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0009
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/stand_alone.py:186** In check_edl's need, the THIRD-hook clause uses _words(s["text"]) while the trimmed clause uses s.get("text") — a hook dict without 'text' would raise KeyError before the empty-segment guard in opener, but the trimmed clause already had the same asymmetry, so not a new defect.
+  - evidence: `or (kind == "hook" and _words(s.get("text"))[:1] and _words(s["text"])[0] in THIRD)`
+  - fix: use s.get("text") consistently
+  - raised by glm:F2; agree: qwen27b, glm
+
+## Raised but not agreed
+- glm:F1 [low] A THIRD hook with score present but fault None: affirmed() is called with fault=None; if affirmed() requires a fault string (e.g. fault == 'none' vs None) the hook could fail closed unexpectedly, but the tests pass fault 'none'/'weak'... Actually the test passes fault=None and expects pass, so affirmed handles it. No defect provable from the diff. (agree: 1)
+- glm:F3 [low] THIRD = PRONOUNS - FIRST_SECOND keeps 'it', 'its', 'this', 'that', 'these', 'those', 'they', 'them' etc. as third/demonstrative — matches the ruling; no word misplaced provable from the diff (PRONOUNS's full membership is not shown, so 'them'/'yours' placement cannot be verified). (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none

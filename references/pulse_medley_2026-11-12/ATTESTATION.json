@@ -1,0 +1,332 @@
+{
+  "schema": "pulse.attestation.v1",
+  "inventory_version": 1,
+  "verdict": "HOLD",
+  "deliverable": true,
+  "why_not_deliverable": null,
+  "run_state": {
+    "ok": false,
+    "why": [
+      "gates G20_signoff_names_all: FAIL",
+      "gates G8_sharpness: FAIL",
+      "gates G9_tail: FAIL",
+      "executed code not at the recorded revision: ['HEAD moved during the run: 1f50a0ca0e2398063f9e15414b582abd3305bf1c -> 9f75e6861a1dc79b82ee6a3f533a5da9e3825801']",
+      "verdict HOLD",
+      "executed code not at the launch revision: ['HEAD moved during the run: 1f50a0ca0e2398063f9e15414b582abd3305bf1c -> 9f75e6861a1dc79b82ee6a3f533a5da9e3825801']"
+    ],
+    "verdict": "HOLD",
+    "mode": "pinned",
+    "git_head": "1f50a0ca0e2398063f9e15414b582abd3305bf1c",
+    "ended": "2026-11-13T04:09:34.310050+00:00"
+  },
+  "registry_sha256": "c0b59264ddb84a2aa4858a4c3082aa1192b6382f2ee215acc671535c2b74b20d",
+  "rows": {
+    "16x9": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G14_av_alignment": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "FAIL",
+      "G8_sharpness": "PASS",
+      "G9_tail": "PASS",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "V1_visual_checklist": "PASS"
+    },
+    "9x16": {
+      "G1_voice": "PASS",
+      "G2_watermark": "PASS",
+      "G3_cuts": "PASS",
+      "G3b_cut_out_clean": "PASS",
+      "G3c_acoustic_tail": "PASS",
+      "G4_faces": "PASS",
+      "G5_tech": "PASS",
+      "G6_preroll": "PASS",
+      "G10_chyron": "PASS",
+      "G13_vo_audible": "PASS",
+      "G12_credits": "PASS",
+      "G11_parity": "PASS",
+      "G14_audio_offset": "PASS",
+      "G14_frame_similarity": "LIMITED",
+      "G14c_duration_parity": "PASS",
+      "G15_credits": "PASS",
+      "G20_signoff_names_all": "FAIL",
+      "G8_sharpness": "FAIL",
+      "G9_tail": "FAIL",
+      "outro_locked": "PASS",
+      "G4_faces_per_shot": "PASS",
+      "G4s_layout_truth": "PASS",
+      "G16_sentence_boundary": "PASS",
+      "G17_onset_tail": "PASS",
+      "G18_word_for_word": "PASS",
+      "G19_edge_shots": "PASS",
+      "vertical_silent_fallback": "PASS",
+      "V1_visual_checklist": "PASS"
+    }
+  },
+  "evidence": {
+    "16x9": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G14_av_alignment": {
+        "executed": true,
+        "samples": 28
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 4
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 3
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 17
+      }
+    },
+    "9x16": {
+      "G1_voice": {
+        "executed": true,
+        "samples": 1
+      },
+      "G2_watermark": {
+        "executed": true,
+        "samples": 6
+      },
+      "G3_cuts": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3b_cut_out_clean": {
+        "executed": true,
+        "samples": 3
+      },
+      "G3c_acoustic_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G4_faces": {
+        "executed": true,
+        "samples": 4
+      },
+      "G5_tech": {
+        "executed": true,
+        "samples": 4
+      },
+      "G6_preroll": {
+        "executed": true,
+        "samples": 1
+      },
+      "G10_chyron": {
+        "executed": true,
+        "samples": 0
+      },
+      "G13_vo_audible": {
+        "executed": true,
+        "samples": 1
+      },
+      "G12_credits": {
+        "executed": true,
+        "samples": 3
+      },
+      "G11_parity": {
+        "executed": true,
+        "samples": 5
+      },
+      "G14_audio_offset": {
+        "executed": true,
+        "samples": 28
+      },
+      "G14_frame_similarity": {
+        "executed": true,
+        "samples": 0
+      },
+      "G14c_duration_parity": {
+        "executed": true,
+        "samples": 3
+      },
+      "G15_credits": {
+        "executed": true,
+        "samples": 2
+      },
+      "G20_signoff_names_all": {
+        "executed": true,
+        "samples": 3
+      },
+      "G8_sharpness": {
+        "executed": true,
+        "samples": 3
+      },
+      "G9_tail": {
+        "executed": true,
+        "samples": 1
+      },
+      "outro_locked": {
+        "executed": true,
+        "samples": 2
+      },
+      "G4_faces_per_shot": {
+        "executed": true,
+        "samples": 4
+      },
+      "G4s_layout_truth": {
+        "executed": true,
+        "samples": 3
+      },
+      "G16_sentence_boundary": {
+        "executed": true,
+        "samples": 3
+      },
+      "G17_onset_tail": {
+        "executed": true,
+        "samples": 3
+      },
+      "G18_word_for_word": {
+        "executed": true,
+        "samples": 3
+      },
+      "G19_edge_shots": {
+        "executed": true,
+        "samples": 3
+      },
+      "vertical_silent_fallback": {
+        "executed": true,
+        "samples": 3
+      },
+      "V1_visual_checklist": {
+        "executed": true,
+        "samples": 20
+      }
+    }
+  },
+  "notes": {
+    "16x9": {},
+    "9x16": {
+      "G14_frame_similarity": "not valid for 9:16 crop vs 16:9 source",
+      "vertical_silent_fallback": "no fallback"
+    }
+  },
+  "blockers": {
+    "16x9": {
+      "G20_signoff_names_all": "FAIL"
+    },
+    "9x16": {
+      "G20_signoff_names_all": "FAIL",
+      "G8_sharpness": "FAIL",
+      "G9_tail": "FAIL"
+    }
+  },
+  "verification": {
+    "ok": true,
+    "why": []
+  },
+  "other_blockers": [
+    "run did not end clean: gates G20_signoff_names_all: FAIL; gates G8_sharpness: FAIL; gates G9_tail: FAIL; executed code not at the recorded revision: ['HEAD moved during the run: 1f50a0ca0e2398063f9e15414b582abd3305bf1c -> 9f75e6861a1dc79b82ee6a3f533a5da9e3825801']; verdict HOLD; executed code not at the launch revision: ['HEAD moved during the run: 1f50a0ca0e2398063f9e15414b582abd3305bf1c -> 9f75e6861a1dc79b82ee6a3f533a5da9e3825801']"
+  ],
+  "missing_files": [],
+  "files": {
+    "out/segment.mp4": "65a8530260bb2049077ca18c4af970a3bff37902997e1b6e317cafca7dfdffc6",
+    "out/segment_vertical.mp4": "e01c713873e8790591d653984212f874360d0442e7f1da486283b71315852d5c",
+    "edl.json": "635f67098cd3c56aaf23aa293fc38a9df76b76acac045e9c9b9bb721ccc06acd",
+    "qa/concat_manifest_16x9.json": "9f898cfeeb29a9ce63662bcab45eca895ea6e3cce0bc1dbc9ddc7829316d055d",
+    "qa/concat_manifest_9x16.json": "71c5e11f0599980263877fa6dce849ae9c5da3d3627e709770ce85b9b36bbf34",
+    "GATE_REPORT.json": "55091238253b6cd4fbccbdeff442e699f18ddcc9145fe19fd87a6623005ced02",
+    "VERIFY/VERIFICATION.json": "945c9fe995ce960f1997b2bf6c1b7987872a554ac51f6118189e74404cfa6b46",
+    "qa/contact_sheet_16x9.jpg": "c7e1fc84ef4e876f2b03870e5aa914fb89a7f5f526b944cf4563eeb1f268af0e",
+    "qa/contact_sheet_9x16.jpg": "9c589803979f0d6cc14d2a257db20bc56c6f3782e12db9fa9f94e2d87fbbb341"
+  },
+  "created_at": "2026-11-13T04:09:35.016038+00:00"
+}

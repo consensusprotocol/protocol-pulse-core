@@ -1,0 +1,83 @@
+[
+  {
+    "clip_id": "hook",
+    "video_id": "vgsSZ4mAHfQ",
+    "channel": "Saifedean Ammous",
+    "fade_out_ms": 10,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "Bitcoin",
+    "last_word_expected": "that.",
+    "selection_lock_sha256": "79e138f777586a08f4a0316c14962a528d852f5b21818667aa3b46ee6487d5cd",
+    "pause_in": {
+      "start": 14.79,
+      "end": 14.91,
+      "ms": 120
+    },
+    "pause_out": {
+      "start": 23.39,
+      "end": 23.44,
+      "ms": 50
+    },
+    "cut_in": 14.79,
+    "cut_out": 23.41,
+    "cut_duration": 8.62,
+    "valley_in": false,
+    "valley_out": true,
+    "lead_in_pad_s": 0.0
+  },
+  {
+    "clip_id": "clip_01",
+    "video_id": "c1JGheQBPH4",
+    "channel": "What Bitcoin Did",
+    "fade_out_ms": 20,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "I",
+    "last_word_expected": "US.",
+    "selection_lock_sha256": "e9071d2afaad8637fec7de47b8cefaf7b4ee5ed4871898c21d3a9799a8416b45",
+    "pause_in": {
+      "start": 14.19,
+      "end": 14.61,
+      "ms": 420
+    },
+    "pause_out": {
+      "start": 24.97,
+      "end": 25.45,
+      "ms": 480
+    },
+    "cut_in": 14.3,
+    "cut_out": 25.27,
+    "cut_duration": 10.97,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0
+  },
+  {
+    "clip_id": "clip_02",
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "fade_out_ms": 83,
+    "fade_in_ms": 83,
+    "verified": true,
+    "first_word_expected": "Bitcoin",
+    "last_word_expected": "ever.",
+    "selection_lock_sha256": "4b8f6eca78c4a0b0caff15a8403212a2e07862b103c57eb1b0a5788f1df07e3b",
+    "pause_in": {
+      "start": 14.37,
+      "end": 14.63,
+      "ms": 260
+    },
+    "pause_out": {
+      "start": 18.71,
+      "end": 19.23,
+      "ms": 520
+    },
+    "cut_in": 14.38,
+    "cut_out": 19.01,
+    "cut_duration": 4.63,
+    "valley_in": false,
+    "valley_out": false,
+    "lead_in_pad_s": 0.0
+  }
+]

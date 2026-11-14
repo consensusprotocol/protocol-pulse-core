@@ -1,0 +1,346 @@
+diff --git a/pipeline/local_judge.py b/pipeline/local_judge.py
+index e8dcd77e..ad0a2a71 100644
+--- a/pipeline/local_judge.py
++++ b/pipeline/local_judge.py
+@@ -15,6 +15,9 @@ pulled.
+ USE, until the orchestrator rules otherwise: a PRE-FILTER only. It may reject cheaply and rank; a clip or line-up it
+ passes still gets the different-vendor verdict the laws require (L-s, L-x: never one model). It can save calls, never
+ lower the bar. It counts only after its replay (local_judge_compare.py) is reported.
++RULING 87 (orchestrator 2026-11-13 '21:18', PLAN B): when Heimdall is down and only ONE outside family answers, step
++A's second verdict is this model, asked through the judge SERVICE below (serve): one call per request, the caller's
++exact prompt, max_tokens and seed; an error is no verdict.
+ 
+ GPU0 (law L-r): every call runs under the GPU0 lease, in batches of at most BATCH calls; each batch ends with
+ gpu0.release_all (the model unloaded, GPU0 left as found) and the lease released. A render always comes first: before
+@@ -22,7 +25,7 @@ EVERY call the judge checks YIELD_FLAG; whoever launches a render touches it, wa
+ the render and removes the flag once the render holds the lease. A held lease (LeaseBusy) is waited out between
+ batches, never forced. Outputs are appended one JSON line per job, so a stopped replay resumes where it stopped.
+ 
+-Usage: CUDA_VISIBLE_DEVICES=0 python3 pipeline/local_judge.py replay [--since ISO] [--out PATH]"""
++Usage: CUDA_VISIBLE_DEVICES=0 python3 pipeline/local_judge.py replay [--since ISO] [--out PATH] | serve | once"""
+ import argparse
+ import glob
+ import hashlib
+@@ -145,12 +148,190 @@ def run(jobs, out, batch=BATCH, log=print, idle_s=20.0):
+             time.sleep(idle_s)
+ 
+ 
++# ── RULING 87 (orchestrator 2026-11-13 '21:18', to the builder): "if only ONE outside family answers, step A's second
++# verdict is the local gemma3:27b on GPU0 through the integrator's judge service". The SERVICE:
++# - REQUEST: <EXTRA>/<request_id>.json in the builder's own directory (READ ONLY there: never moved or written; answered
++#   once per name and content, a marker in answered/, a copy in done/ or failed/), or ROOT/requests/ (moved when
++#   answered): {"request_id", "family": "step_a", "prompt": the exact vendor prompt, "max_tokens": int, "seed": int}.
++#   ONE call per request.
++# - RESULT: ROOT/results/<request_id>.<prompt_id>.json, prompt_id = prompt_id(prompt, max_tokens, seed): {request_id,
++#   family, prompt_id, model, digest, seed, max_tokens, text (the raw reply), error, seconds, waited_s (from the
++#   request file's time to the call), at, judge_sha}. An error is NO verdict; the reply's contract is the caller's.
++# - GPU0: run()'s discipline. BATCH requests per lease, the yield flag before the lease, once it is held and before
++#   every call (a render always first), gpu0.release_all at the batch end; a GPU0 stop leaves the rest pending.
++ROOT = os.environ.get("PP_LOCAL_JUDGE_DIR", os.path.join(os.path.dirname(PIPELINE), "data", "local_judge"))
++EXTRA = os.environ.get("PP_LOCAL_JUDGE_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/judge_requests")
++SERVED = ("step_a",)                                  # ruling 87: step A's second verdict, nothing else
++SAFE = "^[A-Za-z0-9_.:~-]{1,120}$"
++
++
++def judge_sha():
++    """sha256 over the code that answers (this file; story_semantics.py, the model call)."""
++    h = hashlib.sha256()
++    for name in ("local_judge.py", "story_semantics.py"):
++        with open(os.path.join(PIPELINE, name), "rb") as f:
++            h.update(f.read())
++    return h.hexdigest()
++
++
++def problems(r):
++    import re
++    if not isinstance(r, dict):
++        return ["not an object"]
++    why = [] if isinstance(r.get("request_id"), str) and re.match(SAFE, r["request_id"]) else \
++        [f"request_id must match {SAFE}"]
++    if r.get("family") not in SERVED:
++        why.append(f"family must be one of {list(SERVED)} (ruling 87)")
++    elif not (isinstance(r.get("prompt"), str) and family(r["prompt"]) == r["family"]):
++        why.append("prompt must be a step-A prompt (the vendor prompt, as sent)")
++    for k, lo, hi in (("max_tokens", 1, 32768), ("seed", 0, 2 ** 31 - 1)):
++        if not (isinstance(r.get(k), int) and not isinstance(r.get(k), bool) and lo <= r[k] <= hi):
++            why.append(f"{k} must be an integer {lo}-{hi}")
++    return why
++
++
++def _load(path):
++    """-> (request, problems, the read content's sha256[:16])."""
++    with open(path, "rb") as f:
++        raw = f.read()
++    dg = hashlib.sha256(raw).hexdigest()[:16]
++    try:
++        r = json.loads(raw)
++    except ValueError as e:
++        return None, [f"not JSON: {e}"], dg
++    return r, problems(r), dg
++
++
++def _marker(path, dg):
++    return os.path.join(ROOT, "answered", f"{os.path.basename(path)}.{dg}")
++
++
++def pending():
++    """Own requests, then the builder's (EXTRA) whose name and content have not been answered."""
++    own = sorted(glob.glob(os.path.join(ROOT, "requests", "*.json")))
++    extra = []
++    for p in sorted(glob.glob(os.path.join(EXTRA, "*.json"))) if EXTRA else []:
++        try:
++            with open(p, "rb") as f:
++                if not os.path.exists(_marker(p, hashlib.sha256(f.read()).hexdigest()[:16])):
++                    extra.append(p)
++        except OSError:                                  # renamed or removed while listed: the next pass sees it
++            continue
++    return own + extra
++
++
++def _close(path, r, dg, why=None):
++    """Answered (why None) or malformed: an own request moves to done/ (failed/, with why); the builder's is never
++    touched: its copy goes to done/ or failed/ here and a marker keyed by its name and content keeps it answered."""
++    sub = os.path.join(ROOT, "requests", "failed" if why else "done")
++    os.makedirs(sub, exist_ok=True)
++    if os.path.dirname(os.path.abspath(path)) == os.path.abspath(os.path.join(ROOT, "requests")):
++        if why:
++            with open(os.path.join(sub, os.path.basename(path)), "w") as f:
++                json.dump({"request": r, "why": why}, f, indent=1)
++            os.remove(path)
++        else:
++            os.replace(path, os.path.join(sub, os.path.basename(path)))
++        return
++    with open(os.path.join(sub, "extra." + os.path.basename(path)), "w") as f:
++        json.dump({"request": r, "why": why, "from": path, "content_sha256_16": dg}, f, indent=1)
++    os.makedirs(os.path.join(ROOT, "answered"), exist_ok=True)
++    open(_marker(path, dg), "w").close()
++
++
++def result_path(r):
++    return os.path.join(ROOT, "results", f"{r['request_id']}.{prompt_id(r['prompt'], r['max_tokens'], r['seed'])}.json")
++
++
++def _answered(r, sha):
++    """True when this request's answer is already on file from this code (a stop between the result and the close:
++    batch 72 c1 consensus); a result whose call failed is asked again."""
++    try:
++        with open(result_path(r)) as f:
++            e = json.load(f)
++    except (OSError, ValueError):
++        return False
++    return e.get("error") is None and isinstance(e.get("text"), str) and e.get("judge_sha") == sha
++
++
++def serve_once(log=print):
++    """Answer up to BATCH pending requests under ONE GPU0 lease. -> how many were closed (answered or malformed)."""
++    import gpu0
++    import story_semantics as sm
++    n, ready, sha = 0, [], judge_sha()
++    for path in pending()[:BATCH]:
++        try:
++            r, why, dg = _load(path)
++        except OSError:
++            continue
++        if why:
++            _close(path, r, dg, why)
++            log(f"  {os.path.basename(path)}: malformed: {'; '.join(why)}")
++            n += 1
++        elif _answered(r, sha):                                  # answered before a stop: closed, never asked twice
++            _close(path, r, dg)
++            log(f"  {r['request_id']}: its answer was already on file: closed, not asked again")
++            n += 1
++        else:
++            ready.append((path, r, dg))
++    if not ready or render_wants_gpu0():
++        return n
++    try:
++        with gpu0.lease(OWNER, wait_s=0):
++            if render_wants_gpu0():                              # it asked while the lease was being taken
++                return n
++            llm = sm.LocalLLM(model=MODEL).start()
++            try:
++                for path, r, dg in ready:
++                    if render_wants_gpu0():                      # a render first: the rest stay pending
++                        break
++                    t0, text, err = time.time(), None, None
++                    waited = round(t0 - os.path.getmtime(path), 1) if os.path.exists(path) else None
++                    try:
++                        text = llm._post(r["prompt"], r["max_tokens"], r["seed"])
++                    except gpu0.Gpu0Stop:
++                        raise
++                    except Exception as e:                       # no verdict, never retried here
++                        err = f"{type(e).__name__}: {str(e)[:300]}"
++                    pid, out = prompt_id(r["prompt"], r["max_tokens"], r["seed"]), result_path(r)
++                    os.makedirs(os.path.dirname(out), exist_ok=True)
++                    with open(out + ".tmp", "w") as f:
++                        json.dump({"request_id": r["request_id"], "family": r["family"], "prompt_id": pid,
++                                   "model": MODEL, "digest": getattr(llm, "digest", None), "seed": r["seed"],
++                                   "max_tokens": r["max_tokens"], "text": text, "error": err,
++                                   "seconds": round(time.time() - t0, 1), "waited_s": waited,
++                                   "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "judge_sha": sha},
++                                  f, indent=1)
++                    os.replace(out + ".tmp", out)
++                    _close(path, r, dg)
++                    n += 1
++                    log(f"  {r['request_id']}: {time.time() - t0:.1f} s{' ERROR ' + err if err else ''}")
++            finally:
++                gpu0.release_all()                               # GPU0 left as found before the lease goes
++    except gpu0.Gpu0Stop as e:                                   # busy, a foreign user, out of memory: the rest wait
++        log(f"  GPU0 stop, the rest stay pending: {type(e).__name__}: {e}")
++    return n
++
++
+ def main(argv=None):
+     ap = argparse.ArgumentParser()
+-    ap.add_argument("cmd", choices=["replay", "list"])
++    ap.add_argument("cmd", choices=["replay", "list", "serve", "once"])
+     ap.add_argument("--since", default=SINCE)
+     ap.add_argument("--out", default=os.path.join(os.path.dirname(PIPELINE), "data", "local_judge", "replay_answers.jsonl"))
+     a = ap.parse_args(argv)
++    if a.cmd in ("serve", "once"):                               # ruling 87's judge service
++        if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++            sys.exit("the local judge runs on GPU0: CUDA_VISIBLE_DEVICES=0 (law L-r)")
++        for d in ("requests", "results"):
++            os.makedirs(os.path.join(ROOT, d), exist_ok=True)
++        print(f"{time.strftime('%H:%M:%S')} judge service: {MODEL}, judge_sha {judge_sha()[:12]}, root {ROOT}, "
++              f"requests also from {EXTRA}", flush=True)
++        while True:
++            n = serve_once(log=lambda m: print(f"{time.strftime('%H:%M:%S')} {m}", flush=True))
++            if a.cmd == "once":
++                return 0
++            if not n:
++                time.sleep(5.0)
+     jobs = recorded(a.since)
+     counts = {k: sum(j["family"] == k for j in jobs) for k, _ in FAMILIES}
+     print(f"{len(jobs)} recorded prompts since {a.since}: {counts}")
+diff --git a/pipeline/test_local_judge.py b/pipeline/test_local_judge.py
+index 8f98ed8d..23b0a310 100644
+--- a/pipeline/test_local_judge.py
++++ b/pipeline/test_local_judge.py
+@@ -167,6 +167,126 @@ class TestRun(unittest.TestCase):
+         self.assertEqual(len(self.released), 1)
+ 
+ 
++STEP_A = "You read transcripts of Bitcoin videos. For each EXCERPT below, say whether it stands alone."
++
++
++class TestServe(unittest.TestCase):
++    """RULING 87 (orchestrator '21:18'): the judge SERVICE for step A's second verdict in Plan B. Requests are read only
++    in the builder's directory; one call each; a render always first; an error is no verdict; GPU0 left as found."""
++
++    def setUp(self):
++        self.d = tempfile.mkdtemp(prefix="lj_serve_")
++        self.addCleanup(shutil.rmtree, self.d)
++        self.root, self.extra, self.flag = (os.path.join(self.d, x) for x in ("root", "extra", "yield"))
++        os.makedirs(self.extra)
++        import gpu0
++        self.gpu0, self.released, self.llms = gpu0, [], []
++
++        def llm(model=None):
++            self.llms.append(FakeLLM(model))
++            return self.llms[-1]
++        for x in (mock.patch.object(J, "ROOT", self.root), mock.patch.object(J, "EXTRA", self.extra),
++                  mock.patch.object(J, "YIELD_FLAG", self.flag),
++                  mock.patch.object(gpu0, "lease", mock.MagicMock()),
++                  mock.patch.object(gpu0, "release_all", lambda: self.released.append(1)),
++                  mock.patch("story_semantics.LocalLLM", llm)):
++            x.start()
++            self.addCleanup(x.stop)
++
++    def ask(self, rid, prompt=STEP_A, **kw):
++        p = os.path.join(self.extra, rid + ".json")
++        with open(p + ".tmp", "w") as f:
++            json.dump(dict({"request_id": rid, "family": "step_a", "prompt": prompt, "max_tokens": 1200, "seed": 7},
++                           **kw), f)
++        os.rename(p + ".tmp", p)
++        return p
++
++    def result(self, rid, prompt=STEP_A, max_tokens=1200, seed=7):
++        with open(os.path.join(self.root, "results", f"{rid}.{J.prompt_id(prompt, max_tokens, seed)}.json")) as f:
++            return json.load(f)
++
++    def serve(self):
++        return J.serve_once(log=lambda *a: None)
++
++    def test_one_call_per_request_answered_once_and_the_builders_file_untouched(self):
++        p = self.ask("s1")
++        before = (open(p, "rb").read(), os.path.getmtime(p))
++        self.assertEqual(self.serve(), 1)
++        r = self.result("s1")
++        self.assertEqual((r["text"], r["error"], r["model"], r["digest"], r["seed"], r["max_tokens"], r["family"]),
++                         ('{"ok": true}', None, J.MODEL, "d1", 7, 1200, "step_a"))
++        self.assertEqual((r["judge_sha"], r["prompt_id"]), (J.judge_sha(), J.prompt_id(STEP_A, 1200, 7)))
++        self.assertIsInstance(r["waited_s"], float)
++        self.assertEqual((open(p, "rb").read(), os.path.getmtime(p)), before)        # read only in its directory
++        self.assertEqual(self.serve(), 0)                                             # answered once
++        self.assertEqual(([x.asked for x in self.llms], len(self.released)), ([[STEP_A]], 1))
++        with open(p, "w") as f:                                                       # a changed request: asked again
++            json.dump({"request_id": "s1", "family": "step_a", "prompt": STEP_A, "max_tokens": 900, "seed": 7}, f)
++        self.assertEqual(self.serve(), 1)
++        self.assertEqual(self.result("s1", max_tokens=900)["max_tokens"], 900)
++
++    def test_an_answer_on_file_is_closed_never_asked_twice(self):          # batch 72 c1 consensus
++        self.ask("s1")
++        self.assertEqual(self.serve(), 1)
++        shutil.rmtree(os.path.join(self.root, "answered"))                          # a stop before the close
++        self.assertEqual(self.serve(), 1)
++        self.assertEqual(sum(len(x.asked) for x in self.llms), 1)                    # closed, not asked again
++        self.assertEqual(J.pending(), [])
++        r = self.result("s1")
++        with open(J.result_path({"request_id": "s1", "prompt": STEP_A, "max_tokens": 1200, "seed": 7}), "w") as f:
++            json.dump(dict(r, text=None, error="RuntimeError: bad"), f)            # a failed call is asked again
++        shutil.rmtree(os.path.join(self.root, "answered"))
++        self.assertEqual(self.serve(), 1)
++        self.assertEqual((sum(len(x.asked) for x in self.llms), self.result("s1")["error"]), (2, None))
++
++    def test_a_render_comes_first(self):
++        self.ask("s1")
++        open(self.flag, "w").close()
++        self.assertEqual(self.serve(), 0)
++        self.assertEqual((self.llms, len(J.pending())), ([], 1))
++        self.gpu0.lease.assert_not_called()
++
++    def test_a_render_asking_mid_batch_stops_the_next_call(self):
++        self.ask("s1")
++        self.ask("s2")
++        flag = self.flag
++
++        def post(self_, prompt, max_tokens, seed):
++            open(flag, "w").close()                                                    # the render asks
++            return "{}"
++        with mock.patch.object(FakeLLM, "_post", post):
++            self.assertEqual(self.serve(), 1)
++        self.assertEqual(([os.path.basename(x) for x in J.pending()], len(self.released)), (["s2.json"], 1))
++
++    def test_only_a_well_formed_step_a_request_is_asked(self):
++        self.ask("bad1", prompt="You are the editor of PBX MAX. Pick the angle.")     # not a step-A prompt
++        self.ask("bad2", family="angle")
++        self.ask("bad3", seed="7")
++        self.assertEqual(self.serve(), 3)
++        self.assertEqual(self.llms, [])                                               # nothing asked, nothing loaded
++        self.assertEqual(sorted(os.listdir(os.path.join(self.root, "requests", "failed"))),
++                         ["extra.bad1.json", "extra.bad2.json", "extra.bad3.json"])
++
++    def test_a_failed_call_is_no_verdict_and_gpu0_is_still_released(self):
++        self.ask("s1")
++        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: (_ for _ in ()).throw(RuntimeError("bad"))):
++            self.assertEqual(self.serve(), 1)
++        r = self.result("s1")
++        self.assertEqual((r["text"], r["error"], len(self.released)), (None, "RuntimeError: bad", 1))
++
++    def test_a_gpu0_stop_leaves_the_request_pending(self):
++        self.ask("s1")
++
++        def busy(owner, wait_s=0):
++            raise self.gpu0.LeaseBusy("held by the scorer")
++        with mock.patch.object(self.gpu0, "lease", busy):
++            self.assertEqual(self.serve(), 0)
++        self.assertEqual((len(J.pending()), os.path.exists(os.path.join(self.root, "results"))), (1, False))
++        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: (_ for _ in ()).throw(self.gpu0.GpuOOM("oom"))):
++            self.assertEqual(self.serve(), 0)                                         # a stop mid-call: never a result
++        self.assertEqual((len(J.pending()), len(self.released)), (1, 1))
++
++
+ class TestCompare(unittest.TestCase):
+     """The comparison runs in its own process (the builder's modules first on its path), exactly as it is used."""
+ 

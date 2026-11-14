@@ -21,7 +21,8 @@ import wave
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("", "-1"):   # L-r: an explicit CPU request stays CPU (this line
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"                    # forced GPU0 into CPU test sessions); else GPU0 only
 
 PIPELINE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, PIPELINE_DIR)
@@ -54,6 +55,8 @@ def ease_in_out(t):
 def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label, qa_dir):
     """R5 VO visual: freeze last frame, blur sigma 6, 1.0x->1.08x zoom, waveform bottom 22%, pre-roll.
     Returns the path to the assembled VO WAV (silence + stem) for G6 measurement."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     print(f"  Rendering R5 VO visual: {os.path.basename(output_mp4)}")
 
     vo_dur = get_duration(vo_wav)
@@ -170,7 +173,7 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", combined_wav,
     ], capture_output=True, timeout=30, check=True)
 
-    subprocess.run([
+    gpu0.raise_if_oom(subprocess.run([
         "ffmpeg", "-y",
         "-framerate", str(FPS),
         "-i", os.path.join(frames_dir, "frame_%05d.png"),
@@ -179,7 +182,7 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2",
         "-shortest", "-movflags", "+faststart", output_mp4,
-    ], capture_output=True, timeout=120)
+    ], capture_output=True, timeout=120), "render16 nvenc")
 
     if os.path.exists(output_mp4) and os.path.getsize(output_mp4) > 1000:
         dur = get_duration(output_mp4)
@@ -193,6 +196,8 @@ def render_vo_visual(vo_wav, preceding_src, preceding_cut_out, output_mp4, label
 def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
                           opacity, fade_in_dur, shoutout_start):
     """Overlay alpha watermark on final concat. No black box -- alpha PNG."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     overlay_expr = (
         f"[1:v]scale={mark_px}:-1,format=rgba,"
         f"colorchannelmixer=aa={opacity},"
@@ -213,6 +218,7 @@ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
         "-c:a", "copy",
         "-movflags", "+faststart", output_mp4,
     ], capture_output=True, timeout=600)
+    gpu0.raise_if_oom(r, "render16 nvenc")      # L-r: never a later "render failed"
 
     if r.returncode != 0:
         print(f"    ffmpeg watermark stderr: {r.stderr.decode()[-500:]}")
@@ -223,6 +229,8 @@ def apply_watermark_alpha(input_mp4, output_mp4, mark_path, mark_px, margin,
 def render_16x9(segment_dir, qa_version=None, output_name="segment.mp4",
                 alimiter_dbfs=-3.0):
     """Full 16:9 render pipeline. Returns (final_path, manifest_path, vo_assembled_tracks) or raises."""
+    import gpu0
+    gpu0.swap_to("nvenc")                # L-r: NVENC only under the GPU0 lease, nothing else resident
     t0 = time.time()
     print("=== RENDER 16:9 ===\n")
 
@@ -611,6 +619,9 @@ def _find_outro(qa_dir, segment_dir=None):
     try:
         return conform_outro("16x9")
     except (FileNotFoundError, subprocess.CalledProcessError) as e:
+        import gpu0
+        if gpu0.is_oom(e):           # L-r: an NVENC out-of-memory is never a fallback (E-FAIL-052)
+            raise gpu0.GpuOOM(f"outro conform: CUDA/NVENC out of memory ({e})") from e
         print(f"  PBX outro conform failed ({e}), falling back to qa_dir")
     for name in ["final_outro.mp4", "outro.mp4"]:
         candidate = os.path.join(qa_dir, name)

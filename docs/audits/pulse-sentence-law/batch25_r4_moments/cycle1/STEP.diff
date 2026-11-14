@@ -1,0 +1,221 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index 778224b2..e33b170f 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -151,8 +151,64 @@ def rule_r3(edl):
+ # R4: VO_BUDGET
+ # ==============================================================
+ 
++MOMENTS_VO_SHARE = 0.40           # law L-q (orchestrator 2026-11-12 '06:00'): the host makes points; a TASTE limit re-set
++MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
++FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
++                                  # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
++R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
++
++
++def _r4_moments(edl):
++    """R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; a TASTE rule re-set for the new product,
++    recorded under L-o / L-q; story-type pins keep the rule below). One VO line per slot: the intro after the hook, and
++    at most one line after each clip, the LAST clip included (the takeaway: render16 / render_vertical play it before
++    the shout-out); a line with no such slot fails. VO (intro + lines, each words / 2.5 + the 1.0 s pre-roll) <= 40 % of
++    hook + clips + VO. The estimated final runtime (hook + clips + VO + FINAL_TAIL_S) inside 60-70 s (hard, L-o). Word
++    caps unchanged. The sign-off is generated at the voice stage from the credits (not in the share; in the tail)."""
++    vo = edl.get("vo") or {}
++    clips = edl.get("clips") or []
++    idx = [c.get("index") for c in clips]
++    failures = []
++    intro = vo.get("intro") or ""
++    if _word_count(intro) > INTRO_WORD_CAP:
++        failures.append(f"intro={_word_count(intro)} words (max {INTRO_WORD_CAP})")
++    bridges = vo.get("bridges") or []
++    prev, lines = 0, ([intro] if intro.strip() else [])
++    for i, b in enumerate(bridges, 1):
++        a = b.get("after_clip") if isinstance(b, dict) else None
++        if type(a) is not int or a not in idx or a <= prev:
++            failures.append(f"VO line {i} has no slot (after_clip {a!r}: one line after each clip index "
++                            f"{sorted(x for x in idx if isinstance(x, int))}, in order)")
++        else:
++            prev = a
++        text = b.get("text", "") if isinstance(b, dict) else ""
++        if _word_count(text) > BRIDGE_WORD_CAP:
++            failures.append(f"bridge {i}={_word_count(text)} words (max {BRIDGE_WORD_CAP})")
++        lines.append(text)
++    hook = edl.get("hook") or {}
++    content = sum(float(s.get("duration") or 0) for s in [hook] + clips)
++    vo_s = sum(_word_count(t) / R4_WPS + R4_PREROLL_S for t in lines if t.strip())
++    if content <= 0:
++        failures.append("no measured hook / clip duration")
++    else:
++        share = vo_s / (content + vo_s)
++        if share > MOMENTS_VO_SHARE:
++            failures.append(f"VO={share:.1%} of runtime (max {MOMENTS_VO_SHARE:.0%}, moments)")
++        runtime = round(content + vo_s + FINAL_TAIL_S, 2)
++        if not MOMENTS_RUNTIME_S[0] <= runtime <= MOMENTS_RUNTIME_S[1]:
++            failures.append(f"estimated runtime {runtime} s outside {MOMENTS_RUNTIME_S[0]:.0f}-"
++                            f"{MOMENTS_RUNTIME_S[1]:.0f} s (hook + clips {content:.2f} + VO {vo_s:.2f} + tail "
++                            f"{FINAL_TAIL_S})")
++    if failures:
++        return False, "R4 FAIL (moments): " + "; ".join(failures)
++    return True, (f"R4 PASS (moments): VO {vo_s / (content + vo_s):.1%} <= {MOMENTS_VO_SHARE:.0%}, estimated runtime "
++                  f"{round(content + vo_s + FINAL_TAIL_S, 2)} s, every VO line in a slot")
++
++
+ def rule_r4(edl):
+-    """VO <= 25% of total runtime. Word limits enforced."""
++    """VO <= 25% of total runtime. Word limits enforced. A package of type 'moments': _r4_moments (law L-q)."""
++    if edl.get("package_type") == "moments":
++        return _r4_moments(edl)
+     vo = edl.get("vo", {})
+     clips = edl.get("clips", [])
+     total_clip_dur = edl.get("total_clip_duration", 0)
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index 2466b994..fd251360 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -328,6 +328,7 @@ def build_edl(pin, acq, registry=None, log=print):
+     }
+     if has_mp:                                 # law L-t: the ONE title and caption travel in the EDL, whose bytes the
+         edl.update(title=mp["title"], caption=mp["caption"],      # release authorisation re-hashes before any send
++                   package_type=mp.get("type"),                   # edl_rules R4: 'moments' has its own VO budget
+                    moments_package_sha256=mp["package_sha256"],   # the packager's digest of its full record
+                    moments_package_pin_sha256=hashlib.sha256(json.dumps(mp, sort_keys=True).encode()).hexdigest(),
+                    moments_checks=mp["checks"],                   # ^ this render's own digest of what it renders
+@@ -338,11 +339,13 @@ def build_edl(pin, acq, registry=None, log=print):
+ 
+ def moments_vo(mp, clips, segments=None):
+     """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
+-    the bridges, each after a clip but the last, in the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
++    the bridges, each after a clip (after the LAST clip too only for a package of type 'moments', law L-q, '06:00'), in
++    the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
+     audit): the package must be an object; both gate verdicts exactly true, and every other '*_ok' check too; title and
+     caption non-empty strings; package_sha256 64 lowercase hex characters; edl_vo an object; intro null or a non-empty
+     string; bridges a list of objects with non-empty string text and an INTEGER after_clip, strictly increasing, in
+-    1..last-1 (render16 places bridges in list order: an out-of-order or repeated index is refused, never re-sorted).
++    1..last-1, or 1..last for type 'moments' (render16 / render_vertical key bridges by after_clip: an out-of-order or
++    repeated index is refused, never re-sorted).
+     Anything else is a PinError."""
+     if not isinstance(mp, dict):
+         raise PinError("moments_package is not an object")
+@@ -385,12 +388,13 @@ def moments_vo(mp, clips, segments=None):
+     if not idx:
+         raise PinError("moments_package: the pin has no clips")
+     last, prev = idx[-1], 0
+-    for b in bridges:
+-        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():
+-            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")
+-        a = b.get("after_clip")
+-        if type(a) is not int or a not in idx or a >= last or a <= prev:
+-            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{last - 1}, "
++    top = last if mp.get("type") == "moments" else last - 1   # law L-q (orchestrator 2026-11-12 '06:00'): a package
++    for b in bridges:                                          # of type 'moments' may close on a takeaway line after
++        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():   # the LAST clip
++            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")      # (render16 / render_vertical
++        a = b.get("after_clip")                                                       # play it before the shout-out)
++        if type(a) is not int or a not in idx or a > top or a <= prev:
++            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{top}, "
+                            f"strictly increasing")
+         prev = a
+     return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index bb598e0b..6258d046 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -944,6 +944,66 @@ class TestShoutoutHookChannel(unittest.TestCase):
+         self.assertEqual(channels[0], "SharedChan")
+ 
+ 
++class TestR4Moments(unittest.TestCase):
++    """Law L-q (orchestrator 2026-11-12 '06:00'): R4 for a package of type 'moments' ONLY: VO share <= 40 %, one VO line
++    per slot (after the hook, after each clip, after the LAST clip), the estimated runtime inside 60-70 s (hard, L-o);
++    story-type and untyped EDLs keep the old R4. Must-fail: VO share 41 %, runtime 59.9 and 70.1 s, a line with no
++    slot. Runtime = hook + clips + VO (words / 2.5 + 1.0 s pre-roll each) + 14.30 s tail."""
++
++    @staticmethod
++    def edl(hook, clips, intro_words, bridges, t="moments"):
++        e = {"hook": {"duration": hook, "channel": "H"},
++             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
++             "vo": {"intro": " ".join(["w"] * intro_words) if intro_words else None,
++                    "bridges": [{"text": " ".join(["w"] * n), "after_clip": a} for n, a in bridges]}}
++        if t is not None:
++            e["package_type"] = t
++        return e
++
++    def test_vo_share_41_percent_fails_and_40_passes(self):
++        ok, why = rule_r4(self.edl(8.78, [10, 10], 30, [(15, 1)]))       # 20.0 s VO of 48.78 s = 41.0 %
++        self.assertFalse(ok)
++        self.assertIn("VO=41.0%", why)
++        self.assertNotIn("outside 60-70", why)                             # 63.08 s: only the share fails
++        ok, why = rule_r4(self.edl(9.383, [10, 10], 30, [(15, 1)]))      # 20.0 s of 49.383 s = 40.5 %: the limit
++        self.assertFalse(ok, why)                                          # is 40, not 41
++        self.assertIn("VO=40.5%", why)
++        ok, why = rule_r4(self.edl(10.0, [10, 10], 30, [(15, 1)]))       # 20.0 s of 50.0 s = 40.0 %
++        self.assertTrue(ok, why)
++
++    def test_runtime_59_9_and_70_1_fail_60_and_70_pass(self):
++        for hook, want in ((15.6, False), (15.7, True), (25.7, True), (25.8, False)):   # + 20 clips + 10 VO + 14.3
++            ok, why = rule_r4(self.edl(hook, [10, 10], 16, [(4, 2)]))
++            self.assertEqual(ok, want, why)
++            if not want:
++                self.assertIn("outside 60-70 s", why)
++
++    def test_a_vo_line_with_no_slot_fails(self):
++        for bridges in ([(5, 0)], [(5, 3)], [(5, 1), (5, 1)], [(5, 2), (5, 1)], [(5, "1")], [(5, None)], [(5, True)],
++                        [(5, 1.0)]):
++            ok, why = rule_r4(self.edl(20.0, [14, 14], 10, bridges))
++            self.assertFalse(ok, bridges)
++            self.assertIn("has no slot", why, bridges)
++        ok, why = rule_r4({**self.edl(20.0, [14, 14], 10, []), "vo": {"intro": "a b", "bridges": [{"text": "x"}]}})
++        self.assertIn("has no slot", why)
++
++    def test_a_line_after_each_clip_including_the_last_has_a_slot(self):
++        ok, why = rule_r4(self.edl(14.0, [12, 12], 10, [(5, 1), (5, 2)]))   # VO 4+2+... = 10 s; 38 + 10 + 14.3
++        self.assertTrue(ok, why)
++
++    def test_word_caps_are_unchanged(self):
++        self.assertIn("intro=31 words", rule_r4(self.edl(20.0, [14, 14], 31, []))[1])
++        self.assertIn("bridge 1=21 words", rule_r4(self.edl(20.0, [14, 14], 5, [(21, 1)]))[1])
++
++    def test_story_type_and_untyped_edls_keep_the_old_rule(self):
++        for t in ("story", None, "Moments"):
++            e = self.edl(10.0, [10, 10], 30, [(15, 1)], t=t)              # 40 % share: old rule max 25 %
++            ok, why = rule_r4(e)
++            self.assertFalse(ok, t)
++            self.assertIn("max 25%", why, t)
++            self.assertNotIn("moments", why, t)
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+ 
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index e254241f..1e5851d7 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -285,6 +285,27 @@ class TestMomentsPackage(Fixture):
+         self.assertRegex(edl["moments_package_pin_sha256"], r"^[0-9a-f]{64}$")
+         self.assertEqual(len(edl["moments_sources_30s_before"]), 3)
+ 
++    def test_a_moments_package_may_close_on_a_takeaway_after_the_last_clip(self):
++        """Law L-q (orchestrator 2026-11-12 '06:00'): type 'moments' only: a line after the LAST clip has a slot
++        (render16 / render_vertical play it before the shout-out); any other type keeps 1..last-1; a line with no slot,
++        or two on one slot, is refused."""
++        segs = self.pin()["segments"]
++        clips = [{"index": 1}, {"index": 2}]
++
++        def br(*items):
++            return {"intro": "Intro.", "bridges": [dict(text="x", after_clip=a) for a in items]}
++        got = pinned.moments_vo(self.mp(type="moments", edl_vo=br(1, 2)), clips, segs)
++        self.assertEqual([b["after_clip"] for b in got["bridges"]], [1, 2])
++        for typ, items in (("story", (2,)), (None, (2,)), ("Moments", (2,)), ("moments", (3,)), ("moments", (2, 2)),
++                           ("moments", (0,)), ("moments", (2, 1))):
++            mp = self.mp(edl_vo=br(*items), **({"type": typ} if typ is not None else {}))
++            with self.assertRaisesRegex(pinned.PinError, "after_clip must be", msg=(typ, items)):
++                pinned.moments_vo(mp, clips, segs)
++        pinned.prepare(self.write(self.pin(moments_package=self.mp(type="moments", edl_vo=br(1, 2)))), self.run_dir,
++                       log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual((edl["package_type"], [b["after_clip"] for b in edl["vo"]["bridges"]]), ("moments", [1, 2]))
++
+     def test_a_pin_without_a_package_is_unchanged(self):
+         pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
+         edl = json.load(open(os.path.join(self.run_dir, "edl.json")))

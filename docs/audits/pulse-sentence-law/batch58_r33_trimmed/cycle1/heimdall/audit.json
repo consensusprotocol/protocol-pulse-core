@@ -1,0 +1,163 @@
+{
+ "question": "Batch 58 = RULING 33 PART 2 (orchestrator 2026-11-13 '03:42'), verbatim: \"a clip may be locked with ONE leading word trimmed (but, and, so, well, now, yeah). The pin carries trimmed_leading and the untrimmed sentence start. G16 / write_lock_cut_table accept that lock when: the IN cut sits in a measured pause after the trimmed word with the onset rule met on the audio as cut; the STAND_ALONE scorer affirms the TRIMMED text at the unchanged threshold; G18 compares against the trimmed locked text. Anything else about whole sentences is unchanged, and the OUT edge is untouched. If the trimmed word cannot be cut cleanly (no pause, co-articulated), the clip is held: say so in the gate text.\"\nBackground: the sentence law (pipeline/sentence_law.py) locks whole sentences: a lock is words[i0..i1] of the run's own transcript; its IN edge is boundary(words, i0 - 1), valid only when words[i0 - 1] ends a sentence ('.', '!', '?'), with a pause measured on the audio (find_pause: quiet runs below the quiet line between the two words' midpoints; boundary_geometry: the envelope minimum 'point', the heard 'word_gap', the 'pause'). edge_plan gives each edge a legal cut range; accepted_cut picks the cut (cut_accept-clean, neighbour_clear: no audible part of the neighbouring word after the fade); write_lock_cut_table writes cuts_final.json (verified False with the reason = HOLD before render); gate_g16 re-plans from the lock and checks every cut. Ruling 28 (hook_lead_at): the hook's lead is measured on the audio as cut (head_tail, G17a's own measure, the clip's fade-in applied); 'onset > one 10 ms hop' is its criterion for quiet after the cut. G18 already compares the final against lock['text'] (the run's words from i0) and the source span [cut_in, cut_out].\nThe change:\n- sentence_law: TRIMMABLE_LEADING = the six words. trimmed_boundary(sa, words, i0, trimmed) is the IN edge of a lock carrying trimmed_leading: valid only when (1) words[i0-1] is the trimmed word (one canonical token, one of the six), (2) the untrimmed sentence starts a sentence (words[i0-2] ends one in a punctuated stretch, or the trimmed word is the transcript's first word), (3) find_pause finds a quiet run between the trimmed word and the first kept word and the heard gap has positive length; otherwise invalid with \"the trimmed word 'X' cannot be cut cleanly: no measured pause between it and 'Y' (co-articulated)\". edge_plan(..., trimmed=None) uses it and narrows the IN cut range to the quiet run (the cut SITS in the pause). trimmed_onset(src, cut_in, fade_in_ms): the onset rule on the audio as cut = ruling 28's measure (hook_lead_at) finds the first onset after one hop. write_lock_cut_table and gate_g16 pass lock['trimmed_leading'] to edge_plan and refuse a cut that fails trimmed_onset (gate text names the trimmed word). _edge_row labels an invalid trimmed edge \"trimmed leading word (ruling 33 part 2): <reason>\". The OUT edge code is untouched; a lock without trimmed_leading follows exactly the old path.\n- pinned: validate_schema accepts trimmed_leading (one word of the six) with untrimmed_start (a number, 0 <= untrimmed_start < start) on a machine_cuts pin only; build_edl calls trimmed_lock: the run's own transcript must hold the trimmed word right before the lock (text, never time), and the lock records {rule, word, word_index, untrimmed_start} inside its sha256 digest (verify_lock then fails on any change). The lock text stays words[i0..i1]: the trimmed text, which G18 compares against (unchanged code).\n- run_fresh._retry_fade_edges plans with the lock's trimmed_leading (its candidates stay in the quiet run).\n- stand_alone.check_edl: every segment whose lock has trimmed_leading (the hook included) is put to the clip scorer and passes the opener test only when the scorer affirms the trimmed text (score >= CLIP_MIN_SCORE 3.5, fault not starts_mid_thought); no verdict fails closed. The hook keeps its deterministic opener rule on the trimmed text. Untrimmed segments are asked exactly as before.\nTests: pipeline/test_trimmed_leading.py, 17 tests: a synthetic source (sin^2 words over a -66 dB bed) with a 200 ms quiet run after 'But'; co-articulated ('But' and the next word one envelope); a non-terminal word before 'But'; wrong words; the cut table + G16 end to end on a scratch run; the onset rule failing (mocked measure); a cut inside 'But'; the pin fields; the lock digest; the fade retry; the scorer.\nFIND: a way a trimmed clip renders with any audible part of the trimmed word, or with its first kept word cut into; a lock without trimmed_leading behaving differently from before; a check the ruling asks for that is missing or weaker; a fail-open path (exception, None, malformed field); a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 42.9,
+   "cost": 0.0027797855,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 37.5,
+   "cost": 0.000460505,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 4,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 42.6,
+   "cost": 0.0030974146,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 68.7,
+   "cost": 0.00065131,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F4",
+   "severity": "low",
+   "file": "pipeline/test_trimmed_leading.py",
+   "line": 348,
+   "issue": "test_g16_refuses_a_trimmed_cut_outside_the_quiet_run_or_opening_on_sound claims to test a cut outside the quiet run but places the cut inside 'But' (before the quiet run), which the old range check also rejects, so the test does not isolate the ruling-33 narrowing",
+   "evidence": "cuts[1] = dict(good, cut_in=round(words[i0 - 1][\"start\"] + 0.12, 3))     # inside 'But' (near its peak)",
+   "fix": "also/instead place the cut after the quiet run's end (still inside the old word-gap range) to prove the narrowed range is enforced",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/sentence_law.py",
+   "line": 343,
+   "issue": "The cut range for a trimmed lock is not constrained to the measured quiet run. The code calculates `lo` and `hi` based on the `word_gap` (envelope minimum) and only intersects with the `quiet_run` if the `trimmed` flag is set. However, `trimmed_boundary` validates the existence of a pause but `edge_plan` uses `bin_['word_gap']` for the base range. If the `word_gap` extends into the audio of the trimmed word (which is possible if the envelope minimum is not perfectly aligned with the acoustic silence, or if the 'gap' definition includes the tail of the previous word), the cut could be placed inside the trimmed word's audio. The ruling requires the cut to 'sit in a measured pause'. The intersection logic `lo, hi = max(lo, q['start']), min(hi, ...)` is correct *if* `q` is the quiet run, but the base `lo` is `g['start']`. If `g['start']` is before `q['start']`, `max` fixes it. If `g['end']` is after `q['end']`, `min` fixes it. Wait, looking closer: `g` is `word_gap`. `q` is `quiet_run`. The code does `lo, hi = max(lo, q['start']), min(hi, round(q['end'] - LEAD_MIN_S, 3))`. This seems to correctly constrain the cut to the quiet run. \n\nLet's re-evaluate. Is there a fail-open path? \nIn `trimmed_onset`, `ok = onset is not None and onset > HOP_S + 1e-9`. If `hook_lead_at` returns `onset=0.0` (sound at the very start), `ok` is False. This is correct. \n\nLet's look at `stand_alone.py`. \n`need = [(label, s) for label, kind, s in segs if trimmed_word(s) or ...]`. \n`trimmed_word` returns `str(t.get('word') or '?')`. \nIf `selection_lock` is present but `trimmed_leading` is missing, `t` is None, returns None. \nIf `trimmed_leading` is present but `word` is missing, `t.get('word')` is None, `str(None or '?')` is `'?'`. \nThen `trimmed_opener` is called with `word='?'`. \nThis is a minor issue, but not a critical defect in the logic of the ruling itself.\n\nLet's look at `pinned.py` `validate_schema`. \n`if \"trimmed_leading\" in s or \"untrimmed_start\" in s:`. \nIf `untrimmed_start` is present but `trimmed_leading` is not, `tl` is None. `canon.canon_tokens(None)`? The code does `canon.canon_tokens(tl) if isinstance(tl, str) else []`. So `tok` is `[]`. `len(tok) != 1` is True. Error added. Correct.\n\nLet's look at `sentence_law.py` `trimmed_boundary`. \n`if k > 0 and not (is_punctuated(words, k - 1) and is_terminal(words[k - 1]['word'])):`. \nThis checks if the word *before* the trimmed word ends a sentence. \nRuling: \"the untrimmed sentence starts a sentence (words[i0-2] ends one... or the trimmed word is the transcript's first word)\". \n`i0` is the first kept word. `k = i0 - 1` is the trimmed word. `k - 1` is `i0 - 2`. \nSo it checks `words[i0-2]`. Correct.\n\nIs there a case where the cut is allowed but the audio is not quiet? \n`trimmed_onset` checks the audio. \n`edge_plan` checks the pause. \n\nWhat if `find_pause` returns a quiet run, but the `word_gap` is different? \n`boundary_geometry` returns `point, gap, pause`. \n`gap` is the 'heard word_gap'. `pause` is the 'pause'. \nIn `edge_plan`, `g = bin_.get('word_gap')`. \n`q = bin_['quiet_run']`. \nThe cut is constrained to `q`. \n\nWait, `trimmed_boundary` returns `quiet_run=quiet`. \n`quiet` comes from `find_pause`. \n`find_pause` returns `(quiet, lv)`. \n`quiet` is a dict with `start`, `end`, `ms`. \n\nThe defect might be in `stand_alone.py` `check_edl`. \n`if o_ok and trimmed_word(s):` \n`o_ok, o_why = trimmed_opener(...)`. \nIf `o_ok` is False (e.g. hook opens on pronoun), `trimmed_opener` is NOT called. \nSo a trimmed hook that opens on a pronoun fails the hook rule, but does it fail the trimmed rule? \nThe ruling says: \"The STAND_ALONE scorer affirms the TRIMMED text...\". \nIf the hook rule fails, the segment fails. The specific reason might be the hook rule, not the trimmed rule. This is acceptable as it fails closed.\n\nHowever, consider a clip. \n`opener` for a clip checks if it starts with a conjunction. \nIf the clip text is \"we have...\", `opener` returns True (assuming it's not a hook). \nThen `trimmed_opener` is called. \nIf the scorer says \"starts_mid_thought\", `trimmed_opener` returns False. \n\nIs there a path where a trimmed clip is NOT scored? \n`need` includes `s` if `trimmed_word(s)` is truthy. \n`trimmed_word` returns `str(...)` which is truthy unless empty. \nIf `word` is `''`, `str('' or '?')` is `'?'`. Truthy. \nSo it is always scored if `trimmed_leading` is present.\n\nLet's look at `run_fresh.py`. \n`cand = L.cut_candidates(src, L.edge_plan(..., trimmed=lock.get('trimmed_leading')))`. \nIf `lock` does not have `trimmed_leading`, `None` is passed. \n\nWhat if `lock` has `trimmed_leading` but it's malformed? \n`trimmed_boundary` handles `trimmed` being a dict. \n\nLet's look at `test_trimmed_leading.py`. \n`test_the_in_edge_is_the_measured_quiet_run_after_the_trimmed_word`. \nIt asserts `cut['cut_in']` is in `q`. \n\nI see a potential issue in `sentence_law.py` `edge_plan`. \n`if trimmed:` \n`q = bin_['quiet_run']` \n`lo, hi = max(lo, q['start']), min(hi, round(q['end'] - LEAD_MIN_S, 3))` \nIf `q['end'] - LEAD_MIN_S` is less than `q['start']`, `hi < lo`. \n`cuttable = hi >= lo - 1e-9`. \nIf not cuttable, `reason` is set. \n\nBut what if `LEAD_MIN_S` is large? \n`LEAD_MIN_S` is likely small. \n\nActually, the most significant defect is in `stand_alone.py`. \nThe ruling states: \"The STAND_ALONE scorer affirms the TRIMMED text at the unchanged threshold\". \nThe code `trimmed_opener` checks `score >= CLIP_MIN_SCORE`. \nBut `check_edl` only calls `rate` (the scorer) for segments in `need`. \n`need` is built correctly. \nHowever, `scores` is a dict. \n`sc = scores.get(label)`. \nIf `rate` returns a dict that does NOT contain the label (e.g. the scorer skipped it or errored), `sc` is None. \n`score, fault = (None, None)`. \n`trimmed_opener` returns False for `score is None`. \nThis is fail-closed. \n\nWait, look at `pinned.py` `validate_schema`. \n`if not pin.get('machine_cuts'):` \nThis check is inside the `if \"trimmed_leading\" in s ...` block. \nSo if `trimmed_leading` is present, `machine_cuts` MUST be true. \n\nIs there a fail-open in `trimmed_onset`? \n`ok = onset is not None and onset > HOP_S + 1e-9`. \nIf `hook_lead_at` raises an exception, it propagates. \nIn `write_lock_cut_table`, `trimmed_onset` is called. If it raises, the function crashes. \nIn `gate_g16`, `trimmed_onset` is called. If it raises, the function crashes. \nCrashing is not fail-open, but it is not handled gracefully. However, the prompt asks for \"fail-open path (exception, None, malformed field)\". An unhandled exception stops the process, which is safe (no render). \n\nLet's look at `sentence_law.py` `trimmed_boundary` again. \n`if k < 0 or len(tok) != 1 or tok[0] not in TRIMMABLE_LEADING or canon.canon_tokens(words[k]['word']) != tok:` \nIf `k < 0`, it returns invalid. \n\nWhat if `words` is empty? `k` would be -1. \n\nI will report the lack of exception handling in `trimmed_onset` calls in `write_lock_cut_table` and `gate_g16` as a potential robustness issue, but more importantly, I see a logic gap in `stand_alone.py`. \n\nIn `stand_alone.py`, `need` is a list of `(label, s)`. \n`rate` is called with `passages`. \n`passages` is likely constructed from `need`. \nIf `rate` is None, `scores` is empty. \n`sc` is None. \n`trimmed_opener` fails. \n\nActually, the finding is that `trimmed_onset` is not protected against exceptions in `write_lock_cut_table` and `gate_g16`. If `hook_lead_at` fails (e.g. file not found, audio error), the pipeline crashes. While crashing is better than rendering bad audio, the ruling implies a gate check. A gate check that crashes is a defect in the gate's reliability. \n\nHowever, a more subtle defect: \nIn `sentence_law.py` `edge_plan`, for a trimmed lock, the cut range is intersected with `quiet_run`. \nBut `quiet_run` is the *measured* pause. \nThe ruling says: \"the IN cut sits in a measured pause... with the onset rule met on the audio as cut\". \nThe code does this. \n\nLet's look at `test_trimmed_leading.py` `TestStandAloneScorer`. \n`test_a_trimmed_hook_is_scored_too_and_keeps_the_hook_opener_rule`. \nIt tests that a hook opening on 'we' fails. \n\nI will identify the unhandled exception risk in `trimmed_onset` as the primary finding, as it can prevent the gate from producing a verdict (crash) rather than a HOLD. \n\nAnother finding: `pinned.py` `validate_schema` imports `canon` and `L` (sentence_law) inside the function. This is fine. \n\nWait, `stand_alone.py` `trimmed_word` returns `str(t.get('word') or '?')`. \nIf `t` is `{'word': None}`, it returns `'?'`. \nIf `t` is `{'word': ''}`, it returns `'?'`. \nThis is consistent. \n\nI will stick with the exception handling in `trimmed_onset`.",
+   "evidence": null,
+   "fix": null,
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/sentence_law.py",
+   "line": 858,
+   "issue": "The call to `trimmed_onset` in `write_lock_cut_table` and `gate_g16` is not wrapped in a try-except block. If `hook_lead_at` raises an exception (e.g., due to audio decoding errors or file I/O issues), the entire gate/cut-table generation will crash. The ruling requires the clip to be 'held' if the trimmed word cannot be cut cleanly. A crash is not a hold; it is a failure of the gate mechanism. The code should catch exceptions from `trimmed_onset` and treat them as a failure (verified=False / gate error) to ensure fail-closed behavior.",
+   "evidence": "ok, trim = trimmed_onset(os.path.join(run_dir, \"sources\", f\"{seg['video_id']}.mp4\"), cut_in, fade_in_ms)",
+   "fix": "Wrap the `trimmed_onset` call in a try-except block. If an exception occurs, set `ok = False` and `trim = {'error': str(e)}` and proceed to the failure path (append error to cuts/gate row).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/sentence_law.py",
+   "line": 917,
+   "issue": "G16's trimmed-onset check is skipped when the IN edge row fails, so a cut that both sits outside the legal range and opens on sound reports only the range error; the ruling's onset criterion is weaker than the cut table's, which always records it",
+   "evidence": "if row[\"in\"][\"pass\"] and lock.get(\"trimmed_leading\"):   # ruling 33 part 2: the onset rule, as cut",
+   "fix": "run trimmed_onset whenever lock.get('trimmed_leading'), not only when row['in']['pass']",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/sentence_law.py",
+   "line": 861,
+   "issue": "trimmed_onset is computed with the hook's fade_in_ms only when a hook_lead exists; otherwise the default 20 ms may differ from the rendered fade, so the 'audio as cut' measure can disagree with the render",
+   "evidence": "cut_in, fade_in_ms, pad_s = hook[\"cut_in\"], hook[\"fade_in_ms\"], hook[\"pad_s\"]",
+   "fix": "use the pick's/segment's actual fade_in_ms (the value written to cuts_final.json) for the trimmed_onset measure",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/pinned.py",
+   "line": 487,
+   "issue": "trimmed_lock runs before adjudicate_lock, so a pinned segment with both approved_text and trimmed_leading gets its digest computed before ruling-17 adjudication, and the recorded trimmed_leading may not match the adjudicated lock's words",
+   "evidence": "if \"trimmed_leading\" in s:\n            lock = trimmed_lock(lock, s, a[\"transcript\"][\"words\"])                       # ruling 33 part 2\n        if s.get(\"approved_text\"):\n            lock = adjudicate_lock(lock, a[\"path\"], a[\"transcript\"][\"words\"], log=log)    # ruling 17",
+   "fix": "apply trimmed_lock after adjudicate_lock (or re-digest after adjudication) so the digest covers the final lock",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/stand_alone.py",
+   "line": 131,
+   "issue": "A trimmed segment whose trimmed_leading dict lacks 'word' (or has it falsy) gets trimmed_word() -> '?', which is truthy, so the segment is added to `need` and scored \u2014 but trimmed_opener then reports the placeholder '?' rather than the actual word; more importantly, a segment with trimmed_leading = {} (empty dict) yields t = {} which is truthy, t.get('word') is None, returns '?' \u2014 still scored, fail-closed. The real gap: a trimmed HOOK whose opener() already fails (e.g. pronoun) never reaches trimmed_opener, so the gate text reports only the hook-opener reason and the ruling's scorer affirmation is never evaluated \u2014 the same weaker-check pattern as glm:F1 but in stand_alone.",
+   "evidence": "if o_ok and trimmed_word(s):  # trimmed_opener only runs when the deterministic opener already passed",
+   "fix": "Evaluate trimmed_opener whenever trimmed_word(s) is set (record both reasons), not only when o_ok is already True."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/pinned.py",
+   "line": 487,
+   "issue": "trimmed_lock uses seg['trimmed_leading'] and seg['untrimmed_start'] via direct subscript; a pin passing schema validation always has both (validate_schema enforces both when either is present), so no KeyError path \u2014 but build_edl's guard is `if \"trimmed_leading\" in s` while validate_schema also accepts `untrimmed_start` alone (error), so consistent. No defect; noted only that the digest covers untrimmed_start, satisfying the ruling's 'records ... inside its sha256 digest'.",
+   "evidence": "new[\"trimmed_leading\"] = {\"rule\": ..., \"word\": heard, \"word_index\": k, \"untrimmed_start\": seg[\"untrimmed_start\"]}",
+   "fix": "none needed"
+  }
+ ],
+ "total_cost": 0.006989015100000001,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch58_r33_trimmed/cycle1/heimdall"
+}

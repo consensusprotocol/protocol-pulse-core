@@ -1,0 +1,219 @@
+{
+  "topic": "bitcoin",
+  "angle": "Pinned: No authority. That's the design.",
+  "hook": {
+    "video_id": "vgsSZ4mAHfQ",
+    "channel": "Saifedean Ammous",
+    "handle": "@saifedean",
+    "video_title": "",
+    "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+    "first_word": "Bitcoin",
+    "last_word": "that.",
+    "word_start": 14.74,
+    "word_end": 23.28,
+    "duration": 8.54,
+    "time_coords": "source_file",
+    "source_window_offset_s": 5130.0,
+    "pinned": {
+      "start": 14.99,
+      "end": 23.37,
+      "input_start": 5144.99,
+      "input_end": 5153.37,
+      "input_time_coords": "youtube"
+    },
+    "cut_out": 23.37,
+    "fade_out_ms": 30,
+    "selection_lock": {
+      "schema": "pulse.selection_lock.v1",
+      "video_id": "vgsSZ4mAHfQ",
+      "transcript_sha256": "fdca6f274513f6f9c42ae84079a6a72252222c084c4404c3b95e643efbfaaf23",
+      "i0": 41,
+      "i1": 70,
+      "first_word": "Bitcoin",
+      "last_word": "that.",
+      "text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+      "n_words": 30,
+      "selected_text": "Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.",
+      "selected_window": [
+        5144.99,
+        5153.37
+      ],
+      "align_ratio": 1.0,
+      "created_by": "pinned approved_text",
+      "sha256": "79e138f777586a08f4a0316c14962a528d852f5b21818667aa3b46ee6487d5cd"
+    },
+    "vertical_layout": {
+      "shots": [
+        {
+          "start": 0.0,
+          "end": 8.64,
+          "class": "single",
+          "flagged": false
+        }
+      ],
+      "flagged": false
+    }
+  },
+  "clips": [
+    {
+      "video_id": "c1JGheQBPH4",
+      "channel": "What Bitcoin Did",
+      "handle": "@WBDPodcast",
+      "video_title": "",
+      "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+      "first_word": "I",
+      "last_word": "US.",
+      "word_start": 14.36,
+      "word_end": 24.7,
+      "duration": 10.34,
+      "time_coords": "source_file",
+      "source_window_offset_s": 2388.0,
+      "pinned": {
+        "start": 15.23,
+        "end": 24.85,
+        "input_start": 2403.23,
+        "input_end": 2412.85,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 24.85,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "c1JGheQBPH4",
+        "transcript_sha256": "c04105eb9448747a1db81893afcef9a703a87ce404a6d7c09be6e8afc1d797b3",
+        "i0": 51,
+        "i1": 86,
+        "first_word": "I",
+        "last_word": "US.",
+        "text": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US.",
+        "n_words": 36,
+        "selected_text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+        "selected_window": [
+          2403.23,
+          2412.85
+        ],
+        "align_ratio": 0.944,
+        "created_by": "pinned approved_text",
+        "alternatives": [
+          {
+            "rule": "ruling 18 (orchestrator 2026-11-12 '10:36')",
+            "token_index": 1,
+            "readings": [
+              "think",
+              "mean"
+            ],
+            "word_index": 52,
+            "source_span": [
+              14.84,
+              15.32
+            ],
+            "recogniser": "elevenlabs:scribe_v1",
+            "usd": 0.008,
+            "run_decode": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US.",
+            "approved": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.",
+            "second_recogniser": "I think the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US."
+          }
+        ],
+        "sha256": "e9071d2afaad8637fec7de47b8cefaf7b4ee5ed4871898c21d3a9799a8416b45"
+      },
+      "index": 1,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 11.0,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    },
+    {
+      "video_id": "wdk5JZ9hPzs",
+      "channel": "Natalie Brunell",
+      "handle": "@nataliebrunell",
+      "video_title": "",
+      "text": "Bitcoin imposes a global free market for the first time ever.",
+      "first_word": "Bitcoin",
+      "last_word": "ever.",
+      "word_start": 14.94,
+      "word_end": 18.58,
+      "duration": 3.64,
+      "time_coords": "source_file",
+      "source_window_offset_s": 3203.0,
+      "pinned": {
+        "start": 15.14,
+        "end": 18.64,
+        "input_start": 3218.14,
+        "input_end": 3221.64,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 18.64,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "wdk5JZ9hPzs",
+        "transcript_sha256": "87718db727476b96f536e472e2aa9ebc0efa42fdd0816f84d9a1c30cd21438f2",
+        "i0": 35,
+        "i1": 45,
+        "first_word": "Bitcoin",
+        "last_word": "ever.",
+        "text": "Bitcoin imposes a global free market for the first time ever.",
+        "n_words": 11,
+        "selected_text": "Bitcoin imposes a global free market for the first time ever.",
+        "selected_window": [
+          3218.14,
+          3221.64
+        ],
+        "align_ratio": 1.0,
+        "created_by": "pinned approved_text",
+        "sha256": "4b8f6eca78c4a0b0caff15a8403212a2e07862b103c57eb1b0a5788f1df07e3b"
+      },
+      "index": 2,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 4.667,
+            "class": "stack2",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    }
+  ],
+  "vo": {
+    "intro": "Bitcoin does not have any authority. That's not a flaw. That's the design.",
+    "bridges": [
+      {
+        "text": "Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?",
+        "after_clip": 1
+      },
+      {
+        "text": "No ruler. Just rules nobody gets to bend. That's the idea, and it's the part most people still miss when they look at Bitcoin.",
+        "after_clip": 2
+      }
+    ]
+  },
+  "total_clip_duration": 22.52,
+  "mode": "pinned",
+  "pinned_story_id": "moments-fresh_20261112_050611-37c5b5f5",
+  "title": "No authority. That's the design.",
+  "caption": "no authority. that's the design. three clips, links below.",
+  "package_type": "moments",
+  "moments_package_sha256": "37c5b5f598e97f12a4afd62eccd57f93b946b6f6d7ef087ef1047c1c06bc086f",
+  "moments_package_pin_sha256": "ce71b323822335cc65b3c1c8556dcfa696bafbdaf72ab2739939ee8992762c0a",
+  "moments_checks": {
+    "vo_fidelity_ok": true,
+    "context_integrity_ok": true,
+    "derived_from": "gates (every required row exactly PASS, checked above)",
+    "models": null
+  },
+  "moments_sources_30s_before": [
+    "https://www.youtube.com/watch?v=vgsSZ4mAHfQ&t=5114s",
+    "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
+    "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s"
+  ]
+}

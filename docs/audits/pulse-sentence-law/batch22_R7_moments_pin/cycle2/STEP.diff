@@ -1,0 +1,167 @@
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index bc32c967..ffbd522c 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -311,20 +311,73 @@ def build_edl(pin, acq, registry=None, log=print):
+     for i, c in enumerate(clips, 1):
+         c["index"] = i
+     channels = sorted({x["channel"] for x in segs})
++    mp = pin.get("moments_package")            # pp-selectid R7: a moments-first package (law L-q) as the decision
++    vo = _generate_vo_script(pin["label"], hook["text"], clips, channels)
++    if mp is not None:                         # present = validated strictly (a non-object is refused, never ignored)
++        vo = moments_vo(mp, clips)
+     edl = {
+         "topic": pin["label"],
+         "angle": f"Pinned: {pin.get('headline') or pin['label']}",
+         "hook": hook,
+         "clips": clips,
+-        "vo": _generate_vo_script(pin["label"], hook["text"], clips, channels),
++        "vo": vo,
+         "total_clip_duration": round(hook["duration"] + sum(c["duration"] for c in clips), 2),
+         "mode": "pinned",
+         "pinned_story_id": pin["story_id"],
+     }
++    if mp is not None:                         # law L-t: the ONE title and caption travel in the EDL, whose bytes the
++        edl.update(title=mp["title"], caption=mp["caption"],      # release authorisation re-hashes before any send
++                   moments_package_sha256=mp["package_sha256"], moments_checks=mp["checks"])
+     overrides = build_vertical_overrides(hook, clips, registry)
+     return edl, overrides, report
+ 
+ 
++def moments_vo(mp, clips):
++    """The package's VO, checked by its VO-fidelity and context-integrity gates (pipeline/package.py): the intro and
++    the bridges, each after a clip but the last, in the EDL's shape ({"text", "after_clip"}). Strict (cycle 1 of its
++    audit): the package must be an object; both gate verdicts exactly true, and every other '*_ok' check too; title and
++    caption non-empty strings; package_sha256 64 lowercase hex characters; edl_vo an object; intro null or a non-empty
++    string; bridges a list of objects with non-empty string text and an INTEGER after_clip, strictly increasing, in
++    1..last-1 (render16 places bridges in list order: an out-of-order or repeated index is refused, never re-sorted).
++    Anything else is a PinError."""
++    if not isinstance(mp, dict):
++        raise PinError("moments_package is not an object")
++    checks = mp.get("checks")
++    if not isinstance(checks, dict) or checks.get("vo_fidelity_ok") is not True \
++            or checks.get("context_integrity_ok") is not True:
++        raise PinError("moments_package: the VO-fidelity and context-integrity gates did not both pass (each must be "
++                       "exactly true)")
++    failed = sorted(k for k, v in checks.items() if k.endswith("_ok") and v is not True)
++    if failed:
++        raise PinError(f"moments_package: checks not passed: {failed}")
++    for k in ("title", "caption"):
++        if not isinstance(mp.get(k), str) or not mp[k].strip():
++            raise PinError(f"moments_package {k} must be a non-empty string")
++    if not isinstance(mp.get("package_sha256"), str) or not re.fullmatch(r"[0-9a-f]{64}", mp["package_sha256"]):
++        raise PinError("moments_package package_sha256 must be 64 lowercase hex characters")
++    v = mp.get("edl_vo")
++    if not isinstance(v, dict):
++        raise PinError("moments_package edl_vo must be an object {intro, bridges}")
++    intro, bridges = v.get("intro"), v.get("bridges", [])
++    if intro is not None and (not isinstance(intro, str) or not intro.strip()):
++        raise PinError("moments_package intro must be null or a non-empty string")
++    if not isinstance(bridges, list):
++        raise PinError("moments_package bridges must be a list")
++    idx = sorted(c["index"] for c in clips)
++    if not idx:
++        raise PinError("moments_package: the pin has no clips")
++    last, prev = idx[-1], 0
++    for b in bridges:
++        if not isinstance(b, dict) or not isinstance(b.get("text"), str) or not b["text"].strip():
++            raise PinError(f"moments_package bridge {b!r}: needs non-empty text")
++        a = b.get("after_clip")
++        if type(a) is not int or a not in idx or a >= last or a <= prev:
++            raise PinError(f"moments_package bridge {b!r}: after_clip must be an integer clip index in 1..{last - 1}, "
++                           f"strictly increasing")
++        prev = a
++    return {"intro": intro, "bridges": [{"text": b["text"], "after_clip": b["after_clip"]} for b in bridges]}
++
++
+ def prepare(pin_path, run_dir, log=print):
+     """Validate + acquire + build. Writes edl.json, vertical_overrides.json, PINNED_DECISION.json.
+     Returns the PINNED_DECISION record. Raises PinError."""
+diff --git a/pipeline/test_pinned.py b/pipeline/test_pinned.py
+index 8c962ed0..0df3f5c0 100644
+--- a/pipeline/test_pinned.py
++++ b/pipeline/test_pinned.py
+@@ -261,6 +261,83 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
+         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
+ 
+ 
++class TestMomentsPackage(Fixture):
++    """pp-selectid REQUESTS R7 item 1 (laws L-q, L-t): a moments-first package rides the pinned path: its VO (intro, a
++    bridge after each clip but the last), its ONE title and caption, its sha256 and gate verdicts enter the EDL; a
++    package whose VO-fidelity and context-integrity gates did not both pass, or a bridge the renderer cannot place, is
++    refused; a pin without a package is unchanged (no body VO)."""
++
++    def mp(self, **kw):
++        m = {"title": "T", "caption": "C", "package_sha256": "ab" * 32,
++             "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
++             "edl_vo": {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]}}
++        m.update(kw)
++        return m
++
++    def test_the_package_vo_title_and_caption_enter_the_edl(self):
++        pinned.prepare(self.write(self.pin(moments_package=self.mp())), self.run_dir, log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual(edl["vo"], {"intro": "Intro line.", "bridges": [{"text": "Bridge one.", "after_clip": 1}]})
++        self.assertEqual((edl["title"], edl["caption"], edl["moments_package_sha256"]), ("T", "C", "ab" * 32))
++        self.assertEqual(edl["moments_checks"], {"vo_fidelity_ok": True, "context_integrity_ok": True})
++
++    def test_a_pin_without_a_package_is_unchanged(self):
++        pinned.prepare(self.write(self.pin()), self.run_dir, log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual(edl["vo"], {"intro": None, "bridges": []})
++        for k in ("title", "caption", "moments_package_sha256", "moments_checks"):
++            self.assertNotIn(k, edl)
++
++    def test_refused_packages(self):
++        """Every shape the renderer cannot place, every verdict that is not exactly true, every malformed field: a
++        PinError naming it (cycle 1 of the R7 audit), never a KeyError / AttributeError / TypeError, never ignored."""
++        def br(*items):
++            return {"intro": None, "bridges": [dict(text="x", after_clip=a) for a in items]}
++        cases = [("gates not both passed", self.mp(checks={"vo_fidelity_ok": True}), "did not both pass"),
++                 ("a verdict that is truthy but not true", self.mp(checks={"vo_fidelity_ok": "false",
++                                                                          "context_integrity_ok": True}), "did not both pass"),
++                 ("checks null", self.mp(checks=None), "did not both pass"),
++                 ("checks a list", self.mp(checks=[True]), "did not both pass"),
++                 ("another check failed", self.mp(checks={"vo_fidelity_ok": True, "context_integrity_ok": True,
++                                                          "title_ok": False}), "checks not passed"),
++                 ("bridge after the last clip", self.mp(edl_vo=br(2)), "after_clip must be"),
++                 ("bridge after no clip", self.mp(edl_vo=br(7)), "after_clip must be"),
++                 ("bridge after the hook", self.mp(edl_vo=br(0)), "after_clip must be"),
++                 ("bool index", self.mp(edl_vo=br(True)), "after_clip must be"),
++                 ("float index", self.mp(edl_vo=br(1.0)), "after_clip must be"),
++                 ("string index", self.mp(edl_vo=br("1")), "after_clip must be"),
++                 ("unhashable index", self.mp(edl_vo=br([1])), "after_clip must be"),
++                 ("empty bridge", self.mp(edl_vo={"intro": None, "bridges": [{"text": " ", "after_clip": 1}]}), "text"),
++                 ("non-string bridge text", self.mp(edl_vo={"intro": None, "bridges": [{"text": 5, "after_clip": 1}]}), "text"),
++                 ("bridges not a list", self.mp(edl_vo={"intro": None, "bridges": 5}), "must be a list"),
++                 ("edl_vo not an object", self.mp(edl_vo=[1]), "edl_vo must be"),
++                 ("edl_vo missing", {k: v for k, v in self.mp().items() if k != "edl_vo"}, "edl_vo must be"),
++                 ("empty intro", self.mp(edl_vo={"intro": "  ", "bridges": []}), "intro must be"),
++                 ("non-string intro", self.mp(edl_vo={"intro": 123, "bridges": []}), "intro must be"),
++                 ("title missing", {k: v for k, v in self.mp().items() if k != "title"}, "title must be"),
++                 ("caption empty", self.mp(caption=" "), "caption must be"),
++                 ("sha not hex", self.mp(package_sha256="zz"), "package_sha256"),
++                 ("package not an object", "not a package", "not an object")]
++        for name, m, why in cases:
++            with self.subTest(name):
++                with self.assertRaisesRegex(pinned.PinError, why):
++                    pinned.prepare(self.write(self.pin(moments_package=m)), self.run_dir, log=lambda s: None)
++
++    def test_duplicate_or_reordered_bridges_are_refused_with_three_clips(self):
++        segs = self.pin()["segments"] + [{"role": "clip", "video_id": "BBBBBBBBBB2", "channel": PENDING, "start": 18.5,
++                                          "end": 28.9, "time_coords": "source_file", "source": self.src["BBBBBBBBBB2"]}]
++        for name, bridges in (("duplicate", [1, 1]), ("reordered", [2, 1])):
++            with self.subTest(name):
++                m = self.mp(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": a} for a in bridges]})
++                with self.assertRaisesRegex(pinned.PinError, "strictly increasing"):
++                    pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir,
++                                   log=lambda s: None)
++        m = self.mp(edl_vo={"intro": "I.", "bridges": [{"text": "a", "after_clip": 1}, {"text": "b", "after_clip": 2}]})
++        pinned.prepare(self.write(self.pin(segments=segs, moments_package=m)), self.run_dir, log=lambda s: None)
++        edl = json.load(open(os.path.join(self.run_dir, "edl.json")))
++        self.assertEqual([b["after_clip"] for b in edl["vo"]["bridges"]], [1, 2])
++
++
+ class TestPinnedStageFreesGpu0First(Fixture):
+     """E-FAIL-052: pinned.acquire transcribes every downloaded source with Whisper on GPU0, so the editorial model the
+     preflight's Ollama check loaded is released first, as before every other Whisper stage (runs/pinned_20261112_064032:

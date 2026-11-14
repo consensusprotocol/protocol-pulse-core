@@ -1,0 +1,17 @@
+# Heimdall audit
+
+**Question:** Batch 43 cycle 4 = REMOVAL of V1's local vision route. Law L-r allows GPU0's Ollama chat / generate endpoints to be called only in story_semantics.LocalLLM._post, story_semantics._unload and preflight.check_ollama (an AST test enforces it); visual_check._call_local posted to /api/chat directly, so it is removed together with LOCAL_VISION, OLLAMA_URL and the 'ollama:' dispatch in _call_any. What remains: 'xai:<name>' to xAI, every other name to Heimdall unchanged; the default panel unchanged. The route tests are rewritten for the xAI route only (routing, no local route left, fail-closed replies).
+FIND: any leftover path to a local model or GPU0 from visual_check; any change to the Heimdall path; a test that no longer tests what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0008
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] The rewritten fail-closed test no longer exercises the Heimdall route's fail-closed parsing, so it tests less than its docstring ('garbage, an empty reply or a route error give no answers') implies for the panel models; only the xAI route is covered. Evidence: the loop now only sets VC._call_xai = reply and calls ask_vision(model="xai:grok-4.3"), while the previous version also iterated (VC.LOCAL_VISION, "_call_local"); VC._call (Heimdall) is stubbed in setUp but never replaced with a failing/garbage reply in this test. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: /home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch43_v1_local_route/cycle4/heimdall

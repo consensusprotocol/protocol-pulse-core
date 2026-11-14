@@ -1,0 +1,1151 @@
+{
+  "hook": {
+    "clip": "final_hook.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 4.667,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 4.667,
+        "class": "stack2",
+        "flagged": false,
+        "g4_layout": "2face",
+        "n_samples": 9,
+        "band_cx": [
+          419,
+          1526
+        ],
+        "band_cy": [
+          399,
+          358
+        ]
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.037,
+            413,
+            400
+          ],
+          [
+            0.0283,
+            1523,
+            358
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0368,
+            426,
+            407
+          ],
+          [
+            0.0286,
+            1524,
+            363
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0368,
+            431,
+            404
+          ],
+          [
+            0.0286,
+            1527,
+            362
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0359,
+            422,
+            399
+          ],
+          [
+            0.0286,
+            1528,
+            362
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0367,
+            417,
+            398
+          ],
+          [
+            0.028,
+            1529,
+            360
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0366,
+            417,
+            401
+          ],
+          [
+            0.0279,
+            1528,
+            355
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0368,
+            417,
+            396
+          ],
+          [
+            0.0281,
+            1526,
+            351
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0362,
+            419,
+            396
+          ],
+          [
+            0.0284,
+            1525,
+            356
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "stack2",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0365,
+            421,
+            397
+          ],
+          [
+            0.0284,
+            1524,
+            355
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": false
+  },
+  "clip_01": {
+    "clip": "final_clip_01.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 19.875,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 19.875,
+        "class": "single",
+        "flagged": false,
+        "g4_layout": "single",
+        "n_samples": 40,
+        "face_cx": 909,
+        "face_cy": 615
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1247,
+            911,
+            605
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1034,
+            887,
+            585
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1014,
+            870,
+            585
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1099,
+            881,
+            609
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1193,
+            873,
+            607
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1272,
+            863,
+            609
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1317,
+            883,
+            608
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.134,
+            882,
+            612
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1402,
+            883,
+            613
+          ]
+        ]
+      },
+      {
+        "t": 4.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1297,
+            888,
+            612
+          ]
+        ]
+      },
+      {
+        "t": 5.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1313,
+            880,
+            615
+          ]
+        ]
+      },
+      {
+        "t": 5.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1352,
+            869,
+            607
+          ]
+        ]
+      },
+      {
+        "t": 6.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1409,
+            847,
+            621
+          ]
+        ]
+      },
+      {
+        "t": 6.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1362,
+            869,
+            633
+          ]
+        ]
+      },
+      {
+        "t": 7.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1326,
+            908,
+            604
+          ]
+        ]
+      },
+      {
+        "t": 7.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1381,
+            942,
+            613
+          ]
+        ]
+      },
+      {
+        "t": 8.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1357,
+            949,
+            616
+          ]
+        ]
+      },
+      {
+        "t": 8.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1319,
+            931,
+            605
+          ]
+        ]
+      },
+      {
+        "t": 9.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1353,
+            936,
+            620
+          ]
+        ]
+      },
+      {
+        "t": 9.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.139,
+            935,
+            643
+          ]
+        ]
+      },
+      {
+        "t": 10.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1418,
+            934,
+            631
+          ]
+        ]
+      },
+      {
+        "t": 10.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1402,
+            930,
+            633
+          ]
+        ]
+      },
+      {
+        "t": 11.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1425,
+            912,
+            636
+          ]
+        ]
+      },
+      {
+        "t": 11.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1417,
+            909,
+            636
+          ]
+        ]
+      },
+      {
+        "t": 12.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1392,
+            909,
+            630
+          ]
+        ]
+      },
+      {
+        "t": 12.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1404,
+            918,
+            636
+          ]
+        ]
+      },
+      {
+        "t": 13.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1404,
+            921,
+            634
+          ]
+        ]
+      },
+      {
+        "t": 13.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1387,
+            929,
+            646
+          ]
+        ]
+      },
+      {
+        "t": 14.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1429,
+            917,
+            647
+          ]
+        ]
+      },
+      {
+        "t": 14.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1217,
+            976,
+            638
+          ]
+        ]
+      },
+      {
+        "t": 15.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1249,
+            966,
+            627
+          ]
+        ]
+      },
+      {
+        "t": 15.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1394,
+            899,
+            643
+          ]
+        ]
+      },
+      {
+        "t": 16.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1379,
+            883,
+            677
+          ]
+        ]
+      },
+      {
+        "t": 16.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1404,
+            900,
+            647
+          ]
+        ]
+      },
+      {
+        "t": 17.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1228,
+            902,
+            605
+          ]
+        ]
+      },
+      {
+        "t": 17.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1222,
+            901,
+            605
+          ]
+        ]
+      },
+      {
+        "t": 18.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1341,
+            934,
+            633
+          ]
+        ]
+      },
+      {
+        "t": 18.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1296,
+            962,
+            610
+          ]
+        ]
+      },
+      {
+        "t": 19.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1253,
+            939,
+            611
+          ]
+        ]
+      },
+      {
+        "t": 19.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.1289,
+            952,
+            612
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": false
+  },
+  "clip_02": {
+    "clip": "final_clip_02.mp4",
+    "width": 1920,
+    "height": 1080,
+    "fps": 24.0,
+    "duration": 17.292,
+    "rules": {
+      "SAMPLE_S": 0.5,
+      "SCREEN_FACE_FRAC": 0.01,
+      "PROMINENT_FRAC": 0.01,
+      "MIN_BAND_RATIO": 0.35,
+      "MIN_SHOT_S": 1.0
+    },
+    "shots": [
+      {
+        "start": 0.0,
+        "end": 17.292,
+        "class": "single",
+        "flagged": false,
+        "g4_layout": "single",
+        "n_samples": 35,
+        "face_cx": 941,
+        "face_cy": 399
+      }
+    ],
+    "samples": [
+      {
+        "t": 0.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0825,
+            946,
+            397
+          ]
+        ]
+      },
+      {
+        "t": 0.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0799,
+            946,
+            385
+          ]
+        ]
+      },
+      {
+        "t": 1.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0835,
+            941,
+            398
+          ]
+        ]
+      },
+      {
+        "t": 1.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.084,
+            933,
+            398
+          ]
+        ]
+      },
+      {
+        "t": 2.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0788,
+            935,
+            374
+          ]
+        ]
+      },
+      {
+        "t": 2.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0783,
+            950,
+            379
+          ]
+        ]
+      },
+      {
+        "t": 3.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0783,
+            955,
+            383
+          ]
+        ]
+      },
+      {
+        "t": 3.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0818,
+            939,
+            410
+          ]
+        ]
+      },
+      {
+        "t": 4.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0816,
+            940,
+            407
+          ]
+        ]
+      },
+      {
+        "t": 4.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0814,
+            939,
+            399
+          ]
+        ]
+      },
+      {
+        "t": 5.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0819,
+            938,
+            409
+          ]
+        ]
+      },
+      {
+        "t": 5.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0796,
+            952,
+            402
+          ]
+        ]
+      },
+      {
+        "t": 6.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0781,
+            969,
+            403
+          ]
+        ]
+      },
+      {
+        "t": 6.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0792,
+            951,
+            406
+          ]
+        ]
+      },
+      {
+        "t": 7.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0787,
+            951,
+            406
+          ]
+        ]
+      },
+      {
+        "t": 7.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0824,
+            951,
+            415
+          ]
+        ]
+      },
+      {
+        "t": 8.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0787,
+            941,
+            399
+          ]
+        ]
+      },
+      {
+        "t": 8.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0819,
+            938,
+            393
+          ]
+        ]
+      },
+      {
+        "t": 9.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0799,
+            939,
+            393
+          ]
+        ]
+      },
+      {
+        "t": 9.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0808,
+            943,
+            400
+          ]
+        ]
+      },
+      {
+        "t": 10.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.081,
+            966,
+            412
+          ]
+        ]
+      },
+      {
+        "t": 10.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0802,
+            949,
+            406
+          ]
+        ]
+      },
+      {
+        "t": 11.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0805,
+            937,
+            393
+          ]
+        ]
+      },
+      {
+        "t": 11.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0804,
+            941,
+            403
+          ]
+        ]
+      },
+      {
+        "t": 12.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0791,
+            948,
+            405
+          ]
+        ]
+      },
+      {
+        "t": 12.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.078,
+            947,
+            395
+          ]
+        ]
+      },
+      {
+        "t": 13.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0801,
+            948,
+            399
+          ]
+        ]
+      },
+      {
+        "t": 13.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0809,
+            935,
+            376
+          ]
+        ]
+      },
+      {
+        "t": 14.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0802,
+            945,
+            410
+          ]
+        ]
+      },
+      {
+        "t": 14.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.08,
+            937,
+            406
+          ]
+        ]
+      },
+      {
+        "t": 15.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0778,
+            976,
+            383
+          ]
+        ]
+      },
+      {
+        "t": 15.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0787,
+            938,
+            378
+          ]
+        ]
+      },
+      {
+        "t": 16.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0824,
+            927,
+            402
+          ]
+        ]
+      },
+      {
+        "t": 16.75,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0819,
+            929,
+            410
+          ]
+        ]
+      },
+      {
+        "t": 17.25,
+        "class": "single",
+        "read_ok": true,
+        "faces": [
+          [
+            0.0795,
+            924,
+            393
+          ]
+        ]
+      }
+    ],
+    "unreadable_samples": 0,
+    "flagged": false
+  }
+}

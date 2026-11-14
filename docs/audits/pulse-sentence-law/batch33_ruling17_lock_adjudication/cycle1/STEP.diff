@@ -1,0 +1,135 @@
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index fd251360..4a3a67e0 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -260,6 +260,85 @@ def validate_range(seg, acq):
+     return out
+ 
+ 
++# ── 3b. sentence-lock text adjudication (ruling 17, orchestrator 2026-11-12 '10:20') ──
++
++LV2_NEGATIONS = frozenset({"not", "no", "never", "none", "nobody", "nothing", "neither", "nor", "cannot", "can't",
++                           "won't", "don't", "doesn't", "didn't", "isn't", "aren't", "wasn't", "weren't", "shouldn't",
++                           "wouldn't", "couldn't", "hasn't", "haven't", "hadn't"})
++
++
++def _lv2_critical(tok, texts):
++    """Law L-v 2: a number, a negation, or a name (in either text, a capitalised word that does not open a
++    sentence; 'I' excepted). Conservative: a doubtful token is critical (it holds)."""
++    if re.fullmatch(r"-?\d+(\.\d+)?", tok) or tok in LV2_NEGATIONS or tok.endswith("n't"):
++        return True
++    for t in texts:
++        for m in re.finditer(r"[A-Za-z][A-Za-z'\u2019-]*", t or ""):
++            w = m.group(0)
++            if w.lower() == tok and w[0].isupper() and w != "I":
++                before = t[:m.start()].rstrip()
++                if before and before[-1] not in ".!?":
++                    return True
++    return False
++
++
++def _second_recogniser_words(src_path):
++    """The independent second recogniser (ElevenLabs scribe_v1) on the acquired window: words on its clock."""
++    vp3 = os.path.join(os.path.dirname(PIPELINE_DIR), "video_pipeline_v3")    # relay.get_key, the key loader
++    if vp3 not in sys.path:
++        sys.path.insert(1, vp3)
++    import second_recogniser
++    words, _text, secs = second_recogniser.scribe_words(src_path)
++    return words, round(secs / 60 * 0.012, 4)
++
++
++def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
++    """Ruling 17: the run's own decode (lock['text']) and the pin's approved text (lock['selected_text']) differ
++    inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
++    the independent second recogniser on the acquired window decides: when it reads the approved words at every
++    difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
++    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is."""
++    import canon
++    from difflib import SequenceMatcher
++    run_t, pin_t = lock["text"], lock["selected_text"]
++    r, p = canon.canon_tokens(run_t), canon.canon_tokens(pin_t)
++    ops = [o for o in SequenceMatcher(None, r, p, autojunk=False).get_opcodes() if o[0] != "equal"]
++    if not ops:
++        return lock
++    tag = f"{lock['video_id']} words {lock['i0']}-{lock['i1']}"
++    diffs = [[" ".join(r[a:b]), " ".join(p[c:d])] for _, a, b, c, d in ops]
++    crit = sorted({t for _, a, b, c, d in ops for t in r[a:b] + p[c:d] if _lv2_critical(t, (run_t, pin_t))})
++    if crit:
++        raise PinError(f"{tag}: the run's decode and the approved text differ on a number, name or negation {crit} "
++                       f"(law L-v 2: always holds) | run decode: {run_t!r} | approved: {pin_t!r}")
++    t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
++    sw, usd = (recognise or _second_recogniser_words)(src_path)
++    sec_t = " ".join(str(w["word"]).strip() for w in sw
++                     if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1)
++    s = canon.canon_tokens(sec_t)
++
++    def cover(x, y):                                   # indices of x that the alignment with y reads the same
++        return {i for op, a, b, _, _ in SequenceMatcher(None, x, y, autojunk=False).get_opcodes() if op == "equal"
++                for i in range(a, b)}
++    in_p, in_r = cover(p, s), cover(r, s)
++    side = lambda xs, ys, cx, cy: all(i in cx for i in xs) and not any(j in cy for j in ys)
++    pin_side = all(side(range(c, d), range(a, b), in_p, in_r) for _, a, b, c, d in ops)
++    run_side = all(side(range(a, b), range(c, d), in_r, in_p) for _, a, b, c, d in ops)
++    readings = {"run_decode": run_t, "approved": pin_t, "second_recogniser": sec_t}
++    if not pin_side:
++        raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
++                       f"{'the run decode' if run_side else 'neither'} | " +
++                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
++    new = {k: v for k, v in lock.items() if k != "sha256"}
++    new.update(text=pin_t, adjudication={"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
++                                         "differences": diffs, "recogniser": "elevenlabs:scribe_v1", "usd": usd,
++                                         **readings})
++    new["sha256"] = L._lock_digest(new)
++    log(f"  lock {tag}: run decode and approved text differ at {diffs}; the second recogniser reads the approved "
++        f"words: the lock takes the approved text (ruling 17)")
++    return new
++
++
+ # ── 4. canonical EDL (same shape as select_passages.select_and_build_edl) ──
+ 
+ def build_edl(pin, acq, registry=None, log=print):
+@@ -277,6 +356,8 @@ def build_edl(pin, acq, registry=None, log=print):
+                            L.sha256_file(a["transcript_path"]), v["text"], [s["start"], s["end"]],
+                            v.get("approved_text_similarity"),
+                            "pinned approved_text" if s.get("approved_text") else "pinned exact range")
++        if s.get("approved_text"):
++            lock = adjudicate_lock(lock, a["path"], a["transcript"]["words"], log=log)    # ruling 17
+         seg = {
+             "video_id": s["video_id"],
+             "channel": s["channel"],
+diff --git a/pipeline/word_diff.py b/pipeline/word_diff.py
+index 8c25e650..f05fd77b 100644
+--- a/pipeline/word_diff.py
++++ b/pipeline/word_diff.py
+@@ -103,10 +103,14 @@ def gate_g18(final_path, segments, clips, transcriber=None):
+             continue
+         heard = tr.span(final_path, seg["start"], seg["end"])
+         src = tr.span(c["source"], c["cut_in"], c["cut_out"])
++        # ruling 17: a lock adjudicated by two independent decodes IS the reference the final is compared against
++        ref = c["lock_text"] if c.get("adjudicated") else src
+         row = {"segment": label, "heard": heard, "source_span_heard": src, "lock_text": c["lock_text"],
+-               "edges": edges(c["lock_text"], heard), "identity": diff(src, heard),
++               "edges": edges(c["lock_text"], heard), "identity": diff(ref, heard),
+                "lock_diff_reported": diff(c["lock_text"], heard)}
+-        if row["identity"] and not diff(src, heard, collapse=True):
++        if c.get("adjudicated"):
++            row["identity_reference"] = "the adjudicated lock text (ruling 17)"
++        if row["identity"] and not diff(ref, heard, collapse=True):
+             # only repeats differ (two whisper passes render a disfluent repeat differently, Nov 10 fixture): the
+             # difference stays in the row and is decided by the audio: the final's segment must BE the source span
+             import sentence_law as L
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 73bcc489..8c47ee1e 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -1143,7 +1143,9 @@ def stage_gates(run, final16, man16, final9, man9):
+     g18_clips = {c["clip_id"]: {"lock_text": (locks.get(c["clip_id"]) or {}).get("text", ""),
+                                 "source": os.path.join(run.dir, "sources", f"{c['video_id']}.mp4"),
+                                 "cut_in": c["cut_in"], "cut_out": c["cut_out"],
+-                                "pad_s": float(c.get("lead_in_pad_s") or 0.0)} for c in cuts}
++                                "pad_s": float(c.get("lead_in_pad_s") or 0.0),
++                                "adjudicated": bool((locks.get(c["clip_id"]) or {}).get("adjudication"))}
++                 for c in cuts}
+     missing = [cid for cid, c in g18_clips.items() if not c["lock_text"]]
+     tr = WD.Transcriber()
+     g18 = {}

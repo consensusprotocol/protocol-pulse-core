@@ -1,0 +1,162 @@
+{
+  "pass": true,
+  "segments": [
+    {
+      "segment": "hook",
+      "video_id": "DcUbBkyeh9M",
+      "errors": [],
+      "in": {
+        "cut": 14.52,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.52,
+          "end": 14.61,
+          "ms": 90
+        },
+        "lexical": "punctuation",
+        "after_word": "printer.",
+        "before_word": "A",
+        "cut_lo": 14.43,
+        "cut_hi": 14.61,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 31.46,
+        "boundary_valid": true,
+        "pause": {
+          "start": 31.38,
+          "end": 31.49,
+          "ms": 110
+        },
+        "lexical": "punctuation",
+        "after_word": "debate.",
+        "before_word": "And",
+        "cut_lo": 31.29,
+        "cut_hi": 31.49,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 30,
+          "worst_db_after_fade": -59.6,
+          "valley_db": -24.4,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'A' ... 'debate.' (50 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_01",
+      "video_id": "GXWj2JO9bz8",
+      "errors": [],
+      "in": {
+        "cut": 15.1,
+        "boundary_valid": true,
+        "pause": {
+          "start": 14.16,
+          "end": 15.35,
+          "ms": 1190
+        },
+        "lexical": "punctuation",
+        "after_word": "day?",
+        "before_word": "I",
+        "cut_lo": 13.87,
+        "cut_hi": 15.64,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 29.5,
+        "boundary_valid": true,
+        "pause": {
+          "start": 29.19,
+          "end": 29.67,
+          "ms": 480
+        },
+        "lexical": "punctuation",
+        "after_word": "world.",
+        "before_word": "And",
+        "cut_lo": 28.89,
+        "cut_hi": 29.69,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'I' ... 'world.' (40 words)",
+      "pass": true
+    },
+    {
+      "segment": "clip_02",
+      "video_id": "mKNAcOFMYD4",
+      "errors": [],
+      "in": {
+        "cut": 15.29,
+        "boundary_valid": true,
+        "pause": {
+          "start": 15.29,
+          "end": 15.53,
+          "ms": 240
+        },
+        "lexical": "punctuation",
+        "after_word": "biggest.",
+        "before_word": "my",
+        "cut_lo": 15.18,
+        "cut_hi": 15.53,
+        "pass": true,
+        "why": "ok"
+      },
+      "out": {
+        "cut": 24.59,
+        "boundary_valid": true,
+        "pause": {
+          "start": 24.29,
+          "end": 24.85,
+          "ms": 560
+        },
+        "lexical": "punctuation",
+        "after_word": "bitcoin.",
+        "before_word": "my",
+        "cut_lo": 24.19,
+        "cut_hi": 24.86,
+        "pass": true,
+        "why": "ok"
+      },
+      "neighbour": {
+        "in": {
+          "ok": true,
+          "neighbour_kept_ms": 210,
+          "worst_db_after_fade": -50.1,
+          "valley_db": -36.7,
+          "why": "below the valley threshold after the fade"
+        },
+        "out": {
+          "ok": true,
+          "why": "the cut keeps nothing of the neighbour",
+          "neighbour_kept_ms": 0
+        }
+      },
+      "locked": "'my' ... 'bitcoin.' (42 words)",
+      "pass": true
+    }
+  ]
+}

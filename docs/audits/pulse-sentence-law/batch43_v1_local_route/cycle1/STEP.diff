@@ -1,0 +1,137 @@
+diff --git a/pipeline/test_v1_local_route.py b/pipeline/test_v1_local_route.py
+new file mode 100644
+index 00000000..80ae237e
+--- /dev/null
++++ b/pipeline/test_v1_local_route.py
+@@ -0,0 +1,51 @@
++#!/usr/bin/env python3
++"""Law L-x for V1 (order 2026-11-12 '20:30' (d)): visual_check._call_any routes a model named 'ollama:<name>' to the
++LOCAL back-end (Ollama on Ultron's GPU0, loaded through gpu0.swap_to under the caller's lease, law L-r) and every
++other name to the Heimdall gateway, unchanged. CPU tests: the routing, and that the local route refuses (gpu0
++LeaseMissing, a Gpu0Stop that a run turns into a HOLD naming the cause) before any request when the GPU0 lease is
++not held. The local model's QUALITY is measured separately, on the labelled V1 cases, before it may sit on the panel."""
++import os
++import sys
++import tempfile
++import unittest
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++import gpu0  # noqa: E402
++import visual_check as VC  # noqa: E402
++
++
++class TestLocalRoute(unittest.TestCase):
++    def setUp(self):
++        self.calls = []
++        self.saved = (VC._call_local, VC._call, VC._request)
++        VC._call_local = lambda p, t, m, timeout: self.calls.append(("local", m)) or ('{"answers": {}}', {})
++        VC._request = lambda p, t, m: ("req", m)
++        VC._call = lambda req, timeout: self.calls.append(("heimdall", req[1])) or ('{"answers": {}}', {})
++
++    def tearDown(self):
++        VC._call_local, VC._call, VC._request = self.saved
++
++    def test_ollama_names_go_local_and_every_other_name_to_heimdall(self):
++        VC._call_any("x.jpg", "q", VC.LOCAL_VISION, 5)
++        for m in VC.VISION_MODELS:
++            VC._call_any("x.jpg", "q", m, 5)
++        self.assertEqual(self.calls, [("local", "ollama:gemma3:27b")] + [("heimdall", m) for m in VC.VISION_MODELS])
++
++    def test_the_default_panel_is_unchanged(self):
++        self.assertEqual(VC.VISION_MODELS, ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl"))
++        self.assertTrue(VC.LOCAL_VISION.startswith("ollama:") and VC.LOCAL_VISION not in VC.VISION_MODELS)
++
++
++@unittest.skipIf(gpu0.held(), "a GPU session holds the lease: the refusal is tested in a CPU session")
++class TestLocalRouteNeedsTheLease(unittest.TestCase):
++    def test_no_lease_no_load_no_request(self):
++        img = os.path.join(tempfile.mkdtemp(prefix="v1local_"), "f.jpg")
++        open(img, "wb").write(b"\xff\xd8\xff\xd9")
++        with self.assertRaises(gpu0.Gpu0Stop):
++            VC._call_local(img, "q", VC.LOCAL_VISION, 5)
++        with self.assertRaises(gpu0.Gpu0Stop):                         # not swallowed as a route error: a run HOLDs
++            VC.ask_vision(img, "16x9", model=VC.LOCAL_VISION, attempts=1)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
+diff --git a/pipeline/visual_check.py b/pipeline/visual_check.py
+index c4b1c0c3..ce7b47a1 100644
+--- a/pipeline/visual_check.py
++++ b/pipeline/visual_check.py
+@@ -23,6 +23,8 @@ BOUNDARY_FRAMES = 3
+ VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdall gateway, image input
+                                            # (listed 2026-11-11); a "no" from EITHER holds
+ VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
++LOCAL_VISION = "ollama:gemma3:27b"   # law L-x: V1's second back-end, the local model on Ultron's GPU0 (L-r: lease + swap_to)
++OLLAMA_URL = "http://localhost:11434"
+ 
+ CHECKLIST = [
+     ("credits_round_and_match", "On the credits card (full-resolution panel) every channel avatar is the channel's "
+@@ -193,17 +195,40 @@ def _call(req, timeout):
+     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
+ 
+ 
++def _call_local(image_path, text, model, timeout):
++    """(content, raw) of one LOCAL vision call (law L-x second back-end): Ollama on Ultron, loaded through
++    gpu0.swap_to (law L-r: the caller holds the GPU0 lease; without it swap_to refuses and nothing loads)."""
++    import urllib.request
++    import gpu0
++    gpu0.swap_to(model)
++    body = {"model": model.split(":", 1)[1], "stream": False, "keep_alive": "5m",
++            "options": {"temperature": 0, "num_predict": 4096, "num_ctx": 8192},
++            "messages": [{"role": "user", "content": text,
++                          "images": [base64.b64encode(open(image_path, "rb").read()).decode()]}]}
++    req = urllib.request.Request(f"{OLLAMA_URL}/api/chat", data=json.dumps(body).encode(),
++                                 headers={"Content-Type": "application/json"})
++    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
++    return (raw.get("message") or {}).get("content") or "", raw
++
++
++def _call_any(image_path, text, model, timeout):
++    """(content, raw) from the model's own route: 'ollama:<name>' is the local back-end (law L-x), any other name the
++    Heimdall gateway. Raises on a route error (callers retry, then HOLD)."""
++    if model.startswith("ollama:"):
++        return _call_local(image_path, text, model, timeout)
++    return _call(_request(image_path, text, model), timeout)
++
++
+ def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2, channels_note=""):
+     """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
+     unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
+     qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
+     text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", channels_note=channels_note or "", questions=qs,
+                          keys=[k for k, _ in CHECKLIST])
+-    req = _request(sheet_path, text, model)
+     tries = []
+     for _ in range(attempts):
+         try:
+-            content, raw = _call(req, timeout)
++            content, raw = _call_any(sheet_path, text, model, timeout)
+         except Exception as e:                      # network / HTTP / bad body: retried, then no answer = HOLD
+             tries.append({"error": f"{type(e).__name__}: {e}"[:500]})
+             continue
+@@ -268,10 +293,9 @@ def ask_letterbox(path, model, timeout=600, attempts=2, trail=None):
+     """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries). Every attempt
+     (error, or the reply's answer and reason) is appended to `trail` when given (it lands in GATE_REPORT)."""
+     trail = [] if trail is None else trail
+-    req = _request(path, LETTERBOX_PROMPT, model)
+     for _ in range(attempts):
+         try:
+-            content, _raw = _call(req, timeout)
++            content, _raw = _call_any(path, LETTERBOX_PROMPT, model, timeout)
+         except Exception as e:                      # route error: retried, then no answer
+             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
+             continue
+@@ -342,10 +366,9 @@ def boundary_pairs(final, segments, work_dir):
+ def ask_boundary(path, model, timeout=600, attempts=2, trail=None):
+     """'yes' (the left frame shows the next segment) / 'no', or None (no clear answer after the retries)."""
+     trail = [] if trail is None else trail
+-    req = _request(path, BOUNDARY_PROMPT, model)
+     for _ in range(attempts):
+         try:
+-            content, _raw = _call(req, timeout)
++            content, _raw = _call_any(path, BOUNDARY_PROMPT, model, timeout)
+         except Exception as e:
+             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
+             continue

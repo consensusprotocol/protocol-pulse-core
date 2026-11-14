@@ -1,0 +1,65 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index 7ea83140..f76d1b45 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -667,15 +667,16 @@ def rule_r11(edl):
+     between clips); two or more fail always (the line-up is wrong). No minimum: no VO line at all passes. Story-type and
+     untyped EDLs (the protected references) are not moments packages and are unchanged. Fail closed (audit batch 40): a
+     moments EDL without a vo object and clips, a clip without an integer index, bridges that are not a list, a line whose
+-    after_clip is not a clip index, a non-text line, and a recorded bridge with no bridge line fail."""
++    after_clip is not a clip index, clip indexes other than exactly 1..n, a non-text line, and a recorded bridge
++    with no bridge line fail."""
+     if edl.get("package_type") != "moments":
+         return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+     vo, clips = edl.get("vo"), edl.get("clips")
+     if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
+         return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
+     idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+-    if not all(type(i) is int for i in idx):                      # audit batch 40 F1: fail closed on its own
+-        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not all integers"
++    if any(type(i) is not int for i in idx) or idx != list(range(1, len(clips) + 1)):   # batch 40 F1 / cycle 3 glm F1:
++        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not 1..{len(clips)}"  # the last clip is index n
+     bridges = vo.get("bridges")
+     if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
+         return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"
+@@ -689,6 +690,9 @@ def rule_r11(edl):
+             failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
+         elif a == max(idx):
+             closing += 1
++            t = b.get("text")
++            if not isinstance(t, str) or not t.strip():             # cycle 3 qwen F1: the takeaway is a voiced line
++                failures.append(f"VO line {i}: the takeaway after the last clip is not text")
+         else:
+             before.append((f"the slot after clip {a}", b.get("text")))
+     if closing > 1:
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 6e1ecd69..0b5f4236 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -1147,6 +1147,10 @@ class TestR11VoShape(unittest.TestCase):
+     def test_two_lines_after_the_last_clip_fail(self):
+         self.fails(self.edl(bridges=(self.TAKE, self.TAKE)), "law L-y 1: 2 VO lines after the last clip")
+ 
++    def test_a_takeaway_that_is_not_text_fails(self):
++        for text in (None, "", "   ", 123, ["w"]):                    # cycle 3 qwen F1 / F2
++            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},)), "the takeaway after the last clip is not text")
++
+     def test_a_record_without_a_bridge_line_fails(self):
+         self.fails(self.edl(bridges=(self.TAKE,), rec=self.rec()), "with no bridge line in the VO")
+ 
+@@ -1170,10 +1174,13 @@ class TestR11VoShape(unittest.TestCase):
+             else:
+                 del e["vo"]["bridges"]
+             self.fails(e, "vo bridges is not a list")
+-        for index in ("1", None, 1.0, True):                         # audit F1: R11 fails closed on its own
++        for index in ("1", None, 1.0, True, 2, 3, 0):                # audit F1 / cycle 3 glm F1: exactly 1..n
+             e = self.edl()
+             e["clips"][0]["index"] = index
+-            self.fails(e, "are not all integers")
++            self.fails(e, "are not 1..3")
++        e = self.edl(bridges=(self.TAKE, {"text": "y", "after_clip": 3}))
++        e["clips"][2]["index"] = 2                                      # a duplicated last index cannot hide a takeaway
++        self.fails(e, "are not 1..3")
+         e = self.edl()
+         e["clips"][1] = "clip"
+         self.assertFalse(rule_r11(e)[0])

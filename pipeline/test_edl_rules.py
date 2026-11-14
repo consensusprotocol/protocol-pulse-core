@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       rule_r9, validate_edl)
+                       rule_r9, rule_r11, takeaway_value, validate_edl)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -177,7 +177,8 @@ class TestR4VoBudget(unittest.TestCase):
 
 
 class TestR5ClipLength(unittest.TestCase):
-    """R5: 8-25s per clip, >= 2 channels, each >= 8s."""
+    """R5 (law L-o): >= 2 clips from >= 2 channels is integrity (a failure); the 8-25 s window and the per-channel
+    >= 8 s total are taste (a recorded deviation with its size, never a rejection)."""
 
     def test_good_clips_pass(self):
         edl = {
@@ -189,16 +190,68 @@ class TestR5ClipLength(unittest.TestCase):
         ok, reason = rule_r5(edl)
         self.assertTrue(ok, reason)
 
-    def test_clip_too_short_fails(self):
+    def test_a_short_clip_is_a_recorded_deviation_not_a_failure(self):
+        """Law L-o (taste): until 2026-11-12 this was 'clip too short fails'. A whole sentence beats the window: the
+        6.1 s punchline is kept and its deviation recorded with its size."""
         edl = {
             "clips": [
-                {"index": 1, "duration": 5, "channel": "A"},
-                {"index": 2, "duration": 15, "channel": "B"},
+                {"index": 1, "duration": 15, "channel": "A"},
+                {"index": 2, "duration": 6.1, "channel": "B"},
             ]
         }
         ok, reason = rule_r5(edl)
-        self.assertFalse(ok, reason)
-        self.assertIn("min 8s", reason)
+        self.assertTrue(ok, reason)
+        self.assertEqual(reason, "R5 PASS | law L-o taste deviations, recorded, not causes: clip 2: 6.10s (5.90s under "
+                                 "the 12-20s target)")
+        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 30, "channel": "A"},
+                                        {"index": 2, "duration": 12, "channel": "B"}]})
+        self.assertTrue(ok, reason)
+        self.assertIn("clip 1: 30.00s (10.00s over the 12-20s target)", reason)
+        for edge in (12.0, 20.0):                                        # the target's own edges are inside it
+            ok, reason = rule_r5({"clips": [{"index": 1, "duration": edge, "channel": "A"},
+                                            {"index": 2, "duration": 15, "channel": "B"}]})
+            self.assertEqual((ok, reason), (True, "R5 PASS: clip lengths and channel diversity OK"))
+
+    def test_integrity_still_rejects_one_clip_or_one_channel(self):
+        """Must-fail (law L-o integrity: >= 2 channels per video): a short clip never rescues a single channel."""
+        for edl, why in (({"clips": [{"index": 1, "duration": 12, "channel": "A"}]}, "only 1 clips"),
+                         ({"clips": [{"index": 1, "duration": 12, "channel": "A"},
+                                     {"index": 2, "duration": 5, "channel": "A"}]}, "only 1 channel(s)"),
+                         ({"clips": [{"index": 1, "duration": 15, "channel": "A"},
+                                     {"index": 2, "duration": 0, "channel": "B"}]}, "only 1 channel(s)"),   # B: no time
+                         ({"clips": []}, "only 0 clips")):
+            ok, reason = rule_r5(edl)
+            self.assertFalse(ok, reason)
+            self.assertTrue(reason.startswith("R5 FAIL"), reason)
+            self.assertIn(why, reason)
+        ok, reason = rule_r5({"clips": [{"index": 1, "duration": 5, "channel": "A"},
+                                        {"index": 2, "duration": 6, "channel": "A"}]})
+        self.assertRegex(reason, r"^R5 FAIL: only 1 channel.* \| law L-o taste deviations, recorded, not causes: ")
+
+    def test_an_unmeasured_duration_or_a_missing_channel_is_never_a_pass(self):
+        """Under L-o the window no longer rejects, so a degenerate duration or channel must fail on its own (fail
+        closed); two valid channels are present, so the failure is the third clip's alone."""
+        good = [{"index": 1, "duration": 12, "channel": "A"}, {"index": 2, "duration": 14, "channel": "B"}]
+        for bad in (0, -3.0, None, float("nan"), float("inf"), "12", True, 10 ** 400, "missing"):
+            with self.subTest(duration=bad):
+                clip = {"index": 3, "duration": bad, "channel": "C"}
+                if bad == "missing":
+                    del clip["duration"]
+                ok, reason = rule_r5({"clips": good + [clip]})
+                self.assertFalse(ok, reason)
+                self.assertTrue(reason.startswith("R5 FAIL: clip 3: duration "), reason)
+                self.assertNotIn("channel(s)", reason)
+        for bad in (None, "", "   ", 7, "missing"):
+            with self.subTest(channel=bad):
+                clip = {"index": 3, "duration": 13, "channel": bad}
+                if bad == "missing":
+                    del clip["channel"]
+                ok, reason = rule_r5({"clips": [good[0], clip]})          # only A is a real channel
+                self.assertFalse(ok, reason)
+                self.assertIn("clip 3: no channel named", reason)
+                self.assertIn("only 1 channel(s)", reason)
+        ok, reason = rule_r5({"clips": good + [{"index": 3, "duration": 11.996, "channel": "C"}]})
+        self.assertIn("0.01s under", reason)                              # never 'X.XXs (0.00s under ...)'
 
     def test_single_channel_fails(self):
         edl = {
@@ -210,6 +263,58 @@ class TestR5ClipLength(unittest.TestCase):
         ok, reason = rule_r5(edl)
         self.assertFalse(ok, reason)
         self.assertIn("1 channel", reason)
+
+
+def spot_edl(dur=20.0, intro=None, **kw):
+    """A spotlight EDL as pinned.build_edl writes it (law L-ab)."""
+    e = {"package_type": "moments", "package_shape": "spotlight", "mode": "pinned", "moments_package_sha256": "cd" * 32,
+         "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+         "hook": {"text": "Bitcoin is the hardest money ever made.", "duration": dur, "channel": "Natalie Brunell"},
+         "clips": [], "vo": {"intro": intro, "bridges": []}, "moments_bridge": None}
+    e.update(kw)
+    return e
+
+
+class TestSpotlightRules(unittest.TestCase):
+    """Law L-ab SPOTLIGHT (rulings 90 / 91): R4 28-50 s and a 12-word closing line; R5 without the medley minimum (one
+    moment, one channel; 12-35 s a taste line); R11 0 bridges and 0 or 1 closing line. A medley is unchanged."""
+
+    def test_r4_the_spotlight_format_is_28_to_50_s(self):
+        self.assertTrue(rule_r4(spot_edl(20.0))[0], rule_r4(spot_edl(20.0)))           # 20 + 14.30 = 34.3 s
+        for dur in (10.0, 40.0):                                                          # 24.3 s / 54.3 s
+            ok, why = rule_r4(spot_edl(dur))
+            self.assertFalse(ok)
+            self.assertIn("outside 28-50 s", why)
+        self.assertTrue(rule_r4(spot_edl(20.0, intro=" ".join(["w"] * 12)))[0])
+        ok, why = rule_r4(spot_edl(20.0, intro=" ".join(["w"] * 13)))
+        self.assertFalse(ok)
+        self.assertIn("(max 12)", why)
+        ok, why = rule_r4(spot_edl(20.0, package_shape=None))                            # a medley keeps 60-70 s
+        self.assertFalse(ok)
+        self.assertIn("outside 60-70 s", why)
+
+    def test_r5_one_moment_one_channel_is_the_spotlight_shape(self):
+        ok, why = rule_r5(spot_edl(20.0))
+        self.assertTrue(ok, why)
+        self.assertIn("one channel (Natalie Brunell)", why)
+        ok, why = rule_r5(spot_edl(10.0))                                                 # taste: recorded, passes
+        self.assertTrue(ok)
+        self.assertIn("2.00s outside the 12-35s target", why)
+        for kw, shape in (({"clips": [{"index": 1, "duration": 14.0, "channel": "X"}]}, "has no clips"),
+                          ({"hook": {"duration": 20.0}}, "names no channel"),
+                          ({"hook": {"duration": 0, "channel": "X"}}, "not a measured positive number")):
+            ok, why = rule_r5(spot_edl(**kw))
+            self.assertFalse(ok)
+            self.assertIn(shape, why)
+        self.assertFalse(rule_r5(spot_edl(package_type="story"))[0])                     # the marker binds moments only
+
+    def test_r11_zero_or_one_closing_line_and_no_bridge(self):
+        self.assertEqual(rule_r11(spot_edl()), (True, "R11 PASS (spotlight, law L-ab): 0 closing line, no bridge"))
+        self.assertTrue(rule_r11(spot_edl(intro="Nobody voted for these rules."))[0])
+        for kw in ({"intro": " ".join(["w"] * 13)}, {"intro": "   "},
+                   {"vo": {"intro": None, "bridges": [{"text": "x", "after_clip": 1}]}},
+                   {"moments_bridge": {"text": "x"}}, {"clips": [{"index": 1}]}):
+            self.assertFalse(rule_r11(spot_edl(**kw))[0], kw)
 
 
 class TestR6CreditsMatch(unittest.TestCase):
@@ -889,6 +994,366 @@ class TestShoutoutHookChannel(unittest.TestCase):
                 seen.add(ch)
         self.assertEqual(len(channels), 2)
         self.assertEqual(channels[0], "SharedChan")
+
+
+class TestR4Moments(unittest.TestCase):
+    """Law L-q (orchestrator 2026-11-12 '06:00'): R4 for a package of type 'moments' ONLY: VO share <= 40 %, one VO line
+    per slot (after the hook, after each clip, after the LAST clip), the estimated runtime inside 60-70 s (hard, L-o);
+    story-type and untyped EDLs keep the old R4. Must-fail: VO share 41 %, runtime 59.9 and 70.1 s, a line with no
+    slot. Runtime = hook + clips + VO (words / 2.5 + 1.0 s pre-roll each) + 14.30 s tail. Fail closed (audit cycle 1):
+    a 'moments' EDL without a validated package, an unmeasured duration, bad clip indexes, an empty line."""
+    MARK = {"moments_package_sha256": "ab" * 32, "mode": "pinned",
+            "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True}}
+
+    def edl(self, hook, clips, intro_words, bridges, t="moments"):
+        e = {"hook": {"duration": hook, "channel": "H"},
+             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
+             "vo": {"intro": " ".join(["w"] * intro_words) if intro_words else None,
+                    "bridges": [{"text": " ".join(["w"] * n), "after_clip": a} for n, a in bridges]},
+             "total_clip_duration": round(hook + sum(clips), 2)}
+        if t is not None:
+            e["package_type"] = t
+        if t == "moments":
+            e.update(self.MARK)
+        return e
+
+    def only(self, e, part):
+        ok, why = rule_r4(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+        self.assertEqual(why.count(";"), 0, why)                            # the ONE failure under test
+        return why
+
+    def test_vo_share_45_1_percent_fails_and_45_passes(self):
+        """Ruling 9 ('08:29'): 45 % of the TOTAL estimated runtime. VO 31.0 s (30 + 20 + 20 words, three pre-rolls) over
+        hook + clips + 31.0 + 14.3 tail; every case inside 60-70 s, so only the share decides."""
+        vo3 = (30, [(20, 1), (20, 2)])
+        self.only(self.edl(7.436, [8, 8], *vo3), "VO=45.10%")               # total 68.736 s
+        self.only(self.edl(6.832, [8, 8], *vo3), "VO=45.50%")               # total 68.132 s
+        ok, why = rule_r4(self.edl(7.59, [8, 8], *vo3))                     # 31.0 / 68.89 = 44.9995 %
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(31.0 / 0.45 - 61.3, [8, 8], *vo3))       # exactly 45.00 % passes (<=, not <)
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(5.49, [8, 8], 30, [(15, 1), (15, 2)]))   # 27.0 / 62.79 = 43.0 %: the old 40 % cap
+        self.assertTrue(ok, why)                                            # would have refused it
+        ok, why = rule_r4(self.edl(7.0, [10, 10], 30, [(15, 1)]))           # 20.0 s VO of a 61.3 s total = 32.6 %
+        self.assertTrue(ok, why)
+        self.assertIn("32.63% of total runtime", why)
+
+    def test_runtime_59_9_and_70_1_fail_60_and_70_pass(self):
+        for hook, want in ((15.6, False), (15.696, False), (15.7, True), (25.7, True), (25.704, False), (25.8, False)):
+            e = self.edl(hook, [10, 10], 16, [(4, 2)])                       # + 20 clips + 10 VO + 14.3 tail
+            if want:
+                ok, why = rule_r4(e)
+                self.assertTrue(ok, (hook, why))
+            else:
+                self.only(e, "outside 60-70 s")
+
+    def test_a_vo_line_with_no_slot_fails(self):
+        for bridges in ([(5, 0)], [(5, 3)], [(5, 1), (5, 1)], [(5, 2), (5, 1)], [(5, "1")], [(5, None)], [(5, True)],
+                        [(5, 1.0)]):
+            self.only(self.edl(15.0, [12, 12], 10, bridges), "has no slot")   # runtime 61.3-64.3: only the slot
+        e = self.edl(15.0, [12, 12], 10, [])
+        e["vo"]["bridges"] = [{"text": "a b c"}]
+        self.only(e, "has no slot")
+
+    def test_a_line_after_each_clip_including_the_last_has_a_slot(self):
+        ok, why = rule_r4(self.edl(14.0, [12, 12], 10, [(5, 1), (5, 2)]))   # VO 5 + 3 + 3 = 11 s; 38 + 11 + 14.3
+        self.assertTrue(ok, why)
+
+    def test_word_caps_are_unchanged(self):
+        self.only(self.edl(15.0, [12, 12], 31, []), "intro=31 words")       # runtime 66.7
+        self.only(self.edl(15.0, [12, 12], 5, [(21, 1)]), "bridge 1=21 words")
+
+    def test_the_takeaway_has_its_own_cap_and_bridges_keep_theirs(self):
+        """Ruling 10 ('08:40'): the line after the LAST clip may carry up to 30 words (31 rejected); a bridge BETWEEN
+        clips keeps 20 (21 rejected). Every case inside 60-70 s and 45 %, so only the cap decides."""
+        from edl_rules import MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP
+        self.assertEqual((MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP), (30, 20))
+        ok, why = rule_r4(self.edl(10.0, [9, 5], 13, [(18, 1), (24, 2)]))      # the night's shape: 24 after the last
+        self.assertTrue(ok, why)
+        ok, why = rule_r4(self.edl(8.0, [9, 5], 13, [(18, 1), (30, 2)]))       # exactly 30 after the last
+        self.assertTrue(ok, why)
+        self.only(self.edl(8.0, [9, 5], 13, [(18, 1), (31, 2)]), "bridge 2=31 words (max 30)")
+        self.only(self.edl(10.0, [9, 5], 13, [(21, 1), (20, 2)]), "bridge 1=21 words (max 20)")   # between clips
+
+    def test_fail_closed_shapes(self):
+        e = self.edl(17.0, [12, 12], 10, [(5, 1)])                          # 41 + 5 (the intro only) + 14.3
+        e["vo"]["bridges"][0]["text"] = "  "
+        self.only(e, "VO line 1 is empty")
+        for bad in (None, 0, -1.0, float("nan"), float("inf"), "12", True):
+            e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+            e["clips"][1]["duration"] = bad
+            ok, why = rule_r4(e)
+            self.assertFalse(ok, bad)
+            self.assertIn("is not a measured positive number", why, bad)
+        e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+        e["clips"][1]["index"] = 1
+        ok, why = rule_r4(e)
+        self.assertFalse(ok)
+        self.assertIn("clip indexes", why)
+        for drop in ("moments_package_sha256", "mode", "moments_checks"):
+            e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+            del e[drop]
+            self.only(e, "without a validated moments package")
+        e = self.edl(15.0, [12, 12], 10, [(5, 1)])
+        e["moments_checks"] = {"vo_fidelity_ok": True, "context_integrity_ok": "true"}
+        self.only(e, "without a validated moments package")
+
+    def test_story_type_and_untyped_edls_keep_the_old_rule(self):
+        for t in ("story", None, "Moments"):
+            e = self.edl(10.0, [10, 10], 30, [(15, 1)], t=t)              # 20 s VO of 50 s = 40 %: old max 25 %
+            ok, why = rule_r4(e)
+            self.assertFalse(ok, t)
+            self.assertIn("VO=40% of runtime (max 25%)", why, t)
+            self.assertNotIn("moments", why, t)
+
+
+
+class TestR11VoShape(unittest.TestCase):
+    """Law L-y VOICEOVER IS MINIMAL (orchestrator 2026-11-12 '20:30', PBX on the review video: 'too much voiceover ...
+    only one input at the end'): for a package of type 'moments', R11 allows one takeaway after the LAST clip and at
+    most ONE line before it, the L-y 2 exception, in the intro slot (hook -> clip 1) or after clip k, and only with the
+    package's recorded bridge (moments_bridge: the same text, 'why', 'confirmed_by'; <= 20 words). Must-fail: an intro
+    or a bridge without that record, two lines before the takeaway, two takeaways, an unconfirmed or reasonless or
+    mismatched or long bridge, a record without a line, malformed shapes. Must-pass: the default shape, no VO at all,
+    the exception in either slot. R4-moments has no minimum VO share. Story-type and untyped EDLs are unchanged."""
+    MARK = TestR4Moments.MARK
+    BRIDGE = "Same question, from a miner's side."
+
+    def edl(self, clips=(12, 12, 8), intro=None, bridges=(), t="moments", hook=10.0, rec=None):
+        e = {"hook": {"duration": hook, "channel": "H"},
+             "clips": [{"index": i, "duration": d, "channel": f"C{i}"} for i, d in enumerate(clips, 1)],
+             "vo": {"intro": intro, "bridges": [dict(b) if isinstance(b, dict) else b for b in bridges]},
+             "total_clip_duration": round(hook + sum(clips), 2)}
+        if t is not None:
+            e["package_type"] = t
+        if t == "moments":
+            e.update(self.MARK)
+        if rec is not None:
+            e["moments_bridge"] = rec
+        return e
+
+    TAKE = {"text": " ".join(["w"] * 24), "after_clip": 3}            # the takeaway: the line after the LAST clip
+
+    def rec(self, **kw):
+        r = {"after": "clip_01", "after_clip": 1, "join": "clip_01 -> clip_02", "text": self.BRIDGE,
+             "why": "clip 2 opens on 'they', whose referent is not in clip 1", "confirmed_by": "blind clips-alone check"}
+        r.update(kw)
+        return r
+
+    def fails(self, e, part):
+        ok, why = rule_r11(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+        return why
+
+    def test_the_default_shape_passes_and_r4_has_no_minimum(self):
+        for bridges, hook in (((), 15.0), ((self.TAKE,), 10.0)):     # no VO line at all; one takeaway
+            e = self.edl(bridges=bridges, hook=hook)
+            ok, why = rule_r11(e)
+            self.assertTrue(ok, why)
+            ok, why = rule_r4(e)                                      # 47 + 0 + 14.3 = 61.3 s; 42 + 10.6 + 14.3 = 66.9 s
+            self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(intro="", bridges=(self.TAKE,)))  # an empty intro is no line
+        self.assertTrue(ok, why)
+
+    def test_an_intro_or_a_bridge_without_the_record_fails(self):
+        for intro in ("Bitcoin does not have any authority.", "w"):
+            self.fails(self.edl(intro=intro, bridges=(self.TAKE,)), "without the package's recorded bridge")
+        for intro in ("   ", 5, ["w"]):                                # audit F3: a whitespace / non-text line fails
+            self.fails(self.edl(intro=intro, bridges=(self.TAKE,)), "is not text")
+        self.fails(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE)),
+                   "a line in the slot after clip 1 without the package's recorded bridge")
+        for text in (123, None, "  ", ["w"]):                          # cycle 4 glm F1: a non-text bridge fails too
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 1}, self.TAKE), rec=self.rec()), "is not text")
+
+    def test_the_one_exception_passes_in_either_slot_with_its_record(self):
+        ok, why = rule_r11(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 1}, self.TAKE), rec=self.rec()))
+        self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(intro=self.BRIDGE, bridges=(self.TAKE,),            # the hook -> clip 1 join
+                                    rec=self.rec(after="hook", after_clip=0, join="hook -> clip_01")))
+        self.assertTrue(ok, why)
+        ok, why = rule_r11(self.edl(bridges=({"text": self.BRIDGE, "after_clip": 2},), rec=self.rec()))  # no takeaway
+        self.assertTrue(ok, why)
+
+    def test_the_record_must_match_give_a_reason_and_be_confirmed(self):
+        line = ({"text": self.BRIDGE, "after_clip": 1}, self.TAKE)
+        self.fails(self.edl(bridges=line, rec=self.rec(text="Another line.")), "without the package's recorded bridge")
+        self.fails(self.edl(bridges=line, rec="a reason"), "without the package's recorded bridge")
+        for why in (None, "", "   ", 5):
+            self.fails(self.edl(bridges=line, rec=self.rec(why=why)), "has no reason ('why')")
+        for conf in (None, "", "  ", [], {}, True, 1):
+            self.fails(self.edl(bridges=line, rec=self.rec(confirmed_by=conf)), "not confirmed by the blind check")
+        long = " ".join(["w"] * 21)
+        self.fails(self.edl(bridges=({"text": long, "after_clip": 1}, self.TAKE), rec=self.rec(text=long)),
+                   "the bridge is 21 words (max 20)")
+        ok, why = rule_r11(self.edl(bridges=({"text": " ".join(["w"] * 20), "after_clip": 1}, self.TAKE),
+                                    rec=self.rec(text=" ".join(["w"] * 20))))
+        self.assertTrue(ok, why)
+
+    def test_two_lines_before_the_takeaway_fail_even_with_a_record(self):
+        two = ({"text": "a b", "after_clip": 1}, {"text": self.BRIDGE, "after_clip": 2}, self.TAKE)
+        self.fails(self.edl(bridges=two, rec=self.rec()), "law L-y 2: 2 lines before the takeaway")
+        self.fails(self.edl(intro=self.BRIDGE, bridges=({"text": "a b", "after_clip": 1}, self.TAKE), rec=self.rec()),
+                   "law L-y 2: 2 lines before the takeaway")
+
+    def test_two_lines_after_the_last_clip_fail(self):
+        self.fails(self.edl(bridges=(self.TAKE, self.TAKE)), "law L-y 1: 2 VO lines after the last clip")
+
+    def test_a_takeaway_that_is_not_text_fails(self):
+        for text in (None, "", "   ", 123, ["w"]):                    # cycle 3 qwen F1 / F2
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},)), "the takeaway after the last clip is not text")
+
+    def test_a_record_without_a_bridge_line_fails(self):
+        self.fails(self.edl(bridges=(self.TAKE,), rec=self.rec()), "with no bridge line in the VO")
+
+    def test_a_line_without_a_clip_slot_fails(self):
+        for bad in ({"text": "a b", "after_clip": "3"}, {"text": "a b"}, "a b", {"text": "a b", "after_clip": 99},
+                    {"text": "a b", "after_clip": 0}, {"text": "a b", "after_clip": True}):
+            self.fails(self.edl(bridges=(bad,)), "is not a clip index")
+
+    def test_fail_closed_shapes(self):
+        e = self.edl()
+        e["vo"]["bridges"] = "a b"
+        self.assertFalse(rule_r11(e)[0])
+        for drop in ("vo", "clips"):
+            e = self.edl()
+            del e[drop]
+            self.assertFalse(rule_r11(e)[0], drop)
+        for bridges in (None, "missing"):                              # audit F2: the lines are always stated
+            e = self.edl()
+            if bridges is None:
+                e["vo"]["bridges"] = None
+            else:
+                del e["vo"]["bridges"]
+            self.fails(e, "vo bridges is not a list")
+        for index in ("1", None, 1.0, True, 2, 3, 0):                # audit F1 / cycle 3 glm F1: exactly 1..n
+            e = self.edl()
+            e["clips"][0]["index"] = index
+            self.fails(e, "are not 1..3")
+        e = self.edl()                                                  # cycle 4 glm: out of order, all integers
+        e["clips"][0]["index"], e["clips"][1]["index"] = 2, 1
+        self.fails(e, "are not 1..3")
+        e = self.edl(bridges=(self.TAKE, {"text": "y", "after_clip": 3}))
+        e["clips"][2]["index"] = 2                                      # a duplicated last index cannot hide a takeaway
+        self.fails(e, "are not 1..3")
+        e = self.edl()
+        e["clips"][1] = "clip"
+        self.assertFalse(rule_r11(e)[0])
+
+    def test_story_type_and_untyped_edls_are_unchanged(self):
+        busy = ({"text": "a b", "after_clip": 1}, {"text": "c d", "after_clip": 2})
+        for t in ("story", None, "Moments"):
+            ok, why = rule_r11(self.edl(intro="An intro line.", bridges=busy, t=t))
+            self.assertTrue(ok, (t, why))
+            self.assertIn("not a moments package", why)
+
+    def test_validate_edl_rejects_a_moments_edl_with_an_intro(self):
+        ok, results = validate_edl(self.edl(intro="An intro line.", bridges=(self.TAKE,)))
+        self.assertFalse(ok)
+        row = next(r for r in results if r["rule"] == "rule_r11")
+        self.assertFalse(row["pass"])
+        self.assertIn("without the package's recorded bridge", row["reason"])
+
+    RUN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "runs", "pinned_20261112_165629")
+
+    @unittest.skipUnless(os.path.exists(os.path.join(RUN, "edl.json")), "the delivered review run not on this machine")
+    def test_the_delivered_review_video_fails_and_its_l_y_reshape_passes(self):
+        """The video PBX was 'very pleased' with, but with 'too much voiceover': its real EDL (an intro and a bridge
+        between its two clips, no recorded bridge) fails; the same package reshaped to L-y (no intro, its own takeaway
+        after the last clip) passes R11."""
+        with open(os.path.join(self.RUN, "edl.json")) as f:
+            e = json.load(f)
+        self.fails(e, "law L-y 2: 2 lines before the takeaway")
+        e["vo"] = {**e["vo"], "intro": None, "bridges": [b for b in e["vo"]["bridges"] if b["after_clip"] == 2]}
+        ok, why = rule_r11(e)
+        self.assertTrue(ok, why)
+
+
+class TestRuling91MedleyTakeaway(unittest.TestCase):
+    """Ruling 91's MEDLEY half (law L-ab (91), orchestrator 2026-11-13 '22:53'; the row agreed with the builder
+    2026-11-14): a moments package that is not a spotlight voices its takeaway (the line after the LAST clip) only with
+    the builder's sealed value verdict on THAT line, moments_gates.takeaway_value {status exactly "PASS", replayed
+    exactly False, text == the takeaway}. Must-fail: no row, any other status or replayed value, a verdict on another
+    draft, two takeaways, malformed shapes, and the protected references' own EDLs (they predate the ruling: that is
+    why it is not a validate_edl rule). Must-pass: the row on the line (whitespace aside), the no-voice shape, a bridge
+    with no takeaway, story-type / untyped / spotlight EDLs."""
+    TAKE = "No ruler. Just rules nobody gets to bend."
+
+    def edl(self, bridges=None, gates=None, t="moments", **kw):
+        e = {"package_type": t, "clips": [{"index": 1}, {"index": 2}, {"index": 3}],
+             "vo": {"intro": None,
+                    "bridges": [{"text": self.TAKE, "after_clip": 3}] if bridges is None else list(bridges)}}
+        e.update(TestR4Moments.MARK)
+        if gates is not None:
+            e["moments_gates"] = gates
+        e.update(kw)
+        return e
+
+    def row(self, **kw):
+        r = {"status": "PASS", "by": "xai:grok-4.20-0309-reasoning", "replayed": False, "n": 1, "text": self.TAKE}
+        r.update(kw)
+        return {"takeaway_value": r}
+
+    def fails(self, e, part):
+        ok, why = takeaway_value(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+
+    def test_the_takeaway_passes_only_with_its_sealed_live_verdict(self):
+        for gates in (self.row(), self.row(text="  " + self.TAKE + "\n")):
+            ok, why = takeaway_value(self.edl(gates=gates))
+            self.assertTrue(ok, why)
+        for gates in (None, {}, {"takeaway_value": "PASS"}, {"closing_value": self.row()["takeaway_value"]}):
+            self.fails(self.edl(gates=gates), "no sealed value verdict")
+        for status in ("FAIL", "NOT RUN", "pass", None, True):
+            self.fails(self.edl(gates=self.row(status=status)), "not exactly PASS and live")
+        for replayed in (True, None, 0, "false"):
+            self.fails(self.edl(gates=self.row(replayed=replayed)), "not exactly PASS and live")
+        r = self.row()
+        del r["takeaway_value"]["replayed"]
+        self.fails(self.edl(gates=r), "not exactly PASS and live")
+
+    def test_a_verdict_on_another_draft_never_carries_the_rewrite(self):
+        for text in ("Durability matters more than speed.", self.TAKE + " Always.", None, 7, ""):
+            self.fails(self.edl(gates=self.row(text=text)), "judged another line")
+        r = self.row()
+        del r["takeaway_value"]["text"]
+        self.fails(self.edl(gates=r), "judged another line")
+
+    def test_no_takeaway_needs_no_verdict(self):
+        for bridges in ((), ({"text": "Same question, from a miner's side.", "after_clip": 1},)):
+            ok, why = takeaway_value(self.edl(bridges=bridges))
+            self.assertTrue(ok, why)
+            self.assertIn("no takeaway", why)
+
+    def test_only_a_medley_is_this_check(self):
+        for t in ("story", None):
+            ok, why = takeaway_value(self.edl(t=t))
+            self.assertTrue(ok, why)
+        ok, why = takeaway_value(spot_edl(20.0, intro=" ".join(["w"] * 12)))     # its closing rows: pinned._spotlight_vo
+        self.assertTrue(ok, why)
+
+    def test_malformed_shapes_fail_closed(self):
+        take = {"text": self.TAKE, "after_clip": 3}
+        self.fails(self.edl(bridges=(take, dict(take)), gates=self.row()), "2 lines after the last clip")
+        for text in ("   ", None, ["w"]):
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},), gates=self.row()), "is not text")
+        for a in ("3", 3.0, True, None):
+            self.fails(self.edl(bridges=({"text": self.TAKE, "after_clip": a},), gates=self.row()), "not integers")
+        self.fails(self.edl(bridges=("w",), gates=self.row()), "not integers")
+        self.fails(self.edl(gates=self.row(), clips=[{"index": "1"}]), "not integers")
+        for bad in ({"vo": None}, {"vo": {"intro": None, "bridges": None}}, {"clips": []}, {"clips": None}):
+            self.fails(self.edl(gates=self.row(), **bad), "without a vo object")
+
+    def test_the_protected_references_predate_it_so_it_is_not_a_validate_edl_rule(self):
+        refs = os.path.join(os.path.dirname(FIXTURE_DIR), "references")
+        for ref in ("pulse_medley_2026-11-12", "pulse_fresh_2026-11-13"):           # tracked: never a SKIP
+            e = _load_json(os.path.join(refs, ref, "edl.json"))
+            self.fails(e, "no sealed value verdict")
+            self.assertTrue(rule_r11(e)[0], ref)                                    # a lawful L-y takeaway in its day
+            self.assertNotIn("takeaway_value", [r["rule"] for r in validate_edl(e)[1]])
 
 
 if __name__ == "__main__":

@@ -25,6 +25,30 @@ _HEIMDALL_DEFAULT_MODEL = os.environ.get(
 _HEIMDALL_FALLBACK_MODEL = "qwen/qwen3.8-27b"
 
 
+
+_GPU1_CLIENT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "services",
+                            "gpu_lease_client.py")
+
+
+def _gpu1_client():
+    """services/gpu_lease_client.py of this checkout, loaded by its ABSOLUTE path under a private module name: the site's
+    own 'services' package is core/services, and the pipeline directory is never put on sys.path."""
+    import importlib.util
+    import sys as _sys
+    m = _sys.modules.get("pp_gpu_lease_client")
+    if m is None:
+        spec = importlib.util.spec_from_file_location("pp_gpu_lease_client", _GPU1_CLIENT)
+        if spec is None or not os.path.isfile(_GPU1_CLIENT):
+            raise RuntimeError(f"GPU1 lease client not found at {_GPU1_CLIENT}")
+        m = importlib.util.module_from_spec(spec)
+        _sys.modules["pp_gpu_lease_client"] = m
+        try:
+            spec.loader.exec_module(m)
+        except BaseException:
+            _sys.modules.pop("pp_gpu_lease_client", None)
+            raise
+    return m
+
 class AIService:
     def __init__(self):
         # Initialize OpenAI client (optional if openai package missing or old)
@@ -185,29 +209,22 @@ class AIService:
             raise
     
     def generate_content_ollama(self, prompt, system_prompt=None, model="deepseek-coder-v2:16b"):
-        """Generate content using local Ollama (Qwen). Free, no API key needed."""
-        ollama_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+        """Generate content using the local Ollama on GPU1 (law L-r, orchestrator 2026-11-12 '22:50' item 3: GPU0 is
+        the renders'). Free, no API key needed. Through services/gpu_lease_client.chat_gpu1: the GPU1 lease (waited for
+        up to 5 minutes; the word-pass worker leaves between batches), keep_alive 0, the unload confirmed, so nothing
+        stays resident. Any failure raises, and the article chain goes on to its next provider as before. Worst case
+        one waitress worker thread waits about 300 s for the lease plus 180 s for the answer (audit batch 50)."""
         try:
             messages = []
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
             messages.append({"role": "user", "content": prompt})
-
-            resp = requests.post(
-                f"{ollama_url}/api/chat",
-                json={
-                    "model": model,
-                    "messages": messages,
-                    "stream": False,
-                    "options": {"temperature": 0.7, "num_predict": 2500},
-                },
-                timeout=180,
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            content = data.get("message", {}).get("content", "")
+            content = _gpu1_client().chat_gpu1(model, messages, owner="website article fallback (core ai_service)",
+                                               options={"temperature": 0.7, "num_predict": 2500},
+                                               wait_s=300, timeout=180)
             if not content:
                 raise ValueError("Empty response from Ollama")
+            logging.info("Ollama (GPU1, %s) answered under the GPU1 lease", model)
             return content
         except Exception as e:
             logging.error("Ollama API error: %s", e)

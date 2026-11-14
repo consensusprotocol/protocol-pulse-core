@@ -1,0 +1,69 @@
+{
+ "question": "Batch 43 cycle 4 = REMOVAL of V1's local vision route. Law L-r allows GPU0's Ollama chat / generate endpoints to be called only in story_semantics.LocalLLM._post, story_semantics._unload and preflight.check_ollama (an AST test enforces it); visual_check._call_local posted to /api/chat directly, so it is removed together with LOCAL_VISION, OLLAMA_URL and the 'ollama:' dispatch in _call_any. What remains: 'xai:<name>' to xAI, every other name to Heimdall unchanged; the default panel unchanged. The route tests are rewritten for the xAI route only (routing, no local route left, fail-closed replies).\nFIND: any leftover path to a local model or GPU0 from visual_check; any change to the Heimdall path; a test that no longer tests what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 2.9,
+   "cost": 0.0001782655,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 12.1,
+   "cost": 0.000130975,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 6.0,
+   "cost": 0.00035588,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 3.7,
+   "cost": 0.000118451,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/test_v1_local_route.py",
+   "line": 0,
+   "issue": "The rewritten fail-closed test no longer exercises the Heimdall route's fail-closed parsing, so it tests less than its docstring ('garbage, an empty reply or a route error give no answers') implies for the panel models; only the xAI route is covered. Evidence: the loop now only sets VC._call_xai = reply and calls ask_vision(model=\"xai:grok-4.3\"), while the previous version also iterated (VC.LOCAL_VISION, \"_call_local\"); VC._call (Heimdall) is stubbed in setUp but never replaced with a failing/garbage reply in this test.",
+   "evidence": "VC._call_xai = reply\n            answers, raw = VC.ask_vision(\"x.jpg\", \"9x16\", model=\"xai:grok-4.3\", attempts=2)",
+   "fix": "Also patch VC._call (or VC._request) with the garbage/empty/boom replies and assert the same fail-closed behavior for a Heimdall model name, restoring coverage the old test had for the panel route.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0007835714999999999,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch43_v1_local_route/cycle4/heimdall"
+}

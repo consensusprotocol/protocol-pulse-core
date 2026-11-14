@@ -1,0 +1,69 @@
+{
+ "question": "Batch 47 cycle 2 (verification). Cycle 1 had no consensus; implemented from single votes: a ONE-word name never matches phonetically (doublemetaphone('Casa') == doublemetaphone('case') == 'KS'), test added. See CONSENSUS.md.\n\nBatch 47 = RULING 24 (b) + the REVIEW-DROP G20 AMENDMENT (orchestrator 2026-11-12 '23:20'). The rulings, verbatim in substance:\n- (b) \"G20 matches when EITHER the 0.85 text ratio holds OR every token matches phonetically (double-metaphone or equivalent). 'stefan lavera' vs 'Stephan Livera' must match; 'Stephan Livera' vs 'Steven Lubka' must not. Omitted names still fail; registry aliases remain.\"\n- Amendment: \"a G20 failure where the sign-off SCRIPT names every credited channel and the only mismatch is the decoder's spelling (text ratio >= 0.75 on that name) is droppable with both strings quoted; a name absent from the script is never droppable.\"\nImplementation:\n- gates.spoken_channels gains phonetic=False. Only gate_g20, on the RENDERED voice, passes True. The pre-render law L-a script check (run_fresh stage_voice) stays strict.\n- Matching: for a CREDITED channel only, after the exact and the 0.85-ratio routes fail, _phonetic_span requires every canonical token of the name (display name or alias) to share a Double Metaphone code with the transcript token at the same place, consecutive and in order. A token with no code must be equal.\n- Double Metaphone is vendored unchanged from PyPI Metaphone 0.6 (pipeline/pp_metaphone; SOURCE.txt has the sha256s; pure string rules, BSD).\n- G20's evidence gains \"how\": the route and the heard stretch per channel.\n- telegram.review_drop: _g20_spelling(run_dir, fmt) makes a non-PASS G20 droppable only when ALL of these hold:\n  - the evidence (GATE_REPORT G20_<fmt>, VO_MANIFEST signoff text, the registry) is readable;\n  - something is missing, nothing extra was heard, and the transcript is not empty;\n  - the strict script check names every credited channel;\n  - each missing name's best same-length stretch of the decode has SequenceMatcher ratio >= 0.75 against the name or an alias.\n\n  Then the note quotes both strings. Otherwise the drop is refused and the reason is named.\nFIND: anything still open from cycle 1; a new way a credited name that was not said passes G20, a non-credited channel is heard, the script check loosens, or a G20 failure becomes droppable without the script naming the name; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.7,
+   "cost": 0.000332692,
+   "provider": "ImpCC",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 15.5,
+   "cost": 0.000231973,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 7.2,
+   "cost": 0.0009707836,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 9.1,
+   "cost": 0.000220162,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/gates.py",
+   "line": 691,
+   "issue": "The phonetic route can hear a credited name that was not said: the ratio route is tried first, but when it fails, _phonetic_span scans the whole transcript, so a credited two-token name whose tokens both occur (phonetically) anywhere, even far apart in unrelated words, matches; e.g. 'Stephan Livera' is heard in '... steph, then liver, ...' since 'steph'~'Stephan' and 'liver'~'Livera' share a Double Metaphone code, consecutive-and-in-order only constrains adjacency in the token list, not that they were said together.",
+   "evidence": "for j in range(len(ttoks) - len(ntoks) + 1) if ntoks else ():\\n        win = ttoks[j:j + len(ntoks)]\\n        if all((_dm_codes(a) & _dm_codes(b)) if _dm_codes(a) else a == b for a, b in zip(ntoks, win)):\\n            return starts[j], starts[j + len(ntoks) - 1] + len(win[-1])",
+   "fix": "None required by the ruling (it says 'every token matches phonetically ... at the same place, consecutive and in order'); if tighter, require the heard stretch to sit near the sign-off, or keep as documented. Confidence in the behaviour, not a defect: informational.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0017556106,
+ "out_dir": "docs/audits/pulse-sentence-law/batch47_g20_phonetic/cycle2/heimdall"
+}

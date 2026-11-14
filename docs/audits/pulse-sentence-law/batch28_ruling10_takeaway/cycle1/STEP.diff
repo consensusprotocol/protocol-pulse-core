@@ -1,0 +1,48 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index bbefec03..17352392 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -155,6 +155,8 @@ MOMENTS_VO_SHARE = 0.45           # law L-q ('06:00': 40 %; ruling 9, '08:29': 4
+ MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
+ FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
+                                   # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
++MOMENTS_TAKEAWAY_WORD_CAP = 30    # ruling 10 ('08:40'): the TAKEAWAY (the line after the LAST clip, a slot that did not exist
++                                  # when BRIDGE_WORD_CAP was set) has the intro's cap; bridges BETWEEN clips keep 20
+ R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
+ 
+ 
+@@ -200,8 +202,9 @@ def _r4_moments(edl):
+         if not isinstance(text, str) or not text.strip():
+             failures.append(f"VO line {i} is empty")
+             continue
+-        if _word_count(text) > BRIDGE_WORD_CAP:
+-            failures.append(f"bridge {i}={_word_count(text)} words (max {BRIDGE_WORD_CAP})")
++        cap = MOMENTS_TAKEAWAY_WORD_CAP if (type(a) is int and clips and a == idx[-1]) else BRIDGE_WORD_CAP
++        if _word_count(text) > cap:
++            failures.append(f"bridge {i}={_word_count(text)} words (max {cap})")
+         lines.append(text)
+     durs = []
+     for s in [edl.get("hook") or {}] + clips:
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 597a4da1..10a0f245 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -1013,6 +1013,18 @@ class TestR4Moments(unittest.TestCase):
+         self.only(self.edl(15.0, [12, 12], 31, []), "intro=31 words")       # runtime 66.7
+         self.only(self.edl(15.0, [12, 12], 5, [(21, 1)]), "bridge 1=21 words")
+ 
++    def test_the_takeaway_has_its_own_cap_and_bridges_keep_theirs(self):
++        """Ruling 10 ('08:40'): the line after the LAST clip may carry up to 30 words (31 rejected); a bridge BETWEEN
++        clips keeps 20 (21 rejected). Every case inside 60-70 s and 45 %, so only the cap decides."""
++        from edl_rules import MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP
++        self.assertEqual((MOMENTS_TAKEAWAY_WORD_CAP, BRIDGE_WORD_CAP), (30, 20))
++        ok, why = rule_r4(self.edl(10.0, [9, 5], 13, [(18, 1), (24, 2)]))      # the night's shape: 24 after the last
++        self.assertTrue(ok, why)
++        ok, why = rule_r4(self.edl(8.0, [9, 5], 13, [(18, 1), (30, 2)]))       # exactly 30 after the last
++        self.assertTrue(ok, why)
++        self.only(self.edl(8.0, [9, 5], 13, [(18, 1), (31, 2)]), "bridge 2=31 words (max 30)")
++        self.only(self.edl(10.0, [9, 5], 13, [(21, 1), (20, 2)]), "bridge 1=21 words (max 20)")   # between clips
++
+     def test_fail_closed_shapes(self):
+         e = self.edl(17.0, [12, 12], 10, [(5, 1)])                          # 41 + 5 (the intro only) + 14.3
+         e["vo"]["bridges"][0]["text"] = "  "

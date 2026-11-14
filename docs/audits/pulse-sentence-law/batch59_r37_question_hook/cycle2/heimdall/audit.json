@@ -1,0 +1,84 @@
+{
+ "question": "Batch 59 cycle 2 (verification). Cycle 1: one [low] consensus, no change required (CONSENSUS.md); the diff is unchanged.\n\nBatch 59 = RULING 37 (orchestrator 2026-11-13 '03:42'), verbatim: \"edl_rules R1 NO_QUESTION_HOOK is relaxed for moments pins to: a hook may end on a question when the clips-alone verdict and the blind coherence check pass the join that follows it. A question ending stays refused for every non-hook clip.\"\nBackground: edl_rules.rule_r1 refused any hook whose text ends with '?' (every EDL). A moments pin is a package sealed by the packager (pp-selectid); its sealed gate rows (moments_package.gates, inside package_sha256) include \"medley\" = the blind clips-alone verdict (status, by, replayed, n, \"flagged\": the joins, named \"<label> -> <next label>\", that a viewer could NOT follow) and \"coherence\" = the blind coherence check (status, by, replayed, n; no per-join verdict). The packager's own gate_problems treats a row as authorising only when status == \"PASS\" and replayed is False (law L-j: a replayed verdict is never deliverable). pinned.build_edl already copies sealed package fields into the EDL (moments_package_sha256, moments_checks, moments_bridge, moments_btc_screen). The packager confirmed this reading (04:53 ET): gates.medley PASS live with 'hook -> clip_01' not flagged = \"the join after the question hook was judged and passed\"; gates.coherence carries no per-join verdict and none will be sealed.\nThe change:\n- pinned.build_edl copies moments_package.gates into the EDL as moments_gates.\n- edl_rules.question_hook_join(edl): (ok, why): ok only when moments_gates.medley is a dict with status \"PASS\", replayed exactly False and \"flagged\" a list WITHOUT \"hook -> clip_01\", and moments_gates.coherence is a dict with status \"PASS\" and replayed exactly False. Anything else (missing, not a dict, unstated replayed, no flagged list) fails closed.\n- rule_r1: for a bound moments package only (package_type == \"moments\" AND moments_package_sha256 present): (a) any clip whose text ends with '?' FAILS (\"a question ending is refused for every non-hook clip\"); (b) a hook ending with '?' passes only when question_hook_join is ok. Every other EDL (story path, protected references): exactly the old R1 (hook only).\nTests: pipeline/test_question_hook.py: passing question hook; another join flagged still passes; the join flagged; each verdict not PASS / replayed / unstated / no flagged list; missing or malformed gates; a non-hook clip ending '?', with a statement hook and with a passing question hook; story-path EDLs unchanged; build_edl carries the gates. test_edl_rules (the old R1 tests) unchanged and passing.\nFIND: anything still open; a question hook passing without both sealed verdicts passing that join; a non-hook question ending passing in a moments pin; any change for a non-moments EDL; a fail-open path; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.3,
+   "cost": 0.0005913653,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 36.1,
+   "cost": 0.000202647,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 9.0,
+   "cost": 0.0008179133,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 4.3,
+   "cost": 0.000171027,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/test_question_hook.py",
+   "line": 60,
+   "issue": "The 'unstated replayed' medley case and the 'no flagged list' case both expect the same why-fragment 'clips-alone verdict is not on the pin', which is also the message for not-PASS; the assertion therefore does not distinguish which condition fired. It still proves fail-closed (ok is False and the ruling-37 FAIL prefix is present), so the test does test what it claims overall, but the why-fragment check is weaker than it looks \u2014 a regression that fails for the wrong reason (e.g. status flipped instead of replayed) would still pass the assertion. Not a code defect; a test-precision note only.",
+   "evidence": "({\"medley\": {\"status\": \"PASS\", \"flagged\": []}}, \"clips-alone verdict is not on the pin\"),   # unstated\n               ({\"medley\": dict(LIVE)}, \"clips-alone verdict is not on the pin\"),                         # no list",
+   "fix": "Optionally assert the distinguishing part of the message (e.g. that 'replayed' or 'flagged' appears) or accept the shared fragment; no functional change needed.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/edl_rules.py",
+   "line": 131,
+   "issue": "A moments hook whose text ends with '?' but whose last *sentence* is a statement (e.g. 'Is it over? It is not.') takes the question-hook branch and requires the sealed gates, whereas the old rule (and the docstring's 'pure-question hooks only') would have passed it without gates; conversely a moments hook ending in '?' with no gates now fails where the old rule also failed, so behaviour is consistent there \u2014 the only divergence is the mixed-punctuation hook, which now depends on sealed verdicts. This matches the ruling's wording ('a hook may end on a question') so it is arguably intended, but it is a behavioural change for mixed hooks inside moments pins that no test covers.",
+   "evidence": "if text.rstrip().endswith(\"?\"):\n        if moments:\n            ok, why = question_hook_join(edl)\n            return ok, f\"R1 {'PASS' if ok else 'FAIL'} (ruling 37): the hook ends on a question and {why}\"",
+   "fix": "If intended, add a test for a mixed hook ('Is it over? It is not.') in a moments pin; if not, gate the question-hook branch on the last sentence ending with '?' (last_sentence.endswith('?')).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0017829526,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch59_r37_question_hook/cycle2/heimdall"
+}

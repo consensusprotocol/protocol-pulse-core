@@ -1,0 +1,38 @@
+{
+ "question": "Batch 28 = RULING 10 (orchestrator 2026-11-12 '08:40'): in EDL rule R4 for packages of type 'moments' ONLY, the VO line after the LAST clip (the TAKEAWAY, a slot that did not exist when BRIDGE_WORD_CAP = 20 was set for lines between clips) has its own word cap MOMENTS_TAKEAWAY_WORD_CAP = 30 (the intro's cap); bridges BETWEEN clips keep 20. The change: the constant, and the cap chosen per line: the takeaway cap only when after_clip is an int equal to the last clip index, else BRIDGE_WORD_CAP. Must-fail tests: 31 takeaway words rejected, exactly 30 pass, a 21-word bridge between clips rejected, the night's 24-word takeaway passes; mutations (cap 31; takeaway cap for every bridge) each fail a test. Story-type pins unchanged.\nFIND: any line other than the moments takeaway that now gets the 30-word cap; any boundary error; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 325.8,
+   "cost": 0.003144454,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 125.8,
+   "cost": 0.0039883453,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.007132799299999999,
+ "out_dir": "docs/audits/pulse-sentence-law/batch28_ruling10_takeaway/cycle1/heimdall"
+}

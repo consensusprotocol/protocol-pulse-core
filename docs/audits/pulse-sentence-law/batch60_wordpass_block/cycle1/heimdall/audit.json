@@ -1,0 +1,133 @@
+{
+ "question": "Batch 60 = the word-pass worker under a platform block (the integrator's own worker; no orchestrator ruling changes).\nBackground: pipeline/word_pass_worker.py turns ranked ledger moments into sentence-ready window word records on GPU1. Each cycle picks up to 120 moments the rows file has no row for (passed_ids), downloads each video's audio once (transcript_store.download_audio: yt-dlp with data/yt_cookies.txt), cuts windows, decodes them under the GPU1 lease, and appends ONE row per moment (ready, not ready, or failed with its error). A moment with a row is never worked again. On 2026-11-13 at 04:47 ET YouTube began refusing EVERY request from this machine (\"Sign in to confirm you're not a bot. Use --cookies-from-browser or --cookies for the authentication\"): 330 moments got permanent failure rows in 2 minutes (each download fails fast, so the cycles spun), and a metadata probe on a known-public video failed the same way. An age-gated or sign-in-only VIDEO produces the same sign-in wording, so the wording alone cannot say whose failure it is.\nThe change:\n- BLOCK = the sign-in wording; blocked_failure(why) = an 'acquisition:' failure (download or metadata) in that wording.\n- control_ok(): ONE metadata request (the store's own ts._ytdlp: same cookies) for CONTROL_VIDEO (the approved medley reference's public source); True only when yt-dlp exits 0 and prints its id; any exception or failure is False.\n- cycle(): a blocked_failure triggers control_ok() at most once per cycle. Control refused -> the platform's failure: no row is written for it (blocked_rows counts it), the fetches not yet started are cancelled (a cancelled fetch writes no row either), report['blocked'] states why, and main() sleeps before the next cycle. Control answered -> that video's own failure: written as before with control_ok: true. Every other failure: written exactly as before, and the control is never asked.\n- passed_ids(): a blocked_failure row WITHOUT control_ok does not count (so the 330 rows written during the block are retried once; if they fail again while the control answers, they are written with control_ok and stay done).\nTests (6 new in test_word_pass_worker.py; the 20 old pass): a blocked cycle writes nothing, asks the control once, and the next cycle writes every moment; a video's own sign-in failure is written with control_ok and not picked again; old rows: only a sign-in acquisition row without control_ok is retried; a non-sign-in failure never asks the control; control_ok's call and its False cases; main() sleeps after a blocked cycle.\nFIND: a moment lost (a row written) because of the platform; a loop that spins against a blocked platform (more than a handful of requests per cycle); a video's own permanent failure retried forever; a race in the futures handling (a cancelled or running fetch); a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 25.0,
+   "cost": 0.0012407874,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 21.2,
+   "cost": 0.000165447,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 20.0,
+   "cost": 0.0011775908,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 41.8,
+   "cost": 0.00027497,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 391,
+   "issue": "A blocked cycle still lets already-started fetches finish and their GPU batches decode, so a platform block can cost more than a handful of requests per cycle (each started _fetch downloads its video's audio) before the control verdict stops the rest.",
+   "evidence": "for p in pending:\n                                    p.cancel()                            # only fetches not yet started stop\n                        if verdict[\"control_ok\"]:",
+   "fix": "None required for correctness; if the block should cost at most one control request, cancel pending futures before the first control call and skip GPU batches when report['blocked'] is set.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 383,
+   "issue": "The platform block logic allows the worker to continue processing and writing rows for other videos even after the control video check fails (platform block). The code only cancels `pending` futures, but the `while` loop continues to process `ready` items and any `pending` items that were already running (and thus not cancelled) or completed before the block was detected. This violates the requirement that 'the cycle ends blocked' and 'no row is written for it' (implying the cycle should stop or at least not write rows for the blocked platform). Specifically, if a fetch completes with a non-blocked failure or success after the block is detected, it will still be processed and written, which is inconsistent with the 'blocked' state where the platform is refusing requests. More critically, the `report['blocked']` is set, but the cycle continues to process other items, potentially writing rows for videos that might also be affected by the platform block if the block is global (as described: 'YouTube began refusing EVERY request'). The logic assumes the block is specific to the video that failed, but the background says 'refusing EVERY request'. If the control fails, it implies a global block, so no rows should be written for any video in that cycle. The current code only prevents rows for the specific failed video and cancels pending ones, but allows already-running or completed ones to write rows.",
+   "evidence": "if not verdict[\"control_ok\"]:\n                                report[\"blocked\"] = f\"YouTube refuses the control video {CONTROL_VIDEO} too: {why[:200]}\"\n                                log(f\"  platform block, the cycle stops: {report['blocked']}\")\n                                for p in pending:\n                                    p.cancel()                            # only fetches not yet started stop\n                        if verdict[\"control_ok\"]:\n                            _fail(r, report, why, control_ok=True)        # that video's own failure\n                        else:\n                            report[\"blocked_rows\"] += 1                   # the platform's: no row, retried later",
+   "fix": "If `control_ok()` returns False, the cycle should immediately stop processing further items and return the report with `blocked` set, ensuring no further rows are written in that cycle. The `while` loop should break or the function should return early.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 383,
+   "issue": "The `verdict` dictionary is used to store the result of `control_ok()`, but it is keyed by the string `\"control_ok\"`. This is a bit confusing and could be a source of error if the logic changes. More importantly, the check `if \"control_ok\" not in verdict` ensures the control is only asked once per cycle. However, if the first blocked failure is from a video that is actually age-gated (and thus the control should pass), but the control check is slow or fails due to a transient network issue, the entire cycle is marked as blocked, and all other pending fetches are cancelled. This might be too aggressive if the control failure is transient. However, the spec says 'Control refused -> the platform's failure', so this might be intended. The main issue is that `verdict` is a local variable in the `cycle` function, but it is used to store a global state for the cycle. This is fine, but the naming is poor.",
+   "evidence": "if \"control_ok\" not in verdict:                   # ONE control request per cycle\n                            verdict[\"control_ok\"] = control_ok()",
+   "fix": "Use a boolean variable `control_checked` and `control_result` instead of a dictionary for clarity.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 372,
+   "issue": "A cancelled future's moments are counted in blocked_rows but their report['failed'] stays 0 while the moments are retried next cycle; the report's written+failed+blocked_rows can exceed picked, which is only cosmetic.",
+   "evidence": "if f.cancelled():                                     # cancelled at a platform block: no row\n                        report[\"blocked_rows\"] += len(of[f])\n                        continue",
+   "fix": "None; document that blocked_rows moments are neither written nor failed.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 386,
+   "issue": "A blocked failure whose control answers is written with control_ok: true, but the verdict is cached for the whole cycle; if the control answered for video A's failure, a later genuinely-blocked failure of video B in the same cycle is also written as that video's own failure with control_ok, even though the control was not re-asked. This matches the stated 'at most once per cycle' spec, so it is intended, but it means the control_ok flag on a row does not prove the control answered at that moment's failure time.",
+   "evidence": "if \"control_ok\" not in verdict:  # ONE control request per cycle\n    verdict[\"control_ok\"] = control_ok()\n...\nif verdict[\"control_ok\"]:\n    _fail(r, report, why, control_ok=True)",
+   "fix": "None needed if the once-per-cycle semantics are intended; otherwise re-ask the control per failure or record the verdict timestamp in the row."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/word_pass_worker.py",
+   "line": 372,
+   "issue": "A cancelled future's moments are counted via len(of[f]), but a future that was cancelled before it ever ran may also have been counted in a previous iteration if the same future object appears twice in pending; in practice each future is discarded from pending when done, so no double count. However, a future that finishes as cancelled AND was already discarded (f.cancelled() checked only for futures found done in pending) is handled; the real gap is that a future that raised before cancellation is caught by the except branch and its moments get failure rows even during a block, since the except path does not check blocked_failure or the verdict.",
+   "evidence": "except Exception as e:  # batch 55 C1: a fetch that dies still... (context) then: if not blocked_failure(why): _fail(r, report, why); continue",
+   "fix": "In the except branch, if the exception's message matches BLOCK and the control refuses, skip writing rows for those moments (count them in blocked_rows) instead of writing permanent failure rows."
+  }
+ ],
+ "total_cost": 0.0028587951999999995,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch60_wordpass_block/cycle1/heimdall"
+}

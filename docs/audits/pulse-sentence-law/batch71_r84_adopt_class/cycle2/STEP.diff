@@ -1,0 +1,536 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index 4a0bddda..b6c02e8d 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -35,8 +35,13 @@ CONTRACT (the builder):
+     pipeline/attest.py carry_class, copied): outcome "adopt_spoken". "spoken_text" is the text to seal. It has been put
+     through the render's own validate_range + segment_lock (the render's ruling 17 adopts it), and "lock" is that lock.
+   - Anything else: "hold", before the seal.
+-  ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences) and
+-  "rules" (RULES).
++  RULING 84 (orchestrator 2026-11-13 '20:40') widens the class (ruling84_class): (a) fillers the second recogniser
++  hears and the lock lacks (um, uh, er, ah, mm, hmm) adopt with the repetitions; (b) ONE function word read against
++  the decode's one is ruling 18's one ambiguous token: spoken_text carries the second recogniser's word, and the
++  render's adjudicate_lock keeps the decode's word in the lock and records the other ("alternatives"); two or more in
++  one span hold, and so does any other substitution.
++  ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences and
++  their classes), "alternatives" and "rules" (RULES).
+ - The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed. A request in the
+   builder's own directory (EXTRA; the builder may not write under this tree) is READ ONLY there: never moved or
+   written. It is answered once per name and content (a marker in answered/), and its copy is kept in done/ or failed/.
+@@ -69,21 +74,13 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73"   # what an entry's verdict judged; other rules' entries are never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # what an entry's verdict judged; others are never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+-FUNCTION_WORDS = frozenset("""
+-a an the this that these those that's this's there there's here here's
+-i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
+-myself yourself himself herself itself ourselves themselves one's
+-i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
+-i'd you'd he'd she'd we'd they'd
+-in on at to of for from with by about into onto upon over under up down out off through as like than via per
+-and or but so because if then when while though although whether
+-is are was were be been being am do does did have has had will would can could shall should may might must
+-what which who whom whose why how where
+-""".split())
++# RULING 84 ('20:40') classes with them in the render's adjudicate_lock too: they live in pinned.py.
++FUNCTION_WORDS, FILLERS = pinned.FUNCTION_WORDS, pinned.FILLERS
++ONE_FW = "one function word"                          # ruling 84 (b)'s class: at most one per span
+ 
+ 
+ def decoder_sha():
+@@ -259,26 +256,57 @@ def _spill(L, S):
+     return lo, max(lo, hi)
+ 
+ 
+-def as_spoken(lock, words, sw):
+-    """RULING 72: the lock against the second recogniser's reading of its own words ([i0 start - 0.3, i1 end + 0.3],
+-    adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold", differences, spoken text)."""
++def reading(lock, words, sw):
++    """The second recogniser's reading of the lock's own words ([i0 start - 0.3, i1 end + 0.3], adjudicate_lock's
++    window, the spill left out) -> (the lock's canon tokens, the reading's, the reading's text); ([], ...) when no
++    reading is left."""
+     import canon
+-    from difflib import SequenceMatcher
+     t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
+     sel = [w for w in sw if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1]
+     spans = canon.canon_spans([str(w["word"]) for w in sel])
+     L, S = canon.canon_tokens(lock["text"]), [t for t, _, _ in spans]
+     lo, hi = _spill(L, S)
+     if lo >= hi:
+-        return "hold", [[lock["text"], ""]], ""
+-    S2 = S[lo:hi]
+-    spoken = " ".join(str(sel[i]["word"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))
++        return L, [], ""
++    return L, S[lo:hi], " ".join(str(sel[i]["word"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))
++
++
++def ruling84_class(r, p, op, texts):
++    """RULING 84 (orchestrator 2026-11-13 '20:40') on ruling 72's comparison: the class of one difference between the
++    lock (r) and the second recogniser's reading (p), or None (it holds).
++    - "filler" (a): only fillers (pinned.FILLERS) the second recogniser hears and the lock lacks;
++    - a number, negation or name on either side: None;
++    - ONE_FW (b): one function word against one, the fillers aside (at most ONE per span: as_spoken);
++    - any other substitution (both sides non-empty, the fillers aside): None;
++    - a drop or an addition (the fillers aside): ruling 67's class (carry_class) on the reading without its fillers."""
++    tag, a, b, c, d = op
++    keep = [j for j in range(c, d) if p[j] not in FILLERS]
++    x, y = r[a:b], [p[j] for j in keep]
++    if x == y:
++        return "filler"
++    if any(pinned._lv2_critical(t, texts) for t in x + y):
++        return None
++    if x and y:
++        return ONE_FW if pinned.one_function_word(x, y) else None
++    f0 = sum(1 for t in p[:c] if t not in FILLERS)
++    return carry_class(r, [t for t in p if t not in FILLERS], (tag, a, b, f0, f0 + len(y)), texts)
++
++
++def as_spoken(lock, words, sw):
++    """RULING 72 as RULING 84 classes it: the lock against the second recogniser's reading of its own words ([i0
++    start - 0.3, i1 end + 0.3], adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold",
++    differences, their classes ("hold" for a difference out of every class), spoken text). Adopt: every difference
++    is in a class and at most one is ONE_FW."""
++    from difflib import SequenceMatcher
++    L, S2, spoken = reading(lock, words, sw)
++    if not S2:
++        return "hold", [[lock["text"], ""]], ["hold"], ""
+     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
+     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]
+     if not ops:
+-        return "same", [], spoken
+-    ok = all(carry_class(L, S2, op, (lock["text"], spoken)) for op in ops)
+-    return ("adopt" if ok else "hold"), diffs, spoken
++        return "same", [], [], spoken
++    cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
++    return ("adopt" if "hold" not in cls and cls.count(ONE_FW) <= 1 else "hold"), diffs, cls, spoken
+ 
+ 
+ def _outcome(s, lock):
+@@ -312,8 +340,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                     v = pinned.validate_range(s, a)
+                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
+                     outcome, reason = _outcome(s, lock), None
+-                    verdict, diffs, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
+-                    spoken = {"verdict": verdict, "differences": diffs, "text": text}      # ruling 72, every span
++                    verdict, diffs, cls, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
++                    spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text}   # 72 + 84
+                     if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
+                         s2 = dict(s, approved_text=text)
+                         try:
+@@ -323,9 +351,12 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                             outcome, lock = "hold", None
+                             reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
+                     elif verdict == "hold":
+-                        reason = (f"ruling 72: the second recogniser reads the span differently beyond the speaker's own "
+-                                  f"repetitions and function words at {diffs} | lock: {lock['text']!r} | spoken: "
+-                                  f"{text!r}")
++                        bad = [d for d, k in zip(diffs, cls) if k == "hold"]
++                        why = (f"beyond the speaker's own repetitions, function words dropped or added, fillers and "
++                               f"one function word, at {bad}" if bad else
++                               f"on {cls.count(ONE_FW)} function words (ruling 84 (b): two or more in one span hold)")
++                        reason = (f"ruling 72/84: the second recogniser reads the span differently {why} | all: "
++                                  f"{[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | spoken: {text!r}")
+                         outcome, lock = "hold", None
+                     if lock is not None:                         # ruling 73 (c): the render's own cut placement
+                         cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
+@@ -347,6 +378,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
+                      if lock else None,
+                      "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
++                     "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
+                      "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
+                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
+                      if cut else None,
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index d2203a7e..919e05c5 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -332,6 +332,44 @@ LV2_ORDINALS = frozenset({"first", "second", "third", "fourth", "fifth", "sixth"
+                           "half", "quarter", "double", "triple", "dozen"})
+ 
+ 
++# RULING 67's class words (the builder's pipeline/attest.py; moved here from lock_precheck for RULING 84, orchestrator
++# 2026-11-13 '20:40', which adjudicate_lock applies too): English closed-class words, NO negation, number or ordinal.
++FUNCTION_WORDS = frozenset("""
++a an the this that these those that's this's there there's here here's
++i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
++myself yourself himself herself itself ourselves themselves one's
++i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
++i'd you'd he'd she'd we'd they'd
++in on at to of for from with by about into onto upon over under up down out off through as like than via per
++and or but so because if then when while though although whether
++is are was were be been being am do does did have has had will would can could shall should may might must
++what which who whom whose why how where
++""".split())
++FILLERS = frozenset({"um", "uh", "er", "ah", "mm", "hmm"})      # ruling 84 (a): exactly the ruling's list, canon tokens
++
++
++def one_function_word(x, y):
++    """RULING 84 (b): x (the render decode's tokens) and y (the other recogniser's, its fillers aside) are ONE function
++    word each, and differ: the 'one ambiguous token' of ruling 18."""
++    return len(x) == len(y) == 1 and x != y and x[0] in FUNCTION_WORDS and y[0] in FUNCTION_WORDS
++
++
++def _with_token(text, k, tok):
++    """text with the one whole word that carries its canonical token k spelled tok (the word's own punctuation and
++    initial capital kept); None when token k is not exactly one whole word of text (fail closed)."""
++    import canon
++    ws, want = text.split(), canon.canon_tokens(text)
++    spans = canon.canon_spans(ws)
++    if [t for t, _, _ in spans] != want or not 0 <= k < len(spans) or spans[k][1] != spans[k][2] or \
++            sum(1 for _, f, l in spans if (f, l) == spans[k][1:]) != 1:
++        return None
++    m = re.fullmatch(r"(\W*)(.*?)(\W*)", ws[spans[k][1]])
++    core = "I" if tok == "i" else tok[:1].upper() + tok[1:] if m.group(2)[:1].isupper() else tok
++    ws[spans[k][1]] = m.group(1) + core + m.group(3)
++    new, want[k] = " ".join(ws), tok
++    return new if canon.canon_tokens(new) == want else None
++
++
+ def _lv2_critical(tok, texts):
+     """Law L-v 2: a number, a negation, or a name (in either text, a capitalised word that does not open a
+     sentence; 'I' excepted). Conservative: a doubtful token is critical (it holds)."""
+@@ -378,7 +416,9 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
+     the independent second recogniser on the acquired window decides: when it reads the approved words at every
+     difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
+-    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is."""
++    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is.
++    Ruling 84 (b): where it reads ONE function word against the decode's one, the lock keeps the decode's word and
++    records the other reading (ruling 18's record); two or more such in one span HOLD."""
+     import canon
+     from difflib import SequenceMatcher
+     run_t, pin_t = lock["text"], lock["selected_text"]
+@@ -437,6 +477,37 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
+         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
+                        f"{'the run decode' if run_side else 'neither'} | " +
+                        " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
++    # ruling 84 (b) ('20:40'): where the second recogniser reads ONE function word against the decode's one (its
++    # fillers aside), the lock keeps the decode's word and records the other reading (ruling 18's record: G18 passes
++    # either with the acoustic check); two or more such in one span hold; every other difference is ruling 17's
++    fw = [(a, k[0]) for _, a, b, c, d in ops for k in [[j for j in range(c, d) if p[j] not in FILLERS]]
++          if len(k) == 1 and one_function_word(r[a:b], [p[k[0]]])]
++    if len(fw) > 1:
++        raise PinError(f"{tag}: the run decode and the second recogniser split on {len(fw)} function words "
++                       f"{[[r[a], p[c]] for a, c in fw]} (ruling 84 (b): two or more in one span hold) | " +
++                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
++    if fw:
++        (a, c), = fw
++        n = p[:c] + [r[a]] + p[c + 1:]
++        text, wi = run_t if n == r else _with_token(pin_t, c, r[a]), _token_word(words, lock["i0"], lock["i1"], a)
++        if text is None or wi is None:
++            raise PinError(f"{tag}: the split function word cannot be located (ruling 84 (b): HOLD) | " +
++                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
++        new = {k: v for k, v in lock.items() if k != "sha256"}
++        kept = [[" ".join(r[a2:b2]), " ".join(n[c2:d2])]
++                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"]
++        new["text"] = text
++        if kept:                                       # the rest is ruling 17's: the approved words, read by it
++            new["adjudication"] = {"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
++                                   "differences": kept, "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}
++        new["alternatives"] = [{"rule": "ruling 84 (b) (orchestrator 2026-11-13 '20:40')", "token_index": c,
++                                "readings": [r[a], p[c]], "word_index": wi,
++                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
++                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
++        new["sha256"] = L._lock_digest(new)
++        log(f"  lock {tag}: one function word heard as {r[a]!r} (run decode) or {p[c]!r} (second recogniser): the "
++            f"lock keeps the decode's word and records both (ruling 84 (b)){'; ruling 17 at ' + str(kept) if kept else ''}")
++        return new
+     new = {k: v for k, v in lock.items() if k != "sha256"}
+     new.update(text=pin_t, adjudication={"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
+                                          "differences": diffs, "recogniser": "elevenlabs:scribe_v1", "usd": usd,
+diff --git a/pipeline/test_lock_precheck.py b/pipeline/test_lock_precheck.py
+index c6fb726e..c4e12ee6 100644
+--- a/pipeline/test_lock_precheck.py
++++ b/pipeline/test_lock_precheck.py
+@@ -21,6 +21,8 @@ import gpu0  # noqa: E402
+ import lock_precheck as LP  # noqa: E402
+ import pinned  # noqa: E402
+ import select_passages  # noqa: E402
++import sentence_law as SL  # noqa: E402
++from canon import canon_tokens  # noqa: E402
+ 
+ VID, START, END = "mKNAcOFMYD4", 755.454, 764.214
+ ATTESTED = ("My biggest fear is that I go to the bank and I punch in my code and the money's not there because the bank "
+@@ -172,6 +174,7 @@ class TestAdoption(Base):
+     run_text = ATTESTED.replace("punch in", "punch you")         # the decoder mishears one function word
+ 
+     def test_adopted_when_the_second_recogniser_reads_the_approved_words(self):
++        self.run_text = ATTESTED.replace("owns the money", "holds the money")   # a content word: ruling 17's
+         self.scribe_text = ATTESTED                               # the second recogniser reads the approved words
+         self.request(approved_text=ATTESTED)
+         LP.serve_once(log=self.log)
+@@ -180,6 +183,17 @@ class TestAdoption(Base):
+         self.assertEqual(e["lock"]["text"], ATTESTED)             # the lock takes the approved text
+         self.assertEqual(e["adjudication"]["verdict"], "approved")
+ 
++    def test_ruling_84_b_one_function_word_the_lock_keeps_the_decodes_and_records_the_other(self):
++        self.scribe_text = ATTESTED                               # it reads 'in' where the decode reads 'you'
++        self.request(approved_text=ATTESTED)
++        LP.serve_once(log=self.log)
++        e = self.entry(ATTESTED)
++        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", ATTESTED), e)
++        self.assertEqual(e["lock"]["text"], self.run_text)        # the render decode's word stays in the lock
++        alt, = e["alternatives"]
++        self.assertEqual((alt["readings"], alt["rule"][:13]), (["you", "in"], "ruling 84 (b)"))
++        self.assertEqual((e["as_spoken"]["differences"], e["as_spoken"]["classes"]), ([["you", "in"]], [LP.ONE_FW]))
++
+     def test_two_readings_when_it_reads_the_decode_on_one_token(self):
+         self.scribe_text = self.run_text
+         self.request(approved_text=ATTESTED)
+@@ -335,11 +349,11 @@ class TestRuling72(Base):
+         LP.serve_once(log=self.log)
+         e = self.entry("And that's why the price got high.")
+         self.assertEqual(e["outcome"], "hold")
+-        self.assertIn("ruling 72: the second recogniser reads the span differently", e["reason"])
++        self.assertIn("ruling 72/84: the second recogniser reads the span differently", e["reason"])
+         self.assertIn("bull", e["reason"])
+         self.assertIsNone(e["lock"])
+ 
+-    def test_a_function_word_adopts(self):
++    def test_one_function_word_adopts_as_ruling_84_b_says(self):
+         self.run_words = spread("I go to the bank and I punch in my code.")
+         self.scribe_words = spread("I go to a bank and I punch in my code.")
+         self.request(approved_text="I go to the bank and I punch in my code.")
+@@ -347,6 +361,8 @@ class TestRuling72(Base):
+         e = self.entry("I go to the bank and I punch in my code.")
+         self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", "I go to a bank and I punch in my code."))
+         self.assertEqual(e["as_spoken"]["differences"], [["the", "a"]])
++        self.assertEqual(e["lock"]["text"], "I go to the bank and I punch in my code.")   # the decode's word kept
++        self.assertEqual(e["alternatives"][0]["readings"], ["the", "a"])                 # the other recorded
+ 
+     def test_one_paid_reading_per_acquisition(self):
+         self.run_words = spread(ATTESTED)
+@@ -404,6 +420,135 @@ class TestRuling72(Base):
+         self.assertEqual((e["request_id"], e["reused"], e["rules"]), ("r1", False, LP.RULES))
+ 
+ 
++RUN84 = "I came to the conclusion that it will replace or will be replaced. So it will be replaced by Bitcoin."
++SPOKEN84 = ("I came to the conclusion that, um, it will replace, uh, or will be replaced, or it will be replaced "
++            "by Bitcoin.")
++
++
++class TestRuling84(Base):
++    """RULING 84 (orchestrator 2026-11-13 '20:40'): (a) fillers the second recogniser hears and Whisper drops adopt with
++    the speaker's repetitions; (b) ONE function word read against the decode's one: the lock keeps the decode's word and
++    records the other; two or more in one span hold; numbers, names, negations and content words hold."""
++
++    def ask(self, run, heard, approved=None):
++        shutil.rmtree(os.path.join(self.root, "work"), True)     # a fresh decode and reading per question
++        self.run_words, self.scribe_words = spread(run), spread(heard)
++        self.n = getattr(self, "n", 0) + 1
++        self.request(f"r84_{self.n}", approved_text=approved or run)
++        LP.serve_once(log=self.log)
++        return self.entry(approved or run)
++
++    def test_a_fillers_adopt_the_spoken_text(self):
++        e = self.ask("So over time I came to the conclusion.", "So over time, um, I came to the conclusion.")
++        self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("adopt_spoken", ["filler"]), e)
++        self.assertEqual(e["lock"]["text"], "So over time, um, I came to the conclusion.")     # ruling 17 adopted it
++        self.assertEqual(e["adjudication"]["differences"], [["", "um"]])
++        self.assertIsNone(e["alternatives"])
++
++    def test_a_and_b_together_the_2012_builds_shape(self):
++        e = self.ask(RUN84, SPOKEN84)
++        self.assertEqual((e["outcome"], e["spoken_text"]), ("adopt_spoken", SPOKEN84), e)
++        self.assertEqual(e["as_spoken"]["classes"], ["filler", "filler", LP.ONE_FW])
++        self.assertEqual(e["lock"]["text"], SPOKEN84.replace("replaced, or it", "replaced, so it"))
++        alt, = e["alternatives"]
++        self.assertEqual(alt["readings"], ["so", "or"])
++        self.assertEqual(canon_tokens(e["lock"]["text"])[alt["token_index"]], "so")
++        self.assertEqual(e["adjudication"]["differences"], [["", "um"], ["", "uh"]])          # ruling 17's part
++
++    def test_b_two_function_words_in_one_span_hold(self):
++        e = self.ask("I go to the bank and I punch in my code.", "I go to a bank and I punch on my code.")
++        self.assertEqual((e["outcome"], e["lock"]), ("hold", None), e)
++        self.assertEqual(e["as_spoken"]["classes"], [LP.ONE_FW, LP.ONE_FW])
++        self.assertIn("ruling 84 (b): two or more in one span hold", e["reason"])
++
++    def test_any_other_substitution_holds(self):
++        for run, heard in (("I went in the house today.", "I went into a house today."),     # two for two
++                           ("The bank owns the money.", "The bank holds the money."),          # a content word
++                           ("It took 15 years.", "It took 50 years."),                         # a number
++                           ("You can do it.", "You can't do it.")):                            # a negation
++            with self.subTest(run=run):
++                e = self.ask(run, heard)
++                self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["hold"]), e)
++
++    def test_a_filler_only_the_lock_has_holds(self):                  # (a) is the second recogniser's fillers only
++        e = self.ask("So um I came here today.", "So I came here today.")
++        self.assertEqual((e["outcome"], e["as_spoken"]["classes"]), ("hold", ["hold"]), e)
++
++    def test_a_filler_between_the_speakers_repeat_is_his_repetition(self):
++        e = self.ask("Bitcoin and an asset is going up.", "Bitcoin and, uh, and an asset is going up.")
++        self.assertEqual(e["outcome"], "adopt_spoken", e)
++        self.assertEqual(e["as_spoken"]["classes"], ["immediate repetition"])
++
++    def test_the_class_of_one_difference(self):
++        c = LP.ruling84_class
++        t = ("x", "x")
++        self.assertEqual(c(["so", "i"], ["so", "um", "i"], ("insert", 1, 1, 1, 2), t), "filler")
++        self.assertEqual(c(["so", "real"], ["or", "real"], ("replace", 0, 1, 0, 1), t), LP.ONE_FW)
++        self.assertEqual(c(["so", "real"], ["uh", "or", "real"], ("replace", 0, 1, 0, 2), t), LP.ONE_FW)
++        self.assertEqual(c(["so", "real"], ["so", "and", "real"], ("insert", 1, 1, 1, 2), t), "function word")
++        self.assertIsNone(c(["the", "bull"], ["the", "bear"], ("replace", 1, 2, 1, 2), t))
++        self.assertIsNone(c(["in", "the"], ["into", "a"], ("replace", 0, 2, 0, 2), t))
++        self.assertIsNone(c(["um", "i"], ["i"], ("delete", 0, 1, 0, 0), t))
++        self.assertEqual(LP.FILLERS, frozenset({"um", "uh", "er", "ah", "mm", "hmm"}))   # exactly the ruling's list
++
++
++FX84 = os.path.join(PIPELINE, "fixtures", "ruling84")
++
++
++def real_span(name):
++    """A real span's cached inputs: the render decode of its acquisition window (the pre-check's work dir) and the
++    second recogniser's paid reading of it, as the service read them. -> (segment, acquisition, reading, fixture)."""
++    with open(os.path.join(FX84, name)) as f:
++        fx = json.load(f)
++    a = {"path": "unused.mp4", "offset": fx["offset"], "transcript": {"words": fx["transcript_words"]},
++         "transcript_path": os.path.join(FX84, name), "provenance": {}}
++    return fx["segment"], a, fx["second_recogniser_words"], fx
++
++
++class TestRuling84MustFail(unittest.TestCase):
++    """The orchestrator's must-fails on the real spans (no GPU, no paid call: the cached decode and reading)."""
++
++    def lock(self, s, a, sw):
++        with mock.patch.object(pinned, "_duration", lambda path: 1e6):
++            return pinned.segment_lock(s, a, pinned.validate_range(s, a), recognise=lambda src: (sw, 0.0),
++                                       log=lambda *_: None)
++
++    def test_6058ee58_holds_on_the_old_rules_and_passes_on_the_new(self):
++        import word_diff as WD
++        s, a, sw, fx = real_span("uaHNzi-Kgr8_153.250-165.890.json")
++        old = fx["old_entry"]                                     # the live service's answer at 01:28:05Z
++        self.assertEqual((old["outcome"], old["rules"]), ("hold", "ruling 17 + ruling 72 + ruling 73"))
++        self.assertEqual(old["as_spoken"]["differences"], [["", "um"], ["", "uh"], ["so", "or"]])
++        words, lock = a["transcript"]["words"], self.lock(s, a, sw)
++        L, S2, spoken = LP.reading(lock, words, sw)               # the old rule on the same inputs: ruling 67's class
++        from difflib import SequenceMatcher
++        ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
++        self.assertEqual([LP.carry_class(L, S2, o, (lock["text"], spoken)) for o in ops],
++                         [None, None, "function word"])           # um, uh outside it: HOLD
++        verdict, diffs, cls, text = LP.as_spoken(lock, words, sw)  # RULING 84
++        self.assertEqual((verdict, diffs, cls), ("adopt", old["as_spoken"]["differences"], ["filler", "filler", LP.ONE_FW]))
++        s2 = dict(s, approved_text=text)                          # the pre-check's adoption: the render's own lock
++        new = self.lock(s2, a, sw)
++        alt, = new["alternatives"]
++        self.assertEqual((alt["readings"], canon_tokens(new["text"])[alt["token_index"]]), (["so", "or"], "so"))
++        self.assertEqual(new["adjudication"]["differences"], [["", "um"], ["", "uh"]])
++        self.assertEqual(SL.verify_lock(new), [])
++        self.assertEqual(WD.diff(new["text"], text, alts=new["alternatives"]), [])   # G18 reads 'or': attested
++        self.assertEqual({op for op, _, _ in WD.diff(new["text"], lock["text"], alts=new["alternatives"])},
++                         {"delete"})                              # 'So' read, fillers dropped: omissions only
++
++    def test_1b4a63d0s_hook_still_holds_as_ruling_67s_class_says(self):
++        s, a, sw, _ = real_span("Sjb6lUiL0m4_3090.750-3109.870.json")
++        words, lock = a["transcript"]["words"], self.lock(s, a, sw)
++        verdict, diffs, cls, _ = LP.as_spoken(lock, words, sw)
++        got = {d[1] or d[0]: k for d, k in zip(diffs, cls)}
++        self.assertEqual(verdict, "hold")
++        self.assertEqual((got["when"], got["and"]), ("immediate repetition", "immediate repetition"))
++        self.assertEqual(got["that's why the bull that's"], "hold")   # a false start with a content word
++        self.assertNotIn("filler", cls)
++        self.assertNotIn(LP.ONE_FW, cls)
++
++
+ class TestBuildersDirectory(Base):
+     """The builder may not write under the main tree: its requests are READ from its own directory, never touched."""
+ 
+diff --git a/pipeline/test_ruling17_lock.py b/pipeline/test_ruling17_lock.py
+index 7de5467d..56287130 100644
+--- a/pipeline/test_ruling17_lock.py
++++ b/pipeline/test_ruling17_lock.py
+@@ -164,6 +164,55 @@ class TestAdjudication(unittest.TestCase):
+         self.assertEqual(rec.calls, [])
+ 
+ 
++class TestRuling84b(unittest.TestCase):
++    """RULING 84 (b) (orchestrator 2026-11-13 '20:40') in adjudicate_lock: where the second recogniser reads ONE function
++    word against the decode's one (it reads the approved words), the lock keeps the decode's word and records the other
++    reading (ruling 18's record); two or more such in one span hold; a content word stays ruling 17's."""
++
++    def test_one_function_word_keeps_the_decodes_word_and_records_the_other(self):
++        lock, w = _lock("I go to the bank today.", "I go to a bank today.")
++        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank today."), log=lambda *_: None)
++        self.assertEqual(new["text"], "I go to the bank today.")
++        self.assertNotIn("adjudication", new)
++        alt, = new["alternatives"]
++        self.assertEqual((alt["readings"], alt["token_index"], alt["word_index"]), (["the", "a"], 3, 3))
++        self.assertEqual(alt["source_span"], [w[3]["start"], round(w[3]["end"], 3)])
++        self.assertEqual(L.verify_lock(new), [])
++        for heard in ("I go to the bank today.", "I go to a bank today."):            # G18 passes either reading
++            self.assertEqual(WD.diff(new["text"], heard, alts=new["alternatives"]), [])
++        self.assertTrue(WD.diff(new["text"], "I go to my bank today.", alts=new["alternatives"]))   # a third: no
++
++    def test_with_fillers_the_rest_is_ruling_17s(self):
++        run_t = "So it will replace or be replaced. So it is gone."
++        pin_t = "So it will replace, uh, or be replaced, or it is gone."
++        lock, w = _lock(run_t, pin_t)
++        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
++        self.assertEqual(new["text"], "So it will replace, uh, or be replaced, so it is gone.")
++        self.assertEqual(new["adjudication"]["differences"], [["", "uh"]])
++        alt, = new["alternatives"]
++        self.assertEqual((alt["readings"], w[alt["word_index"]]["word"]), (["so", "or"], "So"))
++        self.assertEqual(WD._alt_positions(new["text"], new["alternatives"]), {alt["token_index"]: {"so", "or"}})
++        self.assertEqual(L.verify_lock(new), [])
++
++    def test_two_function_words_in_one_span_hold(self):
++        lock, w = _lock("I go to the bank in town.", "I go to a bank on town.")
++        with self.assertRaises(P.PinError) as e:
++            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank on town."), log=lambda *_: None)
++        self.assertIn("ruling 84 (b): two or more in one span hold", str(e.exception))
++
++    def test_a_content_word_is_still_adopted_by_ruling_17(self):
++        lock, w = _lock("The bank holds the money.", "The bank owns the money.")
++        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("The bank owns the money."), log=lambda *_: None)
++        self.assertEqual((new["text"], new["adjudication"]["differences"]), ("The bank owns the money.", [["holds", "owns"]]))
++        self.assertNotIn("alternatives", new)
++
++    def test_the_word_takes_the_approved_words_punctuation_and_capital(self):
++        self.assertEqual(P._with_token("replaced, or real estate.", 1, "so"), "replaced, so real estate.")
++        self.assertEqual(P._with_token("replaced. Or real estate.", 1, "so"), "replaced. So real estate.")
++        self.assertEqual(P._with_token("and i think", 1, "i"), "and I think")
++        self.assertIsNone(P._with_token("it is and/or not", 2, "so"))       # not one whole word: fail closed
++
++
+ @unittest.skipUnless(os.path.isdir(os.path.join(NOV12, "transcripts")) and os.path.exists(FIX),
+                      "the Nov 12 moments run not on this machine")
+ class TestNov12Clip01Head(unittest.TestCase):
+diff --git a/pipeline/test_trimmed_leading.py b/pipeline/test_trimmed_leading.py
+index aa941ef7..3cad00bc 100644
+--- a/pipeline/test_trimmed_leading.py
++++ b/pipeline/test_trimmed_leading.py
+@@ -267,13 +267,19 @@ class TestPinFields(unittest.TestCase):
+         with self.assertRaisesRegex(pinned.PinError, r"trimmed_leading 'And' is not the word before the lock .*'But,'"):
+             pinned.trimmed_lock(lock, {"trimmed_leading": "And", "untrimmed_start": 29.6}, words)
+         # batch 58 cycle 2 (glm F1, 1 vote): ruling 17's adjudication rewrites the lock and keeps the record in its digest
+-        approved = dict(new, selected_text="we have rarely seen these.")
+-        approved["sha256"] = L._lock_digest(approved)
+-        sw = [{"word": w, "start": i * 0.3, "end": i * 0.3 + 0.25}
+-              for i, w in enumerate(["Six", "weeks.", "But,", "we", "have", "rarely", "seen", "these."])]
+-        adj = pinned.adjudicate_lock(approved, "unused.mp4", words, recognise=lambda p: (sw, 0.0), log=lambda *a: None)
+-        self.assertEqual(adj["trimmed_leading"], new["trimmed_leading"])
+-        self.assertEqual((adj["text"], L.verify_lock(adj)), ("we have rarely seen these.", []))
++        # (ruling 84 '20:40': 'this' / 'these' is one function word now, so the example's difference is a content word;
++        # ruling 84 (b)'s record keeps the trimmed word too)
++        for heard, text in (("heard", "we have rarely heard this."), ("these.", "we have rarely seen this.")):
++            approved = dict(new, selected_text=text if heard == "heard" else "we have rarely seen these.")
++            approved["sha256"] = L._lock_digest(approved)
++            said = ["Six", "weeks.", "But,", "we", "have", "rarely"] + (["heard", "this."] if heard == "heard" else
++                                                                        ["seen", "these."])
++            sw = [{"word": w, "start": i * 0.3, "end": i * 0.3 + 0.25} for i, w in enumerate(said)]
++            adj = pinned.adjudicate_lock(approved, "unused.mp4", words, recognise=lambda p: (sw, 0.0),
++                                         log=lambda *a: None)
++            self.assertEqual(adj["trimmed_leading"], new["trimmed_leading"])
++            self.assertEqual((adj["text"], L.verify_lock(adj)), (text, []))
++            self.assertEqual("alternatives" in adj, heard == "these.")
+         head = L.make_lock("BBBBBBBBBBB", words, 0, 1, "ab" * 32, "Six weeks.")
+         with self.assertRaisesRegex(pinned.PinError, "<file head>"):
+             pinned.trimmed_lock(head, {"trimmed_leading": "But", "untrimmed_start": 0}, words)

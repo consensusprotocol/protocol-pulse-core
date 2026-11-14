@@ -1,0 +1,109 @@
+{
+ "question": "Batch 34 = RULINGS 18 + 19 (orchestrator 2026-11-12 '10:36', '10:51') + ruling 17's cycle-2 boundary fix. Integrity stays fail-closed.\nRULING 18: when the run's decode and the pin's approved text differ in a locked span on exactly ONE token (a 1-for-1 replacement), not a number / name / negation (those hold before any vote), and the independent second recogniser reads the RUN's word at that position (an even split), the lock does not hold: it records both attested readings (lock['alternatives']: token_index, readings, the run word's index and source time span) and its digest is recomputed (pinned.adjudicate_lock). Two or more differences, or a reading of neither, still HOLD. G18 (word_diff.gate_g18) for such a lock: the final's decode may read EITHER attested reading at that position (edges() and diff() with alts; any other difference fails), its identity reference is the lock text, AND the token's audio must be the source's: sentence_law.span_fidelity = G17c's frame comparison (every 10 ms source frame above the floor within EDGE_WORD_MAX_DB 1.0 dB, best of +-2 hops, every kept frame compared) on the PREPARED clip over the token's span; the same on the final bytes is recorded as evidence only (the music bed and loudnorm make a 1 dB frame test impossible there). A mismatch fails G18. RULING 19: the comparison floor for G17c AND the token check is EDGE_WORD_FLOOR_DBFS = -90 dBFS (was -96): measured AAC codec noise at -92.9 / -94.2 dBFS in a pause (1.22 dB apart) while every frame above -90 was within 0.52 dB. Ruling 17 cycle-2 F1: at the span's start / end (no neighbour) the second recogniser's reading must begin / end exactly there.\nTests: either reading passes on the untouched prepared clip; a third word fails; the token's audio 3 dB down or silenced fails; 'can'/'can't', '15'/'50', 'one'/'two' hold; two ambiguous tokens hold; a start-of-span difference read with an extra word holds; codec-like noise between -96 and -90 passes, a real 3 dB onset loss at -50 fails.\nFIND: any way G18 passes a final whose words differ from the lock other than the one attested alternative; any way the token check passes with the token's audio changed above -90 dBFS; index errors mapping the alternative (canon index vs G18's norm index, edges at the start / end); a critical (number / name / negation) difference that reaches alternatives; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.\n\nTHIS PART of the diff: pipeline/word_diff.py,pipeline/run_fresh.py only (the rest is audited separately). Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 285.1,
+   "cost": 0.0090247479,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 196.1,
+   "cost": 0.0018445124,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 159.8,
+   "cost": 0.0054483058,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 247.3,
+   "cost": 0.002147866,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/run_fresh.py",
+   "line": 1147,
+   "issue": "The deciding token check uses the final clip as the 'prepared' clip, so span_fidelity runs on final bytes (music bed + loudnorm) instead of the prepared clip, violating ruling 18's requirement that the token check be on the PREPARED clip and the final bytes be evidence only.",
+   "evidence": "\"prepared\": os.path.join(qa, f\"final_{c['clip_id']}.mp4\")",
+   "fix": "Point 'prepared' to the actual prepared clip path (e.g., prepared_{clip_id}.mp4) and keep final_path only for the evidence check.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "critical",
+   "file": "pipeline/word_diff.py",
+   "line": 135,
+   "issue": "No check that there is exactly one alternative. Ruling 18 applies only to exactly ONE token difference; two or more differences must HOLD. The code processes all alternatives, so G18 can pass with two ambiguous tokens.",
+   "evidence": "alts = [x for x in (c.get(\"alternatives\") or []) if isinstance(x, dict)]",
+   "fix": "Require len(alts) == 1 for ruling 18 to apply; otherwise treat as no alternatives (or fail closed).",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "high",
+   "file": "pipeline/word_diff.py",
+   "line": 60,
+   "issue": "The index mapping for edges assumes no extra words at the start/end. If an extra word equals an attested reading, it can substitute and mask the extra word, violating ruling 17 cycle-2 F1 (the second recogniser's reading must begin/end exactly at the span boundary).",
+   "evidence": "hk = k if k < n else len(h) - (len(e) - k)",
+   "fix": "Map the alternative to the heard position using actual alignment or verify that the alternative is exactly at the edge without extra words.",
+   "agree": [
+    "deepseek"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "deepseek",
+   "severity": "critical",
+   "file": "pipeline/word_diff.py",
+   "line": 135,
+   "issue": "G18 does not reject alternatives for critical tokens (number/name/negation), which must hold before any vote.",
+   "evidence": "alts = [x for x in (c.get(\"alternatives\") or []) if isinstance(x, dict)] and no check for critical tokens.",
+   "fix": "Before applying alts, verify the alternative token is not a number/name/negation; if it is, fail G18."
+  }
+ ],
+ "total_cost": 0.018465432099999998,
+ "out_dir": "docs/audits/pulse-sentence-law/batch34_ruling18_19_alternatives/split_g18/heimdall"
+}

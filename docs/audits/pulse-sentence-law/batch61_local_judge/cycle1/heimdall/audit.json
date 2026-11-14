@@ -1,0 +1,190 @@
+{
+ "question": "Batch 61 = the GPU0 LOCAL JUDGE (orchestrator 2026-11-13 '07:28' item 2), new code, verbatim order: \"Build a local judge on GPU0 for the pin-stage verdicts that today go to vendors: step A (L-s context), the clips-alone verdict, the angle step. Pick the strongest model already on Ultron that fits 24 GB (say which and why). PROVE IT BEFORE IT COUNTS: replay tonight's recorded verdicts (the builder's ledger_2026* records hold the prompts and the vendor answers) and report agreement per verdict type, with every disagreement listed. Rule for use, until I rule otherwise: the local judge is a PRE-FILTER only. It may reject cheaply and rank; a clip or line-up it passes still gets the different-vendor verdict the laws require (L-s, L-x: never one model). So it can only save calls, never lower the bar. Under the GPU0 lease, released the moment a render asks (swap_to), no squatting.\"\nBackground: GPU0 belongs to whoever holds its lease (pipeline/gpu0.py, law L-r: an exclusive flock; gpu0.lease(owner, wait_s) raises LeaseBusy; gpu0.release_all() unloads everything this process loaded and waits until GPU0 is free; any model left on GPU0's Ollama that a render did not request is FOREIGN to it and holds the render). A render takes the lease with a NON-blocking flock (scripts/pulse_check_run.sh, exit 75 if it is held), so the judge must never sit on it. story_semantics.LocalLLM is the existing GPU0 client (gemma3:27b on the GPU0 Ollama, temperature 0, JSON format, num_ctx 16384; its _post requires the lease and swaps the model in). The builder (pp-selectid) records every vendor exchange as JSON {role, backend, prompt, max_tokens, seed, text, recorded_at} in tests/package/fixtures/replies; its rules: context_integrity._strict / A_KEYS / a_failures (step A: a moment passes when a_failures is empty), package.medley's contract and ok rule (COHERENCE_MIN, NO_LINE, LY_MAX_BRIDGES, joins()).\nThe change:\n- pipeline/local_judge.py: MODEL gemma3:27b (why in its docstring); recorded(): the builder's exchanges of the three families by their prompt openings, since SINCE (the first ledger build of the night), one job per (prompt, max_tokens, seed) with every vendor answer; run(): BATCH calls per lease; before EVERY call it checks YIELD_FLAG (/tmp/pulse_gpu0.yield, touched by whoever launches a render) and ends the batch; every batch ends with gpu0.release_all() in a finally before the lease goes; LeaseBusy is waited out; a failed call is recorded with its error and not retried; a Gpu0Stop propagates; answers append to JSONL so a stopped replay resumes.\n- pipeline/local_judge_compare.py: CPU, its own process with ONLY the builder's pipeline directory on sys.path (this one removed); reads vendor and local answers with the builder's rules; per family agreement; every disagreement listed by direction (local FAIL / vendor PASS = a good candidate lost by a pre-filter; local PASS / vendor FAIL = harmless); the angle step (a writer) by overlap (moment-set Jaccard, shared hooks) against the prompt's own validity rules; prefilter_rules(): candidate reject rules measured as saved (vendor also rejected) / lost (vendor passed).\n- pipeline/test_local_judge.py: 6 tests (selection; batches and release; the yield flag; a busy lease; a failed call; a GPU stop; the comparison in a subprocess).\nFIND: a way the judge holds GPU0 while a render asks (the flag, the lease, a model left resident); a fail-open or a crash in run() (an exception path that skips release_all, an answer lost or duplicated); a comparison that does not apply the builder's rules faithfully (step A labels, the clips-alone contract and ok rule) or counts agreement wrongly; the pre-filter direction reported wrongly; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 13.8,
+   "cost": 0.000940168,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 46.5,
+   "cost": 0.00046376,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 4,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 58.2,
+   "cost": 0.0031558775,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 19.8,
+   "cost": 0.000504556,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "high",
+   "file": "pipeline/local_judge.py",
+   "line": 96,
+   "issue": "run() can loop forever: after the yield-flag sleep it recomputes todo but if the flag is removed while it sleeps it re-enters the lease; conversely if the flag stays set it sleeps forever \u2014 but the real defect is the LeaseBusy path: when lease(OWNER, wait_s=0) raises LeaseBusy, the except clause sleeps and loops, but the finally inside the with never ran release_all because the lease was never acquired, so that is fine; the actual defect: when the yield flag is set mid-batch, the break exits the for, the finally runs release_all, the lease context exits, and the while loop recomputes todo \u2014 but done_ids(out) is re-read each pass, so a job whose answer was written before the break is correctly skipped; the defect is that the yield check happens BEFORE the lease, so between the flag check and lease acquisition a render can take the lease and the judge's lease(wait_s=0) raises LeaseBusy \u2014 handled. Verified defect: the yield flag is checked before every call, but the flag is only removed by the render AFTER it holds the lease, so the judge, holding the lease, sees the flag, breaks, releases, then loops and re-acquires the lease while the render is still waiting for it \u2014 the judge can reacquire the lease (wait_s=0 succeeds) before the waiting render, starving the render it just yielded to",
+   "evidence": "if render_wants_gpu0():\\n            break\\n        ...\\n        if render_wants_gpu0():\\n            log(f\"  yielding GPU0 to a render ({YIELD_FLAG}); {len(todo)} jobs left\")\\n            time.sleep(idle_s)\\n            continue\\n        try:\\n            with gpu0.lease(OWNER, wait_s=0):",
+   "fix": "After releasing on the yield, wait until the flag is gone (or until the lease is held by the render) before re-acquiring; e.g. sleep while render_wants_gpu0() before the lease, and note the flag is removed only once the render holds the lease, so the judge must not re-lease until then.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "high",
+   "file": "pipeline/local_judge.py",
+   "line": 104,
+   "issue": "A failed call is recorded with text=None and error set, but the comparison treats a recorded error as 'local out of contract' and, worse, the answer is written even when the call failed, so a resumed replay never retries it \u2014 the judge's replay permanently records a failure as the local verdict, and the comparison counts it in the denominator via local_out_of_contract but the job is excluded from agreement rows, so agreement percentages are computed over a shrinking, error-biased subset silently",
+   "evidence": "except Exception as e:                       # one failed call is recorded, never retried\\n                            err = f\"{type(e).__name__}: {str(e)[:300]}\"\\n                        with open(out, \"a\") as f:\\n                            f.write(json.dumps({\"id\": j[\"id\"], ... \"text\": text, \"error\": err,",
+   "fix": "On resume, retry jobs whose recorded line has error set (or text is null): done_ids should only count lines with a non-null text, so a failed call is retried on the next run.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "medium",
+   "file": "pipeline/local_judge_compare.py",
+   "line": 0,
+   "issue": "The comparison's step-A agreement counts a moment once per (job, vendor) pair, but the same moment label appears in every vendor answer of that job, so with multiple vendors per prompt the same local verdict is counted repeatedly, inflating the moment denominator and the agreement counts; the report presents these as moments, not (moment, vendor) pairs",
+   "evidence": "for x in rows[\"step_a\"]:\\n        for lb, vr in x[\"vendor\"].items():\\n            lr = x[\"local\"][lb]\\n            a[\"moments\"] += 1",
+   "fix": "Either report the denominator as (moment, vendor) comparisons, or deduplicate: compare the local verdict against each vendor but count each moment once for the headline agreement, or state the unit explicitly.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F4",
+   "severity": "medium",
+   "file": "pipeline/local_judge_compare.py",
+   "line": 0,
+   "issue": "prefilter_rules() for clips_alone computes 'saved'/'lost' over rows where the local verdict parsed, but the rule 'a local clip rating <= t' uses min(x[\"local\"][\"clips\"].values()) which includes the hook clip; the builder's contract rates the hook too, so this is faithful, but the 'no local through-line' rule counts a job once per vendor row, so with multiple vendors the same job's saved/lost counts are multiplied by the number of vendors, overstating the rule's coverage",
+   "evidence": null,
+   "fix": "Deduplicate by job id (or state the unit as (job, vendor) comparisons) in prefilter_rules, as the counts are presented as candidate-reject statistics per case, not per vendor comparison.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "pipeline/local_judge.py",
+   "line": 105,
+   "issue": "The judge holds the GPU0 lease and the model resident while sleeping to wait for a render (YIELD_FLAG), violating the requirement that it 'never sit on it' and 'released the moment a render asks'.",
+   "evidence": "if render_wants_gpu0():\n            log(f\"  yielding GPU0 to a render ({YIELD_FLAG}); {len(todo)} jobs left\")\n            time.sleep(idle_s)\n            continue",
+   "fix": "Release the lease and unload the model (gpu0.release_all()) before sleeping when the yield flag is detected, or restructure the loop to check the flag before acquiring the lease.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "pipeline/local_judge.py",
+   "line": 105,
+   "issue": "The yield flag check is performed only at the start of the outer loop, not before every individual LLM call as required by the spec ('before EVERY call it checks YIELD_FLAG').",
+   "evidence": "for j in todo[:batch]:\n                        if render_wants_gpu0():\n                            break",
+   "fix": "Move the `render_wants_gpu0()` check to immediately before the `llm._post` call inside the inner loop, ensuring it is checked for every single job.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "qwen27b:F3",
+   "severity": "medium",
+   "file": "pipeline/local_judge.py",
+   "line": 112,
+   "issue": "The code attempts to catch `gpu0.Gpu0Stop` but the test suite and background context indicate the exception raised by the GPU is `GpuOOM` (or similar), and `Gpu0Stop` is not defined in the provided diff. If `Gpu0Stop` does not exist, this line will raise a `NameError` or `AttributeError` when the exception is handled, potentially crashing the process or skipping the `finally` block if not caught correctly.",
+   "evidence": "except gpu0.Gpu0Stop:\n                            raise",
+   "fix": "Verify the correct exception class name in `gpu0` (likely `GpuOOM` or `Gpu0Error`) and update the `except` clause to catch the actual exception type that signals a GPU stop.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "qwen27b",
+   "severity": "high",
+   "file": "pipeline/local_judge.py",
+   "line": 112,
+   "issue": "Exception handling for GpuOOM/Gpu0Stop is inconsistent with the test and likely spec. The test `test_a_gpu_stop_is_never_swallowed` expects `GpuOOM` to propagate. The code catches `Exception` (which includes `GpuOOM` if it's not `Gpu0Stop`) and records it as an error, preventing propagation. If `GpuOOM` is a critical stop signal, it should propagate. If it's a transient error, it should be recorded. The test implies it should propagate. The code swallows it. This is a bug.",
+   "evidence": "except gpu0.Gpu0Stop:\n                            raise\n                        except Exception as e:                       # one failed call is recorded, never retried\n                            err = f\"{type(e).__name__}: {str(e)[:300]}\"",
+   "fix": "Ensure `GpuOOM` (or the specific stop exception) is caught and re-raised if it signifies a fatal stop, or update the test to match the 'record and continue' behavior if that is the intended design. Given the test name 'never swallowed', the code should likely re-raise `GpuOOM`."
+  },
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/local_judge.py",
+   "line": 96,
+   "issue": "Infinite-loop risk: if a job's prompt yields a family but the recorded() filter later changes, or more concretely, if a job's answer line is written but done_ids() then fails to parse it (truncated last line after a crash mid-write), json.loads raises inside done_ids and run() crashes \u2014 but worse, if the yield flag stays set forever (a render launched then aborted without removing it), run() sleeps forever with no timeout",
+   "evidence": "if render_wants_gpu0(): ... time.sleep(idle_s); continue \u2014 no maximum wait or flag staleness check",
+   "fix": "Add a staleness check on the flag (mtime) or a max yield wait."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/local_judge_compare.py",
+   "line": 0,
+   "issue": "_meta builder_rules runs git rev-parse without checking returncode; if BUILDER is not a git worktree, .stdout is empty and the provenance string is silently '... @ '",
+   "evidence": "subprocess.run([\"git\", \"-C\", BUILDER, \"rev-parse\", \"--short\", \"HEAD\"], capture_output=True, text=True).stdout.strip()",
+   "fix": "Check returncode and record the error."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_local_judge.py",
+   "line": 0,
+   "issue": "test_a_gpu_stop... asserts assertFalse(os.path.exists(self.out)) \u2014 but the GpuOOM is raised on the FIRST call, before any write, so the assertion is trivially true and does not test that answers written before the stop survive; also the finally's release_all is exercised, which is the real claim, but the 'no answers lost' property is untested",
+   "evidence": "mock.patch.object(FakeLLM, \"_post\", mock.Mock(side_effect=self.gpu0.GpuOOM(...))) \u2014 every call raises, so no line is ever written",
+   "fix": "Make the fake raise GpuOOM only on the second call and assert the first answer is still on disk."
+  }
+ ],
+ "total_cost": 0.0050643615,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch61_local_judge/cycle1/heimdall"
+}

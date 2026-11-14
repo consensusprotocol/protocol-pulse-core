@@ -1,0 +1,14 @@
+# Heimdall audit
+
+**Question:** Batch 36 = law L-r item 4 amended (orchestrator 2026-11-12 '11:57'): a process using GPU0 that is not this run's ('foreign'), found at a swap (gpu0.swap_to, and the same check in release_all), used to HOLD the run at once (Gpu0Foreign). Now it is first WAITED OUT: gpu0._refuse_foreign polls foreign() every FOREIGN_POLL_S = 15 s for up to FOREIGN_WAIT_S = 600 s (an Ollama model with a keep-alive leaves by itself), prints and records who it was in the run's GPU0 events ({key: foreign_wait, what, foreign, waited_s, left}), and proceeds when it has left; Gpu0Foreign (a HOLD naming it) only if it is still there after the wait. Nothing that is not this run's is ever killed or unloaded. Tests: existing foreign-refusal tests run with a 0 s wait (unchanged expectations); new: an Ollama model that leaves during the wait is waited out, logged, nothing unloaded; a foreign allocation that never leaves still holds, naming it, nothing killed; the defaults are 600 / 15; the live test (a real foreign allocation that never leaves) still holds at every stage with a 1 s wait.
+FIND: any way a foreign GPU0 user is killed / unloaded, or the run proceeds while it is still there; any path that now waits forever or swallows a different GPU0 error; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, deepseek  |  **Cost:** $0.0069
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

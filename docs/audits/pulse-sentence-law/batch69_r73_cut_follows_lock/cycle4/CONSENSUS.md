@@ -1,0 +1,2 @@
+# Batch 69 cycle 4 (the amendment's second cycle): no consensus findings
+glm F1 [low], single vote: 'the medley case passes at 400 ms too'. It does not. At 400 ms the bound is 14.94 - 0.40 = 14.54, above the cut 14.38, so the cut moves (measured at 18:08: 41f29b1f hook -> 14.57, 37c5b5f5 clip_02 -> 14.69), and the case's assertion (cut_lo 14.34, cut kept at 14.38) would fail. It distinguishes 600 from 400.

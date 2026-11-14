@@ -1,0 +1,26 @@
+grok-4-0709: 43.0 s, vendor cost 0.0126781
+{
+  "verdict": "FAIL",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "file": "pipeline/vertical_layout.py",
+      "line": 204,
+      "issue": "single shot with no faces crashes on median",
+      "evidence": "if lab == \"single\":\n            shot[\"face_cx\"] = int(np.median([f[0][1] for f in faces]))",
+      "fix": "guard faces before median / single_crop call"
+    },
+    {
+      "id": "F2",
+      "severity": "high",
+      "file": "pipeline/vertical_layout.py",
+      "line": 230,
+      "issue": "when no clear x, returns base which can violate face margin",
+      "evidence": "if clear:\n        ...\n    return base, {\"rule\": \"ruling 93\", ..., \"cut\": True, ...}",
+      "fix": "ensure base always satisfies margin or fall back to safe default"
+    }
+  ],
+  "confidence": 0.8
+}
+grok exit 0

@@ -23,15 +23,24 @@ BOUNDARY_FRAMES = 3
 VISION_MODELS = ("qwen/qwen3.8-27b", "nvidia/nemotron-3.5-super-vl")   # Heimdall gateway, image input
                                            # (listed 2026-11-11); a "no" from EITHER holds
 VISION_BASE = "https://api-staging.heimdallm.com/api/v1"
+XAI_BASE = "https://api.x.ai/v1"     # law L-x: a second VENDOR for V1's vision ('xai:<model>'); measured before it is seated
 
 CHECKLIST = [
     ("credits_round_and_match", "On the credits card (full-resolution panel) every channel avatar is the channel's "
                                 "own round PROFILE picture: not a video thumbnail (no headline text or title words "
                                 "inside the circle), not squashed or stretched, and the names under the circles are "
                                 "the channels whose clips appear in the video (use the channel list given above: "
-                                "a 9:16 crop can hide a show's own branding)."),
+                                "a 9:16 crop can hide a show's own branding). Exception (ruling 20): when the "
+                                "channel list above says a channel's registered avatar is its own monogram or logo "
+                                "showing given letters, that circle must show exactly that monogram / logo (its "
+                                "letters are not headline text); any other text in it, a thumbnail, a different "
+                                "monogram, or a squashed or warped circle is still 'no'."),
     ("vertical_speaker_centred", "On a 9:16 sheet: every talking-head segment shows its speaker centred in the "
-                                 "frame, or the segment is a shared screen / chart (layout=screen). On a 16:9 sheet: n/a."),
+                                 "frame, or the segment is a shared screen / chart (layout=screen). For a time span the "
+                                 "layout note names as a STACK (two speakers in two panels, one above the other; ruling "
+                                 "23): answer about EACH face: each face centred in ITS OWN panel and no panel edge "
+                                 "cutting through a face; every other span gets the single-speaker question. On a 16:9 "
+                                 "sheet: n/a."),
     ("no_letterbox_on_talking_heads", "Look at the full-resolution first-frame panels and the stills of every "
                                       "talking-head segment (a person speaking to camera). Answer 'no' if ANY of them "
                                       "shows the person inside a smaller horizontal picture band in the middle of the "
@@ -185,17 +194,50 @@ def _call(req, timeout):
     return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
 
 
+def _xai_key():
+    env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+    try:
+        with open(env) as f:
+            return next(l.split("=", 1)[1].strip().strip('"\'') for l in f if l.startswith("XAI_API_KEY"))
+    except (OSError, StopIteration):
+        raise RuntimeError("xAI vision route not configured: XAI_API_KEY not found in the repo .env") from None
+
+
+def _call_xai(image_path, text, model, timeout):
+    """(content, raw) of one xAI vision call (law L-x: a second vendor for V1). Raises on a route error."""
+    import urllib.request
+    with open(image_path, "rb") as f:
+        img = base64.b64encode(f.read()).decode()
+    body = {"model": model.split(":", 1)[1], "temperature": 0, "max_tokens": 4000,
+            "messages": [{"role": "user", "content": [{"type": "text", "text": text},
+                                                      {"type": "image_url",
+                                                       "image_url": {"url": f"data:image/jpeg;base64,{img}"}}]}]}
+    req = urllib.request.Request(f"{XAI_BASE}/chat/completions", data=json.dumps(body).encode(),
+                                 headers={"Authorization": f"Bearer {_xai_key()}", "Content-Type": "application/json"})
+    raw = json.loads(urllib.request.urlopen(req, timeout=timeout).read())
+    return (raw.get("choices") or [{}])[0].get("message", {}).get("content") or "", raw
+
+
+def _call_any(image_path, text, model, timeout):
+    """(content, raw) from the model's own route: 'xai:<name>' the xAI vendor (law L-x), any other name the Heimdall
+    gateway. Raises on a route error (callers retry, then HOLD). No local route here: GPU0's Ollama is called only
+    through story_semantics.LocalLLM (law L-r, test_gpu0 TestNoDirectLoaders), and the local candidate measured for V1
+    (gemma3:27b, 2026-11-12: 0 of 5 must-fail cases caught, bible E-FAIL-076) is not seated."""
+    if model.startswith("xai:"):
+        return _call_xai(image_path, text, model, timeout)
+    return _call(_request(image_path, text, model), timeout)
+
+
 def ask_vision(sheet_path, fmt, layout_note="", model=VISION_MODELS[0], timeout=600, attempts=2, channels_note=""):
     """The checklist answered by ONE Heimdall vision model from the sheet image: (answers, raw). An
     unparseable reply or a route error is retried, then answers = {} (every line missing = HOLD, never a crash)."""
     qs = "\n".join(f"- {k}: {q}" for k, q in CHECKLIST)
     text = PROMPT.format(fmt=fmt, layout_note=layout_note or "", channels_note=channels_note or "", questions=qs,
                          keys=[k for k, _ in CHECKLIST])
-    req = _request(sheet_path, text, model)
     tries = []
     for _ in range(attempts):
         try:
-            content, raw = _call(req, timeout)
+            content, raw = _call_any(sheet_path, text, model, timeout)
         except Exception as e:                      # network / HTTP / bad body: retried, then no answer = HOLD
             tries.append({"error": f"{type(e).__name__}: {e}"[:500]})
             continue
@@ -260,10 +302,9 @@ def ask_letterbox(path, model, timeout=600, attempts=2, trail=None):
     """'yes' / 'no' from one model about one frame, or None (no clear answer after the retries). Every attempt
     (error, or the reply's answer and reason) is appended to `trail` when given (it lands in GATE_REPORT)."""
     trail = [] if trail is None else trail
-    req = _request(path, LETTERBOX_PROMPT, model)
     for _ in range(attempts):
         try:
-            content, _raw = _call(req, timeout)
+            content, _raw = _call_any(path, LETTERBOX_PROMPT, model, timeout)
         except Exception as e:                      # route error: retried, then no answer
             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
             continue
@@ -334,10 +375,9 @@ def boundary_pairs(final, segments, work_dir):
 def ask_boundary(path, model, timeout=600, attempts=2, trail=None):
     """'yes' (the left frame shows the next segment) / 'no', or None (no clear answer after the retries)."""
     trail = [] if trail is None else trail
-    req = _request(path, BOUNDARY_PROMPT, model)
     for _ in range(attempts):
         try:
-            content, _raw = _call(req, timeout)
+            content, _raw = _call_any(path, BOUNDARY_PROMPT, model, timeout)
         except Exception as e:
             trail.append({"error": f"{type(e).__name__}: {e}"[:300]})
             continue

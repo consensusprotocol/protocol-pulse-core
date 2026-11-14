@@ -1,0 +1,118 @@
+{
+ "question": "Batch 69 = RULING 73 (orchestrator 2026-11-13 '18:00'), verbatim: \"THE CUT FOLLOWS THE LOCK'S WORDS. (a) OUT: the out point is never before the decoded END of the lock's LAST word. A pause inside the locked text is not a cut point, however long: the sentence law looks for the tail pause only AFTER the last locked word. (The hook ended on 'or' at a 130 ms pause before 'reissued'.) (b) IN: the in point is never more than 400 ms before the first locked word's onset (and never less than the head-lead rule requires: 80 ms, or the declared pad). Dead air before the first word is trimmed to that lead; if the audio in that lead is not quiet by the head rule, hold with that reason. (clip_01 opened 3.47 s before 'I'.) (c) Both are checked at the pin-stage pre-check service too (ruling 68 / 72), so the builder learns before the seal that a span cannot be cut to these rules. Must-fail tests: both of 13949b7c's spans fail on the old code and pass on the fix; the three delivered pins' cuts are unchanged by it (0c68b589, 41f29b1f, 37c5b5f5: same in / out to the frame, or say which moved and why).\"\nBackground (measured on the real run pinned_20261113_221758):\n- the hook's pause_out (26.99-27.12) lies inside the decoded last word 'reissued.' (26.66-27.54). boundary() searches the quiet run between the two words' MIDPOINTS (a guard for Whisper's off edges), and the hesitation run's end (27.12) just crosses the midpoint (27.10).\n- clip_01's decode has a 4.58 s hole before 'I' (14.44). The IN pause found is a 60 ms dip at 10.96, so the clip opens on 3.47 s of non-speech (the second recogniser hears no words; Whisper hallucinates 'thank you').\nThe change (pipeline/sentence_law.py, pipeline/lock_precheck.py):\n- boundary(..., tail=False): with tail=True (only the edge after a lock's last word) the pause is searched from words[k]['end'] to the next word's midpoint. A run inside the last word cannot be chosen; a run crossing the decoded end still can.\n- edge_plan calls boundary(sa, words, i1, tail=True), then _ruling73(bin_, bout, words, i0, i1), which narrows the legal ranges:\n  - OUT cut_lo >= words[i1]['end'];\n  - IN cut_lo >= words[i0]['start'] - IN_LEAD_MAX_S (0.400). The cut is moved to start - LEAD_TARGET_S (0.25) when it was before the bound. A file head keeps its quiet up to the bound.\n  - Not cuttable when the range empties, with a reason naming (ruling 73 a / b).\n  - The head-lead rule is untouched: ruling 28's hook_lead (80 ms) and the D1 pad still run, now inside the narrowed range.\n- accepted_cut: a cut placed at the boundary point (DEC-10 d valley / short gaps) is clamped into [cut_lo, cut_hi], so no path cuts outside the ranges. G16 (_edge_row) reads the same ranges.\n- sentence_law.lock_cut(src, words, lock, label): write_lock_cut_table's per-segment body moved verbatim (edge_plan, accepted_cut, hook_lead for the hook, the trimmed onset rule). write_lock_cut_table calls it, and so does the pre-check (c): after ruling 17 / 72 a span whose lock stands is cut with it, and an error holds with \"ruling 73: the render cannot cut this span: ...\". RULES becomes \"ruling 17 + ruling 72 + ruling 73\".\nMEASURED (the cut table recomputed with the old and the new code on the runs' own files):\n- 13949b7c: hook OUT 27.09 -> 27.78 (after 'reissued.'s end); clip_01 IN 10.97 -> 14.04; clip_01 OUT +20 ms; clip_02 unchanged.\n- 0c68b589: unchanged (its clip_01 OUT recomputes one 10 ms hop off with the OLD code too).\n- Every OUT of every delivered pin: unchanged.\n- ONE span moves IN: 'Bitcoin ... ever.' (41f29b1f's hook 14.38 -> 14.57; 37c5b5f5's clip_02 14.38 -> 14.69). It opened 0.56 s before its first word. It is also the protected medley reference's hook, so that reference's reproduction reports the changed decision (an orchestrator ruling is pending; not merged).\nTests:\n- test_ruling73.py: _ruling73 unit tests (a, b, file head); the must-fail on 13949b7c's real run (fails on the old sentence_law, passes on the fix); the delivered pins' cuts unchanged but the named span (fails on the old code because the named span did not move).\n- test_lock_precheck.py: a span the render cannot cut holds before the seal; a passing span records the render's cut.\n- 32 passed.\nFIND: a path that can still cut outside the narrowed ranges (OUT before the decoded end, IN more than 400 ms early); a behaviour change for spans the rule does not touch (the refactor of write_lock_cut_table must be verbatim); the head-lead rule weakened; a pre-check verdict that differs from the render's cut table for the same span; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 7.8,
+   "cost": 0.0013572265,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 25.1,
+   "cost": 0.000368528,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 12.0,
+   "cost": 0.0008259485,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 38.6,
+   "cost": 0.000445439,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/sentence_law.py",
+   "line": 730,
+   "issue": "accepted_cut's ruling-73 clamp only guards the point path; the fallback path returns cand['in'][0]/cand['out'][0] unclamped, so a candidate outside [cut_lo, cut_hi] still cuts outside the narrowed ranges",
+   "evidence": "cut_in = clamp(plan[\"in\"], plan[\"in\"][\"point\"]) if v[\"in\"] and plan[\"in\"].get(\"point\") is not None else cand[\"in\"][0]",
+   "fix": "Clamp the fallback too: cut_in = clamp(plan['in'], cand['in'][0]) (same for out), or assert the candidate lies in range.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/sentence_law.py",
+   "line": 383,
+   "issue": "_ruling73's IN narrowing can raise cut_hi above the original range, letting the IN cut sit after the first locked word's onset, outside the pause the plan validated; accepted_cut's clamp then trusts the widened hi",
+   "evidence": "hi = max(bin_[\"cut_hi\"], bound) if bin_.get(\"file_head\") else bin_[\"cut_hi\"]   # a file head keeps its quiet",
+   "fix": "For non-file-head edges keep hi = min(bin_['cut_hi'], words[i0]['start']) (or the pause end) so the cut cannot land past the first word's onset; the file-head branch already shows the intended pattern.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/lock_precheck.py",
+   "line": 337,
+   "issue": "The pre-check records the render's cut but never compares it against the plan's legality beyond cut['error']; a lock_cut that returns verified:False with a ruling-28/33 error (not via the cut.get('error') path... it does set error) still holds, but a successful cut whose values later drift from the render's own inputs (e.g. different SourceAudio decode) is recorded as the verdict with no equality check, so a pre-check verdict can differ from the render's cut table for the same span",
+   "evidence": "cut = sentence_law.lock_cut(a[\"path\"], a[\"transcript\"][\"words\"], lock, \"hook\" if s[\"role\"] == \"hook\" else \"clip\")",
+   "fix": "Have the pin stage reuse the pre-check's recorded cut (or re-verify equality) so (c) guarantees the same verdict, rather than recomputing independently on possibly different transcripts/decodes.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/sentence_law.py",
+   "line": 383,
+   "issue": "_ruling73's IN narrowing sets cuttable = bool(bin_.get('cuttable')) and ok, but when the range empties (ok False) it keeps the OLD 'cut' value (target = bin_['cut'] if >= bound else start - LEAD_TARGET_S) which may lie outside the now-empty range; harmless because cuttable False blocks the cut, but the recorded 'cut' field is misleading",
+   "evidence": "bin_.update(cut_lo=bound, cut_hi=round(hi,3), cut=round(min(max(target, bound), hi),3), cuttable=... and ok, ...)",
+   "fix": "None needed; cosmetic only, or set cut=None when not cuttable."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/test_ruling73.py",
+   "line": 100,
+   "issue": "TestTheDeliveredCuts.test_unchanged_but_the_named_span compares against MOVED hardcoded values (14.57/14.69) with a HOP=0.0101 tolerance, but it does not verify the moved IN actually satisfies ruling 73 (b) (cut_in >= start-0.400) nor that the moved value equals the ruling-73 bound (start-0.25); it only checks the cut moved to the expected number, so if _ruling73's target logic changed the test would still pass as long as the number matches",
+   "evidence": "want_in = MOVED.get((name, cid), o['cut_in']); self.assertLessEqual(abs(n['cut_in'] - want_in), HOP, ...)",
+   "fix": "Also assert n['cut_in'] >= words[i0]['start'] - SL.IN_LEAD_MAX_S for the moved spans, tying the test to the rule rather than the number."
+  }
+ ],
+ "total_cost": 0.0029971420000000004,
+ "out_dir": "/home/ultron/worktrees/r73/docs/audits/pulse-sentence-law/batch69_r73_cut_follows_lock/cycle1/heimdall"
+}

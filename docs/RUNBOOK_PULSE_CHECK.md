@@ -15,7 +15,7 @@ scripts/pulse_check_run.sh --no-telegram       # everything except the drop
 - Runs in its own detached tmux session `pipeline_pulse_check_<UTC stamp>` (the cron'd
   scripts/tmux_cleanup.sh keeps `pipeline*` sessions; nothing else is touched). `--foreground` runs inline.
 - One run at a time: `flock /tmp/pulse_check_run.lock` (a second call exits 75 immediately).
-- GPU0 only (`CUDA_VISIBLE_DEVICES=0`). GPU1 is never used (Ollama :11435 is quarantined there).
+- Renders run on GPU0 (`CUDA_VISIBLE_DEVICES=0`), under the GPU0 lease. EVERY GPU HAS ONE OWNER AT A TIME (law L-r; PBX lifted the GPU1 quarantine 2026-11-12): GPU0 = renders and the gates with render-side models (NVENC, the face detector / vision gates, gemma for the editorial gate); GPU1 = everything else (the word-pass worker, the website's Ollama fallback, the watchdog / briefs / stage broadcast models on Ollama :11435, local A/B runs), each under the GPU1 lease (`/tmp/pulse_gpu1.lease`; Ollama-only callers through `gpu0.ollama_call(1, ...)`).
 - Log: `logs/pulse_check/run_<stamp>.log` (git HEAD, run dir, exit code, Telegram message ids).
 - Exit: 0 = every gate passed; 3 = HOLD (see the run's REPORT.md); 75 = locked; 64 = usage.
 - NOT installed in cron. Installing it is PBX's decision.
@@ -100,7 +100,7 @@ To re-produce a delivered story on purpose, remove its line (and say so in the r
 - Change what a gate accepts to make a render pass (DEC-1 calibration to the approved v2f reference is the
   one recorded exception). Record the evidence instead.
 - Touch references/v2f_2026-11-06 (Law 22): after any render change, re-render it and compare sha256.
-- Use GPU1, Gunicorn, or kill avatar_server.py; print .env or keys.
+- Load anything on a GPU without that GPU's lease, put render work on GPU1 or GPU1 work on GPU0, use Gunicorn, or kill avatar_server.py; print .env or keys.
 
 ## After a code change
 

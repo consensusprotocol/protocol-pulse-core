@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{# BTC IN DC TAKEDOWN (2026-11-12): no BTC in DC partnership agreement exists (the organiser wrote to Consensus Protocol; PBX is replying that the references are down until one exists). Every BTC in DC reference here is behind this flag. Restore when the BTC in DC partnership agreement is signed: set show_btc_in_dc = true. #}
+{% set show_btc_in_dc = false %}
 {% block title %}Advertise | Protocol Pulse Media Kit{% endblock %}
 {% block meta_description %}Reach thousands of Bitcoin-first builders, investors, and operators. Protocol Pulse media kit and sponsorship packages.{% endblock %}
 
@@ -467,7 +469,7 @@
 
   <!-- ── HERO ── -->
   <section class="sp-hero">
-    <div class="sp-hero-badge">Media Kit · 2025–2026</div>
+    <div class="sp-hero-badge">Media Kit</div>
     <h1>Reach the <span>Bitcoin-First</span> Audience</h1>
     <p class="sp-hero-sub">Protocol Pulse delivers daily intelligence to thousands of Bitcoiners who build, invest, and influence. Your brand. Their attention.</p>
     <div class="sp-hero-actions">
@@ -682,12 +684,12 @@
     <h2>Sponsor Our Events</h2>
     <p class="sp-section-desc">Event sponsors get stage time, booth presence, VIP access, and content features across all our platforms.</p>
 
-    <div class="sp-events-grid">
+    <div class="sp-events-grid"{% if not show_btc_in_dc %} style="grid-template-columns:1fr;max-width:560px;margin-left:auto;margin-right:auto;"{% endif %}>
       <div class="sp-event-card">
         <div class="sp-event-header">
           <div class="sp-event-location">// Naples, FL</div>
           <div class="sp-event-name">BitcoinDay Naples</div>
-          <div class="sp-event-date">Date TBD — 2025</div>
+          <div class="sp-event-date">Date TBD</div>
         </div>
         <div class="sp-event-body">
           <ul>
@@ -701,6 +703,7 @@
         </div>
       </div>
 
+      {% if show_btc_in_dc %}
       <div class="sp-event-card">
         <div class="sp-event-header">
           <div class="sp-event-location">// Washington, D.C.</div>
@@ -718,6 +721,7 @@
           <a href="mailto:sponsors@protocolpulse.io?subject=BTC in DC Sponsorship" class="sp-tier-cta" style="display:block;text-align:center;padding:10px;border-radius:4px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.85);text-decoration:none;font-size:0.85rem;transition:all 0.2s;">Inquire About Sponsorship →</a>
         </div>
       </div>
+      {% endif %}
     </div>
   </section>
 

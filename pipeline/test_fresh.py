@@ -306,6 +306,48 @@ class TestRunFreshRules(unittest.TestCase):
                              cwd=PIPELINE).stdout.strip().splitlines()[-1]
         self.assertEqual(out, "[]")
 
+    def test_a_moments_first_package_is_about_its_label_never_its_title(self):
+        """Law L-q / pp-selectid R7 item 4: the stand-alone subject of a moments-first EDL is the pin label; a pinned
+        or auto EDL keeps its story / angle subject (unchanged)."""
+        from run_fresh import stand_alone_subject
+        import stand_alone as SA
+        mf = {"topic": "bitcoin", "angle": "Pinned: Keep your keys off exchanges", "moments_package_sha256": "a" * 64,
+              "mode": "pinned", "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True}}
+        self.assertEqual(stand_alone_subject(mf, {}), {"bitcoin", "btc"})
+        self.assertEqual(stand_alone_subject(mf, {"affected_object": "Binance hot wallet"}), {"bitcoin", "btc"})
+        for bad in ({"topic": "ethereum"}, {"topic": ""}, {"topic": None}, {"topic": True}, {"topic": "bitcoin cash"},
+                    {"topic": "not bitcoin"}, {"topic": "btc etf"}, {"moments_package_sha256": "A" * 64},
+                    {"moments_package_sha256": "abc"}, {"moments_package_sha256": True},
+                    {"moments_package_sha256": None}, {"mode": "auto"}, {"moments_checks": None},
+                    {"moments_checks": {"vo_fidelity_ok": True}},
+                    {"moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": "true"}}):
+            self.assertEqual(stand_alone_subject({**mf, **bad}, {}), set(), bad)        # only 'bitcoin'; else closed
+        no_topic = {k: v for k, v in mf.items() if k != "topic"}
+        self.assertEqual(stand_alone_subject(no_topic, {}), set())
+        stub = {"hook": {"text": "Bitcoin is money.", "channel": "X"},
+                "clips": [{"index": 1, "text": "Bitcoin fixes this.", "channel": "Y"}]}
+        self.assertTrue(SA.check_edl(stub, subject=stand_alone_subject(mf, {}))["ok"])      # the control
+        held = SA.check_edl(stub, subject=stand_alone_subject({**mf, "topic": "bitcoin cash"}, {}))
+        self.assertFalse(held["ok"])                                                        # an empty subject HOLDS,
+        self.assertFalse(held["rows"][0]["topic"]["pass"])                                  # on the hook's topic
+        pinned = {k: v for k, v in mf.items() if k != "moments_package_sha256"}           # every other run: as before
+        self.assertEqual(stand_alone_subject(pinned, {}), {"exchanges", "keep", "keys", "pinned", "your"})
+        self.assertEqual(stand_alone_subject({"topic": "Binance hack"}, {}), {"binance", "hack"})
+        self.assertEqual(stand_alone_subject(pinned, {"affected_object": "Binance hot wallet"}), {"binance", "wallet"})
+        self.assertEqual(stand_alone_subject(pinned, {"underlying_event": "Bitcoin ETF outflows"}), {"bitcoin", "btc"})
+
+    def test_stage_validate_takes_its_subject_from_the_helper(self):
+        import ast
+        tree = ast.parse(open(os.path.join(PIPELINE, "run_fresh.py")).read())
+        fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == "stage_validate")
+        assigns = [ast.unparse(a) for a in ast.walk(fn) if isinstance(a, ast.Assign)]
+        self.assertIn("subject = stand_alone_subject(edl, story)", assigns)                   # the helper, with the story
+        checks = [c for c in ast.walk(fn) if isinstance(c, ast.Call) and ast.unparse(c.func) == "stand_alone.check_edl"]
+        self.assertEqual(len(checks), 1)
+        self.assertEqual({k.arg: ast.unparse(k.value) for k in checks[0].keywords}.get("subject"), "subject")
+        names = {ast.unparse(c.func) for c in ast.walk(fn) if isinstance(c, ast.Call)}
+        self.assertFalse({n for n in names if n.endswith("subject_terms")})                 # no other derivation
+
     def test_fallback_regex(self):
         from run_fresh import FALLBACK_RE
         self.assertEqual(FALLBACK_RE.findall("  WARNING: reframe failed for clip_02, using original\n"),

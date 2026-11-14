@@ -1,0 +1,55 @@
+{
+  "format": "16x9",
+  "segments": [
+    {
+      "label": "hook",
+      "start": 0.0,
+      "end": 4.667,
+      "type": "talking_head",
+      "first_word": "Bitcoin",
+      "last_word": "ever.",
+      "layout": "2face",
+      "source_faces": 2
+    },
+    {
+      "label": "clip_01",
+      "start": 4.667,
+      "end": 24.542,
+      "type": "talking_head",
+      "first_word": "I",
+      "last_word": "well.",
+      "layout": "single",
+      "source_faces": 1
+    },
+    {
+      "label": "clip_02",
+      "start": 24.542,
+      "end": 41.833,
+      "type": "talking_head",
+      "first_word": "However,",
+      "last_word": "undervalued.",
+      "layout": "single",
+      "source_faces": 1
+    },
+    {
+      "label": "vo_bridge_01",
+      "start": 41.833,
+      "end": 52.333,
+      "type": "vo",
+      "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant."
+    },
+    {
+      "label": "shoutout",
+      "start": 52.333,
+      "end": 61.875,
+      "type": "shoutout"
+    },
+    {
+      "label": "outro",
+      "start": 61.875,
+      "end": 66.333,
+      "type": "outro"
+    }
+  ],
+  "shoutout_start": 52.3333
+}

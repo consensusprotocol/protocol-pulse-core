@@ -15,17 +15,25 @@ Rules:
     R4 VO_BUDGET:             VO <= 25% of total runtime. Intro <= 30 words,
                               bridge <= 20 words, signoff <= 24 words.
                               One bridge per channel transition.
-    R5 CLIP_LENGTH:           8-25s continuous speech per clip. >= 2 distinct
+    R5 CLIP_LENGTH:           (law L-o) >= 2 measured clips from >= 2 channels; 12-20s = TASTE, a recorded deviation. >= 2 distinct
                               channels. Every channel >= 8s screen time.
     R6 CREDITS_MATCH:         Channels in shoutout/signoff/reply == channels
                               in EDL, in EDL order. Unique avatar hashes.
     R7 VERTICAL_LAYOUT_KNOWN: Every (channel, tile_count) must have an
                               explicit layout table entry.
-    R8 G10_CHYRON_REGISTRY:   Only channels with has_chyron=true trigger G10.
+    R8 G10_CHYRON_REGISTRY:   informational: has_chyron channels (a hint; G10 runs on every clip, ruling 93).
     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
                               that ends a sentence (. ? !) plus 0.20-0.45s tail
                               pause, strictly before the next source word starts.
+    R11 VO_SHAPE:             (law L-y) a package of type 'moments': at most one
+                              takeaway after the last clip and at most ONE line
+                              before it (intro slot or between clips), only with
+                              the package's recorded, confirmed bridge. No minimum.
+    takeaway_value (ruling 91, medley half): NOT a validate_edl rule (the
+                              references predate it); the live path calls it: a
+                              medley's takeaway only with its sealed value verdict.
 """
+import math
 import argparse
 import json
 import os
@@ -71,10 +79,35 @@ def _passage_overlap(clip_a, clip_b):
 # R1: NO_QUESTION_HOOK
 # ==============================================================
 
+QUESTION_HOOK_JOIN = "hook -> clip_01"     # the join that follows the hook, as the packager names joins
+
+
+def question_hook_join(edl):
+    """Ruling 37 (orchestrator 2026-11-13 '03:42'): (ok, why) for the join that follows a question hook, from the
+    package's SEALED gate rows (moments_gates): the clips-alone verdict (gates.medley) measured, exactly PASS, not
+    replayed, its "flagged" a list WITHOUT that join; the blind coherence check (gates.coherence) exactly PASS, not
+    replayed. Anything else fails closed."""
+    gates = edl.get("moments_gates")
+    med = gates.get("medley") if isinstance(gates, dict) else None
+    coh = gates.get("coherence") if isinstance(gates, dict) else None
+    if not isinstance(med, dict) or med.get("status") != "PASS" or med.get("replayed") is not False \
+            or not isinstance(med.get("flagged"), list):
+        return False, "the clips-alone verdict is not on the pin (moments_gates.medley: PASS, live, with its flagged joins)"
+    if QUESTION_HOOK_JOIN in med["flagged"]:
+        return False, f"the clips-alone verdict flagged the join that follows it ({QUESTION_HOOK_JOIN})"
+    if not isinstance(coh, dict) or coh.get("status") != "PASS" or coh.get("replayed") is not False:
+        return False, "the blind coherence check did not pass (moments_gates.coherence: PASS, live)"
+    return True, (f"the clips-alone verdict passes the join that follows it ({QUESTION_HOOK_JOIN} not flagged) and the "
+                  f"blind coherence check passes")
+
+
 def rule_r1(edl):
     """Hook passage must be a statement, not a question.
     A passage that contains both a question AND an answer (ending on a statement)
-    is acceptable — the rule targets pure-question hooks only."""
+    is acceptable — the rule targets pure-question hooks only.
+    Ruling 37 (orchestrator 2026-11-13 '03:42'), moments packages only: a hook may end on a question when the clips-alone
+    verdict and the blind coherence check pass the join that follows it (question_hook_join); a question ending stays
+    refused for every non-hook clip. Every other EDL: unchanged."""
     hook = edl.get("hook", {})
     text = hook.get("text", "")
     if not text:
@@ -84,8 +117,18 @@ def rule_r1(edl):
     sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
     last_sentence = sentences[-1] if sentences else text
 
+    moments = edl.get("package_type") == "moments" and "moments_package_sha256" in edl
+    if moments:
+        asked = [f"clip_{c.get('index')}" for c in edl.get("clips") or []
+                 if isinstance(c, dict) and str(c.get("text") or "").rstrip().endswith("?")]
+        if asked:
+            return False, f"R1 FAIL (ruling 37): a question ending is refused for every non-hook clip: {asked}"
+
     # Check if the passage ENDS on a question (last meaningful sentence)
     if text.rstrip().endswith("?"):
+        if moments:
+            ok, why = question_hook_join(edl)
+            return ok, f"R1 {'PASS' if ok else 'FAIL'} (ruling 37): the hook ends on a question and {why}"
         # Pure question ending — fail
         return False, f"R1 FAIL: hook ends with question: '{text[:60]}...'"
 
@@ -150,8 +193,100 @@ def rule_r3(edl):
 # R4: VO_BUDGET
 # ==============================================================
 
+MOMENTS_VO_SHARE = 0.45           # law L-q ('06:00': 40 %; ruling 9, '08:29': 45 %): the host makes points; a TASTE limit
+MOMENTS_RUNTIME_S = (60.0, 70.0)  # law L-o: the format, the one hard length rule (stays hard)
+FINAL_TAIL_S = 14.30              # what a final adds to its segments' word spans: credits card + sign-off, outro, cut
+                                  # leads / tails, pads (approved preview: 71.08 s finals - 56.78 s word spans)
+MOMENTS_TAKEAWAY_WORD_CAP = 30    # ruling 10 ('08:40'): the TAKEAWAY (the line after the LAST clip, a slot that did not exist
+                                  # when BRIDGE_WORD_CAP was set) has the intro's cap; bridges BETWEEN clips keep 20
+R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
+SPOTLIGHT_RUNTIME_S = (28.0, 50.0)  # law L-ab (ruling 90): a spotlight's format, the one hard length rule of that kind
+SPOTLIGHT_MOMENT_S = (12.0, 35.0)   # law L-ab: the one moment's target (TASTE, law L-o: a recorded deviation)
+SPOTLIGHT_CLOSING_WORD_CAP = 12     # ruling 91: the closing line, when it earned its place
+
+
+def _spotlight(edl):
+    """Law L-ab: a validated moments package of the spotlight kind (pinned.build_edl writes package_shape)."""
+    return edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight"
+
+
+def _r4_moments(edl):
+    """R4 for a package of type 'moments' (law L-q, orchestrator '06:00'; cap 45 % by ruling 9, '08:29'; a TASTE rule,
+    recorded under L-o / L-q; story-type pins keep the rule below). One VO line per slot: the intro after the hook, and
+    at most one line after each clip, the LAST clip included (the takeaway: render16 / render_vertical play it before
+    the shout-out); a line with no such slot fails. VO (intro + lines, each words / 2.5 + the 1.0 s pre-roll) <= 45 % of
+    the TOTAL estimated runtime (orchestrator '06:22'). The estimated final runtime (hook + clips + VO + FINAL_TAIL_S)
+    inside 60-70 s (hard, L-o). Word
+    caps unchanged. The sign-off is generated at the voice stage from the credits (not in the share; in the tail).
+    Fail closed (cycle 1 of its audit): the EDL must carry a validated moments package (the 64-hex package digest,
+    pinned mode, both gate verdicts exactly true, as pinned.build_edl writes them); every hook / clip a measured
+    positive finite duration; clip indexes exactly 1..n; no empty VO line; limits compared on exact values."""
+    vo = edl.get("vo") or {}
+    clips = edl.get("clips") or []
+    idx = [c.get("index") for c in clips]
+    failures = []
+    sha, checks = edl.get("moments_package_sha256"), edl.get("moments_checks")
+    if not (isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{64}", sha) and edl.get("mode") == "pinned"
+            and isinstance(checks, dict) and checks.get("vo_fidelity_ok") is True
+            and checks.get("context_integrity_ok") is True):
+        failures.append("package_type 'moments' without a validated moments package (digest, pinned mode, both gate "
+                        "verdicts)")
+    if idx != list(range(1, len(clips) + 1)):
+        failures.append(f"clip indexes {idx!r} are not 1..{len(clips)}")
+    intro = vo.get("intro") or ""
+    if not isinstance(intro, str):
+        failures.append("intro is not text")
+        intro = ""
+    icap = SPOTLIGHT_CLOSING_WORD_CAP if _spotlight(edl) else INTRO_WORD_CAP   # law L-ab: the closing line's slot
+    if _word_count(intro) > icap:
+        failures.append(f"intro={_word_count(intro)} words (max {icap})")
+    bridges = vo.get("bridges") or []
+    prev, lines = 0, ([intro] if intro.strip() else [])
+    for i, b in enumerate(bridges, 1):
+        a = b.get("after_clip") if isinstance(b, dict) else None
+        if type(a) is not int or a not in idx or a <= prev:
+            failures.append(f"VO line {i} has no slot (after_clip {a!r}: one line after each clip index "
+                            f"{sorted(x for x in idx if isinstance(x, int))}, in order)")
+        else:
+            prev = a
+        text = b.get("text", "") if isinstance(b, dict) else ""
+        if not isinstance(text, str) or not text.strip():
+            failures.append(f"VO line {i} is empty")
+            continue
+        cap = MOMENTS_TAKEAWAY_WORD_CAP if (type(a) is int and clips and a == idx[-1]) else BRIDGE_WORD_CAP
+        if _word_count(text) > cap:
+            failures.append(f"bridge {i}={_word_count(text)} words (max {cap})")
+        lines.append(text)
+    durs = []
+    for s in [edl.get("hook") or {}] + clips:
+        d = s.get("duration") if isinstance(s, dict) else None
+        if type(d) not in (int, float) or not math.isfinite(d) or d <= 0:
+            failures.append(f"{'hook' if s is edl.get('hook') else 'clip ' + str(s.get('index'))}: duration {d!r} "
+                            f"is not a measured positive number")
+        else:
+            durs.append(float(d))
+    content = sum(durs)
+    vo_s = sum(_word_count(t) / R4_WPS + R4_PREROLL_S for t in lines)
+    if len(durs) == len(clips) + 1 and content > 0:
+        runtime = content + vo_s + FINAL_TAIL_S      # exact; the 1e-6 absorbs float noise only
+        share = vo_s / runtime                       # against the TOTAL runtime (orchestrator '06:22')
+        if share > MOMENTS_VO_SHARE + 1e-9:          # exactly 45 % passes (the same float tolerance as the runtime)
+            failures.append(f"VO={share:.2%} of total runtime (max {MOMENTS_VO_SHARE:.0%}, moments)")
+        lo, hi = SPOTLIGHT_RUNTIME_S if _spotlight(edl) else MOMENTS_RUNTIME_S   # law L-ab: a spotlight's format
+        if not lo - 1e-6 <= runtime <= hi + 1e-6:
+            failures.append(f"estimated runtime {runtime:.3f} s outside {lo:.0f}-{hi:.0f} s (hook + clips "
+                            f"{content:.2f} + VO {vo_s:.2f} + tail {FINAL_TAIL_S})")
+    if failures:
+        return False, "R4 FAIL (moments): " + "; ".join(failures)
+    total = content + vo_s + FINAL_TAIL_S
+    return True, (f"R4 PASS (moments): VO {vo_s:.2f} s = {vo_s / total:.2%} of total runtime <= {MOMENTS_VO_SHARE:.0%}, "
+                  f"estimated runtime {total:.2f} s, every VO line in a slot")
+
+
 def rule_r4(edl):
-    """VO <= 25% of total runtime. Word limits enforced."""
+    """VO <= 25% of total runtime. Word limits enforced. A package of type 'moments': _r4_moments (law L-q)."""
+    if edl.get("package_type") == "moments":
+        return _r4_moments(edl)
     vo = edl.get("vo", {})
     clips = edl.get("clips", [])
     total_clip_dur = edl.get("total_clip_duration", 0)
@@ -212,37 +347,74 @@ def rule_r4(edl):
 # R5: CLIP_LENGTH
 # ==============================================================
 
+CLIP_TARGET_S = (12.0, 20.0)     # law L-o: the clip duration window is a TASTE target (rank, never reject)
+
+
+def _r5_spotlight(edl):
+    """Law L-ab (ruling 90): ONE moment, one channel, no medley minimum. INTEGRITY: no clips; the moment (the EDL's hook)
+    a measured positive finite duration and a named channel. TASTE (law L-o): the moment outside 12-35 s is a recorded
+    deviation with its size, never a rejection."""
+    hook, clips = edl.get("hook") or {}, edl.get("clips")
+    failures = [] if clips == [] else [f"a spotlight has no clips (got {repr(clips)[:60]})"]
+    dur, ch = hook.get("duration"), hook.get("channel")
+    measured = type(dur) in (int, float) and math.isfinite(dur) and dur > 0
+    if not measured:
+        failures.append(f"the moment's duration {repr(dur)[:40]} is not a measured positive number")
+    if not isinstance(ch, str) or not ch.strip():
+        failures.append("the moment names no channel")
+    if failures:
+        return False, "R5 FAIL (spotlight, law L-ab): " + "; ".join(failures)
+    lo, hi = SPOTLIGHT_MOMENT_S
+    if not lo <= dur <= hi:
+        return True, (f"R5 PASS (spotlight, law L-ab) | law L-o taste deviation, recorded, not a cause: the moment "
+                      f"{dur:.2f}s ({max(lo - dur, dur - hi, 0.01):.2f}s outside the {lo:.0f}-{hi:.0f}s target)")
+    return True, f"R5 PASS (spotlight, law L-ab): one moment, {dur:.2f}s, one channel ({ch})"
+
+
 def rule_r5(edl):
-    """8-25s per clip, >= 2 distinct channels, every channel >= 8s."""
+    """INTEGRITY (law L-o, fail closed): >= 2 clips, from >= 2 distinct channels, every clip with a measured positive
+    finite duration (so no channel is counted with no screen time). TASTE (law L-o, orchestrator 2026-11-12 '01:50';
+    pp-selectid REQUESTS R6 item 2): a clip outside the 12-20 s target is a recorded deviation with its size, never a
+    rejection (a whole sentence always beats a duration window); the only hard duration rule is the format, measured
+    on the final by the gates. The validate stage writes this reason into PROVENANCE (run.prov['edl_validation'])."""
+    if _spotlight(edl):
+        return _r5_spotlight(edl)
     clips = edl.get("clips", [])
-    failures = []
+    failures, deviations = [], []
+    lo, hi = CLIP_TARGET_S
 
     if len(clips) < 2:
         failures.append(f"only {len(clips)} clips (need >= 2)")
 
-    channels = {}
+    channels = set()
     for clip in clips:
-        dur = clip.get("duration", 0)
-        ch = clip.get("channel", "unknown")
-        idx = clip.get("index", "?")
-
-        if dur < 8:
-            failures.append(f"clip {idx}: {dur:.1f}s (min 8s)")
-        if dur > 25:
-            failures.append(f"clip {idx}: {dur:.1f}s (max 25s)")
-
-        channels.setdefault(ch, 0)
-        channels[ch] += dur
+        dur = clip.get("duration")
+        ch = clip.get("channel")
+        idx = str(clip.get("index", "?"))[:20]
+        try:
+            measured = not isinstance(dur, bool) and isinstance(dur, (int, float)) and math.isfinite(dur) and dur > 0
+        except OverflowError:                                    # an integer too large for a float: not a measurement
+            measured = False
+        if not measured:
+            failures.append(f"clip {idx}: duration {repr(dur)[:40]} is not a measured positive number")   # never a pass
+            continue
+        if not isinstance(ch, str) or not ch.strip():
+            failures.append(f"clip {idx}: no channel named")      # a missing channel is never a distinct channel
+            continue
+        channels.add(ch.strip())
+        if dur < lo:
+            deviations.append(f"clip {idx}: {dur:.2f}s ({max(lo - dur, 0.01):.2f}s under the {lo:.0f}-{hi:.0f}s target)")
+        elif dur > hi:
+            deviations.append(f"clip {idx}: {dur:.2f}s ({max(dur - hi, 0.01):.2f}s over the {lo:.0f}-{hi:.0f}s target)")
 
     if len(channels) < 2:
-        failures.append(f"only {len(channels)} channel(s) (need >= 2)")
+        failures.append(f"only {len(channels)} channel(s) with a measured clip (need >= 2)")
 
-    for ch, total_dur in channels.items():
-        if total_dur < 8:
-            failures.append(f"channel '{ch}': {total_dur:.1f}s total (min 8s)")
-
+    taste = f" | law L-o taste deviations, recorded, not causes: {'; '.join(deviations)}" if deviations else ""
     if failures:
-        return False, "R5 FAIL: " + "; ".join(failures)
+        return False, "R5 FAIL: " + "; ".join(failures) + taste
+    if deviations:
+        return True, "R5 PASS" + taste
     return True, "R5 PASS: clip lengths and channel diversity OK"
 
 
@@ -339,7 +511,8 @@ def rule_r7(edl, layout_tables_dir=None):
 # ==============================================================
 
 def rule_r8(edl, channels_registry=None):
-    """Only channels with has_chyron=true should trigger G10 chyron gate."""
+    """Informational: the has_chyron channels in the EDL. Ruling 93 (2026-11-13 '23:59'): G10 runs on EVERY clip;
+    has_chyron is a hint that orders the pin-stage visual check, nothing more."""
     if not channels_registry:
         return True, "R8 SKIP: no channels registry provided"
 
@@ -550,6 +723,132 @@ def rule_r10(edl, transcripts=None):
 # VALIDATE ALL
 # ==============================================================
 
+# ==============================================================
+# R11: VO_SHAPE (law L-y, orchestrator 2026-11-12 '20:30')
+# ==============================================================
+
+def rule_r11(edl):
+    """Law L-y VOICEOVER IS MINIMAL, for a package of type 'moments' (the packager's packages): at most ONE line after
+    the LAST clip (the takeaway; R4 keeps its 30-word cap) and at most ONE line before it: the L-y 2 exception, a bridge
+    at one join, either between the hook clip and clip 1 (the EDL's intro slot, the only line the renderer plays there)
+    or after clip k. That one line passes only with the package's recorded bridge (moments_package.bridge, copied into
+    the EDL as moments_bridge by pinned.build_edl): its text is exactly the line, its reason ('why') and the blind
+    clips-alone check's confirmation ('confirmed_by') are stated, and the line is at most BRIDGE_WORD_CAP words ('as short
+    as it can be'). Without that record a line before the takeaway fails (L-y 1: no VO intro after the hook; no bridges
+    between clips); two or more fail always (the line-up is wrong). No minimum: no VO line at all passes. Story-type and
+    untyped EDLs (the protected references) are not moments packages and are unchanged. Fail closed (audit batch 40): a
+    moments EDL without a vo object and clips, a clip without an integer index, bridges that are not a list, a line whose
+    after_clip is not a clip index, clip indexes other than exactly 1..n, a non-text line, and a recorded bridge
+    with no bridge line fail."""
+    if edl.get("package_type") != "moments":
+        return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+    if _spotlight(edl):                      # law L-ab (rulings 90 / 91): 0 bridges and 0 or 1 closing line
+        vo, rec = edl.get("vo"), edl.get("moments_bridge")
+        if not isinstance(vo, dict) or edl.get("clips") != [] or vo.get("bridges") != []:
+            return False, "R11 FAIL (spotlight, law L-ab): a spotlight states a vo object, no clips and bridges []"
+        line = vo.get("intro")
+        if line is not None and (not isinstance(line, str) or not line.strip()
+                                 or _word_count(line) > SPOTLIGHT_CLOSING_WORD_CAP):
+            return False, (f"R11 FAIL (spotlight, ruling 91): the closing line is null or ONE line of at most "
+                           f"{SPOTLIGHT_CLOSING_WORD_CAP} words")
+        if rec is not None:
+            return False, "R11 FAIL (spotlight, law L-ab): a spotlight has no bridge (moments_bridge must be null)"
+        return True, f"R11 PASS (spotlight, law L-ab): {0 if line is None else 1} closing line, no bridge"
+    vo, clips = edl.get("vo"), edl.get("clips")
+    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
+        return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"
+    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+    if any(type(i) is not int for i in idx) or idx != list(range(1, len(clips) + 1)):   # batch 40 F1 / cycle 3 glm F1:
+        return False, f"R11 FAIL (law L-y): clip indexes {idx!r} are not 1..{len(clips)}"  # the last clip is index n
+    bridges = vo.get("bridges")
+    if not isinstance(bridges, list):                             # F2: a moments EDL always states its lines
+        return False, "R11 FAIL (law L-y): vo bridges is not a list ([] when there are none)"
+    failures, before, closing = [], [], 0
+    intro = vo.get("intro")
+    if intro is not None and intro != "":                         # F3: '   ' is a line to vo.py and the renderer
+        before.append(("the intro slot (hook -> clip 1)", intro))
+    for i, b in enumerate(bridges, 1):
+        a = b.get("after_clip") if isinstance(b, dict) else None
+        if type(a) is not int or a not in idx:                    # F2: a line with no clip slot fails here too
+            failures.append(f"VO line {i}: after_clip {a!r} is not a clip index")
+        elif a == max(idx):
+            closing += 1
+            t = b.get("text")
+            if not isinstance(t, str) or not t.strip():             # cycle 3 qwen F1: the takeaway is a voiced line
+                failures.append(f"VO line {i}: the takeaway after the last clip is not text")
+        else:
+            before.append((f"the slot after clip {a}", b.get("text")))
+    if closing > 1:
+        failures.append(f"law L-y 1: {closing} VO lines after the last clip (one takeaway)")
+    rec = edl.get("moments_bridge")
+    if len(before) > 1:
+        failures.append(f"law L-y 2: {len(before)} lines before the takeaway ({'; '.join(s for s, _ in before)}): at "
+                        f"most ONE bridge; two or more = the line-up is wrong")
+    elif before:
+        slot, text = before[0]
+        if not isinstance(text, str) or not text.strip():
+            failures.append(f"law L-y: the line in {slot} is not text")
+        elif not (isinstance(rec, dict) and isinstance(rec.get("text"), str) and rec["text"].strip() == text.strip()):
+            failures.append(f"law L-y 1 / 2: a line in {slot} without the package's recorded bridge (moments_bridge "
+                            f"with exactly this text)")
+        else:
+            why, conf = rec.get("why"), rec.get("confirmed_by")
+            if not (isinstance(why, str) and why.strip()):
+                failures.append("law L-y 2: the recorded bridge has no reason ('why')")
+            if not ((isinstance(conf, str) and conf.strip()) or (isinstance(conf, (list, dict)) and conf)):
+                failures.append("law L-y 2: the recorded bridge is not confirmed by the blind check ('confirmed_by')")
+            if _word_count(text) > BRIDGE_WORD_CAP:
+                failures.append(f"law L-y 2: the bridge is {_word_count(text)} words (max {BRIDGE_WORD_CAP})")
+    elif rec is not None:
+        failures.append("law L-y 2: a recorded bridge (moments_bridge) with no bridge line in the VO")
+    if failures:
+        return False, "R11 FAIL (law L-y): " + "; ".join(failures)
+    return True, (f"R11 PASS (law L-y): {len(before)} bridge (recorded and confirmed) before the takeaway; "
+                  f"{closing} takeaway line(s)")
+
+
+TAKEAWAY_VALUE_ROW = "takeaway_value"      # ruling 91's MEDLEY half: the builder's sealed row (agreed 2026-11-14)
+
+
+def takeaway_value(edl):
+    """Ruling 91, the MEDLEY half (law L-ab (91): 'the same value verdict also applies to a MEDLEY's takeaway going
+    forward'). A package of type 'moments' that is not a spotlight and voices a takeaway (the line after the LAST clip)
+    renders it only with the builder's sealed value verdict on THAT line: moments_gates[TAKEAWAY_VALUE_ROW] (copied by
+    pinned.build_edl from moments_package.gates) is an object with status exactly "PASS", replayed exactly False, and
+    text equal to the takeaway after strip (R11's moments_bridge rule), so a verdict on a first draft never carries the
+    one rewrite. No takeaway (L-y's no-voice shape) needs no row. Story-type, untyped and spotlight EDLs are not this
+    check (a spotlight's closing line has its own sealed rows, pinned._spotlight_vo). NOT a validate_edl rule: the
+    protected references' pins predate the ruling ('going forward'); the live path (run_fresh.stage_validate) and
+    scripts/integrator/check_pin_only.py call it. Fail closed: a malformed vo, clips or line, or two takeaways."""
+    if edl.get("package_type") != "moments" or _spotlight(edl):
+        return True, "ruling 91 (medley): not a medley (story-type, untyped or spotlight): no takeaway verdict"
+    vo, clips = edl.get("vo"), edl.get("clips")
+    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips or not isinstance(vo.get("bridges"), list):
+        return False, "ruling 91 (medley): a moments EDL without a vo object, a bridges list and clips"
+    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
+    lines = [b.get("after_clip") if isinstance(b, dict) else None for b in vo["bridges"]]
+    if any(type(i) is not int for i in idx + lines):
+        return False, f"ruling 91 (medley): clip indexes {idx!r} or line slots {lines!r} are not integers"
+    takeaways = [b for b in vo["bridges"] if b["after_clip"] == max(idx)]
+    if not takeaways:
+        return True, "ruling 91 (medley): no takeaway (the no-voice shape): no value verdict needed"
+    if len(takeaways) > 1:
+        return False, f"ruling 91 (medley): {len(takeaways)} lines after the last clip (one takeaway)"
+    line = takeaways[0].get("text")
+    if not isinstance(line, str) or not line.strip():
+        return False, "ruling 91 (medley): the takeaway after the last clip is not text"
+    gates = edl.get("moments_gates")
+    row = gates.get(TAKEAWAY_VALUE_ROW) if isinstance(gates, dict) else None
+    if not isinstance(row, dict):
+        return False, f"ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.{TAKEAWAY_VALUE_ROW})"
+    if row.get("status") != "PASS" or row.get("replayed") is not False:
+        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live (status "
+                       f"{row.get('status')!r}, replayed {row.get('replayed')!r})")
+    if not isinstance(row.get("text"), str) or row["text"].strip() != line.strip():
+        return False, "ruling 91 (medley): the value verdict judged another line (its text is not the takeaway)"
+    return True, f"ruling 91 (medley): the takeaway carries its sealed value verdict (by {row.get('by')!r})"
+
+
 def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
                   transcripts=None):
     """Run all rules. Returns (all_pass, results list).
@@ -568,6 +867,7 @@ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
         (rule_r8, (edl, channels_registry)),
         (rule_r9, (edl, transcripts)),
         (rule_r10, (edl, transcripts)),
+        (rule_r11, (edl,)),
     ]:
         ok, reason = rule_fn(*args)
         results.append({"rule": rule_fn.__name__, "pass": ok, "reason": reason})

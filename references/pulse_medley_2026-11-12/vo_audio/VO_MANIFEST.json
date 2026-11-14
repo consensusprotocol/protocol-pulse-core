@@ -1,0 +1,16 @@
+{
+  "bridge_01": {
+    "stem_wav": "vo_bridge_01_pp2_v1_a60663b828fd.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+    "key": "a60663b828fd"
+  },
+  "signoff": {
+    "stem_wav": "vo_signoff_pp2_v1_0f32f697d950.wav",
+    "voice_id": "cbQ4bUP6OYwI7yEUTYaM",
+    "model_id": "eleven_v4",
+    "text": "Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more Bitcoin talks. Links below.",
+    "key": "0f32f697d950"
+  }
+}

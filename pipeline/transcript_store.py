@@ -292,6 +292,9 @@ def release_whisper():
     """Drop the Whisper models and free their GPU memory (E5). Returns GPU0 used MiB after."""
     global _WHISPER, _REFERENCE
     _WHISPER = _REFERENCE = None
+    import gpu0
+    for name in (WHISPER_MODEL, REFERENCE_MODEL):
+        gpu0.whisper(name, batched=True).unload()
     import gc
     gc.collect()
     try:
@@ -304,21 +307,19 @@ def release_whisper():
 
 def _load(name):
     """One Whisper model on GPU0 at a time (the word pass's arbitration proves 7 GB free, not two models' worth;
-    Heimdall batch13): loading one drops the other first."""
+    Heimdall batch13): L-r makes it so by construction: gpu0.whisper loads through swap_to, which deletes every
+    other GPU0 model first, and the model reloads through swap_to after any later swap."""
     global _WHISPER, _REFERENCE
-    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
-        raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 (GPU1 quarantined)")
-    if (_WHISPER if name == WHISPER_MODEL else _REFERENCE) is None:
-        import gc
-        _WHISPER = _REFERENCE = None
-        gc.collect()
-        from faster_whisper import WhisperModel, BatchedInferencePipeline
-        m = BatchedInferencePipeline(model=WhisperModel(name, device="cuda", compute_type="float16"))
-        if name == WHISPER_MODEL:
-            _WHISPER = m
-        else:
-            _REFERENCE = m
-    return _WHISPER if name == WHISPER_MODEL else _REFERENCE
+    if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("0", "1"):
+        raise AcquisitionError("Whisper requires CUDA_VISIBLE_DEVICES=0 or 1: one GPU per process, under that GPU's "
+                               "lease (law L-r; the word-pass worker runs on GPU1)")
+    import gpu0
+    m = gpu0.whisper(name, batched=True)
+    if name == WHISPER_MODEL:
+        _WHISPER, _REFERENCE = m, None
+    else:
+        _WHISPER, _REFERENCE = None, m
+    return m
 
 
 def _whisper():
@@ -478,10 +479,12 @@ def acquire(video_id, rss=None, channel=None, allow_whisper=True, prefer_words=F
                          marks=prec["punctuation"].get("marks_transferred"))
             status += "+punctuation"
     except Exception as e:
+        import gpu0
+        if gpu0.is_oom(e):             # L-r: an out-of-memory is never this video's error; it leaves as GpuOOM for
+            _log_attempt(video_id, step=step, status="gpu0_out_of_memory", error=str(e)[-300:])   # the one retry
+            raise gpu0.GpuOOM(f"{video_id}: {step}: CUDA out of memory ({type(e).__name__}: {str(e)[:200]})") from e
         LAST_ERROR[video_id] = f"{type(e).__name__}: {e}"[-400:]
         _log_attempt(video_id, step=step, status="error", error=str(e)[-300:])
-        if "out of memory" in str(e).lower():
-            release_whisper()          # never keep a half-initialised model around
         return canonical_transcript(video_id), f"{step}_failed"
     return canonical_transcript(video_id), status
 

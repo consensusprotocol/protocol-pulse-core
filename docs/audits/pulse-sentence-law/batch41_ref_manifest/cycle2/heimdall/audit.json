@@ -1,0 +1,38 @@
+{
+ "question": "Batch 41 cycle 2 = PROTECTED REFERENCE (orchestrator order 2026-11-12 '20:30' (c)): pipeline/regression.sh step 7 checks references/pulse_moments_2026-11-12 with pipeline/check_reference_manifest.py (exit 0 = every file listed in SHA256SUMS present with its sha256 and nothing unlisted; 1 = changed / missing / added / bad manifest). Cycle 1 finding (deepseek F1): a MISSING checker made python3 exit 2, which the step read as SKIP. Fixed here: the shell decides SKIP only when the reference's SHA256SUMS is absent; when it is present, ANY nonzero exit of the checker fails the regression (exit 1). The script runs under set -euo pipefail.\nFIND: any remaining way the regression passes while the reference is changed, removed, or the checker cannot run; a shell error that is silently ignored. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 72.2,
+   "cost": 0.0023109663,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 289.0,
+   "cost": 0.003099318,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0054102843,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch41_ref_manifest/cycle2/heimdall"
+}

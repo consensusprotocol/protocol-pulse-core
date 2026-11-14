@@ -1,0 +1,658 @@
+diff --git a/pipeline/local_judge.py b/pipeline/local_judge.py
+new file mode 100644
+index 00000000..e8dcd77e
+--- /dev/null
++++ b/pipeline/local_judge.py
+@@ -0,0 +1,170 @@
++#!/usr/bin/env python3
++"""pipeline/local_judge.py: the GPU0 LOCAL JUDGE (orchestrator 2026-11-13 '07:28' item 2; law L-aa TIME SAVERS ARE
++AUTOMATIC; law L-x ULTRON FIRST).
++
++WHAT: the pin-stage verdicts that today go to vendors (step A, the L-s context reading of each moment; the clips-alone
++verdict; the angle step) asked of a model on Ultron's GPU0, with the vendor's own prompt, max_tokens and seed.
++
++THE MODEL: gemma3:27b on the GPU0 Ollama (:11434), num_ctx 16384 (story_semantics.LocalLLM: temperature 0, JSON
++format). Ultron holds four Ollama models: gemma3:27b (17 GB), qwen3-coder:30b (18 GB, a coding model, pinned to GPU1),
++deepseek-coder-v2:16b (8.9 GB, a coding model, GPU1's) and llama3.1:70b (42 GB: does not fit a 24 GB card). gemma3:27b
++is the strongest general instruction model that fits GPU0, it already holds a measured REQUIREMENT_MIB in gpu0.py
++(20600 MiB at this context), and it is the model of the editorial gate and the clip scorer, so no new weights are
++pulled.
++
++USE, until the orchestrator rules otherwise: a PRE-FILTER only. It may reject cheaply and rank; a clip or line-up it
++passes still gets the different-vendor verdict the laws require (L-s, L-x: never one model). It can save calls, never
++lower the bar. It counts only after its replay (local_judge_compare.py) is reported.
++
++GPU0 (law L-r): every call runs under the GPU0 lease, in batches of at most BATCH calls; each batch ends with
++gpu0.release_all (the model unloaded, GPU0 left as found) and the lease released. A render always comes first: before
++EVERY call the judge checks YIELD_FLAG; whoever launches a render touches it, waits for the lease to come free, starts
++the render and removes the flag once the render holds the lease. A held lease (LeaseBusy) is waited out between
++batches, never forced. Outputs are appended one JSON line per job, so a stopped replay resumes where it stopped.
++
++Usage: CUDA_VISIBLE_DEVICES=0 python3 pipeline/local_judge.py replay [--since ISO] [--out PATH]"""
++import argparse
++import glob
++import hashlib
++import json
++import os
++import sys
++import time
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++
++MODEL = "gemma3:27b"
++YIELD_FLAG = os.environ.get("PP_GPU0_YIELD", "/tmp/pulse_gpu0.yield")
++OWNER = "local judge (integrator, GPU0 pre-filter)"
++BATCH = 8
++REPLIES = "/home/ultron/worktrees/pp-selectid/tests/package/fixtures/replies"   # the builder's recorded exchanges
++FAMILIES = (("clips_alone", "You watch a short video made ONLY of these clips"),       # the clips-alone verdict
++            ("angle", "You are the editor of PBX MAX"),                                # the angle step
++            ("step_a", "You read transcripts of Bitcoin videos. For each EXCERPT"))   # step A (L-s context)
++SINCE = "2026-11-13T04:00"            # the first ledger_2026* build of the night (ledger_20261113_0405)
++
++
++def family(prompt):
++    head = " ".join(str(prompt).split())
++    return next((k for k, w in FAMILIES if head.startswith(w)), None)
++
++
++def prompt_id(prompt, max_tokens, seed):
++    return hashlib.sha256(json.dumps([prompt, max_tokens, seed]).encode()).hexdigest()[:20]
++
++
++def recorded(since=SINCE, replies=REPLIES):
++    """The builder's recorded vendor exchanges of the three families since `since` (UTC ISO):
++    [{id, family, prompt, max_tokens, seed, vendor: [{backend, text, recorded_at, path}]}], one job per distinct
++    (prompt, max_tokens, seed), every vendor answer to it kept."""
++    jobs = {}
++    for p in sorted(glob.glob(os.path.join(replies, "*", "*.json"))):
++        try:
++            with open(p) as f:
++                r = json.load(f)
++        except (OSError, ValueError):
++            continue
++        fam = family(r.get("prompt", ""))
++        if fam is None or (r.get("recorded_at") or "") < since or not isinstance(r.get("text"), str):
++            continue
++        jid = prompt_id(r["prompt"], r.get("max_tokens"), r.get("seed"))
++        j = jobs.setdefault(jid, {"id": jid, "family": fam, "prompt": r["prompt"], "max_tokens": r.get("max_tokens"),
++                                  "seed": r.get("seed"), "vendor": []})
++        j["vendor"].append({"backend": r.get("backend"), "text": r["text"], "recorded_at": r.get("recorded_at"),
++                            "path": os.path.relpath(p, replies)})
++    order = {k: i for i, (k, _) in enumerate(FAMILIES)}
++    return sorted(jobs.values(), key=lambda j: (order[j["family"]], j["id"]))
++
++
++def render_wants_gpu0():
++    return os.path.exists(YIELD_FLAG)
++
++
++def done_ids(out):
++    """Jobs with an ANSWER in `out` (a line whose call failed is not done: the next run asks it again; batch 61 C2).
++    A truncated line (a crash mid-write) is skipped, never a crash."""
++    if not os.path.exists(out):
++        return set()
++    done = set()
++    with open(out) as f:
++        for line in f:
++            try:
++                r = json.loads(line)
++            except ValueError:
++                continue
++            if r.get("text") is not None:
++                done.add(r["id"])
++    return done
++
++
++def run(jobs, out, batch=BATCH, log=print, idle_s=20.0):
++    """Ask MODEL every job not yet answered in `out` (JSONL), BATCH calls per lease, each job at most once per run (a
++    failed call waits for the next run). Yields GPU0 to a render: YIELD_FLAG is checked before taking the lease, again
++    once it is held (batch 61 C1: a render that asked in between gets it back at once, nothing loaded), and before
++    every call. A held lease is waited out between batches. Returns the number of answers written."""
++    import gpu0
++    import story_semantics as sm
++    written, tried = 0, set()
++    while True:
++        todo = [j for j in jobs if j["id"] not in done_ids(out) and j["id"] not in tried]
++        if not todo:
++            return written
++        if render_wants_gpu0():
++            log(f"  yielding GPU0 to a render ({YIELD_FLAG}); {len(todo)} jobs left")
++            time.sleep(idle_s)
++            continue
++        try:
++            with gpu0.lease(OWNER, wait_s=0):
++                if render_wants_gpu0():                              # it asked while the lease was being taken
++                    continue
++                llm = sm.LocalLLM(model=MODEL).start()
++                try:
++                    for j in todo[:batch]:
++                        if render_wants_gpu0():
++                            break
++                        tried.add(j["id"])
++                        t0, err, text = time.time(), None, None
++                        try:
++                            text = llm._post(j["prompt"], j["max_tokens"] or 2000, j["seed"] if j["seed"] is not None else 7)
++                        except gpu0.Gpu0Stop:
++                            raise
++                        except Exception as e:                       # recorded; asked again by the NEXT run only
++                            err = f"{type(e).__name__}: {str(e)[:300]}"
++                        with open(out, "a") as f:
++                            f.write(json.dumps({"id": j["id"], "family": j["family"], "model": MODEL,
++                                                "digest": getattr(llm, "digest", None), "text": text, "error": err,
++                                                "seconds": round(time.time() - t0, 1),
++                                                "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}) + "\n")
++                        written += 1
++                        log(f"  {j['family']:11s} {j['id']} {time.time() - t0:5.1f} s{' ERROR ' + err if err else ''}")
++                finally:
++                    gpu0.release_all()                               # GPU0 left as found before the lease goes
++        except gpu0.LeaseBusy as e:
++            log(f"  GPU0 lease busy ({e}); waiting")
++            time.sleep(idle_s)
++
++
++def main(argv=None):
++    ap = argparse.ArgumentParser()
++    ap.add_argument("cmd", choices=["replay", "list"])
++    ap.add_argument("--since", default=SINCE)
++    ap.add_argument("--out", default=os.path.join(os.path.dirname(PIPELINE), "data", "local_judge", "replay_answers.jsonl"))
++    a = ap.parse_args(argv)
++    jobs = recorded(a.since)
++    counts = {k: sum(j["family"] == k for j in jobs) for k, _ in FAMILIES}
++    print(f"{len(jobs)} recorded prompts since {a.since}: {counts}")
++    if a.cmd == "list":
++        return 0
++    if os.environ.get("CUDA_VISIBLE_DEVICES") != "0":
++        sys.exit("the local judge runs on GPU0: CUDA_VISIBLE_DEVICES=0 (law L-r)")
++    os.makedirs(os.path.dirname(a.out), exist_ok=True)
++    with open(a.out + ".jobs.json", "w") as f:                          # what was asked, for the comparison
++        json.dump(jobs, f)
++    n = run(jobs, a.out)
++    print(f"done: {n} answers written to {a.out}")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pipeline/local_judge_compare.py b/pipeline/local_judge_compare.py
+new file mode 100644
+index 00000000..19ca086e
+--- /dev/null
++++ b/pipeline/local_judge_compare.py
+@@ -0,0 +1,259 @@
++#!/usr/bin/env python3
++"""pipeline/local_judge_compare.py: the local judge's replay measured against tonight's recorded vendor verdicts
++(orchestrator 2026-11-13 '07:28' item 2: "PROVE IT BEFORE IT COUNTS ... report agreement per verdict type, with every
++disagreement listed"). CPU only. The verdicts are read with the BUILDER'S OWN rules, imported from the pp-selectid
++worktree in this process alone (its pipeline directory first on sys.path, this one's removed):
++- step A: context_integrity._strict with A_KEYS, exactly the prompt's labels; a moment passes when a_failures() is
++  empty. Agreement = the same pass / fail, and the same failing rules.
++- the clips-alone verdict: package.medley's contract (through_line, clips = the prompt's labels rated 1-5, joins =
++  package.joins of them, each {followable: bool, why: str}); ok = a stated through-line (>= 4 words, not NO_LINE),
++  every clip >= COHERENCE_MIN, at most LY_MAX_BRIDGES joins not followable. Agreement = the same ok, the same flagged
++  joins, the same followable per join.
++- the angle step (a WRITER: its "agreement" is overlap, stated as such): the prompt's own rules (4-8 known ids, the
++  hook first, at least 3 channels); per vendor angle the best moment-set Jaccard against the local angles, and whether
++  a local hook is a vendor hook.
++For a PRE-FILTER the direction matters and is reported apart: local FAIL where the vendor PASSES would drop a good
++candidate before the vendor sees it (the costly error); local PASS where the vendor FAILS is harmless (the vendor
++still judges it).
++Usage: python3 pipeline/local_judge_compare.py ANSWERS.jsonl REPORT_PREFIX"""
++import json
++import os
++import re
++import subprocess
++import sys
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++BUILDER = "/home/ultron/worktrees/pp-selectid/pipeline"
++sys.path = [BUILDER] + [p for p in sys.path if os.path.abspath(p or ".") != PIPELINE]
++import context_integrity as CI  # noqa: E402  (the builder's)
++import package as P  # noqa: E402  (the builder's)
++
++
++def step_a(job, text):
++    labels = re.findall(r'<excerpt label="([^"]+)"', job["prompt"])
++    A = CI._strict(text, {"excerpts"}, {"excerpts": CI.A_KEYS})
++    by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
++    if set(by) != set(labels) or len(A["excerpts"]) != len(labels):
++        raise ValueError(f"step A must answer exactly the labels {labels}")
++    return {lb: CI.a_failures(by[lb]) for lb in labels}
++
++
++def clips_alone(job, text):
++    labs = re.findall(r'CLIP label="([^"]+)"', job["prompt"])
++    js = P.joins(labs)
++    v = json.loads(text.strip())
++    if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or not isinstance(v["clips"], dict) \
++            or set(v["clips"]) != set(labs) or any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) \
++            or not isinstance(v["joins"], dict) or set(v["joins"]) != set(js) \
++            or any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
++                   or not isinstance(x["why"], str) for x in v["joins"].values()):
++        raise ValueError("clips-alone verdict out of contract")
++    tl = v["through_line"] if isinstance(v["through_line"], str) else ""
++    flagged = [j for j in js if v["joins"][j]["followable"] is False]
++    ok = bool(tl.strip()) and not P.NO_LINE.search(tl) and len(tl.split()) >= 4 and \
++        min(v["clips"].values()) >= P.COHERENCE_MIN and len(flagged) <= P.LY_MAX_BRIDGES
++    return {"ok": ok, "flagged": flagged, "followable": {j: v["joins"][j]["followable"] for j in js},
++            "clips": v["clips"], "through_line": tl}
++
++
++def angle(job, text):
++    cands = {m.group(1): m.group(2).strip() for m in re.finditer(r"id=([0-9a-f]{20}) \| ([^|]+)\|", job["prompt"])}
++    v = json.loads(text.strip())
++    out = []
++    for a in (v.get("angles") or []) if isinstance(v, dict) else []:
++        ms = a.get("moments") if isinstance(a, dict) else None
++        valid = (isinstance(ms, list) and 4 <= len(ms) <= 8 and len(set(ms)) == len(ms) and all(m in cands for m in ms)
++                 and a.get("hook") == ms[0] and len({cands[m] for m in ms}) >= 3 and isinstance(a.get("angle"), str))
++        out.append({"valid": bool(valid), "moments": list(ms) if isinstance(ms, list) else [], "hook": a.get("hook")
++                    if isinstance(a, dict) else None, "angle": a.get("angle") if isinstance(a, dict) else None})
++    if not out:
++        raise ValueError("no angles")
++    return out
++
++
++READ = {"step_a": step_a, "clips_alone": clips_alone, "angle": angle}
++
++
++def jaccard(a, b):
++    a, b = set(a), set(b)
++    return len(a & b) / len(a | b) if a | b else 0.0
++
++
++def main(answers, prefix):
++    with open(answers + ".jobs.json") as f:
++        jobs = {j["id"]: j for j in json.load(f)}
++    local = {}
++    with open(answers) as f:
++        for line in f:
++            try:
++                r = json.loads(line)
++            except ValueError:
++                continue
++            if r.get("text") is not None or r["id"] not in local:          # an answer outranks a failed call
++                local[r["id"]] = r
++    rep = {fam: {"jobs": 0, "local_out_of_contract": [], "vendor_out_of_contract": 0, "vendor_answers_not_compared": [],
++                 "seconds": []} for fam in READ}
++    rows = {fam: [] for fam in READ}
++    for jid, job in jobs.items():
++        if jid not in local:
++            continue
++        fam, r = job["family"], rep[job["family"]]
++        r["jobs"] += 1
++        r["seconds"].append(local[jid]["seconds"])
++        try:
++            lv = READ[fam](job, local[jid]["text"] or "")
++        except Exception as e:
++            r["local_out_of_contract"].append({"id": jid, "why": f"{type(e).__name__}: {str(e)[:160]}",
++                                               "error": local[jid].get("error")})
++            continue
++        # ONE vendor answer per job (batch 61 C3 / C4): the earliest that reads in contract, so every count is per
++        # moment / line-up / angle prompt; any other answer to the same prompt is listed, not counted
++        cmp_ = None
++        for vend in sorted(job["vendor"], key=lambda v: v.get("recorded_at") or ""):
++            try:
++                vv = READ[fam](job, vend["text"])
++            except Exception:
++                r["vendor_out_of_contract"] += 1
++                continue
++            if cmp_ is None:
++                cmp_ = {"id": jid, "backend": vend["backend"], "vendor": vv, "local": lv}
++            else:
++                r["vendor_answers_not_compared"].append({"id": jid, "backend": vend["backend"]})
++        if cmp_ is not None:
++            rows[fam].append(cmp_)
++    # step A: per moment
++    a = rep["step_a"]
++    a.update(moments=0, same_verdict=0, same_rules=0, local_fail_vendor_pass=[], local_pass_vendor_fail=[],
++             rule_disagreements=[])
++    for x in rows["step_a"]:
++        for lb, vr in x["vendor"].items():
++            lr = x["local"][lb]
++            a["moments"] += 1
++            a["same_verdict"] += (not vr) == (not lr)
++            a["same_rules"] += sorted(vr) == sorted(lr)
++            d = {"id": x["id"], "label": lb, "vendor": x["backend"], "vendor_rules": vr, "local_rules": lr}
++            if lr and not vr:
++                a["local_fail_vendor_pass"].append(d)
++            elif vr and not lr:
++                a["local_pass_vendor_fail"].append(d)
++            elif sorted(vr) != sorted(lr):
++                a["rule_disagreements"].append(d)
++    # clips alone: per verdict and per join
++    c = rep["clips_alone"]
++    c.update(verdicts=0, same_ok=0, same_flagged=0, joins=0, same_join=0, local_fail_vendor_pass=[],
++             local_pass_vendor_fail=[], flag_disagreements=[], join_disagreements=[], rating_abs_diff=[])
++    for x in rows["clips_alone"]:
++        v, l = x["vendor"], x["local"]
++        c["verdicts"] += 1
++        c["same_ok"] += v["ok"] == l["ok"]
++        c["same_flagged"] += sorted(v["flagged"]) == sorted(l["flagged"])
++        d = {"id": x["id"], "vendor": x["backend"], "vendor_ok": v["ok"], "local_ok": l["ok"], "vendor_flagged":
++             v["flagged"], "local_flagged": l["flagged"], "vendor_clips": v["clips"], "local_clips": l["clips"]}
++        if l["ok"] and not v["ok"]:
++            c["local_pass_vendor_fail"].append(d)
++        elif v["ok"] and not l["ok"]:
++            c["local_fail_vendor_pass"].append(d)
++        elif sorted(v["flagged"]) != sorted(l["flagged"]):
++            c["flag_disagreements"].append(d)
++        for j, f in v["followable"].items():
++            c["joins"] += 1
++            c["same_join"] += f == l["followable"][j]
++            if f != l["followable"][j]:
++                c["join_disagreements"].append({"id": x["id"], "join": j, "vendor": f, "local": l["followable"][j]})
++        c["rating_abs_diff"] += [abs(v["clips"][k] - l["clips"][k]) for k in v["clips"]]
++    # angle: overlap
++    g = rep["angle"]
++    g.update(compared=0, local_valid_angles=0, local_angles=0, best_jaccard=[], first_jaccard=[], hook_shared=0,
++             first_hook_same=0, rows=[])
++    for x in rows["angle"]:
++        vv = [y for y in x["vendor"] if y["valid"]]
++        lv = [y for y in x["local"] if y["valid"]]
++        g["local_angles"] += len(x["local"])
++        g["local_valid_angles"] += len(lv)
++        if not vv:
++            continue
++        g["compared"] += 1
++        best = [max((jaccard(y["moments"], z["moments"]) for z in lv), default=0.0) for y in vv]
++        g["best_jaccard"] += best
++        g["first_jaccard"].append(jaccard(vv[0]["moments"], lv[0]["moments"]) if lv else 0.0)
++        shared = bool({y["hook"] for y in vv} & {z["hook"] for z in lv})
++        g["hook_shared"] += shared
++        g["first_hook_same"] += bool(lv) and vv[0]["hook"] == lv[0]["hook"]
++        g["rows"].append({"id": x["id"], "vendor": x["backend"], "vendor_angles": len(vv), "local_valid": len(lv),
++                          "best_jaccard": [round(b, 2) for b in best], "hook_shared": shared,
++                          "vendor_hooks": [y["hook"] for y in vv], "local_hooks": [z["hook"] for z in lv]})
++    rep["prefilter_rules"] = prefilter_rules(rows)
++    for fam in READ:
++        s = rep[fam].pop("seconds")
++        rep[fam]["local_seconds"] = {"n": len(s), "mean": round(sum(s) / len(s), 1) if s else None,
++                                     "max": max(s) if s else None}
++    head = subprocess.run(["git", "-C", BUILDER, "rev-parse", "--short", "HEAD"], capture_output=True, text=True)
++    rep["_meta"] = {"model": next((r.get("model") for r in local.values()), None),
++                    "digest": next((r.get("digest") for r in local.values() if r.get("digest")), None),
++                    "builder_rules": f"{BUILDER} @ {head.stdout.strip() if head.returncode == 0 else 'unknown'}",
++                    "answers": answers}
++    with open(prefix + ".json", "w") as f:
++        json.dump(rep, f, indent=1)
++    print(json.dumps(summary(rep), indent=1))
++    return rep
++
++
++def prefilter_rules(rows):
++    """Candidate PRE-FILTER rules measured on the recorded cases (law L-aa: an A/B on recorded cases). A local REJECT
++    skips the vendor verdict: 'saved' = it rejected what the vendor also rejected; 'lost' = it rejected what the vendor
++    PASSED (a good candidate never seen by the vendor). Only a rule with lost == 0 can be proposed for use."""
++    out = {"step_a": {}, "clips_alone": {}}
++    rules = sorted({r for x in rows["step_a"] for lb in x["local"] for r in x["local"][lb]})
++    for rule in rules:                                      # reject a moment when the local judge fails THIS rule
++        saved = lost = 0
++        for x in rows["step_a"]:
++            for lb, vr in x["vendor"].items():
++                if rule in x["local"][lb]:
++                    saved += bool(vr)
++                    lost += not vr
++        out["step_a"][f"local fails {rule}"] = {"saved": saved, "lost": lost}
++    for t in (1, 2, 3):                                     # reject a line-up when the local judge rates a clip <= t
++        saved = lost = 0
++        for x in rows["clips_alone"]:
++            if min(x["local"]["clips"].values()) <= t:
++                saved += not x["vendor"]["ok"]
++                lost += x["vendor"]["ok"]
++        out["clips_alone"][f"a local clip rating <= {t}"] = {"saved": saved, "lost": lost}
++    saved = lost = 0
++    for x in rows["clips_alone"]:                           # reject a line-up when the local judge states no line
++        if not x["local"]["through_line"].strip() or P.NO_LINE.search(x["local"]["through_line"]):
++            saved += not x["vendor"]["ok"]
++            lost += x["vendor"]["ok"]
++    out["clips_alone"]["no local through-line"] = {"saved": saved, "lost": lost}
++    return out
++
++
++def pct(n, d):
++    return f"{n}/{d} ({100.0 * n / d:.0f} %)" if d else "0/0"
++
++
++def summary(rep):
++    a, c, g = rep["step_a"], rep["clips_alone"], rep["angle"]
++    mean = lambda xs: round(sum(xs) / len(xs), 2) if xs else None
++    return {"step_a": {"prompts": a["jobs"], "local_out_of_contract": len(a["local_out_of_contract"]),
++                       "moments": a["moments"], "same_verdict": pct(a["same_verdict"], a["moments"]),
++                       "same_rules": pct(a["same_rules"], a["moments"]),
++                       "local_FAIL_vendor_PASS (lost candidates)": len(a["local_fail_vendor_pass"]),
++                       "local_PASS_vendor_FAIL (harmless)": len(a["local_pass_vendor_fail"]),
++                       "local_s": a["local_seconds"]},
++            "clips_alone": {"verdicts": c["verdicts"], "local_out_of_contract": len(c["local_out_of_contract"]),
++                            "same_ok": pct(c["same_ok"], c["verdicts"]), "same_flagged": pct(c["same_flagged"], c["verdicts"]),
++                            "same_join": pct(c["same_join"], c["joins"]),
++                            "local_FAIL_vendor_PASS (lost line-ups)": len(c["local_fail_vendor_pass"]),
++                            "local_PASS_vendor_FAIL (harmless)": len(c["local_pass_vendor_fail"]),
++                            "mean_rating_abs_diff": mean(c["rating_abs_diff"]), "local_s": c["local_seconds"]},
++            "angle": {"compared": g["compared"], "local_out_of_contract": len(g["local_out_of_contract"]),
++                      "local_valid_angles": f"{g['local_valid_angles']}/{g['local_angles']}",
++                      "mean_best_jaccard": mean(g["best_jaccard"]), "mean_first_jaccard": mean(g["first_jaccard"]),
++                      "hook_shared": pct(g["hook_shared"], g["compared"]),
++                      "first_hook_same": pct(g["first_hook_same"], g["compared"]), "local_s": g["local_seconds"]},
++            "prefilter_rules": rep.get("prefilter_rules")}
++
++
++if __name__ == "__main__":
++    main(sys.argv[1], sys.argv[2])
+diff --git a/pipeline/test_local_judge.py b/pipeline/test_local_judge.py
+new file mode 100644
+index 00000000..8f98ed8d
+--- /dev/null
++++ b/pipeline/test_local_judge.py
+@@ -0,0 +1,211 @@
++#!/usr/bin/env python3
++"""The GPU0 local judge (orchestrator 2026-11-13 '07:28' item 2), without a GPU: the recorded prompts it replays (the
++three families, the night's cutoff, one job per prompt with every vendor answer kept); the GPU0 discipline (a render's
++yield flag stops the next call, a held lease is waited out, every batch releases GPU0 even when a call fails, a GPU
++stop is never swallowed, a stopped replay resumes); and the comparison read with the builder's own rules (in its own
++process, as it runs)."""
++import json
++import os
++import shutil
++import subprocess
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++PIPELINE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, PIPELINE)
++import local_judge as J  # noqa: E402
++
++
++def rec(d, name, prompt, text, at="2026-11-13T05:00:00Z", backend="xai:grok", max_tokens=1200, seed=7):
++    os.makedirs(os.path.join(d, name[:2]), exist_ok=True)
++    with open(os.path.join(d, name[:2], name + ".json"), "w") as f:
++        json.dump({"role": "x", "backend": backend, "prompt": prompt, "text": text, "recorded_at": at,
++                   "max_tokens": max_tokens, "seed": seed}, f)
++
++
++class TestRecorded(unittest.TestCase):
++    def test_three_families_since_the_cutoff_one_job_per_prompt(self):
++        d = tempfile.mkdtemp(prefix="lj_rec_")
++        self.addCleanup(shutil.rmtree, d)
++        rec(d, "aa1", "You watch a short video made ONLY of these clips ...", "{}")
++        rec(d, "aa2", "You watch a short video made ONLY of these clips ...", "{}", backend="heimdall:x")  # same prompt
++        rec(d, "bb1", "You are the editor of PBX MAX: ...", "{}")
++        rec(d, "cc1", "You read  transcripts of Bitcoin videos.\nFor each EXCERPT below", "{}")  # whitespace-normalised
++        rec(d, "dd1", "You are PBX MAX, the host of ...", "{}")                                   # a writer: not judged
++        rec(d, "ee1", "You watch a 60-second video. Here is everything ...", "{}")                 # coherence: not here
++        rec(d, "ff1", "You watch a short video made ONLY of these clips (old)", "{}", at="2026-11-12T20:00:00Z")
++        jobs = J.recorded(since="2026-11-13T04:00", replies=d)
++        self.assertEqual([j["family"] for j in jobs], ["clips_alone", "angle", "step_a"])
++        self.assertEqual(sorted(v["backend"] for v in jobs[0]["vendor"]), ["heimdall:x", "xai:grok"])
++
++
++class FakeLLM:
++    def __init__(self, model=None):
++        self.digest, self.asked = "d1", []
++
++    def start(self):
++        return self
++
++    def _post(self, prompt, max_tokens, seed):
++        self.asked.append(prompt)
++        if prompt == "boom":
++            raise RuntimeError("bad request")
++        return '{"ok": true}'
++
++
++class TestRun(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.mkdtemp(prefix="lj_run_")
++        self.addCleanup(shutil.rmtree, self.d)
++        self.out = os.path.join(self.d, "a.jsonl")
++        self.flag = os.path.join(self.d, "yield")
++        self.jobs = [{"id": f"j{i}", "family": "clips_alone", "prompt": f"p{i}", "max_tokens": 100, "seed": 7}
++                     for i in range(5)]
++        import gpu0
++        self.gpu0 = gpu0
++        self.released, self.llms = [], []
++
++        def llm(model=None):
++            self.llms.append(FakeLLM(model))
++            return self.llms[-1]
++        self.p = [mock.patch.object(J, "YIELD_FLAG", self.flag),
++                  mock.patch.object(gpu0, "lease", mock.MagicMock()),
++                  mock.patch.object(gpu0, "release_all", lambda: self.released.append(1)),
++                  mock.patch("story_semantics.LocalLLM", llm),
++                  mock.patch.object(J.time, "sleep", lambda s: None)]
++        for x in self.p:
++            x.start()
++            self.addCleanup(x.stop)
++
++    def answers(self):
++        with open(self.out) as f:
++            return [json.loads(l) for l in f if l.strip()]
++
++    def test_every_job_once_in_batches_each_ending_with_gpu0_released(self):
++        self.assertEqual(J.run(self.jobs, self.out, batch=2, log=lambda *a: None), 5)
++        self.assertEqual([a["id"] for a in self.answers()], ["j0", "j1", "j2", "j3", "j4"])
++        self.assertEqual(len(self.released), 3)                        # 2 + 2 + 1: GPU0 released after each batch
++        self.assertEqual(J.run(self.jobs, self.out, batch=2, log=lambda *a: None), 0)   # resumes: nothing twice
++
++    def test_a_render_yield_flag_stops_the_next_call(self):
++        calls = []
++
++        def post(prompt, max_tokens, seed):
++            calls.append(prompt)
++            if prompt == "p1":
++                open(self.flag, "w").close()                           # a render asks while p1 runs
++            return "{}"
++        n = [0]
++
++        def sleep(s):                                                  # the render ends: the flag goes
++            n[0] += 1
++            os.remove(self.flag)
++        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: post(p, m, s)), \
++                mock.patch.object(J.time, "sleep", sleep):
++            J.run(self.jobs, self.out, batch=8, log=lambda *a: None)
++        self.assertEqual(calls, ["p0", "p1", "p2", "p3", "p4"])
++        self.assertEqual(n[0], 1)                                      # it waited once, with p2 not yet asked
++        self.assertEqual(len(self.released), 2)                        # the batch ended (GPU0 released) at the flag
++
++    def test_a_busy_lease_is_waited_out_and_a_failed_call_is_recorded_not_retried(self):
++        tries = []
++
++        def lease(owner, wait_s=0):
++            tries.append(1)
++            if len(tries) == 1:
++                raise self.gpu0.LeaseBusy("held by a render")
++            return mock.MagicMock()
++        jobs = self.jobs[:2] + [dict(self.jobs[2], prompt="boom")]
++        with mock.patch.object(self.gpu0, "lease", lease):
++            J.run(jobs, self.out, batch=8, log=lambda *a: None)
++        got = {a["id"]: a for a in self.answers()}
++        self.assertEqual(len(tries), 2)
++        self.assertIn("bad request", got["j2"]["error"])
++        self.assertIsNone(got["j2"]["text"])
++        self.assertEqual(sum(len(l.asked) for l in self.llms), 3)
++
++    def test_a_gpu_stop_is_never_swallowed_and_gpu0_is_still_released(self):
++        post = mock.Mock(side_effect=['{"ok": 1}', self.gpu0.GpuOOM("cuda oom")])
++        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: post(p, m, s)):
++            with self.assertRaises(self.gpu0.GpuOOM):
++                J.run(self.jobs, self.out, batch=8, log=lambda *a: None)
++        self.assertEqual(len(self.released), 1)
++        self.assertEqual([a["id"] for a in self.answers()], ["j0"])     # the answer before the stop survives
++
++    def test_a_failed_call_is_asked_again_by_the_next_run_only_and_a_truncated_line_is_skipped(self):   # batch 61 C2
++        boom = [dict(self.jobs[0], prompt="boom")]
++        J.run(boom, self.out, batch=8, log=lambda *a: None)
++        self.assertEqual(sum(len(l.asked) for l in self.llms), 1)      # once in this run: no spin
++        with open(self.out, "a") as f:
++            f.write('{"id": "j9", "text"')                              # a crash mid-write
++        self.assertEqual(J.done_ids(self.out), set())
++        J.run(boom, self.out, batch=8, log=lambda *a: None)
++        self.assertEqual(sum(len(l.asked) for l in self.llms), 2)      # the next run asks it again
++
++    def test_a_render_asking_while_the_lease_is_taken_gets_it_back_with_nothing_loaded(self):   # batch 61 C1
++        flag, seen = self.flag, []
++
++        class Lease:
++            def __enter__(self_):
++                if not seen:
++                    open(flag, "w").close()                            # the render asks in between
++                seen.append(1)
++
++            def __exit__(self_, *a):
++                return False
++
++        def sleep(s):
++            if os.path.exists(flag):
++                os.remove(flag)
++        with mock.patch.object(self.gpu0, "lease", lambda owner, wait_s=0: Lease()), \
++                mock.patch.object(J.time, "sleep", sleep):
++            J.run(self.jobs[:1], self.out, batch=8, log=lambda *a: None)
++        self.assertEqual(len(seen), 2)                                 # taken, given back, taken again later
++        self.assertEqual(len(self.llms), 1)                            # nothing loaded the first time
++        self.assertEqual(len(self.released), 1)
++
++
++class TestCompare(unittest.TestCase):
++    """The comparison runs in its own process (the builder's modules first on its path), exactly as it is used."""
++
++    def test_verdicts_read_with_the_builders_rules(self):
++        d = tempfile.mkdtemp(prefix="lj_cmp_")
++        self.addCleanup(shutil.rmtree, d)
++        ex = lambda lb, **k: dict({"label": lb, "speaker_changes_inside": "no", "view": "own_sincere", "referents": [],
++                                    "conditions": [], "retraction": "none", "time_ok": "yes", "proposition": "p",
++                                    "certainty": "certain", "speaker_is": "host", "speaker_evidence": ""}, **k)
++        a_prompt = 'You read transcripts <excerpt label="m1" x>t</excerpt><excerpt label="m2" x>t</excerpt>'
++        clips = 'CLIP label="hook" (on screen: A): "x"\nCLIP label="clip_01" (on screen: B): "y"'
++        med = lambda ok_join, r: json.dumps({"through_line": "Bitcoin holds while the crowd swings", "clips":
++                                             {"hook": 5, "clip_01": r}, "joins": {"hook -> clip_01": {"followable": ok_join, "why": "w"}}})
++        jobs = [{"id": "A", "family": "step_a", "prompt": a_prompt, "vendor": [{"backend": "v", "text": json.dumps(
++                    {"excerpts": [ex("m1"), ex("m2", retraction="partial")]})}]},
++                {"id": "C", "family": "clips_alone", "prompt": clips, "vendor": [{"backend": "v", "text": med(True, 4)}]},
++                {"id": "D", "family": "clips_alone", "prompt": clips, "vendor": [{"backend": "v", "text": med(True, 5)}]}]
++        local = [{"id": "A", "seconds": 1, "text": json.dumps({"excerpts": [ex("m1", view="attributed"), ex("m2")]})},
++                 {"id": "C", "seconds": 1, "text": med(True, 2)},
++                 {"id": "D", "seconds": 1, "text": "not json"}]
++        ans = os.path.join(d, "a.jsonl")
++        with open(ans + ".jobs.json", "w") as f:
++            json.dump(jobs, f)
++        with open(ans, "w") as f:
++            f.write("".join(json.dumps(x) + "\n" for x in local))
++        r = subprocess.run([sys.executable, os.path.join(PIPELINE, "local_judge_compare.py"), ans, os.path.join(d, "R")],
++                           capture_output=True, text=True, timeout=120)
++        self.assertEqual(r.returncode, 0, r.stderr[-800:])
++        rep = json.load(open(os.path.join(d, "R.json")))
++        a = rep["step_a"]
++        self.assertEqual((a["moments"], a["same_verdict"], a["same_rules"]), (2, 0, 0))
++        self.assertEqual([x["label"] for x in a["local_fail_vendor_pass"]], ["m1"])            # the costly direction
++        self.assertEqual([(x["label"], x["vendor_rules"]) for x in a["local_pass_vendor_fail"]], [("m2", ["RETRACTION"])])
++        c = rep["clips_alone"]
++        self.assertEqual((c["verdicts"], c["same_ok"], len(c["local_fail_vendor_pass"])), (1, 0, 1))
++        self.assertEqual([x["id"] for x in c["local_out_of_contract"]], ["D"])
++        self.assertEqual(rep["prefilter_rules"]["clips_alone"]["a local clip rating <= 2"], {"saved": 0, "lost": 1})
++        self.assertEqual(rep["prefilter_rules"]["step_a"]["local fails NOT_OWN_SINCERE"], {"saved": 0, "lost": 1})
++
++
++if __name__ == "__main__":
++    unittest.main()

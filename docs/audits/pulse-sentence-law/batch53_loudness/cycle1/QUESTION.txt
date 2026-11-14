@@ -1,0 +1,23 @@
+Batch 53 = RULING 29 (orchestrator 2026-11-13 '01:55'), verbatim: "G5 -15.2 LUFS against -14 +- 1: a render defect. The final mix must be measured and corrected to target before the gates (two-pass loudness on the final, then re-measure). The gate stays."
+Measured: pin #1's 16:9 final reads input_i -15.22 LUFS and input_tp -3.29 dBTP (loudnorm pass 1). G5 is ebur128 I = -14 +- 1 and TP <= -2.0. The 9:16 carries the 16:9's mixed audio, identical by construction (Law 23).
+New pipeline/loudness.correct_finals(final16, final9), called at the end of run_fresh.stage_render after both postflight checks, before the gates:
+- pass 1: ffmpeg loudnorm print_format=json measures the 16:9.
+- Within TOL_LU = 0.5 of -14 with TP <= -2.0: nothing is rewritten.
+- Otherwise pass 2: loudnorm with the measured values, linear=true, on the 16:9 audio only (video stream copied; AAC 192k / 48 kHz / stereo). The normalization type ffmpeg reports is recorded.
+- The 9:16 gets exactly that corrected audio stream, muxed over its own copied video.
+- Both are re-measured. They replace the finals (os.replace) only when both are within TOL_LU and TP <= -2.0. Otherwise the rendered finals are kept and the reason recorded; temp files are always removed.
+- The record goes to PROVENANCE["loudness"]. G5 is unchanged.
+Tests (synthetic finals, 5):
+- a quiet pair is corrected: video streams untouched, the 9:16 audio identical to the 16:9's, both on target;
+- an in-tolerance pair is never rewritten;
+- a failing mux or an off-target re-measure keeps the finals byte-identical;
+- an unmeasurable file raises.
+FIND:
+- AV sync or duration changes from the audio re-encode (AAC priming, edit lists);
+- a TP above -2.0 after correction that still replaces the finals;
+- the 9:16 audio not identical to the 16:9 after the change;
+- a failure path that leaves a half-written final;
+- a measurement whose numbers can be misread (the regex on ffmpeg's output);
+- whether this can mask a real mix defect the gate should see (the gate still measures the corrected files);
+- tests that do not test what they claim.
+Reply with the JSON verdict; keep the reasoning short; at most 3 findings.

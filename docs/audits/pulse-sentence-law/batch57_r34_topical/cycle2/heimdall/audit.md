@@ -1,0 +1,25 @@
+# Heimdall audit
+
+**Question:** Batch 57 cycle 2 (verification). Cycle 1: three [low] consensus findings, none needing a change (CONSENSUS.md).
+
+Batch 57 = RULING 34 (orchestrator 2026-11-13 '03:42'), verbatim: "stand_alone.topical no longer requires EVERY segment to name Bitcoin. Per segment the test is the miner's about-Bitcoin screen carried on the pin (BTC_SCREEN: bitcoin, btc, sats, Satoshi, halving, hash rate, self-custody, Bitcoiners...). The MEDLEY must name Bitcoin: the hook or at least one clip says it in the speaker's own words. Moments pins only; the story path is unchanged."
+The change:
+- pinned.build_edl copies the moments package's btc_screen (sealed by the builder: {"pattern", "source"}) into the EDL as moments_btc_screen, the way moments_bridge is copied.
+- run_fresh.moments_screen(edl) returns (compiled pattern with re.I, why) ONLY for an EDL carrying moments_package_sha256 that stand_alone_subject binds to 'bitcoin'. Otherwise None, and also None when the screen is absent, not a non-empty str of at most 500 chars, or not compiling. None means the old rule: every segment names Bitcoin.
+- stand_alone.check_edl(..., screen=None): with a screen, each segment's TOPIC test is topical_screen:
+  - the screen matches the segment's own text; or
+  - (clip only) topical()'s existing completion rule.
+  The EDL-level medley_names_bitcoin requires BITCOIN (bitcoin / btc) in at least one segment's text, and ok includes it. The opener rule and the scorer are unchanged.
+- stage_validate passes the screen and prints and HOLDs on the medley row.
+Tests: test_stand_alone +7 (screen pass, off-screen fail, the medley must name Bitcoin, no screen = old rule, the opener unchanged, moments_screen None cases incl. the story path).
+FIND: anything still open; a non-Bitcoin segment passing; the story path affected; a medley without Bitcoin passing; a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0013
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] medley BITCOIN check searches the segment's whole text, not just the speaker's own words — but the ruling says 'in the speaker's own words' and the text IS the speaker's words, so this is consistent; only note: BITCOIN (bitcoin/btc) will also match inside words like 'bitcoiners' via substring if BITCOIN lacks word boundaries, which the diff does not show. Cannot confirm without BITCOIN's definition, so not reported as a defect. (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none

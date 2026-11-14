@@ -1,0 +1,79 @@
+{
+ "question": "Batch 40 cycle 4 (verification) = LAW L-y R11 (edl_rules.rule_r11, moments packages: one takeaway after the LAST clip; at most ONE line before it, in the intro slot or after clip k, only with the package's recorded and confirmed bridge). This diff implements the cycle-3 findings: (glm F1) clip indexes must be exactly 1..n inside R11 (the takeaway slot is index n, so a duplicated or out-of-order index could otherwise hide a second takeaway); (qwen F1/F2) the takeaway line itself must be non-empty text (None, '', whitespace, a number or a list fail). Tests added in TestR11VoShape.\nFIND: whether each fix is correct and complete, and anything it breaks (the default shape, the exception in either slot, story / untyped EDLs). Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 2.8,
+   "cost": 0.0002259528,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 11.5,
+   "cost": 8.4506e-05,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 8.5,
+   "cost": 0.0004048538,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 19.2,
+   "cost": 0.000123721,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/edl_rules.py",
+   "line": 693,
+   "issue": "The takeaway-text check only runs on lines whose after_clip equals max(idx); a line with after_clip == 0 (or any non-index value) is caught by the after_clip check, but a line with a valid non-last after_clip whose text is non-text is never validated, so the 'non-text line' guarantee in the docstring is only enforced for the takeaway slot, not the intro/bridge slot",
+   "evidence": "elif a == max(idx):\n            closing += 1\n            t = b.get(\"text\")\n            if not isinstance(t, str) or not t.strip():\n                failures.append(f\"VO line {i}: the takeaway after the last clip is not text\")\n        else:\n            before.append((f\"the slot after clip {a}\", b.get(\"text\")))",
+   "fix": "If the law requires non-text lines to fail in any slot, also validate b.get(\"text\") in the else-branch (before.append) or hoist the isinstance/strip check above the elif/else split; if the law only binds the takeaway, narrow the docstring wording. Confidence: the diff shows the check only inside the elif-branch.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/edl_rules.py",
+   "line": 671,
+   "issue": "The new 1..n check changes the failure message for the pre-existing non-integer case, but the test only asserts the substring 'are not 1..3' \u2014 for a non-int like 1.0 the message reads 'clip indexes [1, 1.0, 3] are not 1..3', which is fine, yet the old test's expectation 'are not all integers' was updated correctly; no break. Real (minor) gap: the 1..n check uses idx != list(range(1, len(clips)+1)) which also catches duplicates, but the new duplicate test only covers a duplicated LAST index (clips[2].index=2), not a duplicated earlier index or an out-of-order-but-all-int case like [2,1,3] \u2014 those pass through the same code path, so coverage is thin but the code is correct.",
+   "evidence": "if any(type(i) is not int for i in idx) or idx != list(range(1, len(clips) + 1)):\n        return False, f\"R11 FAIL (law L-y): clip indexes {idx!r} are not 1..{len(clips)}\"",
+   "fix": "Add a test with indexes [2,1,3] (all ints, out of order) and [1,1,3] (duplicate of a non-last index) to pin the 1..n semantics; the code needs no change."
+  }
+ ],
+ "total_cost": 0.0008390336000000001,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch40_ly_r11/cycle4/heimdall"
+}

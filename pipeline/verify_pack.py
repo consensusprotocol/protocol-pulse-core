@@ -117,6 +117,35 @@ def panel_ok(per):
 NEXT_SHOT = "no_next_shot_before_transition"
 
 
+def stack_note(edl):
+    """Ruling 23 ('13:18'): the 9:16 segments laid out as a STACK (two speakers in two panels), stated to the vision
+    panel so its centring question is asked of each face in its own panel. '' when none."""
+    lines = []
+    for label, seg in [("hook", edl.get("hook") or {})] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]:
+        for sh in (seg.get("vertical_layout") or {}).get("shots") or []:    # audit batch39 F1: per stacked SHOT,
+            if str(sh.get("class", "")).startswith("stack"):                 # with its time span; F2: the layout
+                lines.append(f"9:16 STACK {label} ({seg.get('channel')}) {float(sh.get('start', 0)):.2f}-"   # only,
+                             f"{float(sh.get('end', 0)):.2f} s ({sh.get('class')}): two speakers in two panels, one "   # never
+                             f"above the other")                                                           # a verdict
+    return ("\n" + "\n".join(lines)) if lines else ""
+
+
+def avatar_note(channels, registry=None):
+    """Ruling 20 ('11:28'): the channels whose REGISTERED avatar is their own monogram or logo (pipeline/channels.json
+    avatar_kind 'monogram' / 'logo' with avatar_text), stated to the vision panel so a channel's own letters are
+    not read as a thumbnail's headline text. '' when none."""
+    if registry is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "channels.json")) as f:
+            registry = json.load(f)
+    reg = {e.get("display_name"): e for e in registry}
+    marks = []
+    for ch in dict.fromkeys(channels):
+        e = reg.get(ch) or {}
+        if e.get("avatar_kind") in ("monogram", "logo") and e.get("avatar_text"):
+            marks.append(f"{ch}: its registered avatar is its own {e['avatar_kind']} showing '{e['avatar_text']}'")
+    return (" Registered avatars that are the channel's own monogram or logo: " + "; ".join(marks) + ".") if marks else ""
+
+
 def _sheets_and_checklist(run_dir, rep, pack, vision):
     """Contact sheet per format (qa/) and the visual checklist answered from it; V1 rows written into
     GATE_REPORT.json (a new check on top of the gates: any "no", missing answer or route error = FAIL)."""
@@ -124,10 +153,11 @@ def _sheets_and_checklist(run_dir, rep, pack, vision):
     import vertical_layout
     with open(os.path.join(run_dir, "edl.json")) as f:
         edl = json.load(f)
-    note = vertical_layout.layout_note(edl)
+    note = vertical_layout.layout_note(edl) + stack_note(edl)                     # ruling 23: stacks named
     segs_edl = [("hook", edl["hook"])] + [(f"clip_{c['index']:02d}", c) for c in edl.get("clips", [])]
     channels_note = ("Channels whose clips appear in this video (from the edit decision list): " +
                      ", ".join(f"{s.get('channel')} ({label})" for label, s in segs_edl) + ".")
+    channels_note += avatar_note([s.get("channel") for _, s in segs_edl])       # ruling 20
     pack["contact_sheets"], pack["visual"] = {}, {}
     v1_rows = {}                                        # fmt -> (exact verdict, note, answers counted)
     for fmt, final in (("16x9", "segment.mp4"), ("9x16", "segment_vertical.mp4")):

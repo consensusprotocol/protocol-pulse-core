@@ -1,0 +1,23 @@
+# Heimdall audit
+
+**Question:** Batch 59 = RULING 37 (orchestrator 2026-11-13 '03:42'), verbatim: "edl_rules R1 NO_QUESTION_HOOK is relaxed for moments pins to: a hook may end on a question when the clips-alone verdict and the blind coherence check pass the join that follows it. A question ending stays refused for every non-hook clip."
+Background: edl_rules.rule_r1 refused any hook whose text ends with '?' (every EDL). A moments pin is a package sealed by the packager (pp-selectid); its sealed gate rows (moments_package.gates, inside package_sha256) include "medley" = the blind clips-alone verdict (status, by, replayed, n, "flagged": the joins, named "<label> -> <next label>", that a viewer could NOT follow) and "coherence" = the blind coherence check (status, by, replayed, n; no per-join verdict). The packager's own gate_problems treats a row as authorising only when status == "PASS" and replayed is False (law L-j: a replayed verdict is never deliverable). pinned.build_edl already copies sealed package fields into the EDL (moments_package_sha256, moments_checks, moments_bridge, moments_btc_screen). The packager confirmed this reading (04:53 ET): gates.medley PASS live with 'hook -> clip_01' not flagged = "the join after the question hook was judged and passed"; gates.coherence carries no per-join verdict and none will be sealed.
+The change:
+- pinned.build_edl copies moments_package.gates into the EDL as moments_gates.
+- edl_rules.question_hook_join(edl): (ok, why): ok only when moments_gates.medley is a dict with status "PASS", replayed exactly False and "flagged" a list WITHOUT "hook -> clip_01", and moments_gates.coherence is a dict with status "PASS" and replayed exactly False. Anything else (missing, not a dict, unstated replayed, no flagged list) fails closed.
+- rule_r1: for a bound moments package only (package_type == "moments" AND moments_package_sha256 present): (a) any clip whose text ends with '?' FAILS ("a question ending is refused for every non-hook clip"); (b) a hook ending with '?' passes only when question_hook_join is ok. Every other EDL (story path, protected references): exactly the old R1 (hook only).
+Tests: pipeline/test_question_hook.py: passing question hook; another join flagged still passes; the join flagged; each verdict not PASS / replayed / unstated / no flagged list; missing or malformed gates; a non-hook clip ending '?', with a statement hook and with a passing question hook; story-path EDLs unchanged; build_edl carries the gates. test_edl_rules (the old R1 tests) unchanged and passing.
+FIND: a question hook passing without both sealed verdicts passing that join; a non-hook question ending passing in a moments pin; any change for a non-moments EDL; a fail-open path; a test that does not test what it claims. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 4 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0012
+## Consensus findings (majority of panel agrees)
+- **[low] pipeline/edl_rules.py:114** Non-hook question-ending check runs before the hook check, so a moments EDL whose hook ends '?' AND a clip ends '?' reports only the non-hook failure — but that's consistent with ruling (a) applies to any clip; actually the hook itself is also counted in `asked` (clips list only, hook not included), so no defect. However the hook's own question ending is checked only after; if the hook ends '?' and a clip also ends '?', the returned why omits the hook-join reason — cosmetic only.
+  - evidence: `if asked:\n            return False, f"R1 FAIL (ruling 37): a question ending is refused for every non-hook clip: {asked}"`
+  - fix: None required; behavior matches the ruling.
+  - raised by glm:F1; agree: qwen27b, glm
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

@@ -1,0 +1,93 @@
+{
+ "question": "Batch 53 = RULING 29 (orchestrator 2026-11-13 '01:55'), verbatim: \"G5 -15.2 LUFS against -14 +- 1: a render defect. The final mix must be measured and corrected to target before the gates (two-pass loudness on the final, then re-measure). The gate stays.\"\nMeasured: pin #1's 16:9 final reads input_i -15.22 LUFS and input_tp -3.29 dBTP (loudnorm pass 1). G5 is ebur128 I = -14 +- 1 and TP <= -2.0. The 9:16 carries the 16:9's mixed audio, identical by construction (Law 23).\nNew pipeline/loudness.correct_finals(final16, final9), called at the end of run_fresh.stage_render after both postflight checks, before the gates:\n- pass 1: ffmpeg loudnorm print_format=json measures the 16:9.\n- Within TOL_LU = 0.5 of -14 with TP <= -2.0: nothing is rewritten.\n- Otherwise pass 2: loudnorm with the measured values, linear=true, on the 16:9 audio only (video stream copied; AAC 192k / 48 kHz / stereo). The normalization type ffmpeg reports is recorded.\n- The 9:16 gets exactly that corrected audio stream, muxed over its own copied video.\n- Both are re-measured. They replace the finals (os.replace) only when both are within TOL_LU and TP <= -2.0. Otherwise the rendered finals are kept and the reason recorded; temp files are always removed.\n- The record goes to PROVENANCE[\"loudness\"]. G5 is unchanged.\nTests (synthetic finals, 5):\n- a quiet pair is corrected: video streams untouched, the 9:16 audio identical to the 16:9's, both on target;\n- an in-tolerance pair is never rewritten;\n- a failing mux or an off-target re-measure keeps the finals byte-identical;\n- an unmeasurable file raises.\nFIND:\n- AV sync or duration changes from the audio re-encode (AAC priming, edit lists);\n- a TP above -2.0 after correction that still replaces the finals;\n- the 9:16 audio not identical to the 16:9 after the change;\n- a failure path that leaves a half-written final;\n- a measurement whose numbers can be misread (the regex on ffmpeg's output);\n- whether this can mask a real mix defect the gate should see (the gate still measures the corrected files);\n- tests that do not test what they claim.\nReply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 255.2,
+   "cost": 0.0177317985,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 24.0,
+   "cost": 0.000198617,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 9.1,
+   "cost": 0.0005801185,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 14.1,
+   "cost": 0.00018228,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "high",
+   "file": "pipeline/loudness.py",
+   "line": 41,
+   "issue": "Pass-2 loudnorm re-encodes audio without -shortest; if the 16:9 audio stream is longer than the video (common with AAC priming/padding), the corrected final's duration grows, breaking A/V sync at the tail and the 9:16 mux inherits it",
+   "evidence": "\"-c:v\", \"copy\", \"-af\", af, \"-c:a\", \"aac\", \"-b:a\", \"192k\", \"-ar\", \"48000\", \"-ac\", \"2\", \"-movflags\", \"+faststart\", dst",
+   "fix": "Add -shortest (or -t = source duration) to the pass-2 encode and the 9:16 mux; assert duration delta < 1 frame after correction",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "medium",
+   "file": "pipeline/loudness.py",
+   "line": 30,
+   "issue": "The regex only matches a JSON object containing input_i; if ffmpeg's stderr contains another JSON blob first (e.g. from a prior -af or banner), the wrong blob is parsed; also normalization_type is returned as a string while all other keys are floats, so callers comparing it numerically will fail",
+   "evidence": "m = re.search(r\"\\{[^{}]*\\\"input_i\\\"[^{}]*\\}\", r.stderr)",
+   "fix": "Parse the LAST match (re.findall + [-1]) and validate required keys (input_i, input_tp, input_lra, input_thresh, target_offset) exist before returning",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "medium",
+   "file": "pipeline/test_loudness.py",
+   "line": 60,
+   "issue": "test_a_pair_within_tolerance_is_never_rewritten does not test what it claims: it calls correct_finals twice on the SAME pair, so the second call's 'none: within tolerance' only proves the first call's correction worked, not that an in-tolerance pair is skipped; the fixture never produces a genuinely in-tolerance (between -14.5 and -13.5) but uncorrected pair",
+   "evidence": "f16, f9 = make_pair(self.d, 0.03); LD.correct_finals(f16, f9)  # now at the target; s16, s9 = sha(f16), sha(f9); rec = LD.correct_finals(f16, f9)",
+   "fix": "Build a second pair with a volume chosen so its measured input_i lands within [-14.5, -13.5] without any prior correction, then assert action == 'none: within tolerance' and unchanged hashes on that fresh pair",
+   "agree": [
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.018692814000000002,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch53_loudness/cycle1/heimdall"
+}

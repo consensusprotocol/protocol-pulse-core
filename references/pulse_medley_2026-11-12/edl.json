@@ -1,0 +1,247 @@
+{
+  "topic": "bitcoin",
+  "angle": "Pinned: Bitcoin's overlooked value comes from a market no government owns",
+  "hook": {
+    "video_id": "wdk5JZ9hPzs",
+    "channel": "Natalie Brunell",
+    "handle": "@nataliebrunell",
+    "video_title": "",
+    "text": "Bitcoin imposes a global free market for the first time ever.",
+    "first_word": "Bitcoin",
+    "last_word": "ever.",
+    "word_start": 14.94,
+    "word_end": 18.58,
+    "duration": 3.64,
+    "time_coords": "source_file",
+    "source_window_offset_s": 3203.0,
+    "pinned": {
+      "start": 15.14,
+      "end": 18.64,
+      "input_start": 3218.14,
+      "input_end": 3221.64,
+      "input_time_coords": "youtube"
+    },
+    "cut_out": 18.64,
+    "fade_out_ms": 30,
+    "selection_lock": {
+      "schema": "pulse.selection_lock.v1",
+      "video_id": "wdk5JZ9hPzs",
+      "transcript_sha256": "87718db727476b96f536e472e2aa9ebc0efa42fdd0816f84d9a1c30cd21438f2",
+      "i0": 35,
+      "i1": 45,
+      "first_word": "Bitcoin",
+      "last_word": "ever.",
+      "text": "Bitcoin imposes a global free market for the first time ever.",
+      "n_words": 11,
+      "selected_text": "Bitcoin imposes a global free market for the first time ever.",
+      "selected_window": [
+        3218.14,
+        3221.64
+      ],
+      "align_ratio": 1.0,
+      "created_by": "pinned approved_text",
+      "sha256": "4b8f6eca78c4a0b0caff15a8403212a2e07862b103c57eb1b0a5788f1df07e3b"
+    },
+    "vertical_layout": {
+      "shots": [
+        {
+          "start": 0.0,
+          "end": 4.667,
+          "class": "stack2",
+          "flagged": false
+        }
+      ],
+      "flagged": false
+    }
+  },
+  "clips": [
+    {
+      "video_id": "c1JGheQBPH4",
+      "channel": "What Bitcoin Did",
+      "handle": "@WBDPodcast",
+      "video_title": "",
+      "text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+      "first_word": "I",
+      "last_word": "well.",
+      "word_start": 14.36,
+      "word_end": 33.86,
+      "duration": 19.5,
+      "time_coords": "source_file",
+      "source_window_offset_s": 2388.0,
+      "pinned": {
+        "start": 15.23,
+        "end": 34.07,
+        "input_start": 2403.23,
+        "input_end": 2422.07,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 34.07,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "c1JGheQBPH4",
+        "transcript_sha256": "9e75374d35c0063105d1dfffac9ca9d3b8f298e45edaf5cbd58c749cc774abb7",
+        "i0": 51,
+        "i1": 111,
+        "first_word": "I",
+        "last_word": "well.",
+        "text": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "n_words": 61,
+        "selected_text": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+        "selected_window": [
+          2403.23,
+          2422.07
+        ],
+        "align_ratio": 0.975,
+        "created_by": "pinned approved_text",
+        "alternatives": [
+          {
+            "rule": "ruling 18 (orchestrator 2026-11-12 '10:36')",
+            "token_index": 1,
+            "readings": [
+              "think",
+              "mean"
+            ],
+            "word_index": 52,
+            "source_span": [
+              14.84,
+              15.32
+            ],
+            "recogniser": "elevenlabs:scribe_v1",
+            "usd": 0.0098,
+            "run_decode": "I think the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the US. You know, price wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+            "approved": "I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.",
+            "second_recogniser": "I think the good news about Bitcoin is it's not, uh, you know, its, its success is not dependent upon who's in the White House, uh, or who's controlling the Senate or the House of Representatives in the US. Um, you know, price-wise, some people would say, uh, when it's, when it's persecuted and when it's, uh, in the crosshairs, it, it tends to do, uh, pretty well."
+          }
+        ],
+        "sha256": "f4a23dda9750bb30b71b6b1e40074a40fa5ec017f631ca3c87b290317ad3762a"
+      },
+      "index": 1,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 19.875,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    },
+    {
+      "video_id": "Sjb6lUiL0m4",
+      "channel": "Stephan Livera",
+      "handle": "@stephanlivera",
+      "video_title": "",
+      "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+      "first_word": "However,",
+      "last_word": "undervalued.",
+      "word_start": 14.14,
+      "word_end": 31.48,
+      "duration": 17.34,
+      "time_coords": "source_file",
+      "source_window_offset_s": 1812.0,
+      "pinned": {
+        "start": 14.54,
+        "end": 31.48,
+        "input_start": 1826.54,
+        "input_end": 1843.48,
+        "input_time_coords": "youtube"
+      },
+      "cut_out": 31.48,
+      "fade_out_ms": 30,
+      "selection_lock": {
+        "schema": "pulse.selection_lock.v1",
+        "video_id": "Sjb6lUiL0m4",
+        "transcript_sha256": "371c6bc20b5e684a1bd72e6e0cc0308823fd824d283caca5d7b470be45718831",
+        "i0": 46,
+        "i1": 89,
+        "first_word": "However,",
+        "last_word": "undervalued.",
+        "text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+        "n_words": 44,
+        "selected_text": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+        "selected_window": [
+          1826.54,
+          1843.48
+        ],
+        "align_ratio": 0.976,
+        "created_by": "pinned approved_text",
+        "adjudication": {
+          "rule": "ruling 17 (orchestrator 2026-11-12 '10:20')",
+          "verdict": "approved",
+          "differences": [
+            [
+              "",
+              "dollars"
+            ]
+          ],
+          "recogniser": "elevenlabs:scribe_v1",
+          "usd": 0.0092,
+          "run_decode": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like 1 .5, 1 .4 million dollars per Bitcoin last I checked. It's very, very undervalued.",
+          "approved": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.",
+          "second_recogniser": "However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued. Like"
+        },
+        "sha256": "d7e09cc8c7815f7ad615be6e342b93682ef6de968f844e9a07e2230ffc3b161d"
+      },
+      "index": 2,
+      "vertical_layout": {
+        "shots": [
+          {
+            "start": 0.0,
+            "end": 17.292,
+            "class": "single",
+            "flagged": false
+          }
+        ],
+        "flagged": false
+      }
+    }
+  ],
+  "vo": {
+    "intro": null,
+    "bridges": [
+      {
+        "text": "What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.",
+        "after_clip": 2
+      }
+    ]
+  },
+  "total_clip_duration": 40.48,
+  "mode": "pinned",
+  "pinned_story_id": "moments-fresh_20261112_050611-41f29b1f",
+  "title": "Bitcoin's overlooked value comes from a market no government owns",
+  "caption": "A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.",
+  "package_type": "moments",
+  "moments_package_sha256": "41f29b1fee5730fd2eb850ce888f1d22b80fe7b6c368a3dbe31c90d2a75bbc70",
+  "moments_package_pin_sha256": "072dc41579a68890e2160cee8f9a0aa6dc14547dd79d5872afc562ebefad222c",
+  "moments_checks": {
+    "vo_fidelity_ok": true,
+    "context_integrity_ok": true,
+    "derived_from": "gates (every required row exactly PASS, checked above)",
+    "models": {
+      "angle": "heimdall:deepseek/deepseek-v4.1-flash",
+      "writer": "heimdall:deepseek/deepseek-v4.1-flash",
+      "medley": "xai:grok-4.20-0309-reasoning",
+      "fidelity_verdict": "xai:grok-4.20-0309-reasoning",
+      "context": {
+        "A": {
+          "hook": "xai:grok-4.20-0309-reasoning",
+          "clip_01": "xai:grok-4.20-0309-reasoning",
+          "clip_02": "xai:grok-4.20-0309-reasoning"
+        },
+        "B0": "xai:grok-4.20-0309-reasoning",
+        "B": "xai:grok-4.20-0309-reasoning",
+        "C": "xai:grok-4.20-0309-reasoning"
+      },
+      "coherence": "xai:grok-4.20-0309-reasoning"
+    }
+  },
+  "moments_sources_30s_before": [
+    "https://www.youtube.com/watch?v=wdk5JZ9hPzs&t=3188s",
+    "https://www.youtube.com/watch?v=c1JGheQBPH4&t=2373s",
+    "https://www.youtube.com/watch?v=Sjb6lUiL0m4&t=1796s"
+  ],
+  "moments_bridge": null
+}

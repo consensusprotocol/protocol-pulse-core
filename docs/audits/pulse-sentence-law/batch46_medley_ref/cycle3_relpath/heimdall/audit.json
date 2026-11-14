@@ -1,0 +1,96 @@
+{
+ "question": "Batch 46 cycle 3 (a fix found by running regression.sh step 8 after the commit): check_medley_reference.main was given a RELATIVE reference path by step 8; the scratch dir's symlinks (os.symlink(os.path.join(ref, d), ...)) then pointed to a relative target that resolves from /tmp and the cut table crashed (FileNotFoundError, exit 1: fail closed). Fix: ref = os.path.abspath(ref) at the top of main; the command-line test now passes the path RELATIVE from the repo root (proven: it fails without the fix, passes with it). FIND: any other place in check_medley_reference.py where a relative ref path still breaks, a way the fix changes what the check accepts, or a test that does not test what it claims. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [
+  "pipeline/check_medley_reference.py"
+ ],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 4.4,
+   "cost": 0.0005068438,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 22.0,
+   "cost": 0.000163866,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 2,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 6.8,
+   "cost": 0.000376402,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 8.8,
+   "cost": 0.000170159,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 37,
+   "issue": "The fix makes main() resolve the ref path against the process CWD, so the check's meaning now depends on where it is invoked from: a relative REF_DIR that exists from one CWD silently resolves differently (or to a different/missing dir) from another, changing exit 2 (SKIP) vs 1 vs 0. Previously a relative path was resolved lazily at each open; now it is frozen once at entry.",
+   "evidence": "ref = os.path.abspath(ref)                    # the scratch dir's links must resolve from /tmp (step 8 passes it relative)",
+   "fix": "None required; document that relative REF_DIR is CWD-relative, or resolve against REPO instead of CWD (os.path.join(REPO, ref) when not os.path.isabs(ref)).",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/test_check_medley_reference.py",
+   "line": 152,
+   "issue": "The test does not test what it claims: it asserts the subprocess's CWD is the repo root (cwd=C.REPO) while passing a repo-relative path, so it only proves the fix works when CWD == REPO. regression.sh step 8's actual CWD is not exercised, and the pre-fix failure mode (symlinks resolving from /tmp) is only reproduced if step 8 also runs from the repo root; if step 8 runs from elsewhere the test passes while the real invocation still fails.",
+   "evidence": "r = subprocess.run([sys.executable, C.__file__, os.path.relpath(REF, C.REPO), \"--no-layout\"],   # RELATIVE, as\n                           cwd=C.REPO, capture_output=True, text=True, timeout=300)                 # step 8 passes it",
+   "fix": "Either pin the test's claim (rename/comment that it covers the cwd=REPO case) or run it twice with different CWDs, or have the test read step 8's CWD from regression.sh to mirror it.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/check_medley_reference.py",
+   "line": 82,
+   "issue": "Symlink targets are absolute now, but the scratch-dir cleanup (shutil.rmtree) does not unlink the symlinks' targets \u2014 fine \u2014 yet if write_lock_cut_table raises, the finally block removes tmp while the exception propagates, so the cut-table failure yields an uncaught traceback (exit 1 via crash) rather than the documented 'exit 1 = a decision changed' path; the docstring's fail-closed semantics rely on the crash, not _report.",
+   "evidence": "table = L.write_lock_cut_table(tmp) inside try/finally with no except; _report(bad) never sees the error",
+   "fix": "Wrap write_lock_cut_table in try/except and append to bad (e.g. f\"cut: {e}\"), preserving exit 1 without a traceback, or document the crash-exit-1 behavior."
+  }
+ ],
+ "total_cost": 0.0012172708000000002,
+ "out_dir": "docs/audits/pulse-sentence-law/batch46_medley_ref/cycle3_relpath/heimdall"
+}

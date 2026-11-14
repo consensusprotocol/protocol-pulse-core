@@ -1,0 +1,2 @@
+# Batch 69 cycle 3 (the 600 ms amendment delta): no consensus findings
+glm F1 [low], single vote: 'the medley unit case encodes 0.60, not the reference's 0.56'. By design: the ruling ('18:40') sets the cap at 600 ms, with the reference as the evidence that a 0.56 s lead is fine. The case asserts the reference's own geometry keeps its cut under that cap, and the delivered test recomputes the reference's run unchanged on its real files.

@@ -1,0 +1,20 @@
+Batch 56 = RULING 28 (orchestrator 2026-11-13 '01:55'), verbatim: "G17 hook lead 30 ms against 80 ms: the cut is wrong, not the rule. The pin stage measured the transcript gap, the gate measures sound. ... For this pin: move cut_in earlier inside the 230 ms pause if the measured quiet allows 80 ms, else a declared pad as D1 permits."
+Measured on pin #1's hook (Sjb6lUiL0m4):
+- the 230 ms gap holds a breath, then the digital zeros of a hard edit until about 40 ms before the first word;
+- every legal cut keeps 0-20 ms of genuine quiet (G17a counts nothing below the -100 dBFS digital floor);
+- the D1 pad loops the source's own quietest room tone (a 40 ms run at -65..-69 dB). Each loop join dips to -107 dB, below the floor, so even padded the head measures 20 ms.
+The change, in sentence_law.write_lock_cut_table, for the HOOK only, when it is not at a file head (the file-head D1 rule is unchanged), via the new hook_lead(src, plan, pick):
+1. G17a's own measure (head_tail) on the audio as cut at the planned cut (hook_lead_at): >= 80 ms -> the cut stands.
+2. Else the legal candidates inside the pause (cut_candidates: cut_accept-clean, nearest the target first), each with its edge fade and neighbour_clear: the first keeping >= 80 ms is taken.
+3. Else the D1 pad (LEAD_PAD_S 0.25 s) before a candidate whose quiet is genuine from the cut to the word (onset > one hop, and lead >= onset - one hop), and ONLY when padded_lead_ms (room_tone + the audio as cut, head_tail) measures >= 80 ms.
+4. Else the entry is refused: verified false with the measured reason, so stage_cut HOLDS before any render. That is fail-closed, earlier than G17a.
+Measured outcome: pin #1's hook is refused with "... G17a measures 20 ms at 14.810, 20 ms at 14.820 ...", and its clips keep their cuts. The medley reference's hook keeps its planned cut (260 ms), and check_medley_reference REPRODUCES. The protected references' hooks measure 120-310 ms, so step 1 applies to them.
+Tests: test_hook_lead 6 (two on the real fixtures; four on the decision logic with stubbed measurements).
+FIND:
+- any way a hook that G17a will fail passes the cut stage, or one that would pass is refused;
+- the pad accepted where the built pad would differ from what apply_lead_in_pad builds;
+- a cut moved outside G16's legal range;
+- the protected references' cuts changed;
+- non-hook clips affected;
+- tests that do not test what they claim.
+Reply with the JSON verdict; keep the reasoning short; at most 3 findings.

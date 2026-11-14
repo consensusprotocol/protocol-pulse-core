@@ -1,0 +1,127 @@
+{
+ "question": "Batch 34 = RULINGS 18 + 19 (orchestrator 2026-11-12 '10:36', '10:51') + ruling 17's cycle-2 boundary fix. Integrity stays fail-closed.\nRULING 18: when the run's decode and the pin's approved text differ in a locked span on exactly ONE token (a 1-for-1 replacement), not a number / name / negation (those hold before any vote), and the independent second recogniser reads the RUN's word at that position (an even split), the lock does not hold: it records both attested readings (lock['alternatives']: token_index, readings, the run word's index and source time span) and its digest is recomputed (pinned.adjudicate_lock). Two or more differences, or a reading of neither, still HOLD. G18 (word_diff.gate_g18) for such a lock: the final's decode may read EITHER attested reading at that position (edges() and diff() with alts; any other difference fails), its identity reference is the lock text, AND the token's audio must be the source's: sentence_law.span_fidelity = G17c's frame comparison (every 10 ms source frame above the floor within EDGE_WORD_MAX_DB 1.0 dB, best of +-2 hops, every kept frame compared) on the PREPARED clip over the token's span; the same on the final bytes is recorded as evidence only (the music bed and loudnorm make a 1 dB frame test impossible there). A mismatch fails G18. RULING 19: the comparison floor for G17c AND the token check is EDGE_WORD_FLOOR_DBFS = -90 dBFS (was -96): measured AAC codec noise at -92.9 / -94.2 dBFS in a pause (1.22 dB apart) while every frame above -90 was within 0.52 dB. Ruling 17 cycle-2 F1: at the span's start / end (no neighbour) the second recogniser's reading must begin / end exactly there.\nTests: either reading passes on the untouched prepared clip; a third word fails; the token's audio 3 dB down or silenced fails; 'can'/'can't', '15'/'50', 'one'/'two' hold; two ambiguous tokens hold; a start-of-span difference read with an extra word holds; codec-like noise between -96 and -90 passes, a real 3 dB onset loss at -50 fails.\nFIND: any way G18 passes a final whose words differ from the lock other than the one attested alternative; any way the token check passes with the token's audio changed above -90 dBFS; index errors mapping the alternative (canon index vs G18's norm index, edges at the start / end); a critical (number / name / negation) difference that reaches alternatives; tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.\n\nTHIS PART of the diff: pipeline/pinned.py only (the rest is audited separately). Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "deepseek": "deepseek/deepseek-v4.1-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 312.2,
+   "cost": 0.0099368423,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 150.7,
+   "cost": 0.001377764,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 97.2,
+   "cost": 0.0062715945,
+   "parse_ok": true
+  },
+  {
+   "name": "deepseek",
+   "status": 200,
+   "latency_s": 232.6,
+   "cost": 0.002167954,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/pinned.py",
+   "line": 352,
+   "issue": "Cycle-2 F1 boundary check uses full-text boundaries instead of span boundaries. `hi < len(x)` and `lo > 0` test against the full text length, not the locked span. If the span is words 3\u20137 of a 10-word text, a diff at the span's end (index 7) has `hi=7 < len(x)=10` \u2192 True, so the 'reading must end exactly there' check is skipped. The fix only fires when the span coincides with the full text's start/end.",
+   "evidence": "return (lo > 0 or xmap[idx[0]] == 0) and (hi < len(x) or xmap[idx[-1]] == len(s) - 1)",
+   "fix": "Pass the span boundaries (lock['i0'], lock['i1']) into `reads` and test `lo > span_start` / `hi < span_end` instead of `lo > 0` / `hi < len(x)`. The 'exactly there' targets should be the span's first/last position in `s`, not 0 and len(s)-1.",
+   "agree": [
+    "qwen27b",
+    "deepseek"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "deepseek:F1",
+   "severity": "critical",
+   "file": "pipeline/pinned.py",
+   "line": 0,
+   "issue": "_token_word treats the global canonical token index a (from ops[0][1], an index into the full run decode's canonical tokens) as if it were relative to the lock span, so for any span not starting at canonical token 0 it returns None or the wrong word index, breaking the alternative mapping and source_span.",
+   "evidence": "wi = _token_word(words, lock[\"i0\"], lock[\"i1\"], a)",
+   "fix": "Compute the canonical token offset of the span start (e.g., sum of canon token lengths for words before i0) and subtract it from a before calling _token_word, or make _token_word accept the global index and map it correctly.",
+   "agree": [
+    "qwen27b",
+    "deepseek"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "pipeline/pinned.py",
+   "line": 362,
+   "issue": "`token_index` is set to `a` from the diff op, which is an index into the run text `r` (used as `r[a]` in `reads(r, rmap, a, b)`). If the diff is computed at the canonical-token level (as Ruling 18's 'one token' language implies) while `r` is a word list, `a` is a token index but `r[a]` indexes a word list\u2014mismatched index spaces. The recorded `token_index` may not align with G18's norm-index expectation for the lock text.",
+   "evidence": "\"token_index\": a,",
+   "fix": "Record the lock-text-relative canonical token index (i.e., the position of the differing token within the lock text's token sequence), not the raw diff-op index into the run word list. Derive it from the `amap`/`rmap` alignment so G18 can look up the correct position in the final decode.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "deepseek:F2",
+   "severity": "critical",
+   "file": "pipeline/pinned.py",
+   "line": 0,
+   "issue": "The ruling-18 branch does not check whether the single differing token is a number, name, or negation, so a critical difference can reach alternatives and be recorded as an attested reading, violating the law that such differences always hold.",
+   "evidence": "if not pin_side and run_side and len(ops) == 1 and ops[0][0] == \"replace\" and ops[0][2] - ops[0][1] == 1 \\\n            and ops[0][4] - ops[0][3] == 1:",
+   "fix": "Before recording alternatives, verify that the token is not critical (e.g., not a number, name, or negation) using the existing critical-token check; if it is critical, raise PinError to HOLD.",
+   "agree": [
+    "qwen27b"
+   ],
+   "disagree": [
+    "deepseek"
+   ]
+  },
+  {
+   "ref": "deepseek:F3",
+   "severity": "high",
+   "file": "pipeline/pinned.py",
+   "line": 0,
+   "issue": "_token_word only checks that the per-word canonical tokens concatenate to the canonical form of the joined words, not that they match the lock text's canonical tokens for the span. If the words' canonical forms differ from the lock text, the mapping can silently point to the wrong word.",
+   "evidence": "if sum(lens) != len(canon.canon_tokens(\" \".join(str(w[\"word\"]).strip() for w in words[i0:i1 + 1]))):\n        return None",
+   "fix": "Compare the concatenated per-word canonical tokens against the lock text's canonical tokens for the span (or against the run decode's canonical tokens for the span) and fail closed on any mismatch.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "deepseek"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.0197541548,
+ "out_dir": "docs/audits/pulse-sentence-law/batch34_ruling18_19_alternatives/split_pinned/heimdall"
+}

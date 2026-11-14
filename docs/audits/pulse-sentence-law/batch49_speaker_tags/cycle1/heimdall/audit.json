@@ -1,0 +1,78 @@
+{
+ "question": "Batch 49 = THE SPEAKERS IN THE DELIVERY TEXTS (orchestrator order 2026-11-13 '00:05' item 3: \"Every pin carries, per segment, the SPEAKER'S NAME where the source's title/description names the guest ... with its evidence ... PBX wants to tag the right people when he posts ... Unknown speaker = say unknown, never guess.\").\nThe builder seals a per-segment record in the pin: speaker = {name or \"unknown\", role, line, basis, why, people: [{name, role, line}], measured}. The pin rides into the run's PINNED_DECISION.json.\ntelegram.speaker_lines(run_dir) renders, per segment:\n- \"speaker <name>\" with its role and evidence line, or \"speaker unknown\" with its why;\n- then each person the source names, with its line, or \"the source names nobody\";\n- each quoted line is cut to 140 characters with '...', each why to 120;\n- the whole block is capped at SPEAKERS_MAX = 1200 characters, ending \"- (truncated)\";\n- it returns [] for a pin without records.\n\nreview_texts (the review drop note) and publish_kit (the pass path's kit, before FIRST COMMENT) add the block under SPEAKERS_HEAD. Nothing else changes: no gate, no authorisation, no send logic.\nFIND:\n- any way the block invents or upgrades a speaker, e.g. prints a name for an unknown record, or turns 'people' into the speaker;\n- a record that crashes the note or the kit and so blocks a delivery;\n- a note pushed past TEXT_MAX;\n- a mis-numbered segment;\n- tests that do not test what they claim.\nReply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 3.0,
+   "cost": 0.0003671175,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 0,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 6.3,
+   "cost": 0.000104005,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 1,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 3.6,
+   "cost": 0.000203422,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 11.5,
+   "cost": 0.000117707,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 361,
+   "issue": "Known-speaker line indexes sp['role'] and sp['line'] directly; a record with name but no 'role'/'line' keys (only missing via .get elsewhere) would KeyError \u2014 but the guard uses sp.get('role')/sp.get('line') so it's actually safe; the real nit: a known speaker whose 'line' key exists but is non-str (e.g. number) is coerced by _cut(str), fine. No crash found; noting only that the truncated block's final line '- (truncated)' is not itself counted precisely, but the 14-char reserve covers it.",
+   "evidence": "text = text[:SPEAKERS_MAX - 14].rsplit(\"\\n\", 1)[0] + \"\\n- (truncated)\"",
+   "fix": "None needed; reserve covers the suffix.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/telegram.py",
+   "line": 366,
+   "issue": "A known speaker whose 'line' key exists but is non-str (e.g. a number) is coerced by _cut(str), fine \u2014 but a known speaker with role/line keys present yet falsy (empty string) silently drops the parenthetical, which is cosmetic only. More substantively: the 'people' list is rendered even for a known speaker, so a source that names the speaker in people[] prints the same name twice (once as speaker, once as 'named by the source') \u2014 this is faithful to the pin, not an invention, so it is not a defect. No real defect found beyond the noted cosmetic duplication.",
+   "evidence": "out += [f\"  named by the source: {p['name']}\" ... for p in people] or [\"  the source names nobody\"]",
+   "fix": "None required; duplication is faithful to the sealed record."
+  }
+ ],
+ "total_cost": 0.0007922515,
+ "out_dir": "/home/ultron/protocol_pulse/docs/audits/pulse-sentence-law/batch49_speaker_tags/cycle1/heimdall"
+}

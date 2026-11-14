@@ -1,0 +1,14 @@
+# Heimdall audit
+
+**Question:** Batch 32 = RULING 16 (orchestrator 2026-11-12 '10:20'): gate G17c (law L-b: the first and last word of every prepared clip at full level: every 10 ms source frame of the edge word's window that is above the gap level next to the cut must be within EDGE_WORD_MAX_DB = 1.0 dB in the clip; sentence_law.edge_word_fidelity) now compares a frame only if the SOURCE frame is above max(the local gap level, EDGE_WORD_FLOOR_DBFS = -96.0 dBFS), the 16-bit quantisation floor below which no audio exists to clip. The 1.0 dB bar and everything else are unchanged. Cause: on the Nov 12 clip_01 head the gap level was digital silence (-177 dB), so frames at -160 and -123 dBFS were compared and failed at 8.8 dB; every audible frame was within 0.34 dB. Tests: a synthetic -50 dBFS word whose onset is 3 dB down FAILS; a clip whose differences are all below -96 dBFS PASSES (and fails without the floor); the real Nov 12 clip_01 IN passes at 0.34 dB; the existing must-fail (the preview's 'rally' tail) is unchanged and runs on main.
+FIND: any way a real loss of an audible edge word (above -96 dBFS) now passes; any boundary error in the floor or in the units (the levels are 20*log10 RMS of float samples = dBFS); tests that do not test what they claim. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, deepseek  |  **Cost:** $0.0101
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
