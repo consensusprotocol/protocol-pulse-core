@@ -1,0 +1,632 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "eb1705e020a69306c967bf8ca596ce93fe43be355337bdc3b259827be34f5dc5",
+ "result": {
+  "text": "where it can go, and I, I understand a lot of them conceptually. So when people ask me that question, my just, you know, where's Bitcoin going and when? I, I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years. Um, and it goes back to the, the fundamental and conceptual whys for me, uh, more so than it does for just basic, you know, math or Control C, Control V on your CAGR based upon certain things. Um.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.38,
+    "end": 32.4,
+    "text": "where it can go, and I, I understand a lot of them conceptually. So when people ask me that question, my just, you know, where's Bitcoin going and when? I, I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years. Um, and it goes back to the, the fundamental and conceptual whys for me, uh, more so than it does for just basic, you know, math or Control C, Control V on your CAGR based upon certain things. Um."
+   }
+  ],
+  "words": [
+   {
+    "text": "where",
+    "start": 0.38,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 0.56,
+    "end": 0.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 0.66,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go,",
+    "start": 0.86,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.24,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 1.42,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.72,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 1.98,
+    "end": 2.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 2.42,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 2.48,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.64,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "them",
+    "start": 2.68,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conceptually.",
+    "start": 2.82,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.92,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.0,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.1,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ask",
+    "start": 4.52,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 4.8,
+    "end": 5.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.54,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "question,",
+    "start": 5.76,
+    "end": 6.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 6.26,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just,",
+    "start": 6.46,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 6.96,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 7.04,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where's",
+    "start": 7.18,
+    "end": 7.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.42,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 7.78,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.18,
+    "end": 8.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when?",
+    "start": 8.34,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I,",
+    "start": 8.68,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 8.84,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just,",
+    "start": 8.9,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 9.24,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 9.34,
+    "end": 9.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tell",
+    "start": 9.56,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 9.72,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when.",
+    "start": 9.86,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.7,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.74,
+    "end": 10.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 10.86,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tell",
+    "start": 11.02,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.16,
+    "end": 11.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.24,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 11.4,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 11.48,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 11.68,
+    "end": 11.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 11.82,
+    "end": 11.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 11.98,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "continue",
+    "start": 12.06,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.46,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 12.54,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "higher",
+    "start": 12.72,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.06,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 13.18,
+    "end": 13.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 13.3,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 13.38,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "done",
+    "start": 13.52,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 13.7,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.82,
+    "end": 13.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past",
+    "start": 13.94,
+    "end": 14.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "17",
+    "start": 14.62,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years.",
+    "start": 15.12,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 16.2,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 16.84,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.96,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "goes",
+    "start": 17.08,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "back",
+    "start": 17.32,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 17.56,
+    "end": 17.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the,",
+    "start": 17.68,
+    "end": 17.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 17.98,
+    "end": 18.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fundamental",
+    "start": 18.44,
+    "end": 18.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.88,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "conceptual",
+    "start": 19.0,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whys",
+    "start": 19.7,
+    "end": 20.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 20.6,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 20.78,
+    "end": 20.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 22.26,
+    "end": 22.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 22.7,
+    "end": 22.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 22.98,
+    "end": 23.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 23.28,
+    "end": 23.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 23.44,
+    "end": 23.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 23.58,
+    "end": 23.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 24.02,
+    "end": 24.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 24.7,
+    "end": 24.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "basic,",
+    "start": 25.08,
+    "end": 25.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 25.86,
+    "end": 25.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 25.94,
+    "end": 26.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "math",
+    "start": 26.38,
+    "end": 26.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "or",
+    "start": 26.84,
+    "end": 26.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Control",
+    "start": 27.42,
+    "end": 27.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "C,",
+    "start": 27.9,
+    "end": 28.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Control",
+    "start": 28.08,
+    "end": 28.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "V",
+    "start": 28.52,
+    "end": 28.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 28.74,
+    "end": 28.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 28.9,
+    "end": 29.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CAGR",
+    "start": 29.74,
+    "end": 30.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "based",
+    "start": 30.2,
+    "end": 30.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "upon",
+    "start": 30.44,
+    "end": 30.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "certain",
+    "start": 30.7,
+    "end": 30.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things.",
+    "start": 31.0,
+    "end": 31.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um.",
+    "start": 32.1,
+    "end": 32.4,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 32.81
+ },
+ "usd": 0.006562,
+ "seconds": 1.29,
+ "recorded_at": "2026-11-14T06:04:25Z"
+}

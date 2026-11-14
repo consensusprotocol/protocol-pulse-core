@@ -1,0 +1,638 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "358e8a7b6beb365260bbe5095905d6b315fe4a0d15dea88519d84dcb93f0321a",
+ "result": {
+  "text": "Is at an all-time high. That's his claim, but I haven't confirmed it but still, you have to understand that Bitcoin is the only asset that will not be affected by AI today. All of the major companies all of the big hyperscalers, all of the big cloud providers, all of the big chip makers that were riding this AI trade, that were being funded from the capital that was being sourced from the central bank of AI, which was Nvidia, which is no longer there and experiencing turmoil, that whole trade's gonna come crashing down. And when their companies are hacked",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 30.68,
+    "text": "Is at an all-time high. That's his claim, but I haven't confirmed it but still, you have to understand that Bitcoin is the only asset that will not be affected by AI today. All of the major companies all of the big hyperscalers, all of the big cloud providers, all of the big chip makers that were riding this AI trade, that were being funded from the capital that was being sourced from the central bank of AI, which was Nvidia, which is no longer there and experiencing turmoil, that whole trade's gonna come crashing down. And when their companies are hacked"
+   }
+  ],
+  "words": [
+   {
+    "text": "Is",
+    "start": 0.14,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 0.3,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 0.42,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all-time",
+    "start": 0.7,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "high.",
+    "start": 1.16,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 1.7,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "his",
+    "start": 1.9,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "claim,",
+    "start": 2.08,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 2.32,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.44,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "haven't",
+    "start": 2.5,
+    "end": 2.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "confirmed",
+    "start": 2.74,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 3.16,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 3.88,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still,",
+    "start": 4.14,
+    "end": 4.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.78,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 4.96,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.2,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 5.4,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.3,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.48,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.88,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.02,
+    "end": 7.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 7.28,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 7.72,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.44,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 8.58,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 8.84,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 9.08,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "affected",
+    "start": 9.22,
+    "end": 9.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 9.66,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 9.9,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today.",
+    "start": 10.22,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "All",
+    "start": 10.84,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 11.06,
+    "end": 11.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.16,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "major",
+    "start": 11.3,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 11.64,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 12.8,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 12.96,
+    "end": 13.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.08,
+    "end": 13.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 13.2,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hyperscalers,",
+    "start": 13.38,
+    "end": 14.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 14.24,
+    "end": 14.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.42,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.52,
+    "end": 14.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 14.64,
+    "end": 14.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cloud",
+    "start": 14.84,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "providers,",
+    "start": 15.12,
+    "end": 15.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 16.14,
+    "end": 16.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 16.34,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.46,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "big",
+    "start": 16.58,
+    "end": 16.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chip",
+    "start": 16.82,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makers",
+    "start": 17.04,
+    "end": 17.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 17.96,
+    "end": 18.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 18.08,
+    "end": 18.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "riding",
+    "start": 18.26,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 18.56,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 18.86,
+    "end": 19.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade,",
+    "start": 19.24,
+    "end": 19.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 19.82,
+    "end": 19.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "were",
+    "start": 19.94,
+    "end": 20.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 20.08,
+    "end": 20.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funded",
+    "start": 20.38,
+    "end": 20.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 20.76,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.94,
+    "end": 21.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital",
+    "start": 21.3,
+    "end": 21.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 21.88,
+    "end": 22.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 22.04,
+    "end": 22.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 22.22,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sourced",
+    "start": 22.5,
+    "end": 22.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 22.74,
+    "end": 22.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 22.9,
+    "end": 22.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "central",
+    "start": 23.02,
+    "end": 23.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bank",
+    "start": 23.3,
+    "end": 23.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 23.48,
+    "end": 23.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI,",
+    "start": 23.68,
+    "end": 23.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 23.98,
+    "end": 24.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "was",
+    "start": 24.16,
+    "end": 24.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia,",
+    "start": 24.4,
+    "end": 24.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 24.82,
+    "end": 24.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 25.0,
+    "end": 25.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 25.2,
+    "end": 25.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "longer",
+    "start": 25.38,
+    "end": 25.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 25.7,
+    "end": 26.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 26.16,
+    "end": 26.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "experiencing",
+    "start": 26.28,
+    "end": 26.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "turmoil,",
+    "start": 26.84,
+    "end": 27.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 27.52,
+    "end": 27.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 27.68,
+    "end": 27.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trade's",
+    "start": 27.9,
+    "end": 28.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 28.18,
+    "end": 28.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come",
+    "start": 28.36,
+    "end": 28.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crashing",
+    "start": 28.56,
+    "end": 28.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "down.",
+    "start": 28.98,
+    "end": 29.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 29.42,
+    "end": 29.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 29.52,
+    "end": 29.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "their",
+    "start": 29.62,
+    "end": 29.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 29.78,
+    "end": 30.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 30.22,
+    "end": 30.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hacked",
+    "start": 30.4,
+    "end": 30.68,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 30.72
+ },
+ "usd": 0.006144,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-14T06:04:10Z"
+}

@@ -1,0 +1,452 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7c6377417506f02882ea569e74582fc4309f2aebafa397d56ff2fdc458b66261",
+ "result": {
+  "text": "What if I told you that Bitcoin is the only asset that AI can't touch? And why over the next year as things get much worse, this is gonna become more obvious. Bitcoin is the escape hatch, and I'll tell you why today. This is Dante Coco, Bitcoin Simply. Let's go. If you didn't know this week, Jensen Huang at Nvidia has been pushed out as CEO. Well, he resigned. But-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.26,
+    "end": 23.88,
+    "text": "What if I told you that Bitcoin is the only asset that AI can't touch? And why over the next year as things get much worse, this is gonna become more obvious. Bitcoin is the escape hatch, and I'll tell you why today. This is Dante Coco, Bitcoin Simply. Let's go. If you didn't know this week, Jensen Huang at Nvidia has been pushed out as CEO. Well, he resigned. But-"
+   }
+  ],
+  "words": [
+   {
+    "text": "What",
+    "start": 0.26,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 0.38,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.5,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "told",
+    "start": 0.64,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.86,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 0.96,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 1.14,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.52,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.64,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 1.84,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "asset",
+    "start": 2.16,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 2.48,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AI",
+    "start": 2.7,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 3.02,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "touch?",
+    "start": 3.3,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.88,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 4.04,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 4.34,
+    "end": 4.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.54,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 4.66,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 4.94,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 5.52,
+    "end": 5.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 5.68,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 5.94,
+    "end": 6.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 6.18,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "worse,",
+    "start": 6.46,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 7.12,
+    "end": 7.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.28,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 7.38,
+    "end": 7.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 7.6,
+    "end": 8.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 8.119,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obvious.",
+    "start": 8.46,
+    "end": 8.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.3,
+    "end": 9.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 9.68,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.8,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "escape",
+    "start": 9.9,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hatch,",
+    "start": 10.28,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.82,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'll",
+    "start": 10.9,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tell",
+    "start": 11.04,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.2,
+    "end": 11.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 11.3,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today.",
+    "start": 11.54,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 12.1,
+    "end": 12.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 12.26,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Dante",
+    "start": 12.36,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Coco,",
+    "start": 12.72,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.02,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Simply.",
+    "start": 13.38,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Let's",
+    "start": 14.0,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go.",
+    "start": 14.22,
+    "end": 14.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 18.6,
+    "end": 18.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.7,
+    "end": 18.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "didn't",
+    "start": 18.78,
+    "end": 18.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 18.96,
+    "end": 19.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 19.14,
+    "end": 19.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week,",
+    "start": 19.36,
+    "end": 19.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Jensen",
+    "start": 19.78,
+    "end": 20.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Huang",
+    "start": 20.14,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 20.46,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nvidia",
+    "start": 20.62,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 21.12,
+    "end": 21.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 21.28,
+    "end": 21.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pushed",
+    "start": 21.48,
+    "end": 21.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 21.72,
+    "end": 21.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 21.84,
+    "end": 21.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO.",
+    "start": 22.0,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Well,",
+    "start": 22.68,
+    "end": 22.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "he",
+    "start": 23.06,
+    "end": 23.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "resigned.",
+    "start": 23.22,
+    "end": 23.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But-",
+    "start": 23.82,
+    "end": 23.88,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.9
+ },
+ "usd": 0.00478,
+ "seconds": 1.12,
+ "recorded_at": "2026-11-14T06:04:39Z"
+}

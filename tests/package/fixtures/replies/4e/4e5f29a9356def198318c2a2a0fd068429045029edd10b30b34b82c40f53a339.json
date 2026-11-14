@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 750,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"d7578b88ff8e0129064f\" (on screen: CNBC Television): \"There is, though, one potential bright spot here. Traders are increasingly betting against Bitcoin with funding rates in the futures market turning negative for the first time in a month. That kind of pessimism has in the past marked a short -term bottom, raising hopes that the worst of the selling may be over here.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"d7578b88ff8e0129064f\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"d7578b88ff8e0129064f\": {\"scroll\": 2, \"alone\": 2, \"setup\": 3, \"why\": \"assumes prior context with 'though' and 'here'\"}}}",
+ "usage": {
+  "in": 562,
+  "out": 1274,
+  "usd_reported": 0.0037531
+ },
+ "usd": 0.03466,
+ "seconds": 8.64,
+ "recorded_at": "2026-11-14T06:05:01Z"
+}

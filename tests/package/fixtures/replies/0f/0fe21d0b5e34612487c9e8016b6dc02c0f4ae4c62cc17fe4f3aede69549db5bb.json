@@ -1,0 +1,476 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "77ea793b8ef0ad0e581f18c47b81904cedb1d19b9c710d63bf4a6d669b30eb26",
+ "result": {
+  "text": "We don't talk about AGI as being this winner, one takes winner thing anymore. So my whole belief has been, and this is the reason why I believe in Bitcoin, is that there are no more moats, and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from a lack of government involvement. It comes from multiple expansion. It comes from all of those things",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.14,
+    "end": 21.06,
+    "text": "We don't talk about AGI as being this winner, one takes winner thing anymore. So my whole belief has been, and this is the reason why I believe in Bitcoin, is that there are no more moats, and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from a lack of government involvement. It comes from multiple expansion. It comes from all of those things"
+   }
+  ],
+  "words": [
+   {
+    "text": "We",
+    "start": 0.14,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 0.2,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talk",
+    "start": 0.36,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 0.56,
+    "end": 0.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "AGI",
+    "start": 0.78,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 1.18,
+    "end": 1.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 1.32,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.52,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "winner,",
+    "start": 1.82,
+    "end": 2.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 2.18,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "takes",
+    "start": 2.38,
+    "end": 2.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "winner",
+    "start": 2.68,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 2.98,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anymore.",
+    "start": 3.16,
+    "end": 3.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.88,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 4.16,
+    "end": 4.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 4.32,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "belief",
+    "start": 4.52,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 4.8,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been,",
+    "start": 5.0,
+    "end": 5.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 5.16,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.28,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.42,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.52,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 5.62,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 5.92,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 6.44,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "believe",
+    "start": 6.52,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 6.78,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 6.92,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.46,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.58,
+    "end": 7.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 7.72,
+    "end": 7.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 7.8,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "no",
+    "start": 7.92,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 8.02,
+    "end": 8.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "moats,",
+    "start": 8.22,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.96,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 9.04,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 9.16,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 9.28,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "business",
+    "start": 9.42,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 9.78,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there,",
+    "start": 9.96,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 10.08,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 10.24,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 10.42,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 10.58,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "won't",
+    "start": 10.7,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 10.94,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.24,
+    "end": 11.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$5",
+    "start": 11.92,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trillion",
+    "start": 12.24,
+    "end": 12.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company.",
+    "start": 12.76,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 14.08,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "growth",
+    "start": 14.36,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 15.24,
+    "end": 15.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 15.72,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.48,
+    "end": 16.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lack",
+    "start": 16.58,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 16.82,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "government",
+    "start": 16.96,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "involvement.",
+    "start": 17.3,
+    "end": 17.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 17.8,
+    "end": 17.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 18.0,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 18.48,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multiple",
+    "start": 18.74,
+    "end": 19.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expansion.",
+    "start": 19.08,
+    "end": 19.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 19.68,
+    "end": 19.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "comes",
+    "start": 19.84,
+    "end": 20.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 20.14,
+    "end": 20.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 20.34,
+    "end": 20.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 20.42,
+    "end": 20.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those",
+    "start": 20.56,
+    "end": 20.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 20.8,
+    "end": 21.06,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.09
+ },
+ "usd": 0.004218,
+ "seconds": 0.98,
+ "recorded_at": "2026-11-14T06:04:08Z"
+}

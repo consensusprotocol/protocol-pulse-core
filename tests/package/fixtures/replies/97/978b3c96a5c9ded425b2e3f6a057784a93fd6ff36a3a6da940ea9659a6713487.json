@@ -1,0 +1,374 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "e9e33db277d4f0ae2f6c4d349b893f3e20d2fa7254cceae9f16331e3f5d6178e",
+ "result": {
+  "text": "Public companies are going to be under attack. They're gonna buy Bitcoin because robots can't make more Bitcoin. You know? Even if every human being is a million times smarter than Einstein, they're not gonna make more Bitcoin. So I, I would invest in something that the robots can't make more of, and that's, that's a re-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.56,
+    "end": 3.76,
+    "text": "Public companies are going to be under attack."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.18,
+    "end": 22.38,
+    "text": "They're gonna buy Bitcoin because robots can't make more Bitcoin. You know? Even if every human being is a million times smarter than Einstein, they're not gonna make more Bitcoin. So I, I would invest in something that the robots can't make more of, and that's, that's a re-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Public",
+    "start": 0.56,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "companies",
+    "start": 0.88,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 1.68,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 1.9,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.28,
+    "end": 2.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 2.44,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "under",
+    "start": 2.76,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "attack.",
+    "start": 3.3,
+    "end": 3.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They're",
+    "start": 4.18,
+    "end": 4.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "gonna",
+    "start": 4.32,
+    "end": 4.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "buy",
+    "start": 4.5,
+    "end": 4.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.74,
+    "end": 5.26,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "because",
+    "start": 5.32,
+    "end": 5.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "robots",
+    "start": 5.7,
+    "end": 6.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "can't",
+    "start": 6.2,
+    "end": 6.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "make",
+    "start": 6.44,
+    "end": 6.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "more",
+    "start": 6.68,
+    "end": 6.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 6.9,
+    "end": 7.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "You",
+    "start": 7.88,
+    "end": 7.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know?",
+    "start": 7.96,
+    "end": 8.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Even",
+    "start": 8.56,
+    "end": 8.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "if",
+    "start": 9.0,
+    "end": 9.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "every",
+    "start": 9.32,
+    "end": 9.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "human",
+    "start": 9.66,
+    "end": 9.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "being",
+    "start": 10.02,
+    "end": 10.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 10.78,
+    "end": 10.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 11.02,
+    "end": 11.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "million",
+    "start": 11.14,
+    "end": 11.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "times",
+    "start": 11.54,
+    "end": 11.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "smarter",
+    "start": 12.06,
+    "end": 12.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "than",
+    "start": 12.5,
+    "end": 12.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Einstein,",
+    "start": 12.72,
+    "end": 13.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "they're",
+    "start": 14.0,
+    "end": 14.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not",
+    "start": 14.18,
+    "end": 14.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "gonna",
+    "start": 14.4,
+    "end": 14.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "make",
+    "start": 14.64,
+    "end": 14.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "more",
+    "start": 14.9,
+    "end": 15.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 15.16,
+    "end": 15.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 16.18,
+    "end": 16.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I,",
+    "start": 17.1,
+    "end": 17.12,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 17.12,
+    "end": 17.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "would",
+    "start": 17.22,
+    "end": 17.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "invest",
+    "start": 17.46,
+    "end": 17.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "in",
+    "start": 18.02,
+    "end": 18.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "something",
+    "start": 18.26,
+    "end": 18.98,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 19.04,
+    "end": 19.18,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 19.22,
+    "end": 19.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "robots",
+    "start": 19.4,
+    "end": 19.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "can't",
+    "start": 19.92,
+    "end": 20.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "make",
+    "start": 20.2,
+    "end": 20.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "more",
+    "start": 20.44,
+    "end": 20.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of,",
+    "start": 20.74,
+    "end": 20.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 21.44,
+    "end": 21.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that's,",
+    "start": 21.58,
+    "end": 21.78,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that's",
+    "start": 21.92,
+    "end": 22.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "a",
+    "start": 22.2,
+    "end": 22.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "re-",
+    "start": 22.32,
+    "end": 22.38,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.43
+ },
+ "usd": 0.004486,
+ "seconds": 0.81,
+ "recorded_at": "2026-11-14T06:04:08Z"
+}

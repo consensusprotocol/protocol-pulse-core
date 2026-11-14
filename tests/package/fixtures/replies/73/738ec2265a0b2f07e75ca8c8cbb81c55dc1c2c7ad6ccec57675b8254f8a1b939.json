@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c91440af0e8a8fe029ee7f700797f9f829a37e8740b8f4a05c66637ee648ae52",
+ "result": {
+  "text": "over the long term while we appreciate that it will be volatile, um, in the interim. You know, if you look at the overall, uh, debt situation in every developed country around the world, uh, there is o- only one path out, and it's to continue to print money. Um, and that's not going to end. They're not printing more Bitcoin though, so, um",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 19.32,
+    "text": "over the long term while we appreciate that it will be volatile, um, in the interim. You know, if you look at the overall, uh, debt situation in every developed country around the world, uh, there is o- only one path out, and it's to continue to print money. Um, and that's not going to end. They're not printing more Bitcoin though, so, um"
+   }
+  ],
+  "words": [
+   {
+    "text": "over",
+    "start": 0.06,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.18,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 0.26,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "term",
+    "start": 0.5,
+    "end": 0.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "while",
+    "start": 0.72,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 0.86,
+    "end": 0.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appreciate",
+    "start": 0.96,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.54,
+    "end": 1.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.68,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 1.82,
+    "end": 1.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 2.0,
+    "end": 2.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatile,",
+    "start": 2.16,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 2.86,
+    "end": 2.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 3.06,
+    "end": 3.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 3.16,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interim.",
+    "start": 3.26,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 3.98,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 4.04,
+    "end": 4.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 4.16,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 4.34,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.5,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.64,
+    "end": 4.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "overall,",
+    "start": 4.96,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 6.02,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "debt",
+    "start": 6.24,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "situation",
+    "start": 6.46,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.7,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 7.92,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "developed",
+    "start": 8.22,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "country",
+    "start": 8.66,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 9.0,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.28,
+    "end": 9.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world,",
+    "start": 9.4,
+    "end": 9.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 10.1,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 10.52,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.68,
+    "end": 10.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "o-",
+    "start": 10.84,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 11.04,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 11.36,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "path",
+    "start": 11.54,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out,",
+    "start": 11.88,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 12.1,
+    "end": 12.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 12.22,
+    "end": 12.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.64,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "continue",
+    "start": 12.8,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.32,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "print",
+    "start": 13.5,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money.",
+    "start": 13.78,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 14.86,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 15.08,
+    "end": 15.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 15.26,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 16.0,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 16.239,
+    "end": 16.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 16.46,
+    "end": 16.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "end.",
+    "start": 16.62,
+    "end": 16.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "They're",
+    "start": 16.8,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 16.94,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "printing",
+    "start": 17.12,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 17.34,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 17.52,
+    "end": 17.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "though,",
+    "start": 17.92,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so,",
+    "start": 18.18,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um",
+    "start": 19.12,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.55
+ },
+ "usd": 0.00391,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-14T06:04:26Z"
+}

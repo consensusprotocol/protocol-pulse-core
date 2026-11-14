@@ -1,0 +1,386 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fbcbcce09b0d8da446b177d8f55cdcfaa0e9568c4042669a6393088599bc562a",
+ "result": {
+  "text": "Coin halving, which will be that year again. I don't know. We're playing this out. But understanding that Bitcoin is completely de-risked buying here today versus buying at the same price five years ago, that makes me feel good. Apathy. When everybody doesn't care about crypto, when nobody cares about crypto, and everybody's apathetic. No- the news isn't even talking-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.84,
+    "text": "Coin halving, which will be that year again. I don't know. We're playing this out. But understanding that Bitcoin is completely de-risked buying here today versus buying at the same price five years ago, that makes me feel good. Apathy. When everybody doesn't care about crypto, when nobody cares about crypto, and everybody's apathetic. No- the news isn't even talking-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Coin",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "halving,",
+    "start": 0.22,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "which",
+    "start": 0.66,
+    "end": 0.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 0.78,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 0.9,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 1.06,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 1.28,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again.",
+    "start": 1.58,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 2.32,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 2.38,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know.",
+    "start": 2.48,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 2.7,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "playing",
+    "start": 2.86,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 3.14,
+    "end": 3.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out.",
+    "start": 3.38,
+    "end": 3.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.9,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understanding",
+    "start": 4.04,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.12,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.28,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.9,
+    "end": 6.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 6.62,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "de-risked",
+    "start": 7.54,
+    "end": 8.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 8.36,
+    "end": 8.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 8.84,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 9.22,
+    "end": 9.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "versus",
+    "start": 9.9,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 10.52,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 10.72,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.8,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same",
+    "start": 10.92,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 11.08,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 11.32,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 11.48,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago,",
+    "start": 11.66,
+    "end": 11.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.34,
+    "end": 12.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 12.46,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 12.68,
+    "end": 12.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feel",
+    "start": 12.84,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good.",
+    "start": 13.04,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Apathy.",
+    "start": 13.8,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "When",
+    "start": 14.58,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody",
+    "start": 14.76,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 15.3,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "care",
+    "start": 15.64,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 15.82,
+    "end": 16.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto,",
+    "start": 16.059,
+    "end": 16.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 16.379,
+    "end": 16.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "nobody",
+    "start": 16.64,
+    "end": 16.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cares",
+    "start": 17.0,
+    "end": 17.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 17.22,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto,",
+    "start": 17.4,
+    "end": 17.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 18.38,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody's",
+    "start": 18.52,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "apathetic.",
+    "start": 18.98,
+    "end": 19.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No-",
+    "start": 19.44,
+    "end": 19.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.66,
+    "end": 19.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "news",
+    "start": 19.82,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "isn't",
+    "start": 20.04,
+    "end": 20.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "even",
+    "start": 20.24,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talking-",
+    "start": 20.48,
+    "end": 20.84,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.88
+ },
+ "usd": 0.004176,
+ "seconds": 0.92,
+ "recorded_at": "2026-11-14T06:04:20Z"
+}

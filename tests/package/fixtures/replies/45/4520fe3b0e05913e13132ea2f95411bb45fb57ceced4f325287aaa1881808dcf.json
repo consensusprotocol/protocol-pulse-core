@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "f051c68549020cf4cea11090f47399f7ab0940a4ad83bffc4b78f3aa5fbff6a7",
+ "result": {
+  "text": "better, but price is the same, that's a deal. So in the last five years, BlackRock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto. The SEC",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.12,
+    "end": 16.56,
+    "text": "better, but price is the same, that's a deal. So in the last five years, BlackRock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto. The SEC"
+   }
+  ],
+  "words": [
+   {
+    "text": "better,",
+    "start": 0.12,
+    "end": 0.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 0.84,
+    "end": 1.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 1.08,
+    "end": 1.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.44,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.6,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "same,",
+    "start": 1.8,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 3.04,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 3.24,
+    "end": 3.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "deal.",
+    "start": 3.38,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.88,
+    "end": 4.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 4.28,
+    "end": 4.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.44,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "last",
+    "start": 4.62,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 5.02,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years,",
+    "start": 5.32,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRock",
+    "start": 6.28,
+    "end": 7.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 7.08,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 7.3,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutionalized",
+    "start": 8.38,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 9.5,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 10.04,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well",
+    "start": 10.18,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 10.32,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Ethereum.",
+    "start": 10.44,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Fidelity",
+    "start": 11.16,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 11.94,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "offers",
+    "start": 12.18,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto.",
+    "start": 12.54,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Charles",
+    "start": 13.34,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Schwab",
+    "start": 13.78,
+    "end": 14.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 14.42,
+    "end": 14.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "offers",
+    "start": 14.62,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto.",
+    "start": 14.94,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 15.64,
+    "end": 15.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "SEC",
+    "start": 15.86,
+    "end": 16.56,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.78
+ },
+ "usd": 0.003356,
+ "seconds": 0.66,
+ "recorded_at": "2026-11-14T06:02:55Z"
+}

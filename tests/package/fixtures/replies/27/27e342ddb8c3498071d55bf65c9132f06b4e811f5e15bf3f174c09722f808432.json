@@ -1,0 +1,488 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5d4fbac9a208192085a1d12789a5a889e79413df4793ec20be4b70a00d0c34a9",
+ "result": {
+  "text": "Again, in COVID, obviously, um, you know, you did very well. But now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words, and we've all, I think, agreed on this, it's about preserving both wealth and freedom in a way that maybe it wasn't a few years ago. Um, you know, you have your BlackRocks involved now. You have your governments involved now",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 22.02,
+    "text": "Again, in COVID, obviously, um, you know, you did very well. But now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words, and we've all, I think, agreed on this, it's about preserving both wealth and freedom in a way that maybe it wasn't a few years ago. Um, you know, you have your BlackRocks involved now. You have your governments involved now"
+   }
+  ],
+  "words": [
+   {
+    "text": "Again,",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.2,
+    "end": 0.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "COVID,",
+    "start": 0.32,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "obviously,",
+    "start": 0.74,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 1.78,
+    "end": 1.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.1,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 2.16,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 2.24,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 2.34,
+    "end": 2.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "very",
+    "start": 2.48,
+    "end": 2.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well.",
+    "start": 2.68,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "But",
+    "start": 3.9,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 4.059,
+    "end": 4.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 4.7,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "feels",
+    "start": 4.86,
+    "end": 5.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.52,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 6.0,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.22,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.36,
+    "end": 6.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 6.46,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "person",
+    "start": 6.6,
+    "end": 6.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.88,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "well",
+    "start": 7.04,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.34,
+    "end": 7.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 7.94,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 8.4,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 8.52,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 8.64,
+    "end": 8.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 8.78,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "too,",
+    "start": 8.96,
+    "end": 9.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 9.14,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.34,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 9.44,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 9.62,
+    "end": 9.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "many",
+    "start": 9.7,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "words,",
+    "start": 9.9,
+    "end": 10.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 10.18,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 10.28,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all,",
+    "start": 10.46,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.58,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 10.66,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agreed",
+    "start": 10.84,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 11.14,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 11.28,
+    "end": 11.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 12.02,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 12.2,
+    "end": 12.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "preserving",
+    "start": 12.6,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "both",
+    "start": 13.56,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wealth",
+    "start": 13.82,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.06,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "freedom",
+    "start": 14.28,
+    "end": 14.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.6,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 14.68,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way",
+    "start": 14.76,
+    "end": 14.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 14.9,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "maybe",
+    "start": 15.02,
+    "end": 15.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 15.26,
+    "end": 15.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wasn't",
+    "start": 15.48,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.239,
+    "end": 16.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "few",
+    "start": 16.34,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 16.54,
+    "end": 16.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago.",
+    "start": 16.8,
+    "end": 17.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 17.66,
+    "end": 17.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.12,
+    "end": 18.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 18.18,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.34,
+    "end": 18.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 18.46,
+    "end": 18.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 18.66,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "BlackRocks",
+    "start": 18.8,
+    "end": 19.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "involved",
+    "start": 19.94,
+    "end": 20.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now.",
+    "start": 20.42,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 20.62,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 20.72,
+    "end": 20.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 20.86,
+    "end": 20.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "governments",
+    "start": 21.02,
+    "end": 21.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "involved",
+    "start": 21.5,
+    "end": 21.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 21.92,
+    "end": 22.02,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.05
+ },
+ "usd": 0.00441,
+ "seconds": 1.71,
+ "recorded_at": "2026-11-14T06:04:33Z"
+}

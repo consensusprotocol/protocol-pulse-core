@@ -1,0 +1,440 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "d44d0530ba32ac9f1718473c37686478a86ab6aba577409c544f40700accd6ed",
+ "result": {
+  "text": "and our earlier are all funded and controlled by foreign adversaries. And when all of this happens, people are gonna understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack. It's a network that foreign adversaries can't lobby to change. It's a network who doesn't have a CEO that you can blackmail into selling chips to your greatest adversaries. Over the next year",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 21.26,
+    "text": "and our earlier are all funded and controlled by foreign adversaries. And when all of this happens, people are gonna understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack. It's a network that foreign adversaries can't lobby to change. It's a network who doesn't have a CEO that you can blackmail into selling chips to your greatest adversaries. Over the next year"
+   }
+  ],
+  "words": [
+   {
+    "text": "and",
+    "start": 0.0,
+    "end": 0.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 0.1,
+    "end": 0.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "earlier",
+    "start": 0.28,
+    "end": 0.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 0.96,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 1.16,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "funded",
+    "start": 1.38,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 1.68,
+    "end": 1.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "controlled",
+    "start": 1.82,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 2.24,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "foreign",
+    "start": 2.58,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adversaries.",
+    "start": 2.96,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.9,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "when",
+    "start": 4.0,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 4.18,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.3,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 4.38,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "happens,",
+    "start": 4.56,
+    "end": 4.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 4.98,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 5.22,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 5.32,
+    "end": 5.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "understand",
+    "start": 5.56,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 5.96,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.12,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 6.42,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 6.52,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "valuable.",
+    "start": 6.86,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 7.62,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.78,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 7.88,
+    "end": 8.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 8.28,
+    "end": 8.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.46,
+    "end": 8.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hackers",
+    "start": 8.58,
+    "end": 8.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 9.0,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 9.24,
+    "end": 9.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "easily",
+    "start": 9.46,
+    "end": 9.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hack.",
+    "start": 9.9,
+    "end": 10.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 10.48,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.64,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 10.74,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 11.12,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "foreign",
+    "start": 11.34,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adversaries",
+    "start": 11.78,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 12.36,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lobby",
+    "start": 12.58,
+    "end": 12.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.86,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change.",
+    "start": 13.04,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 13.44,
+    "end": 13.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 13.6,
+    "end": 13.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 13.7,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 14.48,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "doesn't",
+    "start": 14.6,
+    "end": 14.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 14.9,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.04,
+    "end": 15.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "CEO",
+    "start": 15.14,
+    "end": 15.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 15.58,
+    "end": 15.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 15.72,
+    "end": 15.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 15.8,
+    "end": 15.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "blackmail",
+    "start": 15.98,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 16.56,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "selling",
+    "start": 17.52,
+    "end": 17.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "chips",
+    "start": 17.92,
+    "end": 18.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.7,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "your",
+    "start": 18.82,
+    "end": 18.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "greatest",
+    "start": 18.96,
+    "end": 19.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adversaries.",
+    "start": 19.36,
+    "end": 19.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Over",
+    "start": 20.36,
+    "end": 20.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 20.58,
+    "end": 20.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 20.7,
+    "end": 20.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 21.04,
+    "end": 21.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 21.55
+ },
+ "usd": 0.00431,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-14T06:04:32Z"
+}

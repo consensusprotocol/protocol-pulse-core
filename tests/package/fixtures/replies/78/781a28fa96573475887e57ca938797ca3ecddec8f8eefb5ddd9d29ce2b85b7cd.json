@@ -1,0 +1,464 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "43df8769e3a982dc69d238facbf797f3e1dcb489aee342a848ea70014c63c129",
+ "result": {
+  "text": "And so it's important to realize they're just trying to do what's best for the economy, but there is a better way, I think, to account for capital, uh, now that would be Bitcoin, um, than there has been in the past. So, uh, you know, that's why we're optimistic about the technology. Uh, but from a, from an interest rate perspective, yes, they may raise it. Um, I... You know, we're seeing-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.44,
+    "end": 20.86,
+    "text": "And so it's important to realize they're just trying to do what's best for the economy, but there is a better way, I think, to account for capital, uh, now that would be Bitcoin, um, than there has been in the past. So, uh, you know, that's why we're optimistic about the technology. Uh, but from a, from an interest rate perspective, yes, they may raise it. Um, I... You know, we're seeing-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.44,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 0.58,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 0.74,
+    "end": 0.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "important",
+    "start": 0.86,
+    "end": 1.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.14,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "realize",
+    "start": 1.22,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they're",
+    "start": 1.56,
+    "end": 1.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 1.76,
+    "end": 1.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "trying",
+    "start": 1.92,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 2.1,
+    "end": 2.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 2.2,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what's",
+    "start": 2.32,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best",
+    "start": 2.52,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 2.68,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.78,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy,",
+    "start": 2.9,
+    "end": 3.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 3.88,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 4.08,
+    "end": 4.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.26,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.4,
+    "end": 4.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "better",
+    "start": 4.5,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way,",
+    "start": 4.74,
+    "end": 4.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 4.96,
+    "end": 5.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think,",
+    "start": 5.04,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.26,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "account",
+    "start": 5.42,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.76,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capital,",
+    "start": 5.92,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 6.74,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 7.3,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.52,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "would",
+    "start": 7.7,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 7.84,
+    "end": 7.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 8.02,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "um,",
+    "start": 9.2,
+    "end": 9.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 10.42,
+    "end": 10.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 10.56,
+    "end": 10.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 10.76,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.86,
+    "end": 10.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.94,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "past.",
+    "start": 11.04,
+    "end": 11.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So,",
+    "start": 11.36,
+    "end": 11.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 11.84,
+    "end": 11.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.0,
+    "end": 12.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 12.08,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 12.2,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "why",
+    "start": 12.42,
+    "end": 12.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 12.64,
+    "end": 12.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "optimistic",
+    "start": 12.8,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 13.24,
+    "end": 13.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.4,
+    "end": 13.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "technology.",
+    "start": 13.52,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 14.68,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 15.26,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 16.36,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 16.6,
+    "end": 16.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 16.8,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 16.94,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "interest",
+    "start": 17.06,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "rate",
+    "start": 17.36,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "perspective,",
+    "start": 17.54,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yes,",
+    "start": 18.14,
+    "end": 18.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 18.42,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "may",
+    "start": 18.56,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "raise",
+    "start": 18.92,
+    "end": 19.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 19.22,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 19.56,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I...",
+    "start": 19.86,
+    "end": 20.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 20.1,
+    "end": 20.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know,",
+    "start": 20.16,
+    "end": 20.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 20.54,
+    "end": 20.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seeing-",
+    "start": 20.74,
+    "end": 20.86,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.89
+ },
+ "usd": 0.004178,
+ "seconds": 0.81,
+ "recorded_at": "2026-11-14T06:04:38Z"
+}
