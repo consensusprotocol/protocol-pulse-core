@@ -164,6 +164,55 @@ class TestAdjudication(unittest.TestCase):
         self.assertEqual(rec.calls, [])
 
 
+class TestRuling84b(unittest.TestCase):
+    """RULING 84 (b) (orchestrator 2026-11-13 '20:40') in adjudicate_lock: where the second recogniser reads ONE function
+    word against the decode's one (it reads the approved words), the lock keeps the decode's word and records the other
+    reading (ruling 18's record); two or more such in one span hold; a content word stays ruling 17's."""
+
+    def test_one_function_word_keeps_the_decodes_word_and_records_the_other(self):
+        lock, w = _lock("I go to the bank today.", "I go to a bank today.")
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank today."), log=lambda *_: None)
+        self.assertEqual(new["text"], "I go to the bank today.")
+        self.assertNotIn("adjudication", new)
+        alt, = new["alternatives"]
+        self.assertEqual((alt["readings"], alt["token_index"], alt["word_index"]), (["the", "a"], 3, 3))
+        self.assertEqual(alt["source_span"], [w[3]["start"], round(w[3]["end"], 3)])
+        self.assertEqual(L.verify_lock(new), [])
+        for heard in ("I go to the bank today.", "I go to a bank today."):            # G18 passes either reading
+            self.assertEqual(WD.diff(new["text"], heard, alts=new["alternatives"]), [])
+        self.assertTrue(WD.diff(new["text"], "I go to my bank today.", alts=new["alternatives"]))   # a third: no
+
+    def test_with_fillers_the_rest_is_ruling_17s(self):
+        run_t = "So it will replace or be replaced. So it is gone."
+        pin_t = "So it will replace, uh, or be replaced, or it is gone."
+        lock, w = _lock(run_t, pin_t)
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads(pin_t), log=lambda *_: None)
+        self.assertEqual(new["text"], "So it will replace, uh, or be replaced, so it is gone.")
+        self.assertEqual(new["adjudication"]["differences"], [["", "uh"]])
+        alt, = new["alternatives"]
+        self.assertEqual((alt["readings"], w[alt["word_index"]]["word"]), (["so", "or"], "So"))
+        self.assertEqual(WD._alt_positions(new["text"], new["alternatives"]), {alt["token_index"]: {"so", "or"}})
+        self.assertEqual(L.verify_lock(new), [])
+
+    def test_two_function_words_in_one_span_hold(self):
+        lock, w = _lock("I go to the bank in town.", "I go to a bank on town.")
+        with self.assertRaises(P.PinError) as e:
+            P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("I go to a bank on town."), log=lambda *_: None)
+        self.assertIn("ruling 84 (b): two or more in one span hold", str(e.exception))
+
+    def test_a_content_word_is_still_adopted_by_ruling_17(self):
+        lock, w = _lock("The bank holds the money.", "The bank owns the money.")
+        new = P.adjudicate_lock(lock, "src.mp4", w, recognise=_reads("The bank owns the money."), log=lambda *_: None)
+        self.assertEqual((new["text"], new["adjudication"]["differences"]), ("The bank owns the money.", [["holds", "owns"]]))
+        self.assertNotIn("alternatives", new)
+
+    def test_the_word_takes_the_approved_words_punctuation_and_capital(self):
+        self.assertEqual(P._with_token("replaced, or real estate.", 1, "so"), "replaced, so real estate.")
+        self.assertEqual(P._with_token("replaced. Or real estate.", 1, "so"), "replaced. So real estate.")
+        self.assertEqual(P._with_token("and i think", 1, "i"), "and I think")
+        self.assertIsNone(P._with_token("it is and/or not", 2, "so"))       # not one whole word: fail closed
+
+
 @unittest.skipUnless(os.path.isdir(os.path.join(NOV12, "transcripts")) and os.path.exists(FIX),
                      "the Nov 12 moments run not on this machine")
 class TestNov12Clip01Head(unittest.TestCase):

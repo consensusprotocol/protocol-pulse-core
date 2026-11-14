@@ -1,0 +1,1472 @@
+{
+"note": "candidate 6058ee583d6fb7dce57c (the 20:12 build's angle 1, Breedlove), held by ruling 72 at 01:28:05Z",
+"segment": {
+"video_id": "uaHNzi-Kgr8",
+"start": 153.25,
+"end": 165.89,
+"role": "clip",
+"approved_text": "So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account."
+},
+"offset": 138.0,
+"duration": 43.02275,
+"transcript_words": [
+{
+"word": "So",
+"start": 0.0,
+"end": 0.72,
+"probability": 0.254
+},
+{
+"word": "being",
+"start": 0.72,
+"end": 0.94,
+"probability": 0.879
+},
+{
+"word": "active",
+"start": 0.94,
+"end": 1.48,
+"probability": 1.0
+},
+{
+"word": "in",
+"start": 1.48,
+"end": 1.68,
+"probability": 1.0
+},
+{
+"word": "real",
+"start": 1.68,
+"end": 1.84,
+"probability": 1.0
+},
+{
+"word": "estate,",
+"start": 1.84,
+"end": 2.14,
+"probability": 1.0
+},
+{
+"word": "I",
+"start": 2.24,
+"end": 2.46,
+"probability": 1.0
+},
+{
+"word": "came",
+"start": 2.46,
+"end": 2.7,
+"probability": 1.0
+},
+{
+"word": "to",
+"start": 2.7,
+"end": 2.82,
+"probability": 1.0
+},
+{
+"word": "the",
+"start": 2.82,
+"end": 2.9,
+"probability": 1.0
+},
+{
+"word": "conclusion",
+"start": 2.9,
+"end": 3.26,
+"probability": 1.0
+},
+{
+"word": "that",
+"start": 3.26,
+"end": 3.5,
+"probability": 1.0
+},
+{
+"word": "the",
+"start": 3.5,
+"end": 3.6,
+"probability": 1.0
+},
+{
+"word": "investment",
+"start": 3.6,
+"end": 3.96,
+"probability": 1.0
+},
+{
+"word": "thesis",
+"start": 3.96,
+"end": 4.34,
+"probability": 1.0
+},
+{
+"word": "behind",
+"start": 4.34,
+"end": 4.86,
+"probability": 0.999
+},
+{
+"word": "Bitcoin",
+"start": 4.86,
+"end": 5.58,
+"probability": 0.96
+},
+{
+"word": "and",
+"start": 5.58,
+"end": 5.78,
+"probability": 0.481
+},
+{
+"word": "real",
+"start": 5.78,
+"end": 5.9,
+"probability": 1.0
+},
+{
+"word": "estate",
+"start": 5.9,
+"end": 6.14,
+"probability": 1.0
+},
+{
+"word": "is",
+"start": 6.14,
+"end": 6.3,
+"probability": 1.0
+},
+{
+"word": "very",
+"start": 6.3,
+"end": 6.42,
+"probability": 1.0
+},
+{
+"word": "similar.",
+"start": 6.42,
+"end": 6.82,
+"probability": 1.0
+},
+{
+"word": "So",
+"start": 7.2,
+"end": 7.72,
+"probability": 0.997
+},
+{
+"word": "real",
+"start": 7.72,
+"end": 8.66,
+"probability": 0.998
+},
+{
+"word": "estate",
+"start": 8.66,
+"end": 8.9,
+"probability": 1.0
+},
+{
+"word": "and",
+"start": 8.9,
+"end": 9.12,
+"probability": 0.985
+},
+{
+"word": "land",
+"start": 9.12,
+"end": 9.32,
+"probability": 0.988
+},
+{
+"word": "are",
+"start": 9.32,
+"end": 9.48,
+"probability": 0.87
+},
+{
+"word": "scarce.",
+"start": 9.48,
+"end": 9.7,
+"probability": 0.995
+},
+{
+"word": "They're",
+"start": 10.0,
+"end": 10.3,
+"probability": 0.999
+},
+{
+"word": "not",
+"start": 10.3,
+"end": 10.42,
+"probability": 1.0
+},
+{
+"word": "making",
+"start": 10.42,
+"end": 10.7,
+"probability": 1.0
+},
+{
+"word": "any",
+"start": 10.7,
+"end": 10.9,
+"probability": 1.0
+},
+{
+"word": "more",
+"start": 10.9,
+"end": 11.12,
+"probability": 1.0
+},
+{
+"word": "of",
+"start": 11.12,
+"end": 11.3,
+"probability": 1.0
+},
+{
+"word": "it.",
+"start": 11.3,
+"end": 11.48,
+"probability": 1.0
+},
+{
+"word": "And",
+"start": 11.5,
+"end": 11.78,
+"probability": 0.992
+},
+{
+"word": "Bitcoin",
+"start": 11.78,
+"end": 12.06,
+"probability": 1.0
+},
+{
+"word": "is",
+"start": 12.06,
+"end": 12.32,
+"probability": 1.0
+},
+{
+"word": "scarcer.",
+"start": 12.32,
+"end": 12.76,
+"probability": 0.804
+},
+{
+"word": "It's",
+"start": 12.78,
+"end": 13.14,
+"probability": 1.0
+},
+{
+"word": "absolutely",
+"start": 13.14,
+"end": 13.62,
+"probability": 1.0
+},
+{
+"word": "scarce.",
+"start": 13.62,
+"end": 14.0,
+"probability": 0.996
+},
+{
+"word": "So",
+"start": 14.6,
+"end": 15.12,
+"probability": 1.0
+},
+{
+"word": "over",
+"start": 15.12,
+"end": 15.56,
+"probability": 1.0
+},
+{
+"word": "time,",
+"start": 15.56,
+"end": 15.82,
+"probability": 1.0
+},
+{
+"word": "I",
+"start": 16.08,
+"end": 17.22,
+"probability": 1.0
+},
+{
+"word": "came",
+"start": 17.22,
+"end": 17.56,
+"probability": 1.0
+},
+{
+"word": "to",
+"start": 17.56,
+"end": 17.72,
+"probability": 1.0
+},
+{
+"word": "the",
+"start": 17.72,
+"end": 17.82,
+"probability": 1.0
+},
+{
+"word": "conclusion",
+"start": 17.82,
+"end": 18.14,
+"probability": 1.0
+},
+{
+"word": "that",
+"start": 18.14,
+"end": 18.48,
+"probability": 1.0
+},
+{
+"word": "real",
+"start": 18.48,
+"end": 19.3,
+"probability": 1.0
+},
+{
+"word": "estate",
+"start": 19.3,
+"end": 19.56,
+"probability": 1.0
+},
+{
+"word": "will",
+"start": 19.56,
+"end": 19.88,
+"probability": 1.0
+},
+{
+"word": "most",
+"start": 19.88,
+"end": 20.2,
+"probability": 0.999
+},
+{
+"word": "likely",
+"start": 20.2,
+"end": 20.54,
+"probability": 1.0
+},
+{
+"word": "replace",
+"start": 20.54,
+"end": 21.16,
+"probability": 0.978
+},
+{
+"word": "or",
+"start": 21.16,
+"end": 22.0,
+"probability": 0.985
+},
+{
+"word": "will",
+"start": 22.0,
+"end": 22.32,
+"probability": 1.0
+},
+{
+"word": "be",
+"start": 22.32,
+"end": 22.52,
+"probability": 1.0
+},
+{
+"word": "replaced.",
+"start": 22.52,
+"end": 22.88,
+"probability": 1.0
+},
+{
+"word": "So",
+"start": 22.9,
+"end": 23.12,
+"probability": 0.976
+},
+{
+"word": "real",
+"start": 23.12,
+"end": 23.28,
+"probability": 1.0
+},
+{
+"word": "estate",
+"start": 23.28,
+"end": 23.52,
+"probability": 1.0
+},
+{
+"word": "will",
+"start": 23.52,
+"end": 23.74,
+"probability": 1.0
+},
+{
+"word": "most",
+"start": 23.74,
+"end": 23.98,
+"probability": 1.0
+},
+{
+"word": "likely",
+"start": 23.98,
+"end": 24.24,
+"probability": 1.0
+},
+{
+"word": "be",
+"start": 24.24,
+"end": 24.48,
+"probability": 1.0
+},
+{
+"word": "replaced",
+"start": 24.48,
+"end": 25.26,
+"probability": 1.0
+},
+{
+"word": "by",
+"start": 25.26,
+"end": 25.6,
+"probability": 1.0
+},
+{
+"word": "Bitcoin",
+"start": 25.6,
+"end": 25.9,
+"probability": 1.0
+},
+{
+"word": "in",
+"start": 25.9,
+"end": 26.26,
+"probability": 0.996
+},
+{
+"word": "its",
+"start": 26.26,
+"end": 26.4,
+"probability": 1.0
+},
+{
+"word": "function",
+"start": 26.4,
+"end": 26.76,
+"probability": 1.0
+},
+{
+"word": "as",
+"start": 26.76,
+"end": 26.98,
+"probability": 0.999
+},
+{
+"word": "a",
+"start": 26.98,
+"end": 27.1,
+"probability": 1.0
+},
+{
+"word": "savings",
+"start": 27.1,
+"end": 27.38,
+"probability": 0.999
+},
+{
+"word": "account.",
+"start": 27.38,
+"end": 27.68,
+"probability": 1.0
+},
+{
+"word": "Sure.",
+"start": 27.86,
+"end": 28.12,
+"probability": 0.833
+},
+{
+"word": "Right.",
+"start": 28.12,
+"end": 28.64,
+"probability": 0.399
+},
+{
+"word": "That's",
+"start": 28.76,
+"end": 29.08,
+"probability": 0.997
+},
+{
+"word": "the",
+"start": 29.08,
+"end": 29.12,
+"probability": 0.968
+},
+{
+"word": "overall",
+"start": 29.12,
+"end": 29.68,
+"probability": 0.496
+},
+{
+"word": "thesis.",
+"start": 29.68,
+"end": 30.12,
+"probability": 1.0
+},
+{
+"word": "Real",
+"start": 30.4,
+"end": 30.86,
+"probability": 0.959
+},
+{
+"word": "estate",
+"start": 30.86,
+"end": 31.12,
+"probability": 0.995
+},
+{
+"word": "being",
+"start": 31.12,
+"end": 31.34,
+"probability": 0.999
+},
+{
+"word": "used",
+"start": 31.34,
+"end": 31.56,
+"probability": 1.0
+},
+{
+"word": "as",
+"start": 31.56,
+"end": 31.76,
+"probability": 1.0
+},
+{
+"word": "a",
+"start": 31.76,
+"end": 31.82,
+"probability": 1.0
+},
+{
+"word": "savings",
+"start": 31.82,
+"end": 32.14,
+"probability": 0.999
+},
+{
+"word": "account,",
+"start": 32.14,
+"end": 32.44,
+"probability": 1.0
+},
+{
+"word": "also",
+"start": 32.62,
+"end": 33.02,
+"probability": 0.998
+},
+{
+"word": "being",
+"start": 33.02,
+"end": 33.44,
+"probability": 1.0
+},
+{
+"word": "used",
+"start": 33.44,
+"end": 33.7,
+"probability": 1.0
+},
+{
+"word": "as",
+"start": 33.7,
+"end": 33.92,
+"probability": 1.0
+},
+{
+"word": "collateral.",
+"start": 33.92,
+"end": 34.24,
+"probability": 1.0
+},
+{
+"word": "So",
+"start": 34.5,
+"end": 35.06,
+"probability": 0.999
+},
+{
+"word": "it's",
+"start": 35.06,
+"end": 35.26,
+"probability": 0.953
+},
+{
+"word": "the",
+"start": 35.26,
+"end": 35.36,
+"probability": 1.0
+},
+{
+"word": "bedrock",
+"start": 35.36,
+"end": 35.74,
+"probability": 0.986
+},
+{
+"word": "of",
+"start": 35.74,
+"end": 35.88,
+"probability": 1.0
+},
+{
+"word": "the",
+"start": 35.88,
+"end": 36.0,
+"probability": 1.0
+},
+{
+"word": "global",
+"start": 36.0,
+"end": 36.22,
+"probability": 1.0
+},
+{
+"word": "financial",
+"start": 36.22,
+"end": 36.58,
+"probability": 1.0
+},
+{
+"word": "system.",
+"start": 36.58,
+"end": 37.14,
+"probability": 1.0
+},
+{
+"word": "And",
+"start": 37.22,
+"end": 37.76,
+"probability": 0.999
+},
+{
+"word": "Bitcoin",
+"start": 37.76,
+"end": 38.02,
+"probability": 0.989
+},
+{
+"word": "comes",
+"start": 38.02,
+"end": 38.38,
+"probability": 1.0
+},
+{
+"word": "in",
+"start": 38.38,
+"end": 38.64,
+"probability": 1.0
+},
+{
+"word": "as",
+"start": 38.64,
+"end": 39.22,
+"probability": 1.0
+},
+{
+"word": "a",
+"start": 39.22,
+"end": 39.34,
+"probability": 1.0
+},
+{
+"word": "digital",
+"start": 39.34,
+"end": 39.7,
+"probability": 1.0
+},
+{
+"word": "form",
+"start": 39.7,
+"end": 40.42,
+"probability": 1.0
+},
+{
+"word": "of",
+"start": 40.42,
+"end": 41.12,
+"probability": 1.0
+},
+{
+"word": "savings",
+"start": 41.12,
+"end": 41.7,
+"probability": 0.999
+},
+{
+"word": "and",
+"start": 41.7,
+"end": 42.08,
+"probability": 0.843
+},
+{
+"word": "it",
+"start": 42.08,
+"end": 42.18,
+"probability": 1.0
+},
+{
+"word": "can",
+"start": 42.18,
+"end": 42.32,
+"probability": 1.0
+},
+{
+"word": "replace",
+"start": 42.32,
+"end": 42.6,
+"probability": 1.0
+},
+{
+"word": "real",
+"start": 42.6,
+"end": 42.88,
+"probability": 0.871
+},
+{
+"word": "estate.",
+"start": 42.88,
+"end": 43.0,
+"probability": 0.993
+}
+],
+"second_recogniser_words": [
+{
+"word": "Being",
+"start": 1.0,
+"end": 1.24
+},
+{
+"word": "active",
+"start": 1.34,
+"end": 1.64
+},
+{
+"word": "in",
+"start": 1.68,
+"end": 1.76
+},
+{
+"word": "real",
+"start": 1.8,
+"end": 1.92
+},
+{
+"word": "estate,",
+"start": 1.98,
+"end": 2.38
+},
+{
+"word": "I",
+"start": 2.52,
+"end": 2.58
+},
+{
+"word": "came",
+"start": 2.64,
+"end": 2.8
+},
+{
+"word": "to",
+"start": 2.84,
+"end": 2.9
+},
+{
+"word": "the",
+"start": 2.92,
+"end": 3.0
+},
+{
+"word": "conclusion",
+"start": 3.04,
+"end": 3.44
+},
+{
+"word": "that",
+"start": 3.48,
+"end": 3.58
+},
+{
+"word": "the",
+"start": 3.62,
+"end": 3.68
+},
+{
+"word": "investment",
+"start": 3.72,
+"end": 4.2
+},
+{
+"word": "thesis",
+"start": 4.26,
+"end": 4.66
+},
+{
+"word": "behind",
+"start": 4.72,
+"end": 5.4
+},
+{
+"word": "Bitcoin",
+"start": 5.46,
+"end": 5.78
+},
+{
+"word": "and",
+"start": 5.8,
+"end": 5.84
+},
+{
+"word": "real",
+"start": 5.88,
+"end": 5.98
+},
+{
+"word": "estate",
+"start": 6.04,
+"end": 6.24
+},
+{
+"word": "is",
+"start": 6.28,
+"end": 6.34
+},
+{
+"word": "very",
+"start": 6.38,
+"end": 6.56
+},
+{
+"word": "similar.",
+"start": 6.64,
+"end": 7.04
+},
+{
+"word": "Mm-hmm.",
+"start": 7.22,
+"end": 7.46
+},
+{
+"word": "So",
+"start": 7.76,
+"end": 7.92
+},
+{
+"word": "real",
+"start": 8.62,
+"end": 8.76
+},
+{
+"word": "estate",
+"start": 8.8,
+"end": 9.08
+},
+{
+"word": "and",
+"start": 9.1,
+"end": 9.18
+},
+{
+"word": "land",
+"start": 9.24,
+"end": 9.42
+},
+{
+"word": "is",
+"start": 9.46,
+"end": 9.54
+},
+{
+"word": "scarce.",
+"start": 9.62,
+"end": 10.06
+},
+{
+"word": "They're",
+"start": 10.24,
+"end": 10.36
+},
+{
+"word": "not",
+"start": 10.4,
+"end": 10.54
+},
+{
+"word": "making",
+"start": 10.6,
+"end": 10.84
+},
+{
+"word": "any",
+"start": 10.9,
+"end": 11.04
+},
+{
+"word": "more",
+"start": 11.08,
+"end": 11.26
+},
+{
+"word": "of",
+"start": 11.28,
+"end": 11.32
+},
+{
+"word": "it.",
+"start": 11.4,
+"end": 11.56
+},
+{
+"word": "Yeah.",
+"start": 11.72,
+"end": 11.82
+},
+{
+"word": "And",
+"start": 11.84,
+"end": 11.9
+},
+{
+"word": "Bitcoin",
+"start": 11.94,
+"end": 12.26
+},
+{
+"word": "is",
+"start": 12.3,
+"end": 12.38
+},
+{
+"word": "scarcer.",
+"start": 12.46,
+"end": 12.9
+},
+{
+"word": "It's,",
+"start": 13.08,
+"end": 13.24
+},
+{
+"word": "it's",
+"start": 13.3,
+"end": 13.4
+},
+{
+"word": "absolutely",
+"start": 13.46,
+"end": 13.86
+},
+{
+"word": "scarce.",
+"start": 13.96,
+"end": 14.3
+},
+{
+"word": "Mm-hmm.",
+"start": 14.34,
+"end": 14.48
+},
+{
+"word": "So",
+"start": 15.16,
+"end": 15.44
+},
+{
+"word": "over",
+"start": 15.52,
+"end": 15.72
+},
+{
+"word": "time,",
+"start": 15.82,
+"end": 16.16
+},
+{
+"word": "um,",
+"start": 16.52,
+"end": 16.8
+},
+{
+"word": "I",
+"start": 17.38,
+"end": 17.44
+},
+{
+"word": "came",
+"start": 17.5,
+"end": 17.7
+},
+{
+"word": "to",
+"start": 17.74,
+"end": 17.8
+},
+{
+"word": "the",
+"start": 17.82,
+"end": 17.88
+},
+{
+"word": "conclusion",
+"start": 17.94,
+"end": 18.36
+},
+{
+"word": "that",
+"start": 18.42,
+"end": 18.6
+},
+{
+"word": "real",
+"start": 19.28,
+"end": 19.4
+},
+{
+"word": "estate",
+"start": 19.44,
+"end": 19.8
+},
+{
+"word": "will",
+"start": 19.88,
+"end": 20.06
+},
+{
+"word": "most",
+"start": 20.12,
+"end": 20.38
+},
+{
+"word": "likely",
+"start": 20.44,
+"end": 20.9
+},
+{
+"word": "replace,",
+"start": 20.96,
+"end": 21.56
+},
+{
+"word": "uh,",
+"start": 21.98,
+"end": 22.04
+},
+{
+"word": "or",
+"start": 22.12,
+"end": 22.24
+},
+{
+"word": "will",
+"start": 22.28,
+"end": 22.44
+},
+{
+"word": "be",
+"start": 22.5,
+"end": 22.58
+},
+{
+"word": "replaced,",
+"start": 22.62,
+"end": 23.1
+},
+{
+"word": "or",
+"start": 23.16,
+"end": 23.22
+},
+{
+"word": "real",
+"start": 23.26,
+"end": 23.38
+},
+{
+"word": "estate",
+"start": 23.42,
+"end": 23.7
+},
+{
+"word": "will",
+"start": 23.74,
+"end": 23.84
+},
+{
+"word": "most",
+"start": 23.88,
+"end": 24.12
+},
+{
+"word": "likely",
+"start": 24.18,
+"end": 24.44
+},
+{
+"word": "be",
+"start": 24.88,
+"end": 25.0
+},
+{
+"word": "replaced",
+"start": 25.06,
+"end": 25.54
+},
+{
+"word": "by",
+"start": 25.58,
+"end": 25.72
+},
+{
+"word": "Bitcoin",
+"start": 25.76,
+"end": 26.2
+},
+{
+"word": "in",
+"start": 26.26,
+"end": 26.32
+},
+{
+"word": "its",
+"start": 26.36,
+"end": 26.52
+},
+{
+"word": "function",
+"start": 26.58,
+"end": 26.92
+},
+{
+"word": "as",
+"start": 26.98,
+"end": 27.04
+},
+{
+"word": "a",
+"start": 27.1,
+"end": 27.14
+},
+{
+"word": "savings",
+"start": 27.2,
+"end": 27.52
+},
+{
+"word": "account.",
+"start": 27.6,
+"end": 27.9
+},
+{
+"word": "Sure.",
+"start": 28.08,
+"end": 28.26
+},
+{
+"word": "Right?",
+"start": 28.66,
+"end": 28.88
+},
+{
+"word": "That's",
+"start": 28.92,
+"end": 29.12
+},
+{
+"word": "the,",
+"start": 29.16,
+"end": 29.32
+},
+{
+"word": "that's",
+"start": 29.36,
+"end": 29.52
+},
+{
+"word": "the",
+"start": 29.56,
+"end": 29.64
+},
+{
+"word": "overall",
+"start": 29.72,
+"end": 30.0
+},
+{
+"word": "thesis.",
+"start": 30.08,
+"end": 30.44
+},
+{
+"word": "Yeah.",
+"start": 30.54,
+"end": 30.6
+},
+{
+"word": "Real",
+"start": 30.86,
+"end": 30.98
+},
+{
+"word": "estate",
+"start": 31.02,
+"end": 31.28
+},
+{
+"word": "being",
+"start": 31.32,
+"end": 31.46
+},
+{
+"word": "used",
+"start": 31.56,
+"end": 31.68
+},
+{
+"word": "as",
+"start": 31.74,
+"end": 31.8
+},
+{
+"word": "a",
+"start": 31.86,
+"end": 31.9
+},
+{
+"word": "savings",
+"start": 31.96,
+"end": 32.299
+},
+{
+"word": "account,",
+"start": 32.36,
+"end": 32.7
+},
+{
+"word": "also",
+"start": 32.96,
+"end": 33.38
+},
+{
+"word": "being",
+"start": 33.42,
+"end": 33.58
+},
+{
+"word": "used",
+"start": 33.68,
+"end": 33.84
+},
+{
+"word": "as",
+"start": 33.9,
+"end": 34.02
+},
+{
+"word": "collateral.",
+"start": 34.08,
+"end": 34.7
+},
+{
+"word": "Mm-hmm.",
+"start": 35.02,
+"end": 35.04
+},
+{
+"word": "So",
+"start": 35.08,
+"end": 35.16
+},
+{
+"word": "it's",
+"start": 35.2,
+"end": 35.32
+},
+{
+"word": "the",
+"start": 35.36,
+"end": 35.46
+},
+{
+"word": "bedrock",
+"start": 35.5,
+"end": 35.84
+},
+{
+"word": "of",
+"start": 35.88,
+"end": 35.98
+},
+{
+"word": "the",
+"start": 36.02,
+"end": 36.08
+},
+{
+"word": "global",
+"start": 36.12,
+"end": 36.4
+},
+{
+"word": "financial",
+"start": 36.46,
+"end": 36.86
+},
+{
+"word": "system.",
+"start": 36.94,
+"end": 37.34
+},
+{
+"word": "Mm-hmm.",
+"start": 37.74,
+"end": 37.76
+},
+{
+"word": "And",
+"start": 37.78,
+"end": 37.86
+},
+{
+"word": "Bitcoin",
+"start": 37.9,
+"end": 38.24
+},
+{
+"word": "comes",
+"start": 38.3,
+"end": 38.56
+},
+{
+"word": "in",
+"start": 38.62,
+"end": 39.14
+},
+{
+"word": "as",
+"start": 39.22,
+"end": 39.28
+},
+{
+"word": "a",
+"start": 39.34,
+"end": 39.42
+},
+{
+"word": "digital",
+"start": 39.46,
+"end": 39.88
+},
+{
+"word": "form-",
+"start": 40.38,
+"end": 40.66
+},
+{
+"word": "Yeah",
+"start": 41.28,
+"end": 41.36
+},
+{
+"word": "...",
+"start": 41.42,
+"end": 41.42
+},
+{
+"word": "of,",
+"start": 41.46,
+"end": 41.52
+},
+{
+"word": "uh,",
+"start": 41.52,
+"end": 41.52
+},
+{
+"word": "of",
+"start": 41.52,
+"end": 41.56
+},
+{
+"word": "savings,",
+"start": 41.64,
+"end": 42.04
+},
+{
+"word": "and",
+"start": 42.08,
+"end": 42.16
+},
+{
+"word": "it",
+"start": 42.18,
+"end": 42.26
+},
+{
+"word": "can",
+"start": 42.3,
+"end": 42.4
+},
+{
+"word": "replace",
+"start": 42.44,
+"end": 42.82
+},
+{
+"word": "real-",
+"start": 42.86,
+"end": 42.98
+}
+],
+"second_recogniser_source_sha256": "3ad6929977234c4042a3a6c31c94240d0935215c9128643d4fa399c3229e21a3",
+"old_entry": {
+"request_id": "pp-selectid.ledger_20261114_011253.1",
+"outcome": "hold",
+"reason": "ruling 72: the second recogniser reads the span differently beyond the speaker's own repetitions and function words at [['', 'um'], ['', 'uh'], ['so', 'or']] | lock: 'So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely be replaced by Bitcoin in its function as a savings account.' | spoken: 'So over time, um, I came to the conclusion that real estate will most likely replace, uh, or will be replaced, or real estate will most likely be replaced by Bitcoin in its function as a savings account.'",
+"as_spoken": {
+"verdict": "hold",
+"differences": [
+[
+"",
+"um"
+],
+[
+"",
+"uh"
+],
+[
+"so",
+"or"
+]
+],
+"text": "So over time, um, I came to the conclusion that real estate will most likely replace, uh, or will be replaced, or real estate will most likely be replaced by Bitcoin in its function as a savings account."
+},
+"rules": "ruling 17 + ruling 72 + ruling 73",
+"decoder_sha": "8a101f222598a4f725e7cf85626e90fb2fae35df8d81d3ff430469728114e1a7",
+"at": "2026-11-14T01:28:05Z"
+}
+}
