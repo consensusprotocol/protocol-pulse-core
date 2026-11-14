@@ -15058,5 +15058,171 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "b3847c05e85387dc96b1:8986a8ed51f210bbd25820981d4d71a8105e8d71548fad622051c1d9c797b1de:fcacfc2c5ffd34b29f7a2764922147d556e7d9ef2d41342e880563dacd0a66ba:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b3847c05e85387dc96b1",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "his",
+     "refers_to": "the child (son) who received the $100",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "saving capital in UTXOs/Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "people bringing big data problems",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "when I was in, as a civil engineer",
+     "inside": true
+    },
+    {
+     "text": "as people get",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "UTXOs are the most obvious thing to save the child's capital in, Bitcoin is going to be like the internet for young people, and the speaker was the go-to expert for big data problems as a civil engineer.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b36fbc2652b71924a361:e595233ea8367f9d2fc9c06019c1c672bf78b27fd3be3dee575c4e593106641f:e3e9818eb2540c7539d4eff3944bc1a2fad261bef4bf38a80280a1cf1730ede4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b36fbc2652b71924a361",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the suggested fork of Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "the UTXO set in the history",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the network effect of the UTXO set and history",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "unless you can attract the whole system, in which case you are Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Forking Bitcoin causes your UTXO set to differ from consensus immediately so it is not the same, the UTXO set and history cannot be replicated, and that network effect is why Bitcoin is worth $1.5T while alternatives are not.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "What's up freaks? This episode is brought to you by Simple Mining.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "206e061739f6b989809a:43f989a51f07e896e68340b1ef35a37c1e3b61201787654f1441a14b2773a471:296252ee64559c619a058de050153c395234b284749b3b25437e51309dfa93c5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "206e061739f6b989809a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "narrative that AI bots are going to be using SATs (or agentic economy narrative)",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the narrative",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the bot",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "debate around medium of exchange versus store of value",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you ask it to use Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The narrative that AI bots will drive significant Bitcoin activity by using SATs lacks merit because a bot will use whatever its user instructs it to use, amid the known debate on medium of exchange versus store of value.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Do you find any merit in the narrative that uh Bitcoin at the very least will see significant uptick in activity and maybe purchasing due to the agentic economy? \u203a\u203a No, I look I I don't think so. I think",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0d39ef4732c8c206ffae~trim:d9d1208eba671eac97fdbdcc6d49ee001b5f8bfb400442e663c5a96a275cb0ed:24137e913d2818b99a06d71b9b5b72600617d003f3ac451b140bf10cfcb8b200:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0d39ef4732c8c206ffae~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the 75-80% long-term holder wealth situation",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at bottom of bear market or early bull market",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Purchasers below $50K are now meaningfully in profit from a prior cycle and thus tenured, such that at the bottom of a bear market or early bull market stage roughly 75-80% of Bitcoin wealth is held by long-term holders.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Speaking of UTXO, set, what are you seeing on chain? \u203a\u203a Yeah, I mean I think so. So my general view and what the way I try to look at things.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

@@ -1,0 +1,500 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "956f000e2bbcb6ad68f742cc35c6c00722000735e2c57c08353c4b4a01496bee",
+ "result": {
+  "text": "Due to the agentic economy? No, I, look, I, I don't think so. I think this narrative that, like, AI bots are gonna be using SATs, I think it's fairly ... The, the, the bot will use what you ask it to use. So if you ask it to use Bitcoin, it'll use Bitcoin. Um, yeah, so I'm, I'm not, like, you know ... There's that whole debate around medium of exchange versus, um, store of value. I'm",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 1.26,
+    "text": "Due to the agentic economy?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 2.34,
+    "end": 22.76,
+    "text": "No, I, look, I, I don't think so. I think this narrative that, like, AI bots are gonna be using SATs, I think it's fairly ... The, the, the bot will use what you ask it to use. So if you ask it to use Bitcoin, it'll use Bitcoin. Um, yeah, so I'm, I'm not, like, you know ... There's that whole debate around medium of exchange versus, um, store of value. I'm"
+   }
+  ],
+  "words": [
+   {
+    "text": "Due",
+    "start": 0.0,
+    "end": 0.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 0.14,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.28,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agentic",
+    "start": 0.38,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "economy?",
+    "start": 0.86,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "No,",
+    "start": 2.34,
+    "end": 2.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I,",
+    "start": 2.8,
+    "end": 2.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "look,",
+    "start": 2.9,
+    "end": 3.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I,",
+    "start": 3.16,
+    "end": 3.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 3.3,
+    "end": 3.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "don't",
+    "start": 3.38,
+    "end": 3.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 3.54,
+    "end": 3.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so.",
+    "start": 3.74,
+    "end": 3.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 3.98,
+    "end": 4.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 4.04,
+    "end": 4.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "this",
+    "start": 4.2,
+    "end": 4.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "narrative",
+    "start": 4.36,
+    "end": 4.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that,",
+    "start": 4.76,
+    "end": 4.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like,",
+    "start": 4.88,
+    "end": 5.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "AI",
+    "start": 5.2,
+    "end": 5.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "bots",
+    "start": 5.54,
+    "end": 5.72,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "are",
+    "start": 5.74,
+    "end": 5.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "gonna",
+    "start": 5.82,
+    "end": 5.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "be",
+    "start": 5.96,
+    "end": 6.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "using",
+    "start": 6.12,
+    "end": 6.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "SATs,",
+    "start": 6.42,
+    "end": 6.68,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I",
+    "start": 6.78,
+    "end": 6.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "think",
+    "start": 6.84,
+    "end": 7.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it's",
+    "start": 7.22,
+    "end": 7.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "fairly",
+    "start": 7.68,
+    "end": 8.039,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 8.88,
+    "end": 8.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "The,",
+    "start": 9.12,
+    "end": 9.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the,",
+    "start": 9.2,
+    "end": 9.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "the",
+    "start": 9.32,
+    "end": 9.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "bot",
+    "start": 9.46,
+    "end": 9.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "will",
+    "start": 9.66,
+    "end": 9.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "use",
+    "start": 9.86,
+    "end": 9.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "what",
+    "start": 9.98,
+    "end": 10.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 10.1,
+    "end": 10.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ask",
+    "start": 10.24,
+    "end": 10.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 10.42,
+    "end": 10.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 10.5,
+    "end": 10.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "use.",
+    "start": 10.66,
+    "end": 10.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 11.32,
+    "end": 11.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "if",
+    "start": 11.48,
+    "end": 11.52,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 11.56,
+    "end": 11.6,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "ask",
+    "start": 11.66,
+    "end": 11.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it",
+    "start": 11.82,
+    "end": 11.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "to",
+    "start": 11.88,
+    "end": 11.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "use",
+    "start": 11.98,
+    "end": 12.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 12.14,
+    "end": 12.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "it'll",
+    "start": 12.48,
+    "end": 12.62,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "use",
+    "start": 12.7,
+    "end": 12.8,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 12.84,
+    "end": 13.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Um,",
+    "start": 13.8,
+    "end": 14.1,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "yeah,",
+    "start": 14.44,
+    "end": 14.54,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "so",
+    "start": 14.64,
+    "end": 14.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I'm,",
+    "start": 14.74,
+    "end": 14.84,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I'm",
+    "start": 14.9,
+    "end": 14.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "not,",
+    "start": 15.0,
+    "end": 15.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "like,",
+    "start": 15.38,
+    "end": 15.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "you",
+    "start": 15.6,
+    "end": 15.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "know",
+    "start": 15.68,
+    "end": 15.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 16.56,
+    "end": 16.56,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "There's",
+    "start": 16.64,
+    "end": 16.88,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "that",
+    "start": 16.92,
+    "end": 17.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "whole",
+    "start": 17.12,
+    "end": 17.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "debate",
+    "start": 17.44,
+    "end": 17.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "around",
+    "start": 17.8,
+    "end": 18.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "medium",
+    "start": 18.08,
+    "end": 18.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 18.34,
+    "end": 18.38,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "exchange",
+    "start": 18.42,
+    "end": 19.04,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "versus,",
+    "start": 19.32,
+    "end": 19.9,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "um,",
+    "start": 20.56,
+    "end": 20.66,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "store",
+    "start": 20.78,
+    "end": 20.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "of",
+    "start": 20.96,
+    "end": 21.02,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "value.",
+    "start": 21.06,
+    "end": 21.34,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "I'm",
+    "start": 22.58,
+    "end": 22.76,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 22.83
+ },
+ "usd": 0.004566,
+ "seconds": 1.04,
+ "recorded_at": "2026-11-14T16:46:20Z"
+}

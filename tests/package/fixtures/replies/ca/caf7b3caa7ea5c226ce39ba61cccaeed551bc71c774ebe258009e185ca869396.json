@@ -1,0 +1,590 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "9de5cf855a4f660c1f9d6a628dc7ae640010c32ff127f40bc21cc5b9d774a626",
+ "result": {
+  "text": "Um, who is taking profit, who is taking losses? So in, i-if you have bought coins from below 58K, you are going to be in profit and meaningfully so, right? So everyone who's in a meaningful amount of profit is from a previous cycle, and you can argue fairly tenured. So on the age-based component, we're at like 80%, 75%. This is like bottom of bear market type stuff, early bull market type stuff. 80-- Uh, 75 to 80% of the total wealth in the Bitcoin system is long-term holder based. Now, that long-term",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.68,
+    "end": 34.5,
+    "text": "Um, who is taking profit, who is taking losses? So in, i-if you have bought coins from below 58K, you are going to be in profit and meaningfully so, right? So everyone who's in a meaningful amount of profit is from a previous cycle, and you can argue fairly tenured. So on the age-based component, we're at like 80%, 75%. This is like bottom of bear market type stuff, early bull market type stuff. 80-- Uh, 75 to 80% of the total wealth in the Bitcoin system is long-term holder based. Now, that long-term"
+   }
+  ],
+  "words": [
+   {
+    "text": "Um,",
+    "start": 0.68,
+    "end": 0.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 1.2,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.38,
+    "end": 1.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 1.52,
+    "end": 1.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profit,",
+    "start": 1.84,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 2.14,
+    "end": 2.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 2.24,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "taking",
+    "start": 2.36,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "losses?",
+    "start": 2.64,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.78,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in,",
+    "start": 4.66,
+    "end": 4.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "i-if",
+    "start": 5.02,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 5.2,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 5.32,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bought",
+    "start": 5.52,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coins",
+    "start": 5.9,
+    "end": 6.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 6.22,
+    "end": 6.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "below",
+    "start": 6.44,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "58K,",
+    "start": 7.04,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.4,
+    "end": 8.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 8.5,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 8.64,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 8.88,
+    "end": 8.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 8.98,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 9.12,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profit",
+    "start": 9.26,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 9.76,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meaningfully",
+    "start": 9.9,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so,",
+    "start": 10.48,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 10.92,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 11.14,
+    "end": 11.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everyone",
+    "start": 11.78,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who's",
+    "start": 12.1,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 12.32,
+    "end": 12.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 12.44,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "meaningful",
+    "start": 12.56,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "amount",
+    "start": 12.98,
+    "end": 13.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 13.16,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "profit",
+    "start": 13.26,
+    "end": 13.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 14.58,
+    "end": 14.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 14.78,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 15.0,
+    "end": 15.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "previous",
+    "start": 15.22,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle,",
+    "start": 15.62,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 16.12,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 16.36,
+    "end": 16.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 16.48,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "argue",
+    "start": 16.7,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fairly",
+    "start": 17.8,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tenured.",
+    "start": 18.14,
+    "end": 18.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 19.1,
+    "end": 19.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 19.34,
+    "end": 19.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.5,
+    "end": 19.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "age-based",
+    "start": 19.86,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "component,",
+    "start": 20.42,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 21.02,
+    "end": 21.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 21.12,
+    "end": 21.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 21.24,
+    "end": 21.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%,",
+    "start": 21.62,
+    "end": 22.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "75%.",
+    "start": 22.38,
+    "end": 23.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "This",
+    "start": 23.24,
+    "end": 23.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 23.38,
+    "end": 23.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 23.52,
+    "end": 23.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bottom",
+    "start": 24.62,
+    "end": 24.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 24.9,
+    "end": 25.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bear",
+    "start": 25.06,
+    "end": 25.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 25.34,
+    "end": 25.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "type",
+    "start": 25.76,
+    "end": 25.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stuff,",
+    "start": 26.06,
+    "end": 26.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "early",
+    "start": 26.42,
+    "end": 26.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bull",
+    "start": 26.74,
+    "end": 26.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 26.92,
+    "end": 27.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "type",
+    "start": 27.2,
+    "end": 27.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stuff.",
+    "start": 27.42,
+    "end": 27.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80--",
+    "start": 28.5,
+    "end": 28.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 28.9,
+    "end": 29.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "75",
+    "start": 29.22,
+    "end": 29.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 29.48,
+    "end": 29.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "80%",
+    "start": 29.62,
+    "end": 29.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 30.02,
+    "end": 30.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 30.12,
+    "end": 30.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "total",
+    "start": 30.32,
+    "end": 30.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wealth",
+    "start": 30.82,
+    "end": 31.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 31.24,
+    "end": 31.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 31.3,
+    "end": 31.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 31.38,
+    "end": 31.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system",
+    "start": 31.72,
+    "end": 31.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 31.98,
+    "end": 32.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-term",
+    "start": 32.119,
+    "end": 32.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holder",
+    "start": 32.5,
+    "end": 32.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "based.",
+    "start": 32.759,
+    "end": 33.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Now,",
+    "start": 33.62,
+    "end": 33.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 33.92,
+    "end": 34.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long-term",
+    "start": 34.16,
+    "end": 34.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 34.52
+ },
+ "usd": 0.006904,
+ "seconds": 1.22,
+ "recorded_at": "2026-11-14T16:46:29Z"
+}
