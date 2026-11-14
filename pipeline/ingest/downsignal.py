@@ -233,6 +233,7 @@ class DownSignal:
                                        f"{int(pr['new_within_s'] // 3600)} H ONLY, CONVERSATIONS FIRST; CAP "
                                        f"${cap:.2f} A DAY, ET)", "paid_route_open")
         elif v.get("mode") == self.up:
+            self._cap_check(now)                     # the day's cap is said before the route closes (audit r98 c2)
             st = {"open": False, "since": _iso(now)}
             self._route_switch(st, f"MINER OFF THE PAID ROUTE (BACK ON {self.label}: THE SIGNAL IS BACK; ITS "
                                    f"VIDEOS STILL INSIDE {int(pr['recheck_within_s'] // 3600)} H ARE MINED AGAIN "
@@ -240,13 +241,18 @@ class DownSignal:
         self.paid_open = bool(st["open"])
         if self.paid_open:
             self.route_why = None
-            rc = self.roles[pr["role"]]
-            cap, spent = float(rc["daily_cap_usd"]), self.router.caps.today(pr["role"])
-            day = datetime.fromtimestamp(now, ET).date().isoformat()
-            if spent + float(rc.get("cap_reserve_usd", 0.0)) > cap and self.q.kv_get("paid_cap_day") != day:
-                self.q.kv_set("paid_cap_day", day)
-                self._route_switch(None, f"MINER PAID ROUTE CAP REACHED (${spent:.2f} OF ${cap:.2f} TODAY, ET): "
-                                         "QUEUE AND WAIT", "paid_route_cap")
+            self._cap_check(now)
+
+    def _cap_check(self, now):
+        """The cap reached, said once per ET day: when no call of the route can start any more (the day's spend plus
+        its cheapest back-end's priced worst case passes the cap: audit r98 c2)."""
+        role = self.paid["role"]
+        cap, spent = float(self.roles[role]["daily_cap_usd"]), self.router.caps.today(role)
+        day = datetime.fromtimestamp(now, ET).date().isoformat()
+        if spent + self.router.min_call_cost(role) > cap and self.q.kv_get("paid_cap_day") != day:
+            self.q.kv_set("paid_cap_day", day)
+            self._route_switch(None, f"MINER PAID ROUTE CAP REACHED (${spent:.2f} OF ${cap:.2f} TODAY, ET): "
+                                     "QUEUE AND WAIT", "paid_route_cap")
 
     def _route_switch(self, st, words, kind):
         now = self.clock()

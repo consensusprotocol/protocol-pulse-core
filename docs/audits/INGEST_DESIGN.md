@@ -283,7 +283,7 @@ must never lose a flag. The watcher's `hook` loop (every 5 s, 2 videos at once) 
 the last 12 h, newest first: the current window at start, then every new upload after its moment pass. Report:
 `tools/ingest_watch.py hooks` and live.json `hooks_12h`.
 
-## 14. The shared Heimdall-down signal (ruling 87, orchestrator 21:18 ET Nov 13; the builder's contract 01:5x Nov 14)
+## 14. The shared Heimdall-down signal (ruling 87, orchestrator 21:18 ET Nov 13; the builder's contract, Nov 14)
 
 ONE "Heimdall down" signal for the builder and this watcher: the builder's module (pp-selectid
 `pipeline/heimdall_health.py`, 125e7381), loaded by path at the watcher's start and used through its API only
@@ -316,6 +316,30 @@ answers in a row. This side (`pipeline/ingest/downsignal.py`, the `signal` loop 
 - THE MINER'S PLAN B: queue and wait (the 05:30 Nov 12 spend freeze; the orchestrator's question is open). Nothing in
   the signal changes what the miner calls: in Plan B it calls Heimdall (then the local model, disabled), and when
   nothing answers the videos wait in the queue, never dropped (section 7's outage handling).
+
+## 15. The miner's Plan B: the paid route (ruling 98, orchestrator 06:13 ET Nov 14)
+
+PBX's fail-safe (21:08 Nov 13) covers the miner: "if [Heimdall] ever fails to respond for more than perhaps 10 to 20
+minutes ... use Groc mainly or whatever other AI tokens we have".
+- OPENS (downsignal `_route_tick`, the signal thread) when the shared state says `plan_b` AND its failure clock
+  (`failing_since_utc`, a time with its zone) is at least `paid_route.after_down_s` (20 min) old: no Heimdall family
+  has answered for 20 min running. CLOSES at the signal's back switch (3 good probes). A signal not read opens,
+  closes and spends nothing (`paid_open` False; the queue keeps the recorded state for a restart).
+- WHILE OPEN the mine loop takes only NEW uploads (published inside `new_within_s`, 6 h), conversations first (the
+  caption turns per minute >= `conversation_tpm`, ruling 92's measure), then newest; older videos wait for Heimdall
+  (no backfill); the hook pass and the flag checks stay on Heimdall (they wait). Mining is on role `mine_paid` (Grok,
+  then Gemini): the ONLY role allowed past the spend freeze (`freeze_lifted` names the ruling; the router lets a frozen
+  vendor through for no other role), under `daily_cap_usd` $2.00 per ET day: each call holds its priced worst case
+  (every attempt at its full reply budget) before it starts, the day's spend loaded from the queue's calls; past it,
+  the videos queue and wait.
+- EVERY ROW carries `miner_route` (the role that mined it: mine | mine_paid | hook). When the signal is back, every
+  video the paid route mined that is still inside `recheck_within_s` (12 h, its moments' life) is mined again on the
+  mine role, once (a later paid mining makes it due again); every moment both passes found carries both models' flags
+  (`ledger.carry_forward`). The builder re-judges every clip with its own gates whatever mined it, so a paid label can
+  cost yield, never integrity (the builder's word, Nov 14).
+- EVERY SWITCH on STATE line 1 in capitals, with the signal's own: "MINER ON THE PAID ROUTE (...)", "MINER OFF THE
+  PAID ROUTE (...)", "MINER PAID ROUTE CAP REACHED (...)" (once per ET day); kept and retried until written. Live:
+  live.json / `status` `paid_route` (open, why not open, spend today, cap).
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

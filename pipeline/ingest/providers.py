@@ -695,6 +695,8 @@ class RoleCaps:
         self.day, self.spent, self.reserved = {}, {}, {}
 
     def _roll(self, role):
+        # lock order: RoleCaps.lock, then the queue's lock (the loader); nothing calls RoleCaps while holding the
+        # queue's lock, so the two never wait on each other (audit r98 c2, muse)
         d = datetime.fromtimestamp(self.clock(), ET).date()
         if self.day.get(role) != d:
             start = datetime(d.year, d.month, d.day, tzinfo=ET).timestamp()
@@ -881,6 +883,18 @@ class Router:
                 return out
             tried.append((bid,) + out)
         raise AllBackendsFailed(tried)
+
+    def min_call_cost(self, role):
+        """Ruling 98 (audit r98 c2): the least a call of this capped role holds before it starts (its cheapest
+        back-end's priced worst case, the prompt aside; at least cap_reserve_usd): no call of the role can start once
+        the day's spend plus this passes the cap."""
+        rc = self.cfg["roles"][role]
+        floor, costs = float(rc.get("cap_reserve_usd", 0.0)), []
+        for bid in rc["chain"]:
+            if bid in self.backends:
+                mt = max(int(rc.get("max_tokens", 4000)), int(self.backends[bid].cfg.get("max_tokens_floor", 0)))
+                costs.append(max(floor, self._worst_cost(bid, "", mt, int(rc.get("attempts", 3)))))
+        return min(costs) if costs else floor
 
     def _worst_cost(self, bid, prompt, max_tokens, attempts):
         """Ruling 98 (audit r98 c1): the most one run() on this back-end can cost by its price table: every attempt

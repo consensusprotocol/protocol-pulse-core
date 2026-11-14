@@ -278,3 +278,25 @@ def test_mining_on_the_paid_route_again_makes_its_heimdall_remine_due_again(paid
     s._settle(s.q.video("again1"), H.CHAN, [], rep, 0.001, t[0], route="mine_paid")
     v = s.q.video("again1")
     assert v["state"] == Q.MINED and v["mine_route"] == "mine_paid" and v["recheck_ts"] is None
+
+
+# ── audit r98 cycle 2 ──
+
+def test_the_cap_is_said_when_no_back_end_of_the_route_can_start_a_call_and_before_the_route_closes(paid):
+    """muse P1: the notice follows the priced worst case (the cheapest back-end's), not the flat reserve; glm N1: a
+    cap reached in the tick the signal comes back is still said, before the route closes."""
+    make, t, doc, tmp, msgs = paid
+    s, b = make()
+    for k, price in (("px", 2.0), ("pg", 25.0)):                       # worst cases: px 2 x 1000 x $2/M = $0.004,
+        b[k].cfg["price"] = {"in_per_mtok": 1.0, "out_per_mtok": price}   # pg $0.05: the cheapest is $0.004
+    assert abs(s.router.min_call_cost("mine_paid") - 0.004) < 1e-12
+    (tmp / "HH.json").write_text(json.dumps({"mode": "heimdall_first", "last_answer_utc": None,
+                                             "failing_since_utc": None, "last_probe_utc": None, "probe_streak": 0,
+                                             "switches": [], "notes": 1}))
+    s.q.kv_set("paid_route", {"open": True, "since": "2026-11-14T06:30:00Z"})   # open; the signal is back now
+    s.router.caps.add("mine_paid", 0.007)                              # 0.007 + 0.004 > 0.01 (the flat 0.002 would
+    s.hsig.tick(wait=True)                                             # not have said it)
+    heads = doc.read_text().split("\n")[0]
+    assert heads.startswith("02:00 ET: MINER OFF THE PAID ROUTE") and \
+        "| 02:00 ET: MINER PAID ROUTE CAP REACHED ($0.01 OF $0.01 TODAY, ET): QUEUE AND WAIT |" in heads
+    assert s.hsig.paid_open is False
