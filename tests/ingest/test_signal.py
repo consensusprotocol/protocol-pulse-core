@@ -567,3 +567,31 @@ def test_a_module_without_the_claim_is_called_without_a_name(sig, tmp_path):
     hs.tick(wait=True)
     st = state(tmp)
     assert hs.snapshot()["not_read"] is None and st["probe_streak"] == 1 and "last_probe_by" not in st
+
+
+def test_a_probe_due_whose_signature_cannot_be_read_is_called_without_a_name(sig, tmp_path):
+    """Audit r87claim c1 (P3): inspect.signature raising (TypeError / ValueError) falls back to no `who`."""
+    src = open(MODULE).read() + '''
+
+class _Unsigned:                                  # inspect.signature raises TypeError on a non-Signature __signature__
+    __signature__ = "broken"
+
+    def __call__(self, path=STATE, now=None):
+        return _probe_due_plain(path=path, now=now)
+
+
+_probe_due_plain = probe_due
+probe_due = _Unsigned()
+'''
+    mod = tmp_path / "unsigned" / "heimdall_health.py"
+    mod.parent.mkdir()
+    mod.write_text(src)
+    make, t, doc, tmp, msgs = sig
+    s, b = make(module=str(mod))
+    hs = s.hsig
+    with pytest.raises(TypeError):
+        downsignal.inspect.signature(hs.hh.probe_due)
+    assert hs.hh is not None and hs.probe_kw == {}
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)                                                # probe_due called without `who`: it works
+    assert hs.snapshot()["not_read"] is None and state(tmp)["probe_streak"] == 1 and len(b["hv_p1"].calls) == 1
