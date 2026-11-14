@@ -26,6 +26,7 @@ import json
 import os
 import shutil
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -66,7 +67,15 @@ def cmd_status(a):
     from pipeline.ingest import queue as Q, stats
     p = config.paths()
     q = Q.Queue(p["queue"])
-    print(json.dumps(stats.live(q, hours=a.hours), indent=1, default=str))
+    out = stats.live(q, hours=a.hours)
+    try:                                          # ruling 87: the watcher's own view of the shared signal (live.json,
+        with open(p["live"]) as f:                # written by its health loop every 60 s), with that file's age
+            sig = json.load(f).get("down_signal")
+        if sig is not None:
+            out["down_signal"] = dict(sig, from_live_json_age_s=round(time.time() - os.path.getmtime(p["live"])))
+    except (OSError, ValueError):
+        out["down_signal"] = None
+    print(json.dumps(out, indent=1, default=str))
 
 
 def cmd_coverage(a):

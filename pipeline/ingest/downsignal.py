@@ -108,7 +108,7 @@ class DownSignal:
         self.mode, self.last_probe, self.head_error, self.drill_logged = None, None, None, False
         self.error = self.error_since = self.busy_since = None
         self.n = {"answers_noted": 0, "failures_noted": 0, "drill_notes": 0, "unnoted": 0, "probes": 0,
-                  "probe_answers": 0, "probes_not_made": 0}
+                  "probe_answers": 0, "probes_not_made": 0, "probe_reports_lost": 0}
         self.module_path, self.state_path, self.hh, self.up = module_path or ds["module"], state_path, None, None
         try:
             self.hh = load_module(self.module_path)
@@ -216,26 +216,40 @@ class DownSignal:
             except Exception as e:                   # noqa: BLE001 (a probe that breaks is no probe)
                 res = (None, f"the probe broke: {type(e).__name__}: {e}")
             with self.lock:
-                self.probe_out = (self.clock(),) + res
+                self.probe_out = {"t": self.clock(), "answered": res[0], "why": res[1], "logged": False}
         self.probe_thread = threading.Thread(target=run, daemon=True, name="probe87")
         self.probe_thread.start()
 
     def _report_probe(self):
+        """A finished probe's outcome to probe_result (with its own time). One the shared state did not take is kept
+        for the next tick while it is younger than the module's probe interval, then dropped and counted, never
+        reported late: an old answer proves nothing about now (audit r87 C2-1)."""
         with self.lock:
             out, self.probe_out = self.probe_out, None
         if out is None:
             return
-        t, answered, why = out
-        self.last_probe = {"utc": _iso(t), "answered": answered, "why": why[:300]}
-        self._evidence({"kind": "probe", "utc": _iso(t), "answered": answered, "why": why[:300], "by": WHO})
+        t, answered, why = out["t"], out["answered"], out["why"]
+        if not out["logged"]:                        # the evidence line once, whatever happens to the report
+            out["logged"] = True
+            self.last_probe = {"utc": _iso(t), "answered": answered, "why": why[:300]}
+            self._evidence({"kind": "probe", "utc": _iso(t), "answered": answered, "why": why[:300], "by": WHO})
         if answered is None:
             self.n["probes_not_made"] += 1
             self.log(f"RULING 87: probe not made: {why[:300]}")
             return
+        m = self._call("probe_result", answered, now=_utc(t), evidence=self.evidence, who=WHO + " probe")
+        if m is None:
+            if self.clock() - t < float(getattr(self.hh, "PROBE_EVERY_S", 120)):
+                with self.lock:                      # no new probe starts while it waits (_probing)
+                    self.probe_out = self.probe_out or out
+            else:
+                self.n["probe_reports_lost"] += 1
+                self.log(f"RULING 87: the probe of {_iso(t)} was never recorded (the shared state not read): "
+                         "dropped, never reported late")
+            return
         self.n["probes"] += 1
         self.n["probe_answers"] += int(answered)
-        m = self._call("probe_result", answered, now=_utc(t), evidence=self.evidence, who=WHO + " probe")
-        self.mode = m if m is not None else self.mode
+        self.mode = m
 
     def _seen(self):
         """Every switch in the shared state not yet seen here: STATE line 1, the evidence file, an event."""

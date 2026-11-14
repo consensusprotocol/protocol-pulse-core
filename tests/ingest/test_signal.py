@@ -258,7 +258,8 @@ def test_fifteen_minutes_without_an_answer_switch_to_plan_b_and_three_probe_answ
 
 def test_a_failed_probe_resets_the_streak_and_a_probe_nobody_could_answer_is_no_probe(sig):
     make, t, doc, tmp, msgs = sig
-    s, b = make(probes={"hv_p1": lambda p: BackendError("timeout", "t"), "hv_p2": lambda p: BackendError("server", "x")})
+    s, b = make(probes={"hv_p1": lambda p: BackendError("timeout", "t"),
+                        "hv_p2": lambda p: BackendError("server", "x")})
     s.hsig.noted(rec(kind="timeout"))
     s.hsig.tick(wait=True)
     st = state(tmp)
@@ -472,3 +473,54 @@ def test_an_error_seen_before_its_time_never_breaks_the_health_loop(sig):
     s.hsig.error, s.hsig.error_since = "HealthUnreadable: x", None   # the moment between the two assignments
     s.hsig.check_notice()                                             # no TypeError; not yet 30 minutes
     assert doc.read_text() == "# STATE\nbody\n"
+
+
+# ── audit r87 cycle 2 ──
+
+def test_a_probe_the_shared_state_did_not_take_is_kept_while_fresh_then_dropped(sig):
+    """glm N1 (c2): a probe_result that fails keeps its outcome for the next tick (no new probe meanwhile) while it is
+    younger than the probe interval; an older one is dropped and counted, never reported late."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    hs = s.hsig
+    hs.noted(rec(kind="timeout"))
+    hs.tick()                                                         # a probe starts (not waited for)
+    hs.probe_thread.join(timeout=10)
+    good = (tmp / "HH.json").read_text()
+    (tmp / "HH.json").write_text("{not json")                         # the state goes unreadable before the report
+    t[0] += 5
+    hs.tick()
+    assert hs.probe_out is not None and hs.n["probes"] == 0 and hs.last_probe["answered"] is True
+    t[0] += downsignal.SIGNAL_MODE_S
+    hs.tick()                                                         # still unreadable: kept, and no second probe
+    assert len(b["hv_p1"].calls) == 1 and hs.probe_out is not None
+    (tmp / "HH.json").write_text(good)
+    t[0] += 5
+    hs.tick()                                                         # readable again: reported with its own time
+    assert hs.n["probes"] == 1 and state(tmp)["last_probe_utc"] == iso(T0) and state(tmp)["probe_streak"] == 1
+    probes = [json.loads(x) for x in open(s.p["signal"]).read().splitlines() if '"probe"' in x]
+    assert len(probes) == 1                                           # one evidence line for one probe
+    t[0] += 200                                                       # a second probe; the state unreadable for good
+    hs.tick()
+    hs.probe_thread.join(timeout=10)
+    (tmp / "HH.json").write_text("{not json")
+    t[0] += 5
+    hs.tick()
+    t[0] += 130                                                       # older than the probe interval: dropped
+    hs.tick()
+    assert hs.probe_out is None and hs.n["probe_reports_lost"] == 1 and hs.n["probes"] == 1
+
+
+def test_status_shows_the_watchers_view_of_the_signal(sig, capsys):
+    """glm N5 (c2): `ingest_watch.py status` carries live.json's down_signal block with its age."""
+    import importlib.util
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    stats.write_live(s.q, s.p["live"], signal=s.hsig.snapshot())
+    spec = importlib.util.spec_from_file_location("ingest_watch_cli", os.path.join(config.REPO, "tools",
+                                                                                     "ingest_watch.py"))
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    cli.cmd_status(type("A", (), {"hours": 24})())
+    out = json.loads(capsys.readouterr().out)
+    assert out["down_signal"]["wired"] is True and out["down_signal"]["from_live_json_age_s"] >= 0
