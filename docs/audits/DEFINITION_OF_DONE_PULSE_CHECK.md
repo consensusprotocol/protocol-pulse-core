@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:28 PP-TESTS MERGE, batch 78 cycle 3 (verification of a55e4dcf, the behavioural key test): sound; ONE NARROW CONSENSUS FINDING (no denial of subprocess / exec side reads during _key) sent to pp-tests; MERGE HELD for that one fix.
+- a55e4dcf, checked here: one commit on d7ed4ff8; nothing outside tests/adversarial or docs/audits/parallel/pp-tests_*; 0 conflicts against HEAD 5d233808.
+- The new behavioural test loads frontier_blind against a stub loader, with open / io.open / os.open denied and bytecode forced on. It asserts:
+  - nothing opened;
+  - the sentinel returned for both names;
+  - the stub saw exactly those names and loaded once;
+  - sys.path unchanged and the bytecode flag restored;
+  - no __pycache__ written.
+- My wall run on the merge (04a0b95c, 09:25-09:28): 382 passed, 40 xfailed, 3 skipped, 0 failed. Grok PASS.
+- Consensus (glm + qwen27b): a _key that side-reads the key file through a subprocess or exec, then returns the loader's value, would pass. Asked: deny subprocess.Popen / os.system / os.posix_spawn(p) / os.exec* during the calls, plus a must-fail mutation.
+- Refuted: qwen's -B claim (the test forces the flag and checks it is restored).
+
 ## 08:56 PP-TESTS MERGE, batch 78 cycle 2: cycle 1's two consensus findings FIXED (d7ed4ff8, verified in the code); ONE NEW CONSENSUS FINDING (the key-rule test pins configuration, not behaviour) sent to pp-tests; MERGE STILL HELD.
 - FIXED (pp-tests d7ed4ff8):
   - frontier_blind._key returns relay.get_key, the main tree's loader, loaded by path with no sys.path change and no bytecode written; the key-file constant and its parser are gone.
