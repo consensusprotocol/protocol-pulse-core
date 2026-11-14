@@ -1,0 +1,18 @@
+# Heimdall audit
+
+**Question:** Batch 72 CYCLE 2 = RULING 87's judge service (pipeline/local_judge.py serve; see cycle 1's question for the contract). Cycle 1 had ONE consensus finding: a stop between writing the result and closing the request answered it twice on the next pass. The fix in this diff: result_path(r); _answered(r, sha) is True only when the result on file has error None, a string text and this judge_sha; serve_once closes such a request without asking the model (before any lease is taken); a result whose call failed is asked again. New test test_an_answer_on_file_is_closed_never_asked_twice (15 tests pass).
+VERIFY on the full diff: (1) the fix closes the crash window without creating a fail-open (a failed or foreign result counted as an answer, or a request closed with no result on file); (2) the service never writes or moves anything in the builder's directory (EXTRA); (3) the GPU0 discipline holds: no lease while the yield flag is present, the yield flag checked once the lease is held and before every call, gpu0.release_all at every batch end, a Gpu0Stop never swallowed into a result; (4) only well-formed step-A requests reach the model. Only state what you can verify from the diff. Reply with the JSON verdict; at most 3 findings; if nothing, say so.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0005
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none
+
+
+saved: /home/ultron/worktrees/r87/docs/audits/pulse-sentence-law/batch72_r87_judge_service/cycle2/heimdall
+exit 0 22:21:34

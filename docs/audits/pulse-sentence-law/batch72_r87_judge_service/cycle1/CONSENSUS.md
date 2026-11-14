@@ -1,0 +1,4 @@
+# Batch 72 cycle 1: ONE consensus finding, implemented (panel qwen27b, glm; $0.0040)
+- [critical/medium; qwen27b F1 + glm F1, both agree] A stop between the result's os.replace and _close() leaves the request pending although its answer exists, so the next pass asks the model again. For a builder request the marker is written last, so a crash after the done/ copy does the same.
+  FIX (cycle 2's diff): result_path(r) and _answered(r, sha). A request whose result is already on file from this code (error None, text a string, the same judge_sha) is CLOSED WITHOUT ASKING; a result whose call failed is asked again. New test test_an_answer_on_file_is_closed_never_asked_twice: the marker removed after an answer -> closed with no second call; a failed result on file -> asked again.
+Raised, not agreed: qwen27b F2 (it reasoned through Gpu0Stop, the lease return path and the builder's directory, and found each correct; no defect stated).

@@ -6,6 +6,17 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:26 RULING 87'S JUDGE SERVICE MERGED (audits batch 72: cycle 1 had ONE consensus finding, fixed; cycle 2 clean, qwen27b + glm both PASS). Plan B's single-family step A now has its second verdict on the GPU0 gemma3:27b; judge_sha c62a1e12088c.
+- Contract (pipeline/local_judge.py serve):
+  - the builder writes judge_requests/<request_id>.json in its own directory, which is READ ONLY to the service (answered once per name and content: a marker in data/local_judge/answered/, a copy in requests/done/);
+  - body {request_id, family "step_a" only, the exact step-A prompt, max_tokens, seed}; one call per request;
+  - result data/local_judge/results/<request_id>.<prompt_id>.json with model, digest, seed, text, error, seconds, waited_s, at, judge_sha;
+  - an error is no verdict.
+- GPU0: the replay's discipline. The yield flag is checked before the lease, once it is held and before every call; release_all at every batch end; a GPU0 stop leaves the rest pending.
+- Cycle 1's consensus (qwen27b F1 + glm F1): a stop between the result and the close answered a request twice. FIXED: an answer on file from this code is closed without asking, and a failed result is asked again (test).
+- regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, the references reproduced. Judge / scorer / pre-check tests 63 passed; the 7 new service tests fail on the old file.
+- Measured for it (07:28 replay): step A median 43.3 s, p90 62.2 s, max 79.6 s.
+
 ## 22:15 THE BREEDLOVE WINDOW CLOSED AT 22:00:33 WITH NO PIN: nothing rendered, GPU0 idle. The builder's three builds after the ruling-84 merge (21:15, 21:37, 21:50 ET) each ended 'no package'. The candidate closed at coherence (21:28), and the search's one angle failed the clips-alone ratings and joins after its swap and re-judge (rulings 41 / 63).
 - The builder's own line on the 12 h pool (ruling 76 d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. Spend $11.80 of the $20.00 cap (vendor-reported).
 - The pre-check had no request after 21:23:14. Its answers stood as measured (see 21:29).

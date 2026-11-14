@@ -1,0 +1,104 @@
+# Heimdall audit
+
+**Question:** Batch 72 = RULING 87 (orchestrator 2026-11-13 '21:18', to the builder, relayed verbatim): "87. PLAN B, THE FAIL-SAFE. Heimdall is 'down' when NO Heimdall family answers a verdict or writer call inside its deadline for 15 MINUTES running ... When down: switch the whole pin stage to PLAN B at once: Grok mainly, then any other outside key that answers ..., keeping the two-family rule with whatever two families answer; if only ONE outside family answers, step A's second verdict is the local gemma3:27b on GPU0 through the integrator's judge service, and STATE line 1 says so." No such service existed: pipeline/local_judge.py was a batch replay tool (run(): BATCH calls per GPU0 lease, the render yield flag checked before the lease, once it is held and before every call, gpu0.release_all at the batch end; Gpu0Stop is a BaseException).
+The change, pipeline/local_judge.py only (+ tests):
+- 'serve' / 'once' commands. A request is <EXTRA>/<request_id>.json in the builder's own directory (READ ONLY there; answered once per name+content via a marker in ROOT/answered/, a copy in done/ or failed/), or ROOT/requests/ (moved when answered). Body {request_id, family "step_a", prompt, max_tokens, seed}. problems(): request_id matches SAFE; family only "step_a" (SERVED); prompt must be a step-A prompt (family(prompt)); max_tokens 1-32768 and seed 0-2^31-1 integers (bool refused).
+- serve_once(): up to BATCH pending; malformed -> failed/ with why, no model; the rest under ONE gpu0.lease(OWNER, wait_s=0) with run()'s yield checks; ONE llm._post(prompt, max_tokens, seed) per request (temperature 0, the LocalLLM as run() uses it); any Exception -> the result carries error, text None (no verdict, not retried); Gpu0Stop propagates out of the batch (finally: release_all) and is caught at serve level so the rest stay pending; the result ROOT/results/<request_id>.<prompt_id>.json (prompt_id = the existing prompt_id(prompt, max_tokens, seed)) is written tmp+replace BEFORE the request is closed: {request_id, family, prompt_id, model, digest, seed, max_tokens, text, error, seconds, waited_s, at, judge_sha}; judge_sha = sha256(local_judge.py + story_semantics.py).
+- Tests (test_local_judge.py TestServe, 6 new; 14 pass; the 6 fail on the old file): answered once, the builder's file byte- and mtime-identical; a changed request answered again; a render first (no lease taken); a render asking mid-batch stops the next call; only well-formed step-A requests reach the model; a failed call is no verdict and GPU0 is released; a busy lease and an OOM mid-call leave the request pending with no result.
+FIND: a path where the service writes or moves anything in the builder's directory; answers a request twice or never (a crash between the result and the marker; a request changed while being read); takes GPU0 while a render asked, or leaves the model loaded; reports a pass where the call failed (fail open); accepts a non-step-A request. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0040
+## Consensus findings (majority of panel agrees)
+- **[critical] pipeline/local_judge.py:285** The service writes a result file to disk before closing the request (creating the 'answered' marker). If the process crashes between `os.replace(out + '.tmp', out)` and `_close(path, r, dg)`, the result exists but the marker does not. On the next run, `pending()` will return the request again, leading to a duplicate model call and a second result file (or overwriting the first if the prompt_id is the same, but the 'answered once' guarantee is broken). The spec requires the result to be written before the request is closed, but the atomicity of the 'answered' state is compromised by the crash window.
+  - evidence: `os.replace(out + ".tmp", out)
+                    _close(path, r, dg)`
+  - fix: Create the 'answered' marker (or a 'processing' lock) before writing the result, or ensure the result write and marker creation are atomic with respect to the pending check. Ideally, mark the request as 'in-progress' or 'answered' before the expensive model call if idempotency is required, or handle the 'result exists but no marker' case in `pending()` by checking for existing results.
+  - raised by qwen27b:F1; agree: qwen27b, glm
+- **[medium] pipeline/local_judge.py:0** A crash (or Gpu0Stop) between writing the result and _close() answers a request twice: the result file is written and the request closed only after, so a stop in between leaves the request pending while its result already exists; the next pass re-asks the model and overwrites the result — the ruling's 'answered once' holds only if no stop lands in that window, and for EXTRA requests the marker (the answered-once guarantee) is written last, after the done/ copy, so a crash in between re-answers too
+  - evidence: `os.replace(out + ".tmp", out)
+                    _close(path, r, dg)`
+  - fix: Write the marker (or move the own request) before/atomically with the result, or skip requests whose result file already exists when re-answering.
+  - raised by glm:F1; agree: qwen27b, glm
+
+## Raised but not agreed
+- qwen27b:F2 [high] The code catches `Exception` for model call failures but explicitly re-raises `gpu0.Gpu0Stop`. However, `Gpu0Stop` is a `BaseException` (as stated in the prompt: 'Gpu0Stop is a BaseException'). The `except Exception` block will NOT catch `Gpu0Stop` if it were raised inside `llm._post` and not explicitly re-raised, but the explicit `raise` handles it. The real issue is that `Gpu0Stop` propagates out of the `for` loop, triggering the `finally: gpu0.release_all()`. This is correct. BUT, looking at `serve_once`, if `Gpu0Stop` is raised, it is caught by `except gpu0.Gpu0Stop as e`. This is fine. 
+
+Wait, let's look at the 'fail open' or 'pass where call failed' aspect. The prompt asks to find a path where it 'reports a pass where the call failed'. 
+
+Actually, there is a subtle bug in `problems()`. It checks `family(r["prompt"]) == r["family"]`. If `r["family"]` is not "step_a", it adds an error. If it is "step_a", it checks the prompt. This seems okay.
+
+Let's look at `pending()` again. It reads the file to check the marker. If the file is modified between the glob and the read, the marker check might be stale. But the main issue is the crash window in F1.
+
+Is there a 'fail open'? If `llm._post` raises an exception, `err` is set, `text` is None. The result is written with `error`. The caller sees `error` and knows it's not a verdict. This is correct.
+
+What about `Gpu0Stop`? It propagates. The rest stay pending. Correct.
+
+Let's re-read the prompt: 'reports a pass where the call failed (fail open)'. 
+
+In `serve_once`, if `render_wants_gpu0()` is true, it returns `n` (number of malformed closed). It does NOT close the valid requests. They stay pending. This is correct.
+
+However, consider the case where `gpu0.lease` succeeds, but `render_wants_gpu0()` becomes true *after* the lease is taken but *before* the first call. The code checks `if render_wants_gpu0(): return n`. It returns without releasing the lease? No, it is inside the `with gpu0.lease(...)` block. The `with` statement ensures the lease is released on exit. But `gpu0.release_all()` is in the `finally` block of the `try` inside the `with`. If we `return` from the `with` block, the `finally` block *is* executed. So `release_all` is called. This is correct.
+
+Let's look at F1 again. Is there a better finding?
+
+The prompt says: 'a crash between the result and the marker'. This is exactly F1.
+
+Is there a path where it writes to the builder's directory? 
+`_close` for extra requests: `os.path.dirname(os.path.abspath(path)) == os.path.abspath(os.path.join(ROOT, "requests"))`. If this is False (it's an extra request), it writes to `ROOT/requests/done` or `failed` and creates a marker in `ROOT/answered`. It does NOT write to `EXTRA`. The test `test_one_call_per_request_answered_once_and_the_builders_file_untouched` verifies this. So no write to builder dir.
+
+Answers a request twice? F1 covers the crash case. What about the 'changed request' case? The marker is keyed by `name.content_sha`. If the content changes, the sha changes, so the marker doesn't match, and it is answered again. This is intended behavior ('answered once per name+content').
+
+Takes GPU0 while a render asked? `serve_once` checks `render_wants_gpu0()` before taking the lease. If a render asks *while* the lease is being taken (race), the check inside the `with` block catches it. 
+
+Leaves the model loaded? `finally: gpu0.release_all()` ensures the model is unloaded. 
+
+Accepts a non-step-A request? `problems` checks `family` and `prompt`.
+
+So F1 is the strongest finding. 
+
+Is there a second finding? 
+In `pending()`, for extra requests, it opens the file to read the content for the marker check. If the file is large, this is inefficient, but not a defect. 
+
+In `serve_once`, `waited = round(t0 - os.path.getmtime(path), 1) if os.path.exists(path) else None`. If the path doesn't exist (deleted between pending and here), `waited` is None. This is handled.
+
+What about `judge_sha()`? It reads `local_judge.py` and `story_semantics.py`. If these files change during execution, the sha is inconsistent. Unlikely.
+
+Let's look at the `Gpu0Stop` handling again. 
+`except gpu0.Gpu0Stop: raise`. This re-raises it. 
+Then `except Exception as e: err = ...`. 
+If `Gpu0Stop` is a `BaseException`, it is NOT caught by `except Exception`. So the explicit `raise` is redundant but safe. 
+However, if `Gpu0Stop` is raised, it propagates to the `finally` block, which calls `release_all`. Then it propagates out of the `with` block. Then it is caught by `except gpu0.Gpu0Stop as e`. This is correct.
+
+One potential issue: `gpu0.lease(OWNER, wait_s=0)`. If the lease is busy, it raises `LeaseBusy`. This is a `BaseException`? The prompt says `Gpu0Stop` is a `BaseException`. It doesn't specify `LeaseBusy`. If `LeaseBusy` is an `Exception`, it is caught by `except Exception`? No, `LeaseBusy` is raised by `gpu0.lease`, which is outside the `try` block that catches `Exception` for model calls. 
+`with gpu0.lease(...)` is inside a `try` block that catches `gpu0.Gpu0Stop`. 
+If `LeaseBusy` is raised, is it caught? 
+`except gpu0.Gpu0Stop as e:`. If `LeaseBusy` is not a `Gpu0Stop`, it propagates up. 
+In `main`, `serve_once` is called in a loop. If `LeaseBusy` propagates, the service crashes. 
+The prompt says: 'a busy lease ... leave the request pending'. 
+If `LeaseBusy` is not caught, the service dies. 
+Let's check the test: `test_a_gpu0_stop_leaves_the_request_pending`. It mocks `gpu0.lease` to raise `LeaseBusy`. It expects `serve_once` to return 0. 
+This implies `LeaseBusy` must be caught. 
+In the code: `except gpu0.Gpu0Stop as e:`. 
+If `LeaseBusy` is a subclass of `Gpu0Stop`, it is caught. If not, it is not. 
+The prompt says 'Gpu0Stop is a BaseException'. It doesn't say `LeaseBusy` is a `Gpu0Stop`. 
+However, the test passes (according to the prompt '14 pass'). This suggests `LeaseBusy` is either a `Gpu0Stop` or the test mocks it in a way that it is caught. 
+Wait, the test mocks `gpu0.lease` to raise `LeaseBusy`. If `LeaseBusy` is not caught by `except gpu0.Gpu0Stop`, the test would fail with an unhandled exception. Since the test passes, `LeaseBusy` must be caught. 
+Therefore, `LeaseBusy` is likely a subclass of `Gpu0Stop` or `Gpu0Stop` is a broad base exception. 
+So this is not a defect.
+
+I will stick with F1 as the primary finding. 
+
+Is there a finding about 'fail open'? 
+If `llm._post` returns a string that looks like a pass, but the model actually failed? No, the model returns text. The caller interprets it. The service just records the text. 
+
+What if `text` is None and `err` is None? 
+`text` is initialized to None. `err` is initialized to None. 
+If `llm._post` succeeds, `text` is set. `err` remains None. 
+If `llm._post` fails, `err` is set. `text` remains None. 
+So `text` and `err` are mutually exclusive (mostly). 
+
+I will report F1. (agree: 1)
+- glm:F2 [low] A request changed while being read can be answered against mixed content: _load reads the file once for the digest, but the EXTRA scan in pending() reads it separately, and the builder may rewrite the file between the two reads, so the marker is keyed by one content while the answered prompt is another; the next pass then sees no marker for the new content and answers again — self-healing, but the 'answered once per name+content' contract can double-charge a call (agree: 1)
+
+## Added in cross-examination (not voted on)
+- glm: [low] serve_once counts only malformed closes toward n when it returns early (render wanted, lease busy, or no ready requests), but the docstring says '-> how many were closed (answered or malformed)'; more importantly, in main's serve loop, n==0 (e.g. only malformed... no, malformed counts) — actually the real gap: a Gpu0Stop mid-batch after some results were written returns n including those, fine; the actual miss is that LeaseBusy/Gpu0Stop from gpu0.lease(wait_s=0) is only caught as Gpu0Stop, so if LeaseBusy were not a Gpu0Stop subclass the service would die — unverifiable from the diff alone
