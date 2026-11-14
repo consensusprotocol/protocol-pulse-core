@@ -1,0 +1,44 @@
+You are auditing a SMALL configuration change on branch pp-selectid (Protocol Pulse's moments-first video builder).
+Only state what you can verify from the diff; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+input that breaks it.
+
+BACKGROUND (static):
+- Every model verdict goes through providers.Router. Under routing "heimdall_first" (the routing every build uses),
+  each verdict type has an ordered list in pipeline/model_providers.json routing.heimdall_first ("<role>" or
+  "<role>:<kind>"); the router tries the list in order, skipping a back-end that is down or whose vendor / model family
+  wrote the text being judged (law L-x). proof_ly.chains() drops the frozen legs (local:, anthropic:, openai:,
+  openai_stt:). An out-of-contract answer moves on to the next model (providers.call_parsed); when the list is spent
+  there is no verdict, which never passes (fail closed). Writers are Heimdall deepseek -> qwen -> Grok.
+- Ruling 96 (01:40 ET Nov 14) set the lists from a replay of 884 verdicts against Grok (Grok's self-agreement: step A
+  85 %, clips-alone 79 %). It left a gap: coherence was Grok -> deepseek, so with xAI down and deepseek writing,
+  coherence had no family.
+
+THE ORCHESTRATOR'S RULINGS (06:12 ET Nov 14), verbatim:
+(1) "THE COHERENCE GAP: glm IS coherence's last fallback, after Grok (94 % on the replay, one anchor failure in the
+    whole table); an out-of-contract glm answer is no verdict; after glm, fail closed. Clips-alone has NO Heimdall
+    fallback (52-62 %): with Grok down it goes to Plan B's other outside family, else fails closed."
+(2) "QWEN ON STEP A: STRUCK. Step A's Heimdall filter is glm -> deepseek; qwen (mostly errors, 9 of 43 refusals let
+    through) is out of step A entirely."
+
+THE CHANGE (the diff follows):
+- context_verdict:step_a_first  glm -> deepseek -> qwen -> Grok   =>  glm -> deepseek -> Grok
+- context_verdict:step_a_second Grok -> qwen -> glm -> deepseek   =>  Grok -> glm -> deepseek
+- context_verdict (the role's default; every step-A call names its kind, so no live caller) => glm -> deepseek -> Grok
+- coherence_verdict:coherence   Grok -> deepseek                  =>  Grok -> deepseek -> glm
+- coherence_verdict:clips_alone Grok -> qwen -> deepseek          =>  Grok -> google:gemini-2.5-pro (Plan B's
+  coherence list is Grok -> Gemini -> OpenAI -> Anthropic; OpenAI / Anthropic are frozen legs under heimdall_first)
+- a "ruling_0612" note; tests/package/test_ledger_build.py pins every list and, with xAI down and deepseek writing,
+  checks coherence -> glm, clips-alone -> Gemini, each failing closed when that last model is down too, and step A's
+  two verdicts from two families (glm, then deepseek).
+
+ATTACK:
+(a) Does each list match the rulings exactly? Is "glm last, after Grok" right as Grok -> deepseek -> glm (deepseek kept
+    second from ruling 96), or should glm replace deepseek?
+(b) Is any qwen left on a step-A path (any list a step-A call can reach)?
+(c) Clips-alone: is Gemini the right reading of "Plan B's other outside family", and does anything else (the shadow,
+    Plan B's own lists, the default "coherence_verdict" list the spotlight's and the medley's value verdicts use) need
+    the same change? The value verdicts are deliberately left on the default list (Grok -> deepseek): no replay data.
+(d) Can the change make a verdict LOOSER anywhere (a weaker model deciding where a stronger one did)?
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario), then
+"SHIP: yes / no / yes with conditions".

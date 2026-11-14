@@ -1,0 +1,8 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 27 s finish=stop usage in 8314 / out 332 usd~0.050 (upper-bound price)
+
+<medium> pipeline/model_providers.json:47 (ruling_0612 text): lists match rulings verbatim (context_verdict:step_a_first=[glm,deepseek,grok], step_a_second=[grok,glm,deepseek], context_verdict=[glm,deepseek,grok], coherence:coherence=[grok,deepseek,glm] with glm last after "ruling 96's deepseek", clips_alone=[grok,google:gemini-2.5-pro]); test_ledger_build.py:89 asserts qwen absent from every step_a key. No qwen on any step-A path verifiable in diff.  
+<medium> tests/package/test_ledger_build.py:106 (updated expectation with X down + DS writing): coherence picks G=glm (last fallback), clips_alone picks GEM; both return None after those are downed (lines 109,111). Matches ruling (1) fail-closed after list exhausted; concrete input "deepseek wrote the coherence text, grok+glm down" now closed where old test expected None.  
+<medium> pipeline/model_providers.json:32 (clips_alone change): exactly "Plan B's other outside family" per ruling_0612 comment; default coherence_verdict untouched (still grok->deepseek per test:98), as ruling states "every other list is ruling 96's, unchanged". No diff evidence of other lists (shadow/Plan B/default value verdicts) being edited.  
+No concrete input verifiable from diff that breaks rulings or makes any verdict looser than the added glm fallback explicitly permits.  
+
+SHIP: yes

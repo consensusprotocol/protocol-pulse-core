@@ -829,10 +829,11 @@ class TestDriverRefuses(unittest.TestCase):
 
 class TestRuling85NoXai(unittest.TestCase):
     """RULINGS 85 + 88 (22:15 Nov 13), on the real config and the real Router's skip rule (no model is called):
-    the lists per verdict type under heimdall_first; with xAI answering nothing and deepseek writing, every type but
-    one still has a Heimdall family off the writer, and step A's two verdicts come from two families. The one gap:
-    coherence keeps Grok with deepseek alone behind it (88 (d): glm out; (e): qwen never decides it), so when deepseek
-    writes and xAI is down, coherence has no family and the package fails closed."""
+    the lists per verdict type under heimdall_first; with xAI answering nothing and deepseek writing, every type
+    still has a family off the writer, and step A's two verdicts come from two families. The gap ruling 96 left
+    (coherence had Grok with deepseek alone behind it, so with deepseek writing and xAI down it had no family) is
+    closed by the orchestrator's 06:12 rulings: glm is coherence's LAST fallback; clips-alone has NO Heimdall fallback
+    (Grok, then Plan B's other outside family, Gemini, else it fails closed); qwen is struck from step A."""
 
     @staticmethod
     def pl():
@@ -850,19 +851,23 @@ class TestRuling85NoXai(unittest.TestCase):
         return None
 
     def test_ruling_96s_lists_and_xai_answering_nothing(self):
-        """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure."""
+        """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure, as the orchestrator's 06:12
+        rulings amend it: (1) glm last for coherence, no Heimdall model for clips-alone; (2) qwen struck from step A."""
         PL = self.pl()
         X, DS, G, Q = ("xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash",
                        "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
+        GEM = "google:gemini-2.5-pro"
         ch = PL.chains("heimdall_first")
         self.assertEqual(ch["fidelity_verdict"], [G, Q, X])                       # 96: glm -> qwen -> Grok
         self.assertEqual(ch["exclusion_verdict"], [G, DS, X])                      # 96: glm -> deepseek -> Grok
-        self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, Q, X])        # 96: glm first (speed), deepseek
+        self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, X])           # 06:12 (2): glm -> deepseek, no qwen
+        self.assertEqual(ch["context_verdict:step_a_second"], [X, G, DS])          # (c) Grok confirms; 06:12 (2)
+        self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
+        self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
         self.assertEqual(ch["coherence_verdict:hook"], [Q, G, DS, X])              # 88 (b) / 96: the hook moved
-        self.assertEqual(ch["context_verdict:step_a_second"][0], X)               # (c): Grok confirms
         self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
-        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS])              # (d) / (e): no glm, no qwen
-        self.assertEqual(ch["coherence_verdict:clips_alone"], [X, Q, DS])         # (d): no glm
+        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS, G])           # 06:12 (1): glm the LAST fallback
+        self.assertEqual(ch["coherence_verdict:clips_alone"], [X, GEM])           # 06:12 (1): no Heimdall model
         today = PL.chains("today")                                                 # (d) and (e) hold today too
         self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
         r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
@@ -876,12 +881,17 @@ class TestRuling85NoXai(unittest.TestCase):
         self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
                                ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
                                ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): Q,
-                               ("coherence_verdict", "clips_alone"): Q,
-                               ("coherence_verdict", "coherence"): None})          # THE GAP (fails closed)
+                               ("coherence_verdict", "clips_alone"): GEM,          # Plan B's other outside family
+                               ("coherence_verdict", "coherence"): G})            # the gap is closed: glm, last
+        r.down[GEM] = "Gemini answers nothing (the test)"
+        self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="clips_alone"))   # closed
+        r.down[G] = "glm answers nothing (the test)"
+        self.assertIsNone(self.pick(r, "coherence_verdict", {w.vendor}, {w.family}, kind="coherence"))     # closed
+        del r.down[G], r.down[GEM]
         first = self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first")
         fb = r.backends[first]
         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
-        self.assertEqual((first, second), (G, Q))                                  # two Heimdall families, Grok down
+        self.assertEqual((first, second), (G, DS))                                 # two Heimdall families, Grok down
         r.down.clear()
         second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
         self.assertEqual(second, X)                                                # (c): Grok confirms when it answers
