@@ -1,4 +1,4 @@
-# pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
+HANDOFF READY 3af063d0 (docs/audits/parallel/pp-ingest_HANDOFF.md) | # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
 ## TOTAL SPEND BY VENDOR (this session, every use, to 06:48 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12, except ruling 98's capped paid route (unused so far: $0.00)
 | vendor | total | measured part | where it went | since the freeze |
