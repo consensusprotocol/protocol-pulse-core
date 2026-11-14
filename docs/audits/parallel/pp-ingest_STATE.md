@@ -33,6 +33,30 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 19:25 Nov 13 RULING 80 (18:42, priority one): THE HOOK PASS IS BUILT AND TESTED (commit 3c69de24, pushed); AUDIT
+  RUNNING; NOT LIVE YET: the backfill over the current 12 h window and the watcher loop start only on the audited code
+  (the ruling).
+  - WHAT IT ASKS: a second mining question over the same windows (mine-hook/1, Heimdall, role `hook`): "the 1 to 3
+    lines in this window that would stop a scroll as the FIRST words of a short video". In the prompt, verbatim: the
+    builder's judge question (pp-selectid package.py HOOK_QUESTION, rulings 52 / 59: "scroll" / "alone" / "setup",
+    1-5; a test compares it with the builder's source), the ruling's hook (4 to 14 s, whole sentences, one speaker,
+    understandable alone, a concrete / surprising / sharply put claim, contrast, number or question about Bitcoin or
+    money) and its NOT list (greeting / show intro, a date or "this week", an ad read, a price prediction, an
+    accusation), and the moment prompt's own score axes and flag list.
+  - ROWS: moments with `role_hint: "hook"`, eligibility judged with the builder's role "hook", the span's own moment
+    id (the builder's dedupe and delivered checks keep working); a row outside 4-14 s is not written. Every ledger
+    append now carries the video's earlier flags for the same moment (a hook on a span the moment pass flagged keeps
+    the flag: the adapter returns the latest line). The adapter is unchanged: hook rows are returned like any row.
+  - LOOP: `hook`, every 5 s, 2 videos at once: mined videos published in the last 12 h, newest first (the current
+    window's backfill at start, then every new upload after its moment pass); an outage waits without using a try.
+  - THE BACKFILL, sized: 100 mined videos published in the last 12 h, 131 windows with a Bitcoin term (the rest are
+    screened: no model call), about $0.10.
+  - RULING 77's audit cycle 1 (qwen, glm, muse: no P0; "ready for production") is implemented: a corrupt delivered
+    record now stops the pass (the one fail-open path), "PURGE NOT RUNNING" goes on line 1 of STATE after 30 min,
+    unreadable paths are fail closed, stricter spec types (pp-ingest_audit/r77/C1_CONSENSUS.md). This audit cycle
+    cross-validates those fixes too.
+  - TESTS: tests/ingest 224 passed.
+
 - 18:45 Nov 13 RULING 77 (18:09; with the builder's ruling 76; PBX 18:01 "delete all the contents after like 6 to 12
   hours so that we never reuse any of it"): BUILT, TESTED, LIVE IN THE WATCHER. (commit: see git log, pushed)
   - 1 EXPIRY IN THE LEDGER: every new row carries `expires_at` = its video's publish time + 12 h (written at mining;

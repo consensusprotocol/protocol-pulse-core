@@ -197,8 +197,11 @@ def carry_forward(lines, earlier):
             l["risk"] = sorted(set(l["risk"]) | set(e.get("risk") or []))
             l["names_person"] = bool(l["names_person"] or e.get("names_person"))
             fx, ex = l.setdefault("flags_ext", {}), e.get("flags_ext") or {}
-            fx["altcoin"] = bool(fx.get("altcoin") is not False or ex.get("altcoin") is not False)
-            fx["about_bitcoin"] = bool(fx.get("about_bitcoin") is True and ex.get("about_bitcoin") is True)
+            a_new, a_old = fx.get("altcoin"), ex.get("altcoin")         # an earlier MISSING value adds nothing; a
+            b_new, b_old = fx.get("about_bitcoin"), ex.get("about_bitcoin")   # missing value of THIS line stays
+            fx["altcoin"] = True if True in (a_new, a_old) else (False if a_new is False else None)   # missing (the
+            fx["about_bitcoin"] = False if False in (b_new, b_old) else (True if b_new is True else None)  # adapter
+            # refuses it: L-m); audit r80 c1, muse
             if e.get("role_hint") == "hook":
                 l["role_hint"] = "hook"
     return lines

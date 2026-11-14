@@ -46,7 +46,9 @@ OUTAGE_NOTICE_S = 1800         # videos waiting on an outage this long: one line
 IDLE_RELEASE_S = 120           # no mining due this long: the local model (if any) leaves GPU0 (B3; c2: no thrash)
 PURGE_NOTICE_S = 1800          # the purge unable to run safely this long: one line at the top of STATE (ruling 77)
 HOOK_HORIZON_S = config.EXPIRY_H * 3600   # ruling 80: the hook pass runs on videos whose moments are still usable
-HOOK_VIDEOS = 2                # videos in their hook pass at once (their windows share the router's bounds)
+HOOK_VIDEOS = 2                # videos in their hook pass at once
+HOOK_WINDOWS = 4               # hook windows in flight at once, all hook passes together: the moment passes of new
+                               # uploads keep the rest of the back-end's slots (audit r80 c1, glm: no starvation)
 HOOK_RETRY_S = 600             # a hook pass with failed windows is tried again (stored replies make it cheap)
 HOOK_TRIES = 3                 # passes with REJECTED windows before the hooks of the good windows are written
 
@@ -86,6 +88,7 @@ class Service:
                                            thread_name_prefix="win")
         self.videos = ThreadPoolExecutor(max_workers=3, thread_name_prefix="vid")
         self.hooks = ThreadPoolExecutor(max_workers=HOOK_VIDEOS, thread_name_prefix="hook")
+        self.hook_windows = ThreadPoolExecutor(max_workers=HOOK_WINDOWS, thread_name_prefix="hookwin")
         self.inflight, self.hook_inflight = set(), set()
         self.ilock, self.hlock = threading.Lock(), threading.Lock()
         self.wlock = threading.Lock()                   # every ledger append of this service (carry_forward + append)
@@ -342,16 +345,17 @@ class Service:
             src = {"discovered_via": v.get("discovered_via"), "live_status": v.get("live_status"),
                    "media_type": v.get("media_type"), "published_at_source": v.get("published_source"),
                    "duplicate_of": v.get("duplicate_of"), "canonical_url": ts.canonical_url(vid)}
-            lines, rep = mine.mine_video(self.router, self.executor, rec, meta, chan, reg, datetime.now(timezone.utc),
-                                         self.cycle, extra_source=src, kind="hook")
+            lines, rep = mine.mine_video(self.router, self.hook_windows, rec, meta, chan, reg,
+                                         datetime.now(timezone.utc), self.cycle, extra_source=src, kind="hook")
             cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND role='hook'",
                                (vid,))[0]["usd"] or 0.0
             failed = rep["failed"]
             rejected = [f for f in failed if not f["outage"]]
             tries = int(v.get("hook_tries") or 0) + (1 if rejected else 0)
             what = (f"{len(lines)} hook rows, windows {rep['windows']} (screened {rep['screened']}, failed "
-                    f"{len(failed)}: {len(rejected)} rejected), dropped {rep['dropped'] or 0}, ${cost:.4f}, "
-                    f"{self.clock() - t0:.0f} s")
+                    f"{len(failed)}: {len(rejected)} rejected), dropped {rep['dropped'] or 0}"
+                    f"{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, ${cost:.4f} for the "
+                    f"video's hook passes so far, {self.clock() - t0:.0f} s")
             if failed and tries < HOOK_TRIES:
                 self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_tries=tries, hook_cost_usd=cost,
                                 hook_note=("OUTAGE: " if not rejected else "") + f"{len(failed)} window(s) failed; "
@@ -454,8 +458,11 @@ class Service:
         since = float(self.q.kv_get("purge_blocked_since") or 0) or now
         self.q.kv_set("purge_blocked_since", str(since))
         if now - since >= PURGE_NOTICE_S:
-            spend.write_purge_notice(why[:300], datetime.fromtimestamp(since, timezone.utc).strftime(
-                "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])
+            try:                                          # a STATE file that cannot be written: logged, never the
+                spend.write_purge_notice(why[:300], datetime.fromtimestamp(since, timezone.utc).strftime(   # pass's
+                    "%Y-%m-%dT%H:%M:%SZ"), notify_path=self.p["notify"])                               # bookkeeping
+            except OSError as e:
+                self.log(f"purge: the STATE notice could not be written: {type(e).__name__}: {e}")
 
     def purge_once(self, dry_run=False):
         """Ruling 77: one pass of the rolling purge of expired media (purge.py), in this process's own loop."""

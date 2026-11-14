@@ -436,6 +436,7 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
                    None if secs[0] <= d <= secs[1] else f"outside {secs[0]:g}-{secs[1]:g} s")
             if why:
                 report["dropped"][why] = report["dropped"].get(why, 0) + 1
+                report.setdefault("dropped_s", []).append(d)          # the lengths dropped (audit r80 c1, glm)
             else:
                 kept.append(l)
         lines = kept

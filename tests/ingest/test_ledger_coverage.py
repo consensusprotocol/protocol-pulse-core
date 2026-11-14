@@ -318,3 +318,19 @@ def test_a_later_pass_carries_every_earlier_flag_and_the_hook_hint(rec):
     again = ledger.carry_forward([dict(later), dict(other)], [first, out[0]])
     assert again[0]["role_hint"] == "hook" and again[0]["risk"] == ["accusation", "time_sensitive"]
     assert again[1]["risk"] == [] and "role_hint" not in again[1]
+
+
+def test_an_earlier_missing_value_adds_nothing_and_a_missing_value_of_the_new_line_stays_missing(rec):
+    """Audit r80 c1 (muse): an earlier line without flags_ext must not turn the new line's measured altcoin False
+    into True; a new line whose own value is missing stays missing (the adapter refuses it, L-m)."""
+    old = line(rec, 0, 1)
+    old.pop("flags_ext")
+    new = ledger.carry_forward([line(rec, 0, 1, flags_ext={"about_bitcoin": True, "altcoin": False})], [old])[0]
+    assert new["flags_ext"] == {"about_bitcoin": True, "altcoin": False}
+    bare = line(rec, 0, 1)
+    bare["flags_ext"] = {}                                            # (line() merges dict overrides into defaults)
+    unk = ledger.carry_forward([bare], [old])[0]
+    assert unk["flags_ext"] == {"about_bitcoin": None, "altcoin": None}
+    alt = ledger.carry_forward([line(rec, 0, 1, flags_ext={"about_bitcoin": True, "altcoin": False})],
+                               [line(rec, 0, 1, flags_ext={"about_bitcoin": True, "altcoin": True})])[0]
+    assert alt["flags_ext"]["altcoin"] is True

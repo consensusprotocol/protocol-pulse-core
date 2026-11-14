@@ -87,6 +87,7 @@ class Queue:
             for c, t in HOOK_COLUMNS:               # ruling 80 (2026-11-13): the hook pass's state, per video
                 if c not in cols:
                     self.db.execute(f"ALTER TABLE videos ADD COLUMN {c} {t}")
+            self.db.execute("CREATE INDEX IF NOT EXISTS videos_hook ON videos(state, published_ts)")   # hook_due
 
     def x(self, sql, args=()):
         with self.lock:
