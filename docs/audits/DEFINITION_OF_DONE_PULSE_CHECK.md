@@ -6,6 +6,39 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## FRESH SESSION UP 05:45 ET (orchestrator '05:41'): the integrator is a fresh session (still "protocol-pulse-68") at release HEAD eac318d0. Tree GREEN: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, every protected reference reproduced. All four services UP on their handoff shas, none restarted. GPU0 free. No pin pending.
+- Read in order: PIPELINE_LAWS.md (whole), INTEGRATOR_HANDOFF.md (whole), this file's top 60 lines; CONSTITUTION.md (CLAUDE.md's rule).
+- REGRESSIONS on HEAD eac318d0, nothing staged:
+  - regression_test.sh (05:39:54): 26 PASS / 0 FAIL / 4 WARN. The warnings: 3601 uncommitted data files, 20 stashes, and oracle-live and the :5100 video server not answering; none of them is ours.
+  - pipeline/regression.sh (05:39:58-05:44:23) exit 0:
+    - step 1: 95 passed + 14 subtests; steps 2-5 PASS (M19a, v2d, v2e parity 0.041 s);
+    - step 6: the preview REPRODUCED (cuts and layouts);
+    - step 7: moments, 225 files identical, matches its tag;
+    - step 8: medley, 200 files, matches its tag; locks, cuts, junctions and layouts reproduce;
+    - step 9: first pass, 430 files, matches its tag; locks, cuts, junctions and layouts reproduce.
+- SERVICES (each pane's process and sha checked, not only the tmux session):
+  - pre-check, pipeline_pp_lockcheck: UP. It runs the once-loop (relaunched 22:43:52 Nov 13), so no CUDA context stays resident between batches. decoder_sha c705b20ed800; RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84". Last request 21:20 Nov 13; last results 21:23:14.
+  - scorer, pipeline_pp_scorer: UP, pid 2839982 since 00:46:04; scorer_sha 91d75457ceec; last verdicts 01:06:20 (affirmed 8 of 83).
+  - judge, pipeline_pp_judge: UP, pid 1936611 since 22:26:29 Nov 13; judge_sha c62a1e12088c.
+  - word pass, pipeline_pp_wordpass: UP on GPU1, pid 1246475 since 18:53:49 Nov 13. Its last cycle, at 05:25:19, found 62 ledger rows inside 12 h and none in the last 6 h, and picked 0 (364 rows expired under rulings 76 + 77).
+- GPU STATE (nvidia-smi and fuser, 05:38):
+  - GPU0: 18 MiB used, 0 %, no compute process.
+    - /tmp/pulse_gpu0.lease is free: no holder. Its text names the scorer, the last holder.
+    - No yield flag; /tmp/pulse_check_run.lock not held.
+  - GPU1: 903 MiB used.
+    - The word-pass worker holds 394 MiB (ours).
+    - waitress app:app, pid 321797, holds 480 MiB (the site, not ours).
+    - /tmp/pulse_gpu1.lease is held by services/stage_broadcast_service.py, pid 3501248, since 05:35:44. It is not ours and it follows the lease protocol, so the worker waits it out under L-r the next time it needs GPU1. Nothing killed.
+- BUILDER: no pin pending.
+  - pp-selectid STOPPED at its HANDOFF READY abda0bb0 (05:21 ET).
+  - Its last build, 01:41 ET (ledger_20261114_064132), sealed no medley and no spotlight. Its ledger has not moved since 00:11 ET.
+  - Its handoff names this session ("protocol-pulse-68") as the integrator, so a pin reaches here.
+- NEXT: the standing instruction (render the builder's pin the moment it arrives), then the open items.
+  - The '05:41' order calls item 1 "ruling 91's medley half". In the builder's handoff that is ITS item 1: the value verdict in package.build's takeaway path.
+  - This side's share: the render has no carrier for it. Rulings 90-92 are carried by pinned._spotlight_vo, which covers the spotlight half only.
+  - Proposal to the builder: agree the sealed row's name, and require it on the live path (build_edl) for any medley that carries a takeaway.
+  - The protected references' pins (pp.package/1, takeaways with no value row) are checked through moments_vo directly and stay unchanged.
+
 ## HANDOFF READY ee590ac0 (05:12 ET): docs/audits/INTEGRATOR_HANDOFF.md, committed and pushed on combo-letterbox-quoteonly-v2 as ordered at '05:14'.
 - It holds:
   - the role and duties;
