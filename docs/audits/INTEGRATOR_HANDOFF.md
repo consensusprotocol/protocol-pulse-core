@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **76** (ruling 91's medley half, 2026-11-14).
+     The last batch is **80** (ruling 103's re-listen, 2026-11-14).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -82,6 +82,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
 - **90 / 91 / 92**: SPOTLIGHT (law L-ab). Carrier: `pinned._spotlight_vo`, `edl_rules` (R4 / R5 / R11), `qa_gates.g5_window`, `editorial_gate`, `signoff` / `vo`, `telegram`.
 - **91, its MEDLEY half** (2026-11-14, the row agreed with the builder): a medley's takeaway renders only with the sealed `takeaway_value` row {status PASS, replayed false, text = the line}. Carrier: `edl_rules.takeaway_value`, called by `run_fresh.stage_validate` and `scripts/integrator/check_pin_only.py`; NOT a `validate_edl` rule (the references predate it).
 - **93**: no channel is ineligible by name; G10 runs on every clip (MONITORING); the 9:16 single crop keeps a lower third whole where a face-safe crop allows. Carrier: `vertical_layout.single_crop` / `lower_third_spans`, `render_vertical._shot_vf`, `qa_gates.g10_clip_ids`, `editorial_select.layout_eligible`.
+- **103** (2026-11-14 '14:13'): the targeted re-listen: one number / name token held by ruling 72's comparison is re-read by BOTH recognisers on a short window (its word times +- 1.5 s); it passes only if both give the lock's token, else the hold is final. Carrier: `pinned.relisten_candidate` / `relisten_verdict`, `lock_precheck.relisten` (the entry's `relisten` record). With it: canon's 401k / 401(k) name token (L-k).
 - **94**: hooks.
   - A first- or second-person pronoun opener is no fault.
   - A third-person or demonstrative opener opens only with the scorer's affirmation.
@@ -177,7 +178,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
 - **Pre-check** (ruling 68 + 72 + 73 + 84), tmux `pipeline_pp_lockcheck`.
   - It runs as a ONCE-LOOP, so no CUDA context stays resident (E-FAIL-084):
     `cd /home/ultron/protocol_pulse && while true; do CUDA_VISIBLE_DEVICES=0 python3 pipeline/lock_precheck.py once 2>&1 | grep --line-buffered -v 'lock pre-check: decoder_sha' | tee -a data/lock_precheck/serve.log; sleep 5; done`
-  - decoder_sha **c705b20ed800**; RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84".
+  - decoder_sha **d1e155c642a6** (since the canon-401k + ruling 103 landing, 2026-11-14; was c705b20ed800); RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103".
   - The sha changes whenever select_passages, punctuation, pinned, sentence_law, canon or gpu0 changes: tell the builder the new one.
   - Requests are read only from the builder's `tests/package/proof/lock_requests/`. Results go to `data/lock_precheck/results/<vid>.<start>-<end>.<sha12>.json`.
 - **Scorer** (item 56, rulings 60 / 94), tmux `pipeline_pp_scorer`:

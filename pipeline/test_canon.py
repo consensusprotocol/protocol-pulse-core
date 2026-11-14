@@ -264,5 +264,36 @@ class TestSites(unittest.TestCase):
         self.assertFalse(missing, missing)
 
 
+class TestRetirementPlans(unittest.TestCase):
+    """L-k (a different number never compares equal), the 2026-11-14 pre-check finding on 7BqLu-wzbU0: a US
+    retirement plan is a NAME. '401k' read as 401000 made 'a 401k' equal 'a 401,000'; '401(k)' read as 401 + 'k'
+    made the plan's two spellings differ. Both spellings are now one token; a '$' keeps an amount an amount."""
+
+    def test_a_plan_is_never_the_number(self):
+        for plan, amount in (("a 401k", "a 401,000"), ("a 401k", "a 401 thousand"), ("a 401(k)", "a 401,000"),
+                             ("my 403(b)", "my 403 billion"), ("a 457b", "a 457,000,000,000")):
+            self.assertFalse(C.same(plan, amount), (plan, amount))
+
+    def test_the_plans_spellings_are_one_name(self):
+        for a, b in (("I don't have a 401k.", "I don't have a 401(k)."), ("a 401K", "a 401(k)"),
+                     ("my 403b", "my 403(b)"), ("a 457(b) plan", "a 457b plan")):
+            self.assertTrue(C.same(a, b), (a, b))
+        self.assertEqual(C.canon_tokens("I don't have a 401(k)"), ["i", "don't", "have", "a", "401k"])
+
+    def test_the_pre_check_case_still_differs(self):
+        self.assertFalse(C.same("I don't have a 401k", "I don't have a 401 ,"))     # the second recogniser's reading
+
+    def test_amounts_are_unchanged(self):
+        self.assertEqual(C.canon_tokens("$401k"), ["401000", "dollars"])           # a '$' keeps it an amount
+        self.assertEqual(C.canon_tokens("40k"), ["40000"])
+        self.assertTrue(C.same("74k", "seventy four thousand"))
+        self.assertEqual(C.canon_tokens("401,000"), ["401000"])
+        self.assertEqual(C.canon_tokens("401 kilos"), ["401", "kilos"])           # only the single letter joins
+
+    def test_the_split_form_spans_both_words(self):
+        spans = C.canon_spans(["a", "401", "k", "plan"])
+        self.assertIn(("401k", 1, 2), [tuple(s) for s in spans])
+
+
 if __name__ == "__main__":
     unittest.main()

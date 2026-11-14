@@ -6,6 +6,26 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:53 RULING 103 + CANON-401k LANDED (branch canon-401k: 373d0fed canon + 077407dc ruling 103; audits batch 79 x2 clean, batch 80 x2 with cycle 2 clean). The pre-check's decoder_sha moves ONCE, c705b20ed800 -> d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce, with the builder's matching 4c3435d9 (its READY; it pushes after this).
+- WHAT IS LIVE:
+  - canon (L-k): '401k' = '401(k)' (also 403(b), 457(b)) is one name token, never the number; "$401k" stays an amount.
+  - RULING 103: a ruling-72 hold on ONE number / name token is re-listened. Both recognisers re-read the token's word times +- 1.5 s, cut from the acquired window. It passes only if both give the lock's token.
+    - A pass keeps the lock's own token.
+    - An unavailable GPU0 or an empty decode is "error" (re-ask).
+    - Both readings are recorded in the entry's "relisten" for the pin.
+  - RULES "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103". The outcome strings are unchanged.
+- CHECKS ON THE STAGED MERGE (staged 14:40:42):
+  - decoder_sha d1e155c642a6... confirmed from the staged tree; scorer edd54964a5ab and judge 37c0f8a5e49e unchanged, so no service restarts. The pre-check once-loop runs each batch in a fresh process.
+  - regression_test.sh 26 PASS / 0 FAIL.
+  - pipeline/regression.sh exit 0 (finished 14:45:51), every protected reference reproduced. The published first pass's PIN, whose speaker line holds "401(k)", reproduces unchanged.
+  - 20 CPU suites: 18 all pass, including test_canon 23, test_lock_precheck 41, test_pinned 31, test_ruling17_lock 25 and test_spotlight 8.
+    - test_word_diff and test_edge_words fail only on the environment: 4 gpu0.LeaseMissing (Whisper under CUDA_VISIBLE_DEVICES=''), and 2 ffmpeg calls on a replay run's sources/, which the ingest watcher has purged (runs/pinned_20261111_172202_replay_cut1329/sources is empty).
+  - test_g3b_majority on GPU0 under the lease: 7 passed.
+- NEXT:
+  - The builder pushes 4c3435d9 and builds (its ledger moved at 14:37).
+  - Ruling 104's Blockware variant (0.000-15.280, ending "...I still don't use my Roth IRA.") joins a following build once its own audit passes.
+  - If it seals: the first SPOTLIGHT render, a DEMO for PBX. The source expires 00:00 ET.
+
 ## 14:20 RULING 103 + CANON-401k READY TO LAND (branch canon-401k at 077407dc; audits batch 79 x2 clean, batch 80 x2 with cycle 2 clean). FINAL decoder_sha d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce, sent to the builder. It lands on the builder's READY, as agreed.
 - BATCH 80, cycle 1: no consensus finding.
   - Grok's "critical" (an `if verdict != "adopt"` block forcing a hold) does not exist in the code.
