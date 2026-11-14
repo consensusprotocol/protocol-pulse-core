@@ -588,7 +588,7 @@ class Rig:
             mid = m["moment_id"]
             v = self.router.backends[name].vendor if name else None
             if name is None or (v, mid) in self.unavailable:
-                fails[mid] = ["STEP_A_UNAVAILABLE: ProviderError"]
+                fails[mid] = [PK.held_why(self.P.ProviderError("context_verdict: every back-end unavailable"))]
                 continue
             got[mid] = dict(self.A_OK, backend=name)
             fails[mid] = list(self.a_fail.get((v, mid), []))
@@ -1287,7 +1287,8 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
             cache = os.path.join(d, "c.json")
             a_by, fails, _, _ = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
             self.assertEqual(len(a_by), 2)                                # the other batch (2) only
-            self.assertEqual(fails["m09"], ["STEP_A_UNAVAILABLE: RuntimeError: the batch reply was out of contract"])
+            self.assertEqual(fails["m09"], [f"{PK.HELD}: no step-A verdict (RuntimeError: the batch reply was out of "
+                                            f"contract); held for this build, retried next build"])   # ruling 102
             with open(cache) as f:
                 self.assertEqual(len(json.load(f)), 2)                    # a failure is never remembered
             calls.clear()
@@ -2513,7 +2514,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None],
                   unavailable={("heimdall", "y")})
         out = rig.run()
-        self.assertTrue(out["prescreen"]["second_vendor"]["y"].startswith("FAIL: STEP_A_UNAVAILABLE"))
+        self.assertTrue(out["prescreen"]["second_vendor"]["y"].startswith(f"HELD: {PK.HELD}"))      # ruling 102
+        self.assertEqual(out["prescreen"]["held_102"], {"first": [], "second": ["y"]})
         self.assertEqual(rig.medley_calls, [["h", "x", "z"]])
 
     def test_the_verdict_used_is_the_one_off_the_writers_vendor(self):
@@ -2591,8 +2593,9 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
                 self.open_ = set(open_)
 
             def chain(self, role, kind=None):
-                assert (role, kind) == ("context_verdict", "step_a_first")
-                return ["heimdall:glm", "heimdall:ds", "xai:grok"]
+                assert role == "context_verdict"
+                return {"step_a_first": ["heimdall:glm", "heimdall:ds", "xai:grok"],
+                        "step_a_second": ["xai:grok", "heimdall:ds", "heimdall:glm"]}[kind]
 
             def effective_deadline(self, role, b, deadline_s=None):
                 assert (role, deadline_s) == ("context_verdict", PK.SECOND_VERDICT_DEADLINE_S)   # the first screen's
@@ -2612,7 +2615,19 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         p = plan(21, R(open_={"heimdall:glm"}))           # glm's breaker open: deepseek leads, 2 x 300 s = 10 minutes
         self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 600.0, "heimdall:ds"))   # not OVER 10
         p = plan(37, R(open_={"heimdall:glm"}))           # 19 batches, 4 rounds x 300 s = 20 minutes
-        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (True, 1200.0, "heimdall:ds"))
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"], p["confirm"], p["why"]),
+                         (True, 1200.0, "heimdall:ds", "xai:grok", None))
+        p = plan(37, R(open_={"heimdall:glm", "xai:grok"}))   # glm C2 H1: Grok breaker-open, no confirm leg
+        self.assertEqual((p["parallel"], p["est_wait_s"], p["confirm"]), (False, 1200.0, None))
+        self.assertIn("no confirm leg", p["why"])
+        p = plan(37, R(open_={"heimdall:glm"}), wv={"xai"})   # Grok writes: a confirm ahead could ask nothing
+        self.assertEqual((p["parallel"], p["leg"], p["confirm"]), (False, "heimdall:ds", None))
+        down = R()
+        down.down = {"heimdall:glm": "HTTP 503"}               # glm down this run: deepseek leads, as breaker-open
+        p = plan(37, down)
+        self.assertEqual((p["parallel"], p["leg"], p["confirm"]), (True, "heimdall:ds", "xai:grok"))
+        down.down = {"heimdall:glm": "HTTP 503", "xai:grok": "HTTP 503"}   # Grok down: no confirm leg
+        self.assertEqual(plan(37, down)["confirm"], None)
         p = plan(37, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # the writer's family: Grok leads,
         self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 472.4, "xai:grok"))   # 4 x 118.1 s
         p = plan(80, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # 40 batches, 7 rounds: over 10 minutes
@@ -2677,8 +2692,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertEqual((par["parallel"], par["n_new"], par["asked"], par["leg"]),
                          (True, len(self.MS), len(self.MS), "heimdall:glm"))
         main = threading.get_ident()
-        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall", "heimdall/glm"}]   # off every
-        # Heimdall family and the writers
+        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall", "heimdall/glm", "openai"}]
+        # off every vendor but Grok's (ruling 102: never Gemini or the local judge ahead) and off the writers
         self.assertEqual(len(ahead), 1)                                   # Grok's confirm: once,
         self.assertNotEqual(ahead[0], main)                               # on its own thread,
         self.assertIn(("step_a_first", {"heimdall"}, main), seen)         # beside the filter on the build's thread
@@ -2729,7 +2744,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
                   [None, None], angle_from=("xai:grok", "xai", "grok"), unavailable={("openai", "y")})
         out = rig.run()
         self.assertEqual(list(out["prescreen"]["rescreen_failed"]), ["y"])
-        self.assertTrue(out["prescreen"]["rescreen_failed"]["y"][0].startswith("STEP_A_UNAVAILABLE"))
+        self.assertTrue(out["prescreen"]["rescreen_failed"]["y"][0].startswith(PK.HELD))           # ruling 102
+        self.assertIn("gives no answer for ['y'] (HELD, ruling 102", out["tried"][0]["why"])
         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "z"])
 
     def test_when_no_swap_fits_the_line_up_re_lines_and_the_clip_stays_out(self):     # audit 0640 C1, glm P2-9
@@ -2756,7 +2772,7 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
             PK.prescreen = saved
         self.assertEqual(two, {})
         self.assertEqual(sorted(fail), ["h", "x", "y", "z"])
-        self.assertTrue(all(f[0].startswith("STEP_A_UNAVAILABLE: RuntimeError") for f in fail.values()))
+        self.assertTrue(all(f[0].startswith(f"{PK.HELD}: no step-A verdict (RuntimeError") for f in fail.values()))
 
     def test_second_screen_fails_closed_on_an_unknown_back_end_or_the_same_vendor(self):
         B = lambda v, f: type("B", (), {"vendor": v, "family": f})()

@@ -444,6 +444,39 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
 # ── step A once per moment (orchestrator 05:25 item 5) ──
 
 STEP_A_VERSION = hashlib.sha256(CI.STEP_A.encode()).hexdigest()[:12]
+HELD = "STEP_A_HELD (ruling 102)"   # RULING 102 (13:02 Nov 14): no leg ANSWERED: held for THIS build, never refused, never
+LAST_RESORT = "local_judge:"       # cached, retried next build. The local judge's verdicts: ruling 87's last resort,
+#                                    recorded as such on the pin (last_resort_note: the medley's context_a row, the
+#                                    spotlight's step_a_two_families row) and on STATE line 1 (the build's line)
+
+
+def held_why(e):
+    """RULING 102: the reason a step-A call that gave no verdict leaves on its moments: HELD for this build, retried
+    next build (every leg unavailable, past its deadline, breaker-open, refused or out of contract; ruling 48's cap; any
+    error of the call), never a refusal. The one exception is the moment's own context: CONTEXT_TOO_LONG (law L-s never
+    truncates a window, so no retry can answer it) -> STEP_A_REFUSED."""
+    if isinstance(e, ValueError) and str(e).startswith("CONTEXT_TOO_LONG"):
+        return f"STEP_A_REFUSED: {str(e)[:200]}"
+    return f"{HELD}: no step-A verdict ({type(e).__name__}: {str(e)[:160]}); held for this build, retried next build"
+
+
+def is_held(why):
+    """RULING 102: a moment's step-A reasons say HELD (no answer), not a verdict's refusal."""
+    return bool(why) and all(str(w).startswith(HELD) for w in why)
+
+
+def last_resort_of(verdicts):
+    """RULING 102: the back-ends among `verdicts` (A items) that are the local judge's (ruling 87's last resort)."""
+    return sorted({str(a.get("backend")) for a in verdicts or () if isinstance(a, dict)
+                   and str(a.get("backend")).startswith(LAST_RESORT)})
+
+
+def last_resort_note(by):
+    """RULING 102: the pin's record of the local judge's step-A verdicts ({label or moment id: back-end}), or None."""
+    return {"rule": "ruling 87's last resort: no faster leg answered, so the local gemma3:27b on GPU0 (the "
+                    "integrator's judge service) gave this step-A verdict (the last leg of step A's second family "
+                    "under ruling 102, or of Plan B's chain under ruling 87)",
+            "verdicts": dict(sorted(by.items()))} if by else None
 
 
 def _load_store(store):
@@ -556,9 +589,9 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
         res = list(ex.map(lambda ic: screen(*ic), enumerate(chunks)))   # map keeps the chunks' order: zipped below
     new = {}
     for chunk, (got, e) in zip(chunks, res):
-        if got is None:
+        if got is None:                                 # ruling 102: no answer is HELD, never a refusal, never cached
             for m in chunk:
-                fails[m["moment_id"]] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:160]}"]
+                fails[m["moment_id"]] = [held_why(e)]
             continue
         items, backend = got
         b = router.backends.get(backend)
@@ -618,6 +651,28 @@ def _heimdall(b):
     return P.gateway(b) == "heimdall"
 
 
+CONFIRM_VENDOR = "xai"             # RULING 101: "Grok's confirm", the one vendor the confirm-ahead asks (ruling 102's
+#                                    Gemini and the local judge are the second screen's fallbacks, never asked ahead)
+
+
+def _usable(router, name, wv, wf):
+    """A leg a live call could take now: in the router, off the writers, not down this run, not breaker-open."""
+    b = router.backends.get(name)
+    return b is not None and b.vendor not in set(wv) and b.family not in set(wf) and \
+        name not in getattr(router, "down", {}) and not (hasattr(router, "breaker_open") and router.breaker_open(name))
+
+
+def _confirm_leg(router, wv, wf):
+    """RULING 101 (glm, audit 20261114_1246 C2 H1): the leg Grok's confirm-ahead would ask: the step_a_second chain's
+    first xAI back-end that is usable now; None when there is none (Grok writes, is down or breaker-open), and then a
+    confirm-ahead could ask nothing: the plan is sequential."""
+    for name in router.chain("context_verdict", kind="step_a_second"):
+        b = router.backends.get(name)
+        if b is not None and b.vendor == CONFIRM_VENDOR and _usable(router, name, wv, wf):
+            return name
+    return None
+
+
 def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **first):
     """RULING 101 (12:16 Nov 14): does step A ask the Heimdall filter and Grok's confirm IN PARALLEL? Yes when more than
     STEP_A_PARALLEL_NEW moments are NEW to the first screen (no verdict in this build's ledger or the shared cache) AND
@@ -625,25 +680,30 @@ def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **firs
     PRESCREEN_WORKERS) x the deadline of the filter's leading leg (the step_a_first chain's first back-end off the
     writers, not down and not breaker-open, at ruling 100's deadline for it: Router.effective_deadline). The filter is
     Heimdall's: when no Heimdall family leads (Grok leads: every family is the writer's, down or breaker-open), the first
-    verdicts are Grok's own, which a confirm off Heimdall could never serve: sequential, whatever the wait.
-    -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg"}."""
+    verdicts are Grok's own, which a confirm off Heimdall could never serve: sequential, whatever the wait. So it is
+    when no confirm leg is usable (_confirm_leg). -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg",
+    "confirm", "why"} (why: the reason it is sequential, None when parallel)."""
     new = prescreen(router, ms, sources, ctx, wv, wf, store=store, cache=cache, plan_only=True,
                     **{k: v for k, v in first.items() if k in ("batch", "kind")})
     if len(new) <= STEP_A_PARALLEL_NEW:                  # under the line: sequential whatever the wait
-        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None}
+        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None, "confirm": None,
+                "why": f"not over {STEP_A_PARALLEL_NEW} new moments"}
     leg, dl, heim = None, None, False
     for name in router.chain("context_verdict", kind="step_a_first"):
         b = router.backends.get(name)
-        if b is None or b.vendor in set(wv) or b.family in set(wf) or name in getattr(router, "down", {}) or \
-                (hasattr(router, "breaker_open") and router.breaker_open(name)):
+        if not _usable(router, name, wv, wf):
             continue
         leg, dl, heim = name, router.effective_deadline("context_verdict", b, first.get("deadline_s")), _heimdall(b)
         break
     batch = first.get("batch") or PRESCREEN_BATCH
     rounds = math.ceil(math.ceil(len(new) / batch) / PRESCREEN_WORKERS) if new else 0
     wait = rounds * dl if dl else 0.0
-    return {"parallel": heim and len(new) > STEP_A_PARALLEL_NEW and wait > STEP_A_PARALLEL_WAIT_S, "new": new,
-            "n_new": len(new), "est_wait_s": round(wait, 1), "leg": leg}
+    confirm = _confirm_leg(router, wv, wf)
+    why = ("no Heimdall family leads the filter" if not heim else
+           f"the filter's wait is not over {STEP_A_PARALLEL_WAIT_S / 60:.0f} min" if wait <= STEP_A_PARALLEL_WAIT_S
+           else "no confirm leg (Grok writes, is down or breaker-open)" if confirm is None else None)
+    return {"parallel": why is None and len(new) > STEP_A_PARALLEL_NEW, "new": new, "n_new": len(new),
+            "est_wait_s": round(wait, 1), "leg": leg, "confirm": confirm, "why": why}
 
 
 def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
@@ -652,8 +712,8 @@ def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
     (it then reuses the verdict off the first's vendor; 'a clip passes only if BOTH pass' is unchanged, and a moment
     whose first verdict came from Grok itself is screened off it as before). -> {"asked", "verdicts", "usd", "calls",
     "by": {moment id: back-end}}: the spend is reported per build (a verdict the second screen cannot use is extra)."""
-    hv = {b.vendor for b in router.backends.values() if _heimdall(b)}
-    hf = {b.family for b in router.backends.values() if _heimdall(b)}
+    hv = {b.vendor for b in router.backends.values() if b.vendor != CONFIRM_VENDOR}    # ruling 102: Grok only, never
+    hf = {b.family for b in router.backends.values() if b.vendor != CONFIRM_VENDOR}    # Gemini or the local judge
     tally = _Tally(router)
     try:
         got, _fails, _, _ = prescreen(tally, new, sources, ctx, set(wv) | hv, set(wf) | hf, n=len(new), store=None,
@@ -710,8 +770,7 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
                              cache=cache, batch=batch, deadline_s=dl,    # ruling 58: a second verdict is paid once;
                              kind="step_a_second", failover=True)        # ruling 82 / 88 (c): the chain
         except Exception as e:
-            return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
-                        for m in chunk}, set(), set()
+            return {}, {m["moment_id"]: [held_why(e)] for m in chunk}, set(), set()
     with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
         res = list(ex.map(lambda j: one(*j), jobs))          # Executor.map keeps the order of jobs: zipped below
     two, fail = {}, {}
@@ -719,8 +778,9 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
         for m in chunk:
             mid, a2 = m["moment_id"], got.get(m["moment_id"])
             b2 = router.backends.get((a2 or {}).get("backend"))
-            if fails.get(mid) or a2 is None:
-                fail[mid] = list(fails.get(mid) or ["STEP_A_UNAVAILABLE: no second verdict (law L-m)"])
+            if fails.get(mid) or a2 is None:            # ruling 102: no verdict at all is HELD, retried next build
+                fail[mid] = list(fails.get(mid) or [f"{HELD}: no second verdict (law L-m); held for this build, "
+                                                    f"retried next build"])
             elif b2 is None or b2.vendor == k[0] or (k[1] and b2.family == k[1]):
                 fail[mid] = [f"STEP_A_SAME_VENDOR: the second verdict came from {a2.get('backend')}, not off the "
                              f"first's vendor {k[0]} and family {k[1]} (law L-m)"]
@@ -2486,7 +2546,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None
     ahead = ahead_pool.submit(confirm_ahead, router, plan["new"], sources, ctx, wv, wf, log, step_a_cache) \
         if ahead_pool is not None else None              # Grok's confirm beside the Heimdall filter, at once
-    par = {**{k: plan[k] for k in ("parallel", "n_new", "est_wait_s", "leg")}, "used": 0}
+    par = {**{k: plan.get(k) for k in ("parallel", "n_new", "est_wait_s", "leg", "confirm", "why")}, "used": 0}
     try:
         a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
                                                        cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
@@ -2503,7 +2563,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
            "reposted": reposted,
            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
            "prescreen": {"screened": len(fails), "cleared": len(cleared),
-                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par},
+                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par,
+                         "held_102": {"first": sorted(mid for mid, f in fails.items() if is_held(f)), "second": []},
+                         "last_resort_87": {}},                  # RULING 102: held, never refused; the local judge
            "angles": [], "takeaways": [],
            "package": None}
     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
@@ -2599,8 +2661,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
                                     cache=step_a_cache)                  # ORDER 06:22 item 45
     out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
-                                         "FAIL: " + "; ".join(off_fail.get(mid) or ["no second verdict"])
+                                         ("HELD: " if is_held(off_fail.get(mid)) else "FAIL: ") +
+                                         "; ".join(off_fail.get(mid) or ["no second verdict"])
                                          for mid in cleared}
+    out["prescreen"]["held_102"]["second"] = sorted(mid for mid in cleared if is_held(off_fail.get(mid)))
+    out["prescreen"]["last_resort_87"] = {mid: last_resort_of(a_two[mid]) for mid in sorted(a_two)    # RULING 102
+                                          if last_resort_of(a_two[mid])}
+    h = out["prescreen"]["held_102"]
+    if h["first"] or h["second"] or out["prescreen"]["last_resort_87"]:
+        log(f"  RULING 102: held for this build (no leg answered; retried next build): {len(h['first'])} at the first "
+            f"screen, {len(h['second'])} at the second {h['second']}; the local judge (ruling 87's last resort) gave "
+            f"{len(out['prescreen']['last_resort_87'])} step-A verdict(s): {sorted(out['prescreen']['last_resort_87'])}")
     cleared = {mid: m for mid, m in cleared.items() if mid in a_two}
     log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, "
         f"a verdict off it exists) ({time.time() - t0:.0f} s)")
@@ -2688,6 +2759,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["angles"] = [{"angle": a["angle"], "moments": a["moments"], "hook": a["hook"]} for a in angles]
     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
+
+    def pin_last_resort(pk):
+        """RULING 102: the pin's record of the local judge's step-A verdicts on its clips (either screen's), by label."""
+        return last_resort_note({sg["label"]: ", ".join(last_resort_of(a_two.get(sg["moment_id"])))
+                                 for sg in pk["segments"] if last_resort_of(a_two.get(sg["moment_id"]))})
 
     def off_writers(mid):
         """ORDER 06:22 item 45: the moment's passing step-A verdict from a back-end off every writer's vendor and
@@ -2874,7 +2950,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                 shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                 stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
-                                visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]])
+                                visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+                                last_resort=pin_last_resort(pk))      # RULING 102: on the pin
         import package_pin
         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
         if problems:
@@ -3126,16 +3203,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                 a_by[mid] = got_a[mid]
                                 a_two.setdefault(mid, []).append(got_a[mid])
                             else:                              # no verdict off the writers is never a pass (L-m)
-                                bad[mid] = list(fails_a.get(mid) or ["STEP_A_UNAVAILABLE: no verdict off the writers "
-                                                                     "(law L-m)"])
+                                bad[mid] = list(fails_a.get(mid) or [f"{HELD}: no verdict off the writers (law L-m);"
+                                                                     f" held for this build, retried next build"])
                         if bad:                                # ORDER 06:22 item 44: only these clips go, for good,
                             dropped |= set(bad)                # with their reason; the next-best cuttable clip takes
                             doomed |= set(bad)                 # each place (ruling 41's swap); the clips-alone verdict
                             out["prescreen"].setdefault("rescreen_failed", {}).update(bad)     # re-judges the line-up
                             swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed),
                                                          keep_hook=True)
-                            rec["why"] = (f"step A, re-screened off the writer's vendor, fails {sorted(bad)} (out for "
-                                          f"good): " + (f"swapped {swaps}, re-judged (order 06:22 item 44)"
+                            held = sorted(k for k, v in bad.items() if is_held(v))    # ruling 102: no answer
+                            rec["why"] = (f"step A, re-screened off the writer's vendor, fails "
+                                          f"{sorted(set(bad) - set(held))} (out for good)"
+                                          + (f", gives no answer for {held} (HELD, ruling 102: out of this build "
+                                             f"only, retried next build)" if held else "") + ": " +
+                                          (f"swapped {swaps}, re-judged (order 06:22 item 44)"
                                                         if swapped is not None else
                                                         "no swap fits the line-up rules: re-lined"))
                             relined = True
@@ -3288,7 +3369,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
                                             stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
-                                            value=val)                       # ruling 91: the takeaway earned its place
+                                            value=val,                       # ruling 91: the takeaway earned its place
+                                            last_resort=pin_last_resort(pk))      # RULING 102: on the pin
                     if not ok_c:
                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
@@ -3386,7 +3468,7 @@ def _spent(spend):
 
 
 def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
-              hook=None, stand=None, visual=None, value=None):
+              hook=None, stand=None, visual=None, value=None, last_resort=None):
     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
@@ -3421,9 +3503,10 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
         "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
                               f"{FINAL_TAIL_S} s tail)"),
         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
-        "context_a": row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
-                         sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
-                         n=len(a_rows)),
+        "context_a": dict(row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
+                              sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+                              n=len(a_rows)),
+                          **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
                               measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
         "context_c": dict(row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),

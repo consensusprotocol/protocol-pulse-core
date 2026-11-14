@@ -1260,8 +1260,14 @@ class Router:
             if isinstance(b, LocalJudgeBackend) and self.state_md and not getattr(self, "_announced_local", False):
                 import heimdall_health as HH
                 self._announced_local = True                    # ruling 87: "and STATE line 1 says so"
+                try:
+                    plan_b = self.mode() == "plan_b"
+                except ProviderError:                           # an unreadable health state: the ruling-102 words
+                    plan_b = False
                 HH.announce(self.state_md, "PLAN B WITH ONE OUTSIDE FAMILY: STEP A'S VERDICT IS ASKED OF THE LOCAL "
-                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)")
+                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)" if plan_b else
+                            "RULING 102: NO FASTER LEG OF STEP A'S SECOND FAMILY ANSWERED, SO ITS VERDICT IS ASKED OF "
+                            "THE LOCAL GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE): RULING 87'S LAST RESORT")
 
             def abandon(b=b, key=key, name=name, deadline_s=dl):   # RULING 83 (a): booked at its PROMPT tokens, an
                 booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it

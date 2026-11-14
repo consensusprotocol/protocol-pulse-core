@@ -131,6 +131,32 @@ def applied(router):
     return applies
 
 
+def start_refused(spent0):
+    """RULING 48, with the orchestrator's stop of 13:02 Nov 14 (the $16 stop passed with leave; at $19 stop and tell on
+    STATE line 1 in capitals): no build starts at or over PL.LY_STOP_USD. -> the refusal line, or None."""
+    if spent0 >= PL.LY_STOP_USD:
+        return (f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+                f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator "
+                f"decides (13:02 Nov 14: SAY IT ON STATE LINE 1 IN CAPITALS)")
+    return None
+
+
+def ruling_102_line(pre, sp):
+    """RULING 102 (13:02 Nov 14): the build's line, for STATE line 1: the moments HELD for this build (no leg answered;
+    never refused, never cached, retried next build) and every step-A verdict the local judge gave (ruling 87's last
+    resort, recorded as such on the pin). -> str or "" (nothing held, no local verdict)."""
+    pre, sp = pre or {}, sp or {}
+    h = pre.get("held_102") or {}
+    first, second, spot = list(h.get("first") or []), list(h.get("second") or []), list(sp.get("held_102") or [])
+    last = sorted(set(pre.get("last_resort_87") or {}) | set(sp.get("last_resort_87") or {}))
+    if not (first or second or spot or last):
+        return ""
+    return (f"  RULING 102: HELD for this build, retried next build (no leg answered; never refused): {len(first)} at "
+            f"step A's first screen, {len(second)} at the medley's second screen {second}, {len(spot)} at the "
+            f"spotlight's {spot}; THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE {len(last)} STEP-A VERDICT(S)"
+            + (f": {last}" if last else ""))
+
+
 def ruling_101_line(par):
     """RULING 101 (12:16 Nov 14): the build's line on step A's order, with the extra spend when Grok's confirm ran in
     parallel (its verdicts the second screen could not use: the dollars sequential would have saved). -> str or ""."""
@@ -146,8 +172,8 @@ def ruling_101_line(par):
                 f"saved" + (f"; {par['error']}" if par.get("error") else ""))
     wait = par.get("est_wait_s")
     return (f"  RULING 101: step A sequential ({par.get('n_new')} new moments" +
-            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')})" if isinstance(wait, (int, float))
-             else f", not over {PK.STEP_A_PARALLEL_NEW})"))
+            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')}" if isinstance(wait, (int, float))
+             else f", not over {PK.STEP_A_PARALLEL_NEW}") + (f": {par['why']})" if par.get("why") else ")"))
 
 
 def main(argv=None):
@@ -248,9 +274,9 @@ def main(argv=None):
     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
-    if spent0 >= PL.LY_STOP_USD:
-        say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
-            f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator decides")
+    refused = start_refused(spent0)
+    if refused:
+        say(refused)
         logf.close()
         return 3
     say(f"  spend (ruling 48): ${spent0:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported before this build (no build "
@@ -387,6 +413,9 @@ def main(argv=None):
         say(f"no spotlight ({sp.get('why_none')})" + "".join(
             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))
+    line102 = ruling_102_line(res.get("prescreen"), sp)  # RULING 102: held, never refused; the local judge's verdicts
+    if line102:
+        say(line102)
     hp = res.get("hook_pool") or {}                      # RULING 76 (d): the four counts STATE line 1 carries;
     #   `moments` is the adapter's pool from LB.build_inputs, BEFORE usable() filters it (audit 1810 C3)
     res["ruling_76"] = {"inside_12h": sum(not PK.expired(m, now) for m in moments),

@@ -403,6 +403,7 @@ class TestLocalJudge(unittest.TestCase):
         open(md, "w").write("21:50 ET: line one.\n")
         r = P.Router(cfg, env_path="/nonexistent", state_md=md)
         r.backends["local_judge:gemma3:27b"] = self.b
+        r.mode = lambda: "plan_b"           # Plan B's words (ruling 102's, outside Plan B: test_ruling_102)
         seen = {}
         orig = P._within
 

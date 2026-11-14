@@ -1,0 +1,111 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence that breaks it.
+
+BACKGROUND (static):
+- STEP A (law L-s) screens each moment's own context twice. The FIRST screen (package.prescreen, kind step_a_first,
+  chain [glm, deepseek, Grok], 2 clips a call) runs on every usable moment. Later, the SECOND screen
+  (package.second_screen, kind step_a_second, 8 clips a call) runs on the moments that cleared, were cuttable and
+  passed the hook rules; it asks for a verdict OFF the first verdict's vendor and family. A clip passes only if BOTH
+  pass. Each Heimdall family is its own vendor under heimdall_first ("heimdall/deepseek", "heimdall/glm").
+- Verdicts are cached across builds in a shared step-A cache, per back-end.
+- At 12:24 and 12:40 ET two spotlight candidates with hooks rated 4 (Blockware Solutions 06d34e15, Strategy 933f9d33)
+  died at the second screen with "STEP_A_UNAVAILABLE". Their first verdict was Grok's, so Grok was excluded; glm's and
+  deepseek's breakers were open. Ruling 100 (committed e87f4c3f) gave deepseek its own 300 s deadline.
+- RULING 87 (Nov 13): Plan B (Heimdall declared down) uses outside families, with the local judge last: the
+  integrator's gemma3:27b on GPU0, reached through request files; it waits up to 40 min because a render comes first.
+  Ruling 87 also says the local judge's use is announced on STATE line 1.
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- providers.Router.call walks the chain:
+  - a breaker-open leg is skipped (providers.py:1249);
+  - DeadlineExceeded books a miss and moves on (:1287);
+  - RequestRejected moves on (:1294);
+  - Unavailable marks the leg down for the run and moves on (:1299);
+  - when every leg fails it raises ProviderError("<role>: every back-end unavailable: ...") (:1338).
+- context_integrity.step_a (context_integrity.py:321): with failover=True, an answer out of contract skips that model
+  and asks the next (:355), each model once, until the chain is spent.
+- package.prescreen (package.py:525): only a PARSED verdict is written to the cache (_cache_put(cache, new), :608). A
+  failed batch writes nothing. second_screen (:748) calls it with failover=True and kind step_a_second.
+- Router.chain (providers.py:780) uses the routing's "<role>:<kind>" list. Plan B's lists apply only while the shared
+  health says Heimdall is down.
+- Router.call announces the local judge on STATE line 1 the first time it asks it (heimdall_health.announce; once per
+  router).
+- providers.LocalJudgeBackend (providers.py:288): WAIT_S 2400 s (:305). No answer, an error or an unreadable file is
+  Unavailable. It is free.
+- google:gemini-2.5-pro uses the fenced GEMINI_API_KEY_MEDLEY. It already sits in heimdall_first's
+  coherence_verdict:clips_alone list (ruling 06:12 (1)). It was probed once at 12:5x ET (answered in 2.2 s).
+- package_pin.seal (package_pin.py:188) hashes the gates dict as it stands. gate_problems (:347) checks only each
+  required row's status and replayed. Pins already sealed carry no new key and recompute unchanged.
+
+THE ORCHESTRATOR'S RULING (13:02 ET Nov 14), verbatim:
+"102. STEP_A_UNAVAILABLE MUST NEVER END A CLIP (two hook-4 candidates, Blockware Solutions 06d34e15 and Strategy
+933f9d33, died of it twice). Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) ->
+Heimdall glm -> GEMINI through the fenced key (probe it once; it is a different family from xAI and from Heimdall's
+models, and PBX named it for exactly this) -> the local gemma3:27b on GPU0 through the integrator's judge service
+(ruling 87's last resort, recorded as such on the pin and on STATE line 1). The first of these that ANSWERS gives the
+second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if all four give no
+answer is the clip held for THIS build (not refused), and retried next build. Do this BEFORE the next build if it is
+small (the chain already exists for Plan B; this is the same chain reached without declaring Heimdall down)."
+The same message: "THE $16 STOP: PASSED WITH MY LEAVE. Build on to the $20.00 cap ... At $19 stop and tell me on line 1
+in capitals; do not start a build that would end over $20."
+
+THE CHANGE (the diff follows):
+1. model_providers.json: heimdall_first's context_verdict:step_a_second becomes [Grok, deepseek, glm,
+   google:gemini-2.5-pro, local_judge:gemma3:27b], from [Grok, glm, deepseek].
+   - Grok stays first: ruling 88 (c) has Grok confirm a Heimdall pass; for a Grok first verdict it is skipped as the
+     first's vendor.
+   - Plus the ruling's text, and notes on the two back-ends.
+2. package.held_why(e) / is_held / HELD:
+   - A step-A call that gives no verdict leaves "STEP_A_HELD (ruling 102): no step-A verdict (<error>); held for this
+     build, retried next build" on its moments. This covers prescreen's failed batch (either screen), second_screen's
+     raising chunk, its "no second verdict" default, and the writers' re-screen.
+   - The one exception is CONTEXT_TOO_LONG, a ValueError that step_a raises before any call (law L-s never truncates):
+     STEP_A_REFUSED.
+   - A verdict that FAILS the clip is unchanged (a refusal, cached as a verdict).
+   - The build records out.prescreen.held_102 {first, second}; second_vendor says "HELD: ...". The writers' re-screen
+     says the held moments are out of this build only. The spotlight stops a held moment with "HELD (ruling 102) ..."
+     and records held_102.
+3. The local judge, recorded as such:
+   - last_resort_of(verdicts) finds the back-ends named "local_judge:...".
+   - out.prescreen.last_resort_87 and the spotlight's last_resort_87 record them.
+   - On the pin: the medley's sealed context_a row and the spotlight's step_a_two_families row carry
+     "last_resort": {rule, verdicts} ONLY when the local judge gave one of the pin's step-A verdicts. Every other pin is
+     byte-identical in shape.
+   - STATE line 1: the Router's first-use announcement names ruling 102 outside Plan B (Plan B keeps its words). The
+     build prints a RULING 102 line (proof_ledger.ruling_102_line) in capitals for the local judge.
+4. Ruling 101 beside 102 (carried from audit 20261114_1246 C2, glm H1):
+   - confirm_ahead asks Grok only. Every vendor and family but xAI's is added to its writer sets, so Gemini and the
+     local judge are never asked ahead.
+   - step_a_plan is parallel only when a confirm leg is usable now (_confirm_leg: the step_a_second chain's first xAI
+     back-end off the writers, not down, not breaker-open).
+   - The plan reports why it is sequential.
+5. glm M2 (same audit): a test that a shadow86:/probe87: role takes no deadline row (no code change).
+6. The $19 stop: proof_ly.LY_STOP_USD 16.0 -> 19.0. proof_ledger.start_refused(spent0) is the start check; its line
+   says to put it on STATE line 1 in capitals. The per-call cap is unchanged.
+7. Tests: test_ruling_102.py (new, 16). It uses a real providers.Router over fake legs with the real step_a,
+   prescreen and second_screen, and covers:
+   - the chain order;
+   - unavailable, past-deadline, refused and out-of-contract legs moving on;
+   - held, never cached, and retried next build;
+   - a failing verdict still a refusal;
+   - the pin rows, the announcement, the build line and the $19 stop;
+   - Grok-only confirm-ahead;
+   - the writers' re-screen's default reason (no verdict, no reason) is HELD.
+   Other suites updated: test_medley, test_ledger_build, test_deadline_table, test_heimdall_health (its ruling-87
+   announcement test now names Plan B mode, since outside Plan B the words are ruling 102's). 31 mutations.
+
+ATTACK:
+(a) Can a moment still END (be refused, or have a failure cached) because no leg answered? Can a refusal by a real
+    verdict now be mislabelled HELD and silently retried forever?
+(b) The chain: can the second verdict come from the first verdict's own vendor or family? Is the order exactly the
+    ruling's? Can a leg be skipped that should be asked, or asked twice?
+(c) The local judge: can its verdict reach a pin without the record? Can the record change an existing pin's seal?
+    Can the build hang on it longer than ruling 87 allows?
+(d) Ruling 101 beside it: can the confirm-ahead now ask Gemini or the local judge? Can the plan go parallel with no
+    usable confirm leg?
+(e) The $19 stop and the $20 cap: can a build start at or over $19? Can one end over $20?
+(f) Anything else that could seal a wrong pin, starve a build, or spend past ruling 48's cap.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".

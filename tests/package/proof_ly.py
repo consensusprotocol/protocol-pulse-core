@@ -49,8 +49,10 @@ OUT = os.path.join(HERE, "proof")
 SPEND = os.path.join(OUT, "SPEND_LY.json")
 LY_LIMIT_USD = 20.0                # RULING 83 (b) (20:33 Nov 13): $20.00 VENDOR-REPORTED for this order (ruling 48's
 LY_LIMIT_BASIS = "reported"        # $12 before; the old $40 cap by the price-table estimate read ~12x high);
-LY_STOP_USD = 16.0                 # the estimate counts only where a vendor reports none. At $16 no build starts.
-                                   # Each paid call still RESERVES its price-table upper bound while in flight.
+LY_STOP_USD = 19.0                 # the estimate counts only where a vendor reports none. The orchestrator 13:02 Nov
+                                   # 14: the $16 stop passed with leave; at $19 no build starts and STATE line 1 says
+                                   # so in capitals; no build may end over $20 (the cap: each paid call still RESERVES
+                                   # its price-table upper bound while in flight, and none passes the limit).
 TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
 DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
 RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",

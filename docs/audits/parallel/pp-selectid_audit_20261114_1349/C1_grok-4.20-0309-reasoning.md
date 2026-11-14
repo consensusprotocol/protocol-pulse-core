@@ -1,0 +1,13 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 26 s finish=stop usage in 27862 / out 618 usd~0.155 (upper-bound price)
+
+<medium>tests/package/test_ruling_102.py:690</medium> (test_the_order_is_deepseek_glm_gemini_the_judge loops over down=(DS,), (DS,G), (DS,G,GEM) and asserts second verdict backend exactly matches the next in [DS,G,GEM,LJ]; matches ruling 102 order and "first that ANSWERS" via providers.Router.call + context_integrity.failover=True skipping Unavailable/DeadlineExceeded/RequestRejected; no sequence found that asks a leg twice or skips one that should be reached).
+
+<medium>package.py:192 (second_screen) + 275 (re-screen) + test_ruling_102.py:710</medium> (is_held + held_why on ProviderError/Unavailable/DeadlineExceeded from every leg or default "no second verdict"; sets HELD not cached, build continues with swap_lineup if possible, spotlight stops with "HELD (ruling 102)"; a real CI.a_failures verdict remains refusal and is cached; no verified sequence where no-answer produces refusal or infinite retry of a cached refusal).
+
+<medium>package.py:310 (inventory context_a dict(row(), **last_resort if any)) + 243 (pin_last_resort) + spotlight.py:347 + test_ruling_102.py:808</medium> (last_resort key added only when last_resort_of(a_two) non-empty; plain inventory() without it byte-matches old pins; seal hashes gates as-is so existing pins recompute identically; gate_problems only inspects required status/replayed per facts; no sequence where local_judge verdict reaches pin without record or changes seal of non-last-resort pin).
+
+<medium>providers.py:331 (announce conditional on mode()==plan_b else ruling-102 text) + test_heimdall_health.py:914 + proof_ledger.py:394</medium> (STATE line 1 uses exact ruling-102 capitals for local judge outside Plan B; Plan B announcement preserved; Router first-use + test with explicit mode=lambda confirms once-per-router; no hang > ruling-87 40 min verified as LocalJudgeBackend.wait_s=2400s unchanged).
+
+<medium>proof_ly.py:446 (LY_STOP_USD=19.0) + proof_ledger.py:420 (start_refused >=19.0 says "SAY IT ON STATE LINE 1 IN CAPITALS") + test_ruling_102.py:862</medium> (build refuses start at $19 with exact orchestrator text; 18.99 proceeds; per-call reserve + $20 cap facts prevent ending >$20; no verified build that starts >=19 or ends >20).
+
+No critical/high findings; all ATTACK vectors (a-f) covered by diff + tests with no breaking sequence verifiable from provided facts and unchanged code (Router.call skipping, prescreen cache only on parsed verdict, confirm_ahead Grok-only via CONFIRM_VENDOR, parallel only with usable _confirm_leg). SHIP: yes

@@ -1,0 +1,935 @@
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index ede12b2..535c340 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -168,14 +168,14 @@
+    ],
+    "min_out": 8000,
+    "timeout_s": 300,
+-   "what": "RULING 87 (21:18 Nov 13): PLAN B only. The GEMINI_API_KEY_MEDLEY key is fenced to this pipeline. Gemini reports no cost: the price-table estimate (list price, thinking counted as output) is booked, labelled."
++   "what": "RULING 87 (21:18 Nov 13): PLAN B only. The GEMINI_API_KEY_MEDLEY key is fenced to this pipeline. Gemini reports no cost: the price-table estimate (list price, thinking counted as output) is booked, labelled. RULING 102 (13:02 Nov 14): also step A's second family after Heimdall's deepseek and glm, reached without declaring Heimdall down (probed 12:5x ET Nov 14: answered in 2.2 s)."
+   },
+   "local_judge:gemma3:27b": {
+    "vendor": "local_judge",
+    "model": "gemma3:27b",
+    "family": "gemma",
+    "deadline_floor_s": 2400,
+-   "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min."
++   "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min. RULING 102 (13:02 Nov 14): also the LAST leg of step A's second family (ruling 87's last resort), reached without declaring Heimdall down; recorded as such on the pin and on STATE line 1."
+   }
+  },
+  "roles": {
+@@ -359,8 +359,10 @@
+    ],
+    "context_verdict:step_a_second": [
+     "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
+     "heimdall:z-ai/glm-5.3-flash",
+-    "heimdall:deepseek/deepseek-v4.1-flash"
++    "google:gemini-2.5-pro",
++    "local_judge:gemma3:27b"
+    ],
+    "context_verdict:step_c": [
+     "xai:grok-4.20-0309-reasoning",
+@@ -459,6 +461,7 @@
+   },
+   "ruling_88": "RULING 88 (orchestrator 22:15 Nov 13), from the replay's interim, the full table to confirm: (a) fidelity and exclusion on Heimdall now (two families, Grok last); (b) step C and the hook rating move when the full table holds the interim's 98-100 % (Grok first until then); (c) step A: Heimdall FIRST, a clip Heimdall refuses is refused and Grok is never asked, a clip Heimdall passes goes to Grok to confirm; (d) clips-alone and coherence keep Grok, glm out of both; (e) qwen never decides coherence or step C. THE FULL TABLE (01:06 ET Nov 14, 884 rows): (b) holds for the hook rating (qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %): it moved, qwen -> glm -> deepseek -> Grok; it does not hold for step C (glm 97 %, deepseek 96 %; qwen 98 % but barred by (e)): Grok first.",
+   "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement.",
+-  "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged."
++  "ruling_0612": "ORCHESTRATOR RULINGS 06:12 ET Nov 14 (the builder's two routing questions): (1) THE COHERENCE GAP: glm is coherence's LAST fallback, after Grok and after ruling 96's deepseek, which stays second (glm agreed with Grok on 94 % of the replay's coherence decisions, with one anchor failure in the whole table); an out-of-contract glm answer is no verdict (providers.call_parsed moves on, and after glm the chain is spent: fail closed). CLIPS-ALONE has NO Heimdall fallback (52-62 % on the replay): with Grok down it goes to Plan B's other outside family (Gemini's fenced key; OpenAI and Anthropic are frozen legs here; in Plan B mode the router already reads Plan B's coherence list, Grok -> Gemini -> OpenAI -> Anthropic), else it fails closed. (2) QWEN IS STRUCK FROM STEP A (mostly errors; 9 of 43 refusals let through): the first screen glm -> deepseek -> Grok, Grok's confirmation Grok -> glm -> deepseek, and the role's default list (no live caller: every step-A call names its kind) as the first screen. NOT CHANGED: the coherence role's default list (Grok -> deepseek), which the spotlight's closing-line and the medley's takeaway value verdicts use: the replay has no data for them (the orchestrator is asked, STATE 06:14, question B). Every other list is ruling 96's, unchanged.",
++  "ruling_102": "RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family, in order: Heimdall deepseek (its own deadline, ruling 100) -> Heimdall glm -> GEMINI through the fenced key -> the local gemma3:27b on GPU0 through the integrator's judge service (ruling 87's last resort, recorded as such on the pin and on STATE line 1). Grok stays first (ruling 88 (c): Grok confirms a Heimdall pass); the second verdict is still off the first verdict's vendor and family. The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once, it is never a refusal and never cached. Only if no leg answers is the clip held for THIS build (STEP_A_HELD, not refused), and retried next build."
+  }
+ }
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 7825b27..28bcc89 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -444,6 +444,39 @@ def assemble_medley(order, by_id, fields, ctx, vo_kind):
+ # ── step A once per moment (orchestrator 05:25 item 5) ──
+ 
+ STEP_A_VERSION = hashlib.sha256(CI.STEP_A.encode()).hexdigest()[:12]
++HELD = "STEP_A_HELD (ruling 102)"   # RULING 102 (13:02 Nov 14): no leg ANSWERED: held for THIS build, never refused, never
++LAST_RESORT = "local_judge:"       # cached, retried next build. The local judge's verdicts: ruling 87's last resort,
++#                                    recorded as such on the pin (last_resort_note: the medley's context_a row, the
++#                                    spotlight's step_a_two_families row) and on STATE line 1 (the build's line)
++
++
++def held_why(e):
++    """RULING 102: the reason a step-A call that gave no verdict leaves on its moments: HELD for this build, retried
++    next build (every leg unavailable, past its deadline, breaker-open, refused or out of contract; ruling 48's cap; any
++    error of the call), never a refusal. The one exception is the moment's own context: CONTEXT_TOO_LONG (law L-s never
++    truncates a window, so no retry can answer it) -> STEP_A_REFUSED."""
++    if isinstance(e, ValueError) and str(e).startswith("CONTEXT_TOO_LONG"):
++        return f"STEP_A_REFUSED: {str(e)[:200]}"
++    return f"{HELD}: no step-A verdict ({type(e).__name__}: {str(e)[:160]}); held for this build, retried next build"
++
++
++def is_held(why):
++    """RULING 102: a moment's step-A reasons say HELD (no answer), not a verdict's refusal."""
++    return bool(why) and all(str(w).startswith(HELD) for w in why)
++
++
++def last_resort_of(verdicts):
++    """RULING 102: the back-ends among `verdicts` (A items) that are the local judge's (ruling 87's last resort)."""
++    return sorted({str(a.get("backend")) for a in verdicts or () if isinstance(a, dict)
++                   and str(a.get("backend")).startswith(LAST_RESORT)})
++
++
++def last_resort_note(by):
++    """RULING 102: the pin's record of the local judge's step-A verdicts ({label or moment id: back-end}), or None."""
++    return {"rule": "ruling 87's last resort: no faster leg answered, so the local gemma3:27b on GPU0 (the "
++                    "integrator's judge service) gave this step-A verdict (the last leg of step A's second family "
++                    "under ruling 102, or of Plan B's chain under ruling 87)",
++            "verdicts": dict(sorted(by.items()))} if by else None
+ 
+ 
+ def _load_store(store):
+@@ -556,9 +589,9 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+         res = list(ex.map(lambda ic: screen(*ic), enumerate(chunks)))   # map keeps the chunks' order: zipped below
+     new = {}
+     for chunk, (got, e) in zip(chunks, res):
+-        if got is None:
++        if got is None:                                 # ruling 102: no answer is HELD, never a refusal, never cached
+             for m in chunk:
+-                fails[m["moment_id"]] = [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:160]}"]
++                fails[m["moment_id"]] = [held_why(e)]
+             continue
+         items, backend = got
+         b = router.backends.get(backend)
+@@ -618,6 +651,28 @@ def _heimdall(b):
+     return P.gateway(b) == "heimdall"
+ 
+ 
++CONFIRM_VENDOR = "xai"             # RULING 101: "Grok's confirm", the one vendor the confirm-ahead asks (ruling 102's
++#                                    Gemini and the local judge are the second screen's fallbacks, never asked ahead)
++
++
++def _usable(router, name, wv, wf):
++    """A leg a live call could take now: in the router, off the writers, not down this run, not breaker-open."""
++    b = router.backends.get(name)
++    return b is not None and b.vendor not in set(wv) and b.family not in set(wf) and \
++        name not in getattr(router, "down", {}) and not (hasattr(router, "breaker_open") and router.breaker_open(name))
++
++
++def _confirm_leg(router, wv, wf):
++    """RULING 101 (glm, audit 20261114_1246 C2 H1): the leg Grok's confirm-ahead would ask: the step_a_second chain's
++    first xAI back-end that is usable now; None when there is none (Grok writes, is down or breaker-open), and then a
++    confirm-ahead could ask nothing: the plan is sequential."""
++    for name in router.chain("context_verdict", kind="step_a_second"):
++        b = router.backends.get(name)
++        if b is not None and b.vendor == CONFIRM_VENDOR and _usable(router, name, wv, wf):
++            return name
++    return None
++
++
+ def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **first):
+     """RULING 101 (12:16 Nov 14): does step A ask the Heimdall filter and Grok's confirm IN PARALLEL? Yes when more than
+     STEP_A_PARALLEL_NEW moments are NEW to the first screen (no verdict in this build's ledger or the shared cache) AND
+@@ -625,25 +680,30 @@ def step_a_plan(router, ms, sources, ctx, wv, wf, store=None, cache=None, **firs
+     PRESCREEN_WORKERS) x the deadline of the filter's leading leg (the step_a_first chain's first back-end off the
+     writers, not down and not breaker-open, at ruling 100's deadline for it: Router.effective_deadline). The filter is
+     Heimdall's: when no Heimdall family leads (Grok leads: every family is the writer's, down or breaker-open), the first
+-    verdicts are Grok's own, which a confirm off Heimdall could never serve: sequential, whatever the wait.
+-    -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg"}."""
++    verdicts are Grok's own, which a confirm off Heimdall could never serve: sequential, whatever the wait. So it is
++    when no confirm leg is usable (_confirm_leg). -> {"parallel", "new": [moments], "n_new", "est_wait_s", "leg",
++    "confirm", "why"} (why: the reason it is sequential, None when parallel)."""
+     new = prescreen(router, ms, sources, ctx, wv, wf, store=store, cache=cache, plan_only=True,
+                     **{k: v for k, v in first.items() if k in ("batch", "kind")})
+     if len(new) <= STEP_A_PARALLEL_NEW:                  # under the line: sequential whatever the wait
+-        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None}
++        return {"parallel": False, "new": new, "n_new": len(new), "est_wait_s": None, "leg": None, "confirm": None,
++                "why": f"not over {STEP_A_PARALLEL_NEW} new moments"}
+     leg, dl, heim = None, None, False
+     for name in router.chain("context_verdict", kind="step_a_first"):
+         b = router.backends.get(name)
+-        if b is None or b.vendor in set(wv) or b.family in set(wf) or name in getattr(router, "down", {}) or \
+-                (hasattr(router, "breaker_open") and router.breaker_open(name)):
++        if not _usable(router, name, wv, wf):
+             continue
+         leg, dl, heim = name, router.effective_deadline("context_verdict", b, first.get("deadline_s")), _heimdall(b)
+         break
+     batch = first.get("batch") or PRESCREEN_BATCH
+     rounds = math.ceil(math.ceil(len(new) / batch) / PRESCREEN_WORKERS) if new else 0
+     wait = rounds * dl if dl else 0.0
+-    return {"parallel": heim and len(new) > STEP_A_PARALLEL_NEW and wait > STEP_A_PARALLEL_WAIT_S, "new": new,
+-            "n_new": len(new), "est_wait_s": round(wait, 1), "leg": leg}
++    confirm = _confirm_leg(router, wv, wf)
++    why = ("no Heimdall family leads the filter" if not heim else
++           f"the filter's wait is not over {STEP_A_PARALLEL_WAIT_S / 60:.0f} min" if wait <= STEP_A_PARALLEL_WAIT_S
++           else "no confirm leg (Grok writes, is down or breaker-open)" if confirm is None else None)
++    return {"parallel": why is None and len(new) > STEP_A_PARALLEL_NEW, "new": new, "n_new": len(new),
++            "est_wait_s": round(wait, 1), "leg": leg, "confirm": confirm, "why": why}
+ 
+ 
+ def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
+@@ -652,8 +712,8 @@ def confirm_ahead(router, new, sources, ctx, wv, wf, log=print, cache=None):
+     (it then reuses the verdict off the first's vendor; 'a clip passes only if BOTH pass' is unchanged, and a moment
+     whose first verdict came from Grok itself is screened off it as before). -> {"asked", "verdicts", "usd", "calls",
+     "by": {moment id: back-end}}: the spend is reported per build (a verdict the second screen cannot use is extra)."""
+-    hv = {b.vendor for b in router.backends.values() if _heimdall(b)}
+-    hf = {b.family for b in router.backends.values() if _heimdall(b)}
++    hv = {b.vendor for b in router.backends.values() if b.vendor != CONFIRM_VENDOR}    # ruling 102: Grok only, never
++    hf = {b.family for b in router.backends.values() if b.vendor != CONFIRM_VENDOR}    # Gemini or the local judge
+     tally = _Tally(router)
+     try:
+         got, _fails, _, _ = prescreen(tally, new, sources, ctx, set(wv) | hv, set(wf) | hf, n=len(new), store=None,
+@@ -710,8 +770,7 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+                              cache=cache, batch=batch, deadline_s=dl,    # ruling 58: a second verdict is paid once;
+                              kind="step_a_second", failover=True)        # ruling 82 / 88 (c): the chain
+         except Exception as e:
+-            return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
+-                        for m in chunk}, set(), set()
++            return {}, {m["moment_id"]: [held_why(e)] for m in chunk}, set(), set()
+     with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
+         res = list(ex.map(lambda j: one(*j), jobs))          # Executor.map keeps the order of jobs: zipped below
+     two, fail = {}, {}
+@@ -719,8 +778,9 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+         for m in chunk:
+             mid, a2 = m["moment_id"], got.get(m["moment_id"])
+             b2 = router.backends.get((a2 or {}).get("backend"))
+-            if fails.get(mid) or a2 is None:
+-                fail[mid] = list(fails.get(mid) or ["STEP_A_UNAVAILABLE: no second verdict (law L-m)"])
++            if fails.get(mid) or a2 is None:            # ruling 102: no verdict at all is HELD, retried next build
++                fail[mid] = list(fails.get(mid) or [f"{HELD}: no second verdict (law L-m); held for this build, "
++                                                    f"retried next build"])
+             elif b2 is None or b2.vendor == k[0] or (k[1] and b2.family == k[1]):
+                 fail[mid] = [f"STEP_A_SAME_VENDOR: the second verdict came from {a2.get('backend')}, not off the "
+                              f"first's vendor {k[0]} and family {k[1]} (law L-m)"]
+@@ -2486,7 +2546,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     ahead_pool = ThreadPoolExecutor(max_workers=1) if plan["parallel"] else None
+     ahead = ahead_pool.submit(confirm_ahead, router, plan["new"], sources, ctx, wv, wf, log, step_a_cache) \
+         if ahead_pool is not None else None              # Grok's confirm beside the Heimdall filter, at once
+-    par = {**{k: plan[k] for k in ("parallel", "n_new", "est_wait_s", "leg")}, "used": 0}
++    par = {**{k: plan.get(k) for k in ("parallel", "n_new", "est_wait_s", "leg", "confirm", "why")}, "used": 0}
+     try:
+         a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
+                                                        cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
+@@ -2503,7 +2563,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+            "reposted": reposted,
+            "scorer": dict(scorer["record"], admitted=admitted, trims_affirmed=sorted(trims), trims_out=trim_out),
+            "prescreen": {"screened": len(fails), "cleared": len(cleared),
+-                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par},
++                         "failed": {mid: f for mid, f in fails.items() if f}, "parallel_101": par,
++                         "held_102": {"first": sorted(mid for mid, f in fails.items() if is_held(f)), "second": []},
++                         "last_resort_87": {}},                  # RULING 102: held, never refused; the local judge
+            "angles": [], "takeaways": [],
+            "package": None}
+     log(f"  {n_usable} usable, {len(reposted)} of them the same speech re-posted by a second channel (ruling 53: "
+@@ -2599,8 +2661,17 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     a_two, off_fail = second_screen(router, cleared, a_by, sources, ctx, log=log,
+                                     cache=step_a_cache)                  # ORDER 06:22 item 45
+     out["prescreen"]["second_vendor"] = {mid: f"PASS ({a_two[mid][1].get('backend')})" if mid in a_two else
+-                                         "FAIL: " + "; ".join(off_fail.get(mid) or ["no second verdict"])
++                                         ("HELD: " if is_held(off_fail.get(mid)) else "FAIL: ") +
++                                         "; ".join(off_fail.get(mid) or ["no second verdict"])
+                                          for mid in cleared}
++    out["prescreen"]["held_102"]["second"] = sorted(mid for mid in cleared if is_held(off_fail.get(mid)))
++    out["prescreen"]["last_resort_87"] = {mid: last_resort_of(a_two[mid]) for mid in sorted(a_two)    # RULING 102
++                                          if last_resort_of(a_two[mid])}
++    h = out["prescreen"]["held_102"]
++    if h["first"] or h["second"] or out["prescreen"]["last_resort_87"]:
++        log(f"  RULING 102: held for this build (no leg answered; retried next build): {len(h['first'])} at the first "
++            f"screen, {len(h['second'])} at the second {h['second']}; the local judge (ruling 87's last resort) gave "
++            f"{len(out['prescreen']['last_resort_87'])} step-A verdict(s): {sorted(out['prescreen']['last_resort_87'])}")
+     cleared = {mid: m for mid, m in cleared.items() if mid in a_two}
+     log(f"  {len(cleared)} of them clear step A from both vendors too (order 06:22 item 45: whichever vendor writes, "
+         f"a verdict off it exists) ({time.time() - t0:.0f} s)")
+@@ -2689,6 +2760,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     out["angle_backend"], out["angle_tried"] = angle_reply.backend, [list(x) for x in angle_reply.tried]   # ruling 5
+     writers_v, writers_f = {angle_reply.vendor}, {angle_reply.family}
+ 
++    def pin_last_resort(pk):
++        """RULING 102: the pin's record of the local judge's step-A verdicts on its clips (either screen's), by label."""
++        return last_resort_note({sg["label"]: ", ".join(last_resort_of(a_two.get(sg["moment_id"])))
++                                 for sg in pk["segments"] if last_resort_of(a_two.get(sg["moment_id"]))})
++
+     def off_writers(mid):
+         """ORDER 06:22 item 45: the moment's passing step-A verdict from a back-end off every writer's vendor and
+         family so far, else None (the re-screen after a write decides, item 44). The FIRST qualifying one in a_two's
+@@ -2874,7 +2950,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                 shape=ly_shape(pk), style=HS.lint_lines(pk["lines"]),
+                                 hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                 stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+-                                visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]])
++                                visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
++                                last_resort=pin_last_resort(pk))      # RULING 102: on the pin
+         import package_pin
+         problems = package_pin.gate_problems(pk["gates"], package_pin.required_gates(pk))
+         if problems:
+@@ -3126,16 +3203,20 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                 a_by[mid] = got_a[mid]
+                                 a_two.setdefault(mid, []).append(got_a[mid])
+                             else:                              # no verdict off the writers is never a pass (L-m)
+-                                bad[mid] = list(fails_a.get(mid) or ["STEP_A_UNAVAILABLE: no verdict off the writers "
+-                                                                     "(law L-m)"])
++                                bad[mid] = list(fails_a.get(mid) or [f"{HELD}: no verdict off the writers (law L-m);"
++                                                                     f" held for this build, retried next build"])
+                         if bad:                                # ORDER 06:22 item 44: only these clips go, for good,
+                             dropped |= set(bad)                # with their reason; the next-best cuttable clip takes
+                             doomed |= set(bad)                 # each place (ruling 41's swap); the clips-alone verdict
+                             out["prescreen"].setdefault("rescreen_failed", {}).update(bad)     # re-judges the line-up
+                             swapped, swaps = swap_lineup(segs, set(bad), cleared, frozenset(dropped | doomed),
+                                                          keep_hook=True)
+-                            rec["why"] = (f"step A, re-screened off the writer's vendor, fails {sorted(bad)} (out for "
+-                                          f"good): " + (f"swapped {swaps}, re-judged (order 06:22 item 44)"
++                            held = sorted(k for k, v in bad.items() if is_held(v))    # ruling 102: no answer
++                            rec["why"] = (f"step A, re-screened off the writer's vendor, fails "
++                                          f"{sorted(set(bad) - set(held))} (out for good)"
++                                          + (f", gives no answer for {held} (HELD, ruling 102: out of this build "
++                                             f"only, retried next build)" if held else "") + ": " +
++                                          (f"swapped {swaps}, re-judged (order 06:22 item 44)"
+                                                         if swapped is not None else
+                                                         "no swap fits the line-up rules: re-lined"))
+                             relined = True
+@@ -3288,7 +3369,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                             hook=(cleared.get(pk["segments"][0]["moment_id"]) or {}).get("hook_onset"),
+                                             stand=stand_alone_check([cleared[sg["moment_id"]] for sg in pk["segments"]]),
+                                             visual=[cleared[sg["moment_id"]].get("visual") for sg in pk["segments"]],
+-                                            value=val)                       # ruling 91: the takeaway earned its place
++                                            value=val,                       # ruling 91: the takeaway earned its place
++                                            last_resort=pin_last_resort(pk))      # RULING 102: on the pin
+                     if not ok_c:
+                         tl = coh.get("through_line") if isinstance(coh.get("through_line"), str) else ""
+                         if coh.get("measured") and type(coh.get("vo_point")) is int and \
+@@ -3386,7 +3468,7 @@ def _spent(spend):
+ 
+ 
+ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medley=None, shape=None, style=None,
+-              hook=None, stand=None, visual=None, value=None):
++              hook=None, stand=None, visual=None, value=None, last_resort=None):
+     """The sealed GATE INVENTORY (audit p2 C1; package_pin.required_gates): one row per hard gate, each
+     {"status": "PASS" | "FAIL" | "NOT RUN", "by", "replayed", "n"}. Nothing measured is never a PASS (law L-m).
+     value: ruling 91's value verdict on the medley's takeaway (takeaway_value) -> the "takeaway_value" row, its "text"
+@@ -3421,9 +3503,10 @@ def inventory(fid, dup, rt_ok, r4_res, ctx_, a_by, exc, truth, coh_ok, coh, medl
+         "runtime": row(rt_ok, f"code (the factory's R4 estimate: {R4_WPS} w/s + {R4_PREROLL_S} s a VO line + "
+                               f"{FINAL_TAIL_S} s tail)"),
+         "r4": row(bool(r4_res[0]), "package.r4 (moments-first R4, orchestrator 06:00)"),
+-        "context_a": row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
+-                         sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
+-                         n=len(a_rows)),
++        "context_a": dict(row(bool(a_rows) and not any(CI.a_failures(a) for a in a_rows),
++                              sorted({str(a.get("backend")) for a in a_rows}), rep(a.get("replayed") for a in a_rows),
++                              n=len(a_rows)),
++                          **({"last_resort": last_resort} if last_resort else {})),   # RULING 102: the local judge
+         "context_b": dict(row(ctx_.get("ok") is True, (ctx_.get("backends") or {}).get("B"), ctx_.get("replayed"),
+                               measured=bool(ctx_.get("measured"))), **votes_of(ctx_)),
+         "context_c": dict(row(ctx_.get("ok") is True and not (viol & {"NOT_ENTAILED", "POLARITY", "STRONGER"}),
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 1b9a14b..336f0fe 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -1260,8 +1260,14 @@ class Router:
+             if isinstance(b, LocalJudgeBackend) and self.state_md and not getattr(self, "_announced_local", False):
+                 import heimdall_health as HH
+                 self._announced_local = True                    # ruling 87: "and STATE line 1 says so"
++                try:
++                    plan_b = self.mode() == "plan_b"
++                except ProviderError:                           # an unreadable health state: the ruling-102 words
++                    plan_b = False
+                 HH.announce(self.state_md, "PLAN B WITH ONE OUTSIDE FAMILY: STEP A'S VERDICT IS ASKED OF THE LOCAL "
+-                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)")
++                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)" if plan_b else
++                            "RULING 102: NO FASTER LEG OF STEP A'S SECOND FAMILY ANSWERED, SO ITS VERDICT IS ASKED OF "
++                            "THE LOCAL GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE): RULING 87'S LAST RESORT")
+ 
+             def abandon(b=b, key=key, name=name, deadline_s=dl):   # RULING 83 (a): booked at its PROMPT tokens, an
+                 booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 2d4ce7b..84ef788 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -735,7 +735,9 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre,
+                                        fams, None if any(not isinstance(a.get("replayed"), bool) for a in a_two or [])
+                                        else any(a.get("replayed") for a in a_two or []),
+                                        measured=len(a_two or []) == 2,
+-                                       rule="ruling 90: step A from both families as routed (package.second_screen)")
++                                       rule="ruling 90: step A from both families as routed (package.second_screen)",
++                                       **({"last_resort": P.last_resort_note({m["moment_id"]: ", ".join(
++                                           P.last_resort_of(a_two))})} if P.last_resort_of(a_two) else {}))   # 102
+     rows["spotlight_source"] = _row(src_rec["ok"], (src_rec.get("layout") or {}).get("backend"),
+                                     bool((src_rec.get("layout") or {}).get("replayed", False)),
+                                     measured=(src_rec.get("layout") or {}).get("measured") is True,
+@@ -907,8 +909,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     for mid, m in clean.items():
+         if mid in two:
+             both[mid] = m
++        elif P.is_held(off_fail.get(mid)):              # RULING 102: no leg answered: held, retried next build
++            stop(mid, "HELD (ruling 102), step A from the second family gave no answer: " + "; ".join(off_fail[mid]))
+         else:
+             stop(mid, "step A from the second family: " + "; ".join(off_fail.get(mid) or ["no verdict (law L-m)"]))
++    out["held_102"] = sorted(mid for mid in clean if P.is_held(off_fail.get(mid)))       # RULING 102
++    out["last_resort_87"] = {mid: P.last_resort_of(v) for mid, v in sorted(two.items()) if P.last_resort_of(v)}
+     passed(both, 6)
+     waited = 0.0
+     if both and scorer_verdicts_path and wait_s > 0 and \
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index b6bd9ae..d2b60dd 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -131,6 +131,32 @@ def applied(router):
+     return applies
+ 
+ 
++def start_refused(spent0):
++    """RULING 48, with the orchestrator's stop of 13:02 Nov 14 (the $16 stop passed with leave; at $19 stop and tell on
++    STATE line 1 in capitals): no build starts at or over PL.LY_STOP_USD. -> the refusal line, or None."""
++    if spent0 >= PL.LY_STOP_USD:
++        return (f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
++                f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator "
++                f"decides (13:02 Nov 14: SAY IT ON STATE LINE 1 IN CAPITALS)")
++    return None
++
++
++def ruling_102_line(pre, sp):
++    """RULING 102 (13:02 Nov 14): the build's line, for STATE line 1: the moments HELD for this build (no leg answered;
++    never refused, never cached, retried next build) and every step-A verdict the local judge gave (ruling 87's last
++    resort, recorded as such on the pin). -> str or "" (nothing held, no local verdict)."""
++    pre, sp = pre or {}, sp or {}
++    h = pre.get("held_102") or {}
++    first, second, spot = list(h.get("first") or []), list(h.get("second") or []), list(sp.get("held_102") or [])
++    last = sorted(set(pre.get("last_resort_87") or {}) | set(sp.get("last_resort_87") or {}))
++    if not (first or second or spot or last):
++        return ""
++    return (f"  RULING 102: HELD for this build, retried next build (no leg answered; never refused): {len(first)} at "
++            f"step A's first screen, {len(second)} at the medley's second screen {second}, {len(spot)} at the "
++            f"spotlight's {spot}; THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE {len(last)} STEP-A VERDICT(S)"
++            + (f": {last}" if last else ""))
++
++
+ def ruling_101_line(par):
+     """RULING 101 (12:16 Nov 14): the build's line on step A's order, with the extra spend when Grok's confirm ran in
+     parallel (its verdicts the second screen could not use: the dollars sequential would have saved). -> str or ""."""
+@@ -146,8 +172,8 @@ def ruling_101_line(par):
+                 f"saved" + (f"; {par['error']}" if par.get("error") else ""))
+     wait = par.get("est_wait_s")
+     return (f"  RULING 101: step A sequential ({par.get('n_new')} new moments" +
+-            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')})" if isinstance(wait, (int, float))
+-             else f", not over {PK.STEP_A_PARALLEL_NEW})"))
++            (f"; the filter's wait about {wait / 60:.1f} min on {par.get('leg')}" if isinstance(wait, (int, float))
++             else f", not over {PK.STEP_A_PARALLEL_NEW}") + (f": {par['why']})" if par.get("why") else ")"))
+ 
+ 
+ def main(argv=None):
+@@ -248,9 +274,9 @@ def main(argv=None):
+     say(f"  RULING 100 (deadlines follow the model, table of {(router.deadlines or {}).get('computed_at')}): "
+         f"{DT.text(router.deadlines, applies=applied(router)) or 'no row applies: each gateway keeps its number'}")
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+-    if spent0 >= PL.LY_STOP_USD:
+-        say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+-            f"vendor reports none), at or over the ${PL.LY_STOP_USD:.2f} stop: no build starts; the orchestrator decides")
++    refused = start_refused(spent0)
++    if refused:
++        say(refused)
+         logf.close()
+         return 3
+     say(f"  spend (ruling 48): ${spent0:.2f} of ${PL.LY_LIMIT_USD:.2f} vendor-reported before this build (no build "
+@@ -387,6 +413,9 @@ def main(argv=None):
+         say(f"no spotlight ({sp.get('why_none')})" + "".join(
+             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
+             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))
++    line102 = ruling_102_line(res.get("prescreen"), sp)  # RULING 102: held, never refused; the local judge's verdicts
++    if line102:
++        say(line102)
+     hp = res.get("hook_pool") or {}                      # RULING 76 (d): the four counts STATE line 1 carries;
+     #   `moments` is the adapter's pool from LB.build_inputs, BEFORE usable() filters it (audit 1810 C3)
+     res["ruling_76"] = {"inside_12h": sum(not PK.expired(m, now) for m in moments),
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index 702160b..154aa11 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -49,8 +49,10 @@ OUT = os.path.join(HERE, "proof")
+ SPEND = os.path.join(OUT, "SPEND_LY.json")
+ LY_LIMIT_USD = 20.0                # RULING 83 (b) (20:33 Nov 13): $20.00 VENDOR-REPORTED for this order (ruling 48's
+ LY_LIMIT_BASIS = "reported"        # $12 before; the old $40 cap by the price-table estimate read ~12x high);
+-LY_STOP_USD = 16.0                 # the estimate counts only where a vendor reports none. At $16 no build starts.
+-                                   # Each paid call still RESERVES its price-table upper bound while in flight.
++LY_STOP_USD = 19.0                 # the estimate counts only where a vendor reports none. The orchestrator 13:02 Nov
++                                   # 14: the $16 stop passed with leave; at $19 no build starts and STATE line 1 says
++                                   # so in capitals; no build may end over $20 (the cap: each paid call still RESERVES
++                                   # its price-table upper bound while in flight, and none passes the limit).
+ TABLE = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_LY_RERUN.md")
+ DEADLINE_LOG = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_HEIMDALL_DEADLINES.jsonl")   # item 55
+ RUNS = ("fresh_20261112_050611", "fresh_20261112_013452", "fresh_20261112_001448", "fresh_20261111_213954",
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 2f4a7a3..cc9b1e8 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -871,7 +871,8 @@ class TestRuling85NoXai(unittest.TestCase):
+         self.assertEqual(ch["fidelity_verdict"], [G, Q, X])                       # 96: glm -> qwen -> Grok
+         self.assertEqual(ch["exclusion_verdict"], [G, DS, X])                      # 96: glm -> deepseek -> Grok
+         self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, X])           # 06:12 (2): glm -> deepseek, no qwen
+-        self.assertEqual(ch["context_verdict:step_a_second"], [X, G, DS])          # (c) Grok confirms; 06:12 (2)
++        self.assertEqual(ch["context_verdict:step_a_second"], [X, DS, G, GEM, "local_judge:gemma3:27b"])   # (c) Grok
++        #   confirms; RULING 102 (13:02 Nov 14): then deepseek, glm, Gemini, the local judge (ruling 87's last resort)
+         self.assertEqual(ch["context_verdict"], [G, DS, X])                        # the role's default: no qwen either
+         self.assertNotIn(Q, [b for k, v in ch.items() if k.startswith("context_verdict:step_a") for b in v])
+         self.assertEqual(ch["coherence_verdict:hook"], [Q, G, DS, X])              # 88 (b) / 96: the hook moved
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 2943c94..9d8e2ca 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -588,7 +588,7 @@ class Rig:
+             mid = m["moment_id"]
+             v = self.router.backends[name].vendor if name else None
+             if name is None or (v, mid) in self.unavailable:
+-                fails[mid] = ["STEP_A_UNAVAILABLE: ProviderError"]
++                fails[mid] = [PK.held_why(self.P.ProviderError("context_verdict: every back-end unavailable"))]
+                 continue
+             got[mid] = dict(self.A_OK, backend=name)
+             fails[mid] = list(self.a_fail.get((v, mid), []))
+@@ -1287,7 +1287,8 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
+             cache = os.path.join(d, "c.json")
+             a_by, fails, _, _ = PK.prescreen(self.router(), ms, srcs, ctx(), {"heimdall"}, {"deepseek"}, cache=cache)
+             self.assertEqual(len(a_by), 2)                                # the other batch (2) only
+-            self.assertEqual(fails["m09"], ["STEP_A_UNAVAILABLE: RuntimeError: the batch reply was out of contract"])
++            self.assertEqual(fails["m09"], [f"{PK.HELD}: no step-A verdict (RuntimeError: the batch reply was out of "
++                                            f"contract); held for this build, retried next build"])   # ruling 102
+             with open(cache) as f:
+                 self.assertEqual(len(json.load(f)), 2)                    # a failure is never remembered
+             calls.clear()
+@@ -2513,7 +2514,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         rig = Rig(self.MS, ["h", "x", "z"], [(True, [], None, Rig.LINE)], [None],
+                   unavailable={("heimdall", "y")})
+         out = rig.run()
+-        self.assertTrue(out["prescreen"]["second_vendor"]["y"].startswith("FAIL: STEP_A_UNAVAILABLE"))
++        self.assertTrue(out["prescreen"]["second_vendor"]["y"].startswith(f"HELD: {PK.HELD}"))      # ruling 102
++        self.assertEqual(out["prescreen"]["held_102"], {"first": [], "second": ["y"]})
+         self.assertEqual(rig.medley_calls, [["h", "x", "z"]])
+ 
+     def test_the_verdict_used_is_the_one_off_the_writers_vendor(self):
+@@ -2591,8 +2593,9 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+                 self.open_ = set(open_)
+ 
+             def chain(self, role, kind=None):
+-                assert (role, kind) == ("context_verdict", "step_a_first")
+-                return ["heimdall:glm", "heimdall:ds", "xai:grok"]
++                assert role == "context_verdict"
++                return {"step_a_first": ["heimdall:glm", "heimdall:ds", "xai:grok"],
++                        "step_a_second": ["xai:grok", "heimdall:ds", "heimdall:glm"]}[kind]
+ 
+             def effective_deadline(self, role, b, deadline_s=None):
+                 assert (role, deadline_s) == ("context_verdict", PK.SECOND_VERDICT_DEADLINE_S)   # the first screen's
+@@ -2612,7 +2615,19 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         p = plan(21, R(open_={"heimdall:glm"}))           # glm's breaker open: deepseek leads, 2 x 300 s = 10 minutes
+         self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 600.0, "heimdall:ds"))   # not OVER 10
+         p = plan(37, R(open_={"heimdall:glm"}))           # 19 batches, 4 rounds x 300 s = 20 minutes
+-        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (True, 1200.0, "heimdall:ds"))
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"], p["confirm"], p["why"]),
++                         (True, 1200.0, "heimdall:ds", "xai:grok", None))
++        p = plan(37, R(open_={"heimdall:glm", "xai:grok"}))   # glm C2 H1: Grok breaker-open, no confirm leg
++        self.assertEqual((p["parallel"], p["est_wait_s"], p["confirm"]), (False, 1200.0, None))
++        self.assertIn("no confirm leg", p["why"])
++        p = plan(37, R(open_={"heimdall:glm"}), wv={"xai"})   # Grok writes: a confirm ahead could ask nothing
++        self.assertEqual((p["parallel"], p["leg"], p["confirm"]), (False, "heimdall:ds", None))
++        down = R()
++        down.down = {"heimdall:glm": "HTTP 503"}               # glm down this run: deepseek leads, as breaker-open
++        p = plan(37, down)
++        self.assertEqual((p["parallel"], p["leg"], p["confirm"]), (True, "heimdall:ds", "xai:grok"))
++        down.down = {"heimdall:glm": "HTTP 503", "xai:grok": "HTTP 503"}   # Grok down: no confirm leg
++        self.assertEqual(plan(37, down)["confirm"], None)
+         p = plan(37, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # the writer's family: Grok leads,
+         self.assertEqual((p["parallel"], p["est_wait_s"], p["leg"]), (False, 472.4, "xai:grok"))   # 4 x 118.1 s
+         p = plan(80, R(open_={"heimdall:glm"}), wv={"heimdall/deepseek"})   # 40 batches, 7 rounds: over 10 minutes
+@@ -2677,8 +2692,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         self.assertEqual((par["parallel"], par["n_new"], par["asked"], par["leg"]),
+                          (True, len(self.MS), len(self.MS), "heimdall:glm"))
+         main = threading.get_ident()
+-        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall", "heimdall/glm"}]   # off every
+-        # Heimdall family and the writers
++        ahead = [t for k, wv, t in seen if k == "step_a_second" and wv == {"heimdall", "heimdall/glm", "openai"}]
++        # off every vendor but Grok's (ruling 102: never Gemini or the local judge ahead) and off the writers
+         self.assertEqual(len(ahead), 1)                                   # Grok's confirm: once,
+         self.assertNotEqual(ahead[0], main)                               # on its own thread,
+         self.assertIn(("step_a_first", {"heimdall"}, main), seen)         # beside the filter on the build's thread
+@@ -2729,7 +2744,8 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+                   [None, None], angle_from=("xai:grok", "xai", "grok"), unavailable={("openai", "y")})
+         out = rig.run()
+         self.assertEqual(list(out["prescreen"]["rescreen_failed"]), ["y"])
+-        self.assertTrue(out["prescreen"]["rescreen_failed"]["y"][0].startswith("STEP_A_UNAVAILABLE"))
++        self.assertTrue(out["prescreen"]["rescreen_failed"]["y"][0].startswith(PK.HELD))           # ruling 102
++        self.assertIn("gives no answer for ['y'] (HELD, ruling 102", out["tried"][0]["why"])
+         self.assertEqual([s["moment_id"] for s in out["package"]["segments"]], ["h", "x", "z"])
+ 
+     def test_when_no_swap_fits_the_line_up_re_lines_and_the_clip_stays_out(self):     # audit 0640 C1, glm P2-9
+@@ -2756,7 +2772,7 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+             PK.prescreen = saved
+         self.assertEqual(two, {})
+         self.assertEqual(sorted(fail), ["h", "x", "y", "z"])
+-        self.assertTrue(all(f[0].startswith("STEP_A_UNAVAILABLE: RuntimeError") for f in fail.values()))
++        self.assertTrue(all(f[0].startswith(f"{PK.HELD}: no step-A verdict (RuntimeError") for f in fail.values()))
+ 
+     def test_second_screen_fails_closed_on_an_unknown_back_end_or_the_same_vendor(self):
+         B = lambda v, f: type("B", (), {"vendor": v, "family": f})()
+diff --git a/tests/package/test_ruling_102.py b/tests/package/test_ruling_102.py
+new file mode 100644
+index 0000000..fd2aab7
+--- /dev/null
++++ b/tests/package/test_ruling_102.py
+@@ -0,0 +1,338 @@
++#!/usr/bin/env python3
++"""RULING 102 (orchestrator 13:02 ET Nov 14): STEP_A_UNAVAILABLE MUST NEVER END A CLIP. Step A's second family after
++Grok: Heimdall deepseek -> Heimdall glm -> Gemini -> the local gemma3:27b (ruling 87's last resort, recorded as such on
++the pin and on STATE line 1). The first leg that ANSWERS gives the second verdict; an unavailable leg moves on at once,
++is never a refusal and is never cached; only when no leg answers is the clip HELD for this build, retried next build.
++
++Offline: a real providers.Router over fake legs, the real context_integrity.step_a, package.prescreen and
++package.second_screen; a temporary step-A cache."""
++import json
++import os
++import re
++import sys
++import tempfile
++import unittest
++from unittest import mock
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package", "tests/providers", "tests/eligibility"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import package as PK  # noqa: E402
++import providers as P  # noqa: E402
++import proof_ledger as PLG  # noqa: E402
++import spotlight as SPOT  # noqa: E402
++import test_angles as TA  # noqa: E402
++import test_medley as TM  # noqa: E402
++import test_spotlight as TS  # noqa: E402
++from test_gates import a_item  # noqa: E402
++
++X, DS, G = "xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash", "heimdall:z-ai/glm-5.3-flash"
++GEM, LJ = "google:gemini-2.5-pro", "local_judge:gemma3:27b"
++LEGS = (X, DS, G, GEM, LJ)
++VENDOR = {X: ("xai", "grok", None), DS: ("heimdall/deepseek", "deepseek", "heimdall"),
++          G: ("heimdall/glm", "glm", "heimdall"), GEM: ("google", "gemini", None), LJ: ("local_judge", "gemma", None)}
++
++
++def answer(prompt):
++    """A step-A reply in contract for exactly the excerpts the prompt carries (each passes: test_gates.a_item)."""
++    return json.dumps({"excerpts": [a_item(lb) for lb in re.findall(r'<excerpt label="([^"]+)"', prompt)]})
++
++
++class Leg(P.Backend):
++    """One leg of the chain: answers in contract, or fails with `fail` (an exception), or answers out of contract."""
++
++    def __init__(self, name, fail=None, out_of_contract=False):
++        vendor, family, gw = VENDOR[name]
++        super().__init__(name, {"model": name.split(":", 1)[1], "family": family, "price_usd_per_1m": [1, 1]},
++                         "/nonexistent")
++        self.vendor, self.fail, self.ooc, self.calls = vendor, fail, out_of_contract, 0
++        if gw:
++            self.gateway = gw
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        self.calls += 1
++        if self.fail is not None:
++            raise self.fail
++        return ("this is not JSON" if self.ooc else answer(prompt)), {"in": 10, "out": 10}, 0.01
++
++
++class Judge(P.LocalJudgeBackend):
++    """The local judge (a LocalJudgeBackend: the Router's announcement), answering at once."""
++
++    def __init__(self):
++        super().__init__(LJ, {"model": "gemma3:27b", "family": "gemma"}, "/nonexistent")
++        self.calls = 0
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        self.calls += 1
++        return answer(prompt), {"in": 0, "out": 0}, 0.01
++
++
++def router(d, legs, **kw):
++    cfg = os.path.join(d, "cfg.json")
++    with open(cfg, "w") as f:
++        json.dump({"schema": "pp.providers/1",
++                   "backends": {b.name: {"vendor": "openai", "model": b.model} for b in legs},
++                   "roles": {"context_verdict": {"chain": [b.name for b in legs]}},
++                   "routing": {"mode": "heimdall_first", "verdict_roles": ["context_verdict"],
++                               "verdict_deadline_s": {"heimdall": 120},
++                               "heimdall_first": {"context_verdict:step_a_second": list(LEGS)}}}, f)
++    r = P.Router(cfg, env_path="/nonexistent", routing="heimdall_first", **kw)
++    r.backends = {b.name: b for b in legs}
++    return r
++
++
++def pool(n=2):
++    return TM.TestRuling58StepAEveryCandidate.pool(None, n)
++
++
++class TestTheSecondFamily(unittest.TestCase):
++    """package.second_screen on the moments whose FIRST verdict is Grok's (the two hook-4 candidates' case)."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.addCleanup(self.d.cleanup)
++        self.cache = os.path.join(self.d.name, "STEP_A_CACHE.json")
++        self.ms, self.srcs = pool(2)
++        self.cleared = {m["moment_id"]: m for m in self.ms}
++
++    def screen(self, legs, first=X):
++        r = router(self.d.name, legs)
++        a_by = {mid: dict(a_item(mid), backend=first) for mid in self.cleared}
++        return PK.second_screen(r, self.cleared, a_by, self.srcs, TM.ctx(), log=lambda *_: None, cache=self.cache)
++
++    def cached(self):
++        if not os.path.exists(self.cache):
++            return {}
++        with open(self.cache) as f:
++            return {k: sorted(v) for k, v in json.load(f).items()}
++
++    def test_every_faster_leg_unavailable_the_local_judge_answers_and_is_the_last_resort(self):
++        legs = [Leg(X), Leg(DS, P.Unavailable("HTTP 503")), Leg(G, P.Unavailable("HTTP 503")),
++                Leg(GEM, P.Unavailable("HTTP 429")), Leg(LJ)]
++        two, fail = self.screen(legs)
++        self.assertEqual(fail, {})
++        self.assertEqual({mid: [a["backend"] for a in v] for mid, v in two.items()},
++                         {mid: [X, LJ] for mid in self.cleared})                 # off Grok: the last leg answered
++        self.assertEqual([b.calls for b in legs], [0, 1, 1, 1, 1])               # in order, each once, never Grok
++        self.assertEqual({mid: PK.last_resort_of(v) for mid, v in two.items()}, {mid: [LJ] for mid in self.cleared})
++
++    def test_the_order_is_deepseek_glm_gemini_the_judge(self):
++        for down, want in (((), DS), ((DS,), G), ((DS, G), GEM), ((DS, G, GEM), LJ)):
++            legs = [Leg(n, P.Unavailable("down") if n in down else None) for n in LEGS]
++            two, fail = self.screen(legs)
++            self.assertEqual({v[1]["backend"] for v in two.values()}, {want}, down)
++            os.path.exists(self.cache) and os.remove(self.cache)
++        legs = [Leg(n) for n in LEGS]                         # a first verdict from glm: Grok confirms, as before
++        two, _ = self.screen(legs, first=G)
++        self.assertEqual({v[1]["backend"] for v in two.values()}, {X})
++
++    def test_a_leg_out_of_contract_or_past_its_deadline_moves_on_at_once_and_is_never_a_refusal(self):
++        legs = [Leg(X), Leg(DS, out_of_contract=True), Leg(G, P.DeadlineExceeded("no answer within 60 s")),
++                Leg(GEM, P.RequestRejected("refused this request")), Leg(LJ)]
++        two, fail = self.screen(legs)
++        self.assertEqual((fail, {v[1]["backend"] for v in two.values()}), ({}, {LJ}))
++        self.assertEqual([b.calls for b in legs], [0, 1, 1, 1, 1])
++
++    def test_no_leg_answers_the_clip_is_held_never_cached_and_retried_next_build(self):
++        legs = [Leg(X)] + [Leg(n, P.Unavailable("down")) for n in (DS, G, GEM, LJ)]
++        two, fail = self.screen(legs)
++        self.assertEqual(two, {})
++        self.assertEqual(sorted(fail), sorted(self.cleared))
++        self.assertTrue(all(PK.is_held(f) for f in fail.values()), fail)          # HELD, not a refusal
++        self.assertTrue(all("retried next build" in f[0] for f in fail.values()))
++        self.assertEqual(self.cached(), {})                                        # nothing remembered
++        legs = [Leg(X), Leg(DS, P.Unavailable("down")), Leg(G), Leg(GEM), Leg(LJ)]   # the next build: glm is back
++        two, fail = self.screen(legs)
++        self.assertEqual((fail, {v[1]["backend"] for v in two.values()}), ({}, {G}))   # retried and answered
++        self.assertEqual(set(sum(self.cached().values(), [])), {G})                # only an answer is cached
++
++    def test_a_verdict_that_fails_the_clip_is_a_refusal_not_held(self):
++        legs = [Leg(n) for n in LEGS]
++        with mock.patch.object(PK.CI, "a_failures", lambda a: ["REFERENT_OUTSIDE"]):
++            two, fail = self.screen(legs)
++        self.assertEqual(two, {})
++        self.assertFalse(any(PK.is_held(f) for f in fail.values()))
++        self.assertEqual(set(map(tuple, fail.values())), {("REFERENT_OUTSIDE",)})
++
++
++class TestInTheBuild(unittest.TestCase):
++    """package.build (the rig: every model stubbed): HELD moments are recorded per screen, and a pin whose clips were
++    judged by the local judge carries the record (ruling 87's last resort) in its sealed context_a row."""
++    MS = TM.TestBuildLoop.MS
++
++    def test_a_moment_held_at_the_first_screen_is_recorded_as_held(self):
++        rig = TM.Rig(self.MS, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)], [None], unavailable={("xai", "z")})
++        out = rig.run()
++        self.assertEqual(out["prescreen"]["held_102"], {"first": ["z"], "second": []})
++        self.assertTrue(PK.is_held(out["prescreen"]["failed"]["z"]))
++        self.assertIsNotNone(out["package"])                      # the build goes on without it
++
++    def test_a_pin_judged_by_the_local_judge_says_so(self):
++        rig = TM.Rig(self.MS, ["h", "x", "y"], [(True, [], None, TM.Rig.LINE)], [None])
++        rig.router.backends[LJ] = type("B", (), {"vendor": "local_judge", "family": "gemma"})()
++        pre = rig.prescreen
++
++        def judged(router_, ms, *a, kind=None, **k):          # the second family: only the local judge answers
++            if k.get("plan_only"):                              # ruling 101's plan: nothing asked
++                return pre(router_, ms, *a, kind=kind, **k)
++            got, fails, v, f = pre(router_, ms, *a, kind=kind, **k)
++            if kind == "step_a_second":
++                got = {mid: dict(a, backend=LJ) for mid, a in got.items()}
++            return got, fails, v, f
++        rig.prescreen = judged
++        out = rig.run()
++        segs = out["package"]["segments"]
++        self.assertEqual(out["prescreen"]["last_resort_87"], {mid: [LJ] for mid in sorted(out["prescreen"]
++                                                                                         ["last_resort_87"])})
++        self.assertTrue({sg["moment_id"] for sg in segs} <= set(out["prescreen"]["last_resort_87"]))
++        row = out["package"]["gates"]["context_a"]
++        self.assertEqual(row["last_resort"]["verdicts"], {sg["label"]: LJ for sg in segs})
++        self.assertEqual(row["status"], "PASS")
++
++    def test_a_re_screen_off_the_writers_with_no_verdict_and_no_reason_is_held(self):
++        """The writers' re-screen (order 06:22 item 44): a clip it returns nothing at all for is HELD (its default
++        reason), out of this build only, never a refusal."""
++        rig = TM.Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, TM.Rig.LINE), (True, [], None, TM.Rig.LINE)],
++                     [None, None], angle_from=("xai:grok", "xai", "grok"))
++        pre = rig.prescreen
++
++        def silent(router_, ms, sources_, ctx_, writer_vendor, *a, **k):
++            res = pre(router_, ms, sources_, ctx_, writer_vendor, *a, **k)
++            if k.get("plan_only") or not {"xai", "heimdall"} <= P._as_set(writer_vendor):
++                return res
++            got, fails, v, f = res                              # the writers' re-screen: y gets nothing at all
++            return {m: x for m, x in got.items() if m != "y"}, {m: x for m, x in fails.items() if m != "y"}, v, f
++        rig.prescreen = silent
++        out = rig.run()
++        self.assertEqual(list(out["prescreen"]["rescreen_failed"]), ["y"])
++        self.assertTrue(PK.is_held(out["prescreen"]["rescreen_failed"]["y"]))
++        self.assertIn("no verdict off the writers", out["prescreen"]["rescreen_failed"]["y"][0])
++
++    def test_the_default_no_second_verdict_is_held(self):
++        ms, srcs = pool(1)
++        mid = ms[0]["moment_id"]
++        r = type("R", (), {"backends": {X: Leg(X), DS: Leg(DS)}, "routing": "heimdall_first"})()
++        with mock.patch.object(PK, "prescreen", lambda *a, **k: ({}, {}, set(), set())):   # no verdict, no reason
++            two, fail = PK.second_screen(r, {mid: ms[0]}, {mid: dict(a_item(mid), backend=X)}, srcs, TM.ctx(),
++                                         log=lambda *_: None)
++        self.assertEqual(two, {})
++        self.assertTrue(PK.is_held(fail[mid]), fail)
++
++
++class TestHeldWhy(unittest.TestCase):
++    def test_no_verdict_is_held_except_a_context_law_l_s_will_never_shorten(self):
++        for e in (P.ProviderError("context_verdict: every back-end unavailable"), P.SpendLimit("over $20"),
++                  RuntimeError("anything")):
++            why = PK.held_why(e)
++            self.assertTrue(PK.is_held([why]), e)
++            self.assertIn(type(e).__name__, why)
++        why = PK.held_why(ValueError("CONTEXT_TOO_LONG: m1's window is 9000 characters (> 6000); never truncated"))
++        self.assertTrue(why.startswith("STEP_A_REFUSED: CONTEXT_TOO_LONG"))
++        self.assertFalse(PK.is_held([why]))
++        self.assertFalse(PK.is_held([]))
++        self.assertFalse(PK.is_held([PK.held_why(RuntimeError("x")), "REFERENT_OUTSIDE"]))   # one refusal: refused
++
++
++class TestOnThePinAndOnState(unittest.TestCase):
++    def test_the_medley_pin_records_the_local_judge_and_a_pin_without_it_is_unchanged(self):
++        base = TA.TestInventory.base(None)
++        plain = PK.inventory(**base)
++        self.assertNotIn("last_resort", plain["context_a"])                          # every other pin as before
++        g = PK.inventory(**base, last_resort=PK.last_resort_note({"clip_01": LJ}))
++        self.assertEqual(g["context_a"]["last_resort"]["verdicts"], {"clip_01": LJ})
++        rule = g["context_a"]["last_resort"]["rule"]
++        self.assertTrue(rule.startswith("ruling 87's last resort") and "under ruling 102" in rule, rule)
++        self.assertEqual({k: v for k, v in g["context_a"].items() if k != "last_resort"}, plain["context_a"])
++
++    def test_the_spotlight_pin_records_the_local_judge(self):
++        m = TS.moment()
++
++        def row(a_two):
++            return SPOT.inventory(*TS.package()[0:1], m, TS.FID_OK, [], True, [], TS.CX_OK, a_two[0], a_two,
++                                  {"verdict": "keep", "measured": True, "replayed": False},
++                                  {"ok": True, "edges": {"cuttable": True}}, TS.pre_of(m), m["spotlight_source"],
++                                  {"now": TS.NOW, "day": "d", "never_delivered": True,
++                                   "one_per_channel_day": True})["step_a_two_families"]
++        self.assertNotIn("last_resort", row(TS.two()))
++        judged = [TS.two()[0], dict(TS.two()[1], backend=LJ)]
++        r = row(judged)
++        self.assertEqual((r["status"], r["last_resort"]["verdicts"]), ("PASS", {m["moment_id"]: LJ}))
++
++    def test_state_line_1_is_told_once_in_the_ruling_s_words_and_plan_b_keeps_its_own(self):
++        for plan_b, words in ((False, "RULING 102: NO FASTER LEG OF STEP A'S SECOND FAMILY ANSWERED"),
++                              (True, "PLAN B WITH ONE OUTSIDE FAMILY")):
++            with tempfile.TemporaryDirectory() as d:
++                state = os.path.join(d, "STATE.md")
++                with open(state, "w") as f:
++                    f.write("line one\nline two\n")
++                judge = Judge()
++                r = router(d, [Leg(X), Leg(DS, P.Unavailable("down")), Leg(G, P.Unavailable("down")),
++                               Leg(GEM, P.Unavailable("down")), judge], state_md=state)
++                r.mode = lambda: "plan_b" if plan_b else "heimdall_first"
++                ms, srcs = pool(2)
++                a_by = {m["moment_id"]: dict(a_item(m["moment_id"]), backend=X) for m in ms}
++                for _ in range(2):                                           # two screens: one announcement
++                    PK.second_screen(r, {m["moment_id"]: m for m in ms}, a_by, srcs, TM.ctx(), log=lambda *_: None,
++                                     cache=None)
++                with open(state) as f:
++                    first = f.read().split("\n")[0]
++                self.assertEqual(first.count(words), 1, first)
++                self.assertTrue(first.endswith("| line one"), first)
++                self.assertEqual(judge.calls, 2)
++
++    def test_the_build_line(self):
++        self.assertEqual(PLG.ruling_102_line({"held_102": {"first": [], "second": []}, "last_resort_87": {}}, {}), "")
++        line = PLG.ruling_102_line({"held_102": {"first": ["a"], "second": ["b"]}, "last_resort_87": {"c": [LJ]}},
++                                   {"held_102": ["d"], "last_resort_87": {"e": [LJ]}})
++        self.assertIn("HELD for this build, retried next build", line)
++        self.assertIn("1 at step A's first screen, 1 at the medley's second screen ['b'], 1 at the spotlight's ['d']",
++                      line)
++        self.assertIn("THE LOCAL JUDGE (RULING 87'S LAST RESORT) GAVE 2 STEP-A VERDICT(S): ['c', 'e']", line)
++
++    def test_no_build_starts_at_19_dollars_and_one_starts_below(self):
++        """The orchestrator 13:02 Nov 14: the $16 stop passed with leave; at $19 stop and say so in capitals."""
++        self.assertIsNone(PLG.start_refused(18.99))
++        why = PLG.start_refused(19.0)
++        self.assertIn("at or over the $19.00 stop: no build starts", why)
++        self.assertIn("SAY IT ON STATE LINE 1 IN CAPITALS", why)
++
++
++class TestTheConfirmAheadIsGrokOnly(unittest.TestCase):
++    """RULING 101 beside 102: Grok's confirm-ahead never asks Gemini or the local judge (the second family's
++    fallbacks are the second screen's, asked only when it needs them)."""
++
++    def test_through_the_real_chain_grok_answers_ahead_and_no_fallback_is_ever_asked(self):
++        """qwen, audit 20261114_1349 C1: the confirm-ahead must GET Grok's verdict, not only avoid the rest. A real
++        Router over the five legs, the real prescreen and step_a: every new moment gets Grok's verdict; with Grok down,
++        none, and no other leg (deepseek, glm, Gemini, the judge) is ever asked."""
++        ms, srcs = pool(3)
++        for grok_down in (False, True):
++            with tempfile.TemporaryDirectory() as d:
++                legs = [Leg(X, P.Unavailable("down") if grok_down else None)] + [Leg(n) for n in LEGS[1:]]
++                r = router(d, legs)
++                res = PK.confirm_ahead(r, ms, srcs, TM.ctx(), {"heimdall/deepseek"}, {"deepseek"}, log=lambda *_: None,
++                                       cache=os.path.join(d, "c.json"))
++                self.assertEqual(res["asked"], 3)
++                self.assertEqual(res.get("by", {}), {} if grok_down else {m["moment_id"]: X for m in ms})
++                self.assertEqual([b.calls for b in legs[1:]], [0, 0, 0, 0])      # never a fallback ahead
++                self.assertEqual(legs[0].calls, 1)                               # one batch of 3
++
++    def test_every_vendor_but_grok_s_is_avoided_ahead(self):
++        legs = {n: Leg(n) for n in LEGS}
++        got = {}
++
++        def fake(router_, new, sources, ctx_, wv, wf, n=None, kind=None, cache=None, **k):
++            got.update(wv=set(wv), wf=set(wf), kind=kind)
++            return {}, {}, set(), set()
++        r = type("R", (), {"backends": legs})()
++        with mock.patch.object(PK, "prescreen", fake):
++            PK.confirm_ahead(r, [{"moment_id": "a"}], {}, None, {"heimdall/deepseek"}, {"deepseek"})
++        self.assertEqual(got["wv"], {"heimdall/deepseek", "heimdall/glm", "google", "local_judge"})
++        self.assertEqual(got["wf"], {"deepseek", "glm", "gemini", "gemma"})
++        self.assertEqual(got["kind"], "step_a_second")
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/providers/test_deadline_table.py b/tests/providers/test_deadline_table.py
+index ac2cb87..e1e770a 100644
+--- a/tests/providers/test_deadline_table.py
++++ b/tests/providers/test_deadline_table.py
+@@ -140,6 +140,11 @@ class TestRouter(unittest.TestCase):
+         self.assertEqual(self.router(None).effective_deadline("context_verdict", r.backends[DS]), 120.0)   # no table
+         self.assertEqual(r.role_deadline("context_verdict", r.backends[DS]), 120.0)   # the gateway's number, as before
+         self.assertIsNone(r.role_deadline("context_verdict", r.backends[GROK]))
++        table = {"rows": dict(self.TABLE["rows"], **{f"{DS}|shadow86:context_verdict": {"deadline_s": 300.0},
++                                                    f"{DS}|probe87:{DS}": {"deadline_s": 300.0}})}
++        r = self.router(table)                       # glm, audit 20261114_1246 C2 M2: a shadow or a probe is no verdict
++        self.assertEqual(r.effective_deadline("shadow86:context_verdict", r.backends[DS], 120.0), 120.0)
++        self.assertEqual(r.effective_deadline(f"probe87:{DS}", r.backends[DS], 60.0), 60.0)
+ 
+     def test_a_live_call_waits_its_own_deadline_and_the_breaker_measures_against_it(self):
+         """Router.call itself: the deadline the call is held to (and the breaker's miss is measured against: ruling 99)
+diff --git a/tests/providers/test_heimdall_health.py b/tests/providers/test_heimdall_health.py
+index 139c4b1..fb1d0f4 100644
+--- a/tests/providers/test_heimdall_health.py
++++ b/tests/providers/test_heimdall_health.py
+@@ -403,6 +403,7 @@ class TestLocalJudge(unittest.TestCase):
+         open(md, "w").write("21:50 ET: line one.\n")
+         r = P.Router(cfg, env_path="/nonexistent", state_md=md)
+         r.backends["local_judge:gemma3:27b"] = self.b
++        r.mode = lambda: "plan_b"           # Plan B's words (ruling 102's, outside Plan B: test_ruling_102)
+         seen = {}
+         orig = P._within
+ 

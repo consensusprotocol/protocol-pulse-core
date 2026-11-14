@@ -735,7 +735,9 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
                                        fams, None if any(not isinstance(a.get("replayed"), bool) for a in a_two or [])
                                        else any(a.get("replayed") for a in a_two or []),
                                        measured=len(a_two or []) == 2,
-                                       rule="ruling 90: step A from both families as routed (package.second_screen)")
+                                       rule="ruling 90: step A from both families as routed (package.second_screen)",
+                                       **({"last_resort": P.last_resort_note({m["moment_id"]: ", ".join(
+                                           P.last_resort_of(a_two))})} if P.last_resort_of(a_two) else {}))   # 102
     rows["spotlight_source"] = _row(src_rec["ok"], (src_rec.get("layout") or {}).get("backend"),
                                     bool((src_rec.get("layout") or {}).get("replayed", False)),
                                     measured=(src_rec.get("layout") or {}).get("measured") is True,
@@ -907,8 +909,12 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     for mid, m in clean.items():
         if mid in two:
             both[mid] = m
+        elif P.is_held(off_fail.get(mid)):              # RULING 102: no leg answered: held, retried next build
+            stop(mid, "HELD (ruling 102), step A from the second family gave no answer: " + "; ".join(off_fail[mid]))
         else:
             stop(mid, "step A from the second family: " + "; ".join(off_fail.get(mid) or ["no verdict (law L-m)"]))
+    out["held_102"] = sorted(mid for mid in clean if P.is_held(off_fail.get(mid)))       # RULING 102
+    out["last_resort_87"] = {mid: P.last_resort_of(v) for mid, v in sorted(two.items()) if P.last_resort_of(v)}
     passed(both, 6)
     waited = 0.0
     if both and scorer_verdicts_path and wait_s > 0 and \

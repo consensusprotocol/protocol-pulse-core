@@ -140,6 +140,11 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(self.router(None).effective_deadline("context_verdict", r.backends[DS]), 120.0)   # no table
         self.assertEqual(r.role_deadline("context_verdict", r.backends[DS]), 120.0)   # the gateway's number, as before
         self.assertIsNone(r.role_deadline("context_verdict", r.backends[GROK]))
+        table = {"rows": dict(self.TABLE["rows"], **{f"{DS}|shadow86:context_verdict": {"deadline_s": 300.0},
+                                                    f"{DS}|probe87:{DS}": {"deadline_s": 300.0}})}
+        r = self.router(table)                       # glm, audit 20261114_1246 C2 M2: a shadow or a probe is no verdict
+        self.assertEqual(r.effective_deadline("shadow86:context_verdict", r.backends[DS], 120.0), 120.0)
+        self.assertEqual(r.effective_deadline(f"probe87:{DS}", r.backends[DS], 60.0), 60.0)
 
     def test_a_live_call_waits_its_own_deadline_and_the_breaker_measures_against_it(self):
         """Router.call itself: the deadline the call is held to (and the breaker's miss is measured against: ruling 99)
