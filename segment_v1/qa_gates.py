@@ -41,6 +41,20 @@ G3C_VALLEY_DEPTH_DB = {"16x9": 11.63, "9x16": 11.65}    # was 12.0: strictest de
 G5_TRUE_PEAK_MAX_DBFS = {"16x9": -2.0, "9x16": -1.3}    # 9x16 was -2.0: v2f segment_vertical.mp4 true peak -1.3 dBFS (16x9 -2.2 passed)
 G5_DURATION_ACCEPT_S = (58.0, 72.0)   # ruling 12 ('09:32'): the measured final's accepted runtime, both aspects
 G5_DURATION_TARGET_S = (60.0, 70.0)   # law L-o: PBX's format target; outside it = a recorded deviation
+G5_SPOTLIGHT_S = (28.0, 50.0)         # law L-ab (ruling 90): a spotlight's format, accepted = target, both aspects
+
+
+def g5_window(edl_path):
+    """(accepted, target) runtime for G5: a spotlight EDL (law L-ab: package_type 'moments', package_shape
+    'spotlight') is 28-50 s; every other EDL, or none, keeps ruling 12's 58-72 s accepted / 60-70 s target."""
+    try:
+        with open(edl_path) as f:
+            edl = json.load(f)
+    except (TypeError, OSError, ValueError):
+        return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
+    if isinstance(edl, dict) and edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight":
+        return G5_SPOTLIGHT_S, G5_SPOTLIGHT_S
+    return G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S
 G8_SHARPNESS_FLOOR = {"16x9": 27.56, "9x16": 10.84}     # was 60: v2f worst segment medians (16x9 hook 27.56, 9x16 clip_03 10.84)
 G9_V2F_LUMA = {"16x9": 14.3357, "9x16": 14.7715}       # DEC-1: v2f's own tail luma (the locked outro ends on black)
 G9_REENCODE_SPREAD = {"16x9": 0.05, "9x16": 0.04}      # DEC-12a: MEASURED spread (the outro's encode depends on its GOP
@@ -677,8 +691,9 @@ def gate_g4(final_mp4, segments, fmt, shoutout_start, qa_dir, source_clips=None)
 # G5: DURATION / LOUDNESS
 # ==============================================================
 
-def gate_g5(final_mp4, fmt):
-    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, duration 58-72 s (ruling 12; target 60-70 s)."""
+def gate_g5(final_mp4, fmt, window=None):
+    """Dims, SAR 1:1, fps 24, ebur128 I=-14+/-1, TP<=-2.0, duration 58-72 s (ruling 12; target 60-70 s); window:
+    (accepted, target), g5_window's (a spotlight: 28-50 s, law L-ab)."""
     print("\n=== G5: DURATION / LOUDNESS ===")
 
     probe = ffprobe_json(final_mp4)
@@ -723,11 +738,10 @@ def gate_g5(final_mp4, fmt):
     # Duration, both aspects (ruling 12, orchestrator 2026-11-12 '09:32'; was 60-120 s, R2-14): 60-70 s is PBX's
     # FORMAT TARGET (law L-o); the measured final is ACCEPTED from 58.0 to 72.0 s, a value outside 60-70 s recorded
     # as a deviation (named in the caption); outside 58-72 s it fails
-    dur_min, dur_max = G5_DURATION_ACCEPT_S
+    (dur_min, dur_max), (lo, hi) = window or (G5_DURATION_ACCEPT_S, G5_DURATION_TARGET_S)
     dur_ok = dur_min <= dur <= dur_max
     results["duration"] = dur
     results["dur_ok"] = dur_ok
-    lo, hi = G5_DURATION_TARGET_S
     if dur_ok and not lo <= dur <= hi:
         results["duration_deviation"] = (f"{dur:.3f} s is {(lo - dur) if dur < lo else (dur - hi):.3f} s "
                                          f"{'under' if dur < lo else 'over'} the {lo:.0f}-{hi:.0f} s format target")
@@ -1791,7 +1805,7 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
         any_fail = True
 
     # G5: Duration/loudness
-    g5_pass, g5_results = gate_g5(final_mp4, fmt)
+    g5_pass, g5_results = gate_g5(final_mp4, fmt, window=g5_window(edl_path))   # law L-ab: a spotlight's 28-50 s
     results["G5_tech"] = {"pass": g5_pass, "data": g5_results}
     if not g5_pass:
         any_fail = True

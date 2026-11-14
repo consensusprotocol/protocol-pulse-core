@@ -28,7 +28,7 @@ Pin JSON schema (protocol_pulse.pinned_story.v1):
   "approved_at": "ISO-8601",                   # required
   "approval_ref": "where the approval is recorded",   # optional
   "reuses_v2f_material": false,                # optional; true only for the v2f integration proof
-  "segments": [                                # exactly one hook, >= 1 clip, in playback order
+  "segments": [                                # exactly one hook, >= 1 clip, in playback order (a spotlight, law L-ab: ONE hook)
     {"role": "hook" | "clip",
      "video_id": "11-char YouTube id",
      "channel": "display_name in pipeline/channels.json",
@@ -62,6 +62,19 @@ CHANNELS_PATH = os.path.join(PIPELINE_DIR, "channels.json")
 SCHEMA = "protocol_pulse.pinned_story.v1"
 ROLES = ("hook", "clip")
 COORDS = ("youtube", "source_file")
+# law L-ab SPOTLIGHT (rulings 90 / 91 / 92, orchestrator 2026-11-13 '22:41' / '22:53'; the pin contract agreed with the
+# builder): moments_package.shape 'spotlight' = ONE segment (role hook), no clips; edl_vo.closing null by default, a
+# line (<= 12 words) only with the value verdict and its fidelity / context rows; the builder's sealed rows below.
+SPOTLIGHT = "spotlight"
+SPOTLIGHT_CLOSING_WORDS = 12
+SPOTLIGHT_ROWS = ("spotlight_source", "hook_own", "stands_alone", "step_a_two_families", "visual", "window_12h",
+                  "never_delivered", "one_per_channel_day", "precheck")
+SPOTLIGHT_CLOSING_ROWS = ("closing_value", "closing_fidelity", "closing_context")
+
+
+def is_spotlight(pin):
+    mp = pin.get("moments_package")
+    return isinstance(mp, dict) and mp.get("shape") == SPOTLIGHT
 MIN_WORDS_IN_RANGE = 3
 APPROVED_TEXT_MIN_RATIO = 0.8              # approved_text vs transcript words touching the range
 FADE_IN_MS, FADE_OUT_MS = 20, 30           # the factory's M19 fades (cut.py / run_isolated)
@@ -116,7 +129,10 @@ def validate_schema(pin, registry=None):
     roles = [s.get("role") for s in segs]
     if roles.count("hook") != 1:
         errs.append(f"exactly one hook required (got {roles.count('hook')})")
-    if roles.count("clip") < 1:
+    if is_spotlight(pin):                                       # law L-ab (ruling 90): ONE moment, opening cold
+        if len(segs) != 1:
+            errs.append(f"a spotlight pin has exactly ONE segment, role hook (got {len(segs)}; ruling 90)")
+    elif roles.count("clip") < 1:
         errs.append("at least one clip required")
     if roles and roles[0] != "hook":
         errs.append("the hook must be the first segment")
@@ -626,8 +642,37 @@ def build_edl(pin, acq, registry=None, log=print):
                    moments_bridge=mp.get("bridge"),               # law L-y 2: the one bridge's record, read by R11
                    moments_btc_screen=mp.get("btc_screen"),       # ruling 34: the miner's screen, read by validate
                    moments_gates=mp.get("gates"))                 # ruling 37: the sealed verdicts R1 reads
+        if mp.get("shape") == SPOTLIGHT:       # law L-ab: the kind (edl_rules, G5, the editorial gate, the kit) and
+            edl.update(package_shape=SPOTLIGHT, first_comment=mp["first_comment"])   # the first comment, verbatim
     overrides = build_vertical_overrides(hook, clips, registry)
     return edl, overrides, report
+
+
+def _spotlight_vo(mp, v, clips):
+    """Law L-ab (the contract agreed with the builder): a spotlight's VO and its sealed rows. No clips; edl_vo states
+    intro null, bridges [] and closing: null (the default, ruling 91: the moment goes straight to the sign-off) or ONE
+    line of at most SPOTLIGHT_CLOSING_WORDS words, kept only with closing_value / closing_fidelity / closing_context;
+    every SPOTLIGHT_ROWS row exactly PASS and not replayed; first_comment a non-empty string. -> the EDL's vo: the
+    closing line plays in the intro slot, after the moment (render16 / render_vertical: hook -> intro -> shout-out)."""
+    if clips:
+        raise PinError("a spotlight has no clips (law L-ab, ruling 90)")
+    if any(k not in v for k in ("intro", "bridges", "closing")) or v["intro"] is not None or v["bridges"] != []:
+        raise PinError("a spotlight's edl_vo states intro null, bridges [] and closing (law L-ab)")
+    closing = v["closing"]
+    if closing is not None and (not isinstance(closing, str) or not closing.strip()
+                                or len(closing.split()) > SPOTLIGHT_CLOSING_WORDS):
+        raise PinError(f"a spotlight's closing line is null or ONE line of at most {SPOTLIGHT_CLOSING_WORDS} words "
+                       f"(ruling 91)")
+    gates = mp.get("gates")
+    need = SPOTLIGHT_ROWS + (SPOTLIGHT_CLOSING_ROWS if closing is not None else ())
+    bad = [k for k in need if not (isinstance(gates, dict) and isinstance(gates.get(k), dict)
+                                   and gates[k].get("status") == "PASS" and gates[k].get("replayed") is False)]
+    if bad:
+        raise PinError(f"a spotlight's sealed rows are not exactly PASS and live: {bad} (law L-ab; the closing rows "
+                       f"by ruling 91)")
+    if not isinstance(mp.get("first_comment"), str) or not mp["first_comment"].strip():
+        raise PinError("a spotlight carries the builder's first comment (first_comment, a non-empty string)")
+    return {"intro": closing, "bridges": []}
 
 
 def moments_vo(mp, clips, segments=None):
@@ -670,6 +715,8 @@ def moments_vo(mp, clips, segments=None):
     v = mp.get("edl_vo")
     if not isinstance(v, dict):
         raise PinError("moments_package edl_vo must be an object {intro, bridges}")
+    if mp.get("shape") == SPOTLIGHT:
+        return _spotlight_vo(mp, v, clips)
     if "intro" not in v or "bridges" not in v:
         raise PinError("moments_package edl_vo must state both intro and bridges (null / [] when there are none)")
     intro, bridges = v["intro"], v["bridges"]

@@ -265,6 +265,58 @@ class TestR5ClipLength(unittest.TestCase):
         self.assertIn("1 channel", reason)
 
 
+def spot_edl(dur=20.0, intro=None, **kw):
+    """A spotlight EDL as pinned.build_edl writes it (law L-ab)."""
+    e = {"package_type": "moments", "package_shape": "spotlight", "mode": "pinned", "moments_package_sha256": "cd" * 32,
+         "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+         "hook": {"text": "Bitcoin is the hardest money ever made.", "duration": dur, "channel": "Natalie Brunell"},
+         "clips": [], "vo": {"intro": intro, "bridges": []}, "moments_bridge": None}
+    e.update(kw)
+    return e
+
+
+class TestSpotlightRules(unittest.TestCase):
+    """Law L-ab SPOTLIGHT (rulings 90 / 91): R4 28-50 s and a 12-word closing line; R5 without the medley minimum (one
+    moment, one channel; 12-35 s a taste line); R11 0 bridges and 0 or 1 closing line. A medley is unchanged."""
+
+    def test_r4_the_spotlight_format_is_28_to_50_s(self):
+        self.assertTrue(rule_r4(spot_edl(20.0))[0], rule_r4(spot_edl(20.0)))           # 20 + 14.30 = 34.3 s
+        for dur in (10.0, 40.0):                                                          # 24.3 s / 54.3 s
+            ok, why = rule_r4(spot_edl(dur))
+            self.assertFalse(ok)
+            self.assertIn("outside 28-50 s", why)
+        self.assertTrue(rule_r4(spot_edl(20.0, intro=" ".join(["w"] * 12)))[0])
+        ok, why = rule_r4(spot_edl(20.0, intro=" ".join(["w"] * 13)))
+        self.assertFalse(ok)
+        self.assertIn("(max 12)", why)
+        ok, why = rule_r4(spot_edl(20.0, package_shape=None))                            # a medley keeps 60-70 s
+        self.assertFalse(ok)
+        self.assertIn("outside 60-70 s", why)
+
+    def test_r5_one_moment_one_channel_is_the_spotlight_shape(self):
+        ok, why = rule_r5(spot_edl(20.0))
+        self.assertTrue(ok, why)
+        self.assertIn("one channel (Natalie Brunell)", why)
+        ok, why = rule_r5(spot_edl(10.0))                                                 # taste: recorded, passes
+        self.assertTrue(ok)
+        self.assertIn("2.00s outside the 12-35s target", why)
+        for kw, shape in (({"clips": [{"index": 1, "duration": 14.0, "channel": "X"}]}, "has no clips"),
+                          ({"hook": {"duration": 20.0}}, "names no channel"),
+                          ({"hook": {"duration": 0, "channel": "X"}}, "not a measured positive number")):
+            ok, why = rule_r5(spot_edl(**kw))
+            self.assertFalse(ok)
+            self.assertIn(shape, why)
+        self.assertFalse(rule_r5(spot_edl(package_type="story"))[0])                     # the marker binds moments only
+
+    def test_r11_zero_or_one_closing_line_and_no_bridge(self):
+        self.assertEqual(rule_r11(spot_edl()), (True, "R11 PASS (spotlight, law L-ab): 0 closing line, no bridge"))
+        self.assertTrue(rule_r11(spot_edl(intro="Nobody voted for these rules."))[0])
+        for kw in ({"intro": " ".join(["w"] * 13)}, {"intro": "   "},
+                   {"vo": {"intro": None, "bridges": [{"text": "x", "after_clip": 1}]}},
+                   {"moments_bridge": {"text": "x"}}, {"clips": [{"index": 1}]}):
+            self.assertFalse(rule_r11(spot_edl(**kw))[0], kw)
+
+
 class TestR6CreditsMatch(unittest.TestCase):
     """R6: Credits match EDL channels."""
 

@@ -133,9 +133,13 @@ def generate_vo(segment_dir, voice_key="ELEVENLABS_VOICE_ID_PP2",
                 import hashlib            # generator's three registers by run (credit / thanks / follow first)
                 names = (f"{', '.join(channels_list[:-1])}, and {channels_list[-1]}" if len(channels_list) > 1
                          else channels_list[0])
-                signoff_text = [f"Clips today from {names}. Go follow them for more. Links are below.",
-                                f"Big thanks to {names} for today's clips. Follow them all, links are below.",
-                                f"Go follow {names}. Today's clips came from them. Links are below."][
+                signoff_text = ([f"Clips today from {names}. Go follow them for more. Links are below.",
+                                 f"Big thanks to {names} for today's clips. Follow them all, links are below.",
+                                 f"Go follow {names}. Today's clips came from them. Links are below."]
+                                if len(channels_list) > 1 else          # law L-ab: a spotlight's one clip, one channel
+                                [f"Today's clip is from {names}. Go follow them for more. Links are below.",
+                                 f"Big thanks to {names} for today's clip. Go follow them, links are below.",
+                                 f"Go follow {names}. Today's clip came from them. Links are below."])[
                     int(hashlib.sha256(segment_id.encode()).hexdigest(), 16) % 3]
     if signoff_text:
         manifest["signoff"] = _generate_stem(signoff_text, f"vo_signoff_{voice_key.split('_')[-1].lower()}_v1")

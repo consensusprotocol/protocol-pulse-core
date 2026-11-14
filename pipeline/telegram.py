@@ -70,6 +70,8 @@ def build_caption(run_dir, fmt, att, option=None, duration=None, snap=None):
     edl = (snap or snapshot(run_dir, att))["edl"]
     mon = release_auth.monitoring_report(att.get("rows") or {}).get(fmt) or {}
     head = HOLD_OK + (f" | {len(mon)} MONITORING check(s) NOT passed (not release-deciding)" if mon else "")
+    if spotlight(edl):                       # law L-ab: labelled a spotlight candidate, a demonstration
+        head = f"{SPOTLIGHT_HEAD} | {head}"
     if option:
         head = f"OPTION {option} (transition choice) | {head}"
     lines = [head, f"{os.path.basename(os.path.normpath(run_dir))} | {fmt} {DIMS[fmt][0]}x{DIMS[fmt][1]}"
@@ -304,6 +306,13 @@ def deliver_run(run_dir, option=None, send=None, sheets=True):
 
 
 ORANGE_HEART = "\U0001F9E1"
+# law L-ab (ruling 90): a spotlight on the pass path is a CANDIDATE for PBX's approval, and the first ones are a
+# DEMONSTRATION: PBX asked to see one before he approves the format
+SPOTLIGHT_HEAD = "SPOTLIGHT, CANDIDATE FOR PBX'S APPROVAL (DEMONSTRATION: the format is not yet approved)"
+
+
+def spotlight(edl):
+    return edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight"
 
 
 def publish_kit(run_dir, snap=None):
@@ -341,6 +350,9 @@ def publish_kit(run_dir, snap=None):
     sp = speaker_lines(run_dir)
     if sp:
         lines += ["", SPEAKERS_HEAD] + sp
+    if spotlight(edl):                       # law L-ab (the contract): the builder's WHOLE first comment, verbatim,
+        lines += ["", "FIRST COMMENT:", edl["first_comment"]]          # its credits included; nothing appended
+        return "\n".join(lines)
     handles = " ".join(reg[ch]["yt_handle"] for ch in credited)
     lines += ["", "FIRST COMMENT:", f"credits: {handles}", ORANGE_HEART]
     return "\n".join(lines)
@@ -659,12 +671,14 @@ def review_texts(run_dir, nonpass, digests):
     for fmt, rel in FINALS.items():
         try:
             d = _dims(os.path.join(run_dir, rel))[2]
-            if not 60.0 <= d <= 70.0:
+            if spotlight(edl) and not 28.0 <= d <= 50.0:                  # law L-ab: a spotlight's format
+                dev.append(f"{fmt} runtime {d:.3f} s, outside the spotlight's 28-50 s format (law L-ab)")
+            elif not spotlight(edl) and not 60.0 <= d <= 70.0:
                 dev.append(f"{fmt} runtime {d:.3f} s, outside the 60-70 s format target (ruling 12: 58-72 accepted)")
         except Exception:
             dev.append(f"{fmt} runtime not measured")
     for i, (role, s) in enumerate(segs):
-        lo, hi = (8.0, 12.0) if i == 0 else (12.0, 20.0)
+        lo, hi = (12.0, 35.0) if spotlight(edl) else (8.0, 12.0) if i == 0 else (12.0, 20.0)   # L-ab: the moment
         dur = s.get("duration")
         if isinstance(dur, (int, float)) and not lo <= dur <= hi:
             dev.append(f"{role}: {dur} s of locked words, outside the {lo:.0f}-{hi:.0f} s taste target (L-o)")
