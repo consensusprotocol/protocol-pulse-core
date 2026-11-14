@@ -494,11 +494,12 @@ class Service:
             crash = f"{type(e).__name__}: {e}"[:300]
         secs = self.clock() - t0
         self.check_allowed, self.check_calibrated = allowed, self.clock()
-        # when no back-end passed and one still could (a question unanswered, none answered wrong; or the calibration
-        # crashed), an outage at calibration time must not bar the checkers for a day: tried again after
-        # CHECK_RETRY_S, the wait doubling while it keeps failing (a checker that keeps failing costs a few
-        # calibrations a day); a pass, or every back-end answering a quote wrong, waits for the daily one
-        could = cal is None or [b for b, c in cal.items() if c["unmeasured"] and not c["wrong"]]
+        # when no back-end passed and one still could (a question unanswered, none answered wrong; the calibration
+        # crashed; or no back-end could be called at all, which asks nothing: audit f1 c2, muse), an outage at
+        # calibration time must not bar the checkers for a day: tried again after CHECK_RETRY_S, the wait doubling
+        # while it keeps failing (a checker that keeps failing costs a few calibrations a day); a pass, or every
+        # back-end answering a quote wrong, waits for the daily one
+        could = cal is None or not cal or [b for b, c in cal.items() if c["unmeasured"] and not c["wrong"]]
         if allowed or not could:
             self.check_recal_s = CHECK_RECALIBRATE_S
         elif self.check_recal_s >= CHECK_RECALIBRATE_S:

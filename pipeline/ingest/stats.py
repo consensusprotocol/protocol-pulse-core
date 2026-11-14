@@ -134,6 +134,8 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
         ck["calibration"] = json.loads(q.kv_get("check_calibration") or "null")
     except ValueError:
         ck["calibration"] = None
+    ck["calibration_crashes"] = q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_crash' AND "
+                                       "ts >= ?", (h0,))[0]["n"]   # audit f1 c2 (glm N4): a crash is visible here
     out["second_model_checks_12h"] = ck
     if signal is not None:
         out["down_signal"] = signal                                   # ruling 87 (downsignal.DownSignal.snapshot)

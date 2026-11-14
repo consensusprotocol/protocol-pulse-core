@@ -358,7 +358,8 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   calibration replayed the first answers (measured 20:10-23:05 ET Nov 13) and re-measured nothing: a model changed
   behind the same gateway name would have kept releasing flags on a stale calibration. A quote a back-end did not
   answer is asked of it again, only that quote, up to CALIBRATION_ROUNDS (3) rounds. When no back-end passed and one
-  still could (a quote unanswered, none answered wrong: an outage at calibration time), the next calibration comes
+  still could (a quote unanswered, none answered wrong: an outage at calibration time; or no back-end of the role could
+  be called at all, which asks nothing: audit f1 c2), the next calibration comes
   after CHECK_RETRY_S, the wait doubling while it keeps failing (600, 1200, 2400 s ... up to a day: about eight
   calibrations a day at worst, each at most 3 rounds of 32 short questions); when one passed, or every back-end
   answered a quote wrong (at temperature 0 it would answer the same again), the next is the daily one. A calibration
@@ -368,7 +369,8 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   unanswered quote never counts as right. The measurement CLI (`tools/ingest_watch.py flagcheck`) keeps its stored
   replies (a report is reproduced from them; it releases nothing). Live: live.json
   `second_model_checks_12h.calibration`, per back-end: right, of, unmeasured, `wrong` (flag, expected, answered, the
-  quote), `asked_at` (the calibration's start) and `seconds` (its duration); the log line says the same.
+  quote), `asked_at` (the calibration's start) and `seconds` (its duration), and `calibration_crashes` (the crash
+  events of the last 12 h: audit f1 c2); the log line says the same.
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

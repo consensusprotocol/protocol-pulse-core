@@ -220,7 +220,7 @@ def test_f1_a_quote_not_answered_is_asked_again_up_to_the_rounds(tmp_path):
     allowed (nothing measured is never a pass)."""
     gold, right = _gold()
     first = FC.PROBES[0][2]
-    for rounds, ok in ((1, False), (3, True)):
+    for rounds, ok in ((0, False), (1, False), (3, True)):                  # 0 is one round (audit f1 c2, qwen)
         failed = []
         b = H.FakeBackend("ca")
         r = _router([b], cache_dir=str(tmp_path / f"r{rounds}"))

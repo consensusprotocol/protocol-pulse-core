@@ -571,6 +571,19 @@ def test_f1_a_calibration_that_crashes_fails_closed_and_waits_like_an_unanswered
     assert s.check_once(wait=True) == 0
     assert calls == [1, 1] and s.check_recal_s == 2 * service.CHECK_RETRY_S
     assert s.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_crash'")[0]["n"] == 2
+    ck = s.health_once()["second_model_checks_12h"]                      # audit f1 c2 (glm N4): visible live
+    assert ck["calibration_crashes"] == 2 and ck["calibration"] == {}
+
+
+def test_f1_a_calibration_with_no_back_end_to_ask_is_tried_again_soon(svc):
+    """Audit f1 c2 (muse): when no back-end of the role can be called (both frozen here; a checker under the GPU0
+    lease could be absent for a while), the calibration asks nothing and nobody answers, and the next one comes after
+    CHECK_RETRY_S, not a day later (it costs no call)."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1, freeze=["vendor-primary", "vendor-fallback"])
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []
+    assert s.check_recal_s == service.CHECK_RETRY_S
+    assert b["primary"].calls == [] and b["fallback"].calls == []
+    assert json.loads(s.q.kv_get("check_calibration")) == {}
 
 
 def test_an_unanswered_question_records_nothing_and_waits(svc):
