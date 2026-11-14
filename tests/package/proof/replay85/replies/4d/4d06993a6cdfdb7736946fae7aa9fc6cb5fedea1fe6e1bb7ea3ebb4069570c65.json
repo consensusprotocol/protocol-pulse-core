@@ -1,0 +1,19 @@
+{
+ "role": "replay85_deepseek",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall",
+ "seed": 18,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video.\n\nCLIP label=\"hook\" (on screen: Bitcoin Mechanic): \"Bitcoin on the Blake 2B chain is incredible. And I say that not to pump it. Don't buy any if you don't want to buy any.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.\"\nCLIP label=\"clip_02\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_03\" (on screen: Altcoin Daily): \"I think treasury companies will also bleed to Bitcoin. I mean, basically, everything in the industry eventually bleeds to Bitcoin.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\n3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"hook\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1},\n\"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"The clips share a theme of strong conviction that Bitcoin/crypto is transformative and inevitable in finance, freedom, and security.\", \"hook\": {\"scroll\": 3, \"alone\": 4, \"setup\": 1}, \"clips\": {\"clip_01\": 2, \"clip_02\": 4, \"clip_03\": 5}, \"joins\": {\"hook -> clip_01\": {\"followable\": false, \"why\": \"abrupt shift from Blake 2B chain to RSA bet\"}, \"clip_01 -> clip_02\": {\"followable\": false, \"why\": \"RSA bet to partisan/financial freedom, no clear link\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"continues Bitcoin/crypto finance adoption theme\"}}}",
+ "usage": {
+  "in": 684,
+  "out": 1875,
+  "usd_reported": 0.00039116
+ },
+ "usd": 0.030177,
+ "seconds": 75.11,
+ "recorded_at": "2026-11-14T02:49:48Z"
+}

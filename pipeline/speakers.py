@@ -340,10 +340,10 @@ def attribute(router, seg, src, meta, seed=7, caps=None, lower_third=None):
     prompt = PROMPT.format(lines="\n".join(lines), context=f"{before}\n<clip>{clip}</clip>\n{after}".strip(),
                            turn=turn["text"] if turn else f"(none: {turn_why})")
     r = None
-    try:
-        r = router.call("speaker_verdict", prompt, 900, seed)
-        v = _json(r.text)
-        rec = check(v, lines, clip, f"{before} {after}")
+    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+        r, (v, rec) = P.call_parsed(router, "speaker_verdict", prompt,
+                                    lambda t: (lambda v: (v, check(v, lines, clip, f"{before} {after}")))(_json(t)),
+                                    900, seed)
         ev = check_turn(v.get("turn"), rec["people"], turn["text"] if turn else "")
         rec = decide(rec, ev, rec["people"], lower_third)
         rec["turn"] = {"read": turn is not None, "why": turn_why, **({"source": cap_src, "start": turn["start"],

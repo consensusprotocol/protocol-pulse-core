@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Nobody is in charge of Bitcoin.\nCAPTION: no authority. no ruler. three clips, links below.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: Nobody is in charge of Bitcoin. That's not a flaw. That's the design.\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S.\"\nVOICE-OVER: Next, from Natalie Brunell's show: what does a system with no one in charge have to get right?\nCLIP label=\"clip_02\" (on screen: Natalie Brunell): \"Bitcoin is a new system of measure that's measuring the first free market that's ever existed. And all it has to do, is stay decentralized and secure. And that's what emerges.\"\nVOICE-OVER: No ruler. Just rules nobody gets to bend. That's the idea.\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Natalie Brunell. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's lack of any central authority is its deliberate design, not a weakness \u2014 it succeeds by staying decentralized rather than depending on whoever holds power.\", \"clips\": {\"hook\": 5, \"clip_01\": 5, \"clip_02\": 4}, \"vo_point\": 5}",
+ "usage": {
+  "in": 470,
+  "out": 521,
+  "usd_reported": 7.917e-05
+ },
+ "usd": 0.009225,
+ "seconds": 16.0,
+ "recorded_at": "2026-11-14T02:48:13Z"
+}

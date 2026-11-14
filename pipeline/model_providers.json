@@ -156,6 +156,26 @@
    "family": "glm",
    "base_url": "https://api-staging.heimdallm.com/api/v1",
    "measured": "ruling 82 (orchestrator 20:02 Nov 13): pp-ingest measured it 24/24 on calibration (default reasoning)"
+  },
+  "google:gemini-2.5-pro": {
+   "vendor": "google",
+   "model": "gemini-2.5-pro",
+   "family": "gemini",
+   "key_name": "GEMINI_API_KEY_MEDLEY",
+   "price_usd_per_1m": [
+    1.25,
+    10
+   ],
+   "min_out": 8000,
+   "timeout_s": 300,
+   "what": "RULING 87 (21:18 Nov 13): PLAN B only. The GEMINI_API_KEY_MEDLEY key is fenced to this pipeline. Gemini reports no cost: the price-table estimate (list price, thinking counted as output) is booked, labelled."
+  },
+  "local_judge:gemma3:27b": {
+   "vendor": "local_judge",
+   "model": "gemma3:27b",
+   "family": "gemma",
+   "deadline_floor_s": 2400,
+   "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min."
   }
  },
  "roles": {
@@ -183,6 +203,8 @@
     "xai:grok-4.20-0309-reasoning",
     "anthropic:claude-opus-5-5",
     "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
     "local:gemma3:27b"
    ],
    "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
@@ -203,6 +225,8 @@
    "chain": [
     "anthropic:claude-opus-5-5",
     "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
     "heimdall:qwen/qwen3.8-27b",
     "local:gemma3:27b"
    ],
@@ -238,7 +262,9 @@
     "local:gemma3:27b",
     "xai:grok-4.20-0309-reasoning",
     "anthropic:claude-opus-5-5",
-    "heimdall:deepseek/deepseek-v4.1-flash"
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
    ],
    "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
   },
@@ -247,6 +273,8 @@
     "anthropic:claude-opus-5-5",
     "xai:grok-4.20-0309-reasoning",
     "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
     "local:gemma3:27b"
    ],
    "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
@@ -256,6 +284,8 @@
     "xai:grok-4.20-0309-reasoning",
     "anthropic:claude-opus-5-5",
     "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
     "local:gemma3:27b"
    ],
    "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
@@ -275,5 +305,162 @@
    ],
    "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
   }
+ },
+ "routing": {
+  "ruling": "RULING 85 (orchestrator 21:15 Nov 13, locked 21:18): HEIMDALL FIRST FOR EVERY VERDICT, GROK LAST, behind this switch. mode 'today': the chains under roles (with the 20:33 order: ruling 82's Heimdall chain after Grok on every verdict role). mode 'heimdall_first': the lists below; each Heimdall family is its own maker for every vendor rule, so the two-family rule is kept inside Heimdall (providers.Router). The per-type order is ruled from the replay (tests/package/replay85.py); until then each list is ruling 82's order (deepseek, glm, qwen), Grok last. A build names its routing (proof_ledger --routing).",
+  "mode": "today",
+  "verdict_roles": [
+   "context_verdict",
+   "coherence_verdict",
+   "fidelity_verdict",
+   "exclusion_verdict",
+   "speaker_verdict",
+   "viewer_takeaway"
+  ],
+  "verdict_deadline_s": {
+   "heimdall": 120
+  },
+  "heimdall_first": {
+   "context_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "fidelity_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "exclusion_verdict": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "speaker_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "viewer_takeaway": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "context_verdict:step_a_first": [
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:qwen/qwen3.8-27b",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "context_verdict:step_a_second": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "context_verdict:step_c": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "coherence_verdict:hook": [
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:z-ai/glm-5.3-flash",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "xai:grok-4.20-0309-reasoning"
+   ],
+   "coherence_verdict:clips_alone": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:qwen/qwen3.8-27b",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "coherence_verdict:coherence": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ]
+  },
+  "plan_b": {
+   "context_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5",
+    "local_judge:gemma3:27b"
+   ],
+   "coherence_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "fidelity_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "exclusion_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "speaker_verdict": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "viewer_takeaway": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "angle_write": [
+    "xai:grok-4.20-0309-reasoning",
+    "google:gemini-2.5-pro",
+    "openai:gpt-6.1-sol",
+    "anthropic:claude-opus-5-5"
+   ],
+   "visual_check": [
+    "xai_vision:grok-4.7"
+   ]
+  },
+  "plan_b_note": "RULING 87: while pipeline/heimdall_health.py says Heimdall is down (no family answered a verdict or writer call inside its deadline for 15 minutes running), these roles run on these chains: Grok mainly, then any other outside key that answers (Gemini's fenced key; OpenAI and Anthropic only when a call shows they have credit: they are tried, never assumed). Back to the mode's chains when the probe has answered 3 times in a row.",
+  "shadow": {
+   "*": "xai:grok-4.20-0309-reasoning",
+   "visual_check": "xai_vision:grok-4.7"
+  },
+  "shadow_until_clean_pins": 3,
+  "shadow_note": "RULING 86: a heimdall_first build asks these back-ends the same prompt of every verdict Heimdall decided (recorded, never deciding) until 3 pins in a row show no decision-changing difference.",
+  "today_unbounded": [
+   "context_verdict"
+  ],
+  "today": {
+   "coherence_verdict:coherence": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash"
+   ],
+   "coherence_verdict:clips_alone": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:qwen/qwen3.8-27b"
+   ],
+   "context_verdict:step_c": [
+    "xai:grok-4.20-0309-reasoning",
+    "heimdall:deepseek/deepseek-v4.1-flash",
+    "heimdall:z-ai/glm-5.3-flash"
+   ]
+  },
+  "ruling_88": "RULING 88 (orchestrator 22:15 Nov 13), from the replay's interim, the full table to confirm: (a) fidelity and exclusion on Heimdall now (two families, Grok last); (b) step C and the hook rating move when the full table holds the interim's 98-100 % (Grok first until then); (c) step A: Heimdall FIRST, a clip Heimdall refuses is refused and Grok is never asked, a clip Heimdall passes goes to Grok to confirm; (d) clips-alone and coherence keep Grok, glm out of both; (e) qwen never decides coherence or step C. THE FULL TABLE (01:06 ET Nov 14, 884 rows): (b) holds for the hook rating (qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %): it moved, qwen -> glm -> deepseek -> Grok; it does not hold for step C (glm 97 %, deepseek 96 %; qwen 98 % but barred by (e)): Grok first.",
+  "ruling_96": "RULING 96 (orchestrator 01:40 ET Nov 14), FINAL until re-measured: HOOK qwen -> glm -> deepseek -> Grok; FIDELITY glm -> qwen -> Grok; EXCLUSION glm -> deepseek -> Grok; STEP A the Heimdall verdict first as the filter (glm first for speed: 45 s median against deepseek's 277 s; deepseek second; qwen third as failover, before Grok), Grok confirms what passes; STEP C, CLIPS-ALONE, COHERENCE, STEP B, SPEAKER, VISION: Grok first. qwen is never first where it failed an anchor. Re-run the replay monthly or when a Heimdall model changes; a type goes back to Grok first if its agreement falls under Grok's own self-agreement."
  }
 }

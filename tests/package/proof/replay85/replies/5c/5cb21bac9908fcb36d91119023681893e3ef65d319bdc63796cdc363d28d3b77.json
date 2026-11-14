@@ -1,0 +1,19 @@
+{
+ "role": "replay85_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before>and they nudge the ball occasionally and they don't write their score down right, that's cheating. If they cheat at golf, they'll cheat on you. They'll nudge the number in accounting. They won't honor their commitment. If you cheat on your spouse, you will cheat in life. It's it's a character thing. And no, culturally being permissible. I'm sorry. No. No. \u203a\u203a Tell that to his wife. \u203a\u203a No. And And here's the thing is cheaters cheat. Liars lie. Stealers steal. They're they're they're bad people. And I saw this other quote or this other post and it said, \"No, you have three choices. love your wife. Okay, I I think that's the only choice. But okay, second, divorce her. And third, you know, cheat on her. Wrong. Okay. And but the point they were trying to make was, you know, you can divorce her like Gates or Bezos. I'm like, time out. cheating, getting caught, and getting divorced by the spouse is not divorcing your wife to save her from your desire to cheat. The wandering eye. Oh my god, it it the whitewashing of of history. I'll tell you, this is my biggest fear like of all No, second biggest.</before>\n<moment>My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.</moment>\n<after>Bitcoin. My second biggest fear and th this is becoming it's starting to become the biggest fear is the whole purpose I believe of building these giant data centers and and having these super chips and having this intelligence quote unquote is to whitewash history and truth and to present to you the reality they whoever they happen to be want you to leave and it's absolutely frightening now that I can't get a regular search, right? I mean, I have to work really hard just to say, \"Hey, go to the information and give me back what I ask for. Don't give me an interpretation of what you think I want. don't give me the sanitized view that you created to send to me when I asked that</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "\n\n{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"The speaker says they use Bitcoin because they fear a bank could take their money.\"}",
+ "usage": {
+  "in": 828,
+  "out": 279,
+  "usd_reported": 0.00032146
+ },
+ "usd": 0.006669,
+ "seconds": 10.08,
+ "recorded_at": "2026-11-14T02:54:27Z"
+}

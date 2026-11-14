@@ -489,7 +489,7 @@ def src_of(x, sources):
 
 
 def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
-              store=None, log=print, cache=None, deadline_s=None):
+              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None):
     """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
     {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
     first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
@@ -542,7 +542,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
         try:
             return CI.step_a(router, {m["moment_id"]: contexts[m["moment_id"]] for m in chunk}, writer_vendor,
                              seed=7 + i * batch, writer_family=writer_family, deadline_s=deadline_s,
-                             failover=deadline_s is not None), None          # ruling 82: the chain, per call
+                             failover=(deadline_s is not None) if failover is None else failover,   # ruling 82
+                             kind=kind), None
         except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
             return None, e
     with ThreadPoolExecutor(max_workers=max(1, min(PRESCREEN_WORKERS, len(chunks)))) as ex:
@@ -571,6 +572,23 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
     return a_by, fails, vendors, families
 
 
+def first_bounds(router):
+    """The kwargs of step A's FIRST screen. RULING 85: under heimdall_first the first verdict is a Heimdall family's,
+    2 clips and 120 s a call (Heimdall needs a median 268 s on 8 clips); today it keeps its batches with no deadline.
+    One helper for both builds (the medley's and the spotlight's)."""
+    return {"batch": SECOND_VERDICT_BATCH, "deadline_s": SECOND_VERDICT_DEADLINE_S} \
+        if getattr(router, "routing", "today") == "heimdall_first" else {}
+
+
+def _second_bounds(router):
+    """(batch, deadline_s) of step A's second verdict. Today it is a Heimdall family's (ruling 82: 2 clips, 120 s a
+    call). RULING 88 (c), under heimdall_first, it is Grok confirming a Heimdall pass: Grok's own batch (8 clips) and no
+    deadline, since the per-clip cost falls with the batch."""
+    if getattr(router, "routing", "today") == "heimdall_first":
+        return PRESCREEN_BATCH, None
+    return SECOND_VERDICT_BATCH, SECOND_VERDICT_DEADLINE_S
+
+
 def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
     """ORDER 06:22 item 45: step A from a SECOND vendor on every cuttable clip, BEFORE the angle step. The writer is
     known only when the angle call answers (Heimdall first, Grok on its failure: angle_write), and a verdict never
@@ -585,13 +603,14 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
     for mid, m in cleared.items():
         b = router.backends.get((a_by.get(mid) or {}).get("backend"))
         groups.setdefault((b.vendor, b.family) if b is not None else None, []).append(m)
-    jobs = [(k, g[i:i + SECOND_VERDICT_BATCH]) for k, g in groups.items() if k is not None
-            for i in range(0, len(g), SECOND_VERDICT_BATCH)]
+    batch, dl = _second_bounds(router)
+    jobs = [(k, g[i:i + batch]) for k, g in groups.items() if k is not None
+            for i in range(0, len(g), batch)]
     def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
         try:
             return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log,
-                             cache=cache, batch=SECOND_VERDICT_BATCH,    # ruling 58: a second verdict is paid once;
-                             deadline_s=SECOND_VERDICT_DEADLINE_S)       # ruling 82: the chain, 120 s a call
+                             cache=cache, batch=batch, deadline_s=dl,    # ruling 58: a second verdict is paid once;
+                             kind="step_a_second", failover=True)        # ruling 82 / 88 (c): the chain
         except Exception as e:
             return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
                         for m in chunk}, set(), set()
@@ -687,8 +706,9 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
     """RULING 59 (a): the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked of EVERY
     given moment ALONE, in ONE batched call (coherence_verdict, never the writers' vendor or family), each rating
     DERIVED as the lowest part (HOOK_RULE). Cached (`cache`, shared by every build) by the moment id, the sha256 of its
-    text and the question's version: a moment is rated once, by a back-end off the writers. One re-ask on a reply out
-    of contract. -> ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
+    text and the question's version: a moment is rated once, by a back-end off the writers. A reply out of contract
+    moves on to the next model of the chain (providers.call_parsed, ruling 82 as the 20:33 order extends it). ->
+    ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
     A moment the call did not rate has no rating (law L-m: never a pass)."""
     import providers as P
     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
@@ -709,35 +729,30 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
     cands = "\n".join(f'CANDIDATE id="{m["moment_id"]}" (on screen: {CI._q(_name(m, ctx), 80)}): '
                       f'"{CI._q(m["text"], 900)}"' for m in todo)
     keys = ", ".join(f'"{i}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}' for i in ids)
-    err = None
-    for s in (seed, seed + 1):
-        r = None
-        try:
-            r = router.call("coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), 600 + 150 * len(ids), s,
-                            avoid_vendor=writer_vendor, avoid_family=writer_family)
-            v = json.loads(r.text.strip())
-            h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
-            if not isinstance(h, dict) or set(h) != set(ids) or any(
-                    not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
-                    any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
-                raise ValueError("hook ratings out of contract")
-        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:
-            if r is not None and isinstance(e, (ValueError, TypeError, KeyError)):
-                router.reject(r)
-            err = f"{type(e).__name__}: {str(e)[:200]}"
-            if isinstance(e, (ValueError, TypeError, KeyError)):
-                continue                                 # out of contract: one re-ask
-            break                                        # unavailable or the spend guard: no verdict (law L-m)
-        new = {}
-        for m in todo:
-            x = h[m["moment_id"]]
-            rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
-                   "backend": r.backend, "rule": HOOK_OWN_RULE}       # ruling 61: scroll / alone
-            out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
-            new[key(m)] = {r.backend: rec}
-        _cache_put(cache, new)
-        return out, None
-    return out, err
+
+    def parse(text):
+        v = json.loads(text.strip())
+        h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
+        if not isinstance(h, dict) or set(h) != set(ids) or any(
+                not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
+                any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
+            raise ValueError("hook ratings out of contract")
+        return h
+    try:                                         # the 20:33 order: an answer out of contract moves on to the next
+        r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), parse,
+                             600 + 150 * len(ids), seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+                             kind="hook")                                # ruling 88: the hook rating's own list
+    except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # (it was one re-ask of the same
+        return out, f"{type(e).__name__}: {str(e)[:200]}"     # model) unavailable, all out of contract, or the guard
+    new = {}
+    for m in todo:
+        x = h[m["moment_id"]]
+        rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
+               "backend": r.backend, "rule": HOOK_OWN_RULE}           # ruling 61: scroll / alone
+        out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+        new[key(m)] = {r.backend: rec}
+    _cache_put(cache, new)
+    return out, None
 
 TAKEAWAY_SAID = ("The takeaway may characterise what the clips SAID, never what WILL happen. Two kinds were refused: a "
                  "forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.'), and a superlative that "
@@ -1492,21 +1507,22 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
     `hook`) is written to verdict["clips"]["hook"]; without one the verdict fails closed (law L-m). The clips after the
     hook and vo_point are rated as before; the judge sees the hook's text for context."""
     import providers as P
-    r = None
     labs = [sg["label"] for sg in pk["segments"]]
     own = hook_own(hook)
-    try:
-        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(
-                            package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
-                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
-        v = json.loads(r.text.strip())
+
+    def parse(text):
+        v = json.loads(text.strip())
         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
             raise ValueError("coherence verdict out of contract")
+        return v
+    try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+        r, v = P.call_parsed(router, "coherence_verdict", COHERENCE_PROMPT.format(
+                                 package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
+                             parse, 1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+                             kind="coherence")                           # ruling 88: coherence's own list
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
-        if r is not None and isinstance(e, (ValueError, TypeError)):
-            router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False}
     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
@@ -1549,13 +1565,8 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
     own = hook_own(segs[0]) if segs else None
     clips = "\n".join(f'CLIP label="{lb}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
                       for lb, m in zip(labs, segs))
-    r = None
-    try:
-        r = router.call("coherence_verdict",
-                        MEDLEY_PROMPT.format(clips=clips, clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:]),
-                                             joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
-                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
-        v = json.loads(r.text.strip())
+    def parse(text):
+        v = json.loads(text.strip())
         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
                 any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
@@ -1563,9 +1574,15 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
                 any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
                     or not isinstance(x["why"], str) for x in v["joins"].values()):
             raise ValueError("clips-alone verdict out of contract")
+        return v
+    try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+        r, v = P.call_parsed(router, "coherence_verdict",
+                             MEDLEY_PROMPT.format(clips=clips, clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:]),
+                                                  joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}'
+                                                                  for j in js)),
+                             parse, 1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+                             kind="clips_alone")                         # ruling 88: clips-alone's own list
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
-        if r is not None and isinstance(e, (ValueError, TypeError)):
-            router.reject(r)
         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
@@ -2289,7 +2306,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)
     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
-                                                   cache=step_a_cache)          # ruling 58: every candidate, once
+                                                   cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
+                                                   **first_bounds(router))
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     levels = current_levels(sources.values(), ctx)
     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
@@ -2493,8 +2511,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         return None
     for mid in cleared:
         a_by[mid] = off_writers(mid) or a_by[mid]
-    writer_avoid = {router.backends[n].vendor for n in router.chain("angle_write") if n in router.backends} - \
-        {angle_reply.vendor}                   # every write stays on the angle's vendor, so a judge is always left
+    import providers as P
+    ab = router.backends.get(angle_reply.backend)       # every write stays on the angle's GATEWAY (ruling 85: under
+    writer_avoid = {P.gateway(router.backends[n]) for n in router.chain("angle_write") if n in router.backends} - \
+        {P.gateway(ab) if ab is not None else angle_reply.vendor}   # heimdall_first a family is its own maker, and
+    # a write may still fail over deepseek -> qwen as today); the verdicts avoid every writer's maker and family
     log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)" if candidate is None else
         f"  ruling 66: the candidate {candidate.get('source')} tried[{candidate.get('index')}] (angle "
         f"{candidate['ai'] + 1} line-up {candidate['n_lineup']}), as judged: its angle from {angle_reply.backend}, "
@@ -2857,10 +2878,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                     stale = [m for m in segs if (lambda b: b is None or b.vendor in writers_v or b.family in writers_f)(
                         router.backends.get((a_by.get(m["moment_id"]) or {}).get("backend")))]
                     if stale:                                  # audit C2 K5: never judged by the writer's vendor
+                        rb, rdl = _second_bounds(router)
                         got_a, fails_a, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f,
-                                                         batch=SECOND_VERDICT_BATCH,      # ruling 82: off the writer,
-                                                         deadline_s=SECOND_VERDICT_DEADLINE_S,   # the chain, 120 s
-                                                         n=len(stale), store=None, cache=step_a_cache)
+                                                         batch=rb, deadline_s=rdl,        # ruling 82: off the writer,
+                                                         n=len(stale), store=None, cache=step_a_cache,
+                                                         kind="step_a_second", failover=True)   # ruling 88 (c)
                         bad = {}
                         for m in stale:
                             mid = m["moment_id"]

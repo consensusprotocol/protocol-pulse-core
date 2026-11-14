@@ -1,0 +1,9 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 48 s finish=stop usage in 36354 / out 390 usd~0.192 (upper-bound price)
+
+**P2: pipeline/providers.py:610** (Router.__init__): `if self.routing not in ROUTINGS` raises on unknown mode; concrete scenario with routing="today" or "heimdall_first" (the only values ever passed from proof_ly.py:936 or model_providers.json:303) passes, but an audit-only malformed config would fail closed (matches L-j / M12).  
+**P2: pipeline/heimdall_health.py:72** (`_load` on corrupt JSON): raises HealthUnreadable; test_heimdall_health:1176 verifies no guess, state left untouched (matches ruling 87 fail-closed).  
+**P2: pipeline/providers.py:813** (`_shadow_ask` thread): shadow calls use separate role "shadow86:<role>", own recordings, and are joined only in shadow_wait(900s) after main verdict; never affects deciding Reply or raises into build (matches ruling 86; verified in test_ruling_86_shadow:1501).  
+**P2: tests/package/test_ledger_build.py:1065**: explicit test expectation that coherence:coherence returns None (gap) when deepseek writes + xAI down matches ruling 88(d) lists and "fails closed" design note; no verdict from writer's family (verified for all other roles).  
+No P0/P1 (today routing unchanged except 20:33 chains + 120s on Heimdall; xAI-down path completes all but the documented coherence gap under heimdall_first; health uses flock + tmp+replace, unreadable raises, 15-min / probe / 3-streak rules match tests; Plan B, shadow, spend-ledger, and re-keying only under heimdall_first all verified in added tests; addenda for spotlight / rulings 93-95 merge cleanly via first_bounds + same Router).  
+
+SHIP: yes

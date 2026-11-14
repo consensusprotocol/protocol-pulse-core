@@ -1,0 +1,19 @@
+{
+ "role": "replay85v_nemotron",
+ "backend": "heimdall:nvidia/nemotron-3.5-super-vl",
+ "model": "nvidia/nemotron-3.5-super-vl",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1500,
+ "system": null,
+ "prompt": "You check what a VIEWER SEES in one clip of another channel's video, before it is cut into ours.\nThe image is a contact sheet of 8 frames of the clip, left to right and top to bottom, each labelled with its time in\nthe source video (seconds). The clip's words, as spoken:\n\"The customer scans a QR with any lightning wallet and the payment settles in seconds. The seller gets dollars by default or... can choose to keep the Bitcoin and there's no chargebacks. Sellers can also auto convert up to 50 % of their daily card sales into Bitcoin.\"\n\nAnswer three questions from the frames only:\n1. third_person: is a person who is NOT the one speaking shown as a STILL, a PHOTO or a GRAPHIC (not live video of a\n   person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,\n   a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only\n   text on the screen names a person.\n2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken\n   words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.\n3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.\n\nReturn ONLY this JSON object:\n{\"third_person\": {\"shown\": true or false, \"how\": \"still|photo|graphic|none\", \"words_negative\": true or false,\n  \"name_on_screen\": \"<the on-screen text naming them> or null\", \"finding\": \"<one sentence>\"},\n \"on_screen_text\": [{\"text\": \"...\", \"asserts_beyond_words\": true or false, \"why\": \"...\"}],\n \"lower_third\": {\"name\": \"<the name on the strap> or null\", \"text\": \"<the strap's full text> or null\"}}\n[image sha256=9644092b17f06cd49b36bc1a8fbe1c202eb82f706ea3662848aefb813060a7b4]",
+ "text": "{\n  \"third_person\": {\n    \"shown\": false,\n    \"how\": \"none\",\n    \"words_negative\": false,\n    \"name_on_screen\": null,\n    \"finding\": \"No person is shown as a still, photo, or graphic during a negative claim, and the spoken words describe payment features without making accusations, allegations, or referencing failures.\"\n  },\n  \"on_screen_text\": [],\n  \"lower_third\": {\n    \"name\": null,\n    \"text\": null\n  }\n}",
+ "usage": {
+  "in": 1492,
+  "out": 2362,
+  "usd_reported": 0.00043549
+ },
+ "usd": 0.039906,
+ "seconds": 26.73,
+ "recorded_at": "2026-11-14T02:55:29Z"
+}

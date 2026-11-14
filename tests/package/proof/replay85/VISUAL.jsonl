@@ -1,0 +1,18 @@
+{"sheet": "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195", "model": "nemotron", "grok": [], "seconds": 18.36, "usd_reported": 0.00032073, "heimdall": [], "compare": "agree"}
+{"sheet": "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195", "model": "qwen", "grok": [], "seconds": 19.04, "usd_reported": 0.00055993, "heimdall": [], "compare": "agree"}
+{"sheet": "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd", "model": "nemotron", "grok": [], "seconds": 25.7, "usd_reported": 0.00040959, "heimdall": [], "compare": "agree"}
+{"sheet": "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd", "model": "qwen", "grok": [], "seconds": 99.39, "usd_reported": 0.00270253, "heimdall": null, "error": "out of contract: TypeError: unhashable type: 'dict'"}
+{"sheet": "9c14612153405f8983e4:1339.080-1355.470:visual-1:502915c2d8927a3f", "model": "nemotron", "grok": [], "seconds": 18.69, "usd_reported": 0.00031214, "heimdall": [], "compare": "agree"}
+{"sheet": "9c14612153405f8983e4:1339.080-1355.470:visual-1:502915c2d8927a3f", "model": "qwen", "grok": [], "seconds": 8.36, "usd_reported": 0.00038643, "heimdall": [], "compare": "agree"}
+{"sheet": "a5f5a1d5d1e5482718f6:937.971-957.291:visual-1:3d4e338e3629af5e", "model": "nemotron", "grok": [], "seconds": 18.27, "usd_reported": 0.00032655, "heimdall": [], "compare": "agree"}
+{"sheet": "a5f5a1d5d1e5482718f6:937.971-957.291:visual-1:3d4e338e3629af5e", "model": "qwen", "grok": [], "seconds": 8.74, "usd_reported": 0.00041709, "heimdall": [], "compare": "agree"}
+{"sheet": "afe8101ad97672f4a9ad:3799.476-3815.836:visual-1:04751cd9f52004ea", "model": "nemotron", "grok": [], "seconds": 26.73, "usd_reported": 0.00043549, "heimdall": [], "compare": "agree"}
+{"sheet": "afe8101ad97672f4a9ad:3799.476-3815.836:visual-1:04751cd9f52004ea", "model": "qwen", "grok": [], "seconds": 14.0, "usd_reported": 0.00073552, "heimdall": [], "compare": "agree"}
+{"sheet": "b9f62d9986a3521426b0:897.877-909.447:visual-1:a64dcebc028a0b24", "model": "nemotron", "grok": [], "seconds": 28.75, "usd_reported": 0.00049394, "heimdall": [], "compare": "agree"}
+{"sheet": "b9f62d9986a3521426b0:897.877-909.447:visual-1:a64dcebc028a0b24", "model": "qwen", "grok": [], "seconds": 11.75, "usd_reported": 0.00049967, "heimdall": [], "compare": "agree"}
+{"sheet": "c7646b4ee91f955cf58f:1691.139-1698.069:visual-1:12c8f5da0237510c", "model": "nemotron", "grok": [], "seconds": 24.06, "usd_reported": 0.00040284, "heimdall": [], "compare": "agree"}
+{"sheet": "c7646b4ee91f955cf58f:1691.139-1698.069:visual-1:12c8f5da0237510c", "model": "qwen", "grok": [], "seconds": 399.19, "usd_reported": 0.00849325, "heimdall": [], "compare": "agree"}
+{"sheet": "e05b34a672b73f3334ea:3475.260-3494.260:visual-1:e7ce570e2457dcb3", "model": "nemotron", "grok": [], "seconds": 13.64, "usd_reported": 0.00024197, "heimdall": [], "compare": "agree"}
+{"sheet": "e05b34a672b73f3334ea:3475.260-3494.260:visual-1:e7ce570e2457dcb3", "model": "qwen", "grok": [], "seconds": 25.64, "usd_reported": 0.00074858, "heimdall": [], "compare": "agree"}
+{"sheet": "f063cce3e0c86a774f63:897.877-906.587:visual-1:8341d19d6b173dc7", "model": "nemotron", "grok": [], "seconds": 24.01, "usd_reported": 0.00043248, "heimdall": [], "compare": "agree"}
+{"sheet": "f063cce3e0c86a774f63:897.877-906.587:visual-1:8341d19d6b173dc7", "model": "qwen", "grok": [], "seconds": 7.1, "usd_reported": 0.0004013, "heimdall": [], "compare": "agree"}

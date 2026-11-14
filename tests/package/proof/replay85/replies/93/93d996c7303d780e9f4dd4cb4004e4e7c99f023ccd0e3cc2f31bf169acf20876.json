@@ -1,0 +1,19 @@
+{
+ "role": "replay85_deepseek",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall",
+ "seed": 29,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Bitcoin Mechanic): \"Bitcoin on the Blake 2B chain is incredible. And I say that not to pump it. Don't buy any if you don't want to buy any.\"\nCLIP label=\"clip_01\" (on screen: Coin Bureau): \"In the first week of November, about $1.28 billion left the spot Bitcoin ETFs, the most since late June. And more went out on the following Monday and Tuesday after. In that same week, Strategy bought about $82 million worth of Bitcoin. So the ETF let go of roughly 15 times that.\"\nCLIP label=\"clip_02\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin/crypto is a significant topic across different contexts, from specific chains to ETF flows to political freedom.\", \"clips\": {\"hook\": 3, \"clip_01\": 5, \"clip_02\": 4}, \"joins\": {\"hook -> clip_01\": {\"followable\": false, \"why\": \"Ends on buying advice; next jumps to ETF outflows without link.\"}, \"clip_01 -> clip_02\": {\"followable\": false, \"why\": \"Shifts from ETF flow data to political framing; no referent.\"}}}",
+ "usage": {
+  "in": 463,
+  "out": 4063,
+  "usd_reported": 0.00078442
+ },
+ "usd": 0.062334,
+ "seconds": 109.12,
+ "recorded_at": "2026-11-14T05:38:24Z"
+}

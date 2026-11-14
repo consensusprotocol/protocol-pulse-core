@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 21,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"Like, I think Bitcoin will outperform like US equities as a whole. And I think it will likely outperform individual companies within US equities. In a way, I think of Bitcoin being like this global productivity index, similar to the S &P 500 is to individual stocks.\"\nCLIP label=\"clip_02\" (on screen: BTC Sessions): \"The customer scans a QR with any lightning wallet and the payment settles in seconds. The seller gets dollars by default or... can choose to keep the Bitcoin and there's no chargebacks. Sellers can also auto convert up to 50 % of their daily card sales into Bitcoin.\"\nCLIP label=\"clip_03\" (on screen: CoinTelegraph): \"Look if it's 50 weeks moving average. Bitcoin's in a downtrend. Look at its 50 -week movement average.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin as a durable, useful, and strong-performing asset: its longevity, its payments utility, and its price strength versus equities.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 4, \"clip_03\": 3}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Hook ends on Bitcoin's endurance; clip_01 continues on Bitcoin's investment performance, a natural pivot.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"Both about Bitcoin's merits; shift from investment to payments utility is a topic jump but referent (Bitcoin) stays clear.\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"Shift from payments to price/technical analysis; referent still Bitcoin, though the jump is abrupt and clip_03's phrasing is rough.\"}}}",
+ "usage": {
+  "in": 595,
+  "out": 201,
+  "usd_reported": 4.337e-05
+ },
+ "usd": 0.0048,
+ "seconds": 4.09,
+ "recorded_at": "2026-11-14T03:20:43Z"
+}

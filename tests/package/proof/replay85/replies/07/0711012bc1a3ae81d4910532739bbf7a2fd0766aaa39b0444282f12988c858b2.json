@@ -1,0 +1,19 @@
+{
+ "role": "replay85_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.</moment>\n<after>have. We just didn't budget for AI to come into the conversation as strong as it was. They want two things. They want energy and they want data. And the machines will get both of them no matter what we say. I don't think Bitcoin's competitor is Ethereum so much. I actually look at it like RAM. like GPUs and RAM is actually the currency because that's what machines will want to trade. I think it's like it's a one-way street where the we're playing for the machines. We just don't know it yet. \u203a\u203a We've got a lot to talk about. \u203a\u203a Tons, tons, tons. \u203a\u203a You were you were the uh cryptography is going to break guy before it was cool. \u203a\u203a I know. I know. Is that Are we recording? \u203a\u203a Yeah. Or do you \u203a\u203a We're in We're in No, I know. Well, I mean it's just it's like we've got to respect like the better. It's like there's a new king of the jungle like and that's them. They think better than us. They think faster than us. They think everything like so all our time horizons that we make like oh when will we break this or when would this break? That's all based on us. Like there's a new sheriff in town and we haven't like measured</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "\n\n{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Speaker states a personal prediction about RSA using Bitcoin as the bet, without directing viewers or alleging wrongdoing.\"}",
+ "usage": {
+  "in": 682,
+  "out": 864,
+  "usd_reported": 0.00075628
+ },
+ "usd": 0.015006,
+ "seconds": 21.82,
+ "recorded_at": "2026-11-14T02:59:31Z"
+}

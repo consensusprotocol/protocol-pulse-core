@@ -1,0 +1,19 @@
+{
+ "role": "replay85_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"b9f62d9986a3521426b0\" (on screen: Simply Bitcoin): \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitcoin. They can talk about quantum all they want.\"\nCANDIDATE id=\"9ac17c2de186d8bd9c33\" (on screen: Simply Bitcoin): \"Over the next year, Bitcoin is going to prove to itself, even if the price doesn't reflect it today or in the short term, that it's the last thing standing. And that's why it should be a part of your portfolio.\"\nCANDIDATE id=\"b827182688d32b1d4aed\" (on screen: Stephan Livera): \"A Bitcoin mine does not get better at mining Bitcoin the longer it mines Bitcoin. The only way to get better at it is to become faster or to become larger.\"\nCANDIDATE id=\"a9e55fb94cc7f66d419e\" (on screen: Scott Melker): \"Now, uh, before we get into the weekly reckoning, I do want to take a quick look at the Bitcoin chart, right? Bitcoin crashes the 67K. Now comes the real test.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"b9f62d9986a3521426b0\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"9ac17c2de186d8bd9c33\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"b827182688d32b1d4aed\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"a9e55fb94cc7f66d419e\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "\n\n{\"hooks\": {\"b9f62d9986a3521426b0\": {\"scroll\": 4, \"alone\": 5, \"setup\": 4, \"why\": \"setup is slightly weakened because the 'But' pivot resolves the tension within the clip itself, leaving less open question for what follows\"}, \"9ac17c2de186d8bd9c33\": {\"scroll\": 3, \"alone\": 4, \"setup\": 2, \"why\": \"setup is weakest\u2014it reads as a closing conclusion ('that's why it should be in your portfolio') rather than an open hook that pulls you into the next clip\"}, \"b827182688d32b1d4aed\": {\"scroll\": 2, \"alone\": 4, \"setup\": 3, \"why\": \"scroll is weakest\u2014a dry, factual statement about mining economics lacks the provocation or urgency to stop a thumb mid-scroll\"}, \"a9e55fb94cc7f66d419e\": {\"scroll\": 2, \"alone\": 2, \"setup\": 3, \"why\": \"alone is weakest\u2014'before we get into the weekly reckoning' and 'the real test' are mid-show transitions that assume prior context a cold viewer doesn't have\"}}}",
+ "usage": {
+  "in": 734,
+  "out": 1591,
+  "usd_reported": 0.00116851
+ },
+ "usd": 0.026067,
+ "seconds": 17.09,
+ "recorded_at": "2026-11-14T02:35:00Z"
+}

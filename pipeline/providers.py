@@ -254,6 +254,89 @@ class OpenAIBackend(Backend):
         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
 
 
+class GeminiBackend(Backend):
+    """Google Gemini generateContent. RULING 87 (21:18 Nov 13): PLAN B ONLY. The key (key_name, default
+    GEMINI_API_KEY_MEDLEY) is fenced to this pipeline. It is sent in a header, never in the URL. JSON is asked for in
+    words and by responseMimeType. The reply's usageMetadata gives the tokens (thinking counted as output). Gemini
+    reports no cost, so the price-table estimate stands for each call, labelled as one."""
+    vendor = "google"
+    URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+    def complete(self, prompt, max_tokens, seed, system=None):
+        if is_vision(prompt):
+            raise RequestRejected("gemini: no image input on this back-end")
+        key = self.key(self.spec.get("key_name") or "GEMINI_API_KEY_MEDLEY")
+        body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": self.max_out(max_tokens), "temperature": 0, "seed": seed,
+                                     "responseMimeType": "application/json"}}
+        if system:
+            body["systemInstruction"] = {"parts": [{"text": system}]}
+        t0 = time.time()
+        j = _with_backoff(lambda: _http_json(self.URL.format(model=self.model), body, {"x-goog-api-key": key},
+                                             self.timeout))
+        u = j.get("usageMetadata") or {}
+        try:
+            parts = j["candidates"][0]["content"]["parts"]
+            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict) and not p.get("thought"))
+        except (KeyError, IndexError, TypeError):
+            raise RequestRejected("gemini: no candidates") from None
+        return text, {"in": int(u.get("promptTokenCount") or 0),
+                      "out": int(u.get("candidatesTokenCount") or 0) + int(u.get("thoughtsTokenCount") or 0)}, \
+            time.time() - t0
+
+
+class LocalJudgeBackend(Backend):
+    """RULING 87 (21:18 Nov 13): the integrator's GPU0 judge service (gemma3:27b). PLAN B ONLY: step A's verdict when
+    only one outside family answers. The integrator's contract (its message of 21:4x Nov 13):
+    - a request file in this worktree's tests/package/proof/judge_requests/<request_id>.json (written .tmp, then
+      renamed; read-only there, answered once per name and content), body {request_id, family "step_a", prompt,
+      max_tokens, seed}, ONE call per request;
+    - the answer in RESULTS/<request_id>.<prompt_id>.json, prompt_id = sha256(json.dumps([prompt, max_tokens,
+      seed]))[:20] (the integrator's local_judge.prompt_id; live 22:26:30 Nov 13, judge_sha c62a1e12088c), with
+      {request_id, family, prompt_id, model, digest, seed, max_tokens, text, error, seconds, waited_s, at, judge_sha}.
+      Only that exact file is read: an answer is this prompt's by its own sha.
+    A render always comes first, so the wait allows WAIT_S (40 min). No answer in time, an error, or a file that
+    cannot be read is no verdict (Unavailable for this call). The reply's contract is checked by the caller, as for a
+    vendor's. Local: free, no spend."""
+    vendor = "local_judge"
+    REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
+                            "judge_requests")
+    RESULTS = "/home/ultron/protocol_pulse/data/local_judge/results"      # the integrator's; read only
+    WAIT_S, POLL_S = 2400.0, 10.0
+
+    def complete(self, prompt, max_tokens, seed, system=None):
+        if is_vision(prompt) or system:
+            raise RequestRejected("local judge: a text prompt without a system message only")
+        rid = f"pp-selectid.{time.strftime('%Y%m%dT%H%M%S')}.{uuid.uuid4().hex[:8]}"
+        pid = hashlib.sha256(json.dumps([prompt, int(max_tokens), int(seed)]).encode()).hexdigest()[:20]
+        os.makedirs(self.REQUESTS, exist_ok=True)
+        tmp, final = os.path.join(self.REQUESTS, rid + ".tmp"), os.path.join(self.REQUESTS, rid + ".json")
+        with open(tmp, "x") as f:
+            json.dump({"request_id": rid, "family": "step_a", "prompt": prompt, "max_tokens": int(max_tokens),
+                       "seed": int(seed)}, f)
+        os.rename(tmp, final)
+        t0 = time.time()
+        answer = os.path.join(self.RESULTS, f"{rid}.{pid}.json")
+        while True:
+            rec, torn = None, None
+            if os.path.exists(answer):
+                try:
+                    with open(answer) as f:
+                        rec = json.load(f)
+                except (OSError, ValueError) as e:      # audit 0108 C1 (glm): a file read while it is being written
+                    torn = f"{type(e).__name__}"        # is polled again until the deadline, never taken as final
+            if rec is not None:
+                if not isinstance(rec, dict) or rec.get("request_id") != rid or rec.get("prompt_id") != pid or \
+                        rec.get("error") or not isinstance(rec.get("text"), str):
+                    raise RequestRejected(f"local judge: no verdict ({str((rec or {}).get('error'))[:200]})")
+                return rec["text"], {"in": 0, "out": 0, **{k: rec.get(k) for k in ("judge_sha", "digest",
+                                                                                    "waited_s")}}, time.time() - t0
+            if time.time() - t0 >= self.WAIT_S:
+                raise Unavailable(f"local judge: no answer within {self.WAIT_S:.0f} s (a render comes first)" +
+                                  (f"; the answer file could not be read ({torn})" if torn else ""))
+            time.sleep(self.POLL_S)
+
+
 class DeadlineExceeded(Exception):
     """A back-end gave no answer within the caller's deadline (orchestrator 22:40 ruling 5: one writer call never waits
     more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
@@ -577,7 +660,48 @@ class ElevenLabsTranscribe(STTBackend):
 
 
 VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "xai_vision": XAIVisionBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
-           "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe}
+           "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe,
+           "google": GeminiBackend, "local_judge": LocalJudgeBackend}
+
+
+ROUTINGS = ("today", "heimdall_first")    # RULING 85 (21:15 Nov 13): the switch (model_providers.json "routing")
+SHADOW_ROLES = ("context_verdict", "coherence_verdict", "fidelity_verdict", "exclusion_verdict", "speaker_verdict",
+                "viewer_takeaway", "visual_check")      # RULING 86: the verdicts a shadow back-end is asked again
+
+
+def gateway(b):
+    """The vendor a back-end is reached through: "heimdall" for every Heimdall model, whatever its routing makes of
+    b.vendor (ruling 85: under heimdall_first, a Heimdall family is its own maker, b.vendor == "heimdall/<family>")."""
+    return getattr(b, "gateway", b.vendor)
+
+
+def call_parsed(router, role, prompt, parse, max_tokens=2000, seed=7, system=None, avoid_vendor=None,
+                avoid_model=None, avoid_family=None, deadline_s=None, kind=None):
+    """The 20:33 order (ruling 82's chain on every verdict): the role's chain, where an answer OUT OF CONTRACT also
+    moves on to the next model, each model once. parse(text) raises ValueError / TypeError / KeyError for an answer
+    out of contract; that reply is rejected (its recording dropped, so it is asked again another time) and its model
+    skipped. -> (reply, parse(reply.text)). The chain spent: ProviderError (no verdict; nothing is cached by the
+    caller). Errors of the back-ends themselves (down, refused, past the deadline, empty) move on inside Router.call.
+    Works with any router that has call() (and reject(), when it has one)."""
+    skip, why = set(_as_set(avoid_model)), []
+    while True:
+        kw = {k: v for k, v in (("system", system), ("avoid_vendor", avoid_vendor), ("avoid_family", avoid_family),
+                                ("deadline_s", deadline_s), ("kind", kind)) if v is not None}
+        try:
+            r = router.call(role, prompt, max_tokens, seed, **kw, **({"avoid_model": frozenset(skip)} if skip else {}))
+        except ProviderError as e:
+            if why:
+                raise ProviderError(f"{e}; answers out of contract: {why}") from e
+            raise
+        if r.backend in skip:                      # never a loop: a model told to skip answered again (no verdict)
+            raise ProviderError(f"{role}: {r.backend} answered again though skipped; answers out of contract: {why}")
+        try:
+            return r, parse(r.text)
+        except (ValueError, TypeError, KeyError) as e:
+            if hasattr(router, "reject"):
+                router.reject(r)
+            why.append((r.backend, f"{type(e).__name__}: {str(e)[:120]}"))
+            skip.add(r.backend)
 
 
 def _as_set(x):
@@ -594,9 +718,14 @@ class Router:
     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
 
     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
-                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0):
+                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
+                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None):
         with open(config) as f:
             self.config = json.load(f)
+        rt = self.config.get("routing") or {}
+        self.routing = routing or rt.get("mode") or "today"     # RULING 85: "today" or "heimdall_first"
+        if self.routing not in ROUTINGS:
+            raise ValueError(f"routing must be one of {ROUTINGS}, not {self.routing!r}")
         self.env_path = env_path or ENV_PATH
         self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
         if limit_basis not in ("estimate", "reported"):
@@ -612,10 +741,49 @@ class Router:
             self.backends[name] = cls(name, spec, self.env_path, local_llm) if cls is LocalBackend else \
                 cls(name, spec, self.env_path)
         self.chains = dict(chains or {})          # tests / the A/B harness may pin a role's chain (still by config name)
+        # RULING 86 (21:18 Nov 13): {role or "*": back-end} asked the SAME prompt of every verdict another back-end
+        # decided (recorded to shadow_log, never deciding); its role is "shadow86:<role>", so its recordings and its
+        # spend (ruling 48's ledger) are its own
+        self.shadow, self.shadow_log, self._shadows = dict(shadow or {}), shadow_log, []
+        for r_, name_ in self.shadow.items():
+            if name_ not in self.backends:
+                raise ValueError(f"the shadow back-end {name_!r} is not in the config")
+        # RULING 87 (21:18 Nov 13): PLAN B. health: the shared state file (pipeline/heimdall_health.py); every
+        # Heimdall verdict or writer call's outcome is noted there, and while it says "plan_b" the roles named in
+        # plan_b_chains (frozen legs already out) run on them: Grok mainly, then any other outside key that answers.
+        # A probe thread asks each Heimdall family a one-word question every 2 minutes while calls fail.
+        self.health, self.plan_b_chains, self.state_md = health, dict(plan_b_chains or {}), state_md
+        self._probe = None
+        if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
+            for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
+                if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
+                    b.gateway, b.vendor = b.vendor, f"{b.vendor}/{b.family}"
 
-    def chain(self, role):
-        if role in self.chains:
-            return list(self.chains[role])
+    def mode(self):
+        """RULING 87: "plan_b" while the shared health state says Heimdall is down, else this router's routing."""
+        if not self.health:
+            return self.routing
+        import heimdall_health as HH
+        try:
+            m = HH.mode(self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid")
+        except HH.HealthUnreadable as e:          # audit 0108 C1 (glm): never guessed, and never an exception the
+            raise ProviderError(f"the Heimdall health state cannot be read: {e}") from None   # call sites miss: no
+        return "plan_b" if m == "plan_b" else self.routing                                    # verdict (law L-m)
+
+    def chain(self, role, kind=None):
+        """The back-ends a call of `role` tries, in order. RULING 88 (22:15 Nov 13): a verdict TYPE may have its own
+        list, keyed "<role>:<kind>" (step_a_first, step_a_second, step_c, hook, clips_alone, coherence); without one,
+        the role's. Plan B's lists first while Heimdall is down (ruling 87); then this router's overrides; then the
+        routing's lists (ruling 85, not under "today"); then the role's configured chain."""
+        keys = ([f"{role}:{kind}"] if kind else []) + [role]
+        if self.health and any(k in self.plan_b_chains for k in keys) and self.mode() == "plan_b":
+            return list(next(self.plan_b_chains[k] for k in keys if k in self.plan_b_chains))   # ruling 87
+        for k in keys:
+            if k in self.chains:
+                return list(self.chains[k])
+            routed = ((self.config.get("routing") or {}).get(self.routing) or {}).get(k)
+            if routed:                            # RULING 85 / 88: this routing's own list (today: per type only)
+                return list(routed)
         try:
             return list(self.config["roles"][role]["chain"])
         except KeyError:
@@ -825,6 +993,119 @@ class Router:
         except OSError:
             return False
 
+    def role_deadline(self, role, b):
+        """The 20:33 order (ruling 82's chain on the verdicts): a call of a verdict role on a back-end whose gateway
+        names a deadline (model_providers.json routing.verdict_deadline_s, e.g. {"heimdall": 120}) gets it when the
+        caller sets none. -> seconds or None."""
+        rt = self.config.get("routing") or {}
+        bounded = set(rt.get("verdict_roles") or ())
+        if self.routing == "today":                   # step A's first screen and step C keep no deadline today:
+            bounded -= set(rt.get("today_unbounded") or ())   # ruling 82 bounded only the second screen (8 clips a
+        if role not in bounded:                       # call cannot answer in 120 s on Heimdall)
+            return None
+        d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
+        return float(d) if _num(d) and d > 0 else None
+
+    def _note(self, role, b, answered):
+        """RULING 87: a Heimdall verdict or writer call's outcome, to the shared health state (never a gate here: a
+        state file that cannot be written is a notice). The probe thread starts at the first failure."""
+        rt = self.config.get("routing") or {}
+        if not self.health or not isinstance(b, HeimdallBackend) or \
+                role not in set(rt.get("verdict_roles") or ()) | {"angle_write"}:
+            return
+        import heimdall_health as HH
+        try:
+            HH.note(answered, self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid")
+        except (HH.HealthUnreadable, OSError) as e:
+            n = f"RULING 87: the Heimdall health state cannot be read or written: {e}"
+            if n not in self.notices:
+                self.notices.append(n)
+        if not answered:
+            self.start_probe()
+
+    def start_probe(self, every_s=30.0):
+        """RULING 87: the probe thread (one per router): while HH.probe_due, ask each Heimdall family a one-word
+        question (60 s each, on ruling 48's ledger as role "probe87"); any answer is a probe answer."""
+        import threading
+        if self._probe is not None or not self.health:
+            return
+        import heimdall_health as HH
+        fams = [n for n, b in self.backends.items() if isinstance(b, HeimdallBackend) and n.startswith("heimdall:")
+                and b.family in ("deepseek", "glm", "qwen")]
+
+        def loop():
+            while True:
+                try:
+                    if HH.probe_due(self.health):
+                        HH.probe_result(self.probe_once(fams), self.health, evidence=self.deadline_log,
+                                        state_md=self.state_md, who="pp-selectid probe")
+                except Exception:                      # noqa: BLE001 (the probe never stops a build)
+                    pass
+                time.sleep(every_s)
+        self._probe = threading.Thread(target=loop, daemon=True, name="pp-probe87")
+        self._probe.start()
+
+    def probe_once(self, names):
+        """RULING 87: one probe round: each Heimdall family asked a one-word question (60 s, never recorded nor served
+        from a recording). A family this run marked down is probed all the same: its mark is lifted for the probe and
+        stays lifted when it answers (it may serve again), restored when it does not. -> True if any family answered."""
+        ok = False
+        for n in names:
+            self.chains.setdefault(f"probe87:{n}", [n])
+            was = self.down.pop(n, None)
+            try:
+                r = self.call(f"probe87:{n}", "Reply with the single word OK.", 64, 7, deadline_s=60.0)
+                ok = ok or bool(r.text.strip())
+            except Exception:                          # noqa: BLE001 (a probe that fails is a probe that failed)
+                if was is not None and n not in self.down:
+                    self.down[n] = was
+        return ok
+
+    def _shadow_of(self, role):
+        return self.shadow.get(role) or self.shadow.get("*")
+
+    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding):
+        """RULING 86: ask the role's shadow back-end the same prompt, in a thread; one JSON line to shadow_log per
+        verdict with both answers. Never raises into the build and never decides."""
+        import threading
+        name = self._shadow_of(role)
+        self.chains.setdefault(f"shadow86:{role}", [name])
+
+        def run():
+            rec = {"role": role, "prompt": prompt_text(prompt), "images": len(prompt["images"]) if is_vision(prompt)
+                   else 0, "max_tokens": max_tokens, "seed": seed, "system": system,
+                   "deciding": {"backend": deciding.backend, "vendor": deciding.vendor, "text": deciding.text,
+                                "cached": bool(getattr(deciding, "cached", False))}}
+            t0 = time.time()
+            try:
+                r = self.call(f"shadow86:{role}", prompt, max_tokens, seed, system=system)
+                rec["shadow"] = {"backend": r.backend, "text": r.text, "seconds": round(time.time() - t0, 2),
+                                 "cached": bool(getattr(r, "cached", False)),
+                                 "usd_reported": (r.usage or {}).get("usd_reported"), "usd_estimate": r.usd}
+            except Exception as e:                     # noqa: BLE001 (a shadow never stops a build)
+                rec["shadow"] = {"backend": name, "error": f"{type(e).__name__}: {str(e)[:300]}",
+                                 "seconds": round(time.time() - t0, 2)}
+            if self.shadow_log:
+                line = json.dumps(dict(rec, utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
+                try:
+                    with self._log_lock:
+                        os.makedirs(os.path.dirname(os.path.abspath(self.shadow_log)), exist_ok=True)
+                        with open(self.shadow_log, "a") as f:
+                            f.write(line + "\n")
+                except OSError as e:
+                    self.notices.append(f"the shadow log could not be written: {type(e).__name__}: {e}")
+        t = threading.Thread(target=run, daemon=True, name="pp-shadow86")
+        self._shadows.append(t)
+        t.start()
+
+    def shadow_wait(self, timeout_s=900.0):
+        """RULING 86: wait for every shadow call of this router (a build's side-by-side needs them all). -> the number
+        still running when the time ran out (their lines are then missing from shadow_log, and the report says so)."""
+        end = time.time() + timeout_s
+        for t in list(self._shadows):
+            t.join(max(0.0, end - time.time()))
+        return sum(t.is_alive() for t in self._shadows)
+
     def heimdall_tripwire(self, at=0.9):
         """NOTIFY when Heimdall's account usage reaches `at` of its credits (PBX 02:45: never a halt)."""
         h = next((b for b in self.backends.values() if isinstance(b, HeimdallBackend)), None)
@@ -859,10 +1140,10 @@ class Router:
         os.replace(tmp, path)
 
     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
-             avoid_family=None, deadline_s=None):
+             avoid_family=None, deadline_s=None, kind=None):
         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
         tried, notices = [], []
-        for name in self.chain(role):
+        for name in self.chain(role, kind):           # ruling 88: the verdict type's own list when it has one
             b = self.backends.get(name)
             why = self._skip(name, b, av, am, af)
             if why is None and isinstance(b, STTBackend):
@@ -874,23 +1155,36 @@ class Router:
             if why:
                 tried.append((name, why))
                 continue
-            path = self._path(role, name, prompt, max_tokens, seed, system) if self.record_dir else None
+            path = self._path(role, name, prompt, max_tokens, seed, system) \
+                if self.record_dir and not role.startswith("probe87:") else None      # ruling 87: a probe is live
             if path and os.path.exists(path):
                 with open(path) as f:
                     rec = json.load(f)
-                return Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
-                             rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
+                out = Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
+                            rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
+                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
+                    self._shadow_ask(role, prompt, max_tokens, seed, system, out)  # ruling 86: a recorded verdict too
+                return out
             if self.replay:
                 tried.append((name, "replay: not recorded"))
                 continue
             upper = b.upper_usd(prompt, max_tokens, system)
             key = self._reserve(b, upper)
-            if b.vendor == "heimdall":
+            if isinstance(b, HeimdallBackend):
                 n = self.heimdall_tripwire()
                 if n:
                     notices.append(n)
 
-            def abandon(b=b, key=key, name=name):      # RULING 83 (a): booked at its PROMPT tokens (input rate), an
+            dl = deadline_s or self.role_deadline(role, b)      # the caller's deadline, else the role's (20:33)
+            if dl and _num(b.spec.get("deadline_floor_s")):     # ruling 87: the local judge waits out a render
+                dl = max(dl, float(b.spec["deadline_floor_s"]))
+            if isinstance(b, LocalJudgeBackend) and self.state_md and not getattr(self, "_announced_local", False):
+                import heimdall_health as HH
+                self._announced_local = True                    # ruling 87: "and STATE line 1 says so"
+                HH.announce(self.state_md, "PLAN B WITH ONE OUTSIDE FAMILY: STEP A'S VERDICT IS ASKED OF THE LOCAL "
+                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)")
+
+            def abandon(b=b, key=key, name=name, deadline_s=dl):   # RULING 83 (a): booked at its PROMPT tokens, an
                 booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
                 self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
                                 "deadline_s": deadline_s, "seconds": deadline_s,
@@ -899,22 +1193,25 @@ class Router:
                 self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
                 return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
             try:
-                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
-                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system),
+                if dl:                                 # ruling 5 (22:40): fail over instead of waiting
+                    text, usage, secs = _within(dl, lambda: b.complete(prompt, max_tokens, seed, system),
                                                 on_abandon=abandon, on_late=self._late)
                 else:
                     text, usage, secs = b.complete(prompt, max_tokens, seed, system)
             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
-                booked = b.prompt_usd(prompt, system)  # abandon()
+                self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
+                booked = b.prompt_usd(prompt, system)
                 tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
                                     "ruling 83 (a))"))
                 continue
             except RequestRejected as e:
                 self._settle(key)
+                self._note(role, b, False)
                 tried.append((name, f"refused this request: {e}"))
                 continue
             except Unavailable as e:
                 self._settle(key)
+                self._note(role, b, False)
                 self.down[name] = str(e)
                 tried.append((name, str(e)))
                 continue
@@ -925,13 +1222,15 @@ class Router:
             self._settle(key, b, usage, usd, role)
             if secs >= self.slow_log_s:                # item 55: an answer this slow is evidence too
                 self._log_slow({"kind": "answered_slowly", "threshold_s": self.slow_log_s, "role": role, "model": name,
-                                "vendor": b.vendor, "deadline_s": deadline_s, "seconds": round(secs, 2),
+                                "vendor": b.vendor, "deadline_s": dl, "seconds": round(secs, 2),
                                 "prompt_chars": len(prompt_text(prompt)), "max_tokens": max_tokens,
                                 "in": (usage or {}).get("in"),
                                 "out": (usage or {}).get("out")})
             if not (isinstance(text, str) and text.strip()):   # an empty reply: this call moves on (audit C2 K7)
+                self._note(role, b, False)
                 tried.append((name, "refused this request: an empty reply"))
                 continue
+            self._note(role, b, True)                  # ruling 87: a Heimdall family answered inside its deadline
             recorded = ""
             if path and isinstance(text, str) and text.strip():
                 self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
@@ -939,8 +1238,11 @@ class Router:
                                     "text": text,
                                     "usage": usage, "usd": usd, "seconds": round(secs, 2)})
                 recorded = path
-            return Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
-                         recorded)
+            out = Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
+                        recorded)
+            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
+                self._shadow_ask(role, prompt, max_tokens, seed, system, out)     # ruling 86: asked, never deciding
+            return out
         if self.replay:
             raise ReplayMiss(f"{role}: no recorded exchange ({tried})")
         raise ProviderError(f"{role}: every back-end unavailable: {tried}")

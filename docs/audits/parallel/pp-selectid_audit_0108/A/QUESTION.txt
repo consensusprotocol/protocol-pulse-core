@@ -1,0 +1,164 @@
+You are auditing PACKAGE A of a change on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins). It
+is the router, the Heimdall health state, the provider config and the build driver. Package B (the verdict call
+sites, the shadow report and the replay driver) is audited separately. Only state what you can verify from the diff;
+if uncertain, say so; do not guess.
+
+Background (static):
+- providers.Router.call(role, ...) tries the role's chain of back-ends in order. It skips a back-end that is:
+  - on a vendor or family the caller avoids (law L-s: a verdict never comes from the writer's vendor or family);
+  - a model the caller avoids;
+  - marked down for the run.
+  It moves on when a back-end is unavailable, refuses, misses its deadline, or answers empty. The chain spent:
+  ProviderError (no verdict, never a pass).
+- Each paid call reserves its upper bound on the spend ledger (ruling 48) and settles after. Ruling 83: a call
+  abandoned at its deadline is booked at its prompt tokens; a late answer replaces that booking.
+- Back-ends are: xAI Grok (vendor xai, family grok); Heimdall, a gateway to several model families (vendor heimdall:
+  deepseek, glm, qwen, nemotron); Anthropic and OpenAI (out of credit); a local gemma3:27b on GPU0 (never this
+  builder's).
+- Every verdict today runs Grok FIRST: step A's first verdict, clips-alone, coherence, hook ratings, fidelity, step B,
+  step C, speaker, exclusion, visual. Grok costs about ten times Heimdall per call, and the card behind it may be
+  declined.
+
+The orders (verbatim excerpts):
+- 20:33 Nov 13: "Ruling 82's chain (deepseek -> glm-5.3-flash -> qwen3.8-27b, 120 s a call, an out-of-contract answer
+  moves on, an outage is never a verdict) applies to every step that today has one Heimdall model as its only route
+  when xAI is the writer or is down: the fidelity verdict, coherence / clips-alone / hook ratings, step B, the speaker
+  and exclusion verdicts. The family rules stay: a verdict never comes from the family that wrote the line it judges,
+  and step A's two verdicts are from two families."
+- RULING 85 (21:15, locked 21:18): "HEIMDALL FIRST FOR EVERY VERDICT, GROK LAST. ... THE ROUTING I will rule from that
+  table [the replay], but build it now behind a switch: each verdict type has an ordered list of model FAMILIES; the
+  two-family rule (step A: two verdicts from two families; no verdict from the family that wrote the line) is
+  satisfied INSIDE Heimdall wherever two Heimdall families both pass the replay for that type; Grok is the last entry
+  of every list (used only when Heimdall's families are down or split), and the pipeline must complete a video with
+  xAI answering nothing at all."
+- RULING 86 (21:18): "The first pin sealed under Heimdall-first routing is judged TWICE: Heimdall's families decide
+  (that is the pin), and Grok is asked the same prompts once in SHADOW (recorded, never deciding ...). I get the
+  side-by-side per verdict ...: every decision where they differ, which was stricter, and whether the pin would have
+  sealed under Grok. ... After three pins with no decision-changing difference, the shadow stops."
+- RULING 87 (21:18): "PLAN B, THE FAIL-SAFE. Heimdall is 'down' when NO Heimdall family answers a verdict or writer
+  call inside its deadline for 15 MINUTES running (a cheap health probe every 2 min while calls are failing; one model
+  down is not 'down' ...). When down: switch the whole pin stage to PLAN B at once: Grok mainly, then any other outside
+  key that answers (the Gemini key is fenced to this pipeline and may be used here; OpenAI and Anthropic when they have
+  credit: probe, do not assume), keeping the two-family rule with whatever two families answer; if only ONE outside
+  family answers, step A's second verdict is the local gemma3:27b on GPU0 through the integrator's judge service, and
+  STATE line 1 says so. Return to Heimdall-first when its probe has answered 3 times in a row. Every switch ... is
+  written to STATE line 1 in capitals with the time, and to the Heimdall evidence file. The same switch covers the
+  miner and the writer ... Plan B's spend counts on the same ledger and the same cap ..."
+
+- RULING 88 (22:15, from the replay's interim): "(a) fidelity and exclusion MOVE to Heimdall now ... (two Heimdall
+  families, Grok last). (b) step C, hook rating: MOVE when the full table holds the interim numbers (98-100 %). (c) STEP A
+  stays two families with Grok as one of them, but the ORDER changes: the Heimdall verdict is asked FIRST; a clip
+  Heimdall refuses is refused and Grok is never asked; only a clip Heimdall passes goes to Grok to confirm. ... (d)
+  clips-alone and coherence keep Grok until the table is complete; glm is out of those two (out-of-contract answers).
+  (e) qwen failed two anchors: qwen is never the deciding family on coherence or step C."
+
+The change (package A):
+1. model_providers.json:
+   - roles: the 20:33 chains. fidelity / coherence / speaker / exclusion gain glm and qwen after deepseek;
+     viewer_takeaway (step B) gains deepseek and glm before qwen.
+   - backends: google:gemini-2.5-pro (Plan B only; key GEMINI_API_KEY_MEDLEY, sent in a header; no vendor cost, so
+     the estimate stands). local_judge:gemma3:27b (Plan B only; deadline_floor_s 2400).
+   - RULING 88: Router.chain(role, kind) and call(..., kind): a verdict TYPE may have its own list "<role>:<kind>"
+     (step_a_first, step_a_second, step_c, hook, clips_alone, coherence); the recordings stay keyed by role. Under
+     heimdall_first: fidelity [qwen, glm, Grok]; exclusion [glm, qwen, Grok]; step_a_first [qwen, glm, deepseek, Grok];
+     step_a_second [Grok, qwen, glm, deepseek]; step_c [Grok, glm, deepseek]; hook [Grok, qwen, deepseek, glm];
+     clips_alone [Grok, qwen, deepseek]; coherence [Grok, deepseek]; speaker / step B [Grok, deepseek, glm, qwen].
+     Under today: per-type lists only for (d)/(e): coherence [Grok, deepseek], clips_alone [Grok, deepseek, qwen],
+     step_c [Grok, deepseek, glm]; every role keeps its chain.
+   - "routing":
+     - mode (today);
+     - verdict_roles;
+     - verdict_deadline_s {heimdall: 120};
+     - today_unbounded [context_verdict]: today, step A's first screen and step C keep no deadline (their Heimdall
+       fallback carries 8 clips a call; ruling 82 bounded only the second screen);
+     - heimdall_first: deepseek, glm, qwen, then Grok, for every verdict role (the per-type order is set from the
+       replay);
+     - plan_b: Grok, Gemini, OpenAI, Anthropic; context_verdict also gets local_judge;
+     - shadow: Grok (grok-4.7 for visual_check);
+     - shadow_until_clean_pins: 3.
+2. providers.py:
+   - ROUTINGS. Router(routing=...): under heimdall_first, each Heimdall back-end's vendor becomes "heimdall/<family>"
+     (gateway() keeps "heimdall"), so every existing vendor rule separates the families.
+   - chain(role): the Plan B chain while the health state says plan_b, else the overrides, else the routing's list,
+     else the role's chain.
+   - role_deadline: 120 s on Heimdall for the verdict roles, minus today_unbounded under today.
+   - call_parsed(router, ...): an answer out of contract is rejected and its model skipped; the chain spent is
+     ProviderError; a skipped model answering again is ProviderError (never a loop).
+   - The shadow: SHADOW_ROLES, _shadow_ask (a thread; role "shadow86:<role>" with its own recordings), shadow_wait.
+   - Plan B: _note (each Heimdall verdict or writer call's outcome to heimdall_health); mode(); start_probe / probe_once
+     (a family marked down is probed; its mark is lifted only if it answers); probes are never recorded or served from
+     a recording.
+   - GeminiBackend.
+   - LocalJudgeBackend: the integrator's contract, a request file in this worktree, its answer from the integrator's
+     results directory, up to 40 min; an error or no answer is no verdict. Its deadline floor overrides 120 s. Its first
+     use is announced on STATE line 1.
+   - The tripwire checks isinstance(HeimdallBackend), not the vendor string.
+3. heimdall_health.py (new; shared with pp-ingest's watcher):
+   - a state file under an flock;
+   - note(answered): the 15-minute rule; a drill is recorded, never counted; an answer is written at most once per
+     30 s per process while all is well, a failure always;
+   - mode() applies the rule on the clock;
+   - probe_due every 2 min while failing or in plan_b;
+   - probe_result: 3 answers in a row in plan_b switch back;
+   - every switch goes to the state, the evidence file and STATE line 1 (prepended, one physical line);
+   - announce();
+   - an unreadable state raises HealthUnreadable (never guessed).
+4. proof_ly.py: chains(routing); plan_b_chains() (OpenAI / Anthropic kept: tried, never assumed).
+   proof_ledger.py: --routing; the Router gets health, plan_b_chains and state_md; the shadow while the routing is
+   heimdall_first and the clean streak is under 3; shadow_wait and the shadow report at the end; res["routing"] and
+   res["mode_at_end"].
+5. Tests:
+   - test_providers: today unchanged; Grok last; the two-family rule inside Heimdall; 120 s on Heimdall only;
+     call_parsed; the writer's gateway; the real config's deadline split; the shadow (asked, never deciding, failures
+     recorded, recorded verdicts shadowed).
+   - test_heimdall_health: 15 minutes; one answer stops the clock; probes; back after 3; switches on record; drills;
+     the heartbeat; unreadable state; the router's Plan B chain; the probe and the down marks; the local judge.
+   - test_ledger_build: the real config with xAI down and deepseek writing; every verdict role answers inside Heimdall
+     off the writer; step A's two verdicts from two Heimdall families.
+
+Design choices to check (say if you think any is wrong):
+- The family-as-maker re-keying happens only under heimdall_first; today's behaviour is unchanged.
+- A refused request (HTTP 400) counts as "not answered" for the health clock; any other family's answer stops it.
+- In Plan B the writer is Grok first; with one outside family, verdicts other than step A have no second family and
+  fail closed (the ruling names the local judge for step A only).
+- The probe lifts a down mark only when the family answers.
+
+Check, against the diff:
+- that today's routing is unchanged except the 20:33 chains and their 120 s;
+- that no verdict can come from the writer's family under either routing;
+- that xAI answering nothing still completes every verdict under heimdall_first;
+- the health state's concurrency and fail-closed behaviour;
+- that a shadow can never decide or block;
+- the Plan B switch and its return;
+- spend: shadows, probes and Plan B calls all on the same ledger.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
+
+ADDENDUM (00:4x ET Nov 14): this change is now rebased onto the branch's newer HEAD 07321410. That HEAD adds the
+SPOTLIGHT pin kind (rulings 90-92: pipeline/spotlight.py, package_pin's spotlight contract) and RULING 93 (DEC-12d per
+clip: visual_pin's burned-in text question). Both were audited separately (2322, 0003). The merge points, to check:
+- package.first_bounds(router): one helper for step A's FIRST screen. Under heimdall_first it is 2 clips and 120 s a
+  call; under today, {}. The medley build and spotlight.build both call prescreen(..., kind="step_a_first",
+  **first_bounds(router)).
+- proof_ledger.py keeps both module constants (SPOTLIGHTS for ruling 90; STATE_MD for ruling 87). The spotlight runs
+  on the same Router after the medley search, so its calls are shadowed (ruling 86) and noted for Plan B (ruling 87)
+  like the medley's.
+- shadow86.pin_texts covers a sealed spotlight pin (res["spotlight_pin"] with res["spotlight"]["package"]) as well as
+  the medley pin, so ruling 86's "first pin sealed under Heimdall-first" holds whatever the pin's kind.
+- The spotlight's value verdict (ruling 91) stays ONE call with no move-on ("one write, one verdict; anything short of
+  a clear yes means no line"); its layout verdict (ruling 92) is one vision call, and failing it means not measured.
+
+ADDENDUM 2 (01:1x ET Nov 14):
+- The change is now rebased onto HEAD 2f081cba, which adds RULINGS 94 and 95 (audited separately, 0041):
+  - stand_alone's hook opener rule (first/second-person pronouns free, third-person ones need the scorer);
+  - package._can_open's re-check with the verdict and its spotlight-only deferral;
+  - hook trim variants;
+  - spotlight.next_attempt.
+  The merge was mechanical (git merge-file, no conflict). The one hand-applied line is spotlight.build's step-A call:
+  kind="step_a_first" with package.first_bounds(router), as the medley's.
+- THE REPLAY IS COMPLETE (884 rows; tests/package/proof/replay85/TABLE.md). Ruling 88 (b) was conditional on the
+  full table:
+  - it holds for the HOOK rating: qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %. model_providers.json's
+    heimdall_first "coherence_verdict:hook" is now qwen -> glm -> deepseek -> Grok (Grok was first);
+  - it does not hold for STEP C: glm 97 %, deepseek 96 %, and qwen's 98 % is barred by (e). Step C stays Grok first.
+  routing.ruling_88's note records both.

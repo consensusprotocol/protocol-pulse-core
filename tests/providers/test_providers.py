@@ -481,5 +481,196 @@ class TestRouter(unittest.TestCase):
             self.assertEqual(meta["backend"], "xai:z")
 
 
+
+class TestRuling85Routing(unittest.TestCase):
+    """RULING 85 (21:15 Nov 13): Heimdall first for every verdict, Grok last, behind a switch; the two-family rule kept
+    INSIDE Heimdall (each family its own maker); the 20:33 order: ruling 82's 120 s on Heimdall for every verdict role,
+    and an answer out of contract moves on (providers.call_parsed)."""
+
+    def cfg(self, d, mode="today"):
+        p = os.path.join(d, "cfg.json")
+        json.dump({"schema": "pp.providers/1",
+                   "backends": {"xai:grok": {"vendor": "xai", "model": "grok", "family": "grok"},
+                                "heimdall:deepseek": {"vendor": "heimdall", "model": "deepseek", "family": "deepseek"},
+                                "heimdall:glm": {"vendor": "heimdall", "model": "glm", "family": "glm"},
+                                "heimdall:qwen": {"vendor": "heimdall", "model": "qwen", "family": "qwen"}},
+                   "roles": {"coherence_verdict": {"chain": ["xai:grok", "heimdall:deepseek", "heimdall:glm",
+                                                             "heimdall:qwen"]},
+                             "mine": {"chain": ["heimdall:qwen", "xai:grok"]}},
+                   "routing": {"mode": mode, "verdict_roles": ["coherence_verdict"],
+                               "verdict_deadline_s": {"heimdall": 120},
+                               "heimdall_first": {"coherence_verdict": ["heimdall:deepseek", "heimdall:glm",
+                                                                        "heimdall:qwen", "xai:grok"]}}}, open(p, "w"))
+        return p
+
+    def fakes(self):
+        return [Fake("xai:grok", "xai", answer="x", family="grok"),
+                Fake("heimdall:deepseek", "heimdall", answer="d", family="deepseek"),
+                Fake("heimdall:glm", "heimdall", answer="g", family="glm"),
+                Fake("heimdall:qwen", "heimdall", answer="q", family="qwen")]
+
+    def router(self, d, mode=None, cfg_mode="today"):
+        r = P.Router(self.cfg(d, cfg_mode), env_path="/nonexistent", routing=mode)
+        fs = self.fakes()
+        if r.routing == "heimdall_first":          # the router's own init re-keyed its real back-ends; fakes too
+            for b in fs:
+                if b.vendor == "heimdall":
+                    b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
+        r.backends = {b.name: b for b in fs}
+        return r
+
+    def test_today_is_unchanged_and_heimdall_first_puts_grok_last(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            t = self.router(d)
+            self.assertEqual(t.routing, "today")
+            self.assertEqual(t.call("coherence_verdict", "p").backend, "xai:grok")
+            self.assertEqual(t.chain("mine"), ["heimdall:qwen", "xai:grok"])
+            h = self.router(d, "heimdall_first")
+            self.assertEqual(h.chain("coherence_verdict"), ["heimdall:deepseek", "heimdall:glm", "heimdall:qwen",
+                                                            "xai:grok"])
+            self.assertEqual(h.chain("mine"), ["heimdall:qwen", "xai:grok"])   # a role the routing names not: as is
+            self.assertEqual(h.call("coherence_verdict", "p").backend, "heimdall:deepseek")
+            self.assertEqual(self.router(d, cfg_mode="heimdall_first").routing, "heimdall_first")  # the config's mode
+            with self.assertRaises(ValueError):
+                P.Router(self.cfg(d), env_path="/nonexistent", routing="grok_only")
+
+    def test_the_two_family_rule_inside_heimdall(self):
+        """A Heimdall writer (deepseek) is judged by another Heimdall family (glm) under heimdall_first; today the
+        vendor rule leaves only Grok; the router's own init re-keys a real Heimdall back-end's vendor."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            h = self.router(d, "heimdall_first")
+            r = h.call("coherence_verdict", "p", avoid_vendor={"heimdall/deepseek"}, avoid_family={"deepseek"})
+            self.assertEqual((r.backend, r.vendor), ("heimdall:glm", "heimdall/glm"))
+            t = self.router(d)
+            r = t.call("coherence_verdict", "p", avoid_vendor={"heimdall"}, avoid_family={"deepseek"})
+            self.assertEqual(r.backend, "xai:grok")
+            real = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first")
+            b = real.backends["heimdall:glm"]
+            self.assertEqual((b.vendor, P.gateway(b), real.backends["xai:grok"].vendor), ("heimdall/glm", "heimdall",
+                                                                                           "xai"))
+            self.assertEqual(P.gateway(P.Router(self.cfg(d), env_path="/nonexistent").backends["heimdall:glm"]),
+                             "heimdall")
+
+    def test_a_verdict_role_gets_120_s_on_heimdall_only(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            h = self.router(d, "heimdall_first")
+            self.assertEqual(h.role_deadline("coherence_verdict", h.backends["heimdall:glm"]), 120.0)
+            self.assertIsNone(h.role_deadline("coherence_verdict", h.backends["xai:grok"]))
+            self.assertIsNone(h.role_deadline("mine", h.backends["heimdall:qwen"]))
+            slow = Slow("heimdall:deepseek", "heimdall/deepseek", "d", delay=0.6, family="deepseek")
+            slow.gateway = "heimdall"
+            h.backends["heimdall:deepseek"] = slow
+            h.config["routing"]["verdict_deadline_s"] = {"heimdall": 0.1}
+            r = h.call("coherence_verdict", "p")                 # deepseek is abandoned at 0.1 s: glm answers
+            self.assertEqual(r.backend, "heimdall:glm")
+            self.assertIn("abandoned at the deadline", r.tried[0][1])
+
+    def test_the_real_config_bounds_today_as_ruled_and_heimdall_first_everywhere(self):
+        """The 20:33 order bounds fidelity, coherence, step B, speaker and exclusion (120 s on Heimdall); step A's
+        first screen and step C stay unbounded today (8 clips a call); under heimdall_first every verdict is bounded."""
+        today, hf = P.Router(env_path="/nonexistent"), P.Router(env_path="/nonexistent", routing="heimdall_first")
+        ds, xs = "heimdall:deepseek/deepseek-v4.1-flash", "xai:grok-4.20-0309-reasoning"
+        for role in ("fidelity_verdict", "coherence_verdict", "viewer_takeaway", "speaker_verdict",
+                     "exclusion_verdict"):
+            self.assertEqual((today.role_deadline(role, today.backends[ds]), hf.role_deadline(role, hf.backends[ds])),
+                             (120.0, 120.0), role)
+            self.assertIsNone(today.role_deadline(role, today.backends[xs]))
+        self.assertIsNone(today.role_deadline("context_verdict", today.backends[ds]))
+        self.assertEqual(hf.role_deadline("context_verdict", hf.backends[ds]), 120.0)
+        self.assertIsNone(hf.role_deadline("angle_write", hf.backends[ds]))   # the writer keeps ruling 5's 300 s
+
+    def test_call_parsed_moves_on_past_an_answer_out_of_contract(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            h = self.router(d, "heimdall_first")
+            h.backends["heimdall:deepseek"].answer = "not json"
+            r, v = P.call_parsed(h, "coherence_verdict", "p", lambda t: {"d": 1, "g": 2}[t])
+            self.assertEqual((r.backend, v), ("heimdall:glm", 2))
+            for b in h.backends.values():
+                b.answer = "bad"
+            with self.assertRaises(P.ProviderError) as e:
+                P.call_parsed(h, "coherence_verdict", "p", lambda t: {"d": 1}[t])
+            self.assertIn("answers out of contract", str(e.exception))
+            self.assertEqual({n: b.calls for n, b in h.backends.items()},          # the second run asks each model
+                             {"heimdall:deepseek": 2, "heimdall:glm": 2, "heimdall:qwen": 1, "xai:grok": 1})  # once
+
+    def test_the_writes_keep_their_gateway(self):
+        """package.build: every write stays on the angle's GATEWAY, so a Heimdall write may still fail over
+        deepseek -> qwen under heimdall_first, and Grok never writes there."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            h = self.router(d, "heimdall_first")
+            writers = ["heimdall:deepseek", "heimdall:qwen", "xai:grok"]
+            avoid = {P.gateway(h.backends[n]) for n in writers} - {P.gateway(h.backends["heimdall:deepseek"])}
+            self.assertEqual(avoid, {"xai"})
+            self.assertFalse({h.backends["heimdall:qwen"].vendor} & avoid)
+
+
+class TestRuling86Shadow(TestRuling85Routing):
+    """RULING 86 (21:18 Nov 13): the first pins under Heimdall-first are judged twice: Heimdall's families decide, and
+    Grok is asked the same prompt in SHADOW (recorded to shadow_log, never deciding)."""
+
+    def shadow_router(self, d, **kw):
+        r = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first", shadow={"*": "xai:grok"},
+                     shadow_log=os.path.join(d, "SHADOW.jsonl"), **kw)
+        fs = self.fakes()
+        for b in fs:
+            if b.vendor == "heimdall":
+                b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
+        r.backends = {b.name: b for b in fs}
+        return r
+
+    def lines(self, d):
+        p = os.path.join(d, "SHADOW.jsonl")
+        return [json.loads(x) for x in open(p)] if os.path.exists(p) else []
+
+    def test_a_heimdall_verdict_is_asked_of_grok_in_shadow_and_grok_never_decides(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            r = self.shadow_router(d)
+            rep = r.call("coherence_verdict", "the prompt", 500, 7)
+            self.assertEqual((rep.backend, rep.text), ("heimdall:deepseek", "d"))      # Heimdall decides
+            self.assertEqual(r.shadow_wait(5), 0)
+            got = self.lines(d)
+            self.assertEqual([(x["role"], x["prompt"], x["deciding"]["backend"], x["deciding"]["text"],
+                               x["shadow"]["backend"], x["shadow"]["text"]) for x in got],
+                             [("coherence_verdict", "the prompt", "heimdall:deepseek", "d", "xai:grok", "x")])
+            self.assertEqual(r.backends["xai:grok"].calls, 1)
+            r.call("mine", "p")                                   # not a verdict: no shadow
+            r.backends["heimdall:deepseek"].fail = "down"
+            r.backends["heimdall:glm"].fail = "down"
+            r.backends["heimdall:qwen"].fail = "down"
+            self.assertEqual(r.call("coherence_verdict", "q").backend, "xai:grok")   # Grok decided: nothing to shadow
+            self.assertEqual(r.shadow_wait(5), 0)
+            self.assertEqual(len(self.lines(d)), 1)
+
+    def test_a_shadow_that_fails_is_on_record_and_stops_nothing(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            r = self.shadow_router(d)
+            r.backends["xai:grok"].fail = "xAI is down"
+            self.assertEqual(r.call("coherence_verdict", "p").text, "d")
+            self.assertEqual(r.shadow_wait(5), 0)
+            (x,) = self.lines(d)
+            self.assertIn("xAI is down", x["shadow"]["error"])
+
+    def test_a_recorded_verdict_is_shadowed_too_and_the_shadow_back_end_must_exist(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            r = self.shadow_router(d, record_dir=os.path.join(d, "rec"))
+            r.call("coherence_verdict", "p")
+            r.shadow_wait(5)
+            r.call("coherence_verdict", "p")                      # served from its recording
+            r.shadow_wait(5)
+            got = self.lines(d)
+            self.assertEqual([x["deciding"]["cached"] for x in got], [False, True])
+            self.assertEqual([x["shadow"]["cached"] for x in got], [False, True])   # the shadow's own recording
+            self.assertEqual(r.backends["xai:grok"].calls, 1)
+            with self.assertRaises(ValueError):
+                P.Router(self.cfg(d), env_path="/nonexistent", shadow={"*": "xai:nope"})
+
 if __name__ == "__main__":
     unittest.main()

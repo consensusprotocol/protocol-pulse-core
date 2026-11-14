@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Bitcoin's overlooked value comes from a market no government owns\nCAPTION: A market that no single authority can switch off may be the most mispriced opportunity in finance, and that is the point this medley builds toward.\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"However, I think Bitcoin is by far the most undervalued asset in like the entire global financial system right now. So, you know, Bitcoin gold parity is around like $1.5, $1.4 million per Bitcoin last I checked. It's very, very undervalued.\"\nVOICE-OVER: What stands out is how rare it is for any asset to be priced by everyone and controlled by no one, which makes the usual political drama feel irrelevant.\nVOICE-OVER: Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's value comes from being a global, permissionless free market that no government controls, making it the most undervalued asset in finance.\", \"clips\": {\"hook\": 5, \"clip_01\": 4, \"clip_02\": 4}, \"vo_point\": 5}",
+ "usage": {
+  "in": 488,
+  "out": 69,
+  "usd_reported": 2.368e-05
+ },
+ "usd": 0.002499,
+ "seconds": 2.19,
+ "recorded_at": "2026-11-14T03:00:33Z"
+}

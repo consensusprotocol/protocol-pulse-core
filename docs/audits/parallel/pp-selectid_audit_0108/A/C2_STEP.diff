@@ -1,0 +1,1578 @@
+diff --git a/pipeline/heimdall_health.py b/pipeline/heimdall_health.py
+new file mode 100644
+index 0000000..510725f
+--- /dev/null
++++ b/pipeline/heimdall_health.py
+@@ -0,0 +1,212 @@
++"""RULING 87 (orchestrator 21:18 Nov 13): PLAN B, THE FAIL-SAFE. One shared 'Heimdall down' signal for the builder
++(verdicts and writes) and pp-ingest's watcher (the miner), kept in ONE JSON state file under an flock.
++
++- Heimdall is DOWN when NO Heimdall family answers a verdict or writer call inside its deadline for DOWN_AFTER_S (15
++  minutes) running: note(False) starts the clock (failing_since), any note(True) stops it. One model down is not
++  'down': that is ruling 82's chain, and any family's answer stops the clock.
++- While calls are failing, and while in Plan B, a cheap probe (probe_due / probe_result) runs every PROBE_EVERY_S
++  (2 minutes).
++- Down: the mode is "plan_b" at once (the whole pin stage: Grok mainly, then any other outside key that answers).
++  BACK: "heimdall_first" when the probe has answered BACK_AFTER (3) times in a row.
++- Every switch is recorded three times: in the state's "switches"; as a line {"kind": "switch", ...} in the
++  Heimdall evidence file (item 55); and, IN CAPITALS with the time, at the start of the caller's STATE line 1 (one
++  physical line).
++
++The state file: {"mode": "heimdall_first" | "plan_b", "last_answer_utc", "failing_since_utc", "last_probe_utc",
++"probe_streak", "switches": [{"utc", "to", "why"}], "notes": n}. Times are ISO UTC. An unreadable state file is never
++'up' or 'down' by guess: note() / mode() raise HealthUnreadable (fail closed: the caller decides, and says so).
++CPU only; no model call here (the caller makes the probe call and reports it)."""
++import fcntl
++import threading
++import json
++import os
++import time
++from datetime import datetime, timezone
++
++STATE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
++                     "HEIMDALL_HEALTH.json")
++DOWN_AFTER_S = 15 * 60                  # ruling 87: no family answering for 15 minutes running
++PROBE_EVERY_S = 2 * 60                  # ruling 87: a cheap probe every 2 minutes while calls fail (and in Plan B)
++BACK_AFTER = 3                          # ruling 87: back to Heimdall-first after 3 probe answers in a row
++HEARTBEAT_S = 30.0                      # an answer is written at most once per 30 s per process while all is well
++_SEEN = {}                              # path -> monotonic time of this process's last written answer (no failure since)
++_SEEN_LOCK = threading.Lock()           # the probe thread and the build's threads share _SEEN (audit 0108 C1, qwen)
++MODES = ("heimdall_first", "plan_b")
++
++
++class HealthUnreadable(Exception):
++    """The state file exists but cannot be read: no guess either way (law L-j)."""
++
++
++def _now(now=None):
++    return now if now is not None else datetime.now(timezone.utc)
++
++
++def _iso(t):
++    return t.strftime("%Y-%m-%dT%H:%M:%SZ")
++
++
++def _t(s):
++    try:
++        t = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except (TypeError, ValueError):
++        return None
++    return t if t.tzinfo is not None else None
++
++
++def _load(path):
++    if not os.path.exists(path):
++        return {"mode": "heimdall_first", "last_answer_utc": None, "failing_since_utc": None, "last_probe_utc": None,
++                "probe_streak": 0, "switches": [], "notes": 0}
++    try:
++        with open(path) as f:
++            s = json.load(f)
++        if not isinstance(s, dict) or s.get("mode") not in MODES:
++            raise ValueError("not a health state")
++        return s
++    except (OSError, ValueError) as e:
++        raise HealthUnreadable(f"{path}: {type(e).__name__}: {e}") from None
++
++
++def _save(path, s):
++    tmp = f"{path}.{os.getpid()}.tmp"
++    with open(tmp, "w") as f:
++        json.dump(s, f, indent=1)
++    os.replace(tmp, path)
++
++
++class _Locked:
++    def __init__(self, path):
++        self.path = path
++
++    def __enter__(self):
++        os.makedirs(os.path.dirname(os.path.abspath(self.path)), exist_ok=True)
++        self.f = open(self.path + ".lock", "w")
++        fcntl.flock(self.f, fcntl.LOCK_EX)
++        return self
++
++    def __exit__(self, *exc):
++        fcntl.flock(self.f, fcntl.LOCK_UN)
++        self.f.close()
++        return False
++
++
++def _switch(s, to, why, now, evidence=None, state_md=None, who=""):
++    """Record one switch: the state, the evidence file, STATE line 1 (capitals, the time, one physical line)."""
++    rec = {"utc": _iso(now), "to": to, "why": why, "by": who}
++    s["mode"] = to
++    s.setdefault("switches", []).append(rec)
++    if evidence:
++        try:
++            with open(evidence, "a") as f:
++                f.write(json.dumps(dict(rec, kind="switch")) + "\n")
++        except OSError:
++            pass                                # evidence, never a gate (the state file holds the switch)
++    if state_md:
++        local = now.astimezone().strftime("%H:%M")
++        word = "SWITCHED TO PLAN B" if to == "plan_b" else "BACK TO HEIMDALL-FIRST"
++        _prepend(state_md, f"{local} ET: {word} ({why.upper()}) |")   # the state and evidence files hold it too
++
++
++def announce(state_md, text, now=None):
++    """RULING 87: a Plan B fact the orchestrator must see, in capitals with the time, prepended to STATE line 1 (one
++    physical line). A file that cannot be written is left as it is (the build log carries the fact too)."""
++    now = _now(now)
++    _prepend(state_md, f"{now.astimezone().strftime('%H:%M')} ET: {text.upper()} |")
++
++
++def _prepend(state_md, head):
++    """Prepend `head` to STATE line 1 (one physical line) under the file's own lock, so a switch (the probe's thread)
++    and an announcement (the build's) never lose each other's head (audit 0108 C1, glm). A file that cannot be written
++    is left as it is."""
++    try:
++        with _Locked(state_md):
++            with open(state_md) as f:
++                lines = f.read().split("\n")
++            lines[0] = f"{head} {lines[0]}" if lines and lines[0] else head
++            tmp = f"{state_md}.{os.getpid()}.{threading.get_ident()}.tmp"
++            with open(tmp, "w") as f:
++                f.write("\n".join(lines))
++            os.replace(tmp, state_md)
++    except OSError:
++        pass
++
++
++def note(answered, path=STATE, now=None, evidence=None, state_md=None, who="", drill=False):
++    """One Heimdall verdict or writer call's outcome: answered inside its deadline (True), or not (False: down,
++    refused, empty, past the deadline). -> the mode after it. 15 minutes of failures with no answer: plan_b.
++    drill=True (pp-ingest's outage drill, 21:4x Nov 13): recorded (drills, last_drill_utc), never counted.
++    An answer while all is well is written at most once per HEARTBEAT_S per process (a failure is always written)."""
++    import time as _time
++    now, mono = _now(now), _time.monotonic()
++    with _SEEN_LOCK:
++        if answered and not drill and mono - _SEEN.get(path, -1e9) < HEARTBEAT_S:
++            return "heimdall_first" if _SEEN.get(path + "#mode") != "plan_b" else "plan_b"
++    with _Locked(path):
++        s = _load(path)
++        if drill:
++            s["drills"], s["last_drill_utc"] = int(s.get("drills") or 0) + 1, _iso(now)
++            _save(path, s)
++            return s["mode"]
++        s["notes"] = int(s.get("notes") or 0) + 1
++        if answered:
++            s["last_answer_utc"], s["failing_since_utc"] = _iso(now), None
++        elif not s.get("failing_since_utc"):
++            s["failing_since_utc"] = _iso(now)
++        _down_rule(s, now, evidence, state_md, who)
++        _save(path, s)
++        with _SEEN_LOCK:
++            if answered:
++                _SEEN[path], _SEEN[path + "#mode"] = mono, s["mode"]
++            else:
++                _SEEN.pop(path, None)
++        return s["mode"]
++
++
++def _down_rule(s, now, evidence, state_md, who):
++    fs = _t(s.get("failing_since_utc"))
++    if s["mode"] == "heimdall_first" and fs is not None and (now - fs).total_seconds() >= DOWN_AFTER_S:
++        _switch(s, "plan_b", f"no Heimdall family answered inside its deadline for "
++                             f"{int((now - fs).total_seconds() // 60)} minutes (since {_iso(fs)})", now, evidence,
++                state_md, who)
++        s["probe_streak"] = 0
++
++
++def mode(path=STATE, now=None, evidence=None, state_md=None, who=""):
++    """The mode now (the 15-minute rule applied on the clock too, so an idle build still switches). -> mode."""
++    now = _now(now)
++    with _Locked(path):
++        s = _load(path)
++        before = s["mode"]
++        _down_rule(s, now, evidence, state_md, who)
++        if s["mode"] != before:
++            _save(path, s)
++        return s["mode"]
++
++
++def probe_due(path=STATE, now=None):
++    """True when a probe is due: calls are failing (or the mode is plan_b) and the last probe is PROBE_EVERY_S old."""
++    now = _now(now)
++    with _Locked(path):
++        s = _load(path)
++        if s["mode"] != "plan_b" and not s.get("failing_since_utc"):
++            return False
++        lp = _t(s.get("last_probe_utc"))
++        return lp is None or (now - lp).total_seconds() >= PROBE_EVERY_S
++
++
++def probe_result(answered, path=STATE, now=None, evidence=None, state_md=None, who=""):
++    """A probe's outcome (any Heimdall family answering it counts). BACK_AFTER answers in a row while in plan_b:
++    back to heimdall_first (the failure clock cleared). While not yet down, a probe answer is no verdict answer: the
++    15-minute clock runs on (the ruling counts verdict and writer calls). -> the mode after it."""
++    now = _now(now)
++    with _Locked(path):
++        s = _load(path)
++        s["last_probe_utc"] = _iso(now)
++        s["probe_streak"] = int(s.get("probe_streak") or 0) + 1 if answered else 0
++        if s["mode"] == "plan_b" and s["probe_streak"] >= BACK_AFTER:
++            _switch(s, "heimdall_first", f"the probe answered {s['probe_streak']} times in a row", now, evidence,
++                    state_md, who)
++            s["failing_since_utc"], s["probe_streak"] = None, 0
++        _save(path, s)
++        return s["mode"]
+diff --git a/pipeline/model_providers.json b/pipeline/model_providers.json
+index 11238b1..446e62d 100644
+--- a/pipeline/model_providers.json
++++ b/pipeline/model_providers.json
+@@ -156,6 +156,26 @@
+    "family": "glm",
+    "base_url": "https://api-staging.heimdallm.com/api/v1",
+    "measured": "ruling 82 (orchestrator 20:02 Nov 13): pp-ingest measured it 24/24 on calibration (default reasoning)"
++  },
++  "google:gemini-2.5-pro": {
++   "vendor": "google",
++   "model": "gemini-2.5-pro",
++   "family": "gemini",
++   "key_name": "GEMINI_API_KEY_MEDLEY",
++   "price_usd_per_1m": [
++    1.25,
++    10
++   ],
++   "min_out": 8000,
++   "timeout_s": 300,
++   "what": "RULING 87 (21:18 Nov 13): PLAN B only. The GEMINI_API_KEY_MEDLEY key is fenced to this pipeline. Gemini reports no cost: the price-table estimate (list price, thinking counted as output) is booked, labelled."
++  },
++  "local_judge:gemma3:27b": {
++   "vendor": "local_judge",
++   "model": "gemma3:27b",
++   "family": "gemma",
++   "deadline_floor_s": 2400,
++   "what": "RULING 87 (21:18 Nov 13): PLAN B ONLY, step A's verdict when one outside family answers: the integrator's GPU0 judge service (request files in tests/package/proof/judge_requests, answers in /home/ultron/protocol_pulse/data/local_judge/results). Free. A render comes first: up to 40 min."
+   }
+  },
+  "roles": {
+@@ -183,6 +203,8 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+    "what": "vo_fidelity.py: the blind claim-by-claim verdict on VO, title and caption; never the writer's vendor"
+@@ -203,6 +225,8 @@
+    "chain": [
+     "anthropic:claude-opus-5-5",
+     "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
+     "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+@@ -238,7 +262,9 @@
+     "local:gemma3:27b",
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+-    "heimdall:deepseek/deepseek-v4.1-flash"
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b"
+    ],
+    "what": "moments.exclusion_verdict: the hard exclusions of law L-u on one moment in its context"
+   },
+@@ -247,6 +273,8 @@
+     "anthropic:claude-opus-5-5",
+     "xai:grok-4.20-0309-reasoning",
+     "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+    "what": "package.coherence: the blind QUALITY verdict (through-line, ratings); never the writer's vendor"
+@@ -256,6 +284,8 @@
+     "xai:grok-4.20-0309-reasoning",
+     "anthropic:claude-opus-5-5",
+     "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b",
+     "local:gemma3:27b"
+    ],
+    "what": "speakers.attribute: who speaks one pin segment, from the source's own title / channel / description and the transcript around the clip (orchestrator 00:05 ET Nov 13 item 3); code keeps only what the text shows"
+@@ -275,5 +305,161 @@
+    ],
+    "what": "transcript_truth.py: law L-v 2's second, independent recognition pass with speaker turns on the selected segment's source audio (CPU fetch; no GPU, no Whisper)"
+   }
++ },
++ "routing": {
++  "ruling": "RULING 85 (orchestrator 21:15 Nov 13, locked 21:18): HEIMDALL FIRST FOR EVERY VERDICT, GROK LAST, behind this switch. mode 'today': the chains under roles (with the 20:33 order: ruling 82's Heimdall chain after Grok on every verdict role). mode 'heimdall_first': the lists below; each Heimdall family is its own maker for every vendor rule, so the two-family rule is kept inside Heimdall (providers.Router). The per-type order is ruled from the replay (tests/package/replay85.py); until then each list is ruling 82's order (deepseek, glm, qwen), Grok last. A build names its routing (proof_ledger --routing).",
++  "mode": "today",
++  "verdict_roles": [
++   "context_verdict",
++   "coherence_verdict",
++   "fidelity_verdict",
++   "exclusion_verdict",
++   "speaker_verdict",
++   "viewer_takeaway"
++  ],
++  "verdict_deadline_s": {
++   "heimdall": 120
++  },
++  "heimdall_first": {
++   "context_verdict": [
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "xai:grok-4.20-0309-reasoning"
++   ],
++   "coherence_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "fidelity_verdict": [
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:z-ai/glm-5.3-flash",
++    "xai:grok-4.20-0309-reasoning"
++   ],
++   "exclusion_verdict": [
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b",
++    "xai:grok-4.20-0309-reasoning"
++   ],
++   "speaker_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "viewer_takeaway": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "context_verdict:step_a_first": [
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "xai:grok-4.20-0309-reasoning"
++   ],
++   "context_verdict:step_a_second": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "context_verdict:step_c": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "coherence_verdict:hook": [
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:z-ai/glm-5.3-flash",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "xai:grok-4.20-0309-reasoning"
++   ],
++   "coherence_verdict:clips_alone": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:qwen/qwen3.8-27b",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "coherence_verdict:coherence": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ]
++  },
++  "plan_b": {
++   "context_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5",
++    "local_judge:gemma3:27b"
++   ],
++   "coherence_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "fidelity_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "exclusion_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "speaker_verdict": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "viewer_takeaway": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "angle_write": [
++    "xai:grok-4.20-0309-reasoning",
++    "google:gemini-2.5-pro",
++    "openai:gpt-6.1-sol",
++    "anthropic:claude-opus-5-5"
++   ],
++   "visual_check": [
++    "xai_vision:grok-4.7"
++   ]
++  },
++  "plan_b_note": "RULING 87: while pipeline/heimdall_health.py says Heimdall is down (no family answered a verdict or writer call inside its deadline for 15 minutes running), these roles run on these chains: Grok mainly, then any other outside key that answers (Gemini's fenced key; OpenAI and Anthropic only when a call shows they have credit: they are tried, never assumed). Back to the mode's chains when the probe has answered 3 times in a row.",
++  "shadow": {
++   "*": "xai:grok-4.20-0309-reasoning",
++   "visual_check": "xai_vision:grok-4.7"
++  },
++  "shadow_until_clean_pins": 3,
++  "shadow_note": "RULING 86: a heimdall_first build asks these back-ends the same prompt of every verdict Heimdall decided (recorded, never deciding) until 3 pins in a row show no decision-changing difference.",
++  "today_unbounded": [
++   "context_verdict"
++  ],
++  "today": {
++   "coherence_verdict:coherence": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash"
++   ],
++   "coherence_verdict:clips_alone": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:qwen/qwen3.8-27b"
++   ],
++   "context_verdict:step_c": [
++    "xai:grok-4.20-0309-reasoning",
++    "heimdall:deepseek/deepseek-v4.1-flash",
++    "heimdall:z-ai/glm-5.3-flash"
++   ]
++  },
++  "ruling_88": "RULING 88 (orchestrator 22:15 Nov 13), from the replay's interim, the full table to confirm: (a) fidelity and exclusion on Heimdall now (two families, Grok last); (b) step C and the hook rating move when the full table holds the interim's 98-100 % (Grok first until then); (c) step A: Heimdall FIRST, a clip Heimdall refuses is refused and Grok is never asked, a clip Heimdall passes goes to Grok to confirm; (d) clips-alone and coherence keep Grok, glm out of both; (e) qwen never decides coherence or step C. THE FULL TABLE (01:06 ET Nov 14, 884 rows): (b) holds for the hook rating (qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %): it moved, qwen -> glm -> deepseek -> Grok; it does not hold for step C (glm 97 %, deepseek 96 %; qwen 98 % but barred by (e)): Grok first."
+  }
+ }
+diff --git a/pipeline/providers.py b/pipeline/providers.py
+index 55b66b3..aa5474b 100644
+--- a/pipeline/providers.py
++++ b/pipeline/providers.py
+@@ -254,6 +254,89 @@ class OpenAIBackend(Backend):
+         return text, {"in": int(u.get("prompt_tokens") or 0), "out": int(u.get("completion_tokens") or 0)}, time.time() - t0
+ 
+ 
++class GeminiBackend(Backend):
++    """Google Gemini generateContent. RULING 87 (21:18 Nov 13): PLAN B ONLY. The key (key_name, default
++    GEMINI_API_KEY_MEDLEY) is fenced to this pipeline. It is sent in a header, never in the URL. JSON is asked for in
++    words and by responseMimeType. The reply's usageMetadata gives the tokens (thinking counted as output). Gemini
++    reports no cost, so the price-table estimate stands for each call, labelled as one."""
++    vendor = "google"
++    URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        if is_vision(prompt):
++            raise RequestRejected("gemini: no image input on this back-end")
++        key = self.key(self.spec.get("key_name") or "GEMINI_API_KEY_MEDLEY")
++        body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
++                "generationConfig": {"maxOutputTokens": self.max_out(max_tokens), "temperature": 0, "seed": seed,
++                                     "responseMimeType": "application/json"}}
++        if system:
++            body["systemInstruction"] = {"parts": [{"text": system}]}
++        t0 = time.time()
++        j = _with_backoff(lambda: _http_json(self.URL.format(model=self.model), body, {"x-goog-api-key": key},
++                                             self.timeout))
++        u = j.get("usageMetadata") or {}
++        try:
++            parts = j["candidates"][0]["content"]["parts"]
++            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict) and not p.get("thought"))
++        except (KeyError, IndexError, TypeError):
++            raise RequestRejected("gemini: no candidates") from None
++        return text, {"in": int(u.get("promptTokenCount") or 0),
++                      "out": int(u.get("candidatesTokenCount") or 0) + int(u.get("thoughtsTokenCount") or 0)}, \
++            time.time() - t0
++
++
++class LocalJudgeBackend(Backend):
++    """RULING 87 (21:18 Nov 13): the integrator's GPU0 judge service (gemma3:27b). PLAN B ONLY: step A's verdict when
++    only one outside family answers. The integrator's contract (its message of 21:4x Nov 13):
++    - a request file in this worktree's tests/package/proof/judge_requests/<request_id>.json (written .tmp, then
++      renamed; read-only there, answered once per name and content), body {request_id, family "step_a", prompt,
++      max_tokens, seed}, ONE call per request;
++    - the answer in RESULTS/<request_id>.<prompt_id>.json, prompt_id = sha256(json.dumps([prompt, max_tokens,
++      seed]))[:20] (the integrator's local_judge.prompt_id; live 22:26:30 Nov 13, judge_sha c62a1e12088c), with
++      {request_id, family, prompt_id, model, digest, seed, max_tokens, text, error, seconds, waited_s, at, judge_sha}.
++      Only that exact file is read: an answer is this prompt's by its own sha.
++    A render always comes first, so the wait allows WAIT_S (40 min). No answer in time, an error, or a file that
++    cannot be read is no verdict (Unavailable for this call). The reply's contract is checked by the caller, as for a
++    vendor's. Local: free, no spend."""
++    vendor = "local_judge"
++    REQUESTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tests", "package", "proof",
++                            "judge_requests")
++    RESULTS = "/home/ultron/protocol_pulse/data/local_judge/results"      # the integrator's; read only
++    WAIT_S, POLL_S = 2400.0, 10.0
++
++    def complete(self, prompt, max_tokens, seed, system=None):
++        if is_vision(prompt) or system:
++            raise RequestRejected("local judge: a text prompt without a system message only")
++        rid = f"pp-selectid.{time.strftime('%Y%m%dT%H%M%S')}.{uuid.uuid4().hex[:8]}"
++        pid = hashlib.sha256(json.dumps([prompt, int(max_tokens), int(seed)]).encode()).hexdigest()[:20]
++        os.makedirs(self.REQUESTS, exist_ok=True)
++        tmp, final = os.path.join(self.REQUESTS, rid + ".tmp"), os.path.join(self.REQUESTS, rid + ".json")
++        with open(tmp, "x") as f:
++            json.dump({"request_id": rid, "family": "step_a", "prompt": prompt, "max_tokens": int(max_tokens),
++                       "seed": int(seed)}, f)
++        os.rename(tmp, final)
++        t0 = time.time()
++        answer = os.path.join(self.RESULTS, f"{rid}.{pid}.json")
++        while True:
++            rec, torn = None, None
++            if os.path.exists(answer):
++                try:
++                    with open(answer) as f:
++                        rec = json.load(f)
++                except (OSError, ValueError) as e:      # audit 0108 C1 (glm): a file read while it is being written
++                    torn = f"{type(e).__name__}"        # is polled again until the deadline, never taken as final
++            if rec is not None:
++                if not isinstance(rec, dict) or rec.get("request_id") != rid or rec.get("prompt_id") != pid or \
++                        rec.get("error") or not isinstance(rec.get("text"), str):
++                    raise RequestRejected(f"local judge: no verdict ({str((rec or {}).get('error'))[:200]})")
++                return rec["text"], {"in": 0, "out": 0, **{k: rec.get(k) for k in ("judge_sha", "digest",
++                                                                                    "waited_s")}}, time.time() - t0
++            if time.time() - t0 >= self.WAIT_S:
++                raise Unavailable(f"local judge: no answer within {self.WAIT_S:.0f} s (a render comes first)" +
++                                  (f"; the answer file could not be read ({torn})" if torn else ""))
++            time.sleep(self.POLL_S)
++
++
+ class DeadlineExceeded(Exception):
+     """A back-end gave no answer within the caller's deadline (orchestrator 22:40 ruling 5: one writer call never waits
+     more than 5 min). The call is abandoned, not killed: Python cannot stop the thread."""
+@@ -577,7 +660,48 @@ class ElevenLabsTranscribe(STTBackend):
+ 
+ 
+ VENDORS = {"local": LocalBackend, "xai_search": XAISearchBackend, "xai_vision": XAIVisionBackend, "openai": OpenAIBackend, "heimdall": HeimdallBackend, "xai": XAIBackend,
+-           "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe}
++           "anthropic": AnthropicBackend, "openai_stt": OpenAITranscribe, "elevenlabs_stt": ElevenLabsTranscribe,
++           "google": GeminiBackend, "local_judge": LocalJudgeBackend}
++
++
++ROUTINGS = ("today", "heimdall_first")    # RULING 85 (21:15 Nov 13): the switch (model_providers.json "routing")
++SHADOW_ROLES = ("context_verdict", "coherence_verdict", "fidelity_verdict", "exclusion_verdict", "speaker_verdict",
++                "viewer_takeaway", "visual_check")      # RULING 86: the verdicts a shadow back-end is asked again
++
++
++def gateway(b):
++    """The vendor a back-end is reached through: "heimdall" for every Heimdall model, whatever its routing makes of
++    b.vendor (ruling 85: under heimdall_first, a Heimdall family is its own maker, b.vendor == "heimdall/<family>")."""
++    return getattr(b, "gateway", b.vendor)
++
++
++def call_parsed(router, role, prompt, parse, max_tokens=2000, seed=7, system=None, avoid_vendor=None,
++                avoid_model=None, avoid_family=None, deadline_s=None, kind=None):
++    """The 20:33 order (ruling 82's chain on every verdict): the role's chain, where an answer OUT OF CONTRACT also
++    moves on to the next model, each model once. parse(text) raises ValueError / TypeError / KeyError for an answer
++    out of contract; that reply is rejected (its recording dropped, so it is asked again another time) and its model
++    skipped. -> (reply, parse(reply.text)). The chain spent: ProviderError (no verdict; nothing is cached by the
++    caller). Errors of the back-ends themselves (down, refused, past the deadline, empty) move on inside Router.call.
++    Works with any router that has call() (and reject(), when it has one)."""
++    skip, why = set(_as_set(avoid_model)), []
++    while True:
++        kw = {k: v for k, v in (("system", system), ("avoid_vendor", avoid_vendor), ("avoid_family", avoid_family),
++                                ("deadline_s", deadline_s), ("kind", kind)) if v is not None}
++        try:
++            r = router.call(role, prompt, max_tokens, seed, **kw, **({"avoid_model": frozenset(skip)} if skip else {}))
++        except ProviderError as e:
++            if why:
++                raise ProviderError(f"{e}; answers out of contract: {why}") from e
++            raise
++        if r.backend in skip:                      # never a loop: a model told to skip answered again (no verdict)
++            raise ProviderError(f"{role}: {r.backend} answered again though skipped; answers out of contract: {why}")
++        try:
++            return r, parse(r.text)
++        except (ValueError, TypeError, KeyError) as e:
++            if hasattr(router, "reject"):
++                router.reject(r)
++            why.append((r.backend, f"{type(e).__name__}: {str(e)[:120]}"))
++            skip.add(r.backend)
+ 
+ 
+ def _as_set(x):
+@@ -594,9 +718,14 @@ class Router:
+     spend ledger, and returns a Reply naming the back-end that answered. replay=True serves recorded exchanges only."""
+ 
+     def __init__(self, config=CONFIG, env_path=None, record_dir=None, replay=False, spend_path=None, limit_usd=40.0,
+-                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0):
++                 local_llm=None, chains=None, limit_basis="estimate", deadline_log=None, slow_log_s=240.0,
++                 routing=None, shadow=None, shadow_log=None, health=None, plan_b_chains=None, state_md=None):
+         with open(config) as f:
+             self.config = json.load(f)
++        rt = self.config.get("routing") or {}
++        self.routing = routing or rt.get("mode") or "today"     # RULING 85: "today" or "heimdall_first"
++        if self.routing not in ROUTINGS:
++            raise ValueError(f"routing must be one of {ROUTINGS}, not {self.routing!r}")
+         self.env_path = env_path or ENV_PATH
+         self.record_dir, self.replay, self.spend_path, self.limit_usd = record_dir, replay, spend_path, limit_usd
+         if limit_basis not in ("estimate", "reported"):
+@@ -612,10 +741,49 @@ class Router:
+             self.backends[name] = cls(name, spec, self.env_path, local_llm) if cls is LocalBackend else \
+                 cls(name, spec, self.env_path)
+         self.chains = dict(chains or {})          # tests / the A/B harness may pin a role's chain (still by config name)
+-
+-    def chain(self, role):
+-        if role in self.chains:
+-            return list(self.chains[role])
++        # RULING 86 (21:18 Nov 13): {role or "*": back-end} asked the SAME prompt of every verdict another back-end
++        # decided (recorded to shadow_log, never deciding); its role is "shadow86:<role>", so its recordings and its
++        # spend (ruling 48's ledger) are its own
++        self.shadow, self.shadow_log, self._shadows = dict(shadow or {}), shadow_log, []
++        for r_, name_ in self.shadow.items():
++            if name_ not in self.backends:
++                raise ValueError(f"the shadow back-end {name_!r} is not in the config")
++        # RULING 87 (21:18 Nov 13): PLAN B. health: the shared state file (pipeline/heimdall_health.py); every
++        # Heimdall verdict or writer call's outcome is noted there, and while it says "plan_b" the roles named in
++        # plan_b_chains (frozen legs already out) run on them: Grok mainly, then any other outside key that answers.
++        # A probe thread asks each Heimdall family a one-word question every 2 minutes while calls fail.
++        self.health, self.plan_b_chains, self.state_md = health, dict(plan_b_chains or {}), state_md
++        self._probe = None
++        if self.routing == "heimdall_first":      # RULING 85: the two-family rule is kept INSIDE Heimdall, so each of
++            for b in self.backends.values():      # its families is its own maker for every vendor rule (law L-s); the
++                if isinstance(b, HeimdallBackend):     # gateway stays "heimdall" (gateway(b))
++                    b.gateway, b.vendor = b.vendor, f"{b.vendor}/{b.family}"
++
++    def mode(self):
++        """RULING 87: "plan_b" while the shared health state says Heimdall is down, else this router's routing."""
++        if not self.health:
++            return self.routing
++        import heimdall_health as HH
++        try:
++            m = HH.mode(self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid")
++        except HH.HealthUnreadable as e:          # audit 0108 C1 (glm): never guessed, and never an exception the
++            raise ProviderError(f"the Heimdall health state cannot be read: {e}") from None   # call sites miss: no
++        return "plan_b" if m == "plan_b" else self.routing                                    # verdict (law L-m)
++
++    def chain(self, role, kind=None):
++        """The back-ends a call of `role` tries, in order. RULING 88 (22:15 Nov 13): a verdict TYPE may have its own
++        list, keyed "<role>:<kind>" (step_a_first, step_a_second, step_c, hook, clips_alone, coherence); without one,
++        the role's. Plan B's lists first while Heimdall is down (ruling 87); then this router's overrides; then the
++        routing's lists (ruling 85, not under "today"); then the role's configured chain."""
++        keys = ([f"{role}:{kind}"] if kind else []) + [role]
++        if self.health and any(k in self.plan_b_chains for k in keys) and self.mode() == "plan_b":
++            return list(next(self.plan_b_chains[k] for k in keys if k in self.plan_b_chains))   # ruling 87
++        for k in keys:
++            if k in self.chains:
++                return list(self.chains[k])
++            routed = ((self.config.get("routing") or {}).get(self.routing) or {}).get(k)
++            if routed:                            # RULING 85 / 88: this routing's own list (today: per type only)
++                return list(routed)
+         try:
+             return list(self.config["roles"][role]["chain"])
+         except KeyError:
+@@ -825,6 +993,119 @@ class Router:
+         except OSError:
+             return False
+ 
++    def role_deadline(self, role, b):
++        """The 20:33 order (ruling 82's chain on the verdicts): a call of a verdict role on a back-end whose gateway
++        names a deadline (model_providers.json routing.verdict_deadline_s, e.g. {"heimdall": 120}) gets it when the
++        caller sets none. -> seconds or None."""
++        rt = self.config.get("routing") or {}
++        bounded = set(rt.get("verdict_roles") or ())
++        if self.routing == "today":                   # step A's first screen and step C keep no deadline today:
++            bounded -= set(rt.get("today_unbounded") or ())   # ruling 82 bounded only the second screen (8 clips a
++        if role not in bounded:                       # call cannot answer in 120 s on Heimdall)
++            return None
++        d = (rt.get("verdict_deadline_s") or {}).get(gateway(b))
++        return float(d) if _num(d) and d > 0 else None
++
++    def _note(self, role, b, answered):
++        """RULING 87: a Heimdall verdict or writer call's outcome, to the shared health state (never a gate here: a
++        state file that cannot be written is a notice). The probe thread starts at the first failure."""
++        rt = self.config.get("routing") or {}
++        if not self.health or not isinstance(b, HeimdallBackend) or \
++                role not in set(rt.get("verdict_roles") or ()) | {"angle_write"}:
++            return
++        import heimdall_health as HH
++        try:
++            HH.note(answered, self.health, evidence=self.deadline_log, state_md=self.state_md, who="pp-selectid")
++        except (HH.HealthUnreadable, OSError) as e:
++            n = f"RULING 87: the Heimdall health state cannot be read or written: {e}"
++            if n not in self.notices:
++                self.notices.append(n)
++        if not answered:
++            self.start_probe()
++
++    def start_probe(self, every_s=30.0):
++        """RULING 87: the probe thread (one per router): while HH.probe_due, ask each Heimdall family a one-word
++        question (60 s each, on ruling 48's ledger as role "probe87"); any answer is a probe answer."""
++        import threading
++        if self._probe is not None or not self.health:
++            return
++        import heimdall_health as HH
++        fams = [n for n, b in self.backends.items() if isinstance(b, HeimdallBackend) and n.startswith("heimdall:")
++                and b.family in ("deepseek", "glm", "qwen")]
++
++        def loop():
++            while True:
++                try:
++                    if HH.probe_due(self.health):
++                        HH.probe_result(self.probe_once(fams), self.health, evidence=self.deadline_log,
++                                        state_md=self.state_md, who="pp-selectid probe")
++                except Exception:                      # noqa: BLE001 (the probe never stops a build)
++                    pass
++                time.sleep(every_s)
++        self._probe = threading.Thread(target=loop, daemon=True, name="pp-probe87")
++        self._probe.start()
++
++    def probe_once(self, names):
++        """RULING 87: one probe round: each Heimdall family asked a one-word question (60 s, never recorded nor served
++        from a recording). A family this run marked down is probed all the same: its mark is lifted for the probe and
++        stays lifted when it answers (it may serve again), restored when it does not. -> True if any family answered."""
++        ok = False
++        for n in names:
++            self.chains.setdefault(f"probe87:{n}", [n])
++            was = self.down.pop(n, None)
++            try:
++                r = self.call(f"probe87:{n}", "Reply with the single word OK.", 64, 7, deadline_s=60.0)
++                ok = ok or bool(r.text.strip())
++            except Exception:                          # noqa: BLE001 (a probe that fails is a probe that failed)
++                if was is not None and n not in self.down:
++                    self.down[n] = was
++        return ok
++
++    def _shadow_of(self, role):
++        return self.shadow.get(role) or self.shadow.get("*")
++
++    def _shadow_ask(self, role, prompt, max_tokens, seed, system, deciding):
++        """RULING 86: ask the role's shadow back-end the same prompt, in a thread; one JSON line to shadow_log per
++        verdict with both answers. Never raises into the build and never decides."""
++        import threading
++        name = self._shadow_of(role)
++        self.chains.setdefault(f"shadow86:{role}", [name])
++
++        def run():
++            rec = {"role": role, "prompt": prompt_text(prompt), "images": len(prompt["images"]) if is_vision(prompt)
++                   else 0, "max_tokens": max_tokens, "seed": seed, "system": system,
++                   "deciding": {"backend": deciding.backend, "vendor": deciding.vendor, "text": deciding.text,
++                                "cached": bool(getattr(deciding, "cached", False))}}
++            t0 = time.time()
++            try:
++                r = self.call(f"shadow86:{role}", prompt, max_tokens, seed, system=system)
++                rec["shadow"] = {"backend": r.backend, "text": r.text, "seconds": round(time.time() - t0, 2),
++                                 "cached": bool(getattr(r, "cached", False)),
++                                 "usd_reported": (r.usage or {}).get("usd_reported"), "usd_estimate": r.usd}
++            except Exception as e:                     # noqa: BLE001 (a shadow never stops a build)
++                rec["shadow"] = {"backend": name, "error": f"{type(e).__name__}: {str(e)[:300]}",
++                                 "seconds": round(time.time() - t0, 2)}
++            if self.shadow_log:
++                line = json.dumps(dict(rec, utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())))
++                try:
++                    with self._log_lock:
++                        os.makedirs(os.path.dirname(os.path.abspath(self.shadow_log)), exist_ok=True)
++                        with open(self.shadow_log, "a") as f:
++                            f.write(line + "\n")
++                except OSError as e:
++                    self.notices.append(f"the shadow log could not be written: {type(e).__name__}: {e}")
++        t = threading.Thread(target=run, daemon=True, name="pp-shadow86")
++        self._shadows.append(t)
++        t.start()
++
++    def shadow_wait(self, timeout_s=900.0):
++        """RULING 86: wait for every shadow call of this router (a build's side-by-side needs them all). -> the number
++        still running when the time ran out (their lines are then missing from shadow_log, and the report says so)."""
++        end = time.time() + timeout_s
++        for t in list(self._shadows):
++            t.join(max(0.0, end - time.time()))
++        return sum(t.is_alive() for t in self._shadows)
++
+     def heimdall_tripwire(self, at=0.9):
+         """NOTIFY when Heimdall's account usage reaches `at` of its credits (PBX 02:45: never a halt)."""
+         h = next((b for b in self.backends.values() if isinstance(b, HeimdallBackend)), None)
+@@ -859,10 +1140,10 @@ class Router:
+         os.replace(tmp, path)
+ 
+     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+-             avoid_family=None, deadline_s=None):
++             avoid_family=None, deadline_s=None, kind=None):
+         av, am, af = _as_set(avoid_vendor), _as_set(avoid_model), _as_set(avoid_family)
+         tried, notices = [], []
+-        for name in self.chain(role):
++        for name in self.chain(role, kind):           # ruling 88: the verdict type's own list when it has one
+             b = self.backends.get(name)
+             why = self._skip(name, b, av, am, af)
+             if why is None and isinstance(b, STTBackend):
+@@ -874,23 +1155,36 @@ class Router:
+             if why:
+                 tried.append((name, why))
+                 continue
+-            path = self._path(role, name, prompt, max_tokens, seed, system) if self.record_dir else None
++            path = self._path(role, name, prompt, max_tokens, seed, system) \
++                if self.record_dir and not role.startswith("probe87:") else None      # ruling 87: a probe is live
+             if path and os.path.exists(path):
+                 with open(path) as f:
+                     rec = json.load(f)
+-                return Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
+-                             rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
++                out = Reply(rec["text"], name, b.vendor, rec.get("seconds", 0.0), rec.get("usage") or {},
++                            rec.get("usd", 0.0), self.replay, tried, notices, b.family, not self.replay, path)
++                if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
++                    self._shadow_ask(role, prompt, max_tokens, seed, system, out)  # ruling 86: a recorded verdict too
++                return out
+             if self.replay:
+                 tried.append((name, "replay: not recorded"))
+                 continue
+             upper = b.upper_usd(prompt, max_tokens, system)
+             key = self._reserve(b, upper)
+-            if b.vendor == "heimdall":
++            if isinstance(b, HeimdallBackend):
+                 n = self.heimdall_tripwire()
+                 if n:
+                     notices.append(n)
+ 
+-            def abandon(b=b, key=key, name=name):      # RULING 83 (a): booked at its PROMPT tokens (input rate), an
++            dl = deadline_s or self.role_deadline(role, b)      # the caller's deadline, else the role's (20:33)
++            if dl and _num(b.spec.get("deadline_floor_s")):     # ruling 87: the local judge waits out a render
++                dl = max(dl, float(b.spec["deadline_floor_s"]))
++            if isinstance(b, LocalJudgeBackend) and self.state_md and not getattr(self, "_announced_local", False):
++                import heimdall_health as HH
++                self._announced_local = True                    # ruling 87: "and STATE line 1 says so"
++                HH.announce(self.state_md, "PLAN B WITH ONE OUTSIDE FAMILY: STEP A'S VERDICT IS ASKED OF THE LOCAL "
++                                           "GEMMA3:27B ON GPU0 (THE INTEGRATOR'S JUDGE SERVICE)")
++
++            def abandon(b=b, key=key, name=name, deadline_s=dl):   # RULING 83 (a): booked at its PROMPT tokens, an
+                 booked = b.prompt_usd(prompt, system)  # unreported estimate, until a late answer's figure replaces it
+                 self._log_slow({"kind": "missed_deadline", "role": role, "model": name, "vendor": b.vendor,
+                                 "deadline_s": deadline_s, "seconds": deadline_s,
+@@ -899,22 +1193,25 @@ class Router:
+                 self._settle(key, b, {"in": 0, "out": 0}, booked, role)          # an unreadable ledger raises here
+                 return {"backend": b, "role": role, "usd": booked, "deadline_s": deadline_s, "t0": time.time()}
+             try:
+-                if deadline_s:                         # ruling 5 (22:40): fail over instead of waiting
+-                    text, usage, secs = _within(deadline_s, lambda: b.complete(prompt, max_tokens, seed, system),
++                if dl:                                 # ruling 5 (22:40): fail over instead of waiting
++                    text, usage, secs = _within(dl, lambda: b.complete(prompt, max_tokens, seed, system),
+                                                 on_abandon=abandon, on_late=self._late)
+                 else:
+                     text, usage, secs = b.complete(prompt, max_tokens, seed, system)
+             except DeadlineExceeded as e:              # abandoned (the vendor may still bill it): booked and logged by
+-                booked = b.prompt_usd(prompt, system)  # abandon()
++                self._note(role, b, False)             # abandon(); ruling 87: not answered inside its deadline
++                booked = b.prompt_usd(prompt, system)
+                 tried.append((name, f"{e} (abandoned at the deadline; booked at its prompt tokens, ${booked:.4f}, "
+                                     "ruling 83 (a))"))
+                 continue
+             except RequestRejected as e:
+                 self._settle(key)
++                self._note(role, b, False)
+                 tried.append((name, f"refused this request: {e}"))
+                 continue
+             except Unavailable as e:
+                 self._settle(key)
++                self._note(role, b, False)
+                 self.down[name] = str(e)
+                 tried.append((name, str(e)))
+                 continue
+@@ -925,13 +1222,15 @@ class Router:
+             self._settle(key, b, usage, usd, role)
+             if secs >= self.slow_log_s:                # item 55: an answer this slow is evidence too
+                 self._log_slow({"kind": "answered_slowly", "threshold_s": self.slow_log_s, "role": role, "model": name,
+-                                "vendor": b.vendor, "deadline_s": deadline_s, "seconds": round(secs, 2),
++                                "vendor": b.vendor, "deadline_s": dl, "seconds": round(secs, 2),
+                                 "prompt_chars": len(prompt_text(prompt)), "max_tokens": max_tokens,
+                                 "in": (usage or {}).get("in"),
+                                 "out": (usage or {}).get("out")})
+             if not (isinstance(text, str) and text.strip()):   # an empty reply: this call moves on (audit C2 K7)
++                self._note(role, b, False)
+                 tried.append((name, "refused this request: an empty reply"))
+                 continue
++            self._note(role, b, True)                  # ruling 87: a Heimdall family answered inside its deadline
+             recorded = ""
+             if path and isinstance(text, str) and text.strip():
+                 self._record(path, {"role": role, "backend": name, "model": b.model, "vendor": b.vendor, "seed": seed,
+@@ -939,8 +1238,11 @@ class Router:
+                                     "text": text,
+                                     "usage": usage, "usd": usd, "seconds": round(secs, 2)})
+                 recorded = path
+-            return Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
+-                         recorded)
++            out = Reply(text, name, b.vendor, round(secs, 2), usage, usd, False, tried, notices, b.family, False,
++                        recorded)
++            if self.shadow and role in SHADOW_ROLES and self._shadow_of(role) not in (None, name):
++                self._shadow_ask(role, prompt, max_tokens, seed, system, out)     # ruling 86: asked, never deciding
++            return out
+         if self.replay:
+             raise ReplayMiss(f"{role}: no recorded exchange ({tried})")
+         raise ProviderError(f"{role}: every back-end unavailable: {tried}")
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 74013a1..b034586 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -56,6 +56,8 @@ sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
+ sys.path.insert(0, HERE)
+ import eligibility as E  # noqa: E402
+ import candidates as CA  # noqa: E402
++import heimdall_health as HH  # noqa: E402
++import shadow86 as SH  # noqa: E402
+ import ledger_build as LB  # noqa: E402
+ import moments as M  # noqa: E402
+ import package as PK  # noqa: E402
+@@ -69,6 +71,7 @@ import lock_precheck as LP  # noqa: E402
+ 
+ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+ SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
++STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
+ 
+ 
+ def delivered_pins(paths):
+@@ -108,6 +111,8 @@ def main(argv=None):
+                     help="the adapter's publish window (horizon_h); RULING 76: at most 12 h, never widened")
+     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
+     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
++    ap.add_argument("--routing", choices=P.ROUTINGS, default=None,
++                    help="RULING 85: 'today' or 'heimdall_first' (default: model_providers.json routing.mode)")
+     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
+                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
+                          "record (its tried[N]; default the first that passed), as it was judged")
+@@ -183,8 +188,17 @@ def main(argv=None):
+         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
+                   f, indent=1, default=str)
++    rt = json.load(open(P.CONFIG)).get("routing") or {}
++    routing = a.routing or rt.get("mode") or "today"
++    shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
++    if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
++        shadow = rt.get("shadow") or None
+     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
+-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(), deadline_log=PL.DEADLINE_LOG)
++                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
++                      routing=routing, shadow=shadow, shadow_log=os.path.join(out_dir, "SHADOW86.jsonl"),
++                      health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD)    # ruling 87
++    say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
++        + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
+     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
+     if spent0 >= PL.LY_STOP_USD:
+         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
+@@ -333,8 +347,14 @@ def main(argv=None):
+                         "hooks_4": len(hp.get("passing") or []) if isinstance(hp.get("passing"), list) else None}
+     say(f"  RULING 76 (d): {res['ruling_76']['inside_12h']} moments inside 12 h, {res['ruling_76']['cleared']} "
+         f"cleared, {res['ruling_76']['cuttable']} cuttable, {res['ruling_76']['hooks_4']} hooks >= 4")
++    res["routing"] = router.routing                # RULING 85: which routing decided this build
++    res["mode_at_end"] = router.mode()             # RULING 87: plan_b when Heimdall was down at the end
++    if router.shadow:                              # RULING 86: every shadow answer in (the pin, if any, is already
++        left = router.shadow_wait(900.0)           # written and logged above), then the side-by-side
++        res["shadow86"] = SH.report(out_dir, res, missing=left)
++        say(f"  SHADOW (ruling 86): {res['shadow86'].get('summary')}")
+     try:                                         # the record is written whatever the ledger says (audit 0707 C1)
+-        after = round(router.spent(), 4)
++        after = round(router.spent(), 4)         # (after the shadows: their spend is in it)
+     except Exception as e:                       # noqa: BLE001
+         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
+     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,
+diff --git a/tests/package/proof_ly.py b/tests/package/proof_ly.py
+index dc5fe4a..702160b 100644
+--- a/tests/package/proof_ly.py
++++ b/tests/package/proof_ly.py
+@@ -64,14 +64,34 @@ WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",
+ SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
+ 
+ 
+-def chains():
+-    """Every role's configured chain without the frozen legs; the writer = two Heimdall families."""
++def chains(routing=None):
++    """Every role's chain for the routing without the frozen legs; the writer = two Heimdall families, then Grok.
++    RULING 85: routing "today" (the chains under roles) or "heimdall_first" (model_providers.json routing.heimdall_first,
++    Grok last); default: the config's routing.mode."""
+     cfg = json.load(open(P.CONFIG))
+-    out = {r: [b for b in v["chain"] if not b.startswith(FROZEN)] for r, v in cfg["roles"].items()}
++    rt = cfg.get("routing") or {}
++    routing = routing or rt.get("mode") or "today"
++    if routing not in P.ROUTINGS:
++        raise ValueError(f"routing must be one of {P.ROUTINGS}, not {routing!r}")
++    routed = rt.get(routing) or {}
++    out = {r: [b for b in ((routed.get(r) if routing != "today" else None) or v["chain"]) if not b.startswith(FROZEN)]
++           for r, v in cfg["roles"].items()}
++    for k, ch in routed.items():                 # RULING 88: a verdict type's own list ("<role>:<kind>")
++        if ":" in k and isinstance(ch, list):
++            out[k] = [b for b in ch if not b.startswith(FROZEN)]
+     out["angle_write"] = list(WRITERS)
+     return out
+ 
+ 
++def plan_b_chains():
++    """RULING 87: the Plan B chains (model_providers.json routing.plan_b): Grok mainly, then any other outside key that
++    answers. OpenAI and Anthropic stay in (they are tried, never assumed: an account without credit is Unavailable at
++    its first call and down for the run); only GPU0's local model is out (never this builder's)."""
++    cfg = json.load(open(P.CONFIG))
++    return {r: [b for b in ch if not b.startswith(("local:", "openai_stt:"))]
++            for r, ch in ((cfg.get("routing") or {}).get("plan_b") or {}).items()}
++
++
+ def ledger():
+     try:
+         d = json.load(open(SPEND))
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 99f713c..ea67906 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -826,5 +826,63 @@ class TestDriverRefuses(unittest.TestCase):
+                 self.assertIn("overlaps a delivered moment", why["m1"])
+ 
+ 
++
++class TestRuling85NoXai(unittest.TestCase):
++    """RULINGS 85 + 88 (22:15 Nov 13), on the real config and the real Router's skip rule (no model is called):
++    the lists per verdict type under heimdall_first; with xAI answering nothing and deepseek writing, every type but
++    one still has a Heimdall family off the writer, and step A's two verdicts come from two families. The one gap:
++    coherence keeps Grok with deepseek alone behind it (88 (d): glm out; (e): qwen never decides it), so when deepseek
++    writes and xAI is down, coherence has no family and the package fails closed."""
++
++    @staticmethod
++    def pl():
++        sys.path.insert(0, HERE)
++        import proof_ly as PL
++        return PL
++
++    def pick(self, r, role, av=(), af=(), am=(), kind=None):
++        PL = self.pl()
++        for name in r.chain(role, kind):
++            b = r.backends.get(name)
++            if b is not None and r._skip(name, b, set(av), set(am), set(af)) is None and not \
++                    name.startswith(PL.FROZEN):
++                return name
++        return None
++
++    def test_ruling_88s_lists_and_xai_answering_nothing(self):
++        PL = self.pl()
++        X, DS, G, Q = ("xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash",
++                       "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
++        ch = PL.chains("heimdall_first")
++        self.assertEqual(ch["fidelity_verdict"], [Q, G, X])                       # (a): Heimdall, Grok last
++        self.assertEqual(ch["exclusion_verdict"], [G, Q, X])
++        self.assertEqual(ch["context_verdict:step_a_first"], [Q, G, DS, X])        # (c): Heimdall first
++        self.assertEqual(ch["context_verdict:step_a_second"][0], X)               # (c): Grok confirms
++        self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
++        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS])              # (d) / (e): no glm, no qwen
++        self.assertEqual(ch["coherence_verdict:clips_alone"], [X, Q, DS])         # (d): no glm
++        today = PL.chains("today")                                                 # (d) and (e) hold today too
++        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
++        r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
++        for n in [n for n in r.backends if n.startswith("xai")]:
++            r.down[n] = "xAI answers nothing (the test)"
++        w = r.backends[DS]                                                         # the writer
++        got = {(role, kind): self.pick(r, role, {w.vendor}, {w.family}, kind=kind) for role, kind in (
++            ("fidelity_verdict", None), ("exclusion_verdict", None), ("speaker_verdict", None),
++            ("viewer_takeaway", None), ("context_verdict", "step_c"), ("coherence_verdict", "hook"),
++            ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
++        self.assertEqual(got, {("fidelity_verdict", None): Q, ("exclusion_verdict", None): G,
++                               ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
++                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): Q,
++                               ("coherence_verdict", "clips_alone"): Q,
++                               ("coherence_verdict", "coherence"): None})          # THE GAP (fails closed)
++        first = self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first")
++        fb = r.backends[first]
++        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
++        self.assertEqual((first, second), (Q, G))                                  # two Heimdall families, Grok down
++        r.down.clear()
++        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
++        self.assertEqual(second, X)                                                # (c): Grok confirms when it answers
++
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/tests/providers/test_heimdall_health.py b/tests/providers/test_heimdall_health.py
+new file mode 100644
+index 0000000..e47a60c
+--- /dev/null
++++ b/tests/providers/test_heimdall_health.py
+@@ -0,0 +1,289 @@
++#!/usr/bin/env python3
++"""RULING 87 (orchestrator 21:18 Nov 13): PLAN B, THE FAIL-SAFE (pipeline/heimdall_health.py and its use in
++providers.Router). Offline: a temporary state file, the test's own clock, fake back-ends."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++from datetime import datetime, timedelta, timezone
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import heimdall_health as HH  # noqa: E402
++import providers as P  # noqa: E402
++from test_providers import Fake  # noqa: E402
++
++T0 = datetime(2026, 11, 14, 2, 0, tzinfo=timezone.utc)
++
++
++class TestHealth(unittest.TestCase):
++    def setUp(self):
++        HH._SEEN.clear()
++        self.d = tempfile.TemporaryDirectory()
++        self.state = os.path.join(self.d.name, "HEALTH.json")
++        self.ev = os.path.join(self.d.name, "DEADLINES.jsonl")
++        self.md = os.path.join(self.d.name, "STATE.md")
++        with open(self.md, "w") as f:
++            f.write("21:00 ET: line one as it was.\n\n## a section\n")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def kw(self, t):
++        return {"path": self.state, "now": t, "evidence": self.ev, "state_md": self.md}
++
++    def test_fifteen_minutes_with_no_family_answering_is_plan_b_and_every_switch_is_on_record(self):
++        self.assertEqual(HH.note(False, **self.kw(T0)), "heimdall_first")
++        self.assertEqual(HH.note(False, **self.kw(T0 + timedelta(minutes=14, seconds=59))), "heimdall_first")
++        self.assertEqual(HH.note(False, **self.kw(T0 + timedelta(minutes=15))), "plan_b")
++        st = json.load(open(self.state))
++        self.assertEqual([s["to"] for s in st["switches"]], ["plan_b"])
++        with open(self.ev) as f:
++            self.assertEqual([json.loads(x)["kind"] for x in f], ["switch"])
++        first = open(self.md).read().split("\n")[0]
++        self.assertTrue(first.endswith("| 21:00 ET: line one as it was."), first)     # one physical line, prepended
++        self.assertIn("ET: SWITCHED TO PLAN B (NO HEIMDALL FAMILY ANSWERED", first)
++
++    def test_one_answer_stops_the_clock(self):
++        HH.note(False, **self.kw(T0))
++        HH.note(True, **self.kw(T0 + timedelta(minutes=10)))           # any family answering: not down
++        self.assertEqual(HH.note(False, **self.kw(T0 + timedelta(minutes=20))), "heimdall_first")
++        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=34))), "heimdall_first")
++        self.assertEqual(HH.mode(**self.kw(T0 + timedelta(minutes=35))), "plan_b")   # idle: the clock still runs
++
++    def test_the_probe_every_2_minutes_and_back_after_3_answers_in_a_row(self):
++        k = lambda m: self.kw(T0 + timedelta(minutes=m))
++        self.assertFalse(HH.probe_due(self.state, T0))                  # healthy: no probe
++        HH.note(False, **k(0))
++        self.assertTrue(HH.probe_due(self.state, T0))
++        HH.note(False, **k(15))                                          # down
++        self.assertEqual(HH.probe_result(True, **k(16)), "plan_b")
++        self.assertFalse(HH.probe_due(self.state, T0 + timedelta(minutes=17)))      # 2 minutes apart
++        self.assertTrue(HH.probe_due(self.state, T0 + timedelta(minutes=18)))
++        self.assertEqual(HH.probe_result(False, **k(18)), "plan_b")      # a miss resets the streak
++        self.assertEqual(HH.probe_result(True, **k(20)), "plan_b")
++        self.assertEqual(HH.probe_result(True, **k(22)), "plan_b")
++        self.assertEqual(HH.probe_result(True, **k(24)), "heimdall_first")
++        st = json.load(open(self.state))
++        self.assertEqual([s["to"] for s in st["switches"]], ["plan_b", "heimdall_first"])
++        self.assertIsNone(st["failing_since_utc"])
++        self.assertIn("BACK TO HEIMDALL-FIRST (THE PROBE ANSWERED 3 TIMES IN A ROW)",
++                      open(self.md).read().split("\n")[0])
++
++    def test_a_drill_is_recorded_never_counted_and_answers_write_once_per_heartbeat(self):
++        HH._SEEN.clear()
++        for m in range(0, 40, 5):                                        # 40 minutes of drill failures
++            self.assertEqual(HH.note(False, drill=True, **self.kw(T0 + timedelta(minutes=m))), "heimdall_first")
++        st = json.load(open(self.state))
++        self.assertEqual((st["drills"], st["failing_since_utc"], st["notes"]), (8, None, 0))
++        HH.note(True, **self.kw(T0))
++        HH.note(True, **self.kw(T0 + timedelta(seconds=5)))              # inside the heartbeat: not written
++        self.assertEqual(json.load(open(self.state))["notes"], 1)
++        HH.note(False, **self.kw(T0 + timedelta(seconds=6)))             # a failure is always written
++        HH.note(True, **self.kw(T0 + timedelta(seconds=7)))              # and the next answer too
++        st = json.load(open(self.state))
++        self.assertEqual((st["notes"], st["failing_since_utc"]), (3, None))
++        HH._SEEN.clear()
++
++    def test_an_unreadable_state_is_never_guessed(self):
++        with open(self.state, "w") as f:
++            f.write("{ broken")
++        for fn in (lambda: HH.note(True, **self.kw(T0)), lambda: HH.mode(**self.kw(T0))):
++            with self.assertRaises(HH.HealthUnreadable):
++                fn()
++        self.assertEqual(open(self.state).read(), "{ broken")
++        r = P.Router.__new__(P.Router)                                     # the router: no verdict, never a crash
++        r.health, r.deadline_log, r.state_md, r.routing = self.state, None, None, "heimdall_first"
++        with self.assertRaises(P.ProviderError):                           # (audit 0108 C1, glm)
++            r.mode()
++
++
++class TestRouterPlanB(unittest.TestCase):
++    """providers.Router: a Heimdall verdict or writer call's outcome is noted; in plan_b the roles of plan_b_chains run
++    on them at once (Grok first)."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.cfg = os.path.join(self.d.name, "cfg.json")
++        json.dump({"schema": "pp.providers/1",
++                   "backends": {"xai:grok": {"vendor": "xai", "model": "grok", "family": "grok"},
++                                "heimdall:deepseek": {"vendor": "heimdall", "model": "deepseek",
++                                                      "family": "deepseek"}},
++                   "roles": {"coherence_verdict": {"chain": ["heimdall:deepseek", "xai:grok"]},
++                             "mine": {"chain": ["heimdall:deepseek"]}},
++                   "routing": {"mode": "today", "verdict_roles": ["coherence_verdict"]}}, open(self.cfg, "w"))
++        self.state = os.path.join(self.d.name, "HEALTH.json")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def router(self):
++        r = P.Router(self.cfg, env_path="/nonexistent", health=self.state,
++                     plan_b_chains={"coherence_verdict": ["xai:grok"]})
++        h = P.HeimdallBackend("heimdall:deepseek", {"model": "deepseek", "family": "deepseek"}, "/nonexistent")
++        h.complete = lambda *a, **k: ("d", {"in": 1, "out": 1}, 0.01)
++        r.backends = {"xai:grok": Fake("xai:grok", "xai", answer="x", family="grok"), "heimdall:deepseek": h}
++        r.start_probe = lambda *a, **k: None                              # no thread in a unit test
++        return r
++
++    def test_outcomes_are_noted_and_plan_b_takes_the_chain(self):
++        r = self.router()
++        self.assertEqual(r.call("coherence_verdict", "p").backend, "heimdall:deepseek")
++        st = json.load(open(self.state))
++        self.assertIsNotNone(st["last_answer_utc"])
++        self.assertEqual(st["notes"], 1)
++        r.call("mine", "p")                                               # not a verdict or a write: not noted
++        self.assertEqual(json.load(open(self.state))["notes"], 1)
++        HH.note(False, self.state, now=datetime.now(timezone.utc) - timedelta(minutes=16))
++        HH.note(False, self.state)                                        # 16 minutes with no answer: plan_b
++        self.assertEqual(r.mode(), "plan_b")
++        self.assertEqual(r.chain("coherence_verdict"), ["xai:grok"])
++        self.assertEqual(r.call("coherence_verdict", "p").backend, "xai:grok")   # the whole pin stage, at once
++        self.assertEqual(r.chain("mine"), ["heimdall:deepseek"])          # a role Plan B does not name: as is
++
++    def test_a_probe_round_reaches_a_family_marked_down_and_restores_the_mark_when_it_fails(self):
++        r = self.router()
++        r.down["heimdall:deepseek"] = "HTTP 503 earlier this run"
++        self.assertTrue(r.probe_once(["heimdall:deepseek"]))             # it answers now: the mark is lifted
++        self.assertNotIn("heimdall:deepseek", r.down)
++
++        def down(*a, **k):
++            raise P.Unavailable("HTTP 503")
++        r.backends["heimdall:deepseek"].complete = down
++        r.down["heimdall:deepseek"] = "HTTP 503 earlier this run"
++        self.assertFalse(r.probe_once(["heimdall:deepseek"]))
++        self.assertIn("heimdall:deepseek", r.down)                       # still down: marked as before
++        self.assertFalse(os.path.exists(os.path.join(self.d.name, "rec")))   # a probe is never recorded
++
++    def test_a_failing_heimdall_call_is_noted_as_not_answered(self):
++        r = self.router()
++
++        def down(*a, **k):
++            raise P.Unavailable("HTTP 503")
++        r.backends["heimdall:deepseek"].complete = down
++        self.assertEqual(r.call("coherence_verdict", "p").backend, "xai:grok")    # ruling 82's chain moved on
++        st = json.load(open(self.state))
++        self.assertIsNotNone(st["failing_since_utc"])
++        self.assertIsNone(st["last_answer_utc"])
++
++
++
++class TestLocalJudge(unittest.TestCase):
++    """RULING 87: the integrator's GPU0 judge (Plan B, one outside family): a request file in this worktree, the answer
++    read from its results; an error or no answer in time is no verdict; the wait outlasts ruling 82's 120 s."""
++
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.req, self.res = os.path.join(self.d.name, "req"), os.path.join(self.d.name, "res")
++        os.makedirs(self.res)
++        self.b = P.LocalJudgeBackend("local_judge:gemma3:27b", {"model": "gemma3:27b", "family": "gemma",
++                                                                "deadline_floor_s": 2400}, "/nonexistent")
++        self.b.REQUESTS, self.b.RESULTS, self.b.POLL_S = self.req, self.res, 0.05
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def answer_when_asked(self, body):
++        import threading
++        import time as _t
++
++        def run():                                   # answers the one request that has no answer yet
++            for _ in range(500):
++                for n in sorted(os.listdir(self.req)) if os.path.isdir(self.req) else []:
++                    if not n.endswith(".json"):
++                        continue
++                    rid = n[:-len(".json")]
++                    rq = json.load(open(os.path.join(self.req, n)))
++                    import hashlib                       # the integrator's prompt_id
++                    pid = hashlib.sha256(json.dumps([rq["prompt"], rq["max_tokens"], rq["seed"]]).encode()) \
++                        .hexdigest()[:20]
++                    out = os.path.join(self.res, f"{rid}.{pid}.json")
++                    if not os.path.exists(out):
++                        with open(out, "w") as f:
++                            json.dump(dict(body, request_id=rid, prompt_id=pid), f)
++                        return
++                _t.sleep(0.02)
++        threading.Thread(target=run, daemon=True).start()
++
++    def test_a_request_is_written_and_its_answer_read(self):
++        self.answer_when_asked({"family": "step_a", "text": '{"excerpts": []}', "error": None})
++        text, usage, secs = self.b.complete("the step A prompt", 4000, 7)
++        self.assertEqual((text, usage["in"], usage["out"]), ('{"excerpts": []}', 0, 0))
++        stray = os.path.join(self.res, "pp-selectid.x.0000.json")         # another answer's file is never read
++        json.dump({"request_id": "other", "text": "{}"}, open(stray, "w"))
++        (name,) = os.listdir(self.req)
++        rq = json.load(open(os.path.join(self.req, name)))
++        self.assertEqual({k: rq[k] for k in ("family", "prompt", "max_tokens", "seed")},
++                         {"family": "step_a", "prompt": "the step A prompt", "max_tokens": 4000, "seed": 7})
++        self.assertTrue(self.b.free())
++
++    def test_an_error_or_no_answer_is_no_verdict(self):
++        self.answer_when_asked({"family": "step_a", "text": "", "error": "GPU0 busy"})
++        with self.assertRaises(P.RequestRejected):
++            self.b.complete("p", 100, 7)
++        self.b.WAIT_S = 0.2
++        with self.assertRaises(P.Unavailable):
++            self.b.complete("q", 100, 7)
++        with self.assertRaises(P.RequestRejected):
++            self.b.complete("q", 100, 7, system="no system message")
++
++    def test_a_torn_answer_file_is_read_again_never_final(self):
++        """Audit 0108 C1 (glm): an answer file read while it is being written is polled again until the deadline."""
++        import threading
++        import time as _t
++
++        def run():
++            for _ in range(500):
++                for n in sorted(os.listdir(self.req)) if os.path.isdir(self.req) else []:
++                    if not n.endswith(".json"):
++                        continue
++                    rid = n[:-len(".json")]
++                    rq = json.load(open(os.path.join(self.req, n)))
++                    import hashlib
++                    pid = hashlib.sha256(json.dumps([rq["prompt"], rq["max_tokens"], rq["seed"]]).encode()) \
++                        .hexdigest()[:20]
++                    out = os.path.join(self.res, f"{rid}.{pid}.json")
++                    with open(out, "w") as f:
++                        f.write('{"request_id": "' + rid)                   # half written
++                    _t.sleep(0.2)
++                    with open(out, "w") as f:
++                        json.dump({"request_id": rid, "prompt_id": pid, "text": "{}", "error": None}, f)
++                    return
++                _t.sleep(0.02)
++        threading.Thread(target=run, daemon=True).start()
++        self.assertEqual(self.b.complete("torn", 100, 7)[0], "{}")
++
++    def test_the_wait_outlasts_the_120_s_deadline_and_state_line_1_says_so_once(self):
++        cfg = os.path.join(self.d.name, "cfg.json")
++        json.dump({"schema": "pp.providers/1",
++                   "backends": {"local_judge:gemma3:27b": {"vendor": "local_judge", "model": "gemma3:27b",
++                                                           "family": "gemma", "deadline_floor_s": 2400}},
++                   "roles": {"context_verdict": {"chain": ["local_judge:gemma3:27b"]}}}, open(cfg, "w"))
++        md = os.path.join(self.d.name, "STATE.md")
++        open(md, "w").write("21:50 ET: line one.\n")
++        r = P.Router(cfg, env_path="/nonexistent", state_md=md)
++        r.backends["local_judge:gemma3:27b"] = self.b
++        seen = {}
++        orig = P._within
++
++        def spy(seconds, fn, **kw):
++            seen["deadline"] = seconds
++            return orig(seconds, fn, **kw)
++        P._within = spy
++        try:
++            self.answer_when_asked({"family": "step_a", "text": "{}", "error": None})
++            r.call("context_verdict", "p", 100, 7, deadline_s=120.0)
++            self.answer_when_asked({"family": "step_a", "text": "{}", "error": None})
++            r.call("context_verdict", "p2", 100, 7, deadline_s=120.0)
++        finally:
++            P._within = orig
++        self.assertEqual(seen["deadline"], 2400.0)
++        first = open(md).read().split("\n")[0]
++        self.assertEqual(first.count("PLAN B WITH ONE OUTSIDE FAMILY"), 1)
++        self.assertTrue(first.endswith("| 21:50 ET: line one."))
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/tests/providers/test_providers.py b/tests/providers/test_providers.py
+index b7498ef..7d9e0a6 100644
+--- a/tests/providers/test_providers.py
++++ b/tests/providers/test_providers.py
+@@ -481,5 +481,196 @@ class TestRouter(unittest.TestCase):
+             self.assertEqual(meta["backend"], "xai:z")
+ 
+ 
++
++class TestRuling85Routing(unittest.TestCase):
++    """RULING 85 (21:15 Nov 13): Heimdall first for every verdict, Grok last, behind a switch; the two-family rule kept
++    INSIDE Heimdall (each family its own maker); the 20:33 order: ruling 82's 120 s on Heimdall for every verdict role,
++    and an answer out of contract moves on (providers.call_parsed)."""
++
++    def cfg(self, d, mode="today"):
++        p = os.path.join(d, "cfg.json")
++        json.dump({"schema": "pp.providers/1",
++                   "backends": {"xai:grok": {"vendor": "xai", "model": "grok", "family": "grok"},
++                                "heimdall:deepseek": {"vendor": "heimdall", "model": "deepseek", "family": "deepseek"},
++                                "heimdall:glm": {"vendor": "heimdall", "model": "glm", "family": "glm"},
++                                "heimdall:qwen": {"vendor": "heimdall", "model": "qwen", "family": "qwen"}},
++                   "roles": {"coherence_verdict": {"chain": ["xai:grok", "heimdall:deepseek", "heimdall:glm",
++                                                             "heimdall:qwen"]},
++                             "mine": {"chain": ["heimdall:qwen", "xai:grok"]}},
++                   "routing": {"mode": mode, "verdict_roles": ["coherence_verdict"],
++                               "verdict_deadline_s": {"heimdall": 120},
++                               "heimdall_first": {"coherence_verdict": ["heimdall:deepseek", "heimdall:glm",
++                                                                        "heimdall:qwen", "xai:grok"]}}}, open(p, "w"))
++        return p
++
++    def fakes(self):
++        return [Fake("xai:grok", "xai", answer="x", family="grok"),
++                Fake("heimdall:deepseek", "heimdall", answer="d", family="deepseek"),
++                Fake("heimdall:glm", "heimdall", answer="g", family="glm"),
++                Fake("heimdall:qwen", "heimdall", answer="q", family="qwen")]
++
++    def router(self, d, mode=None, cfg_mode="today"):
++        r = P.Router(self.cfg(d, cfg_mode), env_path="/nonexistent", routing=mode)
++        fs = self.fakes()
++        if r.routing == "heimdall_first":          # the router's own init re-keyed its real back-ends; fakes too
++            for b in fs:
++                if b.vendor == "heimdall":
++                    b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
++        r.backends = {b.name: b for b in fs}
++        return r
++
++    def test_today_is_unchanged_and_heimdall_first_puts_grok_last(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            t = self.router(d)
++            self.assertEqual(t.routing, "today")
++            self.assertEqual(t.call("coherence_verdict", "p").backend, "xai:grok")
++            self.assertEqual(t.chain("mine"), ["heimdall:qwen", "xai:grok"])
++            h = self.router(d, "heimdall_first")
++            self.assertEqual(h.chain("coherence_verdict"), ["heimdall:deepseek", "heimdall:glm", "heimdall:qwen",
++                                                            "xai:grok"])
++            self.assertEqual(h.chain("mine"), ["heimdall:qwen", "xai:grok"])   # a role the routing names not: as is
++            self.assertEqual(h.call("coherence_verdict", "p").backend, "heimdall:deepseek")
++            self.assertEqual(self.router(d, cfg_mode="heimdall_first").routing, "heimdall_first")  # the config's mode
++            with self.assertRaises(ValueError):
++                P.Router(self.cfg(d), env_path="/nonexistent", routing="grok_only")
++
++    def test_the_two_family_rule_inside_heimdall(self):
++        """A Heimdall writer (deepseek) is judged by another Heimdall family (glm) under heimdall_first; today the
++        vendor rule leaves only Grok; the router's own init re-keys a real Heimdall back-end's vendor."""
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            h = self.router(d, "heimdall_first")
++            r = h.call("coherence_verdict", "p", avoid_vendor={"heimdall/deepseek"}, avoid_family={"deepseek"})
++            self.assertEqual((r.backend, r.vendor), ("heimdall:glm", "heimdall/glm"))
++            t = self.router(d)
++            r = t.call("coherence_verdict", "p", avoid_vendor={"heimdall"}, avoid_family={"deepseek"})
++            self.assertEqual(r.backend, "xai:grok")
++            real = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first")
++            b = real.backends["heimdall:glm"]
++            self.assertEqual((b.vendor, P.gateway(b), real.backends["xai:grok"].vendor), ("heimdall/glm", "heimdall",
++                                                                                           "xai"))
++            self.assertEqual(P.gateway(P.Router(self.cfg(d), env_path="/nonexistent").backends["heimdall:glm"]),
++                             "heimdall")
++
++    def test_a_verdict_role_gets_120_s_on_heimdall_only(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            h = self.router(d, "heimdall_first")
++            self.assertEqual(h.role_deadline("coherence_verdict", h.backends["heimdall:glm"]), 120.0)
++            self.assertIsNone(h.role_deadline("coherence_verdict", h.backends["xai:grok"]))
++            self.assertIsNone(h.role_deadline("mine", h.backends["heimdall:qwen"]))
++            slow = Slow("heimdall:deepseek", "heimdall/deepseek", "d", delay=0.6, family="deepseek")
++            slow.gateway = "heimdall"
++            h.backends["heimdall:deepseek"] = slow
++            h.config["routing"]["verdict_deadline_s"] = {"heimdall": 0.1}
++            r = h.call("coherence_verdict", "p")                 # deepseek is abandoned at 0.1 s: glm answers
++            self.assertEqual(r.backend, "heimdall:glm")
++            self.assertIn("abandoned at the deadline", r.tried[0][1])
++
++    def test_the_real_config_bounds_today_as_ruled_and_heimdall_first_everywhere(self):
++        """The 20:33 order bounds fidelity, coherence, step B, speaker and exclusion (120 s on Heimdall); step A's
++        first screen and step C stay unbounded today (8 clips a call); under heimdall_first every verdict is bounded."""
++        today, hf = P.Router(env_path="/nonexistent"), P.Router(env_path="/nonexistent", routing="heimdall_first")
++        ds, xs = "heimdall:deepseek/deepseek-v4.1-flash", "xai:grok-4.20-0309-reasoning"
++        for role in ("fidelity_verdict", "coherence_verdict", "viewer_takeaway", "speaker_verdict",
++                     "exclusion_verdict"):
++            self.assertEqual((today.role_deadline(role, today.backends[ds]), hf.role_deadline(role, hf.backends[ds])),
++                             (120.0, 120.0), role)
++            self.assertIsNone(today.role_deadline(role, today.backends[xs]))
++        self.assertIsNone(today.role_deadline("context_verdict", today.backends[ds]))
++        self.assertEqual(hf.role_deadline("context_verdict", hf.backends[ds]), 120.0)
++        self.assertIsNone(hf.role_deadline("angle_write", hf.backends[ds]))   # the writer keeps ruling 5's 300 s
++
++    def test_call_parsed_moves_on_past_an_answer_out_of_contract(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            h = self.router(d, "heimdall_first")
++            h.backends["heimdall:deepseek"].answer = "not json"
++            r, v = P.call_parsed(h, "coherence_verdict", "p", lambda t: {"d": 1, "g": 2}[t])
++            self.assertEqual((r.backend, v), ("heimdall:glm", 2))
++            for b in h.backends.values():
++                b.answer = "bad"
++            with self.assertRaises(P.ProviderError) as e:
++                P.call_parsed(h, "coherence_verdict", "p", lambda t: {"d": 1}[t])
++            self.assertIn("answers out of contract", str(e.exception))
++            self.assertEqual({n: b.calls for n, b in h.backends.items()},          # the second run asks each model
++                             {"heimdall:deepseek": 2, "heimdall:glm": 2, "heimdall:qwen": 1, "xai:grok": 1})  # once
++
++    def test_the_writes_keep_their_gateway(self):
++        """package.build: every write stays on the angle's GATEWAY, so a Heimdall write may still fail over
++        deepseek -> qwen under heimdall_first, and Grok never writes there."""
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            h = self.router(d, "heimdall_first")
++            writers = ["heimdall:deepseek", "heimdall:qwen", "xai:grok"]
++            avoid = {P.gateway(h.backends[n]) for n in writers} - {P.gateway(h.backends["heimdall:deepseek"])}
++            self.assertEqual(avoid, {"xai"})
++            self.assertFalse({h.backends["heimdall:qwen"].vendor} & avoid)
++
++
++class TestRuling86Shadow(TestRuling85Routing):
++    """RULING 86 (21:18 Nov 13): the first pins under Heimdall-first are judged twice: Heimdall's families decide, and
++    Grok is asked the same prompt in SHADOW (recorded to shadow_log, never deciding)."""
++
++    def shadow_router(self, d, **kw):
++        r = P.Router(self.cfg(d), env_path="/nonexistent", routing="heimdall_first", shadow={"*": "xai:grok"},
++                     shadow_log=os.path.join(d, "SHADOW.jsonl"), **kw)
++        fs = self.fakes()
++        for b in fs:
++            if b.vendor == "heimdall":
++                b.gateway, b.vendor = b.vendor, f"heimdall/{b.family}"
++        r.backends = {b.name: b for b in fs}
++        return r
++
++    def lines(self, d):
++        p = os.path.join(d, "SHADOW.jsonl")
++        return [json.loads(x) for x in open(p)] if os.path.exists(p) else []
++
++    def test_a_heimdall_verdict_is_asked_of_grok_in_shadow_and_grok_never_decides(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            r = self.shadow_router(d)
++            rep = r.call("coherence_verdict", "the prompt", 500, 7)
++            self.assertEqual((rep.backend, rep.text), ("heimdall:deepseek", "d"))      # Heimdall decides
++            self.assertEqual(r.shadow_wait(5), 0)
++            got = self.lines(d)
++            self.assertEqual([(x["role"], x["prompt"], x["deciding"]["backend"], x["deciding"]["text"],
++                               x["shadow"]["backend"], x["shadow"]["text"]) for x in got],
++                             [("coherence_verdict", "the prompt", "heimdall:deepseek", "d", "xai:grok", "x")])
++            self.assertEqual(r.backends["xai:grok"].calls, 1)
++            r.call("mine", "p")                                   # not a verdict: no shadow
++            r.backends["heimdall:deepseek"].fail = "down"
++            r.backends["heimdall:glm"].fail = "down"
++            r.backends["heimdall:qwen"].fail = "down"
++            self.assertEqual(r.call("coherence_verdict", "q").backend, "xai:grok")   # Grok decided: nothing to shadow
++            self.assertEqual(r.shadow_wait(5), 0)
++            self.assertEqual(len(self.lines(d)), 1)
++
++    def test_a_shadow_that_fails_is_on_record_and_stops_nothing(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            r = self.shadow_router(d)
++            r.backends["xai:grok"].fail = "xAI is down"
++            self.assertEqual(r.call("coherence_verdict", "p").text, "d")
++            self.assertEqual(r.shadow_wait(5), 0)
++            (x,) = self.lines(d)
++            self.assertIn("xAI is down", x["shadow"]["error"])
++
++    def test_a_recorded_verdict_is_shadowed_too_and_the_shadow_back_end_must_exist(self):
++        import tempfile
++        with tempfile.TemporaryDirectory() as d:
++            r = self.shadow_router(d, record_dir=os.path.join(d, "rec"))
++            r.call("coherence_verdict", "p")
++            r.shadow_wait(5)
++            r.call("coherence_verdict", "p")                      # served from its recording
++            r.shadow_wait(5)
++            got = self.lines(d)
++            self.assertEqual([x["deciding"]["cached"] for x in got], [False, True])
++            self.assertEqual([x["shadow"]["cached"] for x in got], [False, True])   # the shadow's own recording
++            self.assertEqual(r.backends["xai:grok"].calls, 1)
++            with self.assertRaises(ValueError):
++                P.Router(self.cfg(d), env_path="/nonexistent", shadow={"*": "xai:nope"})
++
+ if __name__ == "__main__":
+     unittest.main()

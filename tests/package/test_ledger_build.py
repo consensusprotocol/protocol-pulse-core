@@ -826,5 +826,65 @@ class TestDriverRefuses(unittest.TestCase):
                 self.assertIn("overlaps a delivered moment", why["m1"])
 
 
+
+class TestRuling85NoXai(unittest.TestCase):
+    """RULINGS 85 + 88 (22:15 Nov 13), on the real config and the real Router's skip rule (no model is called):
+    the lists per verdict type under heimdall_first; with xAI answering nothing and deepseek writing, every type but
+    one still has a Heimdall family off the writer, and step A's two verdicts come from two families. The one gap:
+    coherence keeps Grok with deepseek alone behind it (88 (d): glm out; (e): qwen never decides it), so when deepseek
+    writes and xAI is down, coherence has no family and the package fails closed."""
+
+    @staticmethod
+    def pl():
+        sys.path.insert(0, HERE)
+        import proof_ly as PL
+        return PL
+
+    def pick(self, r, role, av=(), af=(), am=(), kind=None):
+        PL = self.pl()
+        for name in r.chain(role, kind):
+            b = r.backends.get(name)
+            if b is not None and r._skip(name, b, set(av), set(am), set(af)) is None and not \
+                    name.startswith(PL.FROZEN):
+                return name
+        return None
+
+    def test_ruling_96s_lists_and_xai_answering_nothing(self):
+        """RULING 96 (01:40 ET Nov 14), final until re-measured, on ruling 88's structure."""
+        PL = self.pl()
+        X, DS, G, Q = ("xai:grok-4.20-0309-reasoning", "heimdall:deepseek/deepseek-v4.1-flash",
+                       "heimdall:z-ai/glm-5.3-flash", "heimdall:qwen/qwen3.8-27b")
+        ch = PL.chains("heimdall_first")
+        self.assertEqual(ch["fidelity_verdict"], [G, Q, X])                       # 96: glm -> qwen -> Grok
+        self.assertEqual(ch["exclusion_verdict"], [G, DS, X])                      # 96: glm -> deepseek -> Grok
+        self.assertEqual(ch["context_verdict:step_a_first"], [G, DS, Q, X])        # 96: glm first (speed), deepseek
+        self.assertEqual(ch["coherence_verdict:hook"], [Q, G, DS, X])              # 88 (b) / 96: the hook moved
+        self.assertEqual(ch["context_verdict:step_a_second"][0], X)               # (c): Grok confirms
+        self.assertEqual(ch["context_verdict:step_c"], [X, G, DS])                 # (b) / (e): no qwen
+        self.assertEqual(ch["coherence_verdict:coherence"], [X, DS])              # (d) / (e): no glm, no qwen
+        self.assertEqual(ch["coherence_verdict:clips_alone"], [X, Q, DS])         # (d): no glm
+        today = PL.chains("today")                                                 # (d) and (e) hold today too
+        self.assertEqual((today["coherence_verdict:coherence"], today["context_verdict:step_c"]), ([X, DS], [X, DS, G]))
+        r = PL.P.Router(env_path="/nonexistent", routing="heimdall_first", chains=ch)
+        for n in [n for n in r.backends if n.startswith("xai")]:
+            r.down[n] = "xAI answers nothing (the test)"
+        w = r.backends[DS]                                                         # the writer
+        got = {(role, kind): self.pick(r, role, {w.vendor}, {w.family}, kind=kind) for role, kind in (
+            ("fidelity_verdict", None), ("exclusion_verdict", None), ("speaker_verdict", None),
+            ("viewer_takeaway", None), ("context_verdict", "step_c"), ("coherence_verdict", "hook"),
+            ("coherence_verdict", "clips_alone"), ("coherence_verdict", "coherence"))}
+        self.assertEqual(got, {("fidelity_verdict", None): G, ("exclusion_verdict", None): G,
+                               ("speaker_verdict", None): G, ("viewer_takeaway", None): G,
+                               ("context_verdict", "step_c"): G, ("coherence_verdict", "hook"): Q,
+                               ("coherence_verdict", "clips_alone"): Q,
+                               ("coherence_verdict", "coherence"): None})          # THE GAP (fails closed)
+        first = self.pick(r, "context_verdict", {w.vendor}, {w.family}, kind="step_a_first")
+        fb = r.backends[first]
+        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
+        self.assertEqual((first, second), (G, Q))                                  # two Heimdall families, Grok down
+        r.down.clear()
+        second = self.pick(r, "context_verdict", {fb.vendor}, {fb.family}, kind="step_a_second")
+        self.assertEqual(second, X)                                                # (c): Grok confirms when it answers
+
 if __name__ == "__main__":
     unittest.main()

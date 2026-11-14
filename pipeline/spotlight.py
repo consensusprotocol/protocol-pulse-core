@@ -776,7 +776,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     out["scorer"] = srec
     ms = [P.with_verdict(m, idx) for m in ms]
     wv, wf = P._writers(router)
-    a_by, fails, _, _ = P.prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache)
+    a_by, fails, _, _ = P.prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache,
+                                    kind="step_a_first", **P.first_bounds(router))   # as the medley's (rulings 85, 88)
     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
     for m in ms:
         if m["moment_id"] not in cleared:

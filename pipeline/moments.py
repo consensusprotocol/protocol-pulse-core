@@ -378,21 +378,19 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
     if why:
         return {"verdict": "exclude", "why": why, "risks": ["ad_read"], "backend": "deterministic", "measured": True,
                 "replayed": False}
-    r = None
-    try:
-        r = router.call("exclusion_verdict", EXCLUSION_PROMPT.format(before=quote_data(before_text, 3000),
-                                                                     moment=quote_data(moment_text, 1500),
-                                                                     after=quote_data(after_text, 3000)), 800, seed,
-                        avoid_model=avoid_model)
-        obj = json.loads(r.text.strip())
+    def parse(text):
+        obj = json.loads(text.strip())
         if not isinstance(obj, dict) or set(obj) != {"risks", "about_bitcoin", "why"} or \
                 not isinstance(obj["risks"], list) or any(not isinstance(x, str) or x not in HARD_RISKS
                                                           for x in obj["risks"]) or \
                 obj["about_bitcoin"] not in ("yes", "no", "uncertain"):
             raise ValueError("the verdict does not match its contract")
+        return obj
+    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+        r, obj = P.call_parsed(router, "exclusion_verdict", EXCLUSION_PROMPT.format(
+            before=quote_data(before_text, 3000), moment=quote_data(moment_text, 1500),
+            after=quote_data(after_text, 3000)), parse, 800, seed, avoid_model=avoid_model)
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
-        if r is not None and isinstance(e, (ValueError, TypeError)):
-            router.reject(r)
         return {"verdict": "exclude", "why": f"no readable verdict ({type(e).__name__}: {str(e)[:160]})",
                 "risks": [], "backend": None, "measured": False, "replayed": False}
     meas = {"measured": True, "replayed": bool(getattr(r, "replayed", False))}

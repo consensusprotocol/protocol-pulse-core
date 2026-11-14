@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 18,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: Stephan Livera): \"And Bitcoin is a hurdle rate basically just means don't lose money. Like don't lose the Bitcoin that you have today. Even if you don't have your wealth in Bitcoin, you can measure your wealth today in Bitcoin, like your house or your equities or your bonds or whatever else you hold.\"\nCLIP label=\"clip_02\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin is a durable, politics-independent way to measure and preserve wealth.\", \"clips\": {\"hook\": 4, \"clip_01\": 5, \"clip_02\": 4}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Both are about Bitcoin's properties; 'And' continues naturally from the hook's claim.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"Shift from measuring wealth in Bitcoin to its political independence; still clearly about Bitcoin, jump is mild.\"}}}",
+ "usage": {
+  "in": 452,
+  "out": 128,
+  "usd_reported": 2.988e-05
+ },
+ "usd": 0.003276,
+ "seconds": 4.71,
+ "recorded_at": "2026-11-14T03:31:24Z"
+}

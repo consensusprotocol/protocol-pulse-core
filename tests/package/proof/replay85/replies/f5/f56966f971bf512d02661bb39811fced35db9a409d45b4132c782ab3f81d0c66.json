@@ -1,0 +1,19 @@
+{
+ "role": "replay85_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video.\n\nCLIP label=\"hook\" (on screen: The Bitcoin Layer): \"Bitcoin started turning though before liquidity turned red. And that's an important caveat here.\"\nCLIP label=\"clip_01\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_03\" (on screen: What Bitcoin Did): \"I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\n3) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n4) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"hook\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1},\n\"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "\n\n{\"through_line\": \"A loose collection of disparate Bitcoin perspectives, from market timing to personal self-custody to financial freedom to long-term cryptographic security.\", \"hook\": {\"scroll\": 2, \"alone\": 2, \"setup\": 2}, \"clips\": {\"clip_01\": 4, \"clip_02\": 4, \"clip_03\": 3}, \"joins\": {\"hook -> clip_01\": {\"followable\": false, \"why\": \"Subject shifts from market liquidity analysis to personal bank fear with no bridging referent.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"Both center on 'why Bitcoin'; clip_01's 'that's why we Bitcoin' hands off to clip_02's broader 'why' argument.\"}, \"clip_02 -> clip_03\": {\"followable\": false, \"why\": \"Jumps from macro financial freedom to a specific RSA/quantum-cryptography bet with no connective tissue.\"}}}",
+ "usage": {
+  "in": 696,
+  "out": 1562,
+  "usd_reported": 0.00114607
+ },
+ "usd": 0.025518,
+ "seconds": 27.68,
+ "recorded_at": "2026-11-14T02:57:11Z"
+}

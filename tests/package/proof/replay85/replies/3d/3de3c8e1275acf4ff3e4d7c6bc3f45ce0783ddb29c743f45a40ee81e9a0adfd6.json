@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1050,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"f003b72d2fe13d894ea5\" (on screen: Simply Bitcoin): \"Bitcoin is a life lessens in patience and conviction.\"\nCANDIDATE id=\"e05b34a672b73f3334ea\" (on screen: Simply Bitcoin): \"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\nCANDIDATE id=\"994ca307911a9ee1eb79\" (on screen: Simply Bitcoin): \"As I've said multiple times on this show, if you are the lone Bitcoiner, it does get lonely. When you come into Bitcoin, you're the only one that has this realization.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"f003b72d2fe13d894ea5\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"e05b34a672b73f3334ea\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"994ca307911a9ee1eb79\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"f003b72d2fe13d894ea5\": {\"scroll\": 3, \"alone\": 5, \"setup\": 2, \"why\": \"Punchy, fully self-contained aphorism, but it's a complete thought that gives no reason to hear what's next (setup).\"}, \"e05b34a672b73f3334ea\": {\"scroll\": 2, \"alone\": 5, \"setup\": 3, \"why\": \"Warm, self-contained payoff, but the rambling 'Like, I want every single person' start delays the point (scroll).\"}, \"994ca307911a9ee1eb79\": {\"scroll\": 3, \"alone\": 4, \"setup\": 3, \"why\": \"Relatable lonely-Bitcoiner theme, but the 'As I've said multiple times on this show' throat-clearing weakens the first seconds (scroll).\"}}}",
+ "usage": {
+  "in": 568,
+  "out": 1291,
+  "usd_reported": 0.00017769
+ },
+ "usd": 0.021069,
+ "seconds": 48.97,
+ "recorded_at": "2026-11-14T02:42:41Z"
+}

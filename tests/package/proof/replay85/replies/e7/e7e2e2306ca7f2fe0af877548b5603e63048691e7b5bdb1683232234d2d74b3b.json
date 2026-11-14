@@ -1,0 +1,19 @@
+{
+ "role": "replay85v_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1500,
+ "system": null,
+ "prompt": "You check what a VIEWER SEES in one clip of another channel's video, before it is cut into ours.\nThe image is a contact sheet of 7 frames of the clip, left to right and top to bottom, each labelled with its time in\nthe source video (seconds). The clip's words, as spoken:\n\"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitcoin. They can talk about quantum all they want.\"\n\nAnswer three questions from the frames only:\n1. third_person: is a person who is NOT the one speaking shown as a STILL, a PHOTO or a GRAPHIC (not live video of a\n   person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,\n   a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only\n   text on the screen names a person.\n2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken\n   words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.\n3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.\n\nReturn ONLY this JSON object:\n{\"third_person\": {\"shown\": true or false, \"how\": \"still|photo|graphic|none\", \"words_negative\": true or false,\n  \"name_on_screen\": \"<the on-screen text naming them> or null\", \"finding\": \"<one sentence>\"},\n \"on_screen_text\": [{\"text\": \"...\", \"asserts_beyond_words\": true or false, \"why\": \"...\"}],\n \"lower_third\": {\"name\": \"<the name on the strap> or null\", \"text\": \"<the strap's full text> or null\"}}\n[image sha256=d053882ddf4f77b56c5992156bd175d42f6134e835db8f43d45bd17b651953ee]",
+ "text": "\n\n{\"third_person\": {\"shown\": false, \"how\": \"none\", \"words_negative\": false, \"name_on_screen\": null, \"finding\": \"Only the live speaker is shown across all frames; no other person appears as a still, photo, or graphic.\"}, \"on_screen_text\": [], \"lower_third\": {\"name\": null, \"text\": null}}",
+ "usage": {
+  "in": 1469,
+  "out": 605,
+  "usd_reported": 0.00049967
+ },
+ "usd": 0.013482,
+ "seconds": 11.75,
+ "recorded_at": "2026-11-14T02:56:26Z"
+}

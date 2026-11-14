@@ -564,7 +564,8 @@ class Rig:
         self.write_avoid = []
 
     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
-                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None):
+                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None, kind=None,
+                  failover=None):
         self.screen_deadlines.append(deadline_s)           # ruling 82: which calls are bounded
         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
@@ -1177,7 +1178,7 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
         import context_integrity as CI
         from test_gates import a_item
 
-        def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False):
+        def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False, kind=None):
             calls.append((sorted(contexts), seed))
             if set(contexts) & set(fail):
                 raise RuntimeError("the batch reply was out of contract")
@@ -1293,14 +1294,35 @@ class TestRuling59HookFirst(unittest.TestCase):
         self.assertIn('CANDIDATE id="b"', prompts[0])
         self.assertIn("Judge each one ALONE", prompts[0])
 
-    def test_a_reply_out_of_contract_is_asked_once_more_then_nothing_is_rated(self):
+    def chained(self, *replies):
+        """A canned chain: each call is answered by the next model (fake:1, fake:2, ...), and a model the caller
+        skips (avoid_model) is never asked."""
+        c = self.canned(*replies)
+        call, n = c.call, [0]
+
+        def nxt(role, prompt, *a, avoid_model=None, **k):
+            r = call(role, prompt, *a, **k)
+            n[0] += 1
+            name = f"fake:{n[0]}"
+            assert name not in (avoid_model or ()), "a skipped model was asked"
+            c.asked_skip = getattr(c, "asked_skip", []) + [sorted(avoid_model or ())]
+            import providers as P
+            return P.Reply(r.text, name, "fake")
+        c.call = nxt
+        return c
+
+    def test_a_reply_out_of_contract_moves_on_to_the_next_model_then_nothing_is_rated(self):
+        """The 20:33 order (ruling 82's chain on every verdict): an answer out of contract moves on to the NEXT model
+        (it was one re-ask of the same model); the chain spent is no verdict (law L-m)."""
         ms = [pm("a", "A", 12.0)]
         ok = {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}
-        c = self.canned({"hooks": {"a": {"scroll": 9, "alone": 4, "setup": 4, "why": "w"}}}, ok)
+        c = self.chained({"hooks": {"a": {"scroll": 9, "alone": 4, "setup": 4, "why": "w"}}}, ok)
         got, err = PK.hook_ratings(c, ms, ctx(), set(), set())
-        self.assertEqual((err, got["a"]["rating"], len(c.calls), len(c.rejected)), (None, 4, 2, 1))
+        self.assertEqual((err, got["a"]["rating"], got["a"]["backend"], len(c.calls), c.rejected),
+                         (None, 4, "fake:2", 2, ["fake:1"]))
+        self.assertEqual(c.asked_skip, [[], ["fake:1"]])                   # the second ask skips the first model
         for bad in ({"hooks": {}}, {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4}}}, {"x": 1}, "no json"):
-            got, err = PK.hook_ratings(self.canned(bad, bad), ms, ctx(), set(), set())
+            got, err = PK.hook_ratings(self.chained(bad, bad), ms, ctx(), set(), set())
             self.assertEqual(got, {})
             self.assertIn("Error", err)
         got, err = PK.hook_ratings(self.canned(), ms, ctx(), set(), set())   # unavailable: no verdict (law L-m)
@@ -2482,6 +2504,51 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         self.assertEqual(rig.screen_deadlines, [None, 120.0, 120.0, 120.0, 120.0])   # audit 2005 C1: the first screen
         #   unbounded as before; the second screen's two chunks and both off-writer re-screens at ruling 82's 120 s
 
+    def test_ruling_85_the_first_screen_is_bounded_under_heimdall_first(self):
+        """RULING 85: under heimdall_first the FIRST step-A verdict is a Heimdall family's, so it gets ruling 82's
+        bounds too (2 clips a call, 120 s); under today's routing it stays unbounded (Grok's), as before."""
+        batches = []
+        for routing in ("today", "heimdall_first"):
+            rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                      angle_from=("xai:grok", "xai", "grok"), write_from=("xai:grok", "xai", "grok"))
+            rig.router.routing = routing
+            pre = rig.prescreen
+
+            def spy(*a, batch=PK.PRESCREEN_BATCH, **k):
+                batches.append((routing, batch))
+                return pre(*a, batch=batch, **k)
+            rig.prescreen = spy
+            rig.run()
+            self.assertEqual(rig.screen_deadlines[0], None if routing == "today" else PK.SECOND_VERDICT_DEADLINE_S)
+        self.assertEqual([b for r, b in batches if r == "heimdall_first"][0], PK.SECOND_VERDICT_BATCH)
+        self.assertEqual([b for r, b in batches if r == "today"][0], PK.PRESCREEN_BATCH)
+
+    def test_ruling_88_grok_confirms_in_its_own_batches_under_heimdall_first(self):
+        """RULING 88 (c): under heimdall_first the second step-A verdict is Grok confirming Heimdall's passes: Grok's own
+        batch (8) and no deadline, the move-on rule kept; under today it stays a Heimdall family's (2 clips, 120 s)."""
+        self.assertEqual(PK._second_bounds(type("R", (), {"routing": "today"})()),
+                         (PK.SECOND_VERDICT_BATCH, PK.SECOND_VERDICT_DEADLINE_S))
+        self.assertEqual(PK._second_bounds(type("R", (), {"routing": "heimdall_first"})()), (PK.PRESCREEN_BATCH, None))
+        got = []
+
+        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None, batch=None,
+                 deadline_s=None, kind=None, failover=None):
+            got.append((len(chunk), batch, deadline_s, kind, failover))
+            return {m["moment_id"]: {"backend": "xai:grok"} for m in chunk}, {m["moment_id"]: [] for m in chunk}, \
+                set(), set()
+        router = type("R", (), {"routing": "heimdall_first", "backends": {
+            "heimdall:qwen": type("B", (), {"vendor": "heimdall/qwen", "family": "qwen"})(),
+            "xai:grok": type("B", (), {"vendor": "xai", "family": "grok"})()}})()
+        ms = [dict(m, moment_id=f"m{i}") for i, m in enumerate(self.MS * 3)][:9]
+        saved = PK.prescreen
+        PK.prescreen = fake
+        try:
+            PK.second_screen(router, {m["moment_id"]: m for m in ms}, {m["moment_id"]: {"backend": "heimdall:qwen"}
+                                                                       for m in ms}, {}, ctx())
+        finally:
+            PK.prescreen = saved
+        self.assertEqual(sorted(got), [(1, 8, None, "step_a_second", True), (8, 8, None, "step_a_second", True)])
+
     def test_a_re_screen_that_gives_no_verdict_is_never_a_pass(self):
         """The old branch read the stale verdict back when the re-screen returned nothing for a clip (a fail-open,
         flagged with ORDER 06:22): no verdict off the writers keeps the clip out."""
@@ -2528,7 +2595,7 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
         seen, calls = [], []
 
         def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None, batch=None,
-                 deadline_s=None):
+                 deadline_s=None, kind=None, failover=None):
             seen.append((sorted(wv), [m["moment_id"] for m in chunk]))
             calls.append((batch, deadline_s))
             name = "heimdall:deepseek"          # off xai for h and x; for z (first verdict heimdall) the SAME vendor

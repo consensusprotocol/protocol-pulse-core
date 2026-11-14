@@ -1,0 +1,19 @@
+{
+ "role": "replay85_deepseek",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall",
+ "seed": 19,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"Currencies are often born for political reasons, but fail for economic reasons. Bitcoin launched in January of 2009. It's never been renamed. It's never gone into another currency. It's never been redenominated or reissued.\"\nCLIP label=\"clip_01\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_02\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\nCLIP label=\"clip_03\" (on screen: What Bitcoin Did): \"I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin matters as a nonpartisan, self-custodial path to financial freedom and a more resilient financial system.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 5, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Bitcoin referent clear; continues Bitcoin/crypto discussion.\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"financial freedom and bank-control theme continues.\"}, \"clip_02 -> clip_03\": {\"followable\": false, \"why\": \"abrupt shift to RSA cryptography; only Bitcoin as wager, no clear subject link.\"}}}",
+ "usage": {
+  "in": 607,
+  "out": 2769,
+  "usd_reported": 0.00054493
+ },
+ "usd": 0.043356,
+ "seconds": 75.8,
+ "recorded_at": "2026-11-14T04:04:14Z"
+}

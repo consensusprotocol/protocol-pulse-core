@@ -1,0 +1,114 @@
+You are auditing PACKAGE B of a change on branch pp-selectid (Protocol Pulse: the builder of sealed medley pins). It
+is the verdict call sites, the shadow's side-by-side report and the replay driver. Package A (the router, the
+Heimdall health state, the provider config, the build driver) is audited separately. Only state what you can verify
+from the diff; if uncertain, say so; do not guess.
+
+Background (static):
+- providers.Router.call(role, ...) tries the role's chain of back-ends. It moves on when a back-end is down, refuses,
+  misses its deadline or answers empty. The chain spent raises ProviderError (no verdict, never a pass). Before this
+  change, a verdict whose answer was OUT OF CONTRACT (unreadable JSON, wrong keys) was rejected (its recording
+  dropped) and gave no verdict. The hook ratings re-asked the SAME model once with another seed.
+- providers.call_parsed(router, role, prompt, parse, ...) (package A) calls the chain, and on an answer out of
+  contract (parse raises ValueError / TypeError / KeyError) rejects it and asks the NEXT model, each model once.
+- Under the new routing "heimdall_first" (package A), Heimdall's families decide every verdict and Grok is last.
+  Grok's answers are then asked "in shadow" and recorded, never deciding.
+
+The orders (verbatim excerpts):
+- 20:33 Nov 13: "Ruling 82's chain (deepseek -> glm-5.3-flash -> qwen3.8-27b, 120 s a call, an out-of-contract answer
+  moves on, an outage is never a verdict) applies to every step that today has one Heimdall model as its only route
+  when xAI is the writer or is down: the fidelity verdict, coherence / clips-alone / hook ratings, step B, the speaker
+  and exclusion verdicts."
+- RULING 85.1 (21:15): "REPLAY, no new Grok spend: every recorded Grok verdict since the first ledger build (prompt +
+  answer are in your records ...) is re-asked, same prompt, of Heimdall's model families: deepseek-v4.1-flash,
+  z-ai/glm-5.3-flash, qwen3.8-27b ... Report per verdict type and per model: agreement with Grok on the DECISION
+  (pass / fail, flagged join, rating at or above the bar), the disagreements split into 'Heimdall stricter' and
+  'Heimdall looser', median seconds, timeouts, cost. The delivered videos are the anchor: every verdict that let
+  0c68b589, 41f29b1f and 37c5b5f5's clips through must still pass, and the ... REFERENT_OUTSIDE refusals must still be
+  refused."
+- RULING 86 (21:18): the shadow. "every decision where they differ, which was stricter, and whether the pin would have
+  sealed under Grok. ... After three pins with no decision-changing difference, the shadow stops."
+- RULING 85 (21:15): the first step-A verdict becomes a Heimdall family's under heimdall_first.
+
+- RULING 88 (22:15): "(c) STEP A stays two families with Grok as one of them, but the ORDER changes: the Heimdall
+  verdict is asked FIRST; a clip Heimdall refuses is refused and Grok is never asked; only a clip Heimdall passes goes
+  to Grok to confirm." The types get their own lists: each call names its kind.
+
+The change (package B):
+1. Every verdict call site now uses providers.call_parsed, so an answer out of contract moves on to the next model:
+   - vo_fidelity.check (fidelity);
+   - moments exclusion (exclusion);
+   - speakers (speaker);
+   - package.hook_ratings (the hook ratings; the same-model seed re-ask is gone);
+   - package.coherence;
+   - package.medley (clips-alone);
+   - context_integrity: step B twice (step B's relations check is now inside its parser, so a bad relation also moves
+     on) and step C.
+   Each parse function is the old inline contract check, moved unchanged. The except clauses keep their old outcomes:
+   no verdict; never a pass.
+2. RULING 88: every call names its kind (prescreen kind="step_a_first" for the first screen, "step_a_second" for the
+   second screen and the off-writer re-screen; step C "step_c"; the hook ratings "hook"; clips-alone "clips_alone";
+   coherence "coherence"). Under heimdall_first, package._second_bounds gives the second screen (Grok confirming)
+   Grok's own batch (8) and no deadline, with the move-on rule kept (prescreen failover=True); under today it stays
+   2 clips and 120 s.
+3. package.build:
+   - the writes avoid the other writers by GATEWAY (providers.gateway), so a Heimdall write may still fail over
+     deepseek -> qwen when each Heimdall family is its own maker (heimdall_first);
+   - under heimdall_first, the FIRST step-A screen runs SECOND_VERDICT_BATCH (2) clips per call with
+     SECOND_VERDICT_DEADLINE_S (120 s): Heimdall needs a median 268 s on 8 clips.
+4. tests/package/replay85.py (new): the replay.
+   - Each recorded Grok answer is reduced to the pipeline's DECISION with the pipeline's parsers and bars (step A:
+     context_integrity.a_failures; clips-alone and coherence: _line_ok, COHERENCE_MIN, LY_MAX_BRIDGES; hooks: the
+     lowest of scroll / alone >= HOOK_MIN; exclusion; speaker name; step C and fidelity by stated proxies).
+   - The same prompt is then asked of each Heimdall family (its own recordings; ruling 48's ledger; resumable), and
+     the decisions compared (agree / stricter / looser / different).
+   - Anchors are matched by the delivered pins' clip texts in a prompt.
+   - The output is TABLE.md.
+5. tests/package/shadow86.py (new): the side-by-side.
+   - It reads a build's SHADOW86.jsonl with the replay's decide / compare and writes SHADOW86.md: the differences,
+     which side was stricter, and whether the pin would have sealed under Grok (a decision on the pin's clips where
+     Heimdall passed and Grok failed).
+   - The streak in SHADOW86.json counts pins with no decision-changing difference. A pin with a missing shadow or an
+     unreadable one is never clean. A re-read never moves the streak.
+6. Tests:
+   - test_medley: Grok confirms in its own batches under heimdall_first; the hook ratings move on to the next model; the first screen's bounds under each routing.
+   - test_shadow86: a pin Grok would have stopped; the streak to 3; no pin leaves it; unreadable or missing shadows.
+
+Check, against the diff:
+- that every parse function is the old contract check, unchanged, and that no out-of-contract answer can become a
+  verdict;
+- that an outage is never a verdict and nothing is cached from a failed call;
+- that the except clauses of every call site still catch what call_parsed can raise;
+- that the replay's decision functions match the pipeline's own rules (and where they are proxies, that this is said);
+- that the shadow report cannot call a pin clean when a shadow is missing or unreadable;
+- the "would have sealed under Grok" logic.
+
+Answer with P0/P1/P2 findings (file:line, concrete scenario), then "SHIP: yes / no / yes with conditions".
+
+ADDENDUM (00:4x ET Nov 14): this change is now rebased onto the branch's newer HEAD 07321410. That HEAD adds the
+SPOTLIGHT pin kind (rulings 90-92: pipeline/spotlight.py, package_pin's spotlight contract) and RULING 93 (DEC-12d per
+clip: visual_pin's burned-in text question). Both were audited separately (2322, 0003). The merge points, to check:
+- package.first_bounds(router): one helper for step A's FIRST screen. Under heimdall_first it is 2 clips and 120 s a
+  call; under today, {}. The medley build and spotlight.build both call prescreen(..., kind="step_a_first",
+  **first_bounds(router)).
+- proof_ledger.py keeps both module constants (SPOTLIGHTS for ruling 90; STATE_MD for ruling 87). The spotlight runs
+  on the same Router after the medley search, so its calls are shadowed (ruling 86) and noted for Plan B (ruling 87)
+  like the medley's.
+- shadow86.pin_texts covers a sealed spotlight pin (res["spotlight_pin"] with res["spotlight"]["package"]) as well as
+  the medley pin, so ruling 86's "first pin sealed under Heimdall-first" holds whatever the pin's kind.
+- The spotlight's value verdict (ruling 91) stays ONE call with no move-on ("one write, one verdict; anything short of
+  a clear yes means no line"); its layout verdict (ruling 92) is one vision call, and failing it means not measured.
+
+ADDENDUM 2 (01:1x ET Nov 14):
+- The change is now rebased onto HEAD 2f081cba, which adds RULINGS 94 and 95 (audited separately, 0041):
+  - stand_alone's hook opener rule (first/second-person pronouns free, third-person ones need the scorer);
+  - package._can_open's re-check with the verdict and its spotlight-only deferral;
+  - hook trim variants;
+  - spotlight.next_attempt.
+  The merge was mechanical (git merge-file, no conflict). The one hand-applied line is spotlight.build's step-A call:
+  kind="step_a_first" with package.first_bounds(router), as the medley's.
+- THE REPLAY IS COMPLETE (884 rows; tests/package/proof/replay85/TABLE.md). Ruling 88 (b) was conditional on the
+  full table:
+  - it holds for the HOOK rating: qwen 100 % of 15 units, glm 100 % of 11, deepseek 96 %. model_providers.json's
+    heimdall_first "coherence_verdict:hook" is now qwen -> glm -> deepseek -> Grok (Grok was first);
+  - it does not hold for STEP C: glm 97 %, deepseek 96 %, and qwen's 98 % is barred by (e). Step C stays Grok first.
+  routing.ruling_88's note records both.

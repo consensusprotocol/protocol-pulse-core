@@ -728,16 +728,13 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
     import providers as P
     det = check_deterministic(segments, lines, manifest, current_levels)
     out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False, "seed": seed}
-    r = None
-    try:
-        r = router.call("fidelity_verdict", verdict_prompt(segments, lines, manifest), 2500, seed,
-                        avoid_vendor=writer_vendor, avoid_family=writer_family)
+    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
+        r, out["verdict"] = P.call_parsed(router, "fidelity_verdict", verdict_prompt(segments, lines, manifest),
+                                          lambda t: check_verdict(t, segments, lines, manifest), 2500, seed,
+                                          avoid_vendor=writer_vendor, avoid_family=writer_family)
         out["backend"], out["replayed"] = r.backend, bool(getattr(r, "replayed", False))
-        out["verdict"] = check_verdict(r.text, segments, lines, manifest)
         out["measured"] = True
     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
-        if r is not None and isinstance(e, (ValueError, TypeError)) and hasattr(router, "reject"):
-            router.reject(r, str(e))
         out["verdict"] = {"ok": False, "claims": [], "violations": [{"slot": "-", "rule": "VERDICT_UNAVAILABLE",
                                                                       "detail": f"{type(e).__name__}: {str(e)[:200]}"}]}
     out["violations"] = det["violations"] + out["verdict"]["violations"]

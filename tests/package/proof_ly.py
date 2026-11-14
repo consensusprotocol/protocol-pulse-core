@@ -64,12 +64,32 @@ WRITERS = ["heimdall:deepseek/deepseek-v4.1-flash", "heimdall:qwen/qwen3.8-27b",
 SCRATCH = "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad"
 
 
-def chains():
-    """Every role's configured chain without the frozen legs; the writer = two Heimdall families."""
+def chains(routing=None):
+    """Every role's chain for the routing without the frozen legs; the writer = two Heimdall families, then Grok.
+    RULING 85: routing "today" (the chains under roles) or "heimdall_first" (model_providers.json routing.heimdall_first,
+    Grok last); default: the config's routing.mode."""
     cfg = json.load(open(P.CONFIG))
-    out = {r: [b for b in v["chain"] if not b.startswith(FROZEN)] for r, v in cfg["roles"].items()}
+    rt = cfg.get("routing") or {}
+    routing = routing or rt.get("mode") or "today"
+    if routing not in P.ROUTINGS:
+        raise ValueError(f"routing must be one of {P.ROUTINGS}, not {routing!r}")
+    routed = rt.get(routing) or {}
+    out = {r: [b for b in ((routed.get(r) if routing != "today" else None) or v["chain"]) if not b.startswith(FROZEN)]
+           for r, v in cfg["roles"].items()}
+    for k, ch in routed.items():                 # RULING 88: a verdict type's own list ("<role>:<kind>")
+        if ":" in k and isinstance(ch, list):
+            out[k] = [b for b in ch if not b.startswith(FROZEN)]
     out["angle_write"] = list(WRITERS)
     return out
+
+
+def plan_b_chains():
+    """RULING 87: the Plan B chains (model_providers.json routing.plan_b): Grok mainly, then any other outside key that
+    answers. OpenAI and Anthropic stay in (they are tried, never assumed: an account without credit is Unavailable at
+    its first call and down for the run); only GPU0's local model is out (never this builder's)."""
+    cfg = json.load(open(P.CONFIG))
+    return {r: [b for b in ch if not b.startswith(("local:", "openai_stt:"))]
+            for r, ch in ((cfg.get("routing") or {}).get("plan_b") or {}).items()}
 
 
 def ledger():

@@ -1,0 +1,1515 @@
+diff --git a/pipeline/context_integrity.py b/pipeline/context_integrity.py
+index c30f043..3f32a94 100644
+--- a/pipeline/context_integrity.py
++++ b/pipeline/context_integrity.py
+@@ -318,7 +318,7 @@ def check(router, package, sources, writer_vendor, seed=7):
+     return check_contexts(router, package, contexts_from_sources(package, sources), writer_vendor, seed)
+ 
+ 
+-def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline_s=None, failover=False):
++def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline_s=None, failover=False, kind=None):
+     """Step A alone (context only, the package hidden): {label: item} for exactly the given labels, and the back-end.
+     Raises ValueError / ProviderError when it cannot be had or read. RULING 82 (20:02 Nov 13): deadline_s bounds each
+     call (the router moves to the next model at it and logs the miss, item 55); failover=True also moves on when a
+@@ -336,7 +336,8 @@ def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline
+     while True:
+         ra = router.call("context_verdict", prompt, 4000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
+                          **({"avoid_model": set(skip)} if skip else {}),
+-                         **({"deadline_s": deadline_s} if deadline_s is not None else {}))
++                         **({"deadline_s": deadline_s} if deadline_s is not None else {}),
++                         **({"kind": kind} if kind else {}))      # ruling 88: step_a_first / step_a_second
+         try:
+             A = _strict(ra.text, {"excerpts"}, {"excerpts": A_KEYS})
+             a_by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
+@@ -485,7 +486,7 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None,
+     try:
+         if a_by is None:
+             a_by, out["backends"]["A"] = step_a(router, {lb: contexts[lb] for lb in labels}, writer_vendor, seed,
+-                                                writer_family)
++                                                writer_family, kind="step_a_first")
+         else:
+             missing = [lb for lb in labels if not isinstance(a_by.get(lb), dict) or set(A_KEYS) - set(a_by[lb])]
+             if missing:
+@@ -493,45 +494,56 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None,
+             a_by = {lb: a_by[lb] for lb in labels}
+             out["backends"]["A"] = {lb: a_by[lb].get("backend") or "precomputed (unnamed)" for lb in labels}
+         lab_list = ", ".join(all_labels)
+-        r0 = router.call("viewer_takeaway", STEP_B.format(package=package_view(clips_alone(package)), labels=lab_list),
+-                         3000, seed)
+-        out["backends"]["B0"] = r0.backend
+-        B0 = _strict(r0.text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
++
++        def parse_b0(text):
++            B0 = _strict(text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
++                                                            "relations": ("labels", "relation")})
++            b0_by = {t["label"]: t for t in B0["takeaways"] if isinstance(t.get("label"), str)}
++            if not set(labels) <= set(b0_by):
++                raise ValueError(f"step B (clips alone) must answer at least {labels}")
++            return b0_by
++
++        def parse_b(text):
++            B = _strict(text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
+                                                            "relations": ("labels", "relation")})
+-        b0_by = {t["label"]: t for t in B0["takeaways"] if isinstance(t.get("label"), str)}
+-        if not set(labels) <= set(b0_by):
+-            raise ValueError(f"step B (clips alone) must answer at least {labels}")
+-        rb = router.call("viewer_takeaway", STEP_B.format(package=package_view(package), labels=lab_list), 3000, seed,
+-                         avoid_vendor=writer_vendor, avoid_family=writer_family)
++            b_by = {t["label"]: t for t in B["takeaways"] if isinstance(t.get("label"), str)}
++            if not set(labels) <= set(b_by) or any(not isinstance(b_by[lb].get("asserts"), str) for lb in labels):
++                raise ValueError(f"step B must answer at least {labels}")
++            pairs_want = {frozenset(p) for p in itertools.combinations(all_labels, 2)}
++            got = []
++            for rel in B["relations"]:
++                labs = rel.get("labels")
++                if not isinstance(labs, list) or len(labs) != 2 or not all(isinstance(x, str) for x in labs) or \
++                        labs[0] == labs[1] or rel.get("relation") not in RELATIONS:
++                    raise ValueError(f"step B relation out of contract: {json.dumps(rel)[:160]}")
++                got.append(frozenset(labs))
++            if len(got) != len(set(got)) or set(got) != pairs_want:
++                raise ValueError(f"step B must rate every pair of clips exactly once ({len(pairs_want)} pairs, got "
++                                 f"{len(set(got))} distinct of {len(got)})")
++            return B, b_by
++        # the 20:33 order: an answer out of contract moves on to the next model (providers.call_parsed)
++        r0, b0_by = P.call_parsed(router, "viewer_takeaway",
++                                  STEP_B.format(package=package_view(clips_alone(package)), labels=lab_list),
++                                  parse_b0, 3000, seed)
++        out["backends"]["B0"] = r0.backend
++        rb, (B, b_by) = P.call_parsed(router, "viewer_takeaway",
++                                      STEP_B.format(package=package_view(package), labels=lab_list), parse_b, 3000,
++                                      seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
+         out["backends"]["B"] = rb.backend
+-        B = _strict(rb.text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
+-                                                          "relations": ("labels", "relation")})
+-        b_by = {t["label"]: t for t in B["takeaways"] if isinstance(t.get("label"), str)}
+-        if not set(labels) <= set(b_by) or any(not isinstance(b_by[lb].get("asserts"), str) for lb in labels):
+-            raise ValueError(f"step B must answer at least {labels}")
+-        pairs_want = {frozenset(p) for p in itertools.combinations(all_labels, 2)}
+-        got = []
+-        for rel in B["relations"]:
+-            labs = rel.get("labels")
+-            if not isinstance(labs, list) or len(labs) != 2 or not all(isinstance(x, str) for x in labs) or \
+-                    labs[0] == labs[1] or rel.get("relation") not in RELATIONS:
+-                raise ValueError(f"step B relation out of contract: {json.dumps(rel)[:160]}")
+-            got.append(frozenset(labs))
+-        if len(got) != len(set(got)) or set(got) != pairs_want:
+-            raise ValueError(f"step B must rate every pair of clips exactly once ({len(pairs_want)} pairs, got "
+-                             f"{len(set(got))} distinct of {len(got)})")
+         text_of = {sg["label"]: sg["text"] for sg in segs}
+         pairs = "\n".join(f'<pair label="{lb}"><A>{_q(a_by[lb]["proposition"], 400)} (certainty: '
+                           f'{a_by[lb]["certainty"]})</A><CLIP>{_q(text_of[lb], 900)}</CLIP><B>{_q(b_by[lb]["asserts"], 400)}'
+                           f' (certainty: {b_by[lb]["certainty"]})</B></pair>' for lb in labels)
+-        rc = router.call("context_verdict", STEP_C.format(pairs=pairs, vo=vo_words(package)), 2000, seed,
+-                         avoid_vendor=writer_vendor, avoid_family=writer_family)
++        def parse_c(text):
++            C = _strict(text, {"pairs"}, {"pairs": ("label", "entails", "dropped_limit", "added_by", "same_polarity",
++                                                    "stronger_certainty", "raising_words")})
++            c_by = {c["label"]: c for c in C["pairs"] if isinstance(c.get("label"), str)}
++            if set(c_by) != set(labels) or len(C["pairs"]) != len(labels):
++                raise ValueError(f"step C must answer exactly the labels {labels}")
++            return c_by
++        rc, c_by = P.call_parsed(router, "context_verdict", STEP_C.format(pairs=pairs, vo=vo_words(package)), parse_c,
++                                 2000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family, kind="step_c")
+         out["backends"]["C"] = rc.backend
+-        C = _strict(rc.text, {"pairs"}, {"pairs": ("label", "entails", "dropped_limit", "added_by", "same_polarity",
+-                                                   "stronger_certainty", "raising_words")})
+-        c_by = {c["label"]: c for c in C["pairs"] if isinstance(c.get("label"), str)}
+-        if set(c_by) != set(labels) or len(C["pairs"]) != len(labels):
+-            raise ValueError(f"step C must answer exactly the labels {labels}")
+     except (P.ProviderError, P.SpendLimit, ValueError, KeyError, TypeError) as e:
+         for r_ in (r0, rb, rc):
+             if r_ is not None and isinstance(e, (ValueError, KeyError, TypeError)) and hasattr(router, "reject"):
+diff --git a/pipeline/moments.py b/pipeline/moments.py
+index cfed885..7d55d31 100644
+--- a/pipeline/moments.py
++++ b/pipeline/moments.py
+@@ -378,21 +378,19 @@ def exclusion_verdict(router, moment_text, before_text="", after_text="", seed=7
+     if why:
+         return {"verdict": "exclude", "why": why, "risks": ["ad_read"], "backend": "deterministic", "measured": True,
+                 "replayed": False}
+-    r = None
+-    try:
+-        r = router.call("exclusion_verdict", EXCLUSION_PROMPT.format(before=quote_data(before_text, 3000),
+-                                                                     moment=quote_data(moment_text, 1500),
+-                                                                     after=quote_data(after_text, 3000)), 800, seed,
+-                        avoid_model=avoid_model)
+-        obj = json.loads(r.text.strip())
++    def parse(text):
++        obj = json.loads(text.strip())
+         if not isinstance(obj, dict) or set(obj) != {"risks", "about_bitcoin", "why"} or \
+                 not isinstance(obj["risks"], list) or any(not isinstance(x, str) or x not in HARD_RISKS
+                                                           for x in obj["risks"]) or \
+                 obj["about_bitcoin"] not in ("yes", "no", "uncertain"):
+             raise ValueError("the verdict does not match its contract")
++        return obj
++    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
++        r, obj = P.call_parsed(router, "exclusion_verdict", EXCLUSION_PROMPT.format(
++            before=quote_data(before_text, 3000), moment=quote_data(moment_text, 1500),
++            after=quote_data(after_text, 3000)), parse, 800, seed, avoid_model=avoid_model)
+     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+-        if r is not None and isinstance(e, (ValueError, TypeError)):
+-            router.reject(r)
+         return {"verdict": "exclude", "why": f"no readable verdict ({type(e).__name__}: {str(e)[:160]})",
+                 "risks": [], "backend": None, "measured": False, "replayed": False}
+     meas = {"measured": True, "replayed": bool(getattr(r, "replayed", False))}
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 4736b4f..80d079c 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -489,7 +489,7 @@ def src_of(x, sources):
+ 
+ 
+ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRESCREEN_N, batch=PRESCREEN_BATCH,
+-              store=None, log=print, cache=None, deadline_s=None):
++              store=None, log=print, cache=None, deadline_s=None, kind="step_a_first", failover=None):
+     """Step A (context only, package-independent by law L-s): ({moment_id: A item}, {moment_id: [failing rules]},
+     {vendor}, {family}). RULING 58 (11:00 Nov 13): n None (the default) screens EVERY usable moment, the miner's best
+     first (rank_score); a number keeps the old cap (distinct channels first). Each moment is paid for ONCE: a verdict
+@@ -542,7 +542,8 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+         try:
+             return CI.step_a(router, {m["moment_id"]: contexts[m["moment_id"]] for m in chunk}, writer_vendor,
+                              seed=7 + i * batch, writer_family=writer_family, deadline_s=deadline_s,
+-                             failover=deadline_s is not None), None          # ruling 82: the chain, per call
++                             failover=(deadline_s is not None) if failover is None else failover,   # ruling 82
++                             kind=kind), None
+         except Exception as e:                           # unreadable: these moments are not cleared (law L-m)
+             return None, e
+     with ThreadPoolExecutor(max_workers=max(1, min(PRESCREEN_WORKERS, len(chunks)))) as ex:
+@@ -571,6 +572,23 @@ def prescreen(router, ms, sources, ctx, writer_vendor, writer_family=None, n=PRE
+     return a_by, fails, vendors, families
+ 
+ 
++def first_bounds(router):
++    """The kwargs of step A's FIRST screen. RULING 85: under heimdall_first the first verdict is a Heimdall family's,
++    2 clips and 120 s a call (Heimdall needs a median 268 s on 8 clips); today it keeps its batches with no deadline.
++    One helper for both builds (the medley's and the spotlight's)."""
++    return {"batch": SECOND_VERDICT_BATCH, "deadline_s": SECOND_VERDICT_DEADLINE_S} \
++        if getattr(router, "routing", "today") == "heimdall_first" else {}
++
++
++def _second_bounds(router):
++    """(batch, deadline_s) of step A's second verdict. Today it is a Heimdall family's (ruling 82: 2 clips, 120 s a
++    call). RULING 88 (c), under heimdall_first, it is Grok confirming a Heimdall pass: Grok's own batch (8 clips) and no
++    deadline, since the per-clip cost falls with the batch."""
++    if getattr(router, "routing", "today") == "heimdall_first":
++        return PRESCREEN_BATCH, None
++    return SECOND_VERDICT_BATCH, SECOND_VERDICT_DEADLINE_S
++
++
+ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+     """ORDER 06:22 item 45: step A from a SECOND vendor on every cuttable clip, BEFORE the angle step. The writer is
+     known only when the angle call answers (Heimdall first, Grok on its failure: angle_write), and a verdict never
+@@ -585,13 +603,14 @@ def second_screen(router, cleared, a_by, sources, ctx, log=print, cache=None):
+     for mid, m in cleared.items():
+         b = router.backends.get((a_by.get(mid) or {}).get("backend"))
+         groups.setdefault((b.vendor, b.family) if b is not None else None, []).append(m)
+-    jobs = [(k, g[i:i + SECOND_VERDICT_BATCH]) for k, g in groups.items() if k is not None
+-            for i in range(0, len(g), SECOND_VERDICT_BATCH)]
++    batch, dl = _second_bounds(router)
++    jobs = [(k, g[i:i + batch]) for k, g in groups.items() if k is not None
++            for i in range(0, len(g), batch)]
+     def one(k, chunk):                  # a chunk whose screen raises fails closed, never the build (audit 0640 C1)
+         try:
+             return prescreen(router, chunk, sources, ctx, {k[0]}, {k[1]}, n=len(chunk), store=None, log=log,
+-                             cache=cache, batch=SECOND_VERDICT_BATCH,    # ruling 58: a second verdict is paid once;
+-                             deadline_s=SECOND_VERDICT_DEADLINE_S)       # ruling 82: the chain, 120 s a call
++                             cache=cache, batch=batch, deadline_s=dl,    # ruling 58: a second verdict is paid once;
++                             kind="step_a_second", failover=True)        # ruling 82 / 88 (c): the chain
+         except Exception as e:
+             return {}, {m["moment_id"]: [f"STEP_A_UNAVAILABLE: {type(e).__name__}: {str(e)[:120]}"]
+                         for m in chunk}, set(), set()
+@@ -687,8 +706,9 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+     """RULING 59 (a): the hook question of ruling 52 (HOOK_QUESTION: scroll / alone / setup, each 1-5) asked of EVERY
+     given moment ALONE, in ONE batched call (coherence_verdict, never the writers' vendor or family), each rating
+     DERIVED as the lowest part (HOOK_RULE). Cached (`cache`, shared by every build) by the moment id, the sha256 of its
+-    text and the question's version: a moment is rated once, by a back-end off the writers. One re-ask on a reply out
+-    of contract. -> ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
++    text and the question's version: a moment is rated once, by a back-end off the writers. A reply out of contract
++    moves on to the next model of the chain (providers.call_parsed, ruling 82 as the 20:33 order extends it). ->
++    ({moment id: {"scroll", "alone", "setup", "rating", "why", "backend", "cached"}}, the error or None).
+     A moment the call did not rate has no rating (law L-m: never a pass)."""
+     import providers as P
+     wv, wf = P._as_set(writer_vendor), P._as_set(writer_family)
+@@ -709,35 +729,30 @@ def hook_ratings(router, ms, ctx, writer_vendor, writer_family=None, cache=None,
+     cands = "\n".join(f'CANDIDATE id="{m["moment_id"]}" (on screen: {CI._q(_name(m, ctx), 80)}): '
+                       f'"{CI._q(m["text"], 900)}"' for m in todo)
+     keys = ", ".join(f'"{i}": {{"scroll": 1, "alone": 1, "setup": 1, "why": "..."}}' for i in ids)
+-    err = None
+-    for s in (seed, seed + 1):
+-        r = None
+-        try:
+-            r = router.call("coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), 600 + 150 * len(ids), s,
+-                            avoid_vendor=writer_vendor, avoid_family=writer_family)
+-            v = json.loads(r.text.strip())
+-            h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
+-            if not isinstance(h, dict) or set(h) != set(ids) or any(
+-                    not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
+-                    any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
+-                raise ValueError("hook ratings out of contract")
+-        except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:
+-            if r is not None and isinstance(e, (ValueError, TypeError, KeyError)):
+-                router.reject(r)
+-            err = f"{type(e).__name__}: {str(e)[:200]}"
+-            if isinstance(e, (ValueError, TypeError, KeyError)):
+-                continue                                 # out of contract: one re-ask
+-            break                                        # unavailable or the spend guard: no verdict (law L-m)
+-        new = {}
+-        for m in todo:
+-            x = h[m["moment_id"]]
+-            rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
+-                   "backend": r.backend, "rule": HOOK_OWN_RULE}       # ruling 61: scroll / alone
+-            out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
+-            new[key(m)] = {r.backend: rec}
+-        _cache_put(cache, new)
+-        return out, None
+-    return out, err
++
++    def parse(text):
++        v = json.loads(text.strip())
++        h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
++        if not isinstance(h, dict) or set(h) != set(ids) or any(
++                not isinstance(x, dict) or set(x) != set(HOOK_PARTS) | {"why"} or not isinstance(x["why"], str) or
++                any(type(x[k]) is not int or not 1 <= x[k] <= 5 for k in HOOK_PARTS) for x in h.values()):
++            raise ValueError("hook ratings out of contract")
++        return h
++    try:                                         # the 20:33 order: an answer out of contract moves on to the next
++        r, h = P.call_parsed(router, "coherence_verdict", HOOKS_PROMPT.format(hooks=cands, keys=keys), parse,
++                             600 + 150 * len(ids), seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
++                             kind="hook")                                # ruling 88: the hook rating's own list
++    except (P.ProviderError, P.SpendLimit, ValueError, TypeError, KeyError) as e:   # (it was one re-ask of the same
++        return out, f"{type(e).__name__}: {str(e)[:200]}"     # model) unavailable, all out of contract, or the guard
++    new = {}
++    for m in todo:
++        x = h[m["moment_id"]]
++        rec = {**{k: x[k] for k in HOOK_PARTS}, "rating": min(x[k] for k in HOOK_OWN), "why": x["why"][:300],
++               "backend": r.backend, "rule": HOOK_OWN_RULE}           # ruling 61: scroll / alone
++        out[m["moment_id"]] = dict(rec, cached=False, replayed=bool(getattr(r, "replayed", False)))
++        new[key(m)] = {r.backend: rec}
++    _cache_put(cache, new)
++    return out, None
+ 
+ TAKEAWAY_SAID = ("The takeaway may characterise what the clips SAID, never what WILL happen. Two kinds were refused: a "
+                  "forecast or a permanence claim stated as fact ('Bitcoin outlasts politics.'), and a superlative that "
+@@ -1492,21 +1507,22 @@ def coherence(router, pk, writer_vendor, seed=7, writer_family=None, hook=None):
+     `hook`) is written to verdict["clips"]["hook"]; without one the verdict fails closed (law L-m). The clips after the
+     hook and vo_point are rated as before; the judge sees the hook's text for context."""
+     import providers as P
+-    r = None
+     labs = [sg["label"] for sg in pk["segments"]]
+     own = hook_own(hook)
+-    try:
+-        r = router.call("coherence_verdict", COHERENCE_PROMPT.format(
+-                            package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
+-                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
+-        v = json.loads(r.text.strip())
++
++    def parse(text):
++        v = json.loads(text.strip())
+         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "vo_point"} or \
+                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
+                 any(type(x) is not int or not 1 <= x <= 5 for x in list(v["clips"].values()) + [v["vo_point"]]):
+             raise ValueError("coherence verdict out of contract")
++        return v
++    try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
++        r, v = P.call_parsed(router, "coherence_verdict", COHERENCE_PROMPT.format(
++                                 package=CI.package_view(pk), clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:])),
++                             parse, 1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
++                             kind="coherence")                           # ruling 88: coherence's own list
+     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+-        if r is not None and isinstance(e, (ValueError, TypeError)):
+-            router.reject(r)
+         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False}
+     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
+              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+@@ -1549,13 +1565,8 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
+     own = hook_own(segs[0]) if segs else None
+     clips = "\n".join(f'CLIP label="{lb}" (on screen: {CI._q(_name(m, ctx), 80)}): "{CI._q(m["text"], 900)}"'
+                       for lb, m in zip(labs, segs))
+-    r = None
+-    try:
+-        r = router.call("coherence_verdict",
+-                        MEDLEY_PROMPT.format(clips=clips, clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:]),
+-                                             joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}' for j in js)),
+-                        1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
+-        v = json.loads(r.text.strip())
++    def parse(text):
++        v = json.loads(text.strip())
+         if not isinstance(v, dict) or set(v) != {"through_line", "clips", "joins"} or \
+                 not isinstance(v["clips"], dict) or set(v["clips"]) != set(labs[1:]) or \
+                 any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()) or \
+@@ -1563,9 +1574,15 @@ def medley(router, segs, ctx, writer_vendor, seed=7, writer_family=None):
+                 any(not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
+                     or not isinstance(x["why"], str) for x in v["joins"].values()):
+             raise ValueError("clips-alone verdict out of contract")
++        return v
++    try:                                         # the 20:33 order: an answer out of contract moves on (P.call_parsed)
++        r, v = P.call_parsed(router, "coherence_verdict",
++                             MEDLEY_PROMPT.format(clips=clips, clip_keys=", ".join(f'"{lb}": 1' for lb in labs[1:]),
++                                                  joins=", ".join(f'"{j}": {{"followable": true, "why": "..."}}'
++                                                                  for j in js)),
++                             parse, 1200, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
++                             kind="clips_alone")                         # ruling 88: clips-alone's own list
+     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+-        if r is not None and isinstance(e, (ValueError, TypeError)):
+-            router.reject(r)
+         return False, {"error": f"{type(e).__name__}: {str(e)[:200]}", "measured": False, "flagged": None}
+     v = dict(v, clips={**({labs[0]: own["rating"]} if own else {}), **v["clips"]},
+              hook_own=own or {"rating": None, "why": "the hook carries no cached own-job rating (ruling 61): "
+@@ -2289,7 +2306,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+     wv, wf = _writers(router)
+     a_by, fails, a_vendors, a_families = prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log,
+-                                                   cache=step_a_cache)          # ruling 58: every candidate, once
++                                                   cache=step_a_cache, kind="step_a_first",   # ruling 85 / 88 (c)
++                                                   **first_bounds(router))
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     levels = current_levels(sources.values(), ctx)
+     out = {"shape": "medley", "packages": [], "tried": [], "unusable": why, "usable": n_usable, "current_levels": levels,
+@@ -2493,8 +2511,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         return None
+     for mid in cleared:
+         a_by[mid] = off_writers(mid) or a_by[mid]
+-    writer_avoid = {router.backends[n].vendor for n in router.chain("angle_write") if n in router.backends} - \
+-        {angle_reply.vendor}                   # every write stays on the angle's vendor, so a judge is always left
++    import providers as P
++    ab = router.backends.get(angle_reply.backend)       # every write stays on the angle's GATEWAY (ruling 85: under
++    writer_avoid = {P.gateway(router.backends[n]) for n in router.chain("angle_write") if n in router.backends} - \
++        {P.gateway(ab) if ab is not None else angle_reply.vendor}   # heimdall_first a family is its own maker, and
++    # a write may still fail over deepseek -> qwen as today); the verdicts avoid every writer's maker and family
+     log(f"  {len(angles)} angles from {angle_reply.backend} ({time.time() - t0:.0f} s)" if candidate is None else
+         f"  ruling 66: the candidate {candidate.get('source')} tried[{candidate.get('index')}] (angle "
+         f"{candidate['ai'] + 1} line-up {candidate['n_lineup']}), as judged: its angle from {angle_reply.backend}, "
+@@ -2857,10 +2878,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                     stale = [m for m in segs if (lambda b: b is None or b.vendor in writers_v or b.family in writers_f)(
+                         router.backends.get((a_by.get(m["moment_id"]) or {}).get("backend")))]
+                     if stale:                                  # audit C2 K5: never judged by the writer's vendor
++                        rb, rdl = _second_bounds(router)
+                         got_a, fails_a, _, _ = prescreen(router, stale, sources, ctx, writers_v, writers_f,
+-                                                         batch=SECOND_VERDICT_BATCH,      # ruling 82: off the writer,
+-                                                         deadline_s=SECOND_VERDICT_DEADLINE_S,   # the chain, 120 s
+-                                                         n=len(stale), store=None, cache=step_a_cache)
++                                                         batch=rb, deadline_s=rdl,        # ruling 82: off the writer,
++                                                         n=len(stale), store=None, cache=step_a_cache,
++                                                         kind="step_a_second", failover=True)   # ruling 88 (c)
+                         bad = {}
+                         for m in stale:
+                             mid = m["moment_id"]
+diff --git a/pipeline/speakers.py b/pipeline/speakers.py
+index c479135..77c3efb 100644
+--- a/pipeline/speakers.py
++++ b/pipeline/speakers.py
+@@ -340,10 +340,10 @@ def attribute(router, seg, src, meta, seed=7, caps=None, lower_third=None):
+     prompt = PROMPT.format(lines="\n".join(lines), context=f"{before}\n<clip>{clip}</clip>\n{after}".strip(),
+                            turn=turn["text"] if turn else f"(none: {turn_why})")
+     r = None
+-    try:
+-        r = router.call("speaker_verdict", prompt, 900, seed)
+-        v = _json(r.text)
+-        rec = check(v, lines, clip, f"{before} {after}")
++    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
++        r, (v, rec) = P.call_parsed(router, "speaker_verdict", prompt,
++                                    lambda t: (lambda v: (v, check(v, lines, clip, f"{before} {after}")))(_json(t)),
++                                    900, seed)
+         ev = check_turn(v.get("turn"), rec["people"], turn["text"] if turn else "")
+         rec = decide(rec, ev, rec["people"], lower_third)
+         rec["turn"] = {"read": turn is not None, "why": turn_why, **({"source": cap_src, "start": turn["start"],
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 88ae8ad..d2bb3d4 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -776,7 +776,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     out["scorer"] = srec
+     ms = [P.with_verdict(m, idx) for m in ms]
+     wv, wf = P._writers(router)
+-    a_by, fails, _, _ = P.prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache)
++    a_by, fails, _, _ = P.prescreen(router, ms, sources, ctx, wv, wf, store=store, log=log, cache=step_a_cache,
++                                    kind="step_a_first", **P.first_bounds(router))   # as the medley's (rulings 85, 88)
+     cleared = {m["moment_id"]: m for m in ms if m["moment_id"] in a_by and not fails.get(m["moment_id"])}
+     for m in ms:
+         if m["moment_id"] not in cleared:
+diff --git a/pipeline/vo_fidelity.py b/pipeline/vo_fidelity.py
+index af4ccc1..d0bb83c 100644
+--- a/pipeline/vo_fidelity.py
++++ b/pipeline/vo_fidelity.py
+@@ -728,16 +728,13 @@ def check(router, segments, lines, writer_vendor, seed=7, manifest=None, current
+     import providers as P
+     det = check_deterministic(segments, lines, manifest, current_levels)
+     out = {"deterministic": det, "verdict": None, "backend": None, "measured": False, "replayed": False, "seed": seed}
+-    r = None
+-    try:
+-        r = router.call("fidelity_verdict", verdict_prompt(segments, lines, manifest), 2500, seed,
+-                        avoid_vendor=writer_vendor, avoid_family=writer_family)
++    try:                                      # the 20:33 order: an answer out of contract moves on (P.call_parsed)
++        r, out["verdict"] = P.call_parsed(router, "fidelity_verdict", verdict_prompt(segments, lines, manifest),
++                                          lambda t: check_verdict(t, segments, lines, manifest), 2500, seed,
++                                          avoid_vendor=writer_vendor, avoid_family=writer_family)
+         out["backend"], out["replayed"] = r.backend, bool(getattr(r, "replayed", False))
+-        out["verdict"] = check_verdict(r.text, segments, lines, manifest)
+         out["measured"] = True
+     except (P.ProviderError, P.SpendLimit, ValueError, TypeError) as e:
+-        if r is not None and isinstance(e, (ValueError, TypeError)) and hasattr(router, "reject"):
+-            router.reject(r, str(e))
+         out["verdict"] = {"ok": False, "claims": [], "violations": [{"slot": "-", "rule": "VERDICT_UNAVAILABLE",
+                                                                       "detail": f"{type(e).__name__}: {str(e)[:200]}"}]}
+     out["violations"] = det["violations"] + out["verdict"]["violations"]
+diff --git a/tests/package/replay85.py b/tests/package/replay85.py
+new file mode 100644
+index 0000000..0644b02
+--- /dev/null
++++ b/tests/package/replay85.py
+@@ -0,0 +1,670 @@
++#!/usr/bin/env python3
++"""RULING 85.1 (orchestrator 21:15 Nov 13): THE REPLAY. Every recorded Grok verdict since the first ledger build is
++re-asked, with the SAME prompt, of Heimdall's model families: deepseek-v4.1-flash, z-ai/glm-5.3-flash, qwen3.8-27b.
++No new Grok spend: Grok's answers are read from the recordings (tests/package/fixtures/replies). Each answer is
++reduced to the pipeline's own DECISION with the pipeline's own parsers and bars, and compared with Grok's:
++- step A (context_verdict, <excerpt>): per clip, context_integrity.a_failures ([] passes). REFERENT_OUTSIDE is
++  counted on its own;
++- step C (context_verdict, <pair>): per clip, entails == "yes". This is a PROXY: the full rule also reads the
++  context window, which the prompt does not carry;
++- clips-alone (coherence_verdict, joins): the through-line stated, every clip >= COHERENCE_MIN, flagged joins <=
++  LY_MAX_BRIDGES; the flagged joins are compared too;
++- coherence (coherence_verdict, vo_point): the through-line, every rating >= COHERENCE_MIN;
++- hook rating (coherence_verdict, CANDIDATE): per hook, the lowest of scroll / alone >= HOOK_MIN (ruling 61);
++- fidelity (fidelity_verdict): per line, every claim "supported": "yes", or commentary with no test "yes". This is a
++  PROXY: the full check (verbatim supports) needs the package's inputs;
++- exclusion (exclusion_verdict): keep (no risk, about Bitcoin "yes") or exclude;
++- speaker (speaker_verdict): the speaker's name or "unknown". Naming no one where Grok named someone is "stricter".
++- step B (viewer_takeaway) has no decision of its own (it feeds step C): its contract and its time are reported.
++- The visual sheets (xai_vision) need their images. They are not in the recordings and come in a second pass.
++Stricter: Heimdall fails what Grok passed. Looser: Heimdall passes what Grok failed. An answer out of contract is
++"no verdict" (counted, never a pass). The anchors (the verdicts behind the delivered pins 0c68b589, 41f29b1f,
++37c5b5f5) must still pass; the step-A REFERENT_OUTSIDE refusals must still be refused.
++
++Spend: ruling 48's ledger (SPEND_LY.json, the order's $20 cap), roles "replay85_<model>", a reservation per call as
++always. Replies are recorded under tests/package/proof/replay85/replies, so a re-run is free. A call is abandoned at
++--deadline (300 s: production cuts at 120 s) and is then a timeout, with no decision; past-120 s answers are counted. RESULTS.jsonl is appended per (record, model); a re-run resumes.
++Usage: python3 -B tests/package/replay85.py [--workers 2] [--models deepseek,glm,qwen] [--types ...] [--limit N]
++                                            [--table-only]"""
++import argparse
++import glob
++import json
++import os
++import re
++import statistics
++import sys
++import threading
++import time
++from concurrent.futures import ThreadPoolExecutor
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++sys.path.insert(0, os.path.join(REPO, "pipeline"))
++sys.path.insert(0, HERE)
++import context_integrity as CI  # noqa: E402
++import package as PK  # noqa: E402
++import providers as P  # noqa: E402
++import speakers as SP  # noqa: E402
++
++WT = "/home/ultron/worktrees/pp-selectid"
++REPLIES = os.path.join(WT, "tests", "package", "fixtures", "replies")
++OUT = os.path.join(WT, "tests", "package", "proof", "replay85")
++SPEND = os.path.join(WT, "tests", "package", "proof", "SPEND_LY.json")
++ENV = "/home/ultron/protocol_pulse/" + "." + "env"
++FIRST_LEDGER = "2026-11-13T07:37:38Z"          # ledger_20261113_073738: the first ledger build (UTC stamp)
++LIMIT_USD, LIMIT_BASIS = 20.0, "reported"      # ruling 83 (b): the order's cap, on the same ledger
++DEADLINE_S = 120.0                             # ruling 82's per-call deadline: answers past it are counted
++MODELS = {"deepseek": "heimdall:deepseek/deepseek-v4.1-flash", "glm": "heimdall:z-ai/glm-5.3-flash",
++          "qwen": "heimdall:qwen/qwen3.8-27b"}
++ANCHOR_PINS = {                                # the delivered pins (ruling 85.1's anchors)
++    "0c68b589": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
++    "41f29b1f": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
++    "37c5b5f5": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
++}
++TYPES = ("step_a", "step_c", "clips_alone", "coherence", "hook", "fidelity", "exclusion", "speaker", "step_b")
++DECIDING = tuple(t for t in TYPES if t != "step_b")      # step B has no decision of its own: not asked by default
++
++
++def kind(rec):
++    """The verdict type of a recorded call, from its role and its prompt's own template markers."""
++    role, pr = rec.get("role"), rec.get("prompt") or ""
++    if role == "context_verdict":
++        return "step_a" if '<excerpt label="' in pr else "step_c" if '<pair label="' in pr else None
++    if role == "coherence_verdict":
++        if 'CANDIDATE id="' in pr:
++            return "hook"
++        return "clips_alone" if '"followable"' in pr else "coherence" if '"vo_point"' in pr else None
++    return {"fidelity_verdict": "fidelity", "exclusion_verdict": "exclusion", "speaker_verdict": "speaker",
++            "viewer_takeaway": "step_b", "visual_check": "visual"}.get(role)
++
++
++def _json(text):
++    return json.loads(text.strip()) if isinstance(text, str) else None
++
++
++def decide(k, text, prompt):
++    """The DECISION a verdict's answer makes, by the pipeline's parsers and bars -> {unit: decision}; a decision is
++    True (pass / keep), False (fail / exclude), or a string (a name, for the speaker). Raises ValueError / TypeError /
++    KeyError for an answer out of contract (no verdict)."""
++    if k == "step_a":
++        labels = re.findall(r'<excerpt label="([^"]+)"', prompt)
++        A = CI._strict(text, {"excerpts"}, {"excerpts": CI.A_KEYS})
++        a_by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
++        if set(a_by) != set(labels) or len(A["excerpts"]) != len(labels):
++            raise ValueError("step A must answer exactly the prompt's labels")
++        return {lb: tuple(sorted(CI.a_failures(a_by[lb]))) for lb in labels}
++    if k == "step_c":
++        labels = re.findall(r'<pair label="([^"]+)"', prompt)
++        C = CI._strict(text, {"pairs"}, {"pairs": ("label", "entails", "dropped_limit", "added_by", "same_polarity",
++                                                   "stronger_certainty", "raising_words")})
++        c_by = {c["label"]: c for c in C["pairs"] if isinstance(c.get("label"), str)}
++        if set(c_by) != set(labels) or len(C["pairs"]) != len(labels):
++            raise ValueError("step C must answer exactly the prompt's labels")
++        return {lb: c_by[lb]["entails"] == "yes" for lb in labels}
++    if k in ("clips_alone", "coherence"):
++        # the prompt's own template names the clip keys; an older template ('"<label>": 1') rated every CLIP label,
++        # the hook included, and an older contract also carried a top-level "hook" rating (both before ruling 61)
++        named = re.findall(r'"(clip_\d+)": 1\b', prompt)
++        labels = re.findall(r'CLIP label="([^"]+)"', prompt)
++        allowed = [set(named)] if named else [set(labels), set(labels) - {"hook"}]
++        v = _json(text)
++        want = {"through_line", "clips", "joins"} if k == "clips_alone" else {"through_line", "clips", "vo_point"}
++        if not isinstance(v, dict) or set(v) - {"hook"} != want or not isinstance(v["clips"], dict) or \
++                set(v["clips"]) not in allowed or any(type(x) is not int or not 1 <= x <= 5 for x in v["clips"].values()):
++            raise ValueError(f"{k} out of contract")
++        extra = []
++        if "hook" in v:
++            hv = v["hook"]
++            extra = [hv] if type(hv) is int else [x for x in hv.values() if type(x) is int] if isinstance(hv, dict) else []
++            if not extra or any(not 1 <= x <= 5 for x in extra):
++                raise ValueError(f"{k}: the hook's rating out of contract")
++            extra = [min(extra)]
++        if k == "coherence":
++            if type(v["vo_point"]) is not int or not 1 <= v["vo_point"] <= 5:
++                raise ValueError("coherence out of contract")
++            return {"package": PK._line_ok(v["through_line"]) and
++                    min(list(v["clips"].values()) + [v["vo_point"]] + extra) >= PK.COHERENCE_MIN}
++        joins = re.findall(r'"([^"]+ -> [^"]+)": \{"followable"', prompt)
++        if not isinstance(v["joins"], dict) or set(v["joins"]) != set(joins) or any(
++                not isinstance(x, dict) or set(x) != {"followable", "why"} or type(x["followable"]) is not bool
++                for x in v["joins"].values()):
++            raise ValueError("clips-alone joins out of contract")
++        flagged = tuple(sorted(j for j in joins if v["joins"][j]["followable"] is False))
++        ok = PK._line_ok(v["through_line"]) and min(list(v["clips"].values()) + extra) >= PK.COHERENCE_MIN and \
++            len(flagged) <= PK.LY_MAX_BRIDGES
++        return {"lineup": ok, "flagged": flagged}
++    if k == "hook":
++        ids = re.findall(r'CANDIDATE id="([^"]+)"', prompt)
++        v = _json(text)
++        h = v["hooks"] if isinstance(v, dict) and set(v) == {"hooks"} else None
++        if not isinstance(h, dict) or set(h) != set(ids) or any(
++                not isinstance(x, dict) or any(type(x.get(p)) is not int or not 1 <= x[p] <= 5 for p in PK.HOOK_PARTS)
++                for x in h.values()):
++            raise ValueError("hook ratings out of contract")
++        return {i: min(h[i][p] for p in PK.HOOK_OWN) >= PK.HOOK_MIN for i in ids}
++    if k == "exclusion":
++        o = _json(text)
++        if not isinstance(o, dict) or set(o) != {"risks", "about_bitcoin", "why"} or not isinstance(o["risks"], list) \
++                or o["about_bitcoin"] not in ("yes", "no", "uncertain"):
++            raise ValueError("exclusion out of contract")
++        return {"moment": not o["risks"] and o["about_bitcoin"] == "yes"}
++    if k == "fidelity":
++        o = _json(text)
++        if not isinstance(o, dict) or set(o) != {"claims"} or not isinstance(o["claims"], list):
++            raise ValueError("fidelity out of contract")
++        by = {}
++        for c in o["claims"]:
++            if not isinstance(c, dict) or not isinstance(c.get("line"), str) or \
++                    c.get("supported") not in ("yes", "no", "uncertain", "n/a") or not isinstance(c.get("tests"), dict):
++                raise ValueError("fidelity claim out of contract")
++            ok = c["supported"] == "yes" or (c.get("class") == "commentary" and
++                                             not any(t == "yes" for t in c["tests"].values()))
++            by[c["line"]] = by.get(c["line"], True) and ok
++        return by
++    if k == "speaker":
++        v = SP._json(text)
++        if not isinstance(v, dict) or not isinstance(v.get("people"), list) or not isinstance(v.get("speaker"), dict):
++            raise ValueError("speaker out of contract")
++        n = SP._norm(v["speaker"].get("name") or "")
++        return {"speaker": n if n and n != SP.UNKNOWN else SP.UNKNOWN}
++    if k == "step_b":
++        labels = re.findall(r'"label": "([^"]+)"', prompt) or []
++        CI._strict(text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
++                                                      "relations": ("labels", "relation")})
++        return {"contract": True}
++    raise ValueError(f"no decision rule for {k}")
++
++
++def compare(k, g, h):
++    """Grok's decision g against Heimdall's h for one unit -> "agree" | "stricter" | "looser" | "different"."""
++    if g == h:
++        return "agree"
++    if k == "speaker":
++        if h == SP.UNKNOWN:
++            return "stricter"
++        return "looser" if g == SP.UNKNOWN else "different"
++    if k == "step_a":                                  # a tuple of failures: [] passes
++        if bool(g) == bool(h):
++            return "agree"                             # both fail (for possibly different rules): the decision agrees
++        return "stricter" if h else "looser"
++    if isinstance(g, tuple):                           # the flagged joins: compared as a set
++        return "different"
++    return "stricter" if g is True and h is False else "looser" if g is False and h is True else "different"
++
++
++def records(since=FIRST_LEDGER, anchors=()):
++    """Every recorded Grok verdict (xAI text back-end) since `since`, plus older ones whose prompt carries an anchor
++    pin's clip text. -> [(path, rec, kind, anchor names)]."""
++    out = []
++    for p in sorted(glob.glob(os.path.join(REPLIES, "*", "*.json"))):
++        try:
++            with open(p) as f:
++                r = json.load(f)
++        except (OSError, ValueError):
++            continue
++        if not str(r.get("backend", "")).startswith("xai:"):
++            continue
++        k = kind(r)
++        if k is None:
++            continue
++        pr = _norm(r.get("prompt") or "")
++        hit = sorted({name for name, texts in anchors for t in texts if t and t in pr})
++        if str(r.get("recorded_at", "")) >= since:
++            out.append((p, r, k, hit))
++        elif hit:                                      # an older anchor record: only where Grok's answer still reads
++            try:
++                decide(k, r["text"], r.get("prompt") or "")
++                out.append((p, r, k, hit))
++            except (ValueError, TypeError, KeyError):
++                pass
++    seen, uniq = {}, []                                # the same prompt asked again (another seed): asked once here
++    for x in out:
++        key = (x[1].get("role"), x[1].get("prompt"), x[1].get("system"), x[1].get("max_tokens"))
++        if key in seen:
++            seen[key][3].extend(a for a in x[3] if a not in seen[key][3])
++            continue
++        seen[key] = x
++        uniq.append(x)
++    return uniq
++
++
++def _norm(t):
++    """Lower case letters and digits, single spaces: a prompt quotes a clip through quote_data (escaping)."""
++    return " ".join(re.sub(r"[^a-z0-9]+", " ", str(t).lower()).split())
++
++
++def anchor_texts():
++    """[(pin name, [its segments' approved texts, normalised, 60 characters from the 10th])]: a prompt that carries
++    one of them judged that clip."""
++    out = []
++    for name, rel in ANCHOR_PINS.items():
++        try:
++            with open(os.path.join(WT, rel)) as f:
++                pin = json.load(f)
++        except (OSError, ValueError):
++            out.append((name, []))
++            continue
++        segs = pin.get("segments") or (pin.get("package") or {}).get("segments") or []
++        out.append((name, [_norm(s.get("approved_text") or s.get("text") or "")[10:70] for s in segs
++                           if isinstance(s, dict)]))
++    return out
++
++
++def run(args):
++    os.makedirs(os.path.join(OUT, "replies"), exist_ok=True)
++    res_path = os.path.join(OUT, "RESULTS.jsonl")
++    done = set()
++    if os.path.exists(res_path):
++        with open(res_path) as f:
++            for line in f:
++                try:
++                    x = json.loads(line)
++                    done.add((x["record"], x["model"]))
++                except (ValueError, KeyError):
++                    pass
++    anchors = anchor_texts()
++    recs = [x for x in records(anchors=anchors) if x[2] in args.types]
++    if args.limit:
++        recs = recs[:args.limit]
++    models = [m for m in args.models if m in MODELS]
++    chains = {f"replay85_{m}": [MODELS[m]] for m in models}
++    router = P.Router(env_path=ENV, record_dir=os.path.join(OUT, "replies"), spend_path=SPEND, limit_usd=LIMIT_USD,
++                      limit_basis=LIMIT_BASIS, chains=chains)
++    lock = threading.Lock()
++    # round-robin by verdict type, the records since the first ledger build first, so an early table covers them all
++    order, by_type = [], {}
++    for x in sorted(recs, key=lambda x: str(x[1].get("recorded_at", "")) < FIRST_LEDGER):
++        by_type.setdefault(x[2], []).append(x)
++    while any(by_type.values()):
++        for k in list(by_type):
++            if by_type[k]:
++                order.append(by_type[k].pop(0))
++    jobs = [(p, r, k, hit, m) for (p, r, k, hit) in order for m in models
++            if (os.path.relpath(p, WT), m) not in done]
++    print(f"replay85: {len(recs)} Grok records, {len(models)} models, {len(jobs)} calls to make "
++          f"({len(done)} already in RESULTS)", flush=True)
++
++    def one(job):
++        p, r, k, hit, m = job
++        row = {"record": os.path.relpath(p, WT), "type": k, "model": m, "anchors": hit,
++               "grok_recorded_at": r.get("recorded_at"), "grok_seconds": r.get("seconds"),
++               "grok_usd_reported": (r.get("usage") or {}).get("usd_reported")}
++        try:
++            row["grok"] = {u: (list(d) if isinstance(d, tuple) else d) for u, d in decide(k, r["text"], r["prompt"]).items()}
++        except (ValueError, TypeError, KeyError) as e:
++            row["grok"], row["grok_error"] = None, f"{type(e).__name__}: {str(e)[:160]}"
++        t0 = time.time()
++        router.down.pop(MODELS[m], None)               # a rate limit is never a verdict: each call is tried afresh
++        try:
++            rep = router.call(f"replay85_{m}", r["prompt"], int(r.get("max_tokens") or 2000), int(r.get("seed") or 7),
++                              system=r.get("system"), deadline_s=args.deadline or None)
++            row.update(seconds=round(rep.seconds or (time.time() - t0), 2), cached=bool(rep.cached),
++                       usd_reported=(rep.usage or {}).get("usd_reported"), usd_estimate=rep.usd)
++            try:
++                h = decide(k, rep.text, r["prompt"])
++                row["heimdall"] = {u: (list(d) if isinstance(d, tuple) else d) for u, d in h.items()}
++            except (ValueError, TypeError, KeyError) as e:
++                row["heimdall"], row["heimdall_error"] = None, f"out of contract: {type(e).__name__}: {str(e)[:160]}"
++                router.reject(rep)
++        except (P.ProviderError, P.SpendLimit) as e:
++            if "HTTP 429" in str(e):                   # rate limited (after the router's own backoff): no row, so a
++                time.sleep(30)                         # resume asks it again; never counted as the model's answer
++                return None
++            row.update(seconds=round(time.time() - t0, 2), heimdall=None,
++                       heimdall_error=f"{type(e).__name__}: {str(e)[:200]}")
++        if row.get("grok") is not None and row.get("heimdall") is not None:
++            row["compare"] = {u: compare(k, tuple(g) if isinstance(g, list) else g,
++                                         tuple(row["heimdall"].get(u)) if isinstance(row["heimdall"].get(u), list)
++                                         else row["heimdall"].get(u))
++                              for u, g in row["grok"].items()}
++        with lock:
++            with open(res_path, "a") as f:
++                f.write(json.dumps(row) + "\n")
++        return row
++
++    n_done = [0]
++
++    def per_model(m):                                  # one pool per model: a slow model never starves the others
++        mine = [j for j in jobs if j[4] == m]
++        with ThreadPoolExecutor(max_workers=args.per_model.get(m, args.workers)) as ex:
++            for _ in ex.map(one, mine):
++                with lock:
++                    n_done[0] += 1
++                    if n_done[0] % 10 == 0 or n_done[0] == len(jobs):
++                        print(f"  {n_done[0]}/{len(jobs)} at {time.strftime('%H:%M:%S')}", flush=True)
++    ts = [threading.Thread(target=per_model, args=(m,)) for m in models]
++    for t in ts:
++        t.start()
++    for t in ts:
++        t.join()
++    table()
++
++
++def grok_self():
++    """The baseline: Grok against GROK on the same prompt asked again (another seed, another build), from every
++    recorded Grok answer. -> {type: {"pairs": n, "agree": n}} by the same decide / compare."""
++    by = {}
++    for p in sorted(glob.glob(os.path.join(REPLIES, "*", "*.json"))):
++        try:
++            with open(p) as f:
++                r = json.load(f)
++        except (OSError, ValueError):
++            continue
++        if not str(r.get("backend", "")).startswith("xai:"):
++            continue
++        k = kind(r)
++        if k not in DECIDING:
++            continue
++        try:
++            d = decide(k, r["text"], r.get("prompt") or "")
++        except (ValueError, TypeError, KeyError):
++            continue
++        by.setdefault((k, r.get("role"), r.get("prompt"), r.get("max_tokens")), []).append(d)
++        if k == "step_a":                              # the same excerpt inside OTHER batches too (its own block)
++            for lb, blk in re.findall(r'<excerpt label="([^"]+)"(.*?)</excerpt>', r.get("prompt") or "", re.S):
++                if lb in d:
++                    by.setdefault(("step_a_excerpt", lb, blk), []).append({lb: d[lb]})
++    out = {}
++    for (k, *_), ds in by.items():
++        for i in range(len(ds)):
++            for j in range(i + 1, len(ds)):
++                for u, g in ds[i].items():
++                    if u not in ds[j]:
++                        continue
++                    o = out.setdefault(k, {"pairs": 0, "agree": 0})
++                    o["pairs"] += 1
++                    o["agree"] += compare("step_a" if k == "step_a_excerpt" else k, g, ds[j][u]) == "agree"
++    if (out.get("step_a_excerpt") or {}).get("pairs", 0) > (out.get("step_a") or {}).get("pairs", 0):
++        out["step_a_identical_prompt"] = out.get("step_a")
++        out["step_a"] = out["step_a_excerpt"]            # the bar for step A: the same excerpt, any batch
++    return out
++
++
++_PROMPTS = {}
++
++
++def anchor_units(row, anchors):
++    """The units of a row that are an anchor's OWN decision (a delivered pin's clip let through):
++    - step A, step C, hook: the unit whose own block (<excerpt>, <pair>, CANDIDATE line) quotes an anchor clip;
++    - clips-alone, coherence, fidelity: every unit, only when the prompt quotes ALL clips of one anchor pin (its own
++      line-up);
++    - exclusion, speaker: the one unit when the prompt quotes an anchor clip.
++    -> {unit: [pin names]}."""
++    if not row.get("anchors"):
++        return {}
++    pr = _PROMPTS.get(row["record"])
++    if pr is None:
++        try:
++            with open(os.path.join(WT, row["record"])) as f:
++                pr = _PROMPTS[row["record"]] = json.load(f).get("prompt") or ""
++        except (OSError, ValueError):
++            return {}
++    k, out = row["type"], {}
++    if k in ("step_a", "step_c", "hook"):
++        pat = {"step_a": r'<excerpt label="([^"]+)"(.*?)</excerpt>', "step_c": r'<pair label="([^"]+)"(.*?)</pair>',
++               "hook": r'CANDIDATE id="([^"]+)"([^\n]*)'}[k]
++        for u, blk in re.findall(pat, pr, re.S):
++            hit = [n for n, ts in anchors for t in ts if t and t in _norm(blk)]
++            if hit:
++                out[u] = sorted(set(hit))
++        return out
++    npr = _norm(pr)
++    if k in ("clips_alone", "coherence", "fidelity"):
++        whole = [n for n, ts in anchors if ts and all(t in npr for t in ts if t)]
++        return {u: whole for u in (row.get("grok") or {})} if whole else {}
++    hit = [n for n, ts in anchors for t in ts if t and t in npr]
++    return {u: sorted(set(hit)) for u in (row.get("grok") or {})} if hit else {}
++
++
++def table():
++    """TABLE.md from RESULTS.jsonl: per verdict type and model, with Grok's agreement with itself as the baseline."""
++    rows = []
++    with open(os.path.join(OUT, "RESULTS.jsonl")) as f:
++        for line in f:
++            try:
++                rows.append(json.loads(line))
++            except ValueError:
++                pass
++    out = ["# Ruling 85.1: the replay of Grok's recorded verdicts on Heimdall's families", "",
++           f"Built {time.strftime('%Y-%m-%d %H:%M %Z')} from {len(rows)} (record, model) rows. A unit is one decision "
++           "(a clip, a line-up, a hook, a line, a moment). Stricter: Heimdall fails what Grok passed. Looser: Heimdall "
++           "passes what Grok failed. Different: another name, or other flagged joins with the same decision.", "",
++           "| type | model | records | answered | no verdict | units | agree | stricter | looser | different | "
++           "agree % | median s | > 120 s | timeouts | errors | usd reported |", "|" + "---|" * 16]
++    for k in TYPES:
++        for m in MODELS:
++            rs = [r for r in rows if r["type"] == k and r["model"] == m]
++            if not rs:
++                continue
++            ans = [r for r in rs if r.get("heimdall") is not None]
++            nov = [r for r in rs if r.get("heimdall") is None and "out of contract" in str(r.get("heimdall_error"))]
++            tmo = [r for r in rs if r.get("heimdall") is None and "abandoned at the deadline" in
++                   str(r.get("heimdall_error"))]
++            err = [r for r in rs if r.get("heimdall") is None and r not in nov and r not in tmo]
++            cmp_ = [c for r in rs for c in (r.get("compare") or {}).values()]
++            n = {x: cmp_.count(x) for x in ("agree", "stricter", "looser", "different")}
++            secs = [r["seconds"] for r in rs if isinstance(r.get("seconds"), (int, float)) and not r.get("cached")]
++            usd = sum(float(r["usd_reported"]) for r in rs if P._num(r.get("usd_reported")) and not r.get("cached"))
++            out.append(f"| {k} | {m} | {len(rs)} | {len(ans)} | {len(nov)} | {len(cmp_)} | {n['agree']} | "
++                       f"{n['stricter']} | {n['looser']} | {n['different']} | "
++                       f"{(100 * n['agree'] / len(cmp_)) if cmp_ else 0:.0f} | "
++                       f"{statistics.median(secs) if secs else 0:.0f} | {sum(1 for s in secs if s > DEADLINE_S)} | "
++                       f"{len(tmo)} | {len(err)} | {usd:.4f} |")
++    base = grok_self()
++    out += ["", "## The baseline: Grok against Grok (the same prompt asked again: another seed or build)", "",
++            "| type | unit pairs | agree | agree % |", "|---|---|---|---|"]
++    for k in DECIDING + ("step_a_excerpt",):
++        b = base.get(k)
++        if b:
++            out.append(f"| {k} | {b['pairs']} | {b['agree']} | {100 * b['agree'] / b['pairs']:.0f} |")
++    anchors = anchor_texts()
++    out += ["", "## Anchors: the delivered pins' own decisions that Grok passed must still pass", ""]
++    for m in MODELS:
++        units = bad = nov = 0
++        ex = []
++        for r in rows:
++            if r["model"] != m:
++                continue
++            au = anchor_units(r, anchors)
++            for u in au:
++                g = (r.get("grok") or {}).get(u)
++                if g is None or (r["type"] == "step_a" and g) or g is False:
++                    continue                           # Grok did not pass it: not a decision that let a clip through
++                units += 1
++                if r.get("heimdall") is None:
++                    nov += 1
++                    ex.append(f"{r['type']} {u} {au[u]}: no Heimdall verdict")
++                elif (r.get("compare") or {}).get(u) == "stricter":
++                    bad += 1
++                    ex.append(f"{r['type']} {u} {au[u]}: FAILED ({r['record'][-24:]})")
++        out.append(f"- {m}: {units} anchor decisions Grok passed; {bad} failed by {m}; {nov} without a verdict" +
++                   (": " + "; ".join(ex[:10]) if ex else ""))
++    out += ["", "## Step A's REFERENT_OUTSIDE refusals (Grok's) must still be refused", ""]
++    for m in MODELS:
++        tot = kept = ro = 0
++        for r in rows:
++            if r["model"] != m or r["type"] != "step_a" or not r.get("grok") or r.get("heimdall") is None:
++                continue                               # only the answered rows: no answer is no verdict either way
++            for u, g in r["grok"].items():
++                if "REFERENT_OUTSIDE" in (g or []):
++                    tot += 1
++                    h = (r.get("heimdall") or {}).get(u)
++                    kept += bool(h)
++                    ro += "REFERENT_OUTSIDE" in (h or [])
++        out.append(f"- {m}: Grok refused {tot} clips for REFERENT_OUTSIDE; Heimdall refuses {kept} of them "
++                   f"({ro} for REFERENT_OUTSIDE itself)")
++    vp = os.path.join(OUT, "VISUAL.jsonl")
++    if os.path.exists(vp):                             # the visual sheets (run_visual): the set of flags per sheet
++        with open(vp) as f:
++            vis = [json.loads(x) for x in f if x.strip()]
++        out += ["", "## The visual sheets (nemotron and qwen against Grok's flags)", "",
++                "| model | sheets | answered | agree | stricter | looser | different | median s | usd reported |",
++                "|---|---|---|---|---|---|---|---|---|"]
++        for m in VISION:
++            vs = [v for v in vis if v.get("model") == m]
++            if not vs:
++                continue
++            c = [v.get("compare") for v in vs if v.get("compare")]
++            secs = [v["seconds"] for v in vs if isinstance(v.get("seconds"), (int, float))]
++            out.append(f"| {m} | {len(vs)} | {len(c)} | {c.count('agree')} | {c.count('stricter')} | "
++                       f"{c.count('looser')} | {c.count('different')} | "
++                       f"{statistics.median(secs) if secs else 0:.0f} | "
++                       f"{sum(float(v.get('usd_reported') or 0) for v in vs):.4f} |")
++        skipped = [v for v in vis if v.get("skipped")]
++        if skipped:
++            out.append(f"- {len(skipped)} sheet(s) skipped: " + "; ".join(v["skipped"] for v in skipped)[:300])
++        sheets = {v["sheet"] for v in vis if v.get("sheet") and not v.get("skipped")}
++        flagged = {v["sheet"] for v in vis if v.get("grok")}
++        out.append(f"- Grok flagged {len(flagged)} of the {len(sheets)} sheets compared; agreement on unflagged sheets "
++                   f"says little about a model's eye for a flag.")
++    out += propose(rows, base)
++    with open(os.path.join(OUT, "TABLE.md"), "w") as f:
++        f.write("\n".join(out) + "\n")
++    print("\n".join(out), flush=True)
++
++
++ROLES = {"context_verdict": ("step_a", "step_c"), "coherence_verdict": ("clips_alone", "coherence", "hook"),
++         "fidelity_verdict": ("fidelity",), "exclusion_verdict": ("exclusion",), "speaker_verdict": ("speaker",)}
++MIN_UNITS = 10
++
++
++def passes(rows, base, k, m):
++    """The PROPOSED rule (the orchestrator rules it): -> (pass, [reasons it fails])."""
++    rs = [r for r in rows if r["type"] == k and r["model"] == m]
++    cmp_ = [c for r in rs for c in (r.get("compare") or {}).values()]
++    why = []
++    if len(cmp_) < MIN_UNITS:
++        why.append(f"only {len(cmp_)} decisions (< {MIN_UNITS})")
++    anchors = anchor_texts()
++    if any((r.get("compare") or {}).get(u) == "stricter" for r in rs for u in anchor_units(r, anchors)):
++        why.append("an anchor decision Grok passed is failed")
++    if k == "step_a":
++        miss = sum(1 for r in rs if r.get("grok") and r.get("heimdall") is not None for u, g in r["grok"].items()
++                   if "REFERENT_OUTSIDE" in (g or []) and not r["heimdall"].get(u))
++        if miss:
++            why.append(f"{miss} REFERENT_OUTSIDE refusal(s) let through")
++    agree = 100 * cmp_.count("agree") / len(cmp_) if cmp_ else 0
++    b = base.get(k) or {}
++    bar = 100 * b["agree"] / b["pairs"] if b.get("pairs", 0) >= 5 else 75.0
++    if agree < bar:
++        why.append(f"agreement {agree:.0f}% < the bar {bar:.0f}%")
++    ans = [r for r in rs if r.get("heimdall") is not None]
++    nov = [r for r in rs if r.get("heimdall") is None and "out of contract" in str(r.get("heimdall_error"))]
++    if ans and len(ans) / max(1, len(ans) + len(nov)) < 0.9:
++        why.append(f"{len(nov)} of {len(ans) + len(nov)} answers out of contract")
++    secs = [r["seconds"] for r in rs if isinstance(r.get("seconds"), (int, float)) and not r.get("cached")]
++    if secs and statistics.median(secs) > DEADLINE_S:
++        why.append(f"median {statistics.median(secs):.0f} s > {DEADLINE_S:.0f} s")
++    return not why, why, agree, (statistics.median(secs) if secs else None)
++
++
++def propose(rows, base):
++    """The proposed Heimdall-first list per role: the families that pass EVERY type of the role, best agreement
++    first; Grok last; a role with fewer than two passing families keeps Grok as its second family."""
++    out = ["", "## The proposed routing (the rule is the orchestrator's to rule)", ""]
++    for role, types in ROLES.items():
++        ok, notes = [], []
++        for m in MODELS:
++            res = [(k, passes(rows, base, k, m)) for k in types]
++            if all(x[1][0] for x in res):
++                ok.append((m, min(x[1][2] for x in res)))
++            notes.append(f"{m}: " + ("PASSES" if all(x[1][0] for x in res) else
++                                     "; ".join(f"{k}: {', '.join(x[1])}" for k, x in res if not x[0])))
++        order = [m for m, _ in sorted(ok, key=lambda x: -x[1])]
++        tail = "Grok last" if len(order) >= 2 else "Grok as the second family (fewer than two Heimdall families pass)"
++        out.append(f"- {role} ({', '.join(types)}): {' -> '.join(order) or 'none'}; {tail}")
++        out += [f"  - {n}" for n in notes]
++    return out
++
++
++VISION = {"nemotron": "heimdall:nvidia/nemotron-3.5-super-vl", "qwen": "heimdall:qwen/qwen3.8-27b"}
++
++
++def run_visual(args):
++    """The visual sheets (ruling 85.1: "and nemotron for the visual sheets"). Every sheet Grok judged is in
++    tests/package/proof/VISUAL_CACHE.json, with its path, sha256 and frame times. The prompt is rebuilt exactly as
++    visual_pin.visual_for builds it (PROMPT.format(n, text) and the sheet image), and asked of nemotron and qwen. The
++    decision is visual_pin.flags of the verdict (the set of flags), compared with Grok's. A sheet whose bytes changed,
++    or whose moment text cannot be found, is skipped and said so."""
++    import base64
++    import hashlib
++    import visual_pin as VP
++    with open(os.path.join(WT, "tests", "package", "proof", "VISUAL_CACHE.json")) as f:
++        cache = json.load(f)
++    texts = {}
++    for p in sorted(glob.glob(os.path.join(WT, "tests", "package", "proof", "ledger_*", "inputs.json"))):
++        try:
++            with open(p) as f:
++                for m in json.load(f).get("moments") or []:
++                    texts.setdefault(m.get("moment_id"), m.get("text"))
++        except (OSError, ValueError):
++            continue
++    router = P.Router(env_path=ENV, record_dir=os.path.join(OUT, "replies"), spend_path=SPEND, limit_usd=LIMIT_USD,
++                      limit_basis=LIMIT_BASIS, chains={f"replay85v_{m}": [n] for m, n in VISION.items()})
++    rows = []
++    for k, g in cache.items():
++        sh, mid = g.get("sheet") or {}, k.split(":")[0]
++        path = sh.get("path") or ""
++        try:
++            with open(path, "rb") as f:
++                raw = f.read()
++        except OSError:
++            rows.append({"sheet": k, "skipped": f"the sheet is not on disk: {path}"})
++            continue
++        if hashlib.sha256(raw).hexdigest() != sh.get("sha256") or texts.get(mid) is None:
++            rows.append({"sheet": k, "skipped": "the sheet's bytes changed, or its moment's text is not found"})
++            continue
++        prompt = {"text": VP.PROMPT.format(n=len(sh.get("times") or []), text=str(texts[mid]).replace('"', "'")),
++                  "images": [base64.b64encode(raw).decode()]}
++        grok = sorted(g.get("flags") or [])
++        for m in VISION:
++            t0 = time.time()
++            row = {"sheet": k, "model": m, "grok": grok}
++            try:
++                r = router.call(f"replay85v_{m}", prompt, 1500, 7)
++                row.update(seconds=round(r.seconds or (time.time() - t0), 2),
++                           usd_reported=(r.usage or {}).get("usd_reported"))
++                try:
++                    row["heimdall"] = sorted(VP.flags(VP.check(VP._json(r.text))))
++                    h, gg = set(row["heimdall"]), set(grok)
++                    row["compare"] = "agree" if h == gg else "stricter" if h > gg else "looser" if h < gg \
++                        else "different"
++                except (ValueError, TypeError, KeyError) as e:
++                    row["heimdall"], row["error"] = None, f"out of contract: {type(e).__name__}: {str(e)[:120]}"
++                    router.reject(r)
++            except (P.ProviderError, P.SpendLimit) as e:
++                row.update(heimdall=None, error=f"{type(e).__name__}: {str(e)[:160]}",
++                           seconds=round(time.time() - t0, 2))
++            rows.append(row)
++            print(json.dumps(row)[:300], flush=True)
++    with open(os.path.join(OUT, "VISUAL.jsonl"), "w") as f:
++        f.write("".join(json.dumps(r) + "\n" for r in rows))
++    return rows
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--workers", type=int, default=2, help="calls in flight per model")
++    ap.add_argument("--models", default="deepseek,glm,qwen")
++    ap.add_argument("--per-model", default="", help="calls in flight per model, e.g. deepseek=12,glm=8")
++    ap.add_argument("--deadline", type=float, default=300.0,
++                    help="seconds a call may take (abandoned past it: a timeout; production cuts at 120 s)")
++    ap.add_argument("--types", default=",".join(DECIDING))
++    ap.add_argument("--limit", type=int, default=0)
++    ap.add_argument("--table-only", action="store_true")
++    ap.add_argument("--visual", action="store_true", help="the visual sheets only (nemotron and qwen)")
++    a = ap.parse_args()
++    a.models, a.types = a.models.split(","), a.types.split(",")
++    a.per_model = {k: int(v) for k, v in (x.split("=") for x in a.per_model.split(",") if x)}
++    if a.table_only:
++        table()
++        return 0
++    if a.visual:
++        run_visual(a)
++        return 0
++    run(a)
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/tests/package/shadow86.py b/tests/package/shadow86.py
+new file mode 100644
+index 0000000..51790bd
+--- /dev/null
++++ b/tests/package/shadow86.py
+@@ -0,0 +1,148 @@
++#!/usr/bin/env python3
++"""RULING 86 (orchestrator 21:18 Nov 13): THE SHADOW'S SIDE-BY-SIDE. A heimdall_first build writes SHADOW86.jsonl in
++its build directory: one line per verdict Heimdall decided, with Grok's answer to the SAME prompt (asked in shadow,
++never deciding: providers.Router). This reads it with the replay's decision rules (replay85.kind / decide / compare)
++and writes SHADOW86.md there:
++- every decision where Heimdall and Grok differ, and which side was stricter;
++- whether the pin would have sealed under Grok: a verdict on the pin's clips where Grok fails what Heimdall passed
++  would have stopped it. This is read from the verdicts themselves; the gates that depend on them are not re-run;
++- verdict types without a decision rule (the visual sheets, step B) are listed as "not compared".
++tests/package/proof/SHADOW86.json keeps the pins in order and the streak of pins with no decision-changing
++difference; the build driver stops asking the shadow when the streak reaches routing.shadow_until_clean_pins (3).
++Usage: python3 -B tests/package/shadow86.py <build dir>   (re-reads a build's SHADOW86.jsonl, rewrites its report)"""
++import json
++import os
++import sys
++import time
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, HERE)
++import replay85 as R  # noqa: E402
++
++STATE = os.path.join(HERE, "proof", "SHADOW86.json")
++
++
++def _load(path=STATE):
++    try:
++        with open(path) as f:
++            d = json.load(f)
++        return d if isinstance(d, dict) and isinstance(d.get("pins"), list) else {"pins": [], "clean_streak": 0}
++    except (OSError, ValueError):
++        return {"pins": [], "clean_streak": 0}
++
++
++def clean_streak(path=STATE):
++    """The pins in a row with no decision-changing difference (0 when nothing is recorded or the file cannot be read:
++    the shadow then keeps running, which is the safe side)."""
++    return int(_load(path).get("clean_streak") or 0)
++
++
++def pin_texts(res):
++    """The SEALED pins' clip texts, normalised as replay85 matches prompts: the medley's (res["pin"], set by the pin
++    stage, with res["package"] as sealed, adopted texts included) and the spotlight's (RULING 90: res["spotlight_pin"],
++    with res["spotlight"]["package"]). None sealed (no package, or the pin stage refused it): []."""
++    pks = ([res.get("package") or {}] if res.get("pin") else []) + \
++        ([(res.get("spotlight") or {}).get("package") or {}] if res.get("spotlight_pin") else [])
++    return [R._norm(s.get("text") or "")[10:70] for pk in pks for s in pk.get("segments") or [] if isinstance(s, dict)]
++
++
++def compare_lines(lines, texts=()):
++    """-> rows: one per (shadow line, unit): {type, unit, heimdall, grok, compare, on_pin, deciding, shadow}."""
++    rows, skipped = [], []
++    for x in lines:
++        k = R.kind({"role": x.get("role"), "prompt": x.get("prompt") or ""})
++        sh = x.get("shadow") or {}
++        if k is None or k not in R.DECIDING or "text" not in sh:
++            skipped.append({"role": x.get("role"), "type": k, "why": sh.get("error") or "no decision rule"})
++            continue
++        pr = x.get("prompt") or ""
++        on_pin = bool(texts) and any(t and t in R._norm(pr) for t in texts)
++        try:
++            h = R.decide(k, (x.get("deciding") or {}).get("text"), pr)
++        except (ValueError, TypeError, KeyError) as e:
++            skipped.append({"role": x.get("role"), "type": k, "why": f"Heimdall's answer unreadable: {e}"})
++            continue
++        try:
++            g = R.decide(k, sh["text"], pr)
++        except (ValueError, TypeError, KeyError) as e:
++            g = None
++            rows.append({"type": k, "unit": "*", "heimdall": "answered", "grok": f"out of contract: {e}"[:120],
++                         "compare": "grok no verdict", "on_pin": on_pin,
++                         "deciding": (x.get("deciding") or {}).get("backend"), "shadow": sh.get("backend")})
++        if g is None:
++            continue
++        for u, hv in h.items():
++            gv = g.get(u)
++            rows.append({"type": k, "unit": u, "heimdall": hv, "grok": gv, "compare": R.compare(k, gv, hv),
++                         "on_pin": on_pin, "deciding": (x.get("deciding") or {}).get("backend"),
++                         "shadow": sh.get("backend")})
++    return rows, skipped
++
++
++def report(out_dir, res, missing=0, path=STATE, update_streak=True):
++    """SHADOW86.md for one build, and (update_streak) the pins' streak updated when it sealed one. -> a summary."""
++    lines = []
++    p = os.path.join(out_dir, "SHADOW86.jsonl")
++    if os.path.exists(p):
++        with open(p) as f:
++            for ln in f:
++                try:
++                    lines.append(json.loads(ln))
++                except ValueError:
++                    pass
++    texts = pin_texts(res)
++    rows, skipped = compare_lines(lines, texts)
++    diff = [r for r in rows if r["compare"] != "agree"]
++    pin_diff = [r for r in diff if r["on_pin"]]
++    on_pin = [r for r in rows if r["on_pin"]]
++    #   "grok no verdict" on a pin's decision counts as a stop: a pin is said to seal under Grok only when Grok's own
++    #   answer passed every one of its decisions (fail closed, qwen 0108 C1). With missing shadows and no compared
++    #   decision on the pin, nothing was verified: None, never True (audit 0108 C1, glm)
++    would_seal = None if not texts or (missing and not on_pin) else \
++        not any(r["compare"] in ("looser", "grok no verdict") for r in pin_diff)
++    usd = sum(float((x.get("shadow") or {}).get("usd_reported") or 0) for x in lines
++              if not (x.get("shadow") or {}).get("cached"))
++    summ = {"verdicts": len(lines), "compared_units": len(rows), "differ": len(diff), "on_pin_differ": len(pin_diff),
++            "not_compared": len(skipped), "missing": int(missing), "shadow_usd_reported": round(usd, 4),
++            "pin": bool(texts), "would_seal_under_grok": would_seal}
++    summ["summary"] = (f"{len(lines)} verdicts shadowed, {len(rows)} decisions compared, {len(diff)} differ "
++                       f"({len(pin_diff)} on the pin's clips); {len(skipped)} not compared; {int(missing)} still "
++                       f"running; shadow cost ${usd:.4f} reported" +
++                       ("" if would_seal is None else f"; the pin WOULD {'' if would_seal else 'NOT '}have sealed "
++                                                      f"under Grok"))
++    out = ["# Ruling 86: the shadow's side-by-side (Heimdall decided; Grok asked the same prompts)", "",
++           f"Build {os.path.basename(out_dir)}, written {time.strftime('%Y-%m-%d %H:%M %Z')}. {summ['summary']}.", "",
++           "Heimdall stricter: Heimdall failed what Grok passed. Heimdall looser: Heimdall passed what Grok failed "
++           "(on the pin's clips, Grok would have stopped it).", "",
++           "| type | unit | Heimdall | Grok | compare | on the pin | Heimdall model |", "|---|---|---|---|---|---|---|"]
++    for r in diff:
++        out.append(f"| {r['type']} | {r['unit']} | {r['heimdall']} | {r['grok']} | {r['compare']} | "
++                   f"{'yes' if r['on_pin'] else ''} | {r['deciding']} |")
++    if skipped:
++        out += ["", "## Not compared", ""] + [f"- {s['role']} ({s['type']}): {s['why']}" for s in skipped]
++    with open(os.path.join(out_dir, "SHADOW86.md"), "w") as f:
++        f.write("\n".join(out) + "\n")
++    if texts and update_streak:                  # a sealed pin: the streak moves (once, by the build itself)
++        st = _load(path)
++        changed = bool(pin_diff) or bool(missing)
++        st["pins"].append({"build": os.path.basename(out_dir), "decision_changing": len(pin_diff),
++                           "missing": int(missing), "would_seal_under_grok": would_seal,
++                           "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())})
++        st["clean_streak"] = 0 if changed else int(st.get("clean_streak") or 0) + 1
++        tmp = f"{path}.{os.getpid()}.tmp"
++        with open(tmp, "w") as f:
++            json.dump(st, f, indent=1)
++        os.replace(tmp, path)
++        summ["clean_streak"] = st["clean_streak"]
++    return summ
++
++
++def main():
++    d = sys.argv[1]
++    with open(os.path.join(d, "package.json")) as f:
++        res = json.load(f)
++    print(json.dumps(report(d, res, update_streak=False), indent=1))     # a re-read never moves the streak
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/tests/package/test_gates.py b/tests/package/test_gates.py
+index 71cc033..c0a2d96 100644
+--- a/tests/package/test_gates.py
++++ b/tests/package/test_gates.py
+@@ -22,7 +22,7 @@ class Canned:
+         self.answers, self.calls, self.rejected = {k: list(v) for k, v in answers.items()}, [], []
+ 
+     def call(self, role, prompt, max_tokens=2000, seed=7, system=None, avoid_vendor=None, avoid_model=None,
+-             avoid_family=None, deadline_s=None):
++             avoid_family=None, deadline_s=None, kind=None):
+         self.calls.append((role, avoid_vendor, avoid_family))
+         q = self.answers.get(role)
+         if not q:
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 0497719..af3a02d 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -564,7 +564,8 @@ class Rig:
+         self.write_avoid = []
+ 
+     def prescreen(self, router, ms, sources, ctx_, writer_vendor, writer_family=None, n=PK.PRESCREEN_N,
+-                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None):
++                  batch=PK.PRESCREEN_BATCH, store=None, log=print, cache=None, deadline_s=None, kind=None,
++                  failover=None):
+         self.screen_deadlines.append(deadline_s)           # ruling 82: which calls are bounded
+         """Step A as the real prescreen calls it: on the first back-end off the given vendors and families
+         (context_verdict: xai, then heimdall; a third vendor only for the rig); per (vendor, moment) failures."""
+@@ -1177,7 +1178,7 @@ class TestRuling58StepAEveryCandidate(unittest.TestCase):
+         import context_integrity as CI
+         from test_gates import a_item
+ 
+-        def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False):
++        def step_a(router_, contexts, wv, seed=7, writer_family=None, deadline_s=None, failover=False, kind=None):
+             calls.append((sorted(contexts), seed))
+             if set(contexts) & set(fail):
+                 raise RuntimeError("the batch reply was out of contract")
+@@ -1293,14 +1294,35 @@ class TestRuling59HookFirst(unittest.TestCase):
+         self.assertIn('CANDIDATE id="b"', prompts[0])
+         self.assertIn("Judge each one ALONE", prompts[0])
+ 
+-    def test_a_reply_out_of_contract_is_asked_once_more_then_nothing_is_rated(self):
++    def chained(self, *replies):
++        """A canned chain: each call is answered by the next model (fake:1, fake:2, ...), and a model the caller
++        skips (avoid_model) is never asked."""
++        c = self.canned(*replies)
++        call, n = c.call, [0]
++
++        def nxt(role, prompt, *a, avoid_model=None, **k):
++            r = call(role, prompt, *a, **k)
++            n[0] += 1
++            name = f"fake:{n[0]}"
++            assert name not in (avoid_model or ()), "a skipped model was asked"
++            c.asked_skip = getattr(c, "asked_skip", []) + [sorted(avoid_model or ())]
++            import providers as P
++            return P.Reply(r.text, name, "fake")
++        c.call = nxt
++        return c
++
++    def test_a_reply_out_of_contract_moves_on_to_the_next_model_then_nothing_is_rated(self):
++        """The 20:33 order (ruling 82's chain on every verdict): an answer out of contract moves on to the NEXT model
++        (it was one re-ask of the same model); the chain spent is no verdict (law L-m)."""
+         ms = [pm("a", "A", 12.0)]
+         ok = {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4, "why": "w"}}}
+-        c = self.canned({"hooks": {"a": {"scroll": 9, "alone": 4, "setup": 4, "why": "w"}}}, ok)
++        c = self.chained({"hooks": {"a": {"scroll": 9, "alone": 4, "setup": 4, "why": "w"}}}, ok)
+         got, err = PK.hook_ratings(c, ms, ctx(), set(), set())
+-        self.assertEqual((err, got["a"]["rating"], len(c.calls), len(c.rejected)), (None, 4, 2, 1))
++        self.assertEqual((err, got["a"]["rating"], got["a"]["backend"], len(c.calls), c.rejected),
++                         (None, 4, "fake:2", 2, ["fake:1"]))
++        self.assertEqual(c.asked_skip, [[], ["fake:1"]])                   # the second ask skips the first model
+         for bad in ({"hooks": {}}, {"hooks": {"a": {"scroll": 4, "alone": 4, "setup": 4}}}, {"x": 1}, "no json"):
+-            got, err = PK.hook_ratings(self.canned(bad, bad), ms, ctx(), set(), set())
++            got, err = PK.hook_ratings(self.chained(bad, bad), ms, ctx(), set(), set())
+             self.assertEqual(got, {})
+             self.assertIn("Error", err)
+         got, err = PK.hook_ratings(self.canned(), ms, ctx(), set(), set())   # unavailable: no verdict (law L-m)
+@@ -2482,6 +2504,51 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         self.assertEqual(rig.screen_deadlines, [None, 120.0, 120.0, 120.0, 120.0])   # audit 2005 C1: the first screen
+         #   unbounded as before; the second screen's two chunks and both off-writer re-screens at ruling 82's 120 s
+ 
++    def test_ruling_85_the_first_screen_is_bounded_under_heimdall_first(self):
++        """RULING 85: under heimdall_first the FIRST step-A verdict is a Heimdall family's, so it gets ruling 82's
++        bounds too (2 clips a call, 120 s); under today's routing it stays unbounded (Grok's), as before."""
++        batches = []
++        for routing in ("today", "heimdall_first"):
++            rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
++                      angle_from=("xai:grok", "xai", "grok"), write_from=("xai:grok", "xai", "grok"))
++            rig.router.routing = routing
++            pre = rig.prescreen
++
++            def spy(*a, batch=PK.PRESCREEN_BATCH, **k):
++                batches.append((routing, batch))
++                return pre(*a, batch=batch, **k)
++            rig.prescreen = spy
++            rig.run()
++            self.assertEqual(rig.screen_deadlines[0], None if routing == "today" else PK.SECOND_VERDICT_DEADLINE_S)
++        self.assertEqual([b for r, b in batches if r == "heimdall_first"][0], PK.SECOND_VERDICT_BATCH)
++        self.assertEqual([b for r, b in batches if r == "today"][0], PK.PRESCREEN_BATCH)
++
++    def test_ruling_88_grok_confirms_in_its_own_batches_under_heimdall_first(self):
++        """RULING 88 (c): under heimdall_first the second step-A verdict is Grok confirming Heimdall's passes: Grok's own
++        batch (8) and no deadline, the move-on rule kept; under today it stays a Heimdall family's (2 clips, 120 s)."""
++        self.assertEqual(PK._second_bounds(type("R", (), {"routing": "today"})()),
++                         (PK.SECOND_VERDICT_BATCH, PK.SECOND_VERDICT_DEADLINE_S))
++        self.assertEqual(PK._second_bounds(type("R", (), {"routing": "heimdall_first"})()), (PK.PRESCREEN_BATCH, None))
++        got = []
++
++        def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None, batch=None,
++                 deadline_s=None, kind=None, failover=None):
++            got.append((len(chunk), batch, deadline_s, kind, failover))
++            return {m["moment_id"]: {"backend": "xai:grok"} for m in chunk}, {m["moment_id"]: [] for m in chunk}, \
++                set(), set()
++        router = type("R", (), {"routing": "heimdall_first", "backends": {
++            "heimdall:qwen": type("B", (), {"vendor": "heimdall/qwen", "family": "qwen"})(),
++            "xai:grok": type("B", (), {"vendor": "xai", "family": "grok"})()}})()
++        ms = [dict(m, moment_id=f"m{i}") for i, m in enumerate(self.MS * 3)][:9]
++        saved = PK.prescreen
++        PK.prescreen = fake
++        try:
++            PK.second_screen(router, {m["moment_id"]: m for m in ms}, {m["moment_id"]: {"backend": "heimdall:qwen"}
++                                                                       for m in ms}, {}, ctx())
++        finally:
++            PK.prescreen = saved
++        self.assertEqual(sorted(got), [(1, 8, None, "step_a_second", True), (8, 8, None, "step_a_second", True)])
++
+     def test_a_re_screen_that_gives_no_verdict_is_never_a_pass(self):
+         """The old branch read the stale verdict back when the re-screen returned nothing for a clip (a fail-open,
+         flagged with ORDER 06:22): no verdict off the writers keeps the clip out."""
+@@ -2528,7 +2595,7 @@ class TestOrder0622StepAFromBothVendors(unittest.TestCase):
+         seen, calls = [], []
+ 
+         def fake(router_, chunk, sources, ctx_, wv, wf, n=None, store=None, log=print, cache=None, batch=None,
+-                 deadline_s=None):
++                 deadline_s=None, kind=None, failover=None):
+             seen.append((sorted(wv), [m["moment_id"] for m in chunk]))
+             calls.append((batch, deadline_s))
+             name = "heimdall:deepseek"          # off xai for h and x; for z (first verdict heimdall) the SAME vendor
+diff --git a/tests/package/test_shadow86.py b/tests/package/test_shadow86.py
+new file mode 100644
+index 0000000..928f7a7
+--- /dev/null
++++ b/tests/package/test_shadow86.py
+@@ -0,0 +1,88 @@
++#!/usr/bin/env python3
++"""RULING 86 (orchestrator 21:18 Nov 13): the shadow's side-by-side (tests/package/shadow86.py). Offline: a
++synthetic SHADOW86.jsonl in a temporary build directory and a temporary streak file."""
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++sys.path.insert(0, HERE)
++import shadow86 as SH  # noqa: E402
++
++CLIP = "Bitcoin only dropped like five, six percent while tech stocks fell much further that week."
++PROMPT = ('Judge this moment. <before>...</before> <moment>"' + CLIP + '"</moment> Return {"risks": [], '
++          '"about_bitcoin": "yes|no|uncertain", "why": "..."}')
++
++
++def line(h, g, prompt=PROMPT):
++    return {"role": "exclusion_verdict", "prompt": prompt, "deciding": {"backend": "heimdall:z-ai/glm-5.3-flash",
++            "text": json.dumps(h)}, "shadow": {"backend": "xai:grok", "text": json.dumps(g), "usd_reported": 0.01}}
++
++
++KEEP = {"risks": [], "about_bitcoin": "yes", "why": "w"}
++EXCL = {"risks": ["imperative"], "about_bitcoin": "yes", "why": "w"}
++
++
++class TestShadow(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.state = os.path.join(self.d.name, "SHADOW86.json")
++
++    def tearDown(self):
++        self.d.cleanup()
++
++    def build(self, name, lines, pin):
++        b = os.path.join(self.d.name, name)
++        os.makedirs(b)
++        with open(os.path.join(b, "SHADOW86.jsonl"), "w") as f:
++            f.write("".join(json.dumps(x) + "\n" for x in lines))
++        res = {"package": {"segments": [{"text": CLIP}]}, "pin": {"path": "x"}} if pin else \
++            {"package": {"segments": [{"text": CLIP}]}}           # a package the pin stage refused is no pin
++        return b, res
++
++    def test_a_pin_grok_would_have_stopped_and_the_streak(self):
++        b, res = self.build("b1", [line(KEEP, KEEP), line(KEEP, EXCL)], pin=True)
++        s = SH.report(b, res, path=self.state)
++        self.assertEqual((s["differ"], s["on_pin_differ"], s["would_seal_under_grok"], s["clean_streak"]),
++                         (1, 1, False, 0))
++        md = open(os.path.join(b, "SHADOW86.md")).read()
++        self.assertIn("| exclusion | moment | True | False | looser | yes |", md)   # Heimdall passed what Grok failed
++        for i in range(3):                                                           # three clean pins in a row
++            b, res = self.build(f"c{i}", [line(KEEP, KEEP)], pin=True)
++            self.assertEqual(SH.report(b, res, path=self.state)["clean_streak"], i + 1)
++        self.assertEqual(SH.clean_streak(self.state), 3)
++        b, res = self.build("n", [line(KEEP, EXCL)], pin=False)                      # no pin: the streak stays
++        self.assertIsNone(SH.report(b, res, path=self.state)["would_seal_under_grok"])
++        self.assertEqual(SH.clean_streak(self.state), 3)
++
++    def test_unreadable_answers_and_missing_shadows_are_counted_never_clean(self):
++        bad = dict(line(KEEP, KEEP), shadow={"backend": "xai:grok", "error": "Unavailable: xAI down"})
++        b, res = self.build("b", [bad, line(KEEP, KEEP)], pin=True)
++        s = SH.report(b, res, missing=1, path=self.state)
++        self.assertEqual((s["not_compared"], s["missing"], s["clean_streak"]), (1, 1, 0))
++        self.assertEqual(SH.clean_streak(os.path.join(self.d.name, "none.json")), 0)
++
++    def test_missing_shadows_on_a_pin_never_say_it_would_seal(self):
++        """Audit 0108 C1 (glm): a sealed pin whose shadow answers are all missing was verified by nothing."""
++        b, res = self.build("b9", [{"role": "exclusion_verdict", "prompt": PROMPT,
++                                    "deciding": {"backend": "heimdall:z-ai/glm-5.3-flash", "text": json.dumps(KEEP)}}],
++                            pin=True)
++        out = SH.report(b, res, missing=1, path=self.state)
++        self.assertIsNone(out["would_seal_under_grok"])
++
++    def test_a_sealed_spotlight_is_a_pin_too(self):
++        """RULING 90: a spotlight pin is judged by the shadow like a medley pin (ruling 86's "the first pin sealed")."""
++        seg = [{"text": CLIP}]
++        self.assertEqual(SH.pin_texts({"pin": None, "spotlight_pin": {"story_id": "s"},
++                                       "spotlight": {"package": {"segments": seg}}}),
++                         SH.pin_texts({"pin": {"story_id": "m"}, "package": {"segments": seg}}))
++        self.assertEqual(len(SH.pin_texts({"pin": {"story_id": "m"}, "package": {"segments": seg},
++                                           "spotlight_pin": {"story_id": "s"},
++                                           "spotlight": {"package": {"segments": seg}}})), 2)
++        self.assertEqual(SH.pin_texts({"spotlight": {"package": {"segments": seg}}}), [])   # not sealed: no pin
++
++
++if __name__ == "__main__":
++    unittest.main()

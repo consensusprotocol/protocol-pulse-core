@@ -1,0 +1,19 @@
+{
+ "role": "replay85_deepseek",
+ "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+ "model": "deepseek/deepseek-v4.1-flash",
+ "vendor": "heimdall",
+ "seed": 8,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.\"\nCLIP label=\"clip_01\" (on screen: Robert Breedlove): \"So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account.\"\nCLIP label=\"clip_02\" (on screen: Simply Bitcoin): \"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Bitcoin is a superior form of money/savings that can replace traditional assets and make people better off, not just richer.\", \"clips\": {\"clip_01\": 5, \"clip_02\": 3}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"Hook ends on Bitcoin; clip_01 immediately discusses Bitcoin replacing real estate as savings.\"}, \"clip_01 -> clip_02\": {\"followable\": false, \"why\": \"Abrupt shift from Bitcoin replacing real estate to host's personal wish about viewers.\"}}}",
+ "usage": {
+  "in": 522,
+  "out": 1797,
+  "usd_reported": 0.00035887
+ },
+ "usd": 0.028521,
+ "seconds": 48.95,
+ "recorded_at": "2026-11-14T05:06:46Z"
+}

@@ -318,7 +318,7 @@ def check(router, package, sources, writer_vendor, seed=7):
     return check_contexts(router, package, contexts_from_sources(package, sources), writer_vendor, seed)
 
 
-def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline_s=None, failover=False):
+def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline_s=None, failover=False, kind=None):
     """Step A alone (context only, the package hidden): {label: item} for exactly the given labels, and the back-end.
     Raises ValueError / ProviderError when it cannot be had or read. RULING 82 (20:02 Nov 13): deadline_s bounds each
     call (the router moves to the next model at it and logs the miss, item 55); failover=True also moves on when a
@@ -336,7 +336,8 @@ def step_a(router, contexts, writer_vendor, seed=7, writer_family=None, deadline
     while True:
         ra = router.call("context_verdict", prompt, 4000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family,
                          **({"avoid_model": set(skip)} if skip else {}),
-                         **({"deadline_s": deadline_s} if deadline_s is not None else {}))
+                         **({"deadline_s": deadline_s} if deadline_s is not None else {}),
+                         **({"kind": kind} if kind else {}))      # ruling 88: step_a_first / step_a_second
         try:
             A = _strict(ra.text, {"excerpts"}, {"excerpts": A_KEYS})
             a_by = {e["label"]: e for e in A["excerpts"] if isinstance(e.get("label"), str)}
@@ -485,7 +486,7 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None, 
     try:
         if a_by is None:
             a_by, out["backends"]["A"] = step_a(router, {lb: contexts[lb] for lb in labels}, writer_vendor, seed,
-                                                writer_family)
+                                                writer_family, kind="step_a_first")
         else:
             missing = [lb for lb in labels if not isinstance(a_by.get(lb), dict) or set(A_KEYS) - set(a_by[lb])]
             if missing:
@@ -493,45 +494,56 @@ def check_contexts(router, package, contexts, writer_vendor, seed=7, a_by=None, 
             a_by = {lb: a_by[lb] for lb in labels}
             out["backends"]["A"] = {lb: a_by[lb].get("backend") or "precomputed (unnamed)" for lb in labels}
         lab_list = ", ".join(all_labels)
-        r0 = router.call("viewer_takeaway", STEP_B.format(package=package_view(clips_alone(package)), labels=lab_list),
-                         3000, seed)
-        out["backends"]["B0"] = r0.backend
-        B0 = _strict(r0.text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
+
+        def parse_b0(text):
+            B0 = _strict(text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
+                                                            "relations": ("labels", "relation")})
+            b0_by = {t["label"]: t for t in B0["takeaways"] if isinstance(t.get("label"), str)}
+            if not set(labels) <= set(b0_by):
+                raise ValueError(f"step B (clips alone) must answer at least {labels}")
+            return b0_by
+
+        def parse_b(text):
+            B = _strict(text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
                                                            "relations": ("labels", "relation")})
-        b0_by = {t["label"]: t for t in B0["takeaways"] if isinstance(t.get("label"), str)}
-        if not set(labels) <= set(b0_by):
-            raise ValueError(f"step B (clips alone) must answer at least {labels}")
-        rb = router.call("viewer_takeaway", STEP_B.format(package=package_view(package), labels=lab_list), 3000, seed,
-                         avoid_vendor=writer_vendor, avoid_family=writer_family)
+            b_by = {t["label"]: t for t in B["takeaways"] if isinstance(t.get("label"), str)}
+            if not set(labels) <= set(b_by) or any(not isinstance(b_by[lb].get("asserts"), str) for lb in labels):
+                raise ValueError(f"step B must answer at least {labels}")
+            pairs_want = {frozenset(p) for p in itertools.combinations(all_labels, 2)}
+            got = []
+            for rel in B["relations"]:
+                labs = rel.get("labels")
+                if not isinstance(labs, list) or len(labs) != 2 or not all(isinstance(x, str) for x in labs) or \
+                        labs[0] == labs[1] or rel.get("relation") not in RELATIONS:
+                    raise ValueError(f"step B relation out of contract: {json.dumps(rel)[:160]}")
+                got.append(frozenset(labs))
+            if len(got) != len(set(got)) or set(got) != pairs_want:
+                raise ValueError(f"step B must rate every pair of clips exactly once ({len(pairs_want)} pairs, got "
+                                 f"{len(set(got))} distinct of {len(got)})")
+            return B, b_by
+        # the 20:33 order: an answer out of contract moves on to the next model (providers.call_parsed)
+        r0, b0_by = P.call_parsed(router, "viewer_takeaway",
+                                  STEP_B.format(package=package_view(clips_alone(package)), labels=lab_list),
+                                  parse_b0, 3000, seed)
+        out["backends"]["B0"] = r0.backend
+        rb, (B, b_by) = P.call_parsed(router, "viewer_takeaway",
+                                      STEP_B.format(package=package_view(package), labels=lab_list), parse_b, 3000,
+                                      seed, avoid_vendor=writer_vendor, avoid_family=writer_family)
         out["backends"]["B"] = rb.backend
-        B = _strict(rb.text, {"takeaways", "relations"}, {"takeaways": ("label", "asserts", "certainty", "polarity"),
-                                                          "relations": ("labels", "relation")})
-        b_by = {t["label"]: t for t in B["takeaways"] if isinstance(t.get("label"), str)}
-        if not set(labels) <= set(b_by) or any(not isinstance(b_by[lb].get("asserts"), str) for lb in labels):
-            raise ValueError(f"step B must answer at least {labels}")
-        pairs_want = {frozenset(p) for p in itertools.combinations(all_labels, 2)}
-        got = []
-        for rel in B["relations"]:
-            labs = rel.get("labels")
-            if not isinstance(labs, list) or len(labs) != 2 or not all(isinstance(x, str) for x in labs) or \
-                    labs[0] == labs[1] or rel.get("relation") not in RELATIONS:
-                raise ValueError(f"step B relation out of contract: {json.dumps(rel)[:160]}")
-            got.append(frozenset(labs))
-        if len(got) != len(set(got)) or set(got) != pairs_want:
-            raise ValueError(f"step B must rate every pair of clips exactly once ({len(pairs_want)} pairs, got "
-                             f"{len(set(got))} distinct of {len(got)})")
         text_of = {sg["label"]: sg["text"] for sg in segs}
         pairs = "\n".join(f'<pair label="{lb}"><A>{_q(a_by[lb]["proposition"], 400)} (certainty: '
                           f'{a_by[lb]["certainty"]})</A><CLIP>{_q(text_of[lb], 900)}</CLIP><B>{_q(b_by[lb]["asserts"], 400)}'
                           f' (certainty: {b_by[lb]["certainty"]})</B></pair>' for lb in labels)
-        rc = router.call("context_verdict", STEP_C.format(pairs=pairs, vo=vo_words(package)), 2000, seed,
-                         avoid_vendor=writer_vendor, avoid_family=writer_family)
+        def parse_c(text):
+            C = _strict(text, {"pairs"}, {"pairs": ("label", "entails", "dropped_limit", "added_by", "same_polarity",
+                                                    "stronger_certainty", "raising_words")})
+            c_by = {c["label"]: c for c in C["pairs"] if isinstance(c.get("label"), str)}
+            if set(c_by) != set(labels) or len(C["pairs"]) != len(labels):
+                raise ValueError(f"step C must answer exactly the labels {labels}")
+            return c_by
+        rc, c_by = P.call_parsed(router, "context_verdict", STEP_C.format(pairs=pairs, vo=vo_words(package)), parse_c,
+                                 2000, seed, avoid_vendor=writer_vendor, avoid_family=writer_family, kind="step_c")
         out["backends"]["C"] = rc.backend
-        C = _strict(rc.text, {"pairs"}, {"pairs": ("label", "entails", "dropped_limit", "added_by", "same_polarity",
-                                                   "stronger_certainty", "raising_words")})
-        c_by = {c["label"]: c for c in C["pairs"] if isinstance(c.get("label"), str)}
-        if set(c_by) != set(labels) or len(C["pairs"]) != len(labels):
-            raise ValueError(f"step C must answer exactly the labels {labels}")
     except (P.ProviderError, P.SpendLimit, ValueError, KeyError, TypeError) as e:
         for r_ in (r0, rb, rc):
             if r_ is not None and isinstance(e, (ValueError, KeyError, TypeError)) and hasattr(router, "reject"):

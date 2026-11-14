@@ -56,6 +56,8 @@ sys.path.insert(0, os.path.join(REPO, "tests", "moments"))
 sys.path.insert(0, HERE)
 import eligibility as E  # noqa: E402
 import candidates as CA  # noqa: E402
+import heimdall_health as HH  # noqa: E402
+import shadow86 as SH  # noqa: E402
 import ledger_build as LB  # noqa: E402
 import moments as M  # noqa: E402
 import package as PK  # noqa: E402
@@ -69,6 +71,7 @@ import lock_precheck as LP  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
+STATE_MD = os.path.join(REPO, "docs", "audits", "parallel", "pp-selectid_STATE.md")   # ruling 87: a switch on line 1
 
 
 def delivered_pins(paths):
@@ -108,6 +111,8 @@ def main(argv=None):
                     help="the adapter's publish window (horizon_h); RULING 76: at most 12 h, never widened")
     ap.add_argument("--work-dir", default=os.path.join(PL.SCRATCH, "lv2"))
     ap.add_argument("--word-pass", default=LB.WORD_PASS, help="the word-pass worker's rows (read-only)")
+    ap.add_argument("--routing", choices=P.ROUTINGS, default=None,
+                    help="RULING 85: 'today' or 'heimdall_first' (default: model_providers.json routing.mode)")
     ap.add_argument("--from-candidate", metavar="BUILD_DIR[:N]",
                     help="RULING 66: try ONLY the line-up that passed the clips-alone verdict in this earlier build's "
                          "record (its tried[N]; default the first that passed), as it was judged")
@@ -183,8 +188,17 @@ def main(argv=None):
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
                   f, indent=1, default=str)
+    rt = json.load(open(P.CONFIG)).get("routing") or {}
+    routing = a.routing or rt.get("mode") or "today"
+    shadow = None                                # RULING 86: Grok in shadow on the first heimdall_first pins
+    if routing == "heimdall_first" and SH.clean_streak() < int(rt.get("shadow_until_clean_pins") or 3):
+        shadow = rt.get("shadow") or None
     router = P.Router(env_path=PS.ENV, record_dir=PL.REPLIES, spend_path=PL.SPEND, limit_usd=PL.LY_LIMIT_USD,
-                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(), deadline_log=PL.DEADLINE_LOG)
+                      limit_basis=PL.LY_LIMIT_BASIS, chains=PL.chains(routing), deadline_log=PL.DEADLINE_LOG,
+                      routing=routing, shadow=shadow, shadow_log=os.path.join(out_dir, "SHADOW86.jsonl"),
+                      health=HH.STATE, plan_b_chains=PL.plan_b_chains(), state_md=STATE_MD)    # ruling 87
+    say(f"  routing (ruling 85): {router.routing}; now {router.mode()} (ruling 87: the shared Heimdall health)"
+        + (f"; SHADOW (ruling 86): {shadow}" if shadow else ""))
     spent0 = router.spent()                      # ruling 48: the running total, vendor-reported (+ estimates where none)
     if spent0 >= PL.LY_STOP_USD:
         say(f"REFUSED (ruling 48): this order's ledger stands at ${spent0:.2f} vendor-reported (the estimate where a "
@@ -333,8 +347,14 @@ def main(argv=None):
                         "hooks_4": len(hp.get("passing") or []) if isinstance(hp.get("passing"), list) else None}
     say(f"  RULING 76 (d): {res['ruling_76']['inside_12h']} moments inside 12 h, {res['ruling_76']['cleared']} "
         f"cleared, {res['ruling_76']['cuttable']} cuttable, {res['ruling_76']['hooks_4']} hooks >= 4")
+    res["routing"] = router.routing                # RULING 85: which routing decided this build
+    res["mode_at_end"] = router.mode()             # RULING 87: plan_b when Heimdall was down at the end
+    if router.shadow:                              # RULING 86: every shadow answer in (the pin, if any, is already
+        left = router.shadow_wait(900.0)           # written and logged above), then the side-by-side
+        res["shadow86"] = SH.report(out_dir, res, missing=left)
+        say(f"  SHADOW (ruling 86): {res['shadow86'].get('summary')}")
     try:                                         # the record is written whatever the ledger says (audit 0707 C1)
-        after = round(router.spent(), 4)
+        after = round(router.spent(), 4)         # (after the shadows: their spend is in it)
     except Exception as e:                       # noqa: BLE001
         after = f"unreadable: {type(e).__name__}: {str(e)[:120]}"
     res["spend_ruling_48"] = {"before": round(spent0, 4), "after": after, "cap": PL.LY_LIMIT_USD,

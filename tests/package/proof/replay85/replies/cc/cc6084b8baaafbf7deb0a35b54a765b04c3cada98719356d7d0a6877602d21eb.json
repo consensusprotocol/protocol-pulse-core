@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Bitcoin's Security and the Risk in Holding It\nCAPTION: The protocol may be secure, but ownership depends on intermediaries, self-custody, and the ongoing responsibility of holding.\nCLIP label=\"hook\" (on screen: Saifedean Ammous): \"Bitcoin does not have any authority that allows people to take the wealth of others. If some people end up with more Bitcoin, that's because they chose to do that.\"\nVOICE-OVER: What Bitcoin Did, on hacks and intermediaries.\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"It's not Bitcoin that's getting hacked. It's other intermediaries. So in some ways, it kind of shines a light on the secure nature and the unique nature of Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"And Bitcoin is a hurdle rate basically just means don't lose money. Like don't lose the Bitcoin that you have today. Even if you don't have your wealth in Bitcoin, you can measure your wealth today in Bitcoin, like your house or your equities or your bonds or whatever else you hold.\"\nVOICE-OVER: The network's resilience contrasts with the fragility of how people hold it, where custody choices and personal discipline shape the safety of ownership.\nVOICE-OVER: Clips today from Saifedean Ammous, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's protocol itself is secure, but the real risk in owning it comes from intermediaries and the holder's own custody responsibility.\", \"clips\": {\"hook\": 3, \"clip_01\": 5, \"clip_02\": 3}, \"vo_point\": 4}",
+ "usage": {
+  "in": 479,
+  "out": 717,
+  "usd_reported": 0.00010376
+ },
+ "usd": 0.012192,
+ "seconds": 22.87,
+ "recorded_at": "2026-11-14T02:55:51Z"
+}

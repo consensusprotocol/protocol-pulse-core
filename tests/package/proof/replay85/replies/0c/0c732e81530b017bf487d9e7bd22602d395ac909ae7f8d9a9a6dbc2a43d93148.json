@@ -1,0 +1,19 @@
+{
+ "role": "replay85_glm",
+ "backend": "heimdall:z-ai/glm-5.3-flash",
+ "model": "z-ai/glm-5.3-flash",
+ "vendor": "heimdall",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words).\n\nTITLE: Bitcoin thrives on sentiment, not politics\nCAPTION: Bitcoin offers a free-market escape from government money, and its appeal survives political noise.\nCLIP label=\"hook\" (on screen: Natalie Brunell): \"Bitcoin imposes a global free market for the first time ever.\"\nCLIP label=\"clip_01\" (on screen: What Bitcoin Did): \"I mean, the good news about Bitcoin is it's not, you know, its success is not dependent upon who's in the White House or who's controlling the Senate or the House of Representatives in the U.S. You know, price -wise, some people would say when it's when it's persecuted and when it's in the crosshairs, it tends to do pretty well.\"\nCLIP label=\"clip_02\" (on screen: Stephan Livera): \"When Bitcoin and an asset is going up and the bull market is super hot, everyone loves it. When the bear market is happening and Bitcoin is going down, everyone hates it. And like, that's why the price got high and that's why the price got low, because everyone loved it at the top and everyone wanted exposure and everyone hated it and didn't want exposure at the bottom.\"\nVOICE-OVER: The lesson is that Bitcoin's survival is a story of human emotion and free choice, not institutional permission.\nVOICE-OVER: Clips today from Natalie Brunell, What Bitcoin Did, and Stephan Livera. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's success is driven by free-market sentiment and human emotion rather than politics or institutional permission.\", \"clips\": {\"hook\": 4, \"clip_01\": 5, \"clip_02\": 5}, \"vo_point\": 5}",
+ "usage": {
+  "in": 480,
+  "out": 59,
+  "usd_reported": 2.22e-05
+ },
+ "usd": 0.002325,
+ "seconds": 1.38,
+ "recorded_at": "2026-11-14T02:56:16Z"
+}

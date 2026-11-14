@@ -1,0 +1,19 @@
+{
+ "role": "replay85_qwen",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation.\n\nCLIP label=\"hook\" (on screen: The Bitcoin Layer): \"Bitcoin started turning though before liquidity turned red. And that's an important caveat here.\"\nCLIP label=\"clip_01\" (on screen: Scott Melker): \"My biggest fear is that I go to the bank and I punch you my code and the money's not there because the bank owns the money and they could just take it from me. And that's why we Bitcoin.\"\nCLIP label=\"clip_02\" (on screen: CNBC Television): \"I don't really think Bitcoin and crypto are partisan issues, right? Bitcoin and crypto are about how do we modernize the financial markets and how we would create financial freedom for 350 Americans and 8 billion people around the world.\"\nCLIP label=\"clip_03\" (on screen: What Bitcoin Did): \"I will bet you one Bitcoin that RSA has broken in 10 years, and I'll bet you half a Bitcoin that it's broken in five years. That's the level of conviction I have.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips: could a viewer follow the jump with no narration, i.e. is the next\n   clip's subject or referent clear coming from the previous clip's ending? Answer true or false, and why in a few\n   words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"<label>\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "\n\n{\"through_line\": \"Bitcoin as a vehicle for financial sovereignty and freedom, examined through market timing, personal banking distrust, political neutrality, and cryptographic security.\", \"clips\": {\"hook\": 2, \"clip_01\": 5, \"clip_02\": 5, \"clip_03\": 2}, \"joins\": {\"hook -> clip_01\": {\"followable\": false, \"why\": \"jumps from market liquidity observation to personal bank distrust; no shared referent\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"'that's why we Bitcoin' naturally expands to a broader 'why' about financial freedom\"}, \"clip_02 -> clip_03\": {\"followable\": false, \"why\": \"jumps from political/financial-freedom framing to RSA cryptographic risk; unrelated subject\"}}}",
+ "usage": {
+  "in": 506,
+  "out": 1802,
+  "usd_reported": 0.00130835
+ },
+ "usd": 0.028548,
+ "seconds": 21.11,
+ "recorded_at": "2026-11-14T02:42:08Z"
+}
