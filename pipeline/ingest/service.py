@@ -393,7 +393,12 @@ class Service:
                 if v["video_id"] in self.hook_inflight or len(self.hook_inflight) >= HOOK_VIDEOS:
                     continue
                 self.hook_inflight.add(v["video_id"])
-            started.append(self.hooks.submit(self.hook_video, v))
+            try:
+                started.append(self.hooks.submit(self.hook_video, v))
+            except RuntimeError:                          # the pool is shut down (the service is stopping): the video
+                with self.hlock:                          # is not left marked in flight (audit r80 c2, glm / muse P2)
+                    self.hook_inflight.discard(v["video_id"])
+                raise
         if wait:
             for f in started:
                 f.result()
