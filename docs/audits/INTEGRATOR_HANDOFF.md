@@ -22,7 +22,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
      scratchpad, putting the old file back, and running them.
   3. Run TWO audit cycles and implement the consensus (commands below). Record each cycle in
      `docs/audits/pulse-sentence-law/batchNN_<name>/cycle{1,2}/`: QUESTION.txt, STEP.diff, CONSENSUS.md, heimdall/.
-     The last batch is **75**.
+     The last batch is **76** (ruling 91's medley half, 2026-11-14).
   4. On main, stage it: `git merge --no-commit --no-ff <branch>`.
   5. Run `bash regression_test.sh` (0 FAIL) and `bash pipeline/regression.sh` (exit 0: every protected reference
      reproduced) ON THE STAGED MERGE. Worktrees lack untracked assets, so run them on main.
@@ -80,6 +80,7 @@ line says PASS path (with the Telegram ids) or HOLD (stage, row, measured facts)
 - **84**: fillers (um, uh, er, ah, mm, hmm) heard only by the second recogniser adopt. ONE function-word disagreement keeps the decode's word and records the other reading; two or more hold, as does any other substitution. Carrier: `lock_precheck.ruling84_class`, `pinned.adjudicate_lock`.
 - **87**: Plan B. With Heimdall down and a single outside family answering, step A's second verdict is the GPU0 gemma3:27b. Carrier: `local_judge.py serve` (section 4).
 - **90 / 91 / 92**: SPOTLIGHT (law L-ab). Carrier: `pinned._spotlight_vo`, `edl_rules` (R4 / R5 / R11), `qa_gates.g5_window`, `editorial_gate`, `signoff` / `vo`, `telegram`.
+- **91, its MEDLEY half** (2026-11-14, the row agreed with the builder): a medley's takeaway renders only with the sealed `takeaway_value` row {status PASS, replayed false, text = the line}. Carrier: `edl_rules.takeaway_value`, called by `run_fresh.stage_validate` and `scripts/integrator/check_pin_only.py`; NOT a `validate_edl` rule (the references predate it).
 - **93**: no channel is ineligible by name; G10 runs on every clip (MONITORING); the 9:16 single crop keeps a lower third whole where a face-safe crop allows. Carrier: `vertical_layout.single_crop` / `lower_third_spans`, `render_vertical._shot_vf`, `qa_gates.g10_clip_ids`, `editorial_select.layout_eligible`.
 - **94**: hooks.
   - A first- or second-person pronoun opener is no fault.

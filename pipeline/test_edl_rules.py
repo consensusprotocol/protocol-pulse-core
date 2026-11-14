@@ -12,7 +12,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
-                       rule_r9, rule_r11, validate_edl)
+                       rule_r9, rule_r11, takeaway_value, validate_edl)
 
 # Load fixtures
 FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -1269,6 +1269,92 @@ class TestR11VoShape(unittest.TestCase):
         e["vo"] = {**e["vo"], "intro": None, "bridges": [b for b in e["vo"]["bridges"] if b["after_clip"] == 2]}
         ok, why = rule_r11(e)
         self.assertTrue(ok, why)
+
+
+class TestRuling91MedleyTakeaway(unittest.TestCase):
+    """Ruling 91's MEDLEY half (law L-ab (91), orchestrator 2026-11-13 '22:53'; the row agreed with the builder
+    2026-11-14): a moments package that is not a spotlight voices its takeaway (the line after the LAST clip) only with
+    the builder's sealed value verdict on THAT line, moments_gates.takeaway_value {status exactly "PASS", replayed
+    exactly False, text == the takeaway}. Must-fail: no row, any other status or replayed value, a verdict on another
+    draft, two takeaways, malformed shapes, and the protected references' own EDLs (they predate the ruling: that is
+    why it is not a validate_edl rule). Must-pass: the row on the line (whitespace aside), the no-voice shape, a bridge
+    with no takeaway, story-type / untyped / spotlight EDLs."""
+    TAKE = "No ruler. Just rules nobody gets to bend."
+
+    def edl(self, bridges=None, gates=None, t="moments", **kw):
+        e = {"package_type": t, "clips": [{"index": 1}, {"index": 2}, {"index": 3}],
+             "vo": {"intro": None,
+                    "bridges": [{"text": self.TAKE, "after_clip": 3}] if bridges is None else list(bridges)}}
+        e.update(TestR4Moments.MARK)
+        if gates is not None:
+            e["moments_gates"] = gates
+        e.update(kw)
+        return e
+
+    def row(self, **kw):
+        r = {"status": "PASS", "by": "xai:grok-4.20-0309-reasoning", "replayed": False, "n": 1, "text": self.TAKE}
+        r.update(kw)
+        return {"takeaway_value": r}
+
+    def fails(self, e, part):
+        ok, why = takeaway_value(e)
+        self.assertFalse(ok, why)
+        self.assertIn(part, why)
+
+    def test_the_takeaway_passes_only_with_its_sealed_live_verdict(self):
+        for gates in (self.row(), self.row(text="  " + self.TAKE + "\n")):
+            ok, why = takeaway_value(self.edl(gates=gates))
+            self.assertTrue(ok, why)
+        for gates in (None, {}, {"takeaway_value": "PASS"}, {"closing_value": self.row()["takeaway_value"]}):
+            self.fails(self.edl(gates=gates), "no sealed value verdict")
+        for status in ("FAIL", "NOT RUN", "pass", None, True):
+            self.fails(self.edl(gates=self.row(status=status)), "not exactly PASS and live")
+        for replayed in (True, None, 0, "false"):
+            self.fails(self.edl(gates=self.row(replayed=replayed)), "not exactly PASS and live")
+        r = self.row()
+        del r["takeaway_value"]["replayed"]
+        self.fails(self.edl(gates=r), "not exactly PASS and live")
+
+    def test_a_verdict_on_another_draft_never_carries_the_rewrite(self):
+        for text in ("Durability matters more than speed.", self.TAKE + " Always.", None, 7, ""):
+            self.fails(self.edl(gates=self.row(text=text)), "judged another line")
+        r = self.row()
+        del r["takeaway_value"]["text"]
+        self.fails(self.edl(gates=r), "judged another line")
+
+    def test_no_takeaway_needs_no_verdict(self):
+        for bridges in ((), ({"text": "Same question, from a miner's side.", "after_clip": 1},)):
+            ok, why = takeaway_value(self.edl(bridges=bridges))
+            self.assertTrue(ok, why)
+            self.assertIn("no takeaway", why)
+
+    def test_only_a_medley_is_this_check(self):
+        for t in ("story", None):
+            ok, why = takeaway_value(self.edl(t=t))
+            self.assertTrue(ok, why)
+        ok, why = takeaway_value(spot_edl(20.0, intro=" ".join(["w"] * 12)))     # its closing rows: pinned._spotlight_vo
+        self.assertTrue(ok, why)
+
+    def test_malformed_shapes_fail_closed(self):
+        take = {"text": self.TAKE, "after_clip": 3}
+        self.fails(self.edl(bridges=(take, dict(take)), gates=self.row()), "2 lines after the last clip")
+        for text in ("   ", None, ["w"]):
+            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},), gates=self.row()), "is not text")
+        for a in ("3", 3.0, True, None):
+            self.fails(self.edl(bridges=({"text": self.TAKE, "after_clip": a},), gates=self.row()), "not integers")
+        self.fails(self.edl(bridges=("w",), gates=self.row()), "not integers")
+        self.fails(self.edl(gates=self.row(), clips=[{"index": "1"}]), "not integers")
+        for bad in ({"vo": None}, {"vo": {"intro": None, "bridges": None}}, {"clips": []}, {"clips": None}):
+            self.fails(self.edl(gates=self.row(), **bad), "without a vo object")
+
+    def test_the_protected_references_predate_it_so_it_is_not_a_validate_edl_rule(self):
+        refs = os.path.join(os.path.dirname(FIXTURE_DIR), "references")
+        for ref in ("pulse_medley_2026-11-12", "pulse_fresh_2026-11-13"):           # tracked: never a SKIP
+            e = _load_json(os.path.join(refs, ref, "edl.json"))
+            self.fails(e, "no sealed value verdict")
+            self.assertTrue(rule_r11(e)[0], ref)                                    # a lawful L-y takeaway in its day
+            self.assertNotIn("takeaway_value", [r["rule"] for r in validate_edl(e)[1]])
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

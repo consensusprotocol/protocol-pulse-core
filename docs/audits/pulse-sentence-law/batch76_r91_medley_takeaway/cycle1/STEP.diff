@@ -1,0 +1,313 @@
+diff --git a/pipeline/edl_rules.py b/pipeline/edl_rules.py
+index e9e9e429..6ce3dc4f 100644
+--- a/pipeline/edl_rules.py
++++ b/pipeline/edl_rules.py
+@@ -29,6 +29,9 @@ Rules:
+                               takeaway after the last clip and at most ONE line
+                               before it (intro slot or between clips), only with
+                               the package's recorded, confirmed bridge. No minimum.
++    takeaway_value (ruling 91, medley half): NOT a validate_edl rule (the
++                              references predate it); the live path calls it: a
++                              medley's takeaway only with its sealed value verdict.
+ """
+ import math
+ import argparse
+@@ -804,6 +807,48 @@ def rule_r11(edl):
+                   f"{closing} takeaway line(s)")
+ 
+ 
++TAKEAWAY_VALUE_ROW = "takeaway_value"      # ruling 91's MEDLEY half: the builder's sealed row (agreed 2026-11-14)
++
++
++def takeaway_value(edl):
++    """Ruling 91, the MEDLEY half (law L-ab (91): 'the same value verdict also applies to a MEDLEY's takeaway going
++    forward'). A package of type 'moments' that is not a spotlight and voices a takeaway (the line after the LAST clip)
++    renders it only with the builder's sealed value verdict on THAT line: moments_gates[TAKEAWAY_VALUE_ROW] (copied by
++    pinned.build_edl from moments_package.gates) is an object with status exactly "PASS", replayed exactly False, and
++    text equal to the takeaway after strip (R11's moments_bridge rule), so a verdict on a first draft never carries the
++    one rewrite. No takeaway (L-y's no-voice shape) needs no row. Story-type, untyped and spotlight EDLs are not this
++    check (a spotlight's closing line has its own sealed rows, pinned._spotlight_vo). NOT a validate_edl rule: the
++    protected references' pins predate the ruling ('going forward'); the live path (run_fresh.stage_validate) and
++    scripts/integrator/check_pin_only.py call it. Fail closed: a malformed vo, clips or line, or two takeaways."""
++    if edl.get("package_type") != "moments" or _spotlight(edl):
++        return True, "ruling 91 (medley): not a medley (story-type, untyped or spotlight): no takeaway verdict"
++    vo, clips = edl.get("vo"), edl.get("clips")
++    if not isinstance(vo, dict) or not isinstance(clips, list) or not clips or not isinstance(vo.get("bridges"), list):
++        return False, "ruling 91 (medley): a moments EDL without a vo object, a bridges list and clips"
++    idx = [c.get("index") if isinstance(c, dict) else None for c in clips]
++    lines = [b.get("after_clip") if isinstance(b, dict) else None for b in vo["bridges"]]
++    if any(type(i) is not int for i in idx + lines):
++        return False, f"ruling 91 (medley): clip indexes {idx!r} or line slots {lines!r} are not integers"
++    takeaways = [b for b in vo["bridges"] if b["after_clip"] == max(idx)]
++    if not takeaways:
++        return True, "ruling 91 (medley): no takeaway (the no-voice shape): no value verdict needed"
++    if len(takeaways) > 1:
++        return False, f"ruling 91 (medley): {len(takeaways)} lines after the last clip (one takeaway)"
++    line = takeaways[0].get("text")
++    if not isinstance(line, str) or not line.strip():
++        return False, "ruling 91 (medley): the takeaway after the last clip is not text"
++    gates = edl.get("moments_gates")
++    row = gates.get(TAKEAWAY_VALUE_ROW) if isinstance(gates, dict) else None
++    if not isinstance(row, dict):
++        return False, f"ruling 91 (medley): the takeaway has no sealed value verdict (moments_gates.{TAKEAWAY_VALUE_ROW})"
++    if row.get("status") != "PASS" or row.get("replayed") is not False:
++        return False, (f"ruling 91 (medley): the takeaway's value verdict is not exactly PASS and live (status "
++                       f"{row.get('status')!r}, replayed {row.get('replayed')!r})")
++    if not isinstance(row.get("text"), str) or row["text"].strip() != line.strip():
++        return False, "ruling 91 (medley): the value verdict judged another line (its text is not the takeaway)"
++    return True, f"ruling 91 (medley): the takeaway carries its sealed value verdict (by {row.get('by')!r})"
++
++
+ def validate_edl(edl, channels_registry=None, layout_tables_dir=None,
+                   transcripts=None):
+     """Run all rules. Returns (all_pass, results list).
+diff --git a/pipeline/run_fresh.py b/pipeline/run_fresh.py
+index 49959e14..37beb5de 100644
+--- a/pipeline/run_fresh.py
++++ b/pipeline/run_fresh.py
+@@ -438,7 +438,7 @@ def stand_alone_subject(edl, story):
+ 
+ 
+ def stage_validate(run):
+-    from edl_rules import validate_edl
++    from edl_rules import validate_edl, takeaway_value
+     from editorial_gate import run_gate
+     with open(os.path.join(run.dir, "edl.json")) as f:
+         edl = json.load(f)
+@@ -451,6 +451,11 @@ def stage_validate(run):
+     if not ok:
+         raise Hold("EDL rejected by edl_rules: " + "; ".join(
+             f"{r['rule']}: {r.get('reason', '')}" for r in results if not r["pass"]))
++    ok91, why91 = takeaway_value(edl)          # ruling 91's MEDLEY half: the live path only (the references predate it)
++    print(f"  {why91}")
++    run.prov["takeaway_value"] = {"pass": ok91, "reason": why91}
++    if not ok91:
++        raise Hold(why91)
+ 
+     # Shared AUTO/PIN editorial law gate. This is the last editorial acceptance
+     # point before cutting. It always writes STORYBOARD.md + EDITORIAL_GATE.json
+diff --git a/pipeline/test_edl_rules.py b/pipeline/test_edl_rules.py
+index 48e62b02..007ccc47 100644
+--- a/pipeline/test_edl_rules.py
++++ b/pipeline/test_edl_rules.py
+@@ -12,7 +12,7 @@ import unittest
+ 
+ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+ from edl_rules import (rule_r1, rule_r2, rule_r3, rule_r4, rule_r5, rule_r6,
+-                       rule_r9, rule_r11, validate_edl)
++                       rule_r9, rule_r11, takeaway_value, validate_edl)
+ 
+ # Load fixtures
+ FIXTURE_DIR = os.path.dirname(os.path.abspath(__file__))
+@@ -1270,6 +1270,92 @@ class TestR11VoShape(unittest.TestCase):
+         ok, why = rule_r11(e)
+         self.assertTrue(ok, why)
+ 
++
++class TestRuling91MedleyTakeaway(unittest.TestCase):
++    """Ruling 91's MEDLEY half (law L-ab (91), orchestrator 2026-11-13 '22:53'; the row agreed with the builder
++    2026-11-14): a moments package that is not a spotlight voices its takeaway (the line after the LAST clip) only with
++    the builder's sealed value verdict on THAT line, moments_gates.takeaway_value {status exactly "PASS", replayed
++    exactly False, text == the takeaway}. Must-fail: no row, any other status or replayed value, a verdict on another
++    draft, two takeaways, malformed shapes, and the protected references' own EDLs (they predate the ruling: that is
++    why it is not a validate_edl rule). Must-pass: the row on the line (whitespace aside), the no-voice shape, a bridge
++    with no takeaway, story-type / untyped / spotlight EDLs."""
++    TAKE = "No ruler. Just rules nobody gets to bend."
++
++    def edl(self, bridges=None, gates=None, t="moments", **kw):
++        e = {"package_type": t, "clips": [{"index": 1}, {"index": 2}, {"index": 3}],
++             "vo": {"intro": None,
++                    "bridges": [{"text": self.TAKE, "after_clip": 3}] if bridges is None else list(bridges)}}
++        e.update(TestR4Moments.MARK)
++        if gates is not None:
++            e["moments_gates"] = gates
++        e.update(kw)
++        return e
++
++    def row(self, **kw):
++        r = {"status": "PASS", "by": "xai:grok-4.20-0309-reasoning", "replayed": False, "n": 1, "text": self.TAKE}
++        r.update(kw)
++        return {"takeaway_value": r}
++
++    def fails(self, e, part):
++        ok, why = takeaway_value(e)
++        self.assertFalse(ok, why)
++        self.assertIn(part, why)
++
++    def test_the_takeaway_passes_only_with_its_sealed_live_verdict(self):
++        for gates in (self.row(), self.row(text="  " + self.TAKE + "\n")):
++            ok, why = takeaway_value(self.edl(gates=gates))
++            self.assertTrue(ok, why)
++        for gates in (None, {}, {"takeaway_value": "PASS"}, {"closing_value": self.row()["takeaway_value"]}):
++            self.fails(self.edl(gates=gates), "no sealed value verdict")
++        for status in ("FAIL", "NOT RUN", "pass", None, True):
++            self.fails(self.edl(gates=self.row(status=status)), "not exactly PASS and live")
++        for replayed in (True, None, 0, "false"):
++            self.fails(self.edl(gates=self.row(replayed=replayed)), "not exactly PASS and live")
++        r = self.row()
++        del r["takeaway_value"]["replayed"]
++        self.fails(self.edl(gates=r), "not exactly PASS and live")
++
++    def test_a_verdict_on_another_draft_never_carries_the_rewrite(self):
++        for text in ("Durability matters more than speed.", self.TAKE + " Always.", None, 7, ""):
++            self.fails(self.edl(gates=self.row(text=text)), "judged another line")
++        r = self.row()
++        del r["takeaway_value"]["text"]
++        self.fails(self.edl(gates=r), "judged another line")
++
++    def test_no_takeaway_needs_no_verdict(self):
++        for bridges in ((), ({"text": "Same question, from a miner's side.", "after_clip": 1},)):
++            ok, why = takeaway_value(self.edl(bridges=bridges))
++            self.assertTrue(ok, why)
++            self.assertIn("no takeaway", why)
++
++    def test_only_a_medley_is_this_check(self):
++        for t in ("story", None):
++            ok, why = takeaway_value(self.edl(t=t))
++            self.assertTrue(ok, why)
++        ok, why = takeaway_value(spot_edl(20.0, intro=" ".join(["w"] * 12)))     # its closing rows: pinned._spotlight_vo
++        self.assertTrue(ok, why)
++
++    def test_malformed_shapes_fail_closed(self):
++        take = {"text": self.TAKE, "after_clip": 3}
++        self.fails(self.edl(bridges=(take, dict(take)), gates=self.row()), "2 lines after the last clip")
++        for text in ("   ", None, ["w"]):
++            self.fails(self.edl(bridges=({"text": text, "after_clip": 3},), gates=self.row()), "is not text")
++        for a in ("3", 3.0, True, None):
++            self.fails(self.edl(bridges=({"text": self.TAKE, "after_clip": a},), gates=self.row()), "not integers")
++        self.fails(self.edl(bridges=("w",), gates=self.row()), "not integers")
++        self.fails(self.edl(gates=self.row(), clips=[{"index": "1"}]), "not integers")
++        for bad in ({"vo": None}, {"vo": {"intro": None, "bridges": None}}, {"clips": []}, {"clips": None}):
++            self.fails(self.edl(gates=self.row(), **bad), "without a vo object")
++
++    def test_the_protected_references_predate_it_so_it_is_not_a_validate_edl_rule(self):
++        refs = os.path.join(os.path.dirname(FIXTURE_DIR), "references")
++        for ref in ("pulse_medley_2026-11-12", "pulse_fresh_2026-11-13"):           # tracked: never a SKIP
++            e = _load_json(os.path.join(refs, ref, "edl.json"))
++            self.fails(e, "no sealed value verdict")
++            self.assertTrue(rule_r11(e)[0], ref)                                    # a lawful L-y takeaway in its day
++            self.assertNotIn("takeaway_value", [r["rule"] for r in validate_edl(e)[1]])
++
++
+ if __name__ == "__main__":
+     unittest.main(verbosity=2)
+ 
+diff --git a/scripts/integrator/check_pin_only.py b/scripts/integrator/check_pin_only.py
+index b788f6a5..86c89458 100644
+--- a/scripts/integrator/check_pin_only.py
++++ b/scripts/integrator/check_pin_only.py
+@@ -1,13 +1,15 @@
+ """A sealed moments-first pin checked on its OWN content (CPU only; orchestrator '06:22': render the instant the pin is
+ readable). Ready = type 'moments'; every required gate of the sealed inventory exactly PASS and not replayed
+ (pp-selectid's gate_problems); THEIR seal() recomputed over the pin's own bytes equals package_sha256 (and, when given,
+-the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it.
++the digest named on the READY line); main's pinned.validate_schema and the strict pinned.moments_vo accept it; and
++main's edl_rules.takeaway_value (ruling 91's medley half, the live path's own check) passes it before launch.
+ Usage: python3 check_pin_only.py PIN.json [expected_sha_prefix]  -> exit 0 ready / 1 not (reason printed)"""
+ import importlib.util
+ import json
+ import sys
+ 
+ sys.path.insert(0, "/home/ultron/protocol_pulse/pipeline")
++import edl_rules  # noqa: E402
+ import pinned  # noqa: E402
+ 
+ 
+@@ -36,8 +38,15 @@ def main(path, want=None):
+     pinned.validate_schema(pin)
+     segs = pin["segments"]
+     vo = pinned.moments_vo(mp, [{"index": i} for i in range(1, len(segs))], segs)
++    view = {"package_type": mp.get("type"), "clips": [{"index": i} for i in range(1, len(segs))], "vo": vo,
++            "moments_gates": mp.get("gates")}                 # the EDL fields pinned.build_edl writes from this pin
++    if mp.get("shape") == "spotlight":
++        view["package_shape"] = "spotlight"
++    ok91, why91 = edl_rules.takeaway_value(view)
++    if not ok91:
++        return False, why91
+     out = [f"READY (pin only) {seal[:16]} title={mp.get('title')!r} intro={str(vo['intro'])[:80]!r} "
+-           f"bridges after {[b['after_clip'] for b in vo['bridges']]}"]
++           f"bridges after {[b['after_clip'] for b in vo['bridges']]}", f"  {why91}"]
+     out += [f"  {s['role']:4} {s['channel']} {s['video_id']} {s['start']:.2f}-{s['end']:.2f} ({s['end'] - s['start']:.2f} s)"
+             for s in segs]
+     return True, "\n".join(out)
+diff --git a/pipeline/test_ruling91_takeaway.py b/pipeline/test_ruling91_takeaway.py
+new file mode 100644
+index 00000000..42b2297d
+--- /dev/null
++++ b/pipeline/test_ruling91_takeaway.py
+@@ -0,0 +1,75 @@
++#!/usr/bin/env python3
++"""Ruling 91's MEDLEY half on the live path (law L-ab (91), orchestrator 2026-11-13 '22:53'; the row agreed with the
++builder 2026-11-14): run_fresh.stage_validate HOLDs a medley whose takeaway carries no sealed, live value verdict on
++that very line (edl_rules.takeaway_value), after the EDL rules and BEFORE the editorial gate, and records the verdict in
++PROVENANCE (takeaway_value). With the verdict, or with no takeaway (L-y's no-voice shape), the stage goes on.
++Must-fail on the old run_fresh: it never asked, so every case below reached the editorial gate."""
++import json
++import os
++import sys
++import tempfile
++import types
++import unittest
++from unittest import mock
++
++sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
++import edl_rules  # noqa: E402
++import editorial_gate  # noqa: E402
++import run_fresh  # noqa: E402
++
++TAKE = "No ruler. Just rules nobody gets to bend."
++
++
++class Reached(Exception):
++    """The editorial gate was called: stage_validate had passed ruling 91."""
++
++
++def medley(gates, bridges=None):
++    e = {"package_type": "moments", "mode": "pinned", "moments_package_sha256": "ab" * 32,
++         "moments_checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
++         "clips": [{"index": 1}, {"index": 2}],
++         "vo": {"intro": None, "bridges": [{"text": TAKE, "after_clip": 2}] if bridges is None else bridges}}
++    if gates is not None:
++        e["moments_gates"] = gates
++    return e
++
++
++def live(**kw):
++    r = {"status": "PASS", "by": "xai:grok-4.20-0309-reasoning", "replayed": False, "n": 1, "text": TAKE}
++    r.update(kw)
++    return {"takeaway_value": r}
++
++
++class TestStageValidateRuling91(unittest.TestCase):
++
++    def run_stage(self, edl):
++        """stage_validate on this EDL, the EDL rules passed (stubbed) and the editorial gate a sentinel."""
++        with tempfile.TemporaryDirectory() as d:
++            with open(os.path.join(d, "edl.json"), "w") as f:
++                json.dump(edl, f)
++            run = types.SimpleNamespace(dir=d, prov={})
++            with mock.patch.object(edl_rules, "validate_edl", return_value=(True, [])), \
++                    mock.patch.object(editorial_gate, "run_gate", side_effect=Reached):
++                try:
++                    run_fresh.stage_validate(run)
++                except Reached:
++                    return "reached the editorial gate", run.prov
++                except run_fresh.Hold as h:
++                    return f"HOLD: {h}", run.prov
++            return "returned", run.prov
++
++    def test_a_takeaway_without_its_verdict_holds_before_the_editorial_gate(self):
++        for gates in (None, {}, live(status="FAIL"), live(replayed=True), live(text="Another draft of the line.")):
++            got, prov = self.run_stage(medley(gates))
++            self.assertTrue(got.startswith("HOLD: ruling 91 (medley)"), (gates, got))
++            self.assertIs(prov.get("takeaway_value", {}).get("pass"), False, got)
++
++    def test_with_its_verdict_or_no_takeaway_the_stage_goes_on(self):
++        for edl in (medley(live()), medley(None, bridges=[])):
++            got, prov = self.run_stage(edl)
++            self.assertEqual(got, "reached the editorial gate")
++            self.assertIs(prov["takeaway_value"]["pass"], True)
++
++
++if __name__ == "__main__":
++    unittest.main(verbosity=2)
