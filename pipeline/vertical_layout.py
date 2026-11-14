@@ -31,6 +31,57 @@ PROMINENT_FRAC = 0.010
 MIN_BAND_RATIO = 0.35
 MIN_SHOT_S = 1.0
 SAFE_FRAME = ("screen", "uncertain")
+# RULING 93 (orchestrator 2026-11-13 '23:59'): the 9:16 single crop must not cut a lower third mid-word where a crop
+# inside the face-safe range keeps every element wholly in or wholly out. Law 20: constants, never tuned to pass.
+# Measured on the published 0c68b589 CNBC clip (DoD 23:51): the band holds the tag, the logo and the banner words.
+LT_BAND = (0.70, 0.985)        # the lower-third band, fractions of the frame height
+LT_CANNY = (80, 200)           # edge thresholds
+LT_CLOSE = (13, 5)             # horizontal closing: letters into a word, not words into a line
+LT_TEXT_H = (14, 90)           # an element's height in pixels (text, not a rule or a bar)
+LT_MIN_W, LT_MIN_AREA = 10, 60
+FACE_MARGIN_FRAC = 0.10        # the face box stays >= 10 % of the crop width from either crop edge
+
+
+def lower_third_spans(frame):
+    """Ruling 93: the x spans [x0, x1] of word-sized, text-like elements in the frame's lower-third band (Canny edges
+    closed horizontally into word-sized boxes)."""
+    import cv2
+    h = frame.shape[0]
+    y0, y1 = int(LT_BAND[0] * h), int(LT_BAND[1] * h)
+    edges = cv2.Canny(cv2.cvtColor(frame[y0:y1], cv2.COLOR_BGR2GRAY), *LT_CANNY)
+    closed = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_RECT, LT_CLOSE))
+    n, _, st, _ = cv2.connectedComponentsWithStats(closed, 8)
+    return sorted({(int(st[i][0]), int(st[i][0] + st[i][2])) for i in range(1, n)
+                   if LT_TEXT_H[0] <= st[i][3] <= LT_TEXT_H[1] and st[i][2] >= LT_MIN_W and st[i][4] >= LT_MIN_AREA})
+
+
+def single_crop(faces, spans, w, h):
+    """Ruling 93: the 9:16 single crop's x for a shot (crop width h * 9 / 16, full height). Today's crop is centred on
+    the median face (render_vertical._shot_vf). When a crop edge falls inside a lower-third element (spans) and some x
+    inside the face-safe range (every sampled face box inside the crop, FACE_MARGIN_FRAC of the crop width from either
+    edge) has no edge inside any element, the nearest such x; else today's x, reported as cut. -> (x, record)."""
+    cw = int(h * 9 / 16)
+    if not faces:                                  # batch 74 c1 consensus: no face sample, no face-safe range: no x
+        return None, {"rule": "ruling 93", "x": None, "cut": False, "spans": len(spans), "why": "no face samples"}
+    cx = int(np.median([f[1] for f in faces]))
+    base = max(0, min(w - cw, cx - cw // 2))
+
+    def cuts(x):
+        return [[a, b] for a, b in spans if a < x < b or a < x + cw < b]
+    if not cuts(base):
+        return base, {"rule": "ruling 93", "x": base, "moved_px": 0, "cut": False, "spans": len(spans)}
+    sides = [(f[0] * w * h) ** 0.5 for f in faces]
+    left = min(f[1] - s / 2 for f, s in zip(faces, sides))
+    right = max(f[1] + s / 2 for f, s in zip(faces, sides))
+    m = FACE_MARGIN_FRAC * cw
+    lo, hi = max(0, int(np.ceil(right + m - cw))), min(w - cw, int(np.floor(left - m)))
+    clear = [x for x in range(lo, hi + 1) if not cuts(x)]
+    if clear:
+        x = min(clear, key=lambda v: (abs(v - base), v))
+        return x, {"rule": "ruling 93", "x": x, "moved_px": x - base, "cut": False, "spans": len(spans),
+                   "face_safe_x": [lo, hi]}
+    return base, {"rule": "ruling 93", "x": base, "moved_px": 0, "cut": True, "spans": len(spans),
+                  "face_safe_x": [lo, hi], "cut_spans": cuts(base)[:8]}
 G4_LAYOUT = {"single": "single", "stack2": "2face", "stack3": "3face", "screen": "screenshare",
              "uncertain": "single"}
 
@@ -115,7 +166,8 @@ def classify(clip_path, detect=None):
         if not ok:      # never silent (cross-LLM UF-1): counted in the plan, printed in the run log
             print(f"  WARNING vertical_layout: frame unreadable in {os.path.basename(clip_path)} at {t:.2f} s -> uncertain")
         samples.append({"t": round(float(t), 3), "class": label, "read_ok": bool(ok),
-                        "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]]})
+                        "faces": [[round(a, 4), round(x), round(y)] for a, x, y in fr[:4]],
+                        "lt": [list(s) for s in lower_third_spans(frame)] if ok else []})   # ruling 93
     cap.release()
     if not samples:
         raise RuntimeError(f"no frames sampled from {clip_path}")
@@ -149,6 +201,8 @@ def classify(clip_path, detect=None):
         if lab == "single":
             shot["face_cx"] = int(np.median([f[0][1] for f in faces]))
             shot["face_cy"] = int(np.median([f[0][2] for f in faces]))
+            spans = sorted({tuple(x) for s in samples[a:b] for x in s.get("lt") or []})   # ruling 93: one static
+            shot["crop_x"], shot["lower_third"] = single_crop([f[0] for f in faces], spans, w, h)  # crop, every sample
         elif lab in ("stack2", "stack3"):
             n = int(lab[-1])
             per = [sorted(f[:n], key=lambda c: c[1]) for f in faces]    # each sample's n faces, left to right

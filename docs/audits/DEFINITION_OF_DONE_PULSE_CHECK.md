@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 00:16 RULING 93 MERGED (audits batch 74 x2: cycle 1's one consensus finding fixed, cycle 2 clean on qwen27b, glm and Grok). No channel is ineligible by name; G10 runs on every clip (MONITORING); the 9:16 single crop keeps a lower third whole where a face-safe crop allows. On the published CNBC clip no whole-shot crop allows it, so that shot keeps x 94, recorded cut.
+- CODE:
+  - vertical_layout.lower_third_spans (Law-20 constants: band 0.70-0.985 H, Canny 80/200, close 13x5, element 14-90 px) and single_crop: today's face-centred x unless a crop edge falls inside an element; then the nearest x in the face-safe range (every sampled face box inside, 10 % of the crop width from both edges) with no edge inside an element; else today's x, recorded cut.
+  - classify stores each sample's spans and, per single shot, crop_x + the record; render_vertical._shot_vf reads crop_x (an int inside the frame), else today's x.
+  - qa_gates.g10_clip_ids: every talking head. G10_chyron stays MONITORING in release_auth; run_gates' overall pass is only a report field.
+  - editorial_select.layout_eligible: a channel id is enough (DEC-12d's has_chyron exclusion removed; my pinned path never applied it, told to the builder).
+  - R8 is informational. Ruling 93 is recorded beside DEC-12d / R8 in PIPELINE_LAWS.md.
+- MUST-FAIL on the published clip (test_lower_third): the old crop (x 94) cuts the CNBC EXCLUSIVE tag; before the banner the rule moves it into 7-33; over the whole shot none clears it and the cut is recorded. Plus: no faces gives no x (the c1 consensus), and a clean shot keeps today's x.
+- CHECKS: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0. Every protected reference reproduced: the layouts re-ran classify with the lower-third measurement, and the classes and shot edges are unchanged (CNBC clip_01 still 'single' 0-14.42).
+  - Suites 60 passed. The NVENC colour tests (test_safe_frame_colour, 5) pass on GPU0 under the lease.
+- OPEN FOR THE ORCHESTRATOR (measured 23:51, not built): closing the CNBC banner period needs a layout choice:
+  - (a) a window above the lower third, 431 x 766 at x 124-235, upscaled 2.51x;
+  - (b) the letterbox safe frame;
+  - (c) splitting the shot at the banner onset (x 7-33 before it).
+- The pre-check's decoder sha is unchanged (none of these files is in its code hash).
+
 ## 23:51 RULING 93 MEASUREMENT: on the published 0c68b589 CNBC clip, NO full-height 9:16 crop that keeps the speaker clears the lower third for the whole shot. Before the banner (0-6 s) one does: x 7-33 vs the published 94. A window above the lower third does for the whole shot, at a 2.51x upscale.
 - WHAT WAS MEASURED: clip_01, GXWj2JO9bz8 (CNBC Television), the protected reference's prepared clip qa/final_clip_01.mp4, one 'single' shot of 14.42 s (face_cx 397). 29 frames at 0.5 s, CPU only.
   - Lower-third elements: Canny edges in the band 0.70-0.985 H, closed horizontally into word-sized boxes. Each element's x span.

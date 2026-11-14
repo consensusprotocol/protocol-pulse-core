@@ -1112,6 +1112,12 @@ def gate_g9(final_mp4, qa_dir, fmt="16x9"):
 # G10: TEXT CROP (CoinDesk lower-third chyron protection)
 # ==============================================================
 
+def g10_clip_ids(segments):
+    """Ruling 93 (orchestrator 2026-11-13 '23:59'): G10 runs on EVERY clip of the final, every talking head; no
+    channel is judged by name (the registry's has_chyron is a hint, nothing more)."""
+    return {seg["label"] for seg in segments if seg.get("type") == "talking_head"}
+
+
 def gate_g10(final_mp4, segments, crop_rects, qa_dir, chyron_clip_ids=None):
     """IMAGE-BASED chyron check on the FINAL output picture.
     Samples 5 frames inside each chyron-channel segment, takes the bottom 12% band,
@@ -1839,30 +1845,9 @@ def run_all_gates(final_mp4, manifest_path, qa_dir=None, source_clips=None,
     else:
         results["G11_parity"] = {"pass": True, "skip": True, "reason": "no horiz_mp4"}
 
-    # G10: Chyron (channels with has_chyron=true in registry)
-    chyron_clip_ids = set()
-    if edl_path and channels_json_path:
-        try:
-            with open(edl_path) as f:
-                edl = json.load(f)
-            with open(channels_json_path) as f:
-                ch_registry = json.load(f)
-            chyron_channels = {
-                entry["display_name"]
-                for entry in ch_registry
-                if entry.get("has_chyron", False)
-            }
-            # Map hook
-            hook = edl.get("hook", {})
-            if hook.get("channel") in chyron_channels:
-                chyron_clip_ids.add("hook")
-            # Map clips
-            for clip in edl.get("clips", []):
-                if clip.get("channel") in chyron_channels:
-                    chyron_clip_ids.add(f"clip_{clip['index']:02d}")
-        except Exception as e:
-            print(f"  G10 registry lookup error: {e}")
-
+    # G10: Chyron, on EVERY clip (ruling 93, orchestrator 2026-11-13 '23:59': no channel is judged by name; the
+    # registry's has_chyron is a hint that orders the pin-stage visual check, nothing more). Still MONITORING.
+    chyron_clip_ids = g10_clip_ids(segments)
     g10_pass, g10_table = gate_g10(final_mp4, segments, {}, qa_dir,
                                     chyron_clip_ids=chyron_clip_ids)
     results["G10_chyron"] = {"pass": g10_pass, "data": g10_table}

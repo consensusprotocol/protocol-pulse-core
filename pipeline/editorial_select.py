@@ -95,12 +95,12 @@ def _story_published(generated_at, freshness_minutes):
 def layout_eligible(channel):
     """Any registered channel with an id is clip-eligible. Presentation safety is
     enforced later: approved channels crop; pending channels letterbox.
-    DEC-12d (2026-11-11): a channel the registry marks has_chyron burns a lower third into its picture, which
-    the 16:9 shows uncropped and G10 fails (Nov 11 recut: Bitcoin Magazine's ticker, 0.0854 vs 0.08); its
-    videos still count as coverage evidence, but selection never takes a clip from it: the next-ranked legal
-    window takes the slot (the 4th segment is optional).
+    DEC-12d (2026-11-11) excluded every has_chyron channel. RULING 93 (orchestrator 2026-11-13 '23:59') replaced it:
+    no channel is ineligible by name; every clip is judged on its own frames (the pin-stage visual check; the 9:16
+    reframe keeps a lower third whole where a face-safe crop allows, vertical_layout.single_crop; G10 runs on every
+    clip, monitoring). has_chyron stays in the registry as a hint that orders the visual check, nothing more.
     """
-    return bool(channel.get("channel_id")) and not channel.get("has_chyron")
+    return bool(channel.get("channel_id"))
 
 
 def story_engine_status(stories, path=STORIES_PATH):

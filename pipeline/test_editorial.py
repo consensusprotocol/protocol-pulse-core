@@ -111,12 +111,14 @@ class TestChyronChannels(unittest.TestCase):
         for e in reg:
             self.assertIsInstance(e.get("has_chyron"), bool, e.get("display_name"))
 
-    def test_a_chyron_channel_never_supplies_a_clip(self):
+    def test_ruling_93_no_channel_is_ineligible_by_name(self):
+        """Ruling 93 (orchestrator 2026-11-13 '23:59') replaces DEC-12d: a has_chyron channel is judged per clip on its
+        own frames, never excluded by name; a channel with no id stays ineligible."""
         import editorial_select as es
         chyron = [e for e in REG.values() if e.get("has_chyron")]
         self.assertIn("Bitcoin Magazine", [e["display_name"] for e in chyron])
         for e in chyron:                                    # every chyron channel, not one example
-            self.assertFalse(es.layout_eligible(e), e["display_name"])
+            self.assertTrue(es.layout_eligible(e), e["display_name"])
         self.assertTrue(es.layout_eligible(REG["The Bitcoin Layer"]))
         self.assertFalse(es.layout_eligible({"display_name": "x", "has_chyron": False}))   # no channel id
 

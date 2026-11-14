@@ -1,0 +1,141 @@
+{
+ "question": "Batch 74 = RULING 93 (orchestrator 2026-11-13 '23:59'), verbatim excerpts: \"DEC-12d IS MEASURED PER CLIP, NOT PER CHANNEL ... THE RULE NOW: no channel is layout_ineligible by name. Every clip, any channel, is judged on its own frames by the pin-stage visual check ... The render's G10 stays as it is and runs on EVERY clip (not only has_chyron channels), still monitoring. The has_chyron flag stays in the registry as a hint that orders the check, nothing more. YOUR SIDE: G10 runs on every clip as a monitoring row; the vertical reframe must not cut a lower third mid-word where a wholly-in or wholly-out crop exists inside the face-safe range (measure on the published 0c68b589 CNBC clip ...; report whether a crop that keeps the speaker and clears the lower third exists).\"\nMeasured (DoD 23:51): on that clip no full-height face-safe crop clears the lower third for the whole shot (a banner from 6.2 s); before the banner x 7-33 does (published 94).\nThe change:\n- vertical_layout.py: Law-20 constants (LT_BAND 0.70-0.985 H, Canny 80/200, close 13x5, element height 14-90 px, min w 10 / area 60, FACE_MARGIN_FRAC 0.10); lower_third_spans(frame) -> word-sized element x spans in the band; single_crop(faces, spans, w, h): today's x (face-centred, as render_vertical) unless a crop edge falls inside an element; then the nearest x in the face-safe range [right + margin - cw, left - margin] (face boxes from the samples' area fraction) with no edge inside any element; else today's x, recorded cut. classify() stores each sample's spans ('lt') and, per single shot, crop_x + a 'lower_third' record (the spans of every sample of the shot: one static crop).\n- render_vertical._shot_vf: uses shot['crop_x'] when it is an int inside [0, src_w - CROP_W], else today's face-centred x.\n- qa_gates: g10_clip_ids(segments) = every talking head; run_all_gates passes it to the unchanged gate_g10 (G10_chyron stays MONITORING in release_auth; run_fresh uses run_gates' overall pass only as a report field).\n- editorial_select.layout_eligible: no has_chyron exclusion (only a channel id needed); edl_rules R8 text (informational); test_editorial's DEC-12d test now asserts ruling 93.\n- Tests: test_lower_third.py (8 pass; on the real published clip: the old crop cuts the tag; pre-banner the rule moves it into 7-33; whole shot: kept and recorded cut). 366 related tests pass; the 4 others need GPU0 or the worktree-absent v2f files, and the 3 GPU ones pass under the lease.\nFIND: a path where the crop can now leave the face (or its margin) or exceed the frame; a clean clip (no lower third) whose crop changes; a layout class / shot boundary that changes (the protected references compare those); G10 becoming release-deciding; a crash path (no faces in a single shot, an unreadable frame, an empty band). Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 16.1,
+   "cost": 0.0010936335,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 1,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 17.7,
+   "cost": 0.000253766,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 9.8,
+   "cost": 0.000684449,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 77.2,
+   "cost": 0.000430249,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "pipeline/vertical_layout.py",
+   "line": 202,
+   "issue": "single_crop crashes on a 'single' shot with no detected faces: np.median of an empty list raises ValueError. The new classify line calls single_crop([f[0] for f in faces], ...) with no guard for an empty face list, so a faceless single-class shot aborts the whole layout pass instead of degrading to today's crop.",
+   "evidence": "shot[\"crop_x\"], shot[\"lower_third\"] = single_crop([f[0] for f in faces], spans, w, h)  # crop, every sample",
+   "fix": "Guard the empty case before calling single_crop (e.g. if not faces: shot[\"crop_x\"], shot[\"lower_third\"] = None, {\"rule\":\"ruling 93\",\"cut\":False,\"spans\":len(spans)}), and/or make single_crop return (base, record) when faces is empty instead of calling np.median([]).",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 0,
+   "issue": "single_crop crashes on a single shot with no faces: np.median of an empty list raises, and the later min/max over faces also raises, so a no-face sample in a 'single' shot breaks classify",
+   "evidence": "cx = int(np.median([f[1] for f in faces]))  ...  left = min(f[1] - s / 2 for f, s in zip(faces, sides))",
+   "fix": "guard: if not faces, return (base, cut record) without the face-safe search",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "pipeline/vertical_layout.py",
+   "line": 0,
+   "issue": "single_crop can return a face-unsafe crop: the face-safe range is clamped to [0, w-cw] but the margin constraint is not re-checked after clamping, so when the face box plus margin exceeds the frame the chosen x can leave the face (or its margin) or exceed the frame",
+   "evidence": "lo, hi = max(0, int(np.ceil(right + m - cw))), min(w - cw, int(np.floor(left - m)))",
+   "fix": "after clamping, verify lo<=hi and that the chosen x satisfies right+m-cw <= x and x <= left-m; else fall back to base",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 0,
+   "issue": "single_crop's face-safe range can be inverted (lo > hi) when the face box is wider than the crop, making clear empty and silently falling back to today's x even though a valid x may exist; also the range uses int(np.floor(left - m)) which can exclude the exact boundary x",
+   "evidence": "lo, hi = max(0, int(np.ceil(right + m - cw))), min(w - cw, int(np.floor(left - m)))",
+   "fix": "clamp lo to >=0 and hi to <= w-cw, and if lo>hi widen to the full [0, w-cw] range before the clear search",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "pipeline/vertical_layout.py",
+   "line": 202,
+   "issue": "single_crop's face-safe range uses the face box side estimated as (area_fraction * w * h)**0.5, i.e. a square box, but the recorded face data is [area, cx, cy] with no aspect; if the detector's area fraction is of the full frame while the box is not square, the estimated left/right edges can be wrong, so the 'face-safe' range may not actually contain the face. The test's FACE = [0.04, 397, 358] gives side = sqrt(0.04*1920*1080) \u2248 288px, which the test comment itself calls 'box side ~288 px' \u2014 this assumes a square box, which is only valid if the detector's area fraction corresponds to a square. If the detector reports a non-square box's area fraction, the margin check in the test (FACE[1] - side/2 - x >= 0.10*CW - 1) passes only because the test's own side estimate matches the implementation's, i.e. the test is self-fulfilling, not evidence the face is actually safe.",
+   "evidence": "sides = [(f[0] * w * h) ** 0.5 for f in faces]  \u2014 assumes square boxes; FACE = [0.04, 397, 35]8 comment 'box side ~288 px'",
+   "fix": "Store the face box's w/h (or aspect) in the samples' face records and compute left/right from the actual box, not the square-root-of-area heuristic; or document that the detector's area fraction is of a square-equivalent box."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "pipeline/vertical_layout.py",
+   "line": 167,
+   "issue": "lower_third_spans is called on every readable sample even when the shot class is not 'single' (stack2/stack3/screen/uncertain), wasting compute; more importantly, the 'lt' spans are stored per-sample in the output VERTICAL_LAYOUT.json, changing the protected reference's schema (new 'lt' key per sample, new 'crop_x'/'lower_third' keys per single shot). The audit question asks about 'a layout class / shot boundary that changes (the protected references compare those)' \u2014 the class/boundary logic itself is untouched, but the reference JSON comparison will fail on the added keys unless the reference comparison ignores extra keys.",
+   "evidence": "\"lt\": [list(s) for s in lower_third_spans(frame)] if ok else []  \u2014 added to every sample regardless of class",
+   "fix": "Verify the protected-reference comparison ignores added keys, or gate the 'lt' computation to single-class shots only (both a perf and a reference-diff concern)."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "segment_v1/qa_gates.py",
+   "line": 1855,
+   "issue": "run_all_gates now calls g10_clip_ids(segments) unconditionally, but the old code only populated chyron_clip_ids when both edl_path and channels_json_path were provided (and swallowed errors). If segments is empty or lacks 'type' keys, g10_clip_ids returns an empty set \u2014 same as before \u2014 but if the EDL/registry files are missing, the new code no longer needs them, which is fine; the subtle change: the old code's chyron_clip_ids came from EDL channel\u2192clip mapping, the new one from segment 'type'=='talking_head'. If a segment's 'type' field is absent (seg.get('type') == 'talking_head' is False), that clip silently loses G10 coverage where the old EDL-channel mapping would have caught it via the channel's has_chyron. Clips whose segments lack a 'type' key (or use a different type string) are now silently skipped by G10.",
+   "evidence": "return {seg[\"label\"] for seg in segments if seg.get(\"type\") == \"talking_head\"}",
+   "fix": "Confirm every segment in the final manifest carries type=='tailing_head'... (typo: talking_head) for all talking-head clips; otherwise fall back to the EDL/registry mapping when the segment type is missing."
+  }
+ ],
+ "total_cost": 0.0024620975,
+ "out_dir": "/home/ultron/worktrees/r93/docs/audits/pulse-sentence-law/batch74_r93_lower_third/cycle1/heimdall"
+}

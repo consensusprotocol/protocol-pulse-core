@@ -21,7 +21,7 @@ Rules:
                               in EDL, in EDL order. Unique avatar hashes.
     R7 VERTICAL_LAYOUT_KNOWN: Every (channel, tile_count) must have an
                               explicit layout table entry.
-    R8 G10_CHYRON_REGISTRY:   Only channels with has_chyron=true trigger G10.
+    R8 G10_CHYRON_REGISTRY:   informational: has_chyron channels (a hint; G10 runs on every clip, ruling 93).
     R9 CLIP_ENDS_ON_SENTENCE: A clip's cut_out must land on a transcript word
                               that ends a sentence (. ? !) plus 0.20-0.45s tail
                               pause, strictly before the next source word starts.
@@ -508,7 +508,8 @@ def rule_r7(edl, layout_tables_dir=None):
 # ==============================================================
 
 def rule_r8(edl, channels_registry=None):
-    """Only channels with has_chyron=true should trigger G10 chyron gate."""
+    """Informational: the has_chyron channels in the EDL. Ruling 93 (2026-11-13 '23:59'): G10 runs on EVERY clip;
+    has_chyron is a hint that orders the pin-stage visual check, nothing more."""
     if not channels_registry:
         return True, "R8 SKIP: no channels registry provided"
 
