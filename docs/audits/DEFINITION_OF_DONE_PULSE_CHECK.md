@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 10:18 PP-TESTS DOCS CORRECTION MERGED (0f964d31: a fast-forward from d1ccdfc7, 14 files, all docs/audits/parallel/pp-tests_*; no test changed; audited by pp-tests in two cycles). Both regressions green on the staged merge.
+- R-29's effect corrected: the old adapter did NOT pass the two stale-title cases. The gate rejected them on the dated sign-off, under its written NUMBER rule. The fix is 91d37100 on pp-selectid (not on the release line).
+- R-30 reclassified: "NOT a request: a decision for the orchestrator". May NUMBER accept the manifest's own date?
+  - The facts: production's sign-off has no date; 30 corpus cases carry it, 16 must-pass and 14 must-fail.
+  - YES: the builder changes NUMBER. NO: pp-tests rewrites the 30 sign-offs.
+  - pp-tests' first draft, which asked the builder to accept the date, would have loosened a check and is withdrawn.
+  - It is on the builder's STATE line 1.
+- The interim exam scoring, until ruled: a must-fail case is credited only when a violation sits on its own bad line or title. The 14 are reported as holes hidden by the sign-off, the 16 as lost yield.
+- PRICE_NOW tolerance: a separate decision for the orchestrator. The builder's 5 % would accept "still holding 76K" against $73,500 news.
+- STATE times on 2026-11-14 are now git commit times (a typed "~10:20" was 09:52). BIBLE: PP-E28 corrected; PP-E33 added (verdict-only scoring credits a wrongly-rejected must-fail case).
+- CHECKS on the staged merge: regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0 (finished 10:18:15), every protected reference reproduced.
+
 ## 10:02 PP-TESTS MERGED (handoff item 4): the adversarial test wall + the moments-first exam, tests and docs only. Integrator audit batch 78, four cycles: every consensus finding fixed by pp-tests and verified; cycle 4 has no consensus finding. Both regressions green on the staged merge.
 - WHAT ARRIVES (tests/adversarial, tests/fixtures/adversarial, docs/audits/parallel/pp-tests_*; nothing under pipeline/, so no service sha moves):
   - phase 1, the wall: c35a2bde, plus the answers to the integrator's Nov 12 cycle 1 B1-B4 in 7a9a3555;

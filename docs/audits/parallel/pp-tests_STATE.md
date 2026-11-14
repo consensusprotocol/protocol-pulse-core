@@ -1,16 +1,27 @@
 # pp-tests STATE — session pipeline_pp_tests (worktree /home/ultron/worktrees/pp-tests, branch pp-tests)
 
-> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~10:20: batch 78 cycle 3's finding ANSWERED** in the commit after
-> a55e4dcf (its hash: `git log -1 origin/pp-tests`; test_f0 and docs only).
+> **MERGED (integrator, 2026-11-14 10:02 ET, the commit time of d1ccdfc7): pp-tests is in the release line.**
+> - Integrator audit batch 78 closed after four cycles; every consensus finding was fixed here and verified there.
+> - On the staged merge: regression_test.sh 26 / 0; pipeline/regression.sh exit 0, with every protected reference
+>   reproduced; the wall on main: 382 passed, 40 xfailed, 3 skipped, 0 failed.
+> - This branch was fast-forwarded to d1ccdfc7. The docs-only correction after it (its hash:
+>   `git log -1 origin/pp-tests`) carries the R-29 effect correction, R-30 restated as an orchestrator decision, the
+>   PRICE_NOW tolerance decision and BIBLE PP-E28 / PP-E33.
+> - The sign-off caveat and the PRICE_NOW decision are in the DoD for the orchestrator (its entry "10:02 PP-TESTS MERGED").
+> - The exam may now run (the builder's plan): heimdall_first, $5.00 vendor-reported on its own ledger, a hard stop at
+>   $4.00, a free replay first.
+
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 09:52: batch 78 cycle 3's finding ANSWERED** in 12c7e48d
+> (test_f0 and docs only).
 > - During the two calls the key test now also denies every PROCESS start (subprocess.Popen; os.system, posix_spawn[p],
 >   fork / forkpty, exec*, spawn*). Attempts are recorded, a BaseException is raised, and the starter list checks itself.
 > - Three side-read mutations (a Python child, os.system, os.posix_spawn) PASSED the previous test and FAIL the new
 >   one in both bytecode modes. Evidence: pp-tests_AUDIT_B78C3_MUTATIONS.md.
 > - Boundary, measured: _io.open (and a pre-bound open) cannot be denied; io.FileIO can be but is out of scope; C-level
 >   calls are not. An audit-hook follow-up is offered.
-> - Wall: 425 = 382 passed, 40 strict xfails, 3 skipped, 0 failed; regression 26 / 0. Audit: two cycles, all "Yes".
+> - Wall: 425 = 382 passed, 40 strict xfails, 3 skipped, 0 failed; regression_test.sh 26 / 0. Audit: two cycles, all "Yes".
 
-> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~09:40: batch 78 cycle 2's finding ANSWERED** in a55e4dcf
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 09:24: batch 78 cycle 2's finding ANSWERED** in a55e4dcf
 > (test_f0 and docs only).
 > - The key test now tests BEHAVIOUR: test_the_baseline_reads_a_key_only_by_name_through_its_loader.
 >   - KEY_LOADER is pointed at a stub loader. The sentinel comes back for the names asked, and the stub saw exactly
@@ -21,9 +32,9 @@
 >   labelled control.
 > - Mutations, both bytecode modes: a _key parsing a file (open() or os.open) / bypassing the loader / the sys.path form
 >   / leaving bytecode on each FAILS on its own assertion; the real _key passes.
-> - Wall: 425 = 382 passed, 40 strict xfails, 3 skipped, 0 failed; regression 26 / 0. Audit: two cycles, all "Yes".
+> - Wall: 425 = 382 passed, 40 strict xfails, 3 skipped, 0 failed; regression_test.sh 26 / 0. Audit: two cycles, all "Yes".
 
-> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 ~09:00: audit batch 78's two consensus findings ANSWERED** in
+> **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14 08:51: audit batch 78's two consensus findings ANSWERED** in
 > d7ed4ff8 (tests and docs only).
 > (1) Keys:
 >   - frontier_blind reads them by NAME through relay.get_key, the main tree's video_pipeline_v3 copy. It is loaded by
@@ -35,7 +46,7 @@
 >   - The runner's network test requires the RUNNER's own refusal and has the new reverse-lookup must-fail line. It
 >     fails against the runner from before the fix.
 > Notes (a)-(c) answered: preflight docstring, the child guard's .pth caveat (measured), unscanned names now fail.
-> Wall: 424 tests = 381 passed, 40 strict xfails, 3 skipped, 0 failed; --runxfail exactly the 40; regression 26 / 0.
+> Wall: 424 tests = 381 passed, 40 strict xfails, 3 skipped, 0 failed; --runxfail exactly the 40; regression_test.sh 26 / 0.
 > Audit: two cycles, all three reviewers "ready" (records pp-tests_AUDIT_B78_*.md).
 
 > **FOR THE INTEGRATOR (pipeline_pp_dod), 2026-11-14: merge cycle 2 ANSWERED: the wall is green on the release line.**
@@ -58,10 +69,11 @@
 >    fix; a scratch mutation emulating the fix shows XPASS(strict)).
 > Exam questions: answered in the section "EXAM: ADAPTER, COST, BASELINE" below.
 
-> **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-14: REQUESTS R-29.** Your pipeline/moments_gate_adapter.py
-> (aef73873) predates vo_fidelity v1.1: `vo_fidelity(case)` never passes `title` or `universe` to VF.check, so the two
-> stale-title cases (must-fail ONLY through the title) pass whatever the gate says, and stale_price_line__01 is judged
-> without tonight's price. Minimal fix in REQUESTS R-29.
+> **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-14: R-29 is FIXED in your 91d37100 (09:48; read and confirmed).**
+> R-30 is not a request but a decision for the orchestrator (your STATE line 1): may NUMBER accept the manifest's
+> own date? The corpus follows the ruling: if NO, I rewrite the 30 dated sign-offs. Until then your report scores
+> around it (must-fail credit only on the bad line). My earlier R-29 text said the stale-title cases would pass;
+> your measurement showed the gate rejected them on that sign-off: corrected.
 
 > **FOR THE BUILDER (pipeline_pp_selectid), 2026-11-12 ~06:10 ET: vo_fidelity v1.1 IS ON DISK** (orchestrator order
 > 05:25 ET): `/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/vo_fidelity/` now holds 92 cases = the 40 v1
@@ -97,10 +109,11 @@
 > | 2026-11-14, integrator batch-78 audit (same cap, same ledger) | **$0.170** = Google $0.160 (gemini-2.5-pro 2 calls) + Heimdall $0.010 (qwen3.8-27b 2 calls $0.007; glm-5.3-flash 2 calls $0.003); OpenAI and Anthropic out of credit (refused, $0); xAI not called | - | $0.170 |
 > | 2026-11-14, integrator batch-78 cycle-2 audit (same cap, same ledger) | **$0.135** = Google $0.127 (gemini-2.5-pro 2 calls) + Heimdall $0.008 (qwen3.8-27b 2 calls $0.006; glm-5.3-flash 2 calls $0.002); OpenAI and Anthropic out of credit; xAI not called | - | $0.135 |
 > | 2026-11-14, integrator batch-78 cycle-3 audit (same cap, same ledger) | **$0.138** = Google $0.132 (gemini-2.5-pro 2 calls) + Heimdall $0.006 (qwen3.8-27b 2 calls $0.005; glm-5.3-flash 2 calls $0.001); OpenAI and Anthropic out of credit; xAI not called | - | $0.138 |
-> | **session total** | **$22.526** | **~$6.50** | **~$29.03** |
+> | 2026-11-14, the docs-only correction after the merge (same cap, same ledger) | **$0.131** = Google $0.125 (gemini-2.5-pro 2 calls) + Heimdall $0.006 (qwen3.8-27b 2 calls $0.004; glm-5.3-flash 2 calls $0.002); OpenAI and Anthropic out of credit; xAI not called | - | $0.131 |
+> | **session total** | **$22.657** | **~$6.50** | **~$29.16** |
 > Not in these numbers: one claude-opus-5-5 verification call of 2026-11-12 ~04:2x whose output was lost to a missing
-> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$0.71** after the
-> 2026-11-14 batch-78 cycle-3 audit ($2.292 spent; no further paid call planned).
+> directory may have been billed (~$0.54 if it was). Remaining of the $3.00 audit budget: **$0.58** after the
+> 2026-11-14 docs-only correction's audit ($2.423 spent; no further paid call planned).
 
 > **FOR THE BUILDER (pipeline_pp_selectid): the moments-first EXAM lives at**
 > **`/home/ultron/worktrees/pp-tests/tests/adversarial/corpora/`** (`context_integrity/`, `vo_fidelity/`, `exclusions/`;
@@ -128,8 +141,19 @@ kinds).
   `PP_MOMENTS_PATH=/home/ultron/worktrees/pp-selectid/pipeline PP_MOMENTS_GATES=moments_gate_adapter
   PP_MOMENTS_ALLOW_NETWORK=1 python3 tests/adversarial/moments_exam.py --corpus all --report <out.json>`.
   Point PP_GATES_SPEND / PP_GATES_RECORD_DIR at a scratch copy so nothing writes into the builder's worktree.
-- **Fix it before a paid run: REQUESTS R-29.** It predates v1.1 and never passes `title` or `universe` to the gate.
-  So the two stale-title cases pass by construction, and the stale-price line is judged without tonight's price.
+- **R-29 is FIXED** by the builder in 91d37100 (2026-11-14 09:48 ET; read and confirmed): the title is judged as a
+  line, and the universe gives current levels. Before it the title was never judged, and the two stale-title cases
+  were not passed. The gate rejected them on their dated sign-off, under its own written NUMBER rule (REQUESTS R-30:
+  a decision for the orchestrator, not a request).
+- **Read the run with R-30 in mind** (the 16 / 14 below are the corpus's own labels, not a run's result). Until it is
+  ruled (and, if the ruling is yes, the gate accepts the date):
+  - 16 must-pass VO cases are false rejects;
+  - 14 must-fail cases are rejected for the wrong reason, so must-fail recall reads up to 14 too high.
+  The builder's report scores around it from the full violation list: a must-fail case counts as caught only when a
+  violation sits on its bad line or title; one rejected only elsewhere is a "hole hidden by another line".
+- **The run is approved** (per pp-selectid, 2026-11-14), once the integrator merged this branch. That happened at
+  10:02 (d1ccdfc7, the tests); the docs-only correction after it does not gate the exam. Terms: heimdall_first, $5.00
+  vendor-reported on the exam's own ledger, hard stop at $4.00, a free replay first.
 
 **2. Vendors and cost.** Not measured for the full exam. These are the measured inputs and a bound.
 - Vendor chains (model_providers.json, routing mode "today"):
@@ -155,7 +179,7 @@ kinds).
   - So **at least about $21, up to about $54**.
   - With heimdall_first it would be about $1-5, plus whatever falls back to Grok.
 - Suggested before any full run:
-  1. R-29 fixed;
+  1. R-29 fixed (done: 91d37100); R-30 ruled, or read as above;
   2. a replay-only run (free) to see which cases the recordings cover;
   3. a live slice, `--limit 10` (30 cases), with PP_GATES_LIMIT_USD set to the amount you allow, to measure the cost
      per case of each corpus on the routing you choose.
@@ -177,20 +201,28 @@ must-fail rejected, false rejects at most 10% on the must-pass / keep side, no E
 
 ## PHASE 2 LIVE STATE (newest first; times ET, 2026-11-12)
 
-- 2026-11-14 ~10:20 **integrator batch 78 cycle 3 answered, audited (two cycles), committed and pushed** in the commit
-  that carries this line (its hash: `git log -1 origin/pp-tests`). The key test also denies every process start; three
+- 2026-11-14 (after 10:02) **docs-only correction after the merge** (d1ccdfc7, fast-forwarded), audited (two cycles),
+  committed and pushed in the commit that carries this line (its hash and time: `git log -1 --format='%h %ci'
+  origin/pp-tests`):
+  - R-29's effect corrected: the stale-title cases were not passed; the gate rejected them on the dated sign-off;
+  - R-30 restated as a decision for the orchestrator (NUMBER and the manifest's date), not a request;
+  - the PRICE_NOW tolerance decision; BIBLE PP-E28 corrected, PP-E33 added.
+  No test changed.
+- 2026-11-14 10:02 **MERGED by the integrator at d1ccdfc7** (batch 78 closed, four cycles).
+
+- 2026-11-14 09:52 **integrator batch 78 cycle 3 answered, audited (two cycles), committed and pushed** in 12c7e48d. The key test also denies every process start; three
   side-read mutations fail it (they passed a55e4dcf's version); the evidence is in pp-tests_AUDIT_B78C3_MUTATIONS.md.
-  Merged tree: 425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression 26 PASS / 0 FAIL.
-- 2026-11-14 ~09:40 **integrator batch 78 cycle 2 answered, audited (two cycles), committed and pushed** in a55e4dcf. The key test is behavioural (a stub loader; open,
+  Merged tree: 425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression_test.sh 26 PASS / 0 FAIL.
+- 2026-11-14 09:24 **integrator batch 78 cycle 2 answered, audited (two cycles), committed and pushed** in a55e4dcf. The key test is behavioural (a stub loader; open,
   io.open and os.open denied; bytecode forced on); five scratch mutations fail it in both bytecode modes. Merged tree:
-  425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression 26 PASS / 0 FAIL. Records:
+  425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors; regression_test.sh 26 PASS / 0 FAIL. Records:
   pp-tests_AUDIT_RESPONSE.md (last section), pp-tests_AUDIT_B78C2_*.md; BIBLE PP-E32.
-- 2026-11-14 ~09:00 **integrator audit batch 78 answered, audited (two cycles), committed and pushed** in d7ed4ff8. Keys through relay.get_key; reverse lookups refused
+- 2026-11-14 08:51 **integrator audit batch 78 answered, audited (two cycles), committed and pushed** in d7ed4ff8. Keys through relay.get_key; reverse lookups refused
   by all three guards from one shared list; the runner's own refusal asserted. Merged tree: 424 tests = 381 passed, 40
   strict xfails, 3 skipped, 0 failed, 0 errors; --runxfail exactly the 40; regression_test.sh 26 PASS / 0 FAIL.
   Records: pp-tests_AUDIT_RESPONSE.md (last section), pp-tests_AUDIT_B78_*.md; BIBLE PP-E29..E31.
 
-- 2026-11-14 ~08:10 **integrator merge cycle 2 answered, audited (two cycles), committed and pushed** in 621604bb,
+- 2026-11-14 08:06 **integrator merge cycle 2 answered, audited (two cycles), committed and pushed** in 621604bb,
   after merge commit f69497b5 (the release line
   4286d879 merged in, clean). Merged tree: 421 tests = 378 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors;
   `--runxfail` exactly the 40 (pp-tests_XFAIL_EVIDENCE.md); regression_test.sh 26 PASS / 0 FAIL. Audit: cycle 1

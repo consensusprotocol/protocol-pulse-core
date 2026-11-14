@@ -532,3 +532,31 @@ How it was audited (two cycles; consensus by the session, since Anthropic and Op
     impossible.
 - Records: pp-tests_AUDIT_B78C3_*.md.
 - Spend: $0.138 (gemini-2.5-pro 2 calls $0.132; Heimdall $0.006). The ledger stands at $2.292 of $3.00.
+
+## AFTER THE MERGE (d1ccdfc7, 2026-11-14 10:02): the docs-only correction (R-29's effect, R-30, PRICE_NOW)
+
+Why: the builder (pp-selectid) fixed R-29 in 91d37100 and measured the old adapter. The two stale-title cases were NOT
+passed, as R-29 had said: the gate rejected them on the sign-off "Pulse Check for 2026-11-12.", under its own written
+NUMBER rule. The builder declined to accept the date's digits, because that loosens a production check (the
+orchestrator's ruling) and so it put the question on its STATE line 1. The integrator merged pp-tests at d1ccdfc7 and
+invited the correction on a branch of it.
+
+What changed (docs only; this branch fast-forwarded to d1ccdfc7 first):
+- REQUESTS R-29: the effect corrected; the fix recorded (on origin/pp-selectid, not yet on the release line).
+- R-30: restated as "NOT a request: a decision for the orchestrator". My first draft had asked the builder to make
+  NUMBER accept the date: withdrawn (the R-19 precedent).
+  - It records the facts: the gate is inconsistent with itself; production's sign-off has no date; 30 cases carry the
+    date, 16 must-pass and 14 must-fail by the corpus's own labels.
+  - It states both branches of the ruling with their acceptance, and the builder's interim report scoring (credit only
+    on the bad line).
+- A decision item: the PRICE_NOW tolerance, independent of R-30.
+- STATE: the merge; the exam section; commit times from git (a hand-typed "~10:20" was 09:52).
+- BIBLE PP-E28 corrected; PP-E33 added.
+
+Verification: no test changed. On d1ccdfc7, the whole wall gives 382 passed, 40 xfailed, 3 skipped, 0 failed, and
+regression_test.sh gives 26 PASS / 0 FAIL.
+
+Audit (two cycles; the consensus is the session's): cycle 1 gemini-2.5-pro 100, Heimdall qwen 95, Heimdall glm 88; cycle
+2 all three "Yes". Every finding taken was a text edit: both R-30 branches; the label source of 16 / 14; the approval
+condition; the citations; commit times. No text asks for a check to be loosened. Records: pp-tests_AUDIT_DOCSFIX_*.md.
+Spend $0.131; the ledger stands at $2.423 of $3.00.
