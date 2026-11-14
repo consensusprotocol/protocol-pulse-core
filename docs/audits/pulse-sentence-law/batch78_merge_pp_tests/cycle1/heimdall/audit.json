@@ -1,0 +1,147 @@
+{
+ "question": "Batch 78 = the integrator's MERGE AUDIT (cycle 2 of the pp-tests merge; cycle 1 was the integrator's of 2026-11-12 04:47, whose four BLOCKING findings B1-B4 are answered and VERIFIED in the code) of branch pp-tests into the release line. pp-tests is TEST CODE ONLY: tests/adversarial (an adversarial test wall, CPU only, plus phase 2's moments-first exam runner and corpora) and its own docs; nothing under pipeline/, so nothing in the render path or its services changes. The wall runs with `CUDA_VISIBLE_DEVICES= python3 -m pytest tests/adversarial`; the exam runner (moments_exam.py) is opt-in, run by hand.\nContext: the release line has law L-r (pipeline/gpu0.py): every GPU load takes a per-GPU lease and needs CUDA_VISIBLE_DEVICES to name that GPU, else gpu0.LeaseMissing; Whisper transcription is lazy and meets the lease at first use. The wall was written on an older base and failed three tests against L-r; the fix commit (PART 1) answers them: (1) the \"no module sets CUDA_VISIBLE_DEVICES unreviewed\" scan blamed the suite's own `import conftest` on pipeline/conftest.py: it now resolves each import as the interpreter does (sys.modules, else importlib.util.find_spec), with a control; the reviewed set stays {qa_gates}; (2) the Whisper test now asserts gpu0.LeaseMissing with its exact message at first use and that nothing reaches faster_whisper; (3) R-27's fake transcription failure is injected at select's own seam (_whisper_transcribe returning None), and a new PASSING test pins that select stops cleanly on a lease refusal (LeaseMissing raised, the run directory identical before and after); R-10's strict xfail now proves its defect by a LeaseMissing while the replaced hook is transcribed. PART 2 is phase 2's safety surface: the suite's conftest guards (network: DNS / connect / sendto / sendmsg blocked; child processes allowlisted), child_guard/sitecustomize.py (Python children carry the guard), moments_exam.py's network rule (no network unless PP_MOMENTS_ALLOW_NETWORK=1), and baselines/frontier_blind.py (the blind two-vendor baseline: paid API calls).\nMeasured on the merged tree by pp-tests: 378 passed, 40 strict xfails, 3 skipped, 0 failed; with --runxfail exactly those 40 fail. The integrator re-runs the wall on its own merge.\nFIND: a test that can pass for the wrong reason (vacuous, a mock below the code it claims to test, an assertion on the fixture instead of the behaviour); a guard gap that lets the wall or the exam reach the network, a GPU, a paid API or files outside its own directories without an explicit opt-in; a fix that hides a real defect of the pipeline instead of pinning it (a loosened lease, a silenced error). Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 16.6,
+   "cost": 0.0022312901,
+   "provider": "Consensus Protocol",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 36.5,
+   "cost": 0.000575794,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 19.7,
+   "cost": 0.00134416,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 52.6,
+   "cost": 0.000681194,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "high",
+   "file": "tests/adversarial/baselines/frontier_blind.py",
+   "line": 14,
+   "issue": "Hardcoded absolute path to a secrets file outside the repository/test directory, violating the guard requirement that the baseline only accesses files within its own directories without explicit opt-in.",
+   "evidence": "ENV_FILE = \"/home/ultron/protocol_pulse/.env\"",
+   "fix": "Use a relative path or an environment variable (e.g., PP_ENV_FILE) to locate the secrets file, ensuring it does not hardcode a user-specific absolute path.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "medium",
+   "file": "tests/adversarial/moments_exam.py",
+   "line": 108,
+   "issue": "The network guard `refuse_network` does not block `socket.gethostbyaddr`, leaving a potential network access gap for reverse DNS lookups in the exam runner.",
+   "evidence": "socket.getaddrinfo = socket.gethostbyname = socket.gethostbyname_ex = no_resolve",
+   "fix": "Add `socket.gethostbyaddr = no_resolve` to the list of blocked functions in `refuse_network`.",
+   "agree": [
+    "qwen27b",
+    "glm"
+   ],
+   "disagree": []
+  }
+ ],
+ "rejected_findings": [
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "tests/adversarial/baselines/frontier_blind.py",
+   "line": null,
+   "issue": "Budget guard is not atomic across processes: reserve-then-settle reads the ledger, then appends, under flock, but the settle line is written in a separate _locked() acquisition, so a parallel run of the other vendor can reserve between this call's reserve and settle; more importantly _spent() sums reserve+settle deltas, and a crashed call (BaseException before finally? no, finally covers it) \u2014 the real gap: the reserve check `spent + est > BUDGET` uses the ledger that still contains earlier unsettled reserves plus settled deltas, which is correct, but preflight() computes `need` from PER_CASE_USD while _call reserves from token estimates, so a run admitted by preflight can still exceed BUDGET mid-run and turn later cases into ERROR rows, the very truncation preflight says it avoids",
+   "evidence": "need = n * PER_CASE_USD.get(VENDOR, 0.05) * 1.25 ... if spent + need > BUDGET: raise BudgetExhausted  vs  est = (len(system) + len(user)) / 2.5 * p_in / 1e6 + cfg[\"max_out\"] * p_out / 1e6 ... if spent + est > BUDGET: raise BudgetExhausted",
+   "fix": "Derive preflight's need from the same worst-case token estimate _call uses (or have preflight reserve the whole run), so the admission control and the per-call guard cannot disagree.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "tests/adversarial/child_guard/sitecustomize.py",
+   "line": null,
+   "issue": "The child guard patches socket.socket.connect/sendto/sendmsg/connect_ex and the resolver, but unlike the parent conftest it never guards UDP-less DNS via getaddrinfo's dependence... it does cover getaddrinfo; the actual gap is that it patches the class methods unconditionally at import, yet a child that later imports a module binding socket functions at import time (the documented caveat in the parent) keeps its own bound references \u2014 the guard silently does not cover such a child, and nothing in the child detects it",
+   "evidence": "for _n in (\"connect\", \"connect_ex\", \"sendto\", \"sendmsg\":\n        setattr(socket.socket, _n, _inet(_n))\n    for _n in (\"getaddrinfo\", \"gethostbyname\", \"gethostbyname_ex\", \"gethostbyaddr\"):\n        setattr(socket, _n, _lookup(_n))",
+   "fix": "Document or assert in the child (e.g. a smoke check) that the guard is installed, and note the same import-time-binding caveat the parent conftest already documents; alternatively patch the socket module functions too.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "tests/adversarial/test_f0_cpu_guard.py",
+   "line": null,
+   "issue": "test_no_module_this_suite_imports_sets_cuda_visible_devices_unreviewed resolves imports via importlib.util.find_spec, which can import parent packages and, for a name already in sys.modules without __file__ (namespace/stub), returns None and silently drops the module from the scan \u2014 a setter in such a module escapes the 'no unreviewed CUDA setter' wall without failing",
+   "evidence": "m = sys.modules.get(name)\n    f = getattr(m, \"__file__\", None) if m is not None else None\n    if m is None:\n        spec = importlib.util.find_spec(name)\n        f = spec.origin if spec is not None else None\n    return os.path.realpath(f) if f and f.endswith(\".py\") else None",
+   "fix": "When _resolve returns None for a name the suite imported, record it in the H.control message (or fail) so a silently unscanned module is visible; only skip genuinely non-.py modules.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "medium",
+   "file": "tests/adversarial/baselines/frontier_blind.py",
+   "line": 0,
+   "issue": "The settle line's 'usd' field records the DELTA (usd - est), not the actual cost, so _spent() (which sums every line's 'usd') computes reserves + deltas = cumulative actual cost only if every reserved call settles; but a call refused with a 4xx writes settle usd = -est (0.0 - est), which is correct, while a call that raises BudgetExhausted inside _locked() before writing its reserve writes nothing \u2014 fine. The real missed defect: the finally block writes the settle line even when _call raised BudgetExhausted at the reserve stage? No \u2014 the reserve raise happens before t0/try, so no settle. Actual missed item: the settle's 'usd' for a refused 4xx call is 0.0 - est = -est, but the reserve line already recorded +est, so the ledger nets to 0 \u2014 correct. However for a NON-4xx failure (timeout) the ledger nets to est (the reservation), which is the documented intent. The genuinely missed defect: _spent() sums BOTH reserve and settle lines, but the settle line for a successful call is usd-est, so the ledger's running total during a call equals the previous actual spend + this call's reserve \u2014 correct. No defect here; instead: the 't' timestamp uses %z which yields e.g. '+0100' \u2014 cosmetic only.",
+   "evidence": "f.write(json.dumps({\"t\": time.strftime(\"%Y-%m-%dT%H:%M:%S%z\"), ...",
+   "fix": "None needed (cosmetic)."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "tests/adversarial/moments_exam.py",
+   "line": 0,
+   "issue": "moments_exam.refuse_network() replaces socket.getaddrinfo/gethostbyname/gethostbyname_ex with a no_resolve that takes *a, **k but the same function object is assigned to all three names; gethostbyname_ex returns a tuple, getaddrinfo a list \u2014 both here return None, so a gate calling them gets None rather than an exception-shaped result. This is consistent with the raise, so not a defect. The actual missed gap: refuse_network() never restores the patched functions, and moments_exam is run by hand (not under conftest), so this is by design. Instead: the exam's --jobs threading shares one _CLIENT per vendor (frontier_blind declares THREAD_SAFE=True) but the anthropic/openai SDK clients are constructed lazily inside _call under _TLOCK \u2014 however _call's reserve/settle sections and the SDK call itself are NOT under the same lock, so two threads can both pass the spent+est>BUDGET check before either writes its reserve line? No: the check and the reserve write are both inside one _locked() block. Verified: no race. Remaining missed item: preflight() is documented as 'called by moments_exam before the run' but the diff of moments_exam.py (truncated at blind()) never shows it calling preflight, so the admission control may be dead code in the runner.",
+   "evidence": "def preflight(counts): ... Called by moments_exam before the run \u2014 but no call site of preflight appears in the shown portion of moments_exam.py",
+   "fix": "Confirm (or add) the moments_exam call site for the gate module's preflight(counts); if absent, the budget admission control never runs and only the per-call guard protects the $15 budget."
+  }
+ ],
+ "total_cost": 0.004832438099999999,
+ "out_dir": "heimdall"
+}

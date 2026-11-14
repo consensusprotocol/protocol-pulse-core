@@ -1,0 +1,7 @@
+grok-4-0709: 12.5 s, vendor cost 0.0058706
+{
+  "verdict": "PASS",
+  "findings": [],
+  "confidence": 0.8
+}
+grok exit 0

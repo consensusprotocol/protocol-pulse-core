@@ -1,0 +1,16 @@
+# Heimdall audit
+
+**Question:** Batch 78 cycle 4 (VERIFICATION) = the integrator's merge audit of pp-tests (TEST CODE ONLY, tests/adversarial; nothing under pipeline/), on the fix of cycle 3's one consensus finding (commit 12c7e48d, the diff below). The finding (glm, agreed by qwen27b): the behavioural key test of tests/adversarial/test_f0_cpu_guard.py denied open / io.open / os.open during frontier_blind._key's two calls, but not process starts, so a _key that side-read the key file through a subprocess and returned the loader's value would pass. The fix: during the two calls the test also denies every process start (subprocess.Popen, through which run / check_output / call go; os.system, os.popen, posix_spawn, posix_spawnp, fork, forkpty, every exec* and spawn*), each attempt recorded as "<name>(<first arg>)" and raised as _Denied (a BaseException), all restored in a finally; a control asserts every listed starter exists. pp-tests measured three side-read mutations (a Python child without pipes, os.system("cat ..."), os.posix_spawn("/bin/cat", ...)) that PASSED the previous version and FAIL this one, the real _key passing, under bytecode on and -B; the earlier mutations still fail on their own assertions. Stated boundary: io's C-level _io.open (used by the import machinery to read the stub), references bound before the call, and ctypes are not denied; such a _key is caught only if it returns something other than the loader's value.
+FIND: a process start the list misses; a restore that can leave a starter patched after the test (a leak into other tests); a way the test can no longer fail; anything outside tests/adversarial. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0034
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- glm:F1 [low] deny() records a[0] only; a starter patched on os with no positional args (e.g. a _key calling os.fork() or os.execv(path, args) via keywords) records '<name>()' — cosmetic, not a missed starter, but the recorded evidence loses the first argument for keyword-only calls (agree: 1)
+- glm:F2 [low] the finally restores every patched name via setattr, but if the control assert (H.control(not missing, ...)) fires before the try, the patches were never applied yet `real` was already captured — no leak there; however if a future edit moves the control inside the try, a getattr failure in `real = [...]` (after the control) would leave nothing patched, so the current structure is safe; the only verifiable leak risk is that the restore loop itself cannot fail (plain setattr of previously-read values), so no leak is demonstrable from the diff (agree: 1)
+- glm:F3 [low] os.popen is listed in _OS_PROCESS_STARTERS and patched, but the comment says os.popen goes through subprocess.Popen — on POSIX os.popen is implemented via subprocess, so patching both is redundant but harmless; no starter is missed: subprocess.run/check_output/call all route through Popen, which is patched, and every os-level starter (system, popen, posix_spawn[p], fork, forkpty, exec*, spawn*) is listed (agree: 1)
+
+## Added in cross-examination (not voted on)
+- none

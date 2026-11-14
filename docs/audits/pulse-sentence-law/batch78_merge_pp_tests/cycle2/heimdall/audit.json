@@ -1,0 +1,146 @@
+{
+ "question": "Batch 78 cycle 2 = the integrator's merge audit of pp-tests (TEST CODE ONLY: tests/adversarial, nothing under pipeline/), re-examined on the fix of cycle 1's two CONSENSUS findings (commit d7ed4ff8, the diff below):\n(1) tests/adversarial/baselines/frontier_blind.py hard-coded the main tree's key-file path and parsed it. Now `_key(name)` returns the pipeline's own loader, relay.get_key(name), from the main tree's video_pipeline_v3/relay.py: loaded by file path with importlib (never sys.path.insert, because the exam process imports gate modules by name and a pipeline directory first on sys.path could shadow them), with sys.dont_write_bytecode set during that one load so no __pycache__ lands in the main tree. A new test fails if any suite file names the key file, or if `_key` calls anything but get_key; a throwaway suite file naming it makes that test fail (mutation).\n(2) tests/adversarial/moments_exam.py's refuse_network did not refuse socket.gethostbyaddr. Now the three network guards of the suite (conftest.py in the test process, child_guard/sitecustomize.py in every Python child, moments_exam.refuse_network in the exam runner) all import ONE list, child_guard/netguard_names.py (the AF_INET methods and the name lookups, gethostbyaddr and getnameinfo included); each guard keeps its own exception type. The runner's network test now requires the RUNNER's own refusal (\"NetworkRefused: moments_exam: ...\"), because its old substring \"network is disabled\" also matched the child guard's message beneath it; a new toy gate (moments_toy_gates/network_reverse.py) makes reverse lookups, and a test checks the runner refuses every call on the shared list.\nAlso in the diff (the notes): frontier_blind's preflight docstring states it is an estimate (a run it admits can still stop part-way at BudgetExhausted); the child guard documents the .pth caveat; test_f0's import resolver fails, listing them, on names with a pipeline / segment_v1 module that resolve elsewhere or to nothing.\nMeasured by pp-tests with the release line merged: 381 passed, 40 strict xfails, 3 skipped, 0 failed; the integrator re-runs the wall on its own merge.\nFIND: a key path or key content that can still be printed, logged or written to disk; a network call (forward or reverse lookup, connect, datagram send) that the runner, the test process or a Python child can still make without the explicit opt-in PP_MOMENTS_ALLOW_NETWORK=1; a test that passes for the wrong reason (it can never fail, or asserts on the fixture instead of the behaviour); a change to anything outside tests/adversarial. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.",
+ "files": [],
+ "panel": {
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 15.8,
+   "cost": 0.001072228,
+   "provider": "ImpCC",
+   "verdict": "FAIL",
+   "n_findings": 2,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 33.4,
+   "cost": 0.000392646,
+   "provider": "Consensus Protocol",
+   "verdict": "PASS",
+   "n_findings": 3,
+   "parse_ok": true
+  }
+ ],
+ "cycle2": [
+  {
+   "name": "qwen27b",
+   "status": 200,
+   "latency_s": 13.9,
+   "cost": 0.0009569235,
+   "parse_ok": true
+  },
+  {
+   "name": "glm",
+   "status": 200,
+   "latency_s": 89.6,
+   "cost": 0.000522257,
+   "parse_ok": true
+  }
+ ],
+ "consensus_findings": [],
+ "rejected_findings": [
+  {
+   "ref": "qwen27b:F1",
+   "severity": "critical",
+   "file": "tests/adversarial/baselines/frontier_blind.py",
+   "line": 24,
+   "issue": "The code still hard-codes the absolute path to the main tree's key loader file (`/home/ultron/protocol_pulse/video_pipeline_v3/relay.py`). The audit requirement was to remove hard-coded key-file paths and rely on the pipeline's loader. While `relay.py` is a loader, hard-coding its absolute path in a test file violates the 'no key-file path parsed in a test directory' constraint and makes the test non-portable. More critically, the new test `test_keys_are_read_only_by_name_through_the_pipelines_loader` in `test_f0_cpu_guard.py` asserts `FB.KEY_LOADER == \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\"`. This creates a circular dependency where the test passes only because the code hard-codes the exact string the test expects, rather than verifying the behavior of using a dynamic loader. If the path changes, the test fails, but the intent was to avoid hard-coding paths entirely.",
+   "evidence": "KEY_LOADER = \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\"",
+   "fix": "Remove the hard-coded `KEY_LOADER` path. Instead, resolve the path to `relay.py` dynamically relative to the repository root (e.g., `os.path.join(REPO, \"video_pipeline_v3\", \"relay.py\")`) or use an environment variable. Update the test to verify that `_key` uses `importlib` to load a module from a path that exists and contains `get_key`, rather than asserting a specific hard-coded string.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "qwen27b:F2",
+   "severity": "high",
+   "file": "tests/adversarial/test_f0_cpu_guard.py",
+   "line": 186,
+   "issue": "The test `test_keys_are_read_only_by_name_through_the_pipelines_loader` scans for string constants ending in `.env` or containing `/.env`. However, the new code in `frontier_blind.py` uses `KEY_LOADER` which ends in `.py`, not `.env`. The test's assertion `assert FB.KEY_LOADER == \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\"` is a static check that does not verify the *behavior* of `_key` (i.e., that it actually calls `get_key` and doesn't parse a file). The check `\".get_key\" in src and \"open(\" not in src` is fragile: if `relay.py` itself uses `open()` (which it likely does to read the key file), the test doesn't catch that `frontier_blind` is indirectly allowing file access. More importantly, the test passes for the wrong reason: it asserts the source code contains `.get_key` and does not contain `open(`, but `frontier_blind._key` does not call `open(` directly; it calls `spec.loader.exec_module(mod)`. The absence of `open(` in `frontier_blind.py` is trivially true and doesn't prove the key isn't read from a file by the loaded module. The test should verify that `_key` returns a value from the environment or a known source, not just that the source code lacks `open(`.",
+   "evidence": "assert \".get_key\" in src and \"open(\" not in src, \"frontier_blind._key must only call relay.get_key\"",
+   "fix": "Replace the static source code check with a behavioral test. Mock `relay.get_key` to return a known value and assert that `frontier_blind._key` returns that value. Also, verify that `frontier_blind` does not open any files by mocking `builtins.open` and asserting it is not called during `_key` execution (excluding the `importlib` load which is internal).",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  },
+  {
+   "ref": "glm:F1",
+   "severity": "medium",
+   "file": "tests/adversarial/test_f0_cpu_guard.py",
+   "line": 178,
+   "issue": "The new key-file test asserts on the fixture (hard-coded absolute path) rather than the behaviour, and its 'no key file named' scan is self-fulfilling: the only key path in the suite is spelled apart ('.' + 'env') so the scan can never see it, and the assertion FB.KEY_LOADER == '/home/ultron/protocol_pulse/video_pipeline_v3/relay.py' just re-states the constant it claims to verify \u2014 the test can only fail if the constant is edited, not if the loader stops being the pipeline's (e.g. a copied relay.py next to the test would still pass, since only os.path.isfile is checked, not that it is the main tree's copy).",
+   "evidence": "assert FB.KEY_LOADER == \"/home/ultron/protocol_pulse/video_pipeline_v3/relay.py\" and os.path.isfile(FB.KEY_LOADER)  \u2014  key_file = \".\" + \"env\"                               # spelled apart, so this file names none either",
+   "fix": "Derive the expected loader path from the repo root (os.path.join(H.REPO, 'video_pipeline_v3', 'relay.py')) and additionally assert the loaded module's __file__ lives under the main tree, so a stray copy beside the tests fails.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F2",
+   "severity": "low",
+   "file": "tests/adversarial/test_moments_gates.py",
+   "line": 470,
+   "issue": "test_the_runner_refuses_every_call_of_the_suites_list can pass for the wrong reason: it builds `expected` from a hard-coded tuple ('pinned here, not read from the list') while the probe reads the names from netguard_names. If a name is later added to the shared list, the probe prints it, names gains an extra element, and the equality assert fails \u2014 good \u2014 but if a name is REMOVED from the list, the probe prints fewer names and the test still passes as long as the remaining ones match, so the 'every call of the list' property is only half-pinned; the len(names) < 9 control also silently passes a 9-name list that dropped, say, getnameinfo and duplicated another.",
+   "evidence": "expected = (\"connect\", \"connect_ex\", \"sendto\", \"sendmsg\",                     # pinned here, not read from the list\n                \"getaddrinfo\", \"gethostbyname\", \"gethostbyname_ex\", \"gethostbyaddr\", \"getnameinfo\")\n    assert names == [f\"_exam_no_{n}\" for n in expected], names",
+   "fix": "Also assert set(names) == {f'_exam_no_{n}' for n in expected} via a length check (len(names) == 9) before the ordered equality, so a removed or duplicated list entry fails the test.",
+   "agree": [
+    "glm"
+   ],
+   "disagree": [
+    "qwen27b"
+   ]
+  },
+  {
+   "ref": "glm:F3",
+   "severity": "low",
+   "file": "tests/adversarial/moments_toy_gates/network_reverse.py",
+   "line": 8,
+   "issue": "The toy gate's module-level _calls = [0] counter makes the gethostbyaddr/getnameinfo alternation depend on import order and case count, and the test's coverage assertion only requires BOTH names to appear somewhere in the rows; with 33 rows it holds, but if the corpus shrinks to an odd count the last case's call is deterministic yet the test's set-equality (== {\"gethostbyaddr\", \"getnameinfo\"}) would fail for a reason unrelated to the guard (a fixture/corpus-size coupling, not the behaviour under test).",
+   "evidence": "_calls = [0]  ...  if _calls[0] % 2:  \u2014  assert {n for n in (\"gethostbyaddr\", \"getnameinfo\") if any(f\"({n} of \" in r[\"why\"] for r in rows)} == \\\n            {\"gethostbyaddr\", \"getnameinfo\"}, (len(rows), [r[\"why\"][:120] for r in rows[:4]])",
+   "fix": "Make the alternation depend on the case (e.g. hash of the case id) or have the gate attempt BOTH lookups every case, so the coverage assertion holds for any corpus size >= 1.",
+   "agree": [],
+   "disagree": [
+    "qwen27b",
+    "glm"
+   ]
+  }
+ ],
+ "missed_in_cycle2_unvoted": [
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "tests/adversarial/moments_exam.py",
+   "line": 95,
+   "issue": "refuse_network() loads netguard_names via _netguard_names() on every call, and the runner's no_inet wrappers capture `real = getattr(socket.socket, name)` at patch time; if refuse_network() is called twice (e.g. the runner retries, or a gate module calls it), the second call's 'real' is the FIRST wrapper, not the true socket method \u2014 harmless today (single call) but the wrappers are not idempotent, unlike the child guard's setattr-over-anything design the test docstring explicitly relies on ('refuse_network() sets its wrappers over the child guard's unconditionally').",
+   "evidence": "def no_inet(name): real = getattr(socket.socket, name) \u2014 captured at each refuse_network() call, so a second call chains wrappers; the test_moments_gates.py docstring says 'It also holds only because refuse_network() sets its wrappers over the child guard's unconditionally', implying exactly one overwrite is expected.",
+   "fix": "Capture the real methods once at module import (or guard with a module-level _INSTALLED flag) so refuse_network() is idempotent, or have no_inet skip wrapping if getattr(socket.socket, name).__name__.startswith('_exam_no_')."
+  },
+  {
+   "by": "glm",
+   "severity": "low",
+   "file": "tests/adversarial/test_f0_cpu_guard.py",
+   "line": 186,
+   "issue": "The key-file scan walks H.HERE including baselines/SPEND.jsonl-adjacent .py files but excludes only __pycache__; it does not exclude the test file's own compiled constants, yet more importantly the scan's key_file = '.' + 'env' check (endswith or '/'+key_file in value) misses a key path written WITHOUT a .env suffix, e.g. a bare '/home/ultron/protocol_pulse/.env' spelled as a single constant DOES end in '.env' and is caught \u2014 but a key referenced as os.environ.get('PP_ENV_FILE') or via a variable holding the path would evade the scan entirely, so 'no key file named' is only proven for string-constant paths, which the docstring does say ('no string constant ends in...') \u2014 the residual gap is that a suite file could read the key file via a non-constant path and the test still passes.",
+   "evidence": "node.value.endswith(key_file) or '/' + key_file in node.value \u2014 only ast.Constant string nodes are checked; any dynamically built path (os.path.join(REPO, '.env')) evades the scan while the test asserts named == [].",
+   "fix": "Also treat ast.BinOp/ast.Join of constant strings (or simply also scan for the 'video_pipeline_v3' + 'relay' literals) \u2014 or, cheaper, note the limitation in the docstring, since the primary guard (FB._key must call .get_key) already covers the one file that reads keys."
+  }
+ ],
+ "total_cost": 0.0029440545,
+ "out_dir": "heimdall"
+}

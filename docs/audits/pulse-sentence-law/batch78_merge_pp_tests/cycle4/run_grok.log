@@ -1,0 +1,26 @@
+grok-4-0709: 21.9 s, vendor cost 0.00713685
+{
+  "verdict": "FAIL",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "file": "tests/adversarial/test_f0_cpu_guard.py",
+      "line": 265,
+      "issue": "restore loop in finally can leave later starters patched on setattr error (leak)",
+      "evidence": "for m, n, v in real:\n            setattr(m, n, v)",
+      "fix": "restore in reverse order with try/except per entry"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "file": "tests/adversarial/test_f0_cpu_guard.py",
+      "line": 230,
+      "issue": "list misses os.fork1 (POSIX process start)",
+      "evidence": "_OS_PROCESS_STARTERS = (\"system\", \"popen\", \"posix_spawn\", ... \"fork\", \"forkpty\",",
+      "fix": "add \"fork1\" to tuple"
+    }
+  ],
+  "confidence": 0.7
+}
+grok exit 0
