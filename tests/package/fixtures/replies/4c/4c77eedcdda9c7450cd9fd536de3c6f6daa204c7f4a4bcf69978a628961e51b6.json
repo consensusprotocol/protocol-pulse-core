@@ -1,0 +1,254 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fb50432f93773b786abd13f34fe8ef486c04d70590f16afa4f7ba7e70a39ee5e",
+ "result": {
+  "text": "But here's what they don't want you to know about crypto. Let me show you. Buying crypto today at the price of around 67, $68,000 is like buying Bitcoin over five years ago, but completely de-risked. So again",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.66,
+    "end": 16.98,
+    "text": "But here's what they don't want you to know about crypto. Let me show you. Buying crypto today at the price of around 67, $68,000 is like buying Bitcoin over five years ago, but completely de-risked. So again"
+   }
+  ],
+  "words": [
+   {
+    "text": "But",
+    "start": 0.66,
+    "end": 0.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here's",
+    "start": 0.84,
+    "end": 1.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.1,
+    "end": 1.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 1.22,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 1.38,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "want",
+    "start": 1.58,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 1.78,
+    "end": 1.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 1.84,
+    "end": 1.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 1.92,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 2.06,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto.",
+    "start": 2.28,
+    "end": 2.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Let",
+    "start": 3.12,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 3.22,
+    "end": 3.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show",
+    "start": 3.32,
+    "end": 3.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you.",
+    "start": 3.54,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Buying",
+    "start": 4.019,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "crypto",
+    "start": 4.52,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 6.02,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 6.8,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 6.9,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price",
+    "start": 7.02,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.3,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "around",
+    "start": 7.38,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "67,",
+    "start": 7.88,
+    "end": 8.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "$68,000",
+    "start": 8.34,
+    "end": 9.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 10.42,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.68,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buying",
+    "start": 11.0,
+    "end": 11.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 11.3,
+    "end": 11.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 12.32,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "five",
+    "start": 12.8,
+    "end": 13.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "years",
+    "start": 13.32,
+    "end": 13.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ago,",
+    "start": 13.64,
+    "end": 13.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 14.32,
+    "end": 14.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "completely",
+    "start": 14.5,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "de-risked.",
+    "start": 15.28,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.56,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "again",
+    "start": 16.7,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.36
+ },
+ "usd": 0.003472,
+ "seconds": 1.02,
+ "recorded_at": "2026-11-14T01:13:58Z"
+}

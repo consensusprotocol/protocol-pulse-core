@@ -1,4 +1,43 @@
 {
+ "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_8f86c1b9387621f6.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_8f86c1b9387621f6.jpg",
+   "sha256": "8f86c1b9387621f6bd552aeae2a2c0818aff8949dc8eaeadca1bc37d04ab5284",
+   "times": [
+    153.25,
+    155.25,
+    157.25,
+    159.25,
+    161.25,
+    163.25,
+    165.25,
+    165.84
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaking man appears live in the studio; no still, photo, or graphic of another person is shown, and the words make no negative claim about a person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2752,
+   "out": 1285,
+   "usd_reported": 0.011486
+  },
+  "version": "visual-1"
+ },
  "82473bb0964f115fbdda:216.054-228.674:visual-1:67a8dd1749c407cd": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],
@@ -237,6 +276,45 @@
    "in": 2737,
    "out": 4385,
    "usd_reported": 0.030056
+  },
+  "version": "visual-1"
+ },
+ "e05b34a672b73f3334ea:3475.260-3494.260:visual-1:e7ce570e2457dcb3": {
+  "backend": "xai_vision:grok-4.7",
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_5bd671594db22d6c.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_5bd671594db22d6c.jpg",
+   "sha256": "5bd671594db22d6c839675beeee91e1841f0bc03ac6b67bed9204c95ac61b1ca",
+   "times": [
+    3475.26,
+    3477.97,
+    3480.67,
+    3483.38,
+    3486.09,
+    3488.8,
+    3491.5,
+    3494.21
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears live on camera; no still, photo, or graphic of another person is shown, and the words make no negative claim.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2783,
+   "out": 611,
+   "usd_reported": 0.007504
   },
   "version": "visual-1"
  },

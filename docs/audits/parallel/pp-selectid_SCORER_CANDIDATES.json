@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T00:38:35+00:00",
- "build": "ledger_20261114_003823",
+ "generated_at": "2026-11-14T01:13:06+00:00",
+ "build": "ledger_20261114_011253",
  "kind": "moments",
  "candidates": [
   {
@@ -103,6 +103,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "72e9a3529c27be3eb69d",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 11.4,
+   "text": "So in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
+   "text_sha256": "040e83c0beaf6b43f2fb289d71c31715796be0638468ff393d71e5af716bebe1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7f2bf26b73cabe67ba12",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -166,6 +175,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "c0b10dbdc0b9dbadfac2",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 9.28,
+   "text": "But understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
+   "text_sha256": "cf51bb308c9b62bf39178763110899ac82a66c9d7fb87db8e48dc54f834425f2",
+   "trimmed_leading": null
+  },
+  {
    "pid": "fbe26a2503b54cf9e9dc",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -208,6 +226,15 @@
    "duration": 7.86,
    "text": "And why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
    "text_sha256": "37c28248637ee8060b66a6fb3189623d9c3e78bfc6d47c3618e01d26e90a412d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "6251a82fa63ed051ea3f",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 5.3,
+   "text": "And by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
+   "text_sha256": "8a225af0bb8646228b7584131490dfe9be24de4e3d3b4a4b4c45f5ff313d0278",
    "trimmed_leading": null
   },
   {
@@ -298,6 +325,15 @@
    "duration": 11.87,
    "text": "And in 20 or 30 years time, we will have companies, I think, that started as real estate companies, but they became Bitcoin companies. And then you have builders that use Bitcoin as a balance sheet asset.",
    "text_sha256": "341fa8140c3d52004db86ac480740e97e906827627a0f9234a90c9b0ab53000b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b05aed91079ce64702e4",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 16.76,
+   "text": "And investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
+   "text_sha256": "214b081a061f83e64bc110ef0f681d8ea7f245cb5e7de5fd830a8927301ab80b",
    "trimmed_leading": null
   },
   {
@@ -481,6 +517,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "72e9a3529c27be3eb69d~trim",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 11.28,
+   "text": "in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
+   "text_sha256": "8d1ecc96f033866ed3f03c70fa49647ad882142958df1024864c312826471b35",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "7f2bf26b73cabe67ba12~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -535,6 +580,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "c0b10dbdc0b9dbadfac2~trim",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 9.26,
+   "text": "understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
+   "text_sha256": "873ebe6552da466f8932df2847771fa3f2bf97769aa49aa4baf5fe2573c8aec0",
+   "trimmed_leading": "But"
+  },
+  {
    "pid": "fbe26a2503b54cf9e9dc~trim",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -577,6 +631,15 @@
    "duration": 7.8,
    "text": "why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
    "text_sha256": "ce6f945927af4f54d32a0494c9139cb4e9e3c5cd1d4d0e018636ea92e217eaab",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "6251a82fa63ed051ea3f~trim",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 5.28,
+   "text": "by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
+   "text_sha256": "e9fd101f3240d7b54f17fee6fd4a56d1d218a874f6b816ad94df82a80f803b8f",
    "trimmed_leading": "And"
   },
   {
@@ -667,6 +730,15 @@
    "duration": 11.75,
    "text": "in 20 or 30 years time, we will have companies, I think, that started as real estate companies, but they became Bitcoin companies. And then you have builders that use Bitcoin as a balance sheet asset.",
    "text_sha256": "c8d767937ebc892e968095862397e408f4a81900f6b2b6541980fa7eedc4e4ae",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b05aed91079ce64702e4~trim",
+   "video_id": "WJL2Ta9ZNDg",
+   "channel": "Altcoin Daily",
+   "duration": 16.74,
+   "text": "investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
+   "text_sha256": "af9ab03578fa34f8096fc05df26b472762bd7ca9c0ce15738e082d0547401726",
    "trimmed_leading": "And"
   },
   {

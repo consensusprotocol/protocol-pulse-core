@@ -1,4 +1,4 @@
-20:12 ET: RULING 82 IS COMMITTED (audit 2005: 2 cycles; no P0, and no P1 from grok or glm in cycle 2). The second-vendor step A, and the off-writer re-screen, now fail over deepseek -> glm-5.3-flash -> qwen3.8-27b. Each call has 120 s, batches are 2 clips, and an answer out of contract moves on too. All three failing is no verdict (never cached); the build log names it, and I will say it here in capitals. THE BUILD STARTS NOW. The places where one Heimdall model is the only route are below, one line each. THE STEPS STILL LEFT AT ONE HEIMDALL MODEL, WHEN THE WRITER IS xAI OR xAI IS DOWN: the fidelity verdict, coherence / clips-alone / hook ratings, step B, and the speaker and exclusion verdicts. QUESTION: DO YOU WANT THE SAME CHAIN THERE? The 19:4x build (before ruling 82) died the same way as 19:23: 221 inside 12 h, 34 cleared, 20 cuttable, 1 hook >= 4. COST NOTE: a call abandoned at 120 s books its upper bound (about $0.24) on ruling 48's ledger. SPEND (ruling 48): $8.44 of $12.00.
+20:39 ET: SPEND, YOUR 20:41 QUESTION: OF THE 20:12 BUILD'S $2.99, $2.90 WAS THE UPPER BOUNDS OF 11 CALLS ABANDONED AT 120 S (all step A's second vendor: deepseek 5, glm 5, qwen 1; about $0.26 each) AND $0.09 WAS REAL ANSWERS (17 calls: $0.08 vendor-reported, $0.01 transcription estimate); under ruling 83 (a) those 11 would have booked $0.26. THE CANDIDATE HAS A CLOCK: angle 1's line-up from the 20:12 build (Simply Bitcoin L6H7538ogGs -> Breedlove uaHNzi-Kgr8 -> Simply Bitcoin NtaQGnfWRR8, 40.4 s; the clips alone passed; ruling 72 held only Breedlove, on um / uh / so-or) is open in the registry and goes first, but Breedlove's video was published 15:00:33 UTC, so under ruling 76 it EXPIRES AT 22:00:33 ET and must be rendered before then; I have asked the integrator for ruling 84's rules string the moment it is merged. IN PROGRESS, one audited change: ruling 83 (an abandoned call booked at its prompt tokens, a late vendor figure replacing it; cap $20, stop at $16), ruling 84 on this side (fillers um / uh / er / ah / mm / hmm join attest.carry_class, which the integrator's pre-check copies; this side would otherwise hold the adopted text itself), and the integrator's new rules string. Then the candidate at once, then the full build. The 20:33 chain on the judges is the next change (not needed for this candidate: its writer is deepseek, so its judges are xAI). RULING 76 (d) at 20:12: 235 moments inside 12 h, 37 cleared, 22 cuttable, 1 hook >= 4. No build has run since 20:29. SPEND (ruling 48): $11.43 of $20.00 (ruling 83; the code holds $12 / $10 until this commit).
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -36,6 +36,30 @@
 - Title: "A maturing asset outlasts the tech trade"
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
+
+
+## 20:39 ET: the 20:12 build (ledger_20261114_011253, code f90536fd): no package; where the $2.99 went
+
+- Angle 1, line-up 1 (3 clips, 40.4 s): Simply Bitcoin L6H7538ogGs (hook) -> Robert Breedlove uaHNzi-Kgr8 -> Simply Bitcoin NtaQGnfWRR8.
+  - The clips alone: PASS {hook 4, clip_01 4, clip_02 4}, flagged hook -> clip_01.
+  - Ruling 72's pre-check: L6H7538ogGs pass, uaHNzi-Kgr8 HOLD, NtaQGnfWRR8 pass. The hold: "the second recogniser reads the span differently beyond the speaker's own repetitions and function words at [['', 'um'], ['', 'uh'], ['so', 'or']]" (lock: 'So over time, I came to th...').
+  - The angle was re-lined and formed no other line-up.
+  - The line-up is open in the registry (f063cce3e0c86a774f63 + 6058ee583d6fb7dce57c + e05b34a672b73f3334ea).
+  - Its clips' publish times: L6H7538ogGs 23:20:40 UTC (expires 06:20 ET Nov 14), uaHNzi-Kgr8 15:00:33 UTC (EXPIRES 22:00:33 ET), NtaQGnfWRR8 17:40:36 UTC (expires 00:40 ET Nov 14).
+- Angle 2, line-up 1 (39.6 s): the clips alone FAIL {hook 4, clip_01 4, clip_02 3}, flagged clip_01 -> clip_02.
+- Angle 3, line-up 1 (37.4 s): the clips alone FAIL {hook 4, clip_01 1, clip_02 1}.
+- Ruling 82's chain: on step A's second vendor, deepseek missed 120 s on 5 calls (01:16:17-18 UTC), glm-5.3-flash on 5 (01:18:18-19), qwen3.8-27b on 1 (01:20:18); qwen answered 2. Evidence: pp-selectid_HEIMDALL_DEADLINES.jsonl.
+- The $2.99, from SPEND_LY.json against its committed copy (28 calls):
+  - $2.9003: the booked upper bounds of the 11 abandoned calls (each: one token per prompt character + 200 at $3/1M, plus the 16,000-token output floor at $15/1M).
+  - $0.0794 vendor-reported, 13 answered calls: xAI grok-4.20 6 ($0.0517), deepseek 3 ($0.0037), qwen 2 ($0.0050), xAI vision 2 ($0.0190).
+  - $0.0117 estimated, 4 transcriptions (ElevenLabs reports no figure).
+  - Under ruling 83 (a), the 11 abandoned calls would have booked $0.2603 (prompt tokens counted one per character, at the $3/1M input rate).
+- RULING 76 (d): 235 moments inside 12 h, 37 cleared, 22 cuttable, 1 hook >= 4.
+- The 20:12 build ended at 20:29:43 at $11.43, past the old $10 stop. No build started after it. Ruling 83 (20:33) moved the stop to $16.
+
+Line 1 as it stood at 20:12:
+
+> 20:12 ET: RULING 82 IS COMMITTED (audit 2005: 2 cycles; no P0, and no P1 from grok or glm in cycle 2). The second-vendor step A, and the off-writer re-screen, now fail over deepseek -> glm-5.3-flash -> qwen3.8-27b. Each call has 120 s, batches are 2 clips, and an answer out of contract moves on too. All three failing is no verdict (never cached); the build log names it, and I will say it here in capitals. THE BUILD STARTS NOW. The places where one Heimdall model is the only route are below, one line each. THE STEPS STILL LEFT AT ONE HEIMDALL MODEL, WHEN THE WRITER IS xAI OR xAI IS DOWN: the fidelity verdict, coherence / clips-alone / hook ratings, step B, and the speaker and exclusion verdicts. QUESTION: DO YOU WANT THE SAME CHAIN THERE? The 19:4x build (before ruling 82) died the same way as 19:23: 221 inside 12 h, 34 cleared, 20 cuttable, 1 hook >= 4. COST NOTE: a call abandoned at 120 s books its upper bound (about $0.24) on ruling 48's ledger. SPEND (ruling 48): $8.44 of $12.00.
 
 
 ## 20:12 ET: ruling 82: where one Heimdall model was the only route (one line each)

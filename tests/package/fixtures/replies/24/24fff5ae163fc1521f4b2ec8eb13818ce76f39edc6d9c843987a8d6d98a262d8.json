@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "cec4da42398213fa093174a494afe415727eece40db8b426394f7ec951cb9589",
+ "result": {
+  "text": "It seem like a lot of the things we've been saying this year are holding up. There is some kind of force out there that does not wanna see Bitcoin go up. So",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 11.04,
+    "text": "It seem like a lot of the things we've been saying this year are holding up. There is some kind of force out there that does not wanna see Bitcoin go up. So"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.0,
+    "end": 0.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "seem",
+    "start": 0.04,
+    "end": 0.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 0.28,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 0.52,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 0.6,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 0.76,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 0.82,
+    "end": 0.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "things",
+    "start": 0.92,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we've",
+    "start": 1.14,
+    "end": 1.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 1.26,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying",
+    "start": 1.46,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 1.78,
+    "end": 1.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 2.04,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 2.36,
+    "end": 2.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holding",
+    "start": 2.54,
+    "end": 2.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 2.94,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There",
+    "start": 4.26,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.54,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "some",
+    "start": 4.8,
+    "end": 5.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 5.38,
+    "end": 5.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.6,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "force",
+    "start": 5.74,
+    "end": 6.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 6.12,
+    "end": 6.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 6.32,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.52,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 6.66,
+    "end": 6.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 6.86,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "wanna",
+    "start": 7.12,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 7.38,
+    "end": 7.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 7.62,
+    "end": 8.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 9.14,
+    "end": 9.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up.",
+    "start": 9.4,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.84,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 11.18
+ },
+ "usd": 0.002236,
+ "seconds": 0.56,
+ "recorded_at": "2026-11-14T01:14:03Z"
+}

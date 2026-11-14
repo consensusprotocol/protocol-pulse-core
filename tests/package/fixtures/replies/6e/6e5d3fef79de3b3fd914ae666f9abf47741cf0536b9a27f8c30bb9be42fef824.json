@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "5a85322c296bbd907df060ba393fe04d120c75580a6e21ef949d81bfb965c1cf",
+ "result": {
+  "text": "To, uh, build a resilient portfolio. Mm-hmm. So within the real estate portfolio, Bitcoin can act as a stabilizing force despite its volatility because it can protect certain l- operational layers against the erosion of purchasing power. Mm-hmm. Step number one",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.48,
+    "end": 3.52,
+    "text": "To, uh, build a resilient portfolio."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.56,
+    "end": 3.74,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 4.44,
+    "end": 15.88,
+    "text": "So within the real estate portfolio, Bitcoin can act as a stabilizing force despite its volatility because it can protect certain l- operational layers against the erosion of purchasing power."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 15.9,
+    "end": 16.4,
+    "text": "Mm-hmm."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 16.46,
+    "end": 17.22,
+    "text": "Step number one"
+   }
+  ],
+  "words": [
+   {
+    "text": "To,",
+    "start": 0.48,
+    "end": 0.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 1.08,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "build",
+    "start": 1.44,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.74,
+    "end": 2.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "resilient",
+    "start": 2.18,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio.",
+    "start": 2.9,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 3.56,
+    "end": 3.74,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 4.44,
+    "end": 4.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "within",
+    "start": 4.62,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.02,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 5.12,
+    "end": 5.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "estate",
+    "start": 5.26,
+    "end": 5.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "portfolio,",
+    "start": 5.52,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.02,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 6.54,
+    "end": 6.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "act",
+    "start": 6.76,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.96,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.08,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stabilizing",
+    "start": 7.2,
+    "end": 7.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "force",
+    "start": 7.88,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "despite",
+    "start": 8.62,
+    "end": 9.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "its",
+    "start": 9.06,
+    "end": 9.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "volatility",
+    "start": 9.2,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 10.36,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 10.72,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 10.84,
+    "end": 10.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "protect",
+    "start": 11.02,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "certain",
+    "start": 11.74,
+    "end": 12.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "l-",
+    "start": 12.5,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "operational",
+    "start": 12.6,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "layers",
+    "start": 13.18,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "against",
+    "start": 13.56,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.02,
+    "end": 14.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "erosion",
+    "start": 14.14,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 14.96,
+    "end": 15.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purchasing",
+    "start": 15.08,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "power.",
+    "start": 15.64,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Mm-hmm.",
+    "start": 15.9,
+    "end": 16.4,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Step",
+    "start": 16.46,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "number",
+    "start": 16.7,
+    "end": 16.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 17.06,
+    "end": 17.22,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.36
+ },
+ "usd": 0.003472,
+ "seconds": 0.68,
+ "recorded_at": "2026-11-14T01:14:08Z"
+}

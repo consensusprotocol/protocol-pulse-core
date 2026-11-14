@@ -1,0 +1,19 @@
+{
+ "role": "visual_check",
+ "backend": "xai_vision:grok-4.7",
+ "model": "grok-4.7",
+ "vendor": "xai_vision",
+ "seed": 7,
+ "max_tokens": 1500,
+ "system": null,
+ "prompt": "You check what a VIEWER SEES in one clip of another channel's video, before it is cut into ours.\nThe image is a contact sheet of 8 frames of the clip, left to right and top to bottom, each labelled with its time in\nthe source video (seconds). The clip's words, as spoken:\n\"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\n\nAnswer three questions from the frames only:\n1. third_person: is a person who is NOT the one speaking shown as a STILL, a PHOTO or a GRAPHIC (not live video of a\n   person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,\n   a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only\n   text on the screen names a person.\n2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken\n   words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.\n3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.\n\nReturn ONLY this JSON object:\n{\"third_person\": {\"shown\": true or false, \"how\": \"still|photo|graphic|none\", \"words_negative\": true or false,\n  \"name_on_screen\": \"<the on-screen text naming them> or null\", \"finding\": \"<one sentence>\"},\n \"on_screen_text\": [{\"text\": \"...\", \"asserts_beyond_words\": true or false, \"why\": \"...\"}],\n \"lower_third\": {\"name\": \"<the name on the strap> or null\", \"text\": \"<the strap's full text> or null\"}}\n[image sha256=46c560ae84b5e203504192b02c5c33f6f5a78a2c248ad56167df9b6993eab8c8]",
+ "text": "{\"third_person\": {\"shown\": false, \"how\": \"none\", \"words_negative\": false, \"name_on_screen\": null, \"finding\": \"Only the speaker appears live on camera; no still, photo, or graphic of another person is shown, and the words make no negative claim.\"}, \"on_screen_text\": [], \"lower_third\": {\"name\": null, \"text\": null}}",
+ "usage": {
+  "in": 2783,
+  "out": 611,
+  "usd_reported": 0.007504
+ },
+ "usd": 0.02919,
+ "seconds": 8.32,
+ "recorded_at": "2026-11-14T01:25:42Z"
+}

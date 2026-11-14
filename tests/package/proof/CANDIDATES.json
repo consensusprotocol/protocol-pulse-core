@@ -43,7 +43,8 @@
   "tests/package/proof/ledger_20261113_215708",
   "tests/package/proof/ledger_20261113_232949",
   "tests/package/proof/ledger_20261114_002300",
-  "tests/package/proof/ledger_20261114_003823"
+  "tests/package/proof/ledger_20261114_003823",
+  "tests/package/proof/ledger_20261114_011253"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -230,6 +231,20 @@
      "why": "packaged by the build that passed it"
     }
    ]
+  },
+  "f063cce3e0c86a774f63+6058ee583d6fb7dce57c+e05b34a672b73f3334ea": {
+   "lineup": [
+    "f063cce3e0c86a774f63",
+    "6058ee583d6fb7dce57c",
+    "e05b34a672b73f3334ea"
+   ],
+   "source": "tests/package/proof/ledger_20261114_011253",
+   "index": 0,
+   "found_at": "2026-11-14T01:12:53.534569+00:00",
+   "state": "open",
+   "until": null,
+   "fresh_used": false,
+   "history": []
   }
  }
 }
