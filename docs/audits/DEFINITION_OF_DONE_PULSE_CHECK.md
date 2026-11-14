@@ -6,6 +6,24 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:01 CANON FIX READY, NOT LIVE (branch canon-401k, 373d0fed; audits batch 79 x2, both clean on qwen27b, glm and Grok). It waits for the builder's matching decoder update, so the pre-check's sha moves on both sides at once.
+- THE FIX (law L-k): _PLANS = ("401k", "403b", "457b").
+  - A plan name, or its split form '401', 'k' (from "401(k)"), is one token spanning its words, never the number.
+  - With a '$' owed it stays an amount: "$401k" = 401000 dollars.
+  - "40k", "74k" and "401 kilos" are unchanged. "401k" vs "401" (the 13:54 hold) still differs, so that hold is unaffected.
+- TESTS: test_canon TestRetirementPlans (5).
+  - On the old file 3 fail (the defect: 401k == 401,000; the two spellings differ; the split span) and 2 pass (the guards).
+  - test_canon 23 passed.
+  - Every canon-importing suite passes in the worktree. test_g3b_majority's one failure is gpu0.LeaseMissing for whisper:medium under CUDA_VISIBLE_DEVICES='' (main fails 4 the same way); it is re-run on GPU0 against the staged merge.
+- PROTECTED REFERENCES: the only plan names are a speaker-attribution line in the published first pass's PIN (segments[0].speaker.people[*].line, not an approved text or lock) and a v2f source transcript. pipeline/regression.sh on the staged merge is the proof.
+- THE SHA: decoder_sha moves from c705b20ed800 to d3cf295ee5f91b5e4185426090085c40a90f3e53452342a2483d223f7f455f76. The scorer and judge shas do not move.
+  - The builder's lock_precheck.py:45 pins DECODER; until it is updated, its pre-checks would never read results written under the new sha (each would wait 1200 s and fail closed).
+  - LANDING, agreed with the builder:
+    1. it audits and commits DECODER plus its byte-identical canon copy and says READY, with no build running;
+    2. the integrator stages, runs both regressions, commits and pushes;
+    3. the builder pushes right after.
+  - A pin that seals first renders on c705b20ed800, and the merge follows the render.
+
 ## 13:54 PRE-CHECK HOLD ON "401k" STANDS (the builder's only spotlight finalist, Blockware Solutions 7BqLu-wzbU0 0.000-22.940, request pp-selectid.ledger_20261114_183413.1). Lawful under rulings 72 / 84 and 17 / L-v 2; QUESTION FOR THE ORCHESTRATOR below. A separate canon defect was found: "401k" == "401,000".
 - THE HOLD (results/7BqLu-wzbU0.0.000-22.940.c705b20ed800.json): the lock reads "I don't have a 401k."; scribe_v1 heard "...Roth IRA, I don't have a 401 , I don't own...". Difference [['401000', '401']], class hold.
 - WHY IT STANDS: ruling 84 adopts only fillers and keeps the decode's word for ONE function word; any other substitution holds. Ruling 17 / L-v 2: a number or name disagreement between independent readings always holds.
