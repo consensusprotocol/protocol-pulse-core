@@ -120,7 +120,13 @@ class DownSignal:
                 takes_who = "who" in inspect.signature(self.hh.probe_due).parameters   # (pp-selectid 11ed255f,
             except (TypeError, ValueError):          # REQUESTS R12); an older module's probe_due takes no `who`
                 takes_who = False
+            # probe_kw: the name this watcher's claims carry (the state's last_probe_by names whoever won the latest
+            # slot). Without it the fallback is said once (audit r87claim c2, its condition), never silent.
             self.probe_kw = {"who": WHO + " probe"} if takes_who else {}
+            if not takes_who:
+                self.log("RULING 87: the shared module's probe_due takes no `who`: this watcher's probes are not "
+                         "named (a module older than pp-selectid 11ed255f has no slot claim; a probe_due whose "
+                         "signature cannot be read, e.g. wrapped or positional-only, is called without a name)")
         except Exception as e:                       # noqa: BLE001 (a module that cannot load is said, never guessed)
             self._fail(f"the shared module {self.module_path} cannot be loaded: {type(e).__name__}: {e}")
 
@@ -167,8 +173,9 @@ class DownSignal:
                     self.drill_logged = True
                 else:
                     self.drill_logged = False
-                    if self._call("probe_due", now=_utc(now), **self.probe_kw):
-                        self._start_probe()
+                    if self._call("probe_due", now=_utc(now), **self.probe_kw):   # True claims the slot (11ed255f):
+                        self._start_probe()      # a probe this watcher then cannot make sends no probe_result and the
+                                                 # slot stays spent from its claim (the builder's semantics)
         if wait and self.probe_thread is not None:
             self.probe_thread.join()
             self._report_probe()

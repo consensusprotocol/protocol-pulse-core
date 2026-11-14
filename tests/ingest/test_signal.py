@@ -537,6 +537,7 @@ def test_the_probe_claims_its_slot_by_name_and_a_slot_claimed_by_another_prober_
     if "who" not in downsignal.inspect.signature(hs.hh.probe_due).parameters:
         pytest.skip("the module at the builder's path predates the probe claim")
     assert hs.probe_kw == {"who": "pp-ingest probe"} and hs.snapshot()["probe_claimed_as"] == "pp-ingest probe"
+    assert not any("probe_due takes no `who`" in m for m in msgs)
     hs.noted(rec(kind="timeout"))
     hs.tick(wait=True)
     st = state(tmp)
@@ -563,6 +564,7 @@ def test_a_module_without_the_claim_is_called_without_a_name(sig, tmp_path):
     s, b = make(module=str(old))
     hs = s.hsig
     assert hs.hh is not None and hs.probe_kw == {} and hs.snapshot()["probe_claimed_as"] is None
+    assert any("probe_due takes no `who`" in m for m in msgs)        # the fallback is said (audit c2 condition)
     hs.noted(rec(kind="timeout"))
     hs.tick(wait=True)
     st = state(tmp)
@@ -591,7 +593,7 @@ probe_due = _Unsigned()
     hs = s.hsig
     with pytest.raises(TypeError):
         downsignal.inspect.signature(hs.hh.probe_due)
-    assert hs.hh is not None and hs.probe_kw == {}
+    assert hs.hh is not None and hs.probe_kw == {} and any("probe_due takes no `who`" in m for m in msgs)
     hs.noted(rec(kind="timeout"))
     hs.tick(wait=True)                                                # probe_due called without `who`: it works
     assert hs.snapshot()["not_read"] is None and state(tmp)["probe_streak"] == 1 and len(b["hv_p1"].calls) == 1
