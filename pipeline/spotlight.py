@@ -152,6 +152,9 @@ def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
         return None, f"the moment itself: {why}"
     if dur >= target:
         return m, None                                 # long enough: no snap, the moment as it is
+    if (m.get("derived_from") or {}).get("ruling") == 104:      # RULING 104: a variant ends where it must; snapping
+        return None, (f"{dur:.2f} s, and a ruling-104 variant is never snapped outward (that would put back the "
+                      f"words it leaves out)")
     blocked = []
     while dur < target:
         step = None
@@ -1122,7 +1125,8 @@ def package_for(router, m, ctx, sources, a_two, truth, exc, pre, facts, log=prin
                        "alone": alone_score(m), "source": {k: src_rec.get(k) for k in ("ok", "why")},
                        "closing": {"candidate": (closing0 or {}).get("text"), "kept": pk1 is not None,
                                    "why_not": None if pk1 is not None else cl_why},
-                       "writes": [{k: x.get(k) for k in ("write", "backend", "error")} for x in notes]}
+                       "writes": [{k: x.get(k) for k in ("write", "backend", "error")} for x in notes],
+                       **({"derived_from": m["derived_from"]} if m.get("derived_from") else {})}   # RULING 104
     pk["models"] = {"writer": [x.backend for x in replies], "fidelity_verdict": fid.get("backend"),
                     "context": cx.get("backends"), "value": ((closing_rec or {}).get("value") or {}).get("backend"),
                     "layout": (src_rec.get("layout") or {}).get("backend")}

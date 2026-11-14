@@ -1,0 +1,110 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+sequence that breaks it.
+
+BACKGROUND (static):
+- A MOMENT is a mined span of whole sentences of one word-timed source (moments.record over eligibility.Span(source,
+  k0, k1)): its text is the words as spoken, its id is the span's own, and eligibility is judged on the span.
+- Each build:
+  - adds the ledger's moments to a pool (tests/package/proof_ledger.py, LB.build_inputs);
+  - sends the pool to the integrator's clip scorer (the ALONE rating);
+  - runs the medley search (package.build) and then the SPOTLIGHT (spotlight.build).
+- The spotlight's stages run cheapest first:
+  - a free pool (usable, under the 35 s ceiling SPOT_S[1]; a moment under SNAP_TO_S 13.7 s is "snapped OUTWARD" by
+    spotlight.snap: whole following sentences are added, then preceding ones);
+  - step A from both families, CUTTABLE, the opener rating, the visual check, ALONE >= 4;
+  - then, best first (rank_key), up to 3 finalists face the exclusion verdict, the render's lock pre-check
+    (lock_precheck), the writes and every gate. The first that passes seals a pin.
+- The lock pre-check's answers are list-of-entry files <video>.<start>-<end>.<decoder>.json in the integrator's results
+  dir. An entry has outcome ("hold", "no_difference", ...), window, role, approved_text, reason, and as_spoken {verdict,
+  differences, text: the second recogniser's full reading}.
+- attest.class_84(spoken, approved) is this side's copy of the integrator's ruling-84 class: one dict per difference,
+  {"spoken", "approved", "class"}; class None is a difference outside the class (a number, a name, a negation, or a
+  substitution other than one function word): it holds. canon.canon_spans(words) gives (token, first word index, last
+  word index).
+- THE CASE: Blockware Solutions 06d34e15 (video 7BqLu-wzbU0, 0.000-22.940 s, hook 4, ALONE 4.0) is held because the
+  second recogniser hears "I don't have a 401" where the lock says "401k". The integrator ran ruling 103's targeted
+  re-listen on it; the hold is FINAL. The orchestrator: "if it holds, seal the tail-side variant ending '...I still don't
+  use my Roth IRA.' if it passes every gate. It expires 00:00 ET: this is the spotlight demo PBX is waiting for."
+
+THE ORCHESTRATOR'S RULING (14:12 ET Nov 14), verbatim:
+"RULING 104, THE TAIL-SIDE TWIN: a spotlight (and a medley hook or clip) may be sealed as a variant that ENDS at an
+earlier sentence boundary of the mined moment, when that is what keeps it lawful (a held word after the boundary, a tail
+the cut cannot make, the seconds ceiling). It is a new span: it faces every gate again from the start (step A both
+families, CUTTABLE at the new OUT, ALONE >= 4, the opener rating, the 12 s floor, the visual check, the lock pre-check),
+and the variant is recorded as derived from its parent row. Omission is judged by step A as always: a variant that drops
+the speaker's own condition or conclusion fails there."
+And: "(3) Blockware 06d34e15: FIRST the re-listen (103) on '401k'; if it passes, seal the full 22.94 s spotlight; if it
+holds, seal the tail-side variant ending '...I still don't use my Roth IRA.' if it passes every gate."
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- The pool (proof_ledger.main) is built from `moments` after this change's with_variants(), so the clip scorer, the
+  medley and the spotlight all see each variant as a moment.
+- package.usable / spotlight.pool keep one video at most once per line-up (L-y 4) and apply every free rule to each
+  moment, the variant included.
+- Every paid gate (step A both families, CUTTABLE, the opener rating, the visual check, ALONE, exclusion, the lock
+  pre-check under the CURRENT decoder and rules, the writes) runs on each pool moment as before. Nothing in the diff
+  skips a gate for a variant.
+- package_pin seals the segment (video, start, end, text, ...). pk["spotlight"] rides on the pin OUTSIDE the seal
+  (moments_package.spotlight).
+
+THE CHANGE (the diff follows):
+1. pipeline/tail_variant.py (new):
+   - variant(m, src, k, ctx, why): the parent cut to end at its sentence k (k0 <= k < k1), made by
+     moments.record(E.Span(src, k0, k)): eligibility judged afresh, its own id, the parent's scores, topics and risk.
+     "derived_from" (ruling 104, the parent id, its ledger row, the sentences, why, the words left out) is set on it
+     and on its mined record.
+   - holds(m, results_dir): the newest HOLD entry on the parent's exact span (window, role hook or clip, approved_text
+     equal to the parent's text), under ANY decoder and rules. It only proposes a candidate; the variant faces the
+     pre-check under the current ones.
+   - held_word(m, src, entry): the parent's first word the hold is about, placed on THIS side by class_84 on the entry's
+     second reading against the parent's text (so it does not depend on the canon the entry was written under):
+     - the first difference with class None and a non-empty approved side, at its tokens' first occurrence among the
+       parent's words;
+     - None when it cannot be placed, including an insert on the spoken side, which no variant can leave out.
+   - for_pool(moments, sources, ctx, results_dir, ceil_s): per parent with more than one sentence, three triggers:
+     - a hold: the variant ends at the last boundary before the held word;
+     - ruling 73's cut hold: the last sentence goes;
+     - over the ceiling: the longest variant within it.
+     When several apply, the shorter variant. No duplicate id. The notes say why each parent has a variant or none.
+   - parents_first(ranked): a variant ranked above its own parent moves to just after it; nothing else moves.
+2. tests/package/proof_ledger.py: with_variants() adds the variants BESIDE their parents right after the inputs are
+   built, records them in inputs["ruling_104"] and prints a RULING 104 line.
+3. pipeline/spotlight.py:
+   - snap() never snaps a ruling-104 variant outward: that would put back the words it leaves out.
+   - finalist_order() = parents_first(sorted(rank_key)), so the full clip is tried first (the 14:12 order).
+   - pk["spotlight"]["derived_from"] is set when the moment is a variant (outside the seal).
+4. Tests: test_ruling_104.py (new, 16). 19 mutations.
+
+ATTACK:
+(a) Can a variant reach a pin without facing every gate, or with its parent's verdicts (cached step A, ALONE, the
+    pre-check) instead of its own? Can it be snapped, trimmed or extended back over the held words?
+(b) Can a variant still contain the held word (the boundary, the first occurrence, a repeated token)? Can it end
+    mid-sentence?
+(c) Can the full clip lose its turn (a variant sealed before the parent's own re-listen and pre-check), or a variant
+    be added when no trigger applies?
+(d) Is "recorded as derived from its parent row" met (on the moment, its mined record, the build record and the
+    spotlight pin)? Can the pin's seal change for a pin that is not a variant?
+(e) Anything else that could seal a wrong pin, double a moment in a line-up, or spend without a trigger.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete sequence), then
+"SHIP: yes / no / yes with conditions".
+
+CHANGED AFTER CYCLE 1. Review the diff AS IT STANDS NOW. Items 1-3 change as follows:
+- holds(m, results_dir) reads the parent's answer under the CURRENT decoder and rules only (lock_precheck.answer: the
+  newest answer on the exact span as a hook, then as a clip; the newer of the two). Under ruling 103's rules a current
+  hold is final, its re-listen included. An older decoder's or older rules' hold is not read.
+- for_pool() returns (variants, notes, replaced). A parent with a current hold, or ruling 73's cut hold, is REPLACED by
+  its variant (proof_ledger.with_variants drops it from the pool; inputs["ruling_104"]["replaced"]). A parent over the
+  ceiling stays beside its variant.
+- parents_first() and spotlight.finalist_order() are removed; spotlight's finalists are ordered as before (rank_key).
+CYCLE 2 ATTACK, in addition to (a)-(e):
+(f) Can a replaced parent still reach a line-up, a finalist's place or a pin in that build?
+(g) Can a variant appear while its parent's CURRENT answer is a pass (no hold), or survive a newer pass?
+
+CHANGED AFTER CYCLE 2 (cycle 3 reviews only this, on the diff as it stands):
+- tail_variant.for_pool: when a parent's CURRENT hold cannot be relieved (the held word cannot be placed, or it sits in
+  the first sentence), it now gets NO variant at all, not even the ceiling trigger's (that variant would keep the held
+  word), and it is not replaced. One `continue`, with a test (the first-sentence hold over the ceiling) and a mutation.
+CYCLE 3 ATTACK: (h) Can a current hold still produce a variant that contains the held word or difference? (i) Did the
+fix change any other trigger's outcome (a cut hold, a placeable hold, the ceiling alone)?

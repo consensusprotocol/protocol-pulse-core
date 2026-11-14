@@ -70,6 +70,7 @@ import providers as P  # noqa: E402
 import speakers as SP  # noqa: E402
 import spotlight as SPOT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
+import tail_variant as TV  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
 SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
@@ -129,6 +130,20 @@ def applied(router):
         return b is not None and router.effective_deadline(role, b, dl) is not None and \
             role in set((router.config.get("routing") or {}).get("verdict_roles") or ())
     return applies
+
+
+def with_variants(moments, sources, ctx, inputs, say, results_dir=None):
+    """RULING 104 (14:12 Nov 14): the build's pool with the tail-side variants (tail_variant.for_pool: a current lock
+    pre-check hold on the parent's span, a cut the render cannot make, the spotlight's seconds ceiling), so every gate
+    judges them from the start, the clip scorer included (its pool is made from these moments). A parent whose current
+    hold is final is replaced by its variant; a parent over the ceiling stays beside it. inputs["ruling_104"] records
+    them, the replaced parents, and why each parent has a variant or none. -> the new list of moments."""
+    variants, notes, replaced = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1])
+    inputs["ruling_104"] = {"variants": [v["moment_id"] for v in variants], "replaced": sorted(replaced),
+                            "notes": notes}
+    say(f"  RULING 104 (the tail-side twin): {len(variants)} variant(s) in the pool, {len(replaced)} held parent(s) "
+        f"replaced by theirs (ruling 103: the hold is final)" + "".join(f"; {k}: {w}" for k, w in sorted(notes.items())))
+    return [m for m in moments if m["moment_id"] not in replaced] + variants
 
 
 def start_refused(spent0):
@@ -259,6 +274,7 @@ def main(argv=None):
     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
                                                ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"))
     inputs["word_pass"] = wp_rep
+    moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},

@@ -1,0 +1,9 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 88 s finish=stop usage in 16200 / out 450 usd~0.092 (upper-bound price)
+
+<high> pipeline/tail_variant.py:218 (parents_first) + pipeline/spotlight.py:40 (finalist_order=TV.parents_first(sorted(..., rank_key))) + tests/package/test_ruling_104.py:490: parents_first only reorders spotlight finalists; medley path (package.build on the post-with_variants pool, using rank_key directly per facts) has no equivalent. Concrete sequence: Blockware parent (rank_score=1.0) + its variant (rank_score=9.0, derived_from ruling 104, sentences [0,2]) sorts as [variant, x, parent] by rank_key; medley selects variant as clip (passes step A/CUTTABLE/ALONE>=4/lock-precheck on its own span, no snap), seals pin before parent tried, violating "full clip first (14:12 order)" and ruling 104's "tried first, if lawful". (Uncertain if medley exactly calls rank_key; facts imply same pool+rules.)
+
+<medium> pipeline/tail_variant.py:104 (M.record(..., {"scores": m["scores"]}, ..., M.judge(sp, ctx))): scores (incl. stands_alone/ALONE) copied from parent before clip scorer sees variant in pool. TestTheVariant:278 confirms eligibility fresh but not score recompute. If scorer does not override, variant can reach pin using parent's ALONE (ruling requires its own ALONE>=4); concrete sequence: Blockware variant drops sentences 3-4 (changes "stands_alone" semantics) but inherits parent's 5.0, passes spotlight without its own scorer verdict.
+
+No other breaks of SENTENCE LAW, SELECTION LOCK, SNAP LIMIT, NEIGHBOUR, L-b/L-c/L-j, ruling 104 triggers (held_word via class_84+canon_spans, CUT_HOLD, ceil_s), derived_from recording, or gate re-execution verifiable in diff+facts. holds()/for_pool cover the Blockware case exactly (test:420). L-d protected preview untouched.
+
+SHIP: yes with conditions (add parents_first to medley selection order; confirm scorer recomputes ALONE on variants)

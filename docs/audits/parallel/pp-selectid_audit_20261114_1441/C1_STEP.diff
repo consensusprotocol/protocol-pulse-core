@@ -1,0 +1,521 @@
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index 84ef788..e9a3173 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -48,6 +48,7 @@ import eligibility as E
+ import house_style as HS
+ import package as P
+ import package_pin as PP
++import tail_variant as TV
+ import vo_fidelity as VF
+ 
+ SPOT_S = (12.0, 35.0)                  # ruling 90: 12 to 35 s of clip
+@@ -152,6 +153,9 @@ def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
+         return None, f"the moment itself: {why}"
+     if dur >= target:
+         return m, None                                 # long enough: no snap, the moment as it is
++    if (m.get("derived_from") or {}).get("ruling") == 104:      # RULING 104: a variant ends where it must; snapping
++        return None, (f"{dur:.2f} s, and a ruling-104 variant is never snapped outward (that would put back the "
++                      f"words it leaves out)")
+     blocked = []
+     while dur < target:
+         step = None
+@@ -484,6 +488,12 @@ def _published_ts(m):
+     return datetime.strptime(z, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc).timestamp() if z else float("-inf")
+ 
+ 
++def finalist_order(ms):
++    """The finalists' order: best first (rank_key), every ruling-104 variant after its own parent (the 14:12 order:
++    the full clip is tried first; tail_variant.parents_first)."""
++    return TV.parents_first(sorted(ms, key=rank_key))
++
++
+ def rank_key(m):
+     """Best first: the hook's own-job rating, the ALONE rating, the hook's parts, the miner's score, the newest
+     source, then the id (a total order)."""
+@@ -957,7 +967,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         else:
+             stop(mid, f"ruling 92: {w}")
+     passed([m["moment_id"] for m in ok_src], 8)
+-    ranked = sorted(ok_src, key=rank_key)
++    ranked = finalist_order(ok_src)
+     out["finalists"] = [m["moment_id"] for m in ranked]
+     log(f"  SPOTLIGHT: {len(cleared)} cleared step A, {len(cut)} cuttable, {len(openers)} open cold, {len(strong)} "
+         f"rate >= {HOOK_MIN} as an opener, {len(clean)} clean, {len(both)} two families, {len(fine)} ALONE >= "
+@@ -1122,7 +1132,8 @@ def package_for(router, m, ctx, sources, a_two, truth, exc, pre, facts, log=prin
+                        "alone": alone_score(m), "source": {k: src_rec.get(k) for k in ("ok", "why")},
+                        "closing": {"candidate": (closing0 or {}).get("text"), "kept": pk1 is not None,
+                                    "why_not": None if pk1 is not None else cl_why},
+-                       "writes": [{k: x.get(k) for k in ("write", "backend", "error")} for x in notes]}
++                       "writes": [{k: x.get(k) for k in ("write", "backend", "error")} for x in notes],
++                       **({"derived_from": m["derived_from"]} if m.get("derived_from") else {})}   # RULING 104
+     pk["models"] = {"writer": [x.backend for x in replies], "fidelity_verdict": fid.get("backend"),
+                     "context": cx.get("backends"), "value": ((closing_rec or {}).get("value") or {}).get("backend"),
+                     "layout": (src_rec.get("layout") or {}).get("backend")}
+diff --git a/pipeline/tail_variant.py b/pipeline/tail_variant.py
+new file mode 100644
+index 0000000..42e3650
+--- /dev/null
++++ b/pipeline/tail_variant.py
+@@ -0,0 +1,169 @@
++"""RULING 104 (orchestrator 14:12 ET Nov 14), THE TAIL-SIDE TWIN: "a spotlight (and a medley hook or clip) may be sealed
++as a variant that ENDS at an earlier sentence boundary of the mined moment, when that is what keeps it lawful (a held word
++after the boundary, a tail the cut cannot make, the seconds ceiling). It is a new span: it faces every gate again from
++the start (step A both families, CUTTABLE at the new OUT, ALONE >= 4, the opener rating, the 12 s floor, the visual check,
++the lock pre-check), and the variant is recorded as derived from its parent row. Omission is judged by step A as always:
++a variant that drops the speaker's own condition or conclusion fails there."
++
++- variant(): the parent moment cut to end at the end of one of its own earlier sentences, made by the miner's own
++  machinery (moments.record over eligibility.Span: eligibility judged afresh, its id the span's own), with the parent's
++  scores, topics and risk, and "derived_from" (here and in its mined record): the parent row.
++- for_pool(): the variants a build adds to its pool, BESIDE their parents (every gate then judges them as any moment):
++  - a held word: the lock pre-check's newest HOLD on the parent's exact span (any decoder and rules: it only proposes a
++    candidate; the variant faces the pre-check under the current ones). The held word is placed on this side
++    (held_word); the variant ends at the parent's last sentence boundary before it.
++  - a tail the cut cannot make: a hold that is ruling 73's ("the render cannot cut this span"): the last sentence goes.
++  - the seconds ceiling: a parent longer than ceil_s: the longest variant within it.
++  When two apply, the shorter variant (it satisfies both). None when no earlier boundary does.
++- parents_first(): a variant is never tried before its own parent (the 14:12 order: the full clip first, if lawful).
++A variant is never snapped outward (spotlight.snap): that would put back the words it leaves out."""
++import glob
++import json
++import os
++
++import attest as AT
++import canon as C
++import eligibility as E
++import moments as M
++
++CUT_HOLD = "ruling 73"          # a hold whose reason starts so: the render cannot cut this span (the tail goes)
++
++
++def variant(m, src, k, ctx, why):
++    """The parent moment `m` (a pp.moment/1 record) ending at the end of its source's sentence k, its first sentence
++    unchanged (m's first sentence <= k < its last). -> the new moment record. ValueError for any other k."""
++    k0, k1 = m["sentences"]
++    if not (isinstance(k, int) and k0 <= k < k1):
++        raise ValueError(f"a tail variant ends at an earlier sentence of the moment: {k!r} is not in [{k0}, {k1})")
++    sp = E.Span(src, k0, k)
++    derived = {"ruling": 104, "from": m["moment_id"],
++               "ledger_moment_id": (m.get("mined") or {}).get("ledger_moment_id"),
++               "sentences": [k0, k], "was": [k0, k1], "end_was": m.get("end"), "why": why,
++               "left_out": E.spoken(src.tokens[sp.w1 + 1:src.sentences[k1][1] + 1])}
++    rec = M.record(sp, {"scores": m["scores"], "names_person": m.get("names_person", False),
++                        "risk": list(m.get("risk") or []), "topics": list(m.get("topics") or []),
++                        "reason": m.get("reason") or ""}, ctx, M.judge(sp, ctx),
++                   dict(m.get("mined") or {}, derived_from=derived))
++    rec["rank_score"] = M.rank_score(rec)
++    if m.get("source_key"):
++        rec["source_key"] = m["source_key"]
++    rec["derived_from"] = derived
++    return rec
++
++
++def holds(m, results_dir):
++    """The newest lock pre-check HOLD on the parent's exact span (its video, start and end to the millisecond, its own
++    text as the approved text, as a hook or a clip), in the integrator's results under ANY decoder and rules. -> the
++    entry, or None (no hold, or nothing readable)."""
++    start, end = round(float(m["start"]), 3), round(float(m["end"]), 3)
++    best = None
++    for p in sorted(glob.glob(os.path.join(results_dir, f"{m['video_id']}.{start:.3f}-{end:.3f}.*.json"))):
++        try:
++            with open(p) as f:
++                entries = json.load(f)
++        except (OSError, ValueError):
++            continue
++        for e in entries if isinstance(entries, list) else []:
++            w = e.get("window") if isinstance(e, dict) else None
++            try:
++                win = [round(float(w[0]), 3), round(float(w[1]), 3)] if isinstance(w, list) and len(w) == 2 else None
++            except (TypeError, ValueError):
++                win = None
++            if not (isinstance(e, dict) and e.get("outcome") == "hold" and win == [start, end] and
++                    e.get("role") in ("hook", "clip") and e.get("approved_text") == m.get("text")):
++                continue
++            at = str(e.get("at") or "")
++            if best is None or at >= best[0]:
++                best = (at, e)
++    return best[1] if best else None
++
++
++def held_word(m, src, entry):
++    """The index (into src.tokens) of the parent's first word that the HOLD is about, placed on THIS side: the entry's
++    second reading (as_spoken.text) against the parent's own text, through this side's canon and ruling 84's class
++    (attest.class_84, as decide() judges an adoption): the first difference outside the class whose approved side is
++    not empty, at its tokens' first occurrence among the parent's words (canon.canon_spans). Recomputed from the texts,
++    it does not depend on the canon the entry was written under. -> int, or None when it cannot be placed (no second
++    reading, no such difference, an insert on the spoken side alone, or tokens not found): then no variant."""
++    spoken = ((entry or {}).get("as_spoken") or {}).get("text") if isinstance(entry, dict) else None
++    if not isinstance(spoken, str) or not spoken.strip():
++        return None
++    w0, w1 = m["words"]
++    spans = C.canon_spans([t.get("word") or "" for t in src.tokens[w0:w1 + 1]])
++    toks = [t for t, _, _ in spans]
++    for d in AT.class_84(spoken, m["text"]):
++        if d["class"] is not None:
++            continue
++        want = d["approved"].split()
++        if not want:
++            return None                                  # the second reading inserted it: nowhere to end before
++        for i in range(len(toks) - len(want) + 1):
++            if toks[i:i + len(want)] == want:
++                return w0 + spans[i][1]
++        return None
++    return None
++
++
++def for_pool(moments, sources, ctx, results_dir, ceil_s):
++    """The ruling-104 variants for this build's pool. -> (variants, {parent id: why it has none / which it got})."""
++    import context_integrity as CI
++    have = {m["moment_id"] for m in moments}
++    out, notes = [], {}
++    for m in moments:
++        mid = m["moment_id"]
++        k0, k1 = m.get("sentences") or (None, None)
++        if not (isinstance(k0, int) and isinstance(k1, int) and k1 > k0):
++            continue                                     # one sentence: no earlier boundary
++        wanted = []
++        e = holds(m, results_dir)
++        try:
++            src = CI.source_for(m, sources)
++        except KeyError:
++            if e is not None or float(m.get("duration_s") or 0) > ceil_s:
++                notes[mid] = "no variant: its word record is not in this build"
++            continue
++        if e is not None:
++            if str(e.get("reason") or "").startswith(CUT_HOLD):
++                wanted.append((k1 - 1, f"a tail the cut cannot make ({str(e.get('reason'))[:160]})"))
++            else:
++                i = held_word(m, src, e)
++                ks = [k for k in range(k0, k1) if i is not None and src.sentences[k][1] < i]
++                if ks:
++                    wanted.append((ks[-1], f"a held word after the boundary: {src.tokens[i].get('word')!r} at "
++                                           f"{src.tokens[i].get('start')} s (the lock pre-check's hold, "
++                                           f"{e.get('request_id')})"))
++                else:
++                    notes[mid] = ("no variant: the held word cannot be placed" if i is None else
++                                  "no variant: the held word is in its first sentence")
++        if float(m.get("duration_s") or 0) > ceil_s:
++            t0 = float(m["start"])
++            ks = [k for k in range(k0, k1) if float(src.tokens[src.sentences[k][1]]["end"]) - t0 <= ceil_s]
++            if ks:
++                wanted.append((ks[-1], f"the seconds ceiling ({float(m['duration_s']):.2f} s > {ceil_s:g} s)"))
++            else:
++                notes[mid] = f"no variant: no earlier boundary within {ceil_s:g} s"
++        if not wanted:
++            continue
++        k = min(x[0] for x in wanted)
++        v = variant(m, src, k, ctx, "; ".join(w for _, w in wanted))
++        if v["moment_id"] in have:
++            notes[mid] = f"its variant {v['moment_id']} is already in the pool"
++            continue
++        have.add(v["moment_id"])
++        out.append(v)
++        notes[mid] = f"variant {v['moment_id']} ({v['duration_s']} s, ends {v['text'][-60:]!r})"
++    return out, notes
++
++
++def parents_first(ranked):
++    """The finalists' order with every variant that is ranked ABOVE its own parent moved to just after the parent: the
++    full clip is tried first, its variant only after it (the 14:12 order). Everything else keeps its place."""
++    out = list(ranked)
++    for v in [m for m in ranked if (m.get("derived_from") or {}).get("from")]:
++        ids = [x["moment_id"] for x in out]
++        p = v["derived_from"]["from"]
++        if p in ids and ids.index(v["moment_id"]) < ids.index(p):
++            at = ids.index(p)
++            out.remove(v)
++            out.insert(at, v)                            # the parent moved up by one: v lands right after it
++    return out
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index d2b60dd..cf26fce 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -70,6 +70,7 @@ import providers as P  # noqa: E402
+ import speakers as SP  # noqa: E402
+ import spotlight as SPOT  # noqa: E402
+ import lock_precheck as LP  # noqa: E402
++import tail_variant as TV  # noqa: E402
+ 
+ REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+ SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
+@@ -131,6 +132,18 @@ def applied(router):
+     return applies
+ 
+ 
++def with_variants(moments, sources, ctx, inputs, say, results_dir=None):
++    """RULING 104 (14:12 Nov 14): the build's pool with the tail-side variants BESIDE their parents (tail_variant.for_pool:
++    a lock pre-check hold on the parent's span, a cut the render cannot make, the spotlight's seconds ceiling), so every
++    gate judges them from the start, the clip scorer included (its pool is made from these moments). inputs["ruling_104"]
++    records them and why each parent has one or none. -> the new list of moments."""
++    variants, notes = TV.for_pool(moments, sources, ctx, results_dir or LP.RESULTS, SPOT.SPOT_S[1])
++    inputs["ruling_104"] = {"variants": [v["moment_id"] for v in variants], "notes": notes}
++    say(f"  RULING 104 (the tail-side twin): {len(variants)} variant(s) in the pool" +
++        "".join(f"; {k}: {w}" for k, w in sorted(notes.items())))
++    return list(moments) + variants
++
++
+ def start_refused(spent0):
+     """RULING 48, with the orchestrator's stop of 13:02 Nov 14 (the $16 stop passed with leave; at $19 stop and tell on
+     STATE line 1 in capitals): no build starts at or over PL.LY_STOP_USD. -> the refusal line, or None."""
+@@ -259,6 +272,7 @@ def main(argv=None):
+     moments, sources, inputs = LB.build_inputs(rows, ctx, log=say, word_pass=wp,
+                                                ledger_store=os.path.join(LB.INGEST_ROOT, "data", "editorial"))
+     inputs["word_pass"] = wp_rep
++    moments = with_variants(moments, sources, ctx, inputs, say)   # RULING 104: beside their parents, every gate again
+     with open(os.path.join(out_dir, "inputs.json"), "w") as f:
+         json.dump({"since": since.isoformat(), "publish_window_h": a.hours, "delivered_pins": pins,
+                    "adapter_report": rep, "inputs": inputs, "delivered": delivered, "moments": moments},
+diff --git a/tests/package/test_ruling_104.py b/tests/package/test_ruling_104.py
+new file mode 100644
+index 0000000..de94c55
+--- /dev/null
++++ b/tests/package/test_ruling_104.py
+@@ -0,0 +1,247 @@
++#!/usr/bin/env python3
++"""RULING 104 (orchestrator 14:12 ET Nov 14), THE TAIL-SIDE TWIN (pipeline/tail_variant.py and its use in the ledger
++build and the spotlight): a variant ENDING at an earlier sentence boundary of the mined moment, when that keeps it lawful
++(a held word after the boundary, a tail the cut cannot make, the seconds ceiling); a new span that faces every gate,
++recorded as derived from its parent row. The case: Blockware Solutions 06d34e15, held on "401k".
++Offline: word-timed test sources, a temporary results directory."""
++import copy
++import json
++import os
++import sys
++import tempfile
++import unittest
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++REPO = os.path.dirname(os.path.dirname(HERE))
++for _p in ("pipeline", "tests/package", "tests/eligibility"):
++    sys.path.insert(0, os.path.join(REPO, _p))
++import eligibility as E  # noqa: E402
++import moments as M  # noqa: E402
++import proof_ledger as PLG  # noqa: E402
++import spotlight as SPOT  # noqa: E402
++import tail_variant as TV  # noqa: E402
++import test_spotlight as TS  # noqa: E402
++from test_eligibility import NOW, REG, source  # noqa: E402
++
++SENTENCES = ["On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin.",
++             "That ended up being one of the best financial decisions I've ever made, but not for the reason most "
++             "people think.",
++             "I'm 26 now, and I still don't use my Roth IRA.",
++             "I don't have a 401k.",
++             "I don't own a single share of any index fund, and I'm on pace to be financially independent by 45."]
++CTX = E.Context(NOW, REG)
++META = {"scores": {"contempt_outrage": 0, "hook_first_2s": 5, "quotable": 4, "stakes": 5, "stance": 4,     # the real
++                   "stands_alone": 5, "surprising_fact": 4},                                         # row's, build 11
++        "names_person": False, "risk": [], "topics": ["bitcoin"], "reason": "Strong personal narrative hook"}
++
++
++def parent(src, k0=0, k1=4, vid="7BqLu-wzbU0"):
++    sp = E.Span(src, k0, k1)
++    m = M.record(sp, META, CTX, M.judge(sp, CTX), {"ledger_moment_id": "06d34e155feae654ee56"})
++    m["rank_score"] = M.rank_score(m)
++    m["source_key"] = vid
++    return m
++
++
++def blockware():
++    src = source(SENTENCES, vid="7BqLu-wzbU0")
++    return src, parent(src)
++
++
++def hold(m, decoder="c705b20ed800", at="2026-11-14T18:51:07Z", spoken=None, reason="ruling 72/84: ... at "
++         "[['401000', '401']]", outcome="hold", role="hook", text=None):
++    return {"request_id": "pp-selectid.ledger_x.1", "video_id": m["video_id"], "start": m["start"], "end": m["end"],
++            "window": [round(m["start"], 3), round(m["end"], 3)], "role": role,
++            "approved_text": m["text"] if text is None else text, "outcome": outcome, "reason": reason, "at": at,
++            "as_spoken": {"verdict": outcome, "text": m["text"].replace("401k.", "401 ,") if spoken is None
++                          else spoken}}
++
++
++def put(d, m, entries, decoder="c705b20ed800"):
++    p = os.path.join(d, f"{m['video_id']}.{round(m['start'], 3):.3f}-{round(m['end'], 3):.3f}.{decoder}.json")
++    with open(p, "w") as f:
++        json.dump(entries, f)
++
++
++class TestTheVariant(unittest.TestCase):
++    def test_it_ends_at_the_boundary_is_a_new_span_and_names_its_parent(self):
++        src, m = blockware()
++        v = TV.variant(m, src, 2, CTX, "a held word")
++        self.assertEqual(v["text"], " ".join(SENTENCES[:3]))
++        self.assertEqual((v["sentences"], v["start"], v["end"]), ([0, 2], m["start"], src.tokens[src.sentences[2][1]]["end"]))
++        self.assertNotEqual(v["moment_id"], m["moment_id"])                            # its own id
++        self.assertEqual(v["moment_id"], M.record(E.Span(src, 0, 2), META, CTX, M.judge(E.Span(src, 0, 2), CTX),
++                                                  {})["moment_id"])                    # the span's own
++        d = v["derived_from"]
++        self.assertEqual((d["ruling"], d["from"], d["ledger_moment_id"], d["sentences"], d["was"]),
++                         (104, m["moment_id"], "06d34e155feae654ee56", [0, 2], [0, 4]))
++        self.assertEqual(d["left_out"], " ".join(SENTENCES[3:]))
++        self.assertEqual(v["mined"]["derived_from"], d)                                 # in its mined record too
++        self.assertEqual((v["source_key"], v["scores"], v["topics"]), (m["source_key"], m["scores"], m["topics"]))
++        self.assertEqual(set(v["eligibility"]), {"hook", "clip"})                       # judged afresh on its span
++        for k in (4, 5, -1, "2"):
++            with self.assertRaises(ValueError):
++                TV.variant(m, src, k, CTX, "x")
++
++
++class TestTheHeldWord(unittest.TestCase):
++    def test_the_401k_hold_is_placed_on_its_word_from_the_texts(self):
++        src, m = blockware()
++        i = TV.held_word(m, src, hold(m))
++        self.assertEqual(src.tokens[i]["word"], "401k.")
++        self.assertEqual(i, src.sentences[3][0] + 4)                                   # "I don't have a 401k."
++
++    def test_a_difference_inside_ruling_84_s_class_is_passed_over(self):
++        """A one-function-word substitution earlier in the span is in ruling 84's class: the held word is still 401k."""
++        src, m = blockware()
++        spoken = m["text"].replace("one of the best", "one of a best").replace("401k.", "401 ,")
++        self.assertEqual(src.tokens[TV.held_word(m, src, hold(m, spoken=spoken))]["word"], "401k.")
++
++    def test_an_insert_before_the_hold_cannot_be_placed_so_no_variant(self):
++        """The second reading inserts a number in the FIRST sentence and differs on 401k: no variant can leave the
++        insert out, so the word is not placed (no variant), never the later 401k."""
++        src, m = blockware()
++        spoken = m["text"].replace("into Bitcoin.", "into Bitcoin 21.").replace("401k.", "401 ,")
++        self.assertIsNone(TV.held_word(m, src, hold(m, spoken=spoken)))
++
++    def test_what_cannot_be_placed_gives_none(self):
++        src, m = blockware()
++        self.assertIsNone(TV.held_word(m, src, hold(m, spoken="")))                          # no second reading
++        self.assertIsNone(TV.held_word(m, src, dict(hold(m), as_spoken=None)))
++        self.assertIsNone(TV.held_word(m, src, hold(m, spoken=m["text"].replace("401k.", "401k, um,"))))  # a filler
++        self.assertIsNone(TV.held_word(m, src, hold(m, spoken=m["text"].replace("Bitcoin.", "Bitcoin 21."))))  # inserted
++
++
++class TestTheHolds(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.addCleanup(self.d.cleanup)
++
++    def test_the_newest_hold_on_the_exact_span_under_any_decoder(self):
++        src, m = blockware()
++        self.assertIsNone(TV.holds(m, self.d.name))
++        put(self.d.name, m, [hold(m, at="2026-11-14T18:00:00Z", reason="old")], decoder="962353613cb0")
++        put(self.d.name, m, [hold(m, at="2026-11-14T18:51:07Z", reason="new"),
++                             hold(m, outcome="no_difference", at="2026-11-14T19:00:00Z"),       # not a hold
++                             hold(m, at="2026-11-14T19:30:00Z", text="another text"),           # another span's text
++                             dict(hold(m, at="2026-11-14T19:31:00Z"), window=[0.0, 9.0])])      # another window
++        self.assertEqual(TV.holds(m, self.d.name)["reason"], "new")
++        only_old = tempfile.TemporaryDirectory()                                       # a hold under another decoder
++        self.addCleanup(only_old.cleanup)                                                # only: still a candidate
++        put(only_old.name, m, [hold(m, reason="under ruling 90's decoder")], decoder="962353613cb0")
++        self.assertEqual(TV.holds(m, only_old.name)["reason"], "under ruling 90's decoder")
++        with open(os.path.join(self.d.name, f"{m['video_id']}.0.000-1.000.c705b20ed800.json"), "w") as f:
++            f.write("{ broken")                                                                  # never read: another span
++        self.assertEqual(TV.holds(m, self.d.name)["reason"], "new")
++
++
++class TestThePool(unittest.TestCase):
++    def setUp(self):
++        self.d = tempfile.TemporaryDirectory()
++        self.addCleanup(self.d.cleanup)
++
++    def pool(self, ms, sources, ceil_s=35.0):
++        return TV.for_pool(ms, sources, CTX, self.d.name, ceil_s)
++
++    def test_blockware_held_on_401k_gives_the_variant_ending_before_it(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m)])
++        vs, notes = self.pool([m], {"7BqLu-wzbU0": src})
++        self.assertEqual([v["text"] for v in vs], [" ".join(SENTENCES[:3])])     # "...I still don't use my Roth IRA."
++        self.assertIn("a held word after the boundary: '401k.'", vs[0]["derived_from"]["why"])
++        self.assertIn(vs[0]["moment_id"], notes[m["moment_id"]])
++
++    def test_a_cut_the_render_cannot_make_drops_the_last_sentence(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m, reason="ruling 73: the render cannot cut this span: the OUT edge")])
++        vs, _ = self.pool([m], {"7BqLu-wzbU0": src})
++        self.assertEqual(vs[0]["sentences"], [0, 3])
++
++    def test_the_seconds_ceiling_gives_the_longest_variant_within_it(self):
++        src, m = blockware()
++        limit = src.tokens[src.sentences[2][1]]["end"] - m["start"] + 0.01           # sentences 0-2 fit, 0-3 do not
++        vs, _ = self.pool([m], {"7BqLu-wzbU0": src}, ceil_s=limit)
++        self.assertEqual(vs[0]["sentences"], [0, 2])
++        self.assertIn("the seconds ceiling", vs[0]["derived_from"]["why"])
++        put(self.d.name, m, [hold(m, reason="ruling 73: the render cannot cut this span")])   # both: the shorter
++        vs, _ = self.pool([m], {"7BqLu-wzbU0": src}, ceil_s=limit)
++        self.assertEqual(vs[0]["sentences"], [0, 2])
++        self.assertIn("a tail the cut cannot make", vs[0]["derived_from"]["why"])
++
++    def test_no_variant_where_none_keeps_it_lawful(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m, spoken=m["text"].replace("20th", "21st"))])       # held in its FIRST sentence
++        vs, notes = self.pool([m], {"7BqLu-wzbU0": src})
++        self.assertEqual((vs, notes[m["moment_id"]]), ([], "no variant: the held word is in its first sentence"))
++        one = parent(src, 2, 2)                                                           # one sentence: no boundary
++        put(self.d.name, one, [hold(one)])
++        self.assertEqual(self.pool([one], {"7BqLu-wzbU0": src}), ([], {}))
++        self.assertEqual(self.pool([m], {}), ([], {m["moment_id"]: "no variant: its word record is not in this build"}))
++        clean = blockware()[1]                                                            # no hold, under the ceiling
++        clean["start"] += 0.0005                                                          # (another span on file)
++        self.assertEqual(self.pool([clean], {"7BqLu-wzbU0": src}), ([], {}))
++
++    def test_a_variant_already_in_the_pool_is_not_added_twice(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m)])
++        v = TV.variant(m, src, 2, CTX, "x")
++        vs, notes = self.pool([m, v], {"7BqLu-wzbU0": src})
++        self.assertEqual(vs, [])
++        self.assertIn("already in the pool", notes[m["moment_id"]])
++
++    def test_the_ledger_build_puts_them_beside_their_parents(self):
++        src, m = blockware()
++        put(self.d.name, m, [hold(m)])
++        inputs, said = {}, []
++        out = PLG.with_variants([m], {"7BqLu-wzbU0": src}, CTX, inputs, said.append, results_dir=self.d.name)
++        self.assertEqual([x["moment_id"] for x in out][0], m["moment_id"])              # the parent stays
++        self.assertEqual(len(out), 2)
++        self.assertEqual(inputs["ruling_104"]["variants"], [out[1]["moment_id"]])
++        self.assertIn("RULING 104 (the tail-side twin): 1 variant(s) in the pool", said[0])
++
++
++class TestTheSpotlight(unittest.TestCase):
++    def test_the_full_clip_is_tried_before_its_variant(self):
++        A, B, p = {"moment_id": "a"}, {"moment_id": "b"}, {"moment_id": "p"}
++        v = {"moment_id": "v", "derived_from": {"ruling": 104, "from": "p"}}
++        ids = lambda xs: [x["moment_id"] for x in xs]
++        self.assertEqual(ids(TV.parents_first([v, A, p, B])), ["a", "p", "v", "b"])
++        self.assertEqual(ids(TV.parents_first([p, A, v])), ["p", "a", "v"])             # already after: unchanged
++        self.assertEqual(ids(TV.parents_first([A, v, B])), ["a", "v", "b"])             # no parent: unchanged
++
++    def test_the_spotlight_s_finalists_put_the_parent_first_however_the_variant_ranks(self):
++        p = {"moment_id": "p", "rank_score": 1.0, "published_at": "2026-11-14T17:00:22+00:00"}
++        v = dict(p, moment_id="v", rank_score=9.0, derived_from={"ruling": 104, "from": "p"})
++        x = dict(p, moment_id="x", rank_score=5.0)
++        self.assertEqual([m["moment_id"] for m in sorted([p, v, x], key=SPOT.rank_key)], ["v", "x", "p"])
++        self.assertEqual([m["moment_id"] for m in SPOT.finalist_order([p, v, x])], ["x", "p", "v"])
++
++    def test_a_variant_is_never_snapped_outward(self):
++        src, m = blockware()
++        short = TV.variant(m, src, 1, CTX, "x")                                          # two sentences, under 13.7 s
++        self.assertLess(short["duration_s"], SPOT.SNAP_TO_S)
++        caps = lambda vid: ([], None)
++        v, why = SPOT.snap(short, {"7BqLu-wzbU0": src}, CTX, captions_for=caps)
++        self.assertIsNone(v)
++        self.assertIn("never snapped outward", why)
++        plain = dict(short)
++        plain.pop("derived_from")
++        v, _ = SPOT.snap(plain, {"7BqLu-wzbU0": src}, CTX, captions_for=caps)         # any other moment: snapped
++        self.assertIsNotNone(v)
++        long_ = TV.variant(m, src, 2, CTX, "x")
++        self.assertGreaterEqual(long_["duration_s"], SPOT.SNAP_TO_S)
++        self.assertIs(SPOT.snap(long_, {"7BqLu-wzbU0": src}, CTX, captions_for=caps)[0], long_)
++
++    def test_the_spotlight_pin_records_where_the_variant_came_from(self):
++        m = TS.moment()
++        pk, why, *_ = TS.package(m=m)
++        self.assertIsNone(why)
++        self.assertNotIn("derived_from", pk["spotlight"])                               # every other pin as before
++        d = {"ruling": 104, "from": "06d34e155feae654ee56", "sentences": [0, 2], "was": [0, 4], "why": "x"}
++        pk, why, *_ = TS.package(m=dict(copy.deepcopy(m), derived_from=d))
++        self.assertIsNone(why)
++        self.assertEqual(pk["spotlight"]["derived_from"], d)
++
++
++if __name__ == "__main__":
++    unittest.main()
