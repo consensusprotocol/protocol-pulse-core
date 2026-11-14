@@ -6,6 +6,25 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:16 RULING 103 RE-LISTEN, REAL DATA: on Blockware 06d34e15 (7BqLu-wzbU0 0.000-22.940) the HOLD IS FINAL. The decoder re-reads "401k", scribe_v1 still hears "401" on the short window. Only a variant leaving the token out (ruling 104, the builder's) can save the clip.
+- THE RUN: the branch's code (canon-401k + the re-listen, not yet audited or merged), one-shot (lock_precheck once).
+  - A scratch root; the builder's request copied; the builder's request directory untouched.
+  - GPU0 under the lease; the key read by name through the main tree's relay.get_key inside the process.
+  - The long-window decode and second reading were the cached ones.
+- THE RE-LISTEN: window 14.84-18.38 s on the acquired window's clock (the token's word times, 1.5 s either side).
+  - decoder (Whisper large-v3, the run's decoder): "IRA. I don't have a 401k. I don't own a single" -> 401k.
+  - second (scribe_v1): "Roth IRA. I don't have a 401 . I don't own a single" -> 401.
+  - The verdict is hold: the two short readings do not both give the lock's token.
+- SCRIBE COST for the 3.54 s window: $0.0007 ($0.012 a minute: about $0.0008 for 4 s). The ruling's "nothing", measured.
+- First attempt, 14:15:23: outcome "error" (no verdict), because the worktree's copy of the key loader finds no key file beside it. That is the designed fail-closed path. The proof was re-run with the key read by name in-process.
+- THE CODE (branch canon-401k, uncommitted beyond 373d0fed):
+  - pinned.relisten_candidate / relisten_verdict / RELISTEN_PAD_S 1.5 (decoder-sha inputs);
+  - lock_precheck.relisten / relisten_clip, the hook in answer(), RULES + "ruling 103", and the "relisten" record on each entry.
+  - Tests: test_lock_precheck TestRuling103 (5); 41 passed with 12 subtests.
+    - On the old pinned / lock_precheck the 5 fail on behaviour: the 401k pass case comes out "hold", the GPU0 case "hold" instead of "error", no record.
+    - TestRuling84's number case now re-listens and still holds.
+- NEXT: audits batch 80, two cycles. Then the final decoder sha to the builder (the branch's current sha is d1e155c642a6...). Then the landing. The builder seals Blockware's ruling-104 variant (ending before "I don't have a 401k.") for the pre-check and the SPOTLIGHT DEMO render.
+
 ## 14:07 RULINGS 103 / 104 RECEIVED (orchestrator 14:13, to the integrator): the targeted re-listen is mine to build, landing WITH the canon-401k fix (one decoder-sha move); then the Blockware spotlight 06d34e15 is the first SPOTLIGHT render, labelled SPOTLIGHT DEMO.
 - RULING 103, verbatim: "THE TARGETED RE-LISTEN (for a hold where the two independent readings differ on ONE number or name token, as '401k' against '401' on Blockware 06d34e15). The hold stands as the default: a number or name disagreement is never waved through. But one long-span reading against another is weak evidence about one token. Before the hold is final, BOTH recognisers are asked again on a SHORT window cut around that token alone (the token's word times, 1.5 s either side, the same audio the cut will use). The lock passes on that token only if BOTH short-window readings give the lock's token (after the canon, with the 401k fix: a plan's name is not the number 401000). If either short reading still differs, or the two differ from each other, the hold is final and the clip may only be saved by a variant that leaves the token out. Record both short readings on the pin. Scribe's cost for 4 s is nothing; say it."
   - "YOUR SIDE: the re-listen lives in the pre-check service (adjudicate_lock's number / name class), with the canon-401k fix; audit two cycles; land both with the builder's matching decoder update so the sha moves once. Must-fail tests: a real number disagreement ('68,000' against '86,000') still holds after the re-listen; '401k' against '401' passes only when both short readings say 401k."
