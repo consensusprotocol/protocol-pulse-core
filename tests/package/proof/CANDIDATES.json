@@ -62,7 +62,8 @@
   "tests/package/proof/ledger_20261114_164248",
   "tests/package/proof/ledger_20261114_170313",
   "tests/package/proof/ledger_20261114_172438",
-  "tests/package/proof/ledger_20261114_174007"
+  "tests/package/proof/ledger_20261114_174007",
+  "tests/package/proof/ledger_20261114_183413"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -271,6 +272,20 @@
      "why": "coherence with the takeaway below 4 or no through-line: dropped ['e05b34a672b73f3334ea'], re-lined"
     }
    ]
+  },
+  "933f9d33a8e345356177+b3ad2b8356e4a8d70dd9+a49592a93a4a81a8d050": {
+   "lineup": [
+    "933f9d33a8e345356177",
+    "b3ad2b8356e4a8d70dd9",
+    "a49592a93a4a81a8d050"
+   ],
+   "source": "tests/package/proof/ledger_20261114_183413",
+   "index": 5,
+   "found_at": "2026-11-14T18:34:13.510070+00:00",
+   "state": "open",
+   "until": null,
+   "fresh_used": false,
+   "history": []
   }
  }
 }

@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:exclusion_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 800,
+ "system": null,
+ "prompt": "You screen ONE moment (the sentences inside <moment>) from a Bitcoin video before it can be clipped\ninto a short video. The text around it is context only.\n\n<before></before>\n<moment>On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.</moment>\n<after>45. If you do what my parents' generation did, which is maxing out the 401(k), saving in the S&P 500 and maybe some Treasury bonds, then you're planning your entire financial future around a 7 to 10% return, which leaves most people achieving financial independence at 65 instead of 45. And with rising inflation rates and housing, groceries, gasoline, and all the things you actually need to buy to live, that retirement age could get pushed further and further out. The good news is you don't actually have to change that much in your financial strategy to go from financial independence at 65 to 45. If you can get that 10% return per year up to 20%, that closes the gap and gives you back decades of your life. You don't have to be some financial savant to do this. You don't have to be a professional world-class investor, and you also don't have to go out to the extreme edges of the risk curve. You don't need to get</after>\n\nAnswer:\n- \"risks\": every one that applies to the MOMENT: \"accusation\" (crime, fraud, insolvency or dishonesty alleged against a\n  named person or company), \"partner_attack\" (one Bitcoin channel or host attacking another), \"imperative\" (telling\n  the viewer to buy, sell or use leverage), \"guaranteed_return\", \"single_source_breaking\" (a breaking factual claim\n  resting on one unnamed source or rumour), \"ad_read\" (a sponsor, ad or affiliate pitch), \"third_party_media\" (someone\n  else's clip, song or broadcast being played); an empty list if none\n- \"about_bitcoin\": \"yes\" if the moment is about Bitcoin, \"no\" if it is about another coin or no crypto at all,\n  \"uncertain\"\n- \"why\": one short line\nCriticising a policy is not an accusation; a prediction framed as the speaker's own view is not an imperative;\nnaming a company neutrally is not an accusation.\nReturn ONLY this JSON object: {\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"...\"}",
+ "text": "{\"risks\": [], \"about_bitcoin\": \"yes\", \"why\": \"Personal anecdote on investing fully in Bitcoin for early financial independence\"}",
+ "usage": {
+  "in": 791,
+  "out": 641,
+  "usd_reported": 0.00245685
+ },
+ "usd": 0.01998,
+ "seconds": 4.13,
+ "recorded_at": "2026-11-14T18:50:05Z"
+}

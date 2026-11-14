@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "2c7bd4fbc99724d88bede1800a6e2a4911ff1a42ed8901c1bf847c08f37254b2",
+ "result": {
+  "text": "To disrupt, uh, different store value assets. So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this, this is... I've been waiting for this my whole life to see Bitcoin become and, and infiltrate the financial system. So I think it's a good thing. Um, I do agree culturally. Each cycle has different-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.52,
+    "end": 20.9,
+    "text": "To disrupt, uh, different store value assets. So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this, this is... I've been waiting for this my whole life to see Bitcoin become and, and infiltrate the financial system. So I think it's a good thing. Um, I do agree culturally. Each cycle has different-"
+   }
+  ],
+  "words": [
+   {
+    "text": "To",
+    "start": 0.52,
+    "end": 0.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "disrupt,",
+    "start": 0.62,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 1.72,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "different",
+    "start": 2.26,
+    "end": 2.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "store",
+    "start": 2.6,
+    "end": 2.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "value",
+    "start": 2.88,
+    "end": 3.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "assets.",
+    "start": 3.22,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 3.78,
+    "end": 3.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin's",
+    "start": 4.66,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "core",
+    "start": 5.12,
+    "end": 5.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "purpose",
+    "start": 5.46,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hasn't",
+    "start": 5.78,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "changed.",
+    "start": 6.06,
+    "end": 6.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 6.66,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 6.8,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adopted",
+    "start": 6.96,
+    "end": 7.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 7.34,
+    "end": 7.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institutions",
+    "start": 7.44,
+    "end": 7.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "who",
+    "start": 7.92,
+    "end": 8.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "recognize",
+    "start": 8.119,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.64,
+    "end": 8.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 8.76,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digital",
+    "start": 8.88,
+    "end": 9.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 9.26,
+    "end": 9.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 10.02,
+    "end": 10.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 10.16,
+    "end": 10.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 10.3,
+    "end": 10.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 10.5,
+    "end": 10.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 10.94,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is...",
+    "start": 11.1,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 11.48,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 11.6,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "waiting",
+    "start": 11.72,
+    "end": 12.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 12.04,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 12.18,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 12.36,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "whole",
+    "start": 12.5,
+    "end": 12.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life",
+    "start": 12.68,
+    "end": 12.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.92,
+    "end": 13.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "see",
+    "start": 13.08,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 13.3,
+    "end": 13.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "become",
+    "start": 13.76,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and,",
+    "start": 14.16,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.58,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infiltrate",
+    "start": 14.72,
+    "end": 15.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 15.18,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 15.28,
+    "end": 15.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 15.66,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 16.58,
+    "end": 17.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 17.12,
+    "end": 17.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 17.16,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 17.28,
+    "end": 17.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.38,
+    "end": 17.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "good",
+    "start": 17.42,
+    "end": 17.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing.",
+    "start": 17.56,
+    "end": 17.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 18.1,
+    "end": 18.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 18.5,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 18.6,
+    "end": 18.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "agree",
+    "start": 18.78,
+    "end": 19.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "culturally.",
+    "start": 19.06,
+    "end": 19.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Each",
+    "start": 20.14,
+    "end": 20.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cycle",
+    "start": 20.32,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 20.6,
+    "end": 20.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "different-",
+    "start": 20.76,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.92
+ },
+ "usd": 0.004184,
+ "seconds": 0.85,
+ "recorded_at": "2026-11-14T18:47:22Z"
+}

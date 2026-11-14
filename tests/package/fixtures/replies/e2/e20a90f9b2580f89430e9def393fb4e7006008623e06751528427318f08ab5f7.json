@@ -1,0 +1,19 @@
+{
+ "role": "visual_check",
+ "backend": "xai_vision:grok-4.7",
+ "model": "grok-4.7",
+ "vendor": "xai_vision",
+ "seed": 7,
+ "max_tokens": 600,
+ "system": null,
+ "prompt": "You see a contact sheet of 8 frames of ONE clip from a Bitcoin video, left to right and top to\nbottom. The clip's words, as spoken: \"On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.\"\nEvidence from the episode's captions (their speaker-change markers), to weigh with the frames: the captions carry no speaker-change markers (no evidence either way).\nFrom the frames and that evidence, classify the SOURCE's format:\n- \"conversation\": two or more people talking with each other: an interview, a podcast, a panel (in one room, or on a\n  split screen or a video call);\n- \"first_hand\": one person making their own statement to an audience: a keynote, a speech, a guest answering on a news\n  network;\n- \"recap\": one host speaking to the camera with headline graphics, a news set or b-roll: a news recap;\n- \"reaction\": a host showing or reacting to another video, a post or a chart inside the host's own frame;\n- \"other\": none of these, or you cannot tell.\nReturn ONLY this JSON object: {\"layout\": \"conversation\" | \"first_hand\" | \"recap\" | \"reaction\" | \"other\",\n\"people_on_screen\": <the most people visible in one frame, a number>, \"why\": \"<one sentence>\"}\n[image sha256=a32de832afcff1fe8351d26e9d4eedcadbeeb1cb2734b5588e16730ce77b5455]",
+ "text": "{\"layout\": \"first_hand\", \"people_on_screen\": 1, \"why\": \"A single speaker addresses the camera directly with personal statements and on-screen captions, with no other people, interviewer, or reaction footage.\"}",
+ "usage": {
+  "in": 2694,
+  "out": 218,
+  "usd_reported": 0.004968
+ },
+ "usd": 0.01892,
+ "seconds": 4.91,
+ "recorded_at": "2026-11-14T18:49:53Z"
+}
