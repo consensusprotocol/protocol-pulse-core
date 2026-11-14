@@ -11,8 +11,8 @@ from pipeline.ingest import ledger, providers
 from test_ledger_coverage import NOW, line
 
 
-def _router(backends, freeze=()):
-    r = H.make_router(backends, freeze=freeze)
+def _router(backends, freeze=(), **kw):
+    r = H.make_router(backends, freeze=freeze, **kw)
     r.cfg["roles"]["flagcheck"] = {"chain": [b.id for b in backends], "attempts": 2, "max_tokens": 200}
     return r
 
@@ -181,6 +181,62 @@ def test_the_calibration_set_is_balanced_and_counted_per_back_end():
     c = FC.calibrate(_router([a, b]), 2)
     assert c["ca"]["right"] == c["ca"]["of"] == 24 and c["ca"]["wrong"] == [] and c["ca"]["unmeasured"] == 0
     assert c["cb"]["right"] == 12 and c["cb"]["by_flag"]["imperative"] == [4, 8] and len(c["cb"]["wrong"]) == 12
+
+
+def _gold():
+    """{calibration prompt: (gold answer, quote)} and a checker function that answers every quote right."""
+    gold = {FC.prompt({"channel_name": "Calibration", "title": "Bitcoin news", "published_at": "2026-11-12",
+                       "text": t}, f): (g, t) for f, g, t in FC.PROBES}
+
+    def right(prompt):
+        g, t = gold[prompt]
+        return _reply("yes", t.split()[0]) if g == "yes" else _reply("no")
+    return gold, right
+
+
+def test_f1_the_watchers_calibration_asks_the_model_live_never_a_stored_reply(tmp_path):
+    """F1 (Nov 14): the watcher's calibration was answered from the reply cache, so its daily re-calibration replayed
+    the first answers and never re-measured the model it releases hard flags on. MUST FAIL the old code: a model that
+    answered every quote right before and answers one wrong now is barred, though its stored replies are all right
+    (the measurement CLI, which reproduces a report from its stored replies, still reads 16 / 16 without a call)."""
+    gold, right = _gold()
+    probes = tuple(p for p in FC.PROBES if p[0] in ("imperative", "single_source_breaking"))
+    first = probes[0][2]
+    b = H.FakeBackend("ca", fn=right)
+    r = _router([b], cache_dir=str(tmp_path))
+    allowed, cal = FC.watcher_checkers(r)
+    assert allowed == ["ca"] and cal["ca"]["right"] == cal["ca"]["of"] == 16 and len(b.calls) == 16
+    b.fn = lambda p: _reply("no") if gold[p][1] == first else right(p)      # the model behind the name changes
+    replay = FC.calibrate(r, 2, probes)                                      # stored replies: the change is hidden
+    assert replay["ca"]["right"] == 16 and len(b.calls) == 16
+    allowed, cal = FC.watcher_checkers(r)                                    # live: every quote asked again
+    assert len(b.calls) == 32 and allowed == [] and cal["ca"]["right"] == 15
+    assert cal["ca"]["wrong"] == [{"flag": "imperative", "gold": "yes", "answer": "no", "text": first}]
+
+
+def test_f1_a_quote_not_answered_is_asked_again_up_to_the_rounds(tmp_path):
+    """A passing gateway error does not bar a checker: a quote it did not answer (the router's retries spent) is asked
+    again in the next round, and only that quote; with no round left it stays unanswered and the checker is not
+    allowed (nothing measured is never a pass)."""
+    gold, right = _gold()
+    first = FC.PROBES[0][2]
+    for rounds, ok in ((1, False), (3, True)):
+        failed = []
+
+        def fn(p):
+            if gold[p][1] == first and len(failed) < 3:          # the router's call and its 2 transport retries
+                failed.append(p)
+                return providers.BackendError("network", "down")
+            return right(p)
+        b = H.FakeBackend("ca", fn=fn)
+        allowed, cal = FC.watcher_checkers(_router([b], cache_dir=str(tmp_path / f"r{rounds}")), rounds=rounds)
+        asked_first = sum(1 for p in b.calls if gold[p][1] == first)
+        if ok:
+            assert allowed == ["ca"] and cal["ca"]["right"] == cal["ca"]["of"] == 16 and cal["ca"]["unmeasured"] == 0
+            assert asked_first == 4 and len(b.calls) == 15 + 4               # the others were asked once
+        else:
+            assert allowed == [] and cal["ca"]["of"] == 15 and cal["ca"]["unmeasured"] == 1
+            assert asked_first == 3 and len(b.calls) == 15 + 3
 
 
 def test_the_report_renders_every_table_and_cell(tmp_path):

@@ -76,6 +76,8 @@ INSINUATION_PROBES = (       # the cases the first definition's checker let thro
 )
 ANSWERS = ("yes", "no", "unsure")
 CELLS = ANSWERS + ("unmeasured",)
+CALIBRATION_ROUNDS = 3       # the watcher's live calibration (F1): a quote a back-end did not answer is asked of it
+                             # again, up to this many rounds in all (a passing gateway error does not bar it)
 KEYS = ("answer", "evidence", "why")
 WHY_MAX = 200
 HOURS, CAP, SEED, EXAMPLES = 72, 200, 20261113, 5
@@ -269,9 +271,13 @@ def ask(router, row, flag, miner, can_spend=lambda: True, sharpened=False, allow
     return {"answer": None, "unmeasured": tried}
 
 
-def calibrate(router, workers=6, probes=PROBES, sharpened=False):
+def calibrate(router, workers=6, probes=PROBES, sharpened=False, fresh=False, rounds=1):
     """Every callable back-end of the role answers the probes (the fallback's accuracy is known too):
-    {back-end: {model, right, of (answered), unmeasured, by_flag {flag: [right, of]}, wrong [...]}}."""
+    {back-end: {model, right, of (answered), unmeasured, by_flag {flag: [right, of]}, wrong [...]}}.
+    fresh (the watcher's calibration; F1, Nov 14): every probe is put to the model NOW, never answered from a stored
+    reply (a stored reply calls nobody and proves nothing about the model today), and a probe a back-end did not
+    answer is asked of it again, up to `rounds` rounds in all. Without it (the measurement CLI) stored replies are
+    reused: a report is reproduced from them, and it releases nothing."""
     jobs = [(bid, i) for bid in router.effective(ROLE) for i in range(len(probes))]
 
     def one(job):
@@ -279,27 +285,36 @@ def calibrate(router, workers=6, probes=PROBES, sharpened=False):
         flag, _, text = probes[i]
         row = {"channel_name": "Calibration", "title": "Bitcoin news", "published_at": "2026-11-12", "text": text}
         try:
-            out = router.run(ROLE, prompt(row, flag, sharpened), SCHEMA, validator(text), tag={"probe": i}, only=bid)
+            out = router.run(ROLE, prompt(row, flag, sharpened), SCHEMA, validator(text), tag={"probe": i}, only=bid,
+                             use_cache=not fresh)
         except AllBackendsFailed:
             return bid, i, None
         return bid, i, out.obj["answer"]
 
+    answers, todo = {}, list(jobs)
+    for _ in range(max(1, int(rounds))):
+        with ThreadPoolExecutor(workers) as ex:
+            for bid, i, ans in ex.map(one, todo):
+                answers[(bid, i)] = ans
+        todo = [j for j in todo if answers[j] is None]      # only the probes nobody answered are asked again
+        if not todo:
+            break
     res = {}
-    with ThreadPoolExecutor(workers) as ex:
-        for bid, i, ans in ex.map(one, jobs):
-            flag, gold, text = probes[i]
-            r = res.setdefault(bid, {"model": router.backends[bid].model, "right": 0, "of": 0, "unmeasured": 0,
-                                     "by_flag": {f: [0, 0] for f in FLAGS}, "wrong": []})
-            if ans is None:
-                r["unmeasured"] += 1
-                continue
-            r["of"] += 1
-            r["by_flag"][flag][1] += 1
-            if ans == gold:
-                r["right"] += 1
-                r["by_flag"][flag][0] += 1
-            else:
-                r["wrong"].append({"flag": flag, "gold": gold, "answer": ans, "text": text})
+    for bid, i in jobs:
+        ans = answers[(bid, i)]
+        flag, gold, text = probes[i]
+        r = res.setdefault(bid, {"model": router.backends[bid].model, "right": 0, "of": 0, "unmeasured": 0,
+                                 "by_flag": {f: [0, 0] for f in FLAGS}, "wrong": []})
+        if ans is None:
+            r["unmeasured"] += 1
+            continue
+        r["of"] += 1
+        r["by_flag"][flag][1] += 1
+        if ans == gold:
+            r["right"] += 1
+            r["by_flag"][flag][0] += 1
+        else:
+            r["wrong"].append({"flag": flag, "gold": gold, "answer": ans, "text": text})
     return res
 
 
@@ -315,13 +330,14 @@ def record(ans, version=PROMPT_VERSION):
             "at": config.iso()}                                          # (audit r40p1 c2, glm)
 
 
-def watcher_checkers(router, workers=4, flags=("imperative", "single_source_breaking")):
+def watcher_checkers(router, workers=4, flags=("imperative", "single_source_breaking"), rounds=CALIBRATION_ROUNDS):
     """The back-ends allowed to answer in the watcher: those that answered EVERY calibration quote of the flags the
     watcher can release, right (ruling 40 P1 releases a hard flag on their answer: a checker that misses a known case
-    never does; accusation is never released, so its quotes are not asked here: audit r40p1 c2, glm). -> (ids,
-    calibration)."""
+    never does; accusation is never released, so its quotes are not asked here: audit r40p1 c2, glm). Every quote is
+    put to the model live (F1, Nov 14: the calibration had replayed the reply cache, so the daily one re-measured
+    nothing); a quote it did not answer is asked again, up to `rounds` rounds. -> (ids, calibration)."""
     probes = tuple(p for p in PROBES if p[0] in flags)
-    cal = calibrate(router, workers, probes)
+    cal = calibrate(router, workers, probes, fresh=True, rounds=rounds)
     return [b for b, c in cal.items() if c["of"] == len(probes) and c["right"] == c["of"]], cal
 
 

@@ -341,6 +341,32 @@ minutes ... use Groc mainly or whatever other AI tokens we have".
   PAID ROUTE (...)", "MINER PAID ROUTE CAP REACHED (...)" (once per ET day); kept and retried until written. Live:
   live.json / `status` `paid_route` (open, why not open, spend today, cap).
 
+## 16. The second-model flag check in the watcher (ruling 40 P1, orchestrator 19:22 ET Nov 13; F1, Nov 14)
+
+The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u) only when a second model agrees.
+- THE CHECK (service `check` loop, every 30 s): every flag of those two on a moment still inside 12 h with no answer
+  that counts is asked of the role `flagcheck` (glm, then muse on Heimdall; never a model or back-end that mined any
+  line of the video) with the ruling's definition (flagcheck.PROMPT); the answer goes into a new line of the moment
+  (`risk_checks`). The adapter releases such a flag only on a "no" from a model other than the miner under the current
+  prompt version (`ledger.check_valid`, `effective_risk`; the label moves to `risk_notes` in the returned row); "yes",
+  "unsure", no answer: the flag stands. `accusation` is never released (P2 measured it unsafe). A question nobody
+  answered is asked again after CHECK_RETRY_S (600 s).
+- THE CALIBRATION decides which back-ends may answer: the 16 quotes of the two flags with a clear answer
+  (`flagcheck.PROBES`, fictional names); a back-end answers if it answered every quote, right. Asked at every start and
+  once a day. F1 (Nov 14): every quote is put to the model LIVE (`flagcheck.calibrate(fresh=True)`, the router's
+  `use_cache=False`). Until then the calibration was answered from the reply cache, so every start and every daily
+  calibration replayed the first answers (measured 20:10-23:05 ET Nov 13) and re-measured nothing: a model changed
+  behind the same gateway name would have kept releasing flags on a stale calibration. A quote a back-end did not
+  answer is asked of it again, only that quote, up to CALIBRATION_ROUNDS (3) rounds. When no back-end passed and one
+  still could (a quote unanswered, none answered wrong: an outage at calibration time), the next calibration comes
+  after CHECK_RETRY_S, the wait doubling while it keeps failing (600, 1200, 2400 s ... up to a day: about eight
+  calibrations a day at worst, each at most 3 rounds of 32 short questions); when one passed, or every back-end
+  answered a quote wrong
+  (at temperature 0 it would answer the same again), the next is the daily one. Nothing measured is never a pass: an
+  unanswered quote never counts as right. The measurement CLI (`tools/ingest_watch.py flagcheck`) keeps its stored
+  replies (a report is reproduced from them; it releases nothing). Live: live.json
+  `second_model_checks_12h.calibration` (right, of, unmeasured, asked_at per back-end).
+
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 
 - A1 Registry: the selector's universe = `pipeline/channels.json` enabled with a channel id (64 channels at c1451047,

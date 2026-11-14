@@ -15,7 +15,11 @@ Loops (threads, one process):
   check   every 30 s (ruling 40 P1): the second model's narrow question on every imperative / single_source_breaking
           flag of a moment still usable (published in the last 12 h, newest first) that has no answer that counts; the
           answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no". The
-          checker is calibrated at start and daily inside this loop (16 short calls; the loop waits for it)
+          checker is calibrated at start and daily inside this loop (16 short questions per back-end, the loop waits
+          for it), every question put to the model live, never answered from a stored reply (F1, Nov 14); a question
+          not answered is asked again (flagcheck.CALIBRATION_ROUNDS); when no back-end passed and one still could (a
+          question unanswered, none wrong) the calibration is tried again after CHECK_RETRY_S, not a day later, the
+          wait doubling while it keeps failing (up to a day)
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
   signal  every 5 s (ruling 87, when providers.json has down_signal): the ONE shared 'Heimdall down' signal
@@ -66,7 +70,9 @@ CHECK_EVERY_S = 30             # ruling 40 P1: the second-model check loop
 CHECK_ROWS = 8                 # rows started per loop
 CHECK_INFLIGHT = 4             # rows being checked at once (their questions are short; Heimdall stays under ~20)
 CHECK_RETRY_S = 600            # a question nobody answered is asked again after this (the flag stands meanwhile)
-CHECK_RECALIBRATE_S = 86400    # the checker is re-calibrated on the known quotes once a day (and at every start)
+CHECK_RECALIBRATE_S = 86400    # the checker is re-calibrated on the known quotes once a day (and at every start),
+                               # asked live (F1); after CHECK_RETRY_S instead when none passed and one still could,
+                               # the wait doubling while it keeps failing (up to a day)
 
 
 class ServiceBusy(RuntimeError):
@@ -117,6 +123,7 @@ class Service:
         self.checks = ThreadPoolExecutor(max_workers=CHECK_INFLIGHT, thread_name_prefix="check")
         self.check_inflight, self.check_next, self.clock_lock = set(), {}, threading.Lock()
         self.check_allowed, self.check_calibrated = None, 0.0
+        self.check_recal_s = CHECK_RECALIBRATE_S        # the wait before the next calibration (set by each one)
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
         self.cycle = None
@@ -479,13 +486,27 @@ class Service:
         """RULING 40 P1: start the second-model check on the newest still-usable moments whose imperative /
         single_source_breaking flag has no answer that counts. Only back-ends that answer every calibration quote
         right may answer (none: nothing is checked, every flag stands)."""
-        if self.check_allowed is None or self.clock() - self.check_calibrated >= CHECK_RECALIBRATE_S:
+        if self.check_allowed is None or self.clock() - self.check_calibrated >= self.check_recal_s:
+            asked = config.iso()
             self.check_allowed, cal = flagcheck.watcher_checkers(self.router)
             self.check_calibrated = self.clock()
-            self.q.kv_set("check_calibration", json.dumps({b: {k: c[k] for k in ("model", "right", "of", "unmeasured")}
+            # F1: when no back-end passed and one still could (a question unanswered, none answered wrong), an outage
+            # at calibration time must not bar the checkers for a day: tried again after CHECK_RETRY_S, the wait
+            # doubling while it keeps failing (a checker that keeps replying badly costs a few calibrations a day)
+            could = [b for b, c in cal.items() if c["unmeasured"] and not c["wrong"]]
+            if self.check_allowed or not could:
+                self.check_recal_s = CHECK_RECALIBRATE_S
+            elif self.check_recal_s >= CHECK_RECALIBRATE_S:
+                self.check_recal_s = CHECK_RETRY_S
+            else:
+                self.check_recal_s = min(CHECK_RECALIBRATE_S, 2 * self.check_recal_s)
+            self.q.kv_set("check_calibration", json.dumps({b: dict({k: c[k] for k in ("model", "right", "of",
+                                                                                      "unmeasured")}, asked_at=asked)
                                                            for b, c in cal.items()}))
-            self.log(f"check: calibration {[(b, c['right'], c['of']) for b, c in cal.items()]}; allowed to answer: "
-                     f"{self.check_allowed or 'none (every flag stands)'}")
+            got = [(b, c["right"], c["of"], c["unmeasured"]) for b, c in cal.items()]
+            self.log(f"check: calibration (asked live) {got} (right, answered, unanswered); allowed to answer: "
+                     f"{self.check_allowed or 'none (every flag stands)'}; next calibration in "
+                     f"{self.check_recal_s:.0f} s")
         if not self.check_allowed:
             return 0
         try:                                              # nothing new in the ledger and no retry due: no re-read
@@ -722,8 +743,9 @@ class Service:
                 f"the miner's Plan B: {sg['miner_plan_b']}" if sg["wired"] else f"NOT READ: {sg['not_read']}"))
         if len(self.router.effective("mine")) < 2:
             self.log(f"WARNING: {len(self.router.effective('mine'))} callable mine back-end(s): when it is down the "
-                     "videos wait in the queue and are mined when it returns (orchestrator 05:30: never a paid frontier "
-                     "fallback); nothing is dropped")
+                     "videos wait in the queue and are mined when it returns (orchestrator 05:30: the mine role never "
+                     "falls back to a paid frontier vendor; ruling 98's capped paid route is a separate role); nothing "
+                     "is dropped")
         self.meter.measure()
         self.last_measure = self.clock()
         threads = [threading.Thread(target=self._loop, args=a, daemon=True, name=a[0]) for a in (

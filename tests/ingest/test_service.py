@@ -499,6 +499,48 @@ def test_a_checker_that_misses_a_calibration_quote_never_releases_anything(svc):
     assert out == []
 
 
+def test_f1_a_calibration_an_outage_left_unanswered_is_tried_again_soon_and_the_wait_doubles(svc):
+    """F1 (Nov 14): the calibration is asked live, so an outage can leave it unanswered. Then no checker may answer
+    (nothing measured is never a pass), but the next calibration comes after CHECK_RETRY_S, not a day later, the wait
+    doubling while it keeps failing; once one passes, the daily calibration again, and the flags are checked."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    good = b["fallback"].fn
+    b["fallback"].fn = lambda p: providers.BackendError("network", "down")
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []
+    assert s.check_recal_s == service.CHECK_RETRY_S
+    n = len(b["fallback"].calls)
+    s.check_once(wait=True)                                          # not due yet: nothing asked
+    assert len(b["fallback"].calls) == n and s.check_recal_s == service.CHECK_RETRY_S
+
+    def due():
+        s.check_calibrated -= s.check_recal_s
+        for h in s.router.health.values():
+            h.open_until = 0.0
+    due()
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []   # still down: asked again, the wait doubles
+    assert len(b["fallback"].calls) > n and s.check_recal_s == 2 * service.CHECK_RETRY_S
+    b["fallback"].fn = good                                          # back
+    due()
+    while s.check_once(wait=True):
+        pass
+    assert s.check_allowed == ["fallback"] and s.check_recal_s == service.CHECK_RECALIBRATE_S
+    cal = json.loads(s.q.kv_get("check_calibration"))
+    assert cal["fallback"]["right"] == cal["fallback"]["of"] == 16 and cal["fallback"]["asked_at"]
+    since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
+    out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"])
+    assert out and rep["released_by_the_second_model"] == len(out)
+
+
+def test_f1_a_checker_that_answers_a_quote_wrong_waits_for_the_daily_calibration(svc):
+    """A calibration every back-end answered in full, with a quote answered wrong, bars them until the daily one (at
+    temperature 0 a model answers a known quote the same way again: no quick retry)."""
+    s, vids, b = svc(_checker("no", probes_right=False), _checker("no", probes_right=False), n_videos=1)
+    run_once(s)
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []
+    assert s.check_recal_s == service.CHECK_RECALIBRATE_S
+
+
 def test_an_unanswered_question_records_nothing_and_waits(svc):
     s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
     run_once(s)
