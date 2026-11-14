@@ -257,13 +257,15 @@ within 12 h of its video's publish time, then never again.
   into a run with a delivery record, TELEGRAM_DELIVERY or REVIEW_DROP, or into a pin the stand-alone scorer records as
   delivered, or into a reference with delivery evidence). The orchestrator's 08:15 ruling 3 (A19, Nov 14) replaced
   "wherever it lies": each delivery keeps the acquired source section(s) its PROVENANCE.json names, BY SHA256 (its own
-  sources/<file> when the hash matches, else the copy of that video in the targets with the hash; `purge.kept_copies`,
-  hashes cached by path, size and mtime); a video it cut that its PROVENANCE does not list, or a delivery whose
+  sources/<file> or run/sources/<file> when the hash matches, else the copy of that video in the targets with the
+  hash; `purge.kept_copies`, hashes cached by path, size and mtime, the cache emptied at 4,096 entries; a copy only in
+  ANOTHER unit's non-target directory is not looked for, so that video is unresolved: none on Nov 14, audit a19 c1);
+  a video it cut that its PROVENANCE does not list, or a delivery whose
   PROVENANCE names no sources, keeps the delivery's own section(s) by name; a delivered video whose copy cannot be
   identified (no hash named, no copy with it, no own section, a candidate that cannot be read) keeps EVERY copy (fail
   closed; live.json and `purge` name it unresolved). Every other cached copy of a delivered video (re-renders,
   replays, recuts) is media like any other below, and each deletion names the copy kept (deleted.jsonl
-  `other_copy_of_delivered`, `kept_copies`). Measured before it went live (a read-only dry run, 09:2x ET Nov 14): 15
+  `other_copy_of_delivered`, `kept_copies`, by the video id it was kept for, not by its file name). Measured before it went live (a read-only dry run, 09:2x ET Nov 14): 15
   deliveries, every PROVENANCE hash found, 46 copies kept, 121 other copies (3.36 GB) to go; 3 more copies of the v2f
   reference's video (3.53 GB) stay because its publish time is not measured. Also kept: a file whose publish time is
   not measured, a run touched in the last 2 h (a render in progress), a file a process holds open, a symlink; and every

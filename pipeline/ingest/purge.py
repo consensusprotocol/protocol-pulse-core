@@ -203,6 +203,7 @@ def delivered(spec):
 
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _SHA = {}                    # (real path, size, mtime_ns) -> sha256: a pass re-hashes only a file that changed
+SHA_CACHE_MAX = 4096         # audit a19 c1 (glm C5): the watcher runs for days; the cache is emptied at this size
 
 
 def sha256_of(path):
@@ -215,6 +216,8 @@ def sha256_of(path):
         with open(path, "rb") as f:
             for b in iter(lambda: f.read(1 << 20), b""):
                 d.update(b)
+        if len(_SHA) >= SHA_CACHE_MAX:
+            _SHA.clear()
         h = _SHA[k] = d.hexdigest()
     return h
 
@@ -238,7 +241,7 @@ def kept_copies(units, copies, exts):
     whose PROVENANCE names no sources, keeps the delivery's own section(s) by name (no hash is named to check). A
     delivered video whose copy cannot be identified (no sha256 named, no copy with it, no own section, a candidate that
     cannot be read) is UNRESOLVED and keeps every copy (fail closed). A PROVENANCE.json that cannot be read is already
-    a problem of the pass (unit_videos). -> ({real path: why}, {video id: why})."""
+    a problem of the pass (unit_videos). -> ({real path: (video id, why)}, {video id: why})."""
     keep, unresolved = {}, {}
 
     def same(p, h):
@@ -269,14 +272,14 @@ def kept_copies(units, copies, exts):
             found = next((p for p in own if same(p, h)), None) or next(
                 (p for p in sorted(copies.get(v, [])) if same(p, h)), None)
             if found:
-                keep[os.path.realpath(found)] = f"{name}: its PROVENANCE's copy, sha256 {h[:12]}"
+                keep[os.path.realpath(found)] = (v, f"{name}: its PROVENANCE's copy, sha256 {h[:12]}")
             else:
                 unresolved.setdefault(v, f"{name}: no copy with its PROVENANCE's sha256 {h[:12]}")
         for v in sorted(vids - listed):
             own = _own_media(unit, v, exts)
             if own:
                 for p in own:
-                    keep[os.path.realpath(p)] = f"{name}: its own section (its PROVENANCE names no hash for it)"
+                    keep[os.path.realpath(p)] = (v, f"{name}: its own section (its PROVENANCE names no hash for it)")
             else:
                 unresolved.setdefault(v, f"{name}: no hash named and no own section")
     return keep, unresolved
@@ -480,7 +483,8 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
                     if rp in opened:
                         keep("open in a process", size)
                         continue
-                    kept_of = sorted(k for k in kept_paths if other and _vid_of(os.path.basename(k)) == vid)
+                    kept_of = (sorted(k for k, (kv, _) in kept_paths.items() if kv == vid) if other else
+                               [])            # audit a19 c1: by the video id it was kept for, not by its file name
                     if dry_run:
                         rep.setdefault("would_delete", []).append({
                             "path": p, "bytes": size, "video_id": vid,

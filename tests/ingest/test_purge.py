@@ -397,8 +397,46 @@ def test_a_delivered_run_whose_provenance_omits_a_video_it_cut_keeps_its_own_sec
     _copy(tree, "pinned_b_other", VIDS["B"], b"unlisted own")
     tree["q"].pub[K] = NOW - timedelta(hours=30)
     tree["q"].pub[VIDS["B"]] = NOW - timedelta(hours=30)
+    tree["q"].pub[VIDS["C"]] = NOW - timedelta(hours=30)      # audit a19 c1 (glm C15): expired, so only the rule keeps it
     rep = _run(tree)
     assert _exists(tree, f"runs/pinned_dl/sources/{VIDS['B']}.mp4")             # its own section, by name
     assert not _exists(tree, f"runs/pinned_b_other/sources/{VIDS['B']}.mp4")
     assert VIDS["C"] in rep["one_copy_per_delivery"]["unresolved"]               # cut, no hash, no own section
-    assert _exists(tree, f"runs/pinned_old/sources/{VIDS['C']}.mp4")             # (its publish time is unknown too)
+    assert _exists(tree, f"runs/pinned_old/sources/{VIDS['C']}.mp4")             # expired and idle: kept as unresolved
+    assert rep["kept"]["a delivered video whose delivery copy is not identified (every copy kept)"]["files"] >= 1
+
+
+@pytest.mark.parametrize("fn", [f"{K}.mp4", "section_1.mp4"])
+def test_an_attested_section_in_a_references_run_sources_is_kept_and_named_and_the_runs_copies_go(tree, fn):
+    """Audit a19 c1 (glm P1; qwen's P1 refuted): the attested copy sits in a reference's run/sources/ (never a
+    target), its PROVENANCE naming a plain file name (the video id's, or another): it is found there, kept, and named
+    in each deletion's kept_copies by the video it was kept for; the runs' copies of the video go; it is resolved."""
+    good = b"the delivered section"
+    ref = tree["main"] / "references" / "v2f_like"
+    _touch(str(ref / "run" / "sources" / fn), data=good)
+    _touch(str(ref / "PROVENANCE.json"), data=json.dumps({"sources": [
+        {"video_id": K, "file": fn, "sha256": _sha(good)}]}).encode())
+    _touch(str(ref / "PIN.json"), data=b"{}")
+    _age_dir(str(ref), 3)
+    _copy(tree, "pinned_replay", K, good)
+    _copy(tree, "pinned_k_cut", K, b"another cut of the video")
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    kept = os.path.realpath(str(ref / "run" / "sources" / fn))
+    assert os.path.exists(kept)
+    assert not _exists(tree, f"runs/pinned_replay/sources/{K}.mp4") and not _exists(tree, f"runs/pinned_k_cut/sources/{K}.mp4")
+    lines = [json.loads(l) for l in open(os.path.join(tree["logs"], "deleted.jsonl")) if l.strip()]
+    lines = [l for l in lines if l["video_id"] == K]
+    assert len(lines) == 2 and all(l["other_copy_of_delivered"] and l["kept_copies"] == [kept] for l in lines)
+    assert K not in rep["one_copy_per_delivery"]["unresolved"]
+
+
+def test_the_hash_cache_is_bounded(tmp_path, monkeypatch):
+    """Audit a19 c1 (glm C5): the watcher runs for days; the sha256 cache is emptied when it reaches its bound, and
+    a hash read after that is still right."""
+    monkeypatch.setattr(purge, "_SHA", {})
+    monkeypatch.setattr(purge, "SHA_CACHE_MAX", 3)
+    paths = [_touch(str(tmp_path / f"f{i}.mp4"), data=str(i).encode()) for i in range(5)]
+    for p in paths:
+        assert purge.sha256_of(p) == _sha(open(p, "rb").read())
+        assert len(purge._SHA) <= 3

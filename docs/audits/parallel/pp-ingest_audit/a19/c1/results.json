@@ -1,0 +1,61 @@
+{
+ "results": {
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 172364,
+    "completion_tokens": 3783,
+    "total_tokens": 176147,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0
+    },
+    "cost": 0.010712205
+   },
+   "cost_usd": 0.010712205,
+   "seconds": 391.1,
+   "finish_reason": "stop"
+  },
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 155853,
+    "completion_tokens": 11387,
+    "total_tokens": 167240,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.006243431
+   },
+   "cost_usd": 0.006243431,
+   "seconds": 412.1,
+   "finish_reason": "stop"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 153617,
+    "completion_tokens": 5582,
+    "total_tokens": 159199,
+    "prompt_tokens_details": {
+     "cached_tokens": 160,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 15
+    },
+    "cost": 0.03270345
+   },
+   "cost_usd": 0.03270345,
+   "seconds": 573.7,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {},
+ "error_costs": {},
+ "skipped": {},
+ "earlier_attempts": []
+}
