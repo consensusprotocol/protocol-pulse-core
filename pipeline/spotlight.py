@@ -36,6 +36,7 @@ CLOSING_GATES, spotlight_problems, first_comment_text, the sealed closing / shap
 import base64
 import hashlib
 import json
+import math
 import os
 import re
 import threading
@@ -64,7 +65,9 @@ TRIM_MARGIN_S = 1.0                    # RULING 94 (a): a moment to be trimmed i
                                        # ONE trimmed word never takes it back under SNAP_TO_S
 LAYOUTS = ("conversation", "first_hand", "recap", "reaction", "other")
 LAYOUT_OK = ("conversation", "first_hand")
-CONVERSATION_TPM = 1.0                 # ruling 92's caption half (see source_test)
+NEAR_CLIP_S = 300.0                    # RULING 92 AMENDED (09:03 Nov 14): "the 10 minutes around the clip", read as 5
+                                       # minutes each side of it; ZERO speaker changes there in a marked episode refuses
+                                       # (the 1.0-turns-a-minute line, CONVERSATION_TPM, is retired by the same ruling)
 FINALISTS = 3                          # moments taken to exclusion, the pre-check and the write, best first
 WRITES = 2                             # the title, caption and comment: one more write when a gate refuses them
 SCORER_WAIT_S = 600.0                  # a moment that passes everything but has no ALONE rating yet waits this long for
@@ -264,31 +267,76 @@ def episode_turns(video_id, captions_for=None):
             "file": (rec or {}).get("file"), "sha256": (rec or {}).get("sha256")}
 
 
-def source_test(turns, layout):
-    """RULING 92 -> (ok, why). A PASS needs a MEASURED layout of a conversation or a first-hand statement
-    (LAYOUT_OK). A recap, a reaction, or a layout the judge cannot place ('other') fails on any channel; a layout that
-    is not measured is never a pass (law L-m). The caption markers across the episode can only make it stricter: a
-    layout read as a conversation from an episode whose captions are marked but carry fewer than CONVERSATION_TPM
-    turns a minute is not measured as a conversation (Nov 13: Simply Bitcoin's solo recap L6H7538ogGs 0.48 turns a
-    minute; the pool's interviews and panels 1.18-2.53). Unmarked captions are unknown, not solo: the layout decides."""
+def caption_evidence(video_id, start, end, captions_for=None):
+    """RULING 92 AMENDED (09:03 Nov 14): the caption markers are EVIDENCE for the layout judge, not a refusal line. Read
+    from the episode's caption record with speaker-change markers (speakers.captions, ruling 69's reader): the turns a
+    minute across the episode; the speaker changes in the 10 minutes around the clip (NEAR_CLIP_S each side of
+    [start, end]); and whether the clip's own span sits inside one unbroken turn (no marker more than MARKER_TOL_S
+    inside an edge). -> {"measured", "marked", ...}: marked False when no copy of the captions carries any marker
+    (unknown, never solo: no evidence either way); measured False when the record cannot be read."""
+    import speakers as SP
+    try:                                               # audit 0915 C1: a record that cannot be read OR counted is no
+        units, rec = (captions_for or SP.captions)(video_id)          # evidence, never a refusal (never a crash)
+        if not units:
+            return {"measured": True, "marked": False,
+                    "why": "no caption record with speaker-change markers: unmarked (unknown, never solo)"}
+        times = [float(u[0]) for u in units]
+        if not all(math.isfinite(t) for t in times):
+            raise ValueError("a caption time is not a finite number")
+        opens = [t for t, u in zip(times, units) if u[2]]
+        minutes = (times[-1] - times[0]) / 60.0
+        return {"measured": True, "marked": True, "turns": len(opens), "minutes": round(minutes, 1),
+                "turns_per_min": round(len(opens) / minutes, 2) if minutes > 0 else None,
+                "changes_near": sum(1 for t in opens if start - NEAR_CLIP_S <= t <= end + NEAR_CLIP_S),
+                "one_turn": not any(start + MARKER_TOL_S < t < end - MARKER_TOL_S for t in opens),
+                "file": (rec or {}).get("file"), "sha256": (rec or {}).get("sha256")}
+    except Exception as e:                             # noqa: BLE001
+        return {"measured": False, "marked": None, "why": f"{type(e).__name__}: {str(e)[:120]}"}
+
+
+def markers_refuse(evidence):
+    """RULING 92 AMENDED: the ONE case where the caption markers refuse by themselves: the episode is marked and has
+    ZERO speaker changes in the 10 minutes around the clip."""
+    ev = evidence or {}
+    return ev.get("measured") is True and ev.get("marked") is True and ev.get("changes_near") == 0
+
+
+def evidence_text(evidence):
+    """The caption evidence as the layout judge reads it (one sentence)."""
+    ev = evidence or {}
+    if ev.get("measured") is not True:
+        return "the captions could not be read (no evidence either way)."
+    if not ev.get("marked"):
+        return "the captions carry no speaker-change markers (no evidence either way)."
+    return (f"{ev.get('turns_per_min')} speaker turns a minute across the episode ({ev.get('turns')} in "
+            f"{ev.get('minutes')} min); {ev.get('changes_near')} speaker change(s) in the 10 minutes around this clip; "
+            f"the clip's own words sit inside one unbroken turn: {'yes' if ev.get('one_turn') else 'no'}.")
+
+
+def source_test(evidence, layout):
+    """RULING 92 AMENDED (09:03 Nov 14) -> (ok, why). The LAYOUT verdict decides the source test alone: a MEASURED
+    layout of a conversation or a first-hand statement (LAYOUT_OK) passes; a recap, a reaction or 'other' fails on any
+    channel; a layout that is not measured never passes (law L-m). The caption markers are EVIDENCE shown to the
+    layout judge (layout_for), not a refusal line (the 1.0-turns-a-minute line refused real interviews: 19 of 67
+    videos at 0.3-1.0); they refuse by themselves only when the episode is marked and has ZERO speaker changes in the
+    10 minutes around the clip (markers_refuse)."""
+    if markers_refuse(evidence):
+        return False, (f"the episode's captions are marked ({evidence.get('turns')} turns in "
+                       f"{evidence.get('minutes')} min) and show no speaker change in the 10 minutes around the clip")
     if not (layout or {}).get("measured"):
         return False, f"the layout is not measured: {(layout or {}).get('why')}"
     lay = layout["layout"]
     if lay not in LAYOUT_OK:
         return False, f"the layout is '{lay}' ({layout.get('why')}): not a conversation or a first-hand statement"
-    tpm = (turns or {}).get("turns_per_min")
-    if lay == "conversation" and (turns or {}).get("measured") and (tpm is None or tpm < CONVERSATION_TPM):
-        return False, (f"the frames read as a conversation but the episode's captions carry {tpm} speaker turns a "
-                       f"minute (under {CONVERSATION_TPM:g})")
-    return True, f"layout '{lay}'" + (f"; {turns['turns']} caption turns in {turns['minutes']} min ({tpm} a minute)"
-                                      if (turns or {}).get("measured") else "; captions unmarked")
+    return True, f"layout '{lay}'; the captions' evidence: {evidence_text(evidence)}"
 
 
 def next_attempt(rows, word_pass, now, captions_for=None):
     """RULING 95 (00:40 ET Nov 14): when a build ends with no medley and no spotlight, when the next qualifying episode
-    could arrive. The NEWEST conversation upload among the adapter's rows: caption turns from pp-ingest's `episode`
-    (mine-hook/2 rows), else episode_turns(), at least CONVERSATION_TPM a minute (an unmarked episode is not counted:
-    unknown). Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
+    could arrive. The NEWEST upload among the adapter's rows whose captions do not refuse it (RULING 92 AMENDED, 09:03
+    Nov 14: unmarked, or marked with at least one speaker change; the layout decides per clip), its caption turns from
+    pp-ingest's `episode` (mine-hook/2 rows), else episode_turns(): an episode marked with zero turns is the one
+    excluded. Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
     waiting (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
     "newest_upload": {...} or None}."""
     from datetime import datetime, timedelta, timezone
@@ -302,9 +350,10 @@ def next_attempt(rows, word_pass, now, captions_for=None):
         pub = P.utc_z(rs[0].get("published_at"))
         ep = next((r.get("episode") for r in rs if isinstance(r.get("episode"), dict)), None)
         tpm, frm = (ep or {}).get("turns_per_min"), "pp-ingest episode"
-        if not isinstance(tpm, (int, float)) and not (ep or {}).get("unmarked"):
+        unmarked = (ep or {}).get("unmarked") is True    # pp-ingest writes 0.0 turns a minute AND unmarked for these
+        if not isinstance(tpm, (int, float)) and not unmarked:
             t = episode_turns(vid, captions_for)
-            tpm, frm = t.get("turns_per_min"), "the caption record (recount)"
+            tpm, frm, unmarked = t.get("turns_per_min"), "the caption record (recount)", t.get("unmarked") is True
         passes = {}
         for r in rs:
             k = f"{(r.get('mined') or {}).get('pass')}/{(r.get('mined') or {}).get('prompt_version')}"
@@ -315,17 +364,20 @@ def next_attempt(rows, word_pass, now, captions_for=None):
         age = E.age_hours(rs[0].get("published_at"), now)
         return {"video_id": vid, "channel": rs[0].get("channel_name"), "published_at": pub, "expires_at": exp,
                 "age_h": round(age, 1) if age is not None else None,
-                "turns_per_min": tpm, "turns_from": frm, "rows": len(rs), "passes": passes,
+                "turns_per_min": tpm, "unmarked": unmarked, "turns_from": frm, "rows": len(rs), "passes": passes,
                 "word_pass_ready": ready, "word_pass_waiting": len(rs) - ready}
     sts = sorted((state(v, rs) for v, rs in by_vid.items()), key=lambda x: x["published_at"] or "", reverse=True)
-    conv = [x for x in sts if isinstance(x["turns_per_min"], (int, float)) and x["turns_per_min"] >= CONVERSATION_TPM]
+    conv = [x for x in sts if x["unmarked"] or not (isinstance(x["turns_per_min"], (int, float)) and
+                                                    x["turns_per_min"] <= 0)]       # only MARKED with zero turns is out
     return {"conversation": conv[0] if conv else None, "newest_upload": sts[0] if sts else None,
-            "rule": f"the newest upload with >= {CONVERSATION_TPM:g} caption turns a minute (ruling 95)"}
+            "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; "
+                    "ruling 92 amended: the layout decides per clip) (ruling 95)"}
 
 
 LAYOUT_PROMPT = """You see a contact sheet of {n} frames of ONE clip from a Bitcoin video, left to right and top to
 bottom. The clip's words, as spoken: "{text}"
-From the frames only, classify the SOURCE's format:
+Evidence from the episode's captions (their speaker-change markers), to weigh with the frames: {evidence}
+From the frames and that evidence, classify the SOURCE's format:
 - "conversation": two or more people talking with each other: an interview, a podcast, a panel (in one room, or on a
   split screen or a video call);
 - "first_hand": one person making their own statement to an audience: a keynote, a speech, a guest answering on a news
@@ -359,18 +411,21 @@ def _load_json(path):
         return {}
 
 
-def layout_for(router, m, vrec, cache_path=None, seed=7):
+def layout_for(router, m, vrec, cache_path=None, seed=7, evidence=None):
     """RULING 92's visual half: the source's layout, judged on the clip's own contact sheet (the visual check's, ruling
     70: the same bytes it judged) with LAYOUT_PROMPT, by the visual_check role (one call, cached by the moment, the
-    sheet's sha256 and the prompt's version). -> {"measured", "layout", "people_on_screen", "why", "backend",
-    "replayed"} or {"measured": False, "why"}: never a pass unmeasured."""
+    sheet's sha256, the prompt's version and the evidence shown). RULING 92 AMENDED (09:03 Nov 14): the judge also
+    reads the caption markers as EVIDENCE (caption_evidence, evidence_text: turns a minute, changes near the clip, one
+    unbroken turn), never as a refusal line. -> {"measured", "layout", "people_on_screen", "why", "backend",
+    "replayed", "evidence"} or {"measured": False, "why"}: never a pass unmeasured."""
     import providers as Pr
     from story_semantics import quote_data
     sheet = (vrec or {}).get("sheet") or {}
     path, sha = sheet.get("path"), sheet.get("sha256")
     if not (vrec or {}).get("measured") or not path or not sha:
         return {"measured": False, "why": "no judged contact sheet (the visual check is not measured)"}
-    k = f"{m['moment_id']}:{sha}:{LAYOUT_VERSION}"
+    ev_text = evidence_text(evidence)              # the same evidence, the same key (captions can arrive later)
+    k = f"{m['moment_id']}:{sha}:{LAYOUT_VERSION}:{hashlib.sha256(ev_text.encode()).hexdigest()[:12]}"
     hit = _load_json(cache_path).get(k) if cache_path else None
     if isinstance(hit, dict) and hit.get("measured") is True:
         return dict(hit, cached=True)
@@ -382,7 +437,8 @@ def layout_for(router, m, vrec, cache_path=None, seed=7):
     if hashlib.sha256(raw).hexdigest() != sha:
         return {"measured": False, "why": "the sheet on disk is not the one the visual check judged"}
     prompt = {"text": LAYOUT_PROMPT.format(n=len(sheet.get("times") or []),
-                                           text=quote_data(m.get("text") or "", 700).replace('"', "'")),
+                                           text=quote_data(m.get("text") or "", 700).replace('"', "'"),
+                                           evidence=ev_text),
               "images": [base64.b64encode(raw).decode()]}
     r = None
     try:
@@ -393,7 +449,7 @@ def layout_for(router, m, vrec, cache_path=None, seed=7):
             router.reject(r)
         return {"measured": False, "why": f"{type(e).__name__}: {str(e)[:200]}"}
     rec = dict(v, measured=True, backend=r.backend, replayed=bool(getattr(r, "replayed", False)),
-               version=LAYOUT_VERSION, sheet_sha256=sha)
+               version=LAYOUT_VERSION, sheet_sha256=sha, evidence=ev_text)
     if cache_path and not rec["replayed"]:
         with LAYOUT_LOCK:
             c = _load_json(cache_path)
@@ -683,8 +739,10 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
     rows["spotlight_source"] = _row(src_rec["ok"], (src_rec.get("layout") or {}).get("backend"),
                                     bool((src_rec.get("layout") or {}).get("replayed", False)),
                                     measured=(src_rec.get("layout") or {}).get("measured") is True,
-                                    why=src_rec.get("why"), turns=src_rec.get("turns"), layout=src_rec.get("layout"),
-                                    rule="ruling 92: conversation, not reaction (caption turns + the layout)")
+                                    why=src_rec.get("why"), evidence=src_rec.get("evidence"), layout=src_rec.get("layout"),
+                                    rule="ruling 92 amended (09:03 Nov 14): the layout decides (conversation or "
+                                         "first-hand); the captions are evidence, refusing alone only with zero "
+                                         "speaker changes in the 10 minutes around the clip")
     rows["window_12h"] = _row(not PP.window_problems(pk["segments"], facts["now"]),
                               "code (package_pin.window_problems, ruling 76: <= 12 h on the render clock)",
                               why=PP.window_problems(pk["segments"], facts["now"]))
@@ -880,11 +938,13 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                   " (asked with the build's scorer candidates)"))
     passed(fine, 7)
     ok_src = []
-    for mid, m in fine.items():
-        turns = episode_turns(m["video_id"], captions_for)
-        lay = layout_for(router, m, m.get("visual"), layout_cache)
-        ok, w = source_test(turns, lay)
-        m["spotlight_source"] = {"ok": ok, "why": w, "turns": turns, "layout": lay}
+    for mid, m in fine.items():                        # RULING 92 AMENDED (09:03 Nov 14): the captions as evidence
+        ev = caption_evidence(m["video_id"], float(m["start"]), float(m["end"]), captions_for)
+        lay = ({"measured": False, "why": "not asked: the captions refuse the source by themselves"}
+               if markers_refuse(ev) else                # free, so a refused source never costs a vision call
+               layout_for(router, m, m.get("visual"), layout_cache, evidence=ev))
+        ok, w = source_test(ev, lay)
+        m["spotlight_source"] = {"ok": ok, "why": w, "evidence": ev, "layout": lay}
         rec[mid]["source"] = w
         if ok:
             ok_src.append(m)

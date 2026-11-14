@@ -283,25 +283,111 @@ class TestSourceTest(unittest.TestCase):
     def lay(self, kind):
         return {"measured": True, "layout": kind, "why": "w", "backend": "b", "replayed": False}
 
+    UNMARKED = {"measured": True, "marked": False}
+
+    @staticmethod
+    def marked(tpm, near, one_turn=True):
+        return {"measured": True, "marked": True, "turns": 10, "minutes": 10.0, "turns_per_min": tpm,
+                "changes_near": near, "one_turn": one_turn}
+
     def test_conversation_or_first_hand_pass_and_recap_reaction_other_fail(self):
-        unmarked = {"measured": False, "unmarked": True}
         for kind, want in (("conversation", True), ("first_hand", True), ("recap", False), ("reaction", False),
                            ("other", False)):
-            self.assertEqual(SPOT.source_test(unmarked, self.lay(kind))[0], want, kind)
+            self.assertEqual(SPOT.source_test(self.UNMARKED, self.lay(kind))[0], want, kind)
 
     def test_an_unmeasured_layout_is_never_a_pass(self):
-        ok, why = SPOT.source_test({"measured": True, "turns": 30, "minutes": 10, "turns_per_min": 3.0},
-                                   {"measured": False, "why": "no sheet"})
+        ok, why = SPOT.source_test(self.marked(3.0, 4), {"measured": False, "why": "no sheet"})
         self.assertFalse(ok)
         self.assertIn("not measured", why)
 
-    def test_the_markers_only_make_it_stricter(self):
-        solo = {"measured": True, "turns": 8, "minutes": 16.5, "turns_per_min": 0.48}     # Nov 13: L6H7538ogGs
-        talk = {"measured": True, "turns": 20, "minutes": 16.8, "turns_per_min": 1.19}    # Nov 13: 3kV3nWC5SAY
-        self.assertFalse(SPOT.source_test(solo, self.lay("conversation"))[0])
-        self.assertTrue(SPOT.source_test(talk, self.lay("conversation"))[0])
-        self.assertTrue(SPOT.source_test(solo, self.lay("first_hand"))[0])       # a keynote is one voice
-        self.assertFalse(SPOT.source_test(talk, self.lay("recap"))[0])
+    def test_ruling_92_amended_the_layout_decides_and_the_1_0_line_is_retired(self):
+        """09:03 Nov 14: the 1.0 line was drawn from one solo recap at 0.48 and refused real interviews (Bitcoin
+        Magazine's, CoinDesk's, Pompliano at 0.97). Turns a minute are evidence now, never a refusal line."""
+        for tpm in (0.48, 0.61, 0.97, 1.19):
+            self.assertTrue(SPOT.source_test(self.marked(tpm, 2), self.lay("conversation"))[0], tpm)
+            self.assertFalse(SPOT.source_test(self.marked(tpm, 2), self.lay("recap"))[0], tpm)
+        self.assertTrue(SPOT.source_test(self.marked(0.3, 1, one_turn=False), self.lay("first_hand"))[0])
+
+    def test_the_markers_refuse_alone_only_with_zero_changes_in_the_10_minutes_around_the_clip(self):
+        ok, why = SPOT.source_test(self.marked(2.5, 0), self.lay("conversation"))
+        self.assertFalse(ok)                                   # even a conversation layout: zero changes near the clip
+        self.assertIn("no speaker change in the 10 minutes around the clip", why)
+        self.assertTrue(SPOT.source_test(self.marked(0.2, 1), self.lay("conversation"))[0])   # one change: the layout
+        for unknown in (self.UNMARKED, {"measured": False, "marked": None, "why": "unreadable"}, None, {}):
+            self.assertFalse(SPOT.markers_refuse(unknown), unknown)    # no evidence is never a refusal
+            self.assertTrue(SPOT.source_test(unknown, self.lay("conversation"))[0], unknown)
+        self.assertFalse(SPOT.markers_refuse(dict(self.marked(1.0, 0), measured=False)))   # unmeasured counts nothing
+
+
+class TestCaptionEvidence(unittest.TestCase):
+    """RULING 92 AMENDED (09:03 Nov 14): the caption markers read as EVIDENCE for the layout judge."""
+    UNITS = [(0.0, "a", True), (100.0, "b", False), (400.0, "c", True), (900.0, "d", True), (1500.0, "e", False)]
+
+    def ev(self, start, end, units=None):
+        return SPOT.caption_evidence("v", start, end, captions_for=lambda vid: (
+            self.UNITS if units is None else units, {"file": "f", "sha256": "s"}))
+
+    def test_turns_a_minute_changes_near_the_clip_and_one_unbroken_turn(self):
+        e = self.ev(420.0, 440.0)                  # markers at 0, 400, 900; the 10 minutes around it: 120-740 s
+        self.assertEqual((e["marked"], e["turns"], e["minutes"], e["turns_per_min"]), (True, 3, 25.0, 0.12))
+        self.assertEqual((e["changes_near"], e["one_turn"]), (1, True))
+        self.assertFalse(SPOT.markers_refuse(e))
+        e = self.ev(890.0, 910.0)                  # the 900 s marker falls inside the clip
+        self.assertEqual((e["changes_near"], e["one_turn"]), (1, False))
+        e = self.ev(1300.0, 1320.0)                # 1000-1620 s: no marker
+        self.assertEqual(e["changes_near"], 0)
+        self.assertTrue(SPOT.markers_refuse(e))
+        self.assertEqual(self.ev(899.5, 920.0)["one_turn"], True)   # a marker within MARKER_TOL_S of an edge is not in
+
+    def test_unmarked_or_unreadable_captions_are_no_evidence(self):
+        e = SPOT.caption_evidence("v", 1.0, 2.0, captions_for=lambda vid: (None, None))
+        self.assertEqual((e["measured"], e["marked"]), (True, False))
+        self.assertFalse(SPOT.markers_refuse(e))
+
+        def boom(vid):
+            raise OSError("disk")
+        e = SPOT.caption_evidence("v", 1.0, 2.0, captions_for=boom)
+        self.assertEqual((e["measured"], e["marked"]), (False, None))
+        self.assertFalse(SPOT.markers_refuse(e))
+
+    def test_a_record_that_cannot_be_counted_is_no_evidence_never_a_refusal_never_a_crash(self):
+        """Audit 0915 C1: the counting sits inside the guard. A NaN time compares False with every bound, so it would
+        read as 'zero changes near the clip' and refuse; a time that is not a number would crash the build."""
+        nan = [(float("nan"), "a", True), (100.0, "b", True), (2500.0, "c", False)]
+        for units in (nan, [("noon", "a", True), (60.0, "b", False)], [(1.0,), (2.0,)], [(1.0, "a", True), None]):
+            e = self.ev(2000.0, 2020.0, units)
+            self.assertEqual((e["measured"], e["marked"]), (False, None), units)
+            self.assertFalse(SPOT.markers_refuse(e), units)
+            self.assertEqual(SPOT.evidence_text(e), "the captions could not be read (no evidence either way).")
+        e = self.ev(2000.0, 2020.0, [(0.0, "a", True), (100.0, "b", True), (2500.0, "c", False)])  # the same, read
+        self.assertEqual((e["measured"], e["changes_near"]), (True, 0))                          # cleanly: refused
+        self.assertTrue(SPOT.markers_refuse(e))
+
+    def test_the_layout_judge_reads_the_evidence_and_its_cache_keys_on_it(self):
+        import hashlib
+        d = tempfile.mkdtemp()
+        try:
+            sheet = os.path.join(d, "sheet.jpg")
+            with open(sheet, "wb") as f:
+                f.write(b"jpeg-bytes")
+            vrec = {"measured": True, "sheet": {"path": sheet, "sha256": hashlib.sha256(b"jpeg-bytes").hexdigest(),
+                                                "times": [0.0, 1.0]}}
+            ans = '{"layout": "conversation", "people_on_screen": 2, "why": "two people"}'
+            r = Router(visual_check=[ans, ans])
+            seen, inner = [], r.call
+            r.call = lambda role, prompt, *a, **k: (seen.append(prompt["text"]), inner(role, prompt, *a, **k))[1]
+            cache, m = os.path.join(d, "LAYOUT_CACHE.json"), {"moment_id": "m1", "text": "We talked about it."}
+            e1 = self.ev(420.0, 440.0)
+            self.assertEqual(SPOT.layout_for(r, m, vrec, cache, evidence=e1)["layout"], "conversation")
+            self.assertIn("0.12 speaker turns a minute across the episode (3 in 25.0 min)", seen[0])
+            self.assertIn("1 speaker change(s) in the 10 minutes around this clip", seen[0])
+            self.assertIn("inside one unbroken turn: yes", seen[0])
+            self.assertTrue(SPOT.layout_for(r, m, vrec, cache, evidence=e1).get("cached"))     # same evidence: cached
+            SPOT.layout_for(r, m, vrec, cache, evidence={"measured": True, "marked": False})  # other evidence: asked
+            self.assertEqual(len(seen), 2)
+            self.assertIn("no speaker-change markers (no evidence either way)", seen[1])
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
 
 
 class TestContracts(unittest.TestCase):
@@ -456,7 +542,7 @@ class TestRuling94And95(unittest.TestCase):
                  "moment_id": "o1", "episode": {"turns_per_min": 2.0}, "mined": {"pass": "hook",
                                                                                 "prompt_version": "mine-hook/2"}},
                 {"video_id": "new", "channel_name": "Solo", "published_at": "2026-11-13T22:00:00+00:00",
-                 "moment_id": "n1", "episode": {"turns_per_min": 0.4}, "mined": {"pass": "moment",
+                 "moment_id": "n1", "episode": {"turns_per_min": 0.0}, "mined": {"pass": "moment",
                                                                                 "prompt_version": "mine/2"}},
                 {"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
                  "moment_id": "m1", "episode": {"turns_per_min": 1.5}, "mined": {"pass": "hook",
@@ -470,7 +556,18 @@ class TestRuling94And95(unittest.TestCase):
                          ("mid", "2026-11-13T20:00:00Z", "2026-11-14T08:00:00Z"))
         self.assertEqual((c["rows"], c["word_pass_ready"], c["word_pass_waiting"]), (2, 1, 1))
         self.assertEqual(c["passes"], {"hook/mine-hook/2": 1, "moment/mine/2": 1})
-        self.assertEqual(na["newest_upload"]["video_id"], "new")           # newer, but not a conversation
+        self.assertEqual(na["newest_upload"]["video_id"], "new")           # newer, but marked with ZERO turns
+        newer = {"video_id": "int", "channel_name": "Interview", "published_at": "2026-11-13T23:00:00+00:00",
+                 "moment_id": "i1", "episode": {"turns_per_min": 0.4}, "mined": {"pass": "hook",
+                                                                                "prompt_version": "mine-hook/3"}}
+        self.assertEqual(SPOT.next_attempt(rows + [newer], {}, NOW)["conversation"]["video_id"], "int")   # 92 amended:
+        #   0.4 turns a minute is evidence now, not under a line: an interview at 0.4 counts (the layout decides)
+        unmarked = {"video_id": "um", "channel_name": "Show", "published_at": "2026-11-13T23:30:00+00:00",
+                    "moment_id": "u1", "episode": {"turns_per_min": 0.0, "unmarked": True},   # pp-ingest's shape for
+                    "mined": {"pass": "hook", "prompt_version": "mine-hook/3"}}              # an unmarked episode
+        u = SPOT.next_attempt(rows + [unmarked], {}, NOW)["conversation"]                  # (audit 0915 C1):
+        self.assertEqual((u["video_id"], u["unmarked"], u["turns_per_min"]), ("um", True, 0.0))   # unknown, not solo
+        self.assertFalse(SPOT.next_attempt(rows, {}, NOW)["newest_upload"]["unmarked"])   # 'new' is MARKED, zero turns
         self.assertEqual(c["age_h"], round((NOW - datetime(2026, 11, 13, 20, 0, tzinfo=timezone.utc)).total_seconds()
                                            / 3600, 1))
         self.assertIsNone(SPOT.next_attempt([], {}, NOW)["conversation"])
@@ -561,7 +658,7 @@ class TestBuild(unittest.TestCase):
     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
 
     def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None,
-                  onset=None):
+                  onset=None, evidence=None):
         ctx = E.Context(NOW, REG)
         calls = {}
 
@@ -591,8 +688,10 @@ class TestBuild(unittest.TestCase):
                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
                  (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
                                                               "backend": "fake:vis"}, **(visual or {}))),
-                 (SPOT, "layout_for", lambda r, m, v, c: {"measured": True, "layout": layout, "why": "w"}),
-                 (SPOT, "episode_turns", lambda vid, c=None: {"measured": False, "unmarked": True}),
+                 (SPOT, "layout_for", lambda r, m, v, c, **k: (calls.setdefault("layout", []).append(
+                     (m["moment_id"], k.get("evidence"))), {"measured": True, "layout": layout, "why": "w"})[1]),
+                 (SPOT, "caption_evidence", lambda vid, s, e, c=None: evidence or {"measured": True,   # 92 amended
+                                                                                   "marked": False}),
                  (SPOT.P, "exclusion_for", lambda r, m, s, c: {"verdict": "keep"}),
                  (SPOT.P, "_writers", lambda r: (set(), set()))]
         patches = [mock.patch.object(o, n, f) for o, n, f in stubs]
@@ -616,6 +715,24 @@ class TestBuild(unittest.TestCase):
         self.assertIn("hook's own job rates 3", out["moments"]["a"]["out"])
         self.assertIn("ALONE scorer: 3.0", out["moments"]["c"]["out"])
         self.assertIsNotNone(out["package"])
+
+    def test_ruling_92_amended_zero_changes_near_the_clip_stops_before_any_vision_call(self):
+        """09:03 Nov 14: the markers refuse alone only when the episode is marked and shows ZERO speaker changes in the
+        10 minutes around the clip; then the layout judge (a paid vision call) is never asked. Any other evidence goes
+        to the judge WITH the evidence, and the layout decides."""
+        ms = [moment(mid="a", channel="A")]
+        quiet = {"measured": True, "marked": True, "turns": 5, "minutes": 30.0, "turns_per_min": 0.17,
+                 "changes_near": 0, "one_turn": True}
+        out, calls = self.run_build(ms, {"a": 4}, alone=[4.0], evidence=quiet)
+        self.assertIsNone(out["package"])
+        self.assertNotIn("layout", calls)                                  # no vision call was paid
+        self.assertIn("no speaker change in the 10 minutes around the clip", out["moments"]["a"]["out"])
+        talk = dict(quiet, turns_per_min=0.61, changes_near=3)             # Stephan Livera's 0.61: under the old line
+        out, calls = self.run_build(ms, {"a": 4}, alone=[4.0], evidence=talk)
+        self.assertEqual(calls["layout"], [("a", talk)])                   # the judge sees the evidence
+        self.assertIsNotNone(out["package"])                               # the layout (conversation) decides
+        self.assertIn("layout 'conversation'", out["moments"]["a"]["source"])
+        self.assertIn("0.61 speaker turns a minute", out["moments"]["a"]["source"])
 
     def test_it_waits_for_the_alone_scorer_and_reports_the_nearest(self):
         ms = [moment(mid="a", channel="A")]

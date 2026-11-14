@@ -1,0 +1,68 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff; if uncertain, say so; do not guess. Be specific: file:line and a concrete input that breaks it.
+
+BACKGROUND (static):
+- pipeline/moments_gate_adapter.py is the ONE adapter of another team's exam (pp-tests: corpora of hostile must-fail
+  and must-pass cases for three gates: context integrity, VO fidelity, exclusion). The harness strips the expected
+  answer and calls the adapter's functions. Live model replies are recorded by tests/package/run_exam_record.py; the
+  harness then replays them OFFLINE (PP_GATES_REPLAY=1), and the router serves the first back-end in its chain that
+  has a recording, so the replay must walk the same chains as the recording.
+- VO fidelity (vo_fidelity.check) judges each VO line, the title and caption: a deterministic layer (NUMBER, NEEDS_SOURCE,
+  PRICE_NOW ...) then a model verdict. PRICE_NOW: with current_levels a list, a line stating a price as current that
+  matches no level (5 % tolerance) fails; with current_levels None, PRICE_NOW is not measured. package.current_levels
+  (the packager) reads levels from sources: each sentence naming Bitcoin, from sources <= 24 h old, through
+  vo_fidelity.current_level_values.
+- The SPOTLIGHT (ruling 90) is a one-moment video; ruling 92 is its source test ("conversation, not reaction"): a
+  vision judge classifies the clip's contact sheet (layout_for: conversation / first_hand / recap / reaction / other);
+  the episode's caption speaker-change markers ('>>') were also used.
+
+THE ORCHESTRATOR'S RULINGS (09:03 ET Nov 14), verbatim:
+- "R-29: FIX IT NOW, while the pool is empty (about 20 lines, tests, two cycles). An exam whose must-fail cases pass
+  by construction is worse than no exam."
+  R-29 (pp-tests): the adapter's vo_fidelity() never passed v1.1's `title` (judged like a line) and derived no current
+  price level from v1.1's `universe` (tonight's news). Minimal fix: the title as a line; current_levels from
+  universe.news the way package.current_levels does from sources (published <= 24 h before the universe's date).
+- "THE EXAM: APPROVED to run after R-29 and the integrator's merge of pp-tests, heimdall_first, bound $5.00
+  vendor-reported, on its OWN ledger (not the $20 batch cap); stop and tell me at $4."
+- "RULING 92 AMENDED (...): the 1.0 line was drawn from one solo recap at 0.48 and refuses real interviews. FROM NOW:
+  the LAYOUT verdict decides the source test alone (CONVERSATION or FIRST_HAND pass; RECAP, REACTION, OTHER fail;
+  unmeasured never passes). The caption markers are EVIDENCE shown to the layout judge (turns a minute, and whether
+  the clip's own span sits inside one unbroken turn), not a refusal line; they refuse by themselves only when the
+  episode is marked and has ZERO speaker changes in the 10 minutes around the clip. Audit as one small change with
+  R-29 or after it."
+
+THE CHANGE (the diff follows):
+1. moments_gate_adapter.vo_fidelity: a v1.1 case's title is appended as a line {"slot": "title", "text": ..., "cites":
+   []}; when the case has a universe (and no explicit current_levels), current_levels = universe_levels(universe):
+   each sentence of a news item's headline / summary that names Bitcoin, from items published <= 24 h before the
+   universe's clock (built_at, zoned; an item with an unreadable time skipped, as package.current_levels skips such a
+   source), through current_level_values. [] is a measurement. A title that is not a non-empty string, a universe with
+   no zoned clock or no news list: ValueError -> GateNotMeasured (the harness's ERROR). v1 cases are unchanged.
+   Measured on the real corpus: both stale-title cases now fail on their title (NEEDS_SOURCE, NUMBER, PRICE_NOW); their
+   $73,500 news is 38-45 h old, so their levels are [] (the 5 % tolerance would have accepted the stale $76,000 line
+   against $73,500).
+2. make_router(): ONE router configuration for the recorder and the replay: PP_GATES_ROUTING (default
+   heimdall_first), PP_GATES_LIMIT_USD (default 5.00), PP_GATES_LIMIT_BASIS (default "reported"), PP_GATES_SPEND (the
+   exam's own ledger). run_exam_record.py now calls it instead of building its own Router (no routing, $64.28,
+   estimate basis).
+3. spotlight.py, ruling 92 amended: caption_evidence() (turns a minute; speaker changes in NEAR_CLIP_S = 300 s each
+   side of the clip; one unbroken turn = no marker more than MARKER_TOL_S inside the clip); markers_refuse() (marked
+   AND zero changes near); source_test(evidence, layout) (the layout decides; the 1.0 line, CONVERSATION_TPM, retired);
+   layout_for(..., evidence) shows the evidence in the prompt and keys its cache on it; the build skips the vision
+   call when the markers refuse; the ruling-95 report counts any upload whose captions do not refuse it.
+4. Tests: tests/package/test_exam_adapter.py (new, 8) and test_spotlight.py (amended). 17 mutations, each killed.
+   20 suites, 559 tests.
+
+ATTACK:
+(a) R-29: can a v1.1 must-fail case still pass by construction (the title or the universe not reaching the gate)?
+    Does anything change for v1 cases? Is the 24 h window on built_at the right reading of "24 h before the
+    universe's date", and is skipping an unreadable item right?
+(b) The router: can the replay walk different chains than the recording? Can the exam spend past $5 vendor-reported,
+    or touch the $20 batch ledger (SPEND_LY.json)? Can it reach a GPU (local:) or a frozen vendor leg?
+(c) Ruling 92 amended: can a marked episode with a speaker change near the clip be refused by the captions? Can an
+    unmarked or unreadable caption record refuse? Can an unmeasured layout pass? Is "the 10 minutes around the clip"
+    read sensibly? Can a cached layout verdict be reused under different evidence?
+(d) Anything else that could seal a wrong spotlight pin or score the exam wrongly.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario), then
+"SHIP: yes / no / yes with conditions".

@@ -13,10 +13,16 @@ tests/package/run_exam_record.py, which strips "expected" exactly as the harness
 harness (PP_GATES_REPLAY=1). A gate that could not MEASURE (an exchange never recorded, every back-end unavailable, an
 unreadable verdict) RAISES GateNotMeasured, which the harness counts as an ERROR (audit p2 M5): it is never a pass and
 never a free rejection either (law L-m). A deterministic failure is a measured "fail".
+
+The orchestrator's 09:03 ET Nov 14 order: the exam runs heimdall_first, bounded by VENDOR-REPORTED dollars on its OWN
+ledger. make_router() is the ONE configuration the live recording (tests/package/run_exam_record.py) and the harness's
+offline replay both use, so the replay walks exactly the chains the recording walked.
 """
 import os
+import re
 
 import context_integrity as CI
+import eligibility as E
 import moments as M
 import providers as P
 import vo_fidelity as VF
@@ -27,6 +33,8 @@ RECORD = os.environ.get("PP_GATES_RECORD_DIR") or os.path.join(REPO, "tests", "p
 SPEND = os.environ.get("PP_GATES_SPEND") or os.path.join(REPO, "tests", "moments", "proof", "SPEND.json")
 ENV = P.ENV_PATH
 THREAD_SAFE = True                     # the router's ledger and recordings are safe across the harness's threads
+UNIVERSE_HOURS = 24.0                  # R-29: package.current_levels' window (L-v 3): a level only from news this fresh
+SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+|\n+")   # R-29: a news headline / summary read sentence by sentence
 _router = None
 
 
@@ -34,12 +42,48 @@ class GateNotMeasured(Exception):
     """The gate could not measure this case (the harness's ERROR)."""
 
 
+def make_router(chains=None):
+    """The exam's router (the orchestrator's 09:03 order). Env: PP_GATES_ROUTING (default "heimdall_first"),
+    PP_GATES_LIMIT_USD (default 5.00, the exam's bound) counted on PP_GATES_LIMIT_BASIS (default "reported": the
+    vendors' own dollars), PP_GATES_SPEND (the exam's own ledger), PP_GATES_RECORD_DIR, PP_GATES_REPLAY=1 (offline).
+    chains: pinned legs (run_exam_record --chain), else the routing's own lists."""
+    return P.Router(env_path=ENV, record_dir=RECORD, replay=os.environ.get("PP_GATES_REPLAY") == "1",
+                    spend_path=SPEND, chains=chains or None,
+                    limit_usd=float(os.environ.get("PP_GATES_LIMIT_USD", "5.00")),
+                    limit_basis=os.environ.get("PP_GATES_LIMIT_BASIS", "reported"),
+                    routing=os.environ.get("PP_GATES_ROUTING", "heimdall_first"))
+
+
 def router():
     global _router
     if _router is None:
-        _router = P.Router(env_path=ENV, record_dir=RECORD, replay=os.environ.get("PP_GATES_REPLAY") == "1",
-                           spend_path=SPEND, limit_usd=float(os.environ.get("PP_GATES_LIMIT_USD", "64.28")))
+        _router = make_router()
     return _router
+
+
+def universe_levels(universe, hours=UNIVERSE_HOURS):
+    """R-29 (pp-tests' REQUESTS; the orchestrator's 09:03 order "fix it now"): the Bitcoin price levels a v1.1 case's
+    universe (tonight's news) states as CURRENT, read the way package.current_levels reads sources: every sentence of a
+    news item's headline and summary that names Bitcoin (eligibility.names_bitcoin), from an item published at most
+    `hours` before the universe's own clock (built_at), through vo_fidelity.current_level_values. An item whose time
+    cannot be read is skipped, as package.current_levels skips such a source. [] is a measurement: no current level,
+    so any line stating a price as current fails PRICE_NOW. A universe with no zoned clock or no news list raises
+    ValueError: the harness's ERROR, never a guess."""
+    now = E._parse_time(universe["built_at"])
+    if now is None:
+        raise ValueError(f"the universe's clock built_at={universe.get('built_at')!r} is not a zoned time")
+    if not isinstance(universe["news"], list):
+        raise ValueError("the universe's news is not a list")
+    out = set()
+    for item in universe["news"]:
+        age = E.age_hours(item.get("published_at"), now)
+        if age is None or age > hours:
+            continue
+        for part in (item.get("headline") or "", item.get("summary") or ""):
+            for sentence in SENTENCE_SPLIT.split(part):
+                if sentence.strip() and E.names_bitcoin(sentence):
+                    out |= set(VF.current_level_values(sentence))
+    return sorted(out)
 
 
 def _join(sentences):
@@ -109,7 +153,13 @@ def vo_fidelity(case):
                                 "text": _join(s["sentences"])}
     lines = [{"slot": f"{ln['slot']}_{i}", "text": ln["text"], "cites": list(ln.get("cites") or [])}
              for i, ln in enumerate(case["lines"])]
+    if case.get("title") is not None:            # R-29 (v1.1): the title is judged like a line, as the packager passes it
+        if not isinstance(case["title"], str) or not case["title"].strip():
+            raise ValueError("the case's title is not a non-empty string")
+        lines.append({"slot": "title", "text": case["title"], "cites": []})
     levels = case.get("current_levels") if isinstance(case.get("current_levels"), list) else None
+    if levels is None and case.get("universe") is not None:   # R-29 (v1.1): tonight's news gives the current levels
+        levels = universe_levels(case["universe"])
     try:
         res = VF.check(router(), segments, lines, writer_vendor=None, manifest=man, current_levels=levels)
     except P.ReplayMiss as e:

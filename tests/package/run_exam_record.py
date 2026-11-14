@@ -51,8 +51,8 @@ def main(argv=None):
     for x in a.chain:
         role, backend = x.split("=", 1)
         chains.setdefault(role, []).append(backend)
-    A._router = P.Router(env_path=A.ENV, record_dir=A.RECORD, spend_path=A.SPEND, chains=chains or None,
-                         limit_usd=float(os.environ.get("PP_GATES_LIMIT_USD", "64.28")))     # the phase-2 guard
+    A._router = A.make_router(chains=chains or None)    # the harness's own configuration (the orchestrator's 09:03
+    #   order: heimdall_first, vendor-reported dollars, the exam's own ledger), so its replay walks these chains
     os.makedirs(a.out, exist_ok=True)
     log = []
     for corpus, gate in GATES:
