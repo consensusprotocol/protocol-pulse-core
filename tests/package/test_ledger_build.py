@@ -82,18 +82,28 @@ class TestReanchor(unittest.TestCase):
             sp, info = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
             self.assertEqual(info["added"]["before"], word)
 
-    def test_the_snap_limit_is_the_packagers_clip_limit(self):                 # audit 0332 C1, qwen P2-1
+    def test_the_snap_ceiling_is_the_spotlights_and_the_medley_keeps_its_own_20_s(self):
+        """The orchestrator's 10:48 ruling (2), Nov 14: the read's snap ceiling is 35 s (spotlight.SPOT_S[1]); the
+        medley's own 20 s stays in package.usable (SEG_MAX_S)."""
         import package as PK
-        self.assertEqual(LB.SNAP_MAX_S, PK.SEG_MAX_S)
+        import spotlight as SPOT
+        self.assertEqual((LB.SNAP_MAX_S, SPOT.SPOT_S[1], PK.SEG_MAX_S), (35.0, 35.0, 20.0))
 
-    def test_a_snap_longer_than_20_s_stays_out(self):
-        long_ = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."             # 75 words, 0.3 s each
+    def test_a_snap_of_21_to_35_s_is_read_and_one_longer_than_35_s_stays_out(self):
+        mid = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."              # 75 words: 22.5 s
+        src = source([mid, "That is the plan."])
+        a, b = src.sentences[0]
+        self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], 20.0)
+        sp, info = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
+        self.assertIsNotNone(sp)                                      # read now (the medley's usable() drops it)
+        self.assertEqual(info["snapped_words"][0], 65)
+        long_ = "Bitcoin " + " ".join(["keeps"] * 122) + " settling payments."           # 125 words: 37.5 s
         src = source([long_, "That is the plan."])
         a, b = src.sentences[0]
         self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], LB.SNAP_MAX_S)
         sp, why = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
         self.assertIsNone(sp)
-        self.assertIn("> 20 s (ruling 32", why)
+        self.assertIn("> 35 s (ruling 32 with the 10:48 ruling (2)", why)
         sp, info = LB.reanchor(row(long_), src)                       # whole sentences: no snap, usable() measures it
         self.assertEqual(info["snapped_words"], [0, 0])
 

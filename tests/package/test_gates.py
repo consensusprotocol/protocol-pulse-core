@@ -300,6 +300,29 @@ class TestDeterministicRules(unittest.TestCase):
         self.assertIn("IMPERATIVE", self.rules("It's time to buy.", ["m1"]))
         self.assertEqual(self.rules("Short-term holders are selling.", ["m1"]), set())
 
+    def test_number_takes_the_manifests_own_show_date_whole_and_nothing_else(self):
+        """The orchestrator's 10:48 ruling (3), Nov 14: NUMBER accepts the manifest's own show date as production
+        metadata, the WHOLE date only, never a bare number, and only when it equals the manifest's date."""
+        man = {"date": "2026-11-12", "show": "Pulse Check", "channels": ["Coin Bureau"]}
+
+        def rules(text, m=man):
+            return {v["rule"] for v in VF.check_deterministic(self.SEGS, [{"slot": "signoff", "text": text,
+                                                                           "cites": []}], m)["violations"]}
+        for ok in ("Pulse Check for 2026-11-12.", "Pulse Check for November 12.", "Pulse Check, Nov 12.",
+                   "Pulse Check for November 12, 2026.", "That's Pulse Check, november 12th."):
+            self.assertEqual(rules(ok), set(), ok)                 # no NUMBER, and no NEEDS_SOURCE for it either
+        for bad in ("Pulse Check for 2026-11-13.", "Pulse Check for November 13.", "Pulse Check number 12.",
+                    "Pulse Check for 12.", "Pulse Check for November 12, 2025.", "Pulse Check for 2026-11-120.",
+                    "Pulse Check, Nov. 12."):                      # (the abbreviation's period ends a sentence)
+            self.assertIn("NUMBER", rules(bad), bad)
+            self.assertIn("NEEDS_SOURCE", rules(bad), bad)
+        self.assertIn("NUMBER", rules("Pulse Check for 2026-11-12.", {"show": "Pulse Check"}))   # no date: as before
+        v = VF.check_deterministic(self.SEGS, [{"slot": "x", "text": "We stopped at November 120.", "cites": []}], man)
+        self.assertEqual([x["detail"].split()[0] for x in v["violations"] if x["rule"] == "NUMBER"], ["120"])
+        self.assertEqual(VF.strict_features("Pulse Check for 2026-11-12", self.SEGS, man, production=True), [])
+        self.assertEqual(VF.strict_features("Pulse Check for 2026-11-13", self.SEGS, man, production=True),
+                         ["a number"])                      # the verdict layer's production claim reads it the same
+
     def test_price_now_reads_history_forecasts_and_counts(self):
         self.assertIn("PRICE_NOW", self.rules("Bitcoin just set an all-time high at $126,000.", ["m1"], [73000.0]))
         self.assertIn("PRICE_NOW", self.rules("Since 2022, Bitcoin is at $126,000.", ["m1"], [73000.0]))

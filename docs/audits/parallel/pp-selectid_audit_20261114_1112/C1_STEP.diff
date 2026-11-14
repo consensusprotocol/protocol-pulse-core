@@ -1,0 +1,156 @@
+diff --git a/pipeline/ledger_build.py b/pipeline/ledger_build.py
+index 71411d3..88a255b 100644
+--- a/pipeline/ledger_build.py
++++ b/pipeline/ledger_build.py
+@@ -43,10 +43,12 @@ import sentence_law as SL
+ import transcript_store as ts
+ import vo_fidelity as VF          # snap_risk's price mentions (pure Python; at module level: audit 0332 C2, grok + qwen)
+ 
+-SNAP_MAX_S = 20.0         # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
++SNAP_MAX_S = 35.0         # THE ORCHESTRATOR'S 10:48 RULING (2), Nov 14: the read's snap ceiling is the spotlight's 35 s
++                          # (spotlight.SPOT_S[1]); the medley's own 20 s stays in package.usable (SEG_MAX_S, L-u).
++                          # Before it, 20 s here dropped rows of 21-23 s before the spotlight's ceiling could apply.
++                          # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
+                           # is SNAPPED OUTWARD to the word record's whole sentences, instead of dropped, when the
+-                          # snapped span stays inside the clip length limit (= package.SEG_MAX_S, L-u) and shows no
+-                          # speaker change. The added words are the speaker's own, so nothing is changed by omission;
++                          # snapped span stays inside this ceiling and shows no speaker change. The added words are the speaker's own, so nothing is changed by omission;
+                           # the snapped span is judged as usual: step A (L-s), the exclusion verdict (every L-u risk),
+                           # L-v 2 (every number and negation both ways, exactly one speaker measured) and usable() (time
+                           # words). It replaces SNAP_WORDS = 3 and SNAP_GUARD (audit 2315 C1), whose concern was words
+@@ -402,7 +404,8 @@ def reanchor(row, src, cap=None):
+         if a is None or b is None:
+             return None, f"{snap}, its length is not measured (a word time is missing)"
+         if b - a > SNAP_MAX_S:
+-            return None, f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32: the clip length limit)"
++            return None, (f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32 with the 10:48 ruling (2): "
++                          f"the spotlight's clip ceiling)")
+         t = marker_inside(cap if cap is not None else getattr(src, "context_source", None), a, b)
+         if t is not None:
+             return None, f"{snap} it holds a caption speaker marker at {t:.2f} s: a measured speaker change (ruling 32)"
+diff --git a/pipeline/vo_fidelity.py b/pipeline/vo_fidelity.py
+index d0bb83c..65efb05 100644
+--- a/pipeline/vo_fidelity.py
++++ b/pipeline/vo_fidelity.py
+@@ -414,6 +414,21 @@ def time_words(text, meta=()):
+     return out
+ 
+ 
++def without_manifest_date(text, manifest=None):
++    """THE ORCHESTRATOR'S 10:48 RULING (3), Nov 14: NUMBER accepts the manifest's OWN show date as production metadata,
++    the WHOLE date only ('2026-11-12', 'November 12', 'Nov 12'; a written date may carry its ordinal, 'November 12th',
++    and the manifest's own year, 'November 12, 2026'), never a bare number, and only when it equals the manifest's date.
++    -> the text with each such date taken out; everything else is read as before. No manifest date: the text as it is."""
++    from datetime import date
++    try:
++        d = date.fromisoformat(str((manifest or {}).get("date") or ""))
++    except ValueError:
++        return text or ""
++    month = rf"(?:{d.strftime('%B')}|{d.strftime('%b')})"        # 'Nov.' is not one: its period ends a sentence
++    written = rf"\b{month}\s+0?{d.day}(?:st|nd|rd|th)?(?:,?\s+{d.year})?(?![\w.]?\d)"
++    return re.sub(rf"(?<![\w-]){re.escape(d.isoformat())}(?![\w-])|{written}", " ", text or "", flags=re.I)
++
++
+ def fact_numbers(text, meta_nums=frozenset()):
+     """The numbers of a text that state a fact, [(value, unit)]: leaves out the package's own count beside a production
+     noun ('three voices') and 'one' written as a word (a determiner or pronoun: 'one thing', 'one of')."""
+@@ -454,7 +469,8 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
+         names = names_of(text, meta)
+         quotes = [q for pair in _QUOTE.findall(text) for q in pair if q]
+         times = time_words(text, meta)
+-        if (fact_numbers(text, meta_nums) or names or quotes or atts or times) and not cited:
++        if (fact_numbers(without_manifest_date(text, manifest), meta_nums) or names or quotes or atts or times) \
++                and not cited:                                       # the 10:48 ruling (3): the show date needs none
+             V("NEEDS_SOURCE", "a line with a number, name, quote, attribution or time word cites no segment")
+         pools = []                                                   # per attribution: the governing segments
+         for subj0, form, _ in atts:
+@@ -499,7 +515,7 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
+         for chunk, ai in _governed(text, atts):
+             gov = pools[ai] if ai is not None and pools[ai] else cited
+             gpool = [t for c in gov for t in seg_toks[c]]
+-            for val, unit in fact_numbers(chunk, meta_nums):
++            for val, unit in fact_numbers(without_manifest_date(chunk, manifest), meta_nums):   # 10:48 ruling (3)
+                 if not _has_number(gpool, val, unit):
+                     V("NUMBER", f"{val}{' ' + unit if unit else ''} is not in the cited sentences" +
+                       (" of the attributed speaker / show" if ai is not None and pools[ai] else ""))
+@@ -610,7 +626,7 @@ def strict_features(words, segments, manifest=None, production=False):
+     word, 'as X put it'. -> [feature, ...] (empty: the words may be commentary)."""
+     meta, meta_nums = manifest_terms(segments, manifest)
+     out = []
+-    if fact_numbers(words, meta_nums):
++    if fact_numbers(without_manifest_date(words, manifest), meta_nums):     # the 10:48 ruling (3): the show date
+         out.append("a number")
+     if names_of(words, meta):
+         out.append(f"a name ({', '.join(names_of(words, meta)[:3])})")
+diff --git a/tests/package/test_gates.py b/tests/package/test_gates.py
+index c0a2d96..cbe3582 100644
+--- a/tests/package/test_gates.py
++++ b/tests/package/test_gates.py
+@@ -300,6 +300,29 @@ class TestDeterministicRules(unittest.TestCase):
+         self.assertIn("IMPERATIVE", self.rules("It's time to buy.", ["m1"]))
+         self.assertEqual(self.rules("Short-term holders are selling.", ["m1"]), set())
+ 
++    def test_number_takes_the_manifests_own_show_date_whole_and_nothing_else(self):
++        """The orchestrator's 10:48 ruling (3), Nov 14: NUMBER accepts the manifest's own show date as production
++        metadata, the WHOLE date only, never a bare number, and only when it equals the manifest's date."""
++        man = {"date": "2026-11-12", "show": "Pulse Check", "channels": ["Coin Bureau"]}
++
++        def rules(text, m=man):
++            return {v["rule"] for v in VF.check_deterministic(self.SEGS, [{"slot": "signoff", "text": text,
++                                                                           "cites": []}], m)["violations"]}
++        for ok in ("Pulse Check for 2026-11-12.", "Pulse Check for November 12.", "Pulse Check, Nov 12.",
++                   "Pulse Check for November 12, 2026.", "That's Pulse Check, november 12th."):
++            self.assertEqual(rules(ok), set(), ok)                 # no NUMBER, and no NEEDS_SOURCE for it either
++        for bad in ("Pulse Check for 2026-11-13.", "Pulse Check for November 13.", "Pulse Check number 12.",
++                    "Pulse Check for 12.", "Pulse Check for November 12, 2025.", "Pulse Check for 2026-11-120.",
++                    "Pulse Check, Nov. 12."):                      # (the abbreviation's period ends a sentence)
++            self.assertIn("NUMBER", rules(bad), bad)
++            self.assertIn("NEEDS_SOURCE", rules(bad), bad)
++        self.assertIn("NUMBER", rules("Pulse Check for 2026-11-12.", {"show": "Pulse Check"}))   # no date: as before
++        v = VF.check_deterministic(self.SEGS, [{"slot": "x", "text": "We stopped at November 120.", "cites": []}], man)
++        self.assertEqual([x["detail"].split()[0] for x in v["violations"] if x["rule"] == "NUMBER"], ["120"])
++        self.assertEqual(VF.strict_features("Pulse Check for 2026-11-12", self.SEGS, man, production=True), [])
++        self.assertEqual(VF.strict_features("Pulse Check for 2026-11-13", self.SEGS, man, production=True),
++                         ["a number"])                      # the verdict layer's production claim reads it the same
++
+     def test_price_now_reads_history_forecasts_and_counts(self):
+         self.assertIn("PRICE_NOW", self.rules("Bitcoin just set an all-time high at $126,000.", ["m1"], [73000.0]))
+         self.assertIn("PRICE_NOW", self.rules("Since 2022, Bitcoin is at $126,000.", ["m1"], [73000.0]))
+diff --git a/tests/package/test_ledger_build.py b/tests/package/test_ledger_build.py
+index 3c96174..2f4a7a3 100644
+--- a/tests/package/test_ledger_build.py
++++ b/tests/package/test_ledger_build.py
+@@ -82,18 +82,28 @@ class TestReanchor(unittest.TestCase):
+             sp, info = LB.reanchor(row("anyone can stop Bitcoin from settling a payment."), src)
+             self.assertEqual(info["added"]["before"], word)
+ 
+-    def test_the_snap_limit_is_the_packagers_clip_limit(self):                 # audit 0332 C1, qwen P2-1
++    def test_the_snap_ceiling_is_the_spotlights_and_the_medley_keeps_its_own_20_s(self):
++        """The orchestrator's 10:48 ruling (2), Nov 14: the read's snap ceiling is 35 s (spotlight.SPOT_S[1]); the
++        medley's own 20 s stays in package.usable (SEG_MAX_S)."""
+         import package as PK
+-        self.assertEqual(LB.SNAP_MAX_S, PK.SEG_MAX_S)
++        import spotlight as SPOT
++        self.assertEqual((LB.SNAP_MAX_S, SPOT.SPOT_S[1], PK.SEG_MAX_S), (35.0, 35.0, 20.0))
+ 
+-    def test_a_snap_longer_than_20_s_stays_out(self):
+-        long_ = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."             # 75 words, 0.3 s each
++    def test_a_snap_of_21_to_35_s_is_read_and_one_longer_than_35_s_stays_out(self):
++        mid = "Bitcoin " + " ".join(["keeps"] * 72) + " settling payments."              # 75 words: 22.5 s
++        src = source([mid, "That is the plan."])
++        a, b = src.sentences[0]
++        self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], 20.0)
++        sp, info = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
++        self.assertIsNotNone(sp)                                      # read now (the medley's usable() drops it)
++        self.assertEqual(info["snapped_words"][0], 65)
++        long_ = "Bitcoin " + " ".join(["keeps"] * 122) + " settling payments."           # 125 words: 37.5 s
+         src = source([long_, "That is the plan."])
+         a, b = src.sentences[0]
+         self.assertGreater(src.tokens[b]["end"] - src.tokens[a]["start"], LB.SNAP_MAX_S)
+         sp, why = LB.reanchor(row(" ".join(["keeps"] * 8) + " settling payments."), src)
+         self.assertIsNone(sp)
+-        self.assertIn("> 20 s (ruling 32", why)
++        self.assertIn("> 35 s (ruling 32 with the 10:48 ruling (2)", why)
+         sp, info = LB.reanchor(row(long_), src)                       # whole sentences: no snap, usable() measures it
+         self.assertEqual(info["snapped_words"], [0, 0])
+ 

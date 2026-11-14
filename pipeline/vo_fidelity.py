@@ -414,6 +414,26 @@ def time_words(text, meta=()):
     return out
 
 
+MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November",
+          "December")
+
+
+def without_manifest_date(text, manifest=None):
+    """THE ORCHESTRATOR'S 10:48 RULING (3), Nov 14: NUMBER accepts the manifest's OWN show date as production metadata,
+    the WHOLE date only ('2026-11-12', 'November 12', 'Nov 12'; a written date may carry its ordinal, 'November 12th',
+    and the manifest's own year, 'November 12, 2026'), never a bare number, and only when it equals the manifest's date.
+    -> the text with each such date taken out; everything else is read as before. No manifest date: the text as it is."""
+    from datetime import date
+    try:
+        d = date.fromisoformat(str((manifest or {}).get("date") or ""))
+    except ValueError:
+        return text or ""
+    name = MONTHS[d.month - 1]                           # English, whatever the process locale (audit 1112 C1, glm)
+    month = rf"(?:{name}|{name[:3]})"                    # 'Nov.' is not one: its period ends a sentence
+    written = rf"\b{month}\s+0?{d.day}(?:st|nd|rd|th)?(?:,?\s+{d.year})?(?![\w.]?\d)"
+    return re.sub(rf"(?<![\w-]){re.escape(d.isoformat())}(?![\w-])|{written}", " ", text or "", flags=re.I)
+
+
 def fact_numbers(text, meta_nums=frozenset()):
     """The numbers of a text that state a fact, [(value, unit)]: leaves out the package's own count beside a production
     noun ('three voices') and 'one' written as a word (a determiner or pronoun: 'one thing', 'one of')."""
@@ -454,7 +474,8 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
         names = names_of(text, meta)
         quotes = [q for pair in _QUOTE.findall(text) for q in pair if q]
         times = time_words(text, meta)
-        if (fact_numbers(text, meta_nums) or names or quotes or atts or times) and not cited:
+        if (fact_numbers(without_manifest_date(text, manifest), meta_nums) or names or quotes or atts or times) \
+                and not cited:                                       # the 10:48 ruling (3): the show date needs none
             V("NEEDS_SOURCE", "a line with a number, name, quote, attribution or time word cites no segment")
         pools = []                                                   # per attribution: the governing segments
         for subj0, form, _ in atts:
@@ -499,7 +520,7 @@ def check_deterministic(segments, lines, manifest=None, current_levels=None):
         for chunk, ai in _governed(text, atts):
             gov = pools[ai] if ai is not None and pools[ai] else cited
             gpool = [t for c in gov for t in seg_toks[c]]
-            for val, unit in fact_numbers(chunk, meta_nums):
+            for val, unit in fact_numbers(without_manifest_date(chunk, manifest), meta_nums):   # 10:48 ruling (3)
                 if not _has_number(gpool, val, unit):
                     V("NUMBER", f"{val}{' ' + unit if unit else ''} is not in the cited sentences" +
                       (" of the attributed speaker / show" if ai is not None and pools[ai] else ""))
@@ -610,7 +631,7 @@ def strict_features(words, segments, manifest=None, production=False):
     word, 'as X put it'. -> [feature, ...] (empty: the words may be commentary)."""
     meta, meta_nums = manifest_terms(segments, manifest)
     out = []
-    if fact_numbers(words, meta_nums):
+    if fact_numbers(without_manifest_date(words, manifest), meta_nums):     # the 10:48 ruling (3): the show date
         out.append("a number")
     if names_of(words, meta):
         out.append(f"a name ({', '.join(names_of(words, meta)[:3])})")

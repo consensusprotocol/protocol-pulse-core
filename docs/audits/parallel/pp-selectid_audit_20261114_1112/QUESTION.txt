@@ -1,0 +1,59 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff and the facts below; if uncertain, say so; do not guess. Be specific: file:line and a concrete
+input that breaks it.
+
+BACKGROUND (static):
+- The builder reads a miner's ledger of candidate moments (pipeline/ledger_build.py). A row whose anchored text is not
+  whole sentences is SNAPPED OUTWARD to the word record's whole sentences (ruling 32), when the snapped span stays
+  inside a ceiling and holds no caption speaker marker; otherwise the row is dropped. Two products use the moments: the
+  MEDLEY (hook + 2-4 clips; at most 20 s per source video, law L-u) and the SPOTLIGHT (one moment of 12-35 s, ruling 90).
+- pipeline/vo_fidelity.py judges every VO line, the title and the caption. Its deterministic layer includes NUMBER
+  (every number in a line is in the sentences it cites) and NEEDS_SOURCE (a line with a fact - a number, name, quote,
+  attribution or time word - cites at least one segment). Production metadata (the credited shows, the show, the
+  date's month and weekday names, the package's own counts) may be stated without a citation. The model-verdict layer
+  labels each claim; a "production" claim must cite the manifest and carry no strict feature (strict_features: "a
+  number", a name, ...).
+
+UNCHANGED CODE THIS CHANGE RELIES ON (not in the diff; verify against these facts, do not assume them away):
+- package.usable(moments, ctx, ..., seg_max=SEG_MAX_S) (package.py:162) drops a moment longer than seg_max; SEG_MAX_S
+  = 20.0 (package.py:67) is the medley's default. The spotlight calls usable(..., seg_max=SPOT_S[1]) (spotlight.py:196,
+  :217) with SPOT_S = (12.0, 35.0) (spotlight.py:53). So the medley keeps its own 20 s whatever the read lets in.
+- vo_fidelity._governed(text, atts) (:352) splits a line into chunks at sentence ends (and attributions); the NUMBER
+  check reads each chunk. NEEDS_SOURCE reads the whole line.
+- vo_fidelity.manifest_terms (:276) admits the show date's month / weekday NAMES as production metadata, not its digits.
+- vo_fidelity.check (:740) ALWAYS asks the model verdict, whatever the deterministic layer found; the deterministic
+  layer is code, so a change to it applies at scoring time without new model calls.
+
+THE ORCHESTRATOR'S RULINGS (10:48 ET Nov 14), verbatim:
+"(2) YES: the ledger read's snap ceiling is 35 s; the medley's own 20 s stays in package.usable.
+ (3) YES: vo_fidelity's NUMBER rule accepts the manifest's own show date as production metadata, the WHOLE date only
+ ('2026-11-12', 'November 12', 'Nov 12'), never a bare number, and only when it equals the manifest's date. pp-tests
+ keeps its 30 cases."
+Context: before (2), the read dropped rows whose snap ran 21-23 s before the spotlight's 35 s ceiling could apply.
+Before (3), "Pulse Check for 2026-11-12." (the manifest's own date) failed NUMBER in 16 of pp-tests' 40 must-pass VO
+cases, and gave 14 must-fail cases a rejection for the wrong reason.
+
+THE CHANGE (the diff follows):
+1. ledger_build.SNAP_MAX_S 20.0 -> 35.0 (= spotlight.SPOT_S[1]); its comment and the drop reason say so. Tests: the
+   ceiling equals the spotlight's while the medley's SEG_MAX_S stays 20; a 22.5 s snap is now read; a 37.5 s one stays
+   out.
+2. vo_fidelity.without_manifest_date(text, manifest): takes out of a text the manifest's OWN date, whole: ISO
+   ('2026-11-12'), or written ('November 12' / 'Nov 12', an optional ordinal 'th', an optional ', 2026' of the
+   manifest's year), case-insensitive, never followed by another digit; no manifest date: the text as it is. 'Nov.' is
+   NOT accepted (its period ends a sentence in _governed, so the day would be read alone). It is applied at the three
+   places a number is read for this purpose: the NUMBER loop (each chunk), NEEDS_SOURCE (the whole line) and
+   strict_features (a production claim's words). Tests: the five accepted forms give NO violation; a different day, a
+   bare '12', 'number 12', a different year, '2026-11-120' and 'Nov. 12' are still NUMBER and NEEDS_SOURCE; no manifest
+   date: as before; strict_features agrees; a longer number keeps its whole value ('120'). 9 mutations, each killed;
+   20 suites, 570 tests.
+
+ATTACK:
+(a) Ruling (2): can a moment of 21-35 s now reach a MEDLEY? Does anything between the read and package.usable assume
+    20 s (a cut, a hook rule, the clip scorer, the candidate registry)? Can a snap now cross a speaker change?
+(b) Ruling (3): can any number OTHER than the manifest's own whole date escape NUMBER or NEEDS_SOURCE (a price, a count,
+    a day alone, another date, a date inside a larger number, a date in a quote)? Is 'November 12, 2025' handled? A
+    malformed or missing manifest date? Can the change make a must-fail case pass by construction?
+(c) Anything else that could seal a wrong pin or score the exam wrongly.
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete input), then
+"SHIP: yes / no / yes with conditions".

@@ -43,10 +43,12 @@ import sentence_law as SL
 import transcript_store as ts
 import vo_fidelity as VF          # snap_risk's price mentions (pure Python; at module level: audit 0332 C2, grok + qwen)
 
-SNAP_MAX_S = 20.0         # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
+SNAP_MAX_S = 35.0         # THE ORCHESTRATOR'S 10:48 RULING (2), Nov 14: the read's snap ceiling is the spotlight's 35 s
+                          # (spotlight.SPOT_S[1]); the medley's own 20 s stays in package.usable (SEG_MAX_S, L-u).
+                          # Before it, 20 s here dropped rows of 21-23 s before the spotlight's ceiling could apply.
+                          # RULING 32 (orchestrator 02:45 ET Nov 13): a row whose anchored text is not whole sentences
                           # is SNAPPED OUTWARD to the word record's whole sentences, instead of dropped, when the
-                          # snapped span stays inside the clip length limit (= package.SEG_MAX_S, L-u) and shows no
-                          # speaker change. The added words are the speaker's own, so nothing is changed by omission;
+                          # snapped span stays inside this ceiling and shows no speaker change. The added words are the speaker's own, so nothing is changed by omission;
                           # the snapped span is judged as usual: step A (L-s), the exclusion verdict (every L-u risk),
                           # L-v 2 (every number and negation both ways, exactly one speaker measured) and usable() (time
                           # words). It replaces SNAP_WORDS = 3 and SNAP_GUARD (audit 2315 C1), whose concern was words
@@ -402,7 +404,8 @@ def reanchor(row, src, cap=None):
         if a is None or b is None:
             return None, f"{snap}, its length is not measured (a word time is missing)"
         if b - a > SNAP_MAX_S:
-            return None, f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32: the clip length limit)"
+            return None, (f"{snap} it runs {b - a:.2f} s > {SNAP_MAX_S:.0f} s (ruling 32 with the 10:48 ruling (2): "
+                          f"the spotlight's clip ceiling)")
         t = marker_inside(cap if cap is not None else getattr(src, "context_source", None), a, b)
         if t is not None:
             return None, f"{snap} it holds a caption speaker marker at {t:.2f} s: a measured speaker change (ruling 32)"
