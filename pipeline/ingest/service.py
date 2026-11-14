@@ -82,11 +82,13 @@ class ServiceBusy(RuntimeError):
 
 
 def check_roles(cfg):
-    """Every mining question (mine.KINDS) needs its role in the provider config; a missing one stops the start (the
-    08:15 ruling 2 added the spotlight question: asked without its role, every pass of it would crash)."""
-    missing = sorted({k["role"] for k in mine.KINDS.values()} - set(cfg["roles"]))
+    """Every mining question (mine.KINDS) and the second-model check (flagcheck.ROLE) need their role in the provider
+    config; a missing one stops the start (the 08:15 ruling 2 added the spotlight question: asked without its role,
+    every pass of it would crash; audit hk3 c1, glm: the check's calibration would crash-loop the same way)."""
+    missing = sorted(({k["role"] for k in mine.KINDS.values()} | {flagcheck.ROLE}) - set(cfg["roles"]))
     if missing:
-        raise ValueError(f"providers.json has no role {missing}: every mining question needs one (mine.KINDS)")
+        raise ValueError(f"providers.json has no role {missing}: every mining question and the second-model check "
+                         "need one (mine.KINDS, flagcheck.ROLE)")
 
 
 class Service:
@@ -409,28 +411,31 @@ class Service:
             failed = rep["failed"] + (srep["failed"] if srep else [])
             rejected = [f for f in failed if not f["outage"]]
             tries = int(v.get("hook_tries") or 0) + (1 if rejected else 0)
+            split = (f"hook {len(rep['failed'])}, spotlight {len(srep['failed'])}" if srep is not None else
+                     f"hook {len(rep['failed'])}")              # which question failed (audit hk3 c1, glm)
             sp = (f"{len(spot)} spotlight rows (dropped {srep['dropped'] or 0})" if srep is not None else
                   f"no spotlight question ({ep.get('turns_per_min')} turns / min: not a conversation)")
             what = (f"{len(lines)} hook rows (up to {rep['max_n']} a window), {sp}, windows {rep['windows']} "
-                    f"(screened {rep['screened']}, failed {len(failed)}: {len(rejected)} rejected), dropped "
-                    f"{rep['dropped'] or 0}{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, "
+                    f"(screened {rep['screened']}, failed {len(failed)}: {len(rejected)} rejected; {split}), "
+                    f"dropped {rep['dropped'] or 0}{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, "
                     f"${cost:.4f} for the video's hook passes so far, {self.clock() - t0:.0f} s")
             if failed and tries < HOOK_TRIES:
                 self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_tries=tries, hook_cost_usd=cost,
-                                hook_note=("OUTAGE: " if not rejected else "") + f"{len(failed)} window(s) failed; "
-                                f"retry in {HOOK_RETRY_S // 60} min: {json.dumps(failed[0]['tried'])[:200]}")
+                                hook_note=("OUTAGE: " if not rejected else "") + f"{len(failed)} window(s) failed "
+                                f"({split}); retry in {HOOK_RETRY_S // 60} min: {json.dumps(failed[0]['tried'])[:200]}")
                 self.log(f"hooks {vid} ({(chan or {}).get('display_name')}): waiting: {what}")
                 return
             self._append(v, lines + spot)
             self.q.set_hook(vid, episode_markers=ep.get("speaker_markers"), episode_tpm=ep.get("turns_per_min"))
             self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
                             hook_version=mine.HOOK_PROMPT_VERSION, spot_rows=len(spot) if srep is not None else None,
-                            hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes"
-                                                          if failed else None))
+                            hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes "
+                                                          f"({split})" if failed else None))
             self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), spotlight_rows=len(spot),
                          conversation=srep is not None, max_n=rep["max_n"], windows=rep["windows"],
-                         screened=rep["screened"], failed=len(failed), dropped=rep["dropped"],
-                         spotlight_dropped=(srep or {}).get("dropped"), cost=cost)
+                         screened=rep["screened"], failed=len(failed), failed_hook=len(rep["failed"]),
+                         failed_spotlight=len(srep["failed"]) if srep is not None else None,
+                         dropped=rep["dropped"], spotlight_dropped=(srep or {}).get("dropped"), cost=cost)
             self.log(f"hooks {vid} ({chan.get('display_name')}): {what}")
         except ContractUnavailable as e:
             self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_note=f"contract unavailable: {e}"[:300])

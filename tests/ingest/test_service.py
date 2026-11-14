@@ -612,8 +612,8 @@ def _every_question(prompt):
     """The miner answering every question: the moment pass its first two ids; the hook question as many hooks as it
     allows (5 in a conversation, else 3); the spotlight question two 4-sentence spans (16 s at 4 s a sentence)."""
     flat = " ".join(prompt.split())
-    if H.is_spot(prompt):
-        return H.spots_reply(prompt, ((0, 3), (10, 13)))
+    if H.is_spot(prompt):                     # spans that START on a '>>' sentence (3, 7: the test's markers fall on
+        return H.spots_reply(prompt, ((3, 6), (7, 10)))   # every 4th): one speaker inside, so the adapter keeps them
     if H.is_hook(prompt):
         n = 5 if "1 to 5 lines" in flat else 3
         return H.hooks_reply(prompt, tuple((i, i) for i in range(n)))
@@ -660,17 +660,50 @@ def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question
     assert c["hook_cost_usd"] == pytest.approx(sum(r["usd"] for r in calls if r["video_id"] == conv))
     hk = s.health_once()["hooks_12h"]
     assert hk["conversations"] == 1 and hk["spotlight_rows"] == len(spots)
+    # audit hk3 c1 (muse): end to end, the packager's read returns the spotlight rows (no filter drops them)
+    since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
+    out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"],
+                                          limit=1000)
+    got = {l["moment_id"] for l in out if l.get("role_hint") == "spotlight"}
+    assert got and got == {l["moment_id"] for l in spots if not l["speaker"]["turn_change_inside"]}
+
+
+def test_the_hook_note_says_which_question_failed(svc):
+    """Audit hk3 c1 (glm): a pass whose spotlight question was rejected says so (hook 0, spotlight N), and is retried."""
+    def bad_spot(prompt):
+        if H.is_spot(prompt):                                          # 3 spotlights: more than the question allows
+            return H.spots_reply(prompt, ((3, 6), (7, 10), (11, 14)))
+        return _every_question(prompt)
+    s, vids, b = svc(bad_spot, bad_spot, n_videos=1)
+    ts = config.ts()
+    solo_captions = ts.fetch_captions
+
+    def captions(meta, work):
+        lead = [(">> " if i % 4 == 3 else "") + f"Bitcoin show {meta['video_id']} opens with {i} new facts."
+                for i in range(30)]
+        rec, _ = H.caption_record(meta["video_id"], n_rep=8, lead=lead)
+        return "ok", ts._make_record(meta, "yt_auto:en-orig", "youtube captions (auto-subs, en-orig)", rec["segments"])
+    ts.fetch_captions = captions
+    try:
+        run_once(s)
+        s.hook_once(wait=True)
+    finally:
+        ts.fetch_captions = solo_captions
+    row = s.q.video(vids[0])
+    assert row["hook_ts"] is None and row["hook_tries"] == 1 and "(hook 0, spotlight " in row["hook_note"]
 
 
 def test_every_mining_question_needs_its_role_to_start():
-    """The 08:15 ruling 2: the spotlight question has its own role; a provider config without it stops the start
-    (asked without it, every conversation's hook pass would crash)."""
+    """The 08:15 ruling 2: the spotlight question has its own role; a provider config without it, or without the
+    second-model check's (audit hk3 c1, glm), stops the start (every pass of it would crash)."""
     service.check_roles(providers.load_config())                        # the real providers.json: every role there
     cfg = H.router_cfg(["primary", "fallback"])
     service.check_roles(cfg)
-    del cfg["roles"]["spotlight"]
-    with pytest.raises(ValueError, match=r"no role \['spotlight'\]"):
-        service.check_roles(cfg)
+    for role in ("spotlight", "flagcheck"):
+        c = H.router_cfg(["primary", "fallback"])
+        del c["roles"][role]
+        with pytest.raises(ValueError, match=rf"no role \['{role}'\]"):
+            service.check_roles(c)
 
 
 def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):

@@ -355,7 +355,8 @@ minutes ... use Groc mainly or whatever other AI tokens we have".
   vendor through for no other role), under `daily_cap_usd` $2.00 per ET day: each call holds its priced worst case
   (every attempt at its full reply budget) before it starts, the day's spend loaded from the queue's calls; past it,
   the videos queue and wait.
-- EVERY ROW carries `miner_route` (the role that mined it: mine | mine_paid | hook). When the signal is back, every
+- EVERY ROW carries `miner_route` (the role that mined it: mine | mine_paid | hook | spotlight, the last since the
+  08:15 ruling 2). When the signal is back, every
   video the paid route mined that is still inside `recheck_within_s` (12 h, its moments' life) is mined again on the
   mine role, once (a later paid mining makes it due again); every moment both passes found carries both models' flags
   (`ledger.carry_forward`). The builder re-judges every clip with its own gates whatever mined it, so a paid label can
