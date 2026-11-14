@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 11:43 RULING 99 and the orchestrator's rulings (2) / (3), as relayed by the builder (54ec843d, 679d26e6 on pp-selectid, each audited in two cycles): NO RENDER CHANGE; package_pin.py and seal() unchanged.
+- Ruling 99, the circuit breaker, lives in the builder's Router only (providers.py, pipeline/circuit_breaker.py, proof_ledger.build_router). glm's breaker opened at 11:31 after two deadline misses in a row.
+- (2) ledger_build.SNAP_MAX_S = 35 s: rows snapped to 21-35 s are read; the medley still drops them at 20 s (package.usable). A spotlight's 35 s is inside L-ab's 12-35 s clip window, and R4 / G5 hold its 28-50 s total.
+- (3) vo_fidelity's NUMBER rule accepts the manifest's own whole date. This settles R-30 (pp-tests' dated-sign-off question) as YES on the builder's side; pp-tests' 30 corpus cases keep their sign-offs.
+- CHECKED here: nothing imports ledger_build or vo_fidelity.
+  - The only mentions are reads of the sealed checks["vo_fidelity_ok"] (pinned.py:701, edl_rules.py:230, run_fresh.py:431).
+  - The builder's package_pin.py, loaded by check_pin_only, imports only the stdlib plus stand_alone and canon, which resolve to main's copies.
+- The builder's 11:29 build sealed nothing; the nearest was TFTC 2e3622d2, whose hook rated 2. A build on 679d26e6 started at 11:42; its pin renders on arrival.
+
 ## 11:35 ORCHESTRATOR '11:38' (min_out), the integrator's answers to the builder: (1) NOTHING here reads model_providers.json's min_out or uses providers.Router; (2) today's 26 Heimdall calls, all at max_tokens 24576 with reasoning effort "none", all stopped by themselves.
 - The question: pp-selectid's phase-2 commit aef73873 (Nov 12) set a 16,000-token output floor (min_out) on every Heimdall family (4,000 on openai), so every Heimdall call goes out with max_tokens >= 16,000. glm's one-word probe ran 391 s; its verdicts ran 483-532 s.
 - (1) NOT USED HERE. Neither model_providers.json nor providers.py exists in main's pipeline/. No file in pipeline/, scripts/integrator/, segment_v1/ or video_pipeline_v3/relay.py imports `providers`, mentions min_out or uses Router.
