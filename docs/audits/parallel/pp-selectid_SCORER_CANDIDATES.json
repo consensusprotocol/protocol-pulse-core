@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T02:15:14+00:00",
- "build": "ledger_20261114_021501",
+ "generated_at": "2026-11-14T03:14:34+00:00",
+ "build": "ledger_20261114_031425",
  "kind": "moments",
  "candidates": [
   {
@@ -40,42 +40,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "6058ee583d6fb7dce57c",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 12.64,
-   "text": "So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account.",
-   "text_sha256": "59cea7f0f472eb02be900427a758da2ba5c0d3f6f68929d500520a5ef0009277",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "87a6e1d0bb27b87b8fb3",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 13.58,
-   "text": "So if you look at as Bitcoin as digital real estate, digital property, the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right? So owning Bitcoin is like owning this plot of land and a vastly expanding digital economy.",
-   "text_sha256": "20a3455feac429a0baeca5f85b4e98a5f3d13e7b90030190fd4c27bae08f5fb9",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d7adaf1865a474f779b1",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 6.58,
-   "text": "And the demonetization of real estate is happening with the monetization of Bitcoin.",
-   "text_sha256": "fb78d800878564c9980a8f2ff38f373016c10d2a366397eb57e30cde69190e58",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "57a39773d4e8a6019e3a",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 6.9,
-   "text": "And broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
-   "text_sha256": "9bd73f9d85cf332582be22eda150cdba1c536f00379efc812396ed8af81547bc",
-   "trimmed_leading": null
-  },
-  {
    "pid": "5b8effa74a967fb0ebed",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -94,15 +58,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "7d8a34d13e1187f7b2f3",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 11.86,
-   "text": "So within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
-   "text_sha256": "d9cf362d0449a70b48341f3c8e175e5e4194dab308a54d2edfeb68188aa87c91",
-   "trimmed_leading": null
-  },
-  {
    "pid": "72e9a3529c27be3eb69d",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -118,15 +73,6 @@
    "duration": 15.67,
    "text": "So my whole belief has been, and this is the reason why I believe in Bitcoin is that there are no more moats and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from, a lack of government involvement. It comes from multiple expansion.",
    "text_sha256": "014105019821f99902e93be84ac632dde117d39dfa437ea9d32ec734aae9c5a5",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "d424fd07e3168bd42205",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 7.89,
-   "text": "Because I'm not saying real estate, and Bitcoin are necessarily competition. There can be complementary assets.",
-   "text_sha256": "f4d647642d3dfb98832acca7d20a64c46685e8aed87c33f04d1d9a8f93b11674",
    "trimmed_leading": null
   },
   {
@@ -154,15 +100,6 @@
    "duration": 13.21,
    "text": "But now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago.",
    "text_sha256": "90245a354d68a8094b08b63124086cda30622c9b859a772933c637bdda42aad4",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "6fc3cfea365e1845d0b5",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 19.95,
-   "text": "So our thesis is that this is great for a group of individuals going into the AI space to go and build out. But as far as we're concerned, we have faith in our modeling that shows us that. Bitcoin mining is a fantastic place to be. It's a profitable business, and it radically outperforms across these longer -term business cycles.",
-   "text_sha256": "fe8b8dacf647eecbc8d87953fd602c144b583decdd61ded55bd930f331b8ba14",
    "trimmed_leading": null
   },
   {
@@ -202,15 +139,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "040795ca039b3d65e0a7",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 9.8,
-   "text": "But I think you should build a deep respect for the folks who are actually going out and, okay, not everybody's going to just be a treasury company. It takes mining to run the Bitcoin Protocol.",
-   "text_sha256": "a3c2af27a3440a740eb1f1b6dd9580c8242cdf4351a9da1bb60f8e932c63ceaa",
-   "trimmed_leading": null
-  },
-  {
    "pid": "6b9f456a6df29f234434",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -247,39 +175,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "d4dccaa1203e4725dc05",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 15.48,
-   "text": "So we have all these things happening at the same time. There's an alternative, a digital alternative, which is Bitcoin. We have higher interest rates, which causes less demand from real estate, and we have higher yields on government bonds, which causes institutions to switch from real estate back into government debt.",
-   "text_sha256": "72b106483979c5e92358fe91f7f3453a7985ab85df0081b68794dfd2375cfba5",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "e66f62633c82aa57d491",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 9.3,
-   "text": "So when people make this comparison and they say, well, nobody should mind Bitcoin. And listen, people have been saying this since 2017 when I was just starting in Bitcoin. They've been saying, oh, you'd never mind Bitcoin. You never make money.",
-   "text_sha256": "7571322141e2065d6b2f4a88e2c2cdc386dcbd6ca56bb237a3379d75b15051af",
-   "trimmed_leading": null
-  },
-  {
    "pid": "f2af9efdc1b09cace5ab",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
    "duration": 7.49,
    "text": "So we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year.",
    "text_sha256": "f0ad9dda9fd8cdc8595f3a00887b8ced69fcd09444eb2366c913aa13578463bb",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "1024348405d7d1542b5e",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 10.09,
-   "text": "And I think being flexible today as a business is more important than having necessarily... a larger size quickly because you want to accumulate Bitcoin as a business.",
-   "text_sha256": "cbe79113c869147a275b2ee80021aee5e138c6684794d12429ec1b9566cf24fd",
    "trimmed_leading": null
   },
   {
@@ -310,33 +211,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "62dcff647168ef525ab7",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 13.43,
-   "text": "And I think Bitcoin just works perfectly for that, for any business. Any business that's cash flow positive, Bitcoin is this. near -perfect form of money that can be used to store value and then save it over time and space.",
-   "text_sha256": "0f59f8c314a6eae170d38220e4a7cddc46febd39aa8deb721e7d73bf403f9f58",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "7043db23dcf5d4d0d04f",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 9.02,
-   "text": "So let's say you sit on real estate in Germany over 10 years and you can sell a tax free. It would be a great deal to do that and then move into Bitcoin, right?",
-   "text_sha256": "6d8419811ae41f519c2bc5276f1d21347920c0cd03c5942b049ccdfe66fbf5f1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "86f4857e4d729a56d307",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 11.87,
-   "text": "And in 20 or 30 years time, we will have companies, I think, that started as real estate companies, but they became Bitcoin companies. And then you have builders that use Bitcoin as a balance sheet asset.",
-   "text_sha256": "341fa8140c3d52004db86ac480740e97e906827627a0f9234a90c9b0ab53000b",
-   "trimmed_leading": null
-  },
-  {
    "pid": "b05aed91079ce64702e4",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -346,75 +220,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "d8fae8d10cec04343e2a",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 12.07,
-   "text": "And when I think about Bitcoin and as a business owner and a business operator, the game now becomes, how can I accumulate? Bitcoin and how can I create real value that allows me to accumulate Bitcoin.",
-   "text_sha256": "8eb2d25931d38dcf18e489e815887ebf174ca97e51a1eb72d785a6722efb9148",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "6cb7f3e130127c6463f3",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 7.04,
-   "text": "So the combination of real estate and Bitcoin is very interesting. And there can be complementary assets. They can perform different functions on the balance sheet.",
-   "text_sha256": "8b05869bb3987a3ec84ab884f23b0c83ad6fe772778fdbdf77a570cc44e29542",
-   "trimmed_leading": null
-  },
-  {
    "pid": "77d1ff81caaa3145a815",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
    "duration": 6.1,
    "text": "And when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
    "text_sha256": "8e8ab6c2087c1ebf411e0e89d16e2876f9fca4bf798e4e9b36234066495bb3d6",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "83708bb3ea5d60f0130a",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 8.26,
-   "text": "And the truth is that if you want to buy and hold and you don't want to mine Bitcoin, that's okay. That's great for you. I recommend getting yourself a bitax, learning how it works.",
-   "text_sha256": "b5df6783cc34ce02b74d094d3dd0253b2b90e22641111197d129d6c302127937",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "a6d597334098a866b914",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 14.49,
-   "text": "So that kind of technological compression, that same effect is happening in Bitcoin mining, which means that more people have access to these tools. And with that, I think that that gives more people the opportunity to get creative with the way they run their business, as we mentioned in the megawatt and the gridless side of things.",
-   "text_sha256": "2043cbaf28226ebae5723e7f3ed1fea7a0edfc77d1f33dfc3254f165ea2db972",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "f805375d501cfdda540f",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 14.96,
-   "text": "And so part of the Bitcoin thesis is, hey, we now have money that functions as a store value. So the store value premium on all these asset classes will. in theory, go away. It would go to zero over time, and Bitcoin would capture all of that.",
-   "text_sha256": "237f14b517562cf10d4654674ffe258a8c43468c9a017a6ded8117f4b2061a35",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "f77b9c3ec033b70d67ae",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 10.56,
-   "text": "And in some cases, it's actually more secure, right? So in the case of SV2, there's encryption to help stop hash rate hijacking, which is actually another benefit that, you know, that mining miners like.",
-   "text_sha256": "de997ec17e1073aaad713bb2aa5ec4e882dbc5e8e3202171adf9950fe3c1acc8",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "79deecea80d28ec0cab1",
-   "video_id": "MqVqfEDXgLo",
-   "channel": "Yahoo Finance",
-   "duration": 6.56,
-   "text": "So percentage -wise, this instance actually not the largest percentage impact on Bitcoin.",
-   "text_sha256": "24674ed17c1b018b6de7652881ca5265520fd2e284a49faef92bfe9ed6854c0f",
    "trimmed_leading": null
   },
   {
@@ -463,42 +274,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "6058ee583d6fb7dce57c~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 12.62,
-   "text": "over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account.",
-   "text_sha256": "b2f5be7f6afaae39cac503a6b8babccf6719aa9782768d71359999d6460ce960",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "87a6e1d0bb27b87b8fb3~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 13.46,
-   "text": "if you look at as Bitcoin as digital real estate, digital property, the emergence of Bitcoin will give a whole new opportunity of value creation in the digital space, right? So owning Bitcoin is like owning this plot of land and a vastly expanding digital economy.",
-   "text_sha256": "a0abe32c841113f8885e28162375d041381c985ee887b376399db948796d9031",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "d7adaf1865a474f779b1~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 6.28,
-   "text": "the demonetization of real estate is happening with the monetization of Bitcoin.",
-   "text_sha256": "93247a79dc1019de640091040155cd0a54a70213191cc3a596f40bd948693633",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "57a39773d4e8a6019e3a~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 6.82,
-   "text": "broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
-   "text_sha256": "15e6e668b792e570c6606c3f5e5a6aac08769dbaa199110ee501aeaaaf1e39a9",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "5b8effa74a967fb0ebed~trim",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -515,15 +290,6 @@
    "text": "I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5.",
    "text_sha256": "c6587d9b45fcecde9fe2db321d6931e1159b4076a75af3e54f391655e922ad36",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "7d8a34d13e1187f7b2f3~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 11.34,
-   "text": "within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
-   "text_sha256": "cf0445ca9c2becaccb48e107f332925664cd3ea30c80870453920a6f88d5a7e8",
-   "trimmed_leading": "So"
   },
   {
    "pid": "72e9a3529c27be3eb69d~trim",
@@ -562,15 +328,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "6fc3cfea365e1845d0b5~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 19.37,
-   "text": "our thesis is that this is great for a group of individuals going into the AI space to go and build out. But as far as we're concerned, we have faith in our modeling that shows us that. Bitcoin mining is a fantastic place to be. It's a profitable business, and it radically outperforms across these longer -term business cycles.",
-   "text_sha256": "2007cd78e2c7ba318cf8a13fd7faf00fc053d1f8eb362f5bd51f8ee61a4fb4eb",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "7117881d12512ebf0227~trim",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -605,15 +362,6 @@
    "text": "you are seeing two worldviews clash right now. There's the traditional view of J.P. Morgan and Jamie Diamond. And then there's this new view of... Bitcoin as preceding collateral, Bitcoin as the future of money, and strategy becoming a quote -unquote Bitcoin bank for the future.",
    "text_sha256": "965a8ff017616239337a8d836a8df711a089c5597a3953e10d38dfafdc5ceea2",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "040795ca039b3d65e0a7~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 9.4,
-   "text": "I think you should build a deep respect for the folks who are actually going out and, okay, not everybody's going to just be a treasury company. It takes mining to run the Bitcoin Protocol.",
-   "text_sha256": "f69b1080246e9e8da10a62bdf20c6f5c0fac031fdf98714198897f7be752be48",
-   "trimmed_leading": "But"
   },
   {
    "pid": "6b9f456a6df29f234434~trim",
@@ -652,24 +400,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "d4dccaa1203e4725dc05~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 15.48,
-   "text": "we have all these things happening at the same time. There's an alternative, a digital alternative, which is Bitcoin. We have higher interest rates, which causes less demand from real estate, and we have higher yields on government bonds, which causes institutions to switch from real estate back into government debt.",
-   "text_sha256": "059d1009e3869d2d38e5b7f28707015cf30d9de3ec47962282b757abf9baaf6c",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "e66f62633c82aa57d491~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 9.18,
-   "text": "when people make this comparison and they say, well, nobody should mind Bitcoin. And listen, people have been saying this since 2017 when I was just starting in Bitcoin. They've been saying, oh, you'd never mind Bitcoin. You never make money.",
-   "text_sha256": "7c1740e2589e6f04ea91b3593c244f5acfb5f843d3ad68437577170a14cda5e9",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "f2af9efdc1b09cace5ab~trim",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
@@ -677,15 +407,6 @@
    "text": "we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year.",
    "text_sha256": "cd4f6513eb8c1065fa4aa64d6bec61c237549ca69af3b97c09b6d9f71d4fdab5",
    "trimmed_leading": "So"
-  },
-  {
-   "pid": "1024348405d7d1542b5e~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 10.03,
-   "text": "I think being flexible today as a business is more important than having necessarily... a larger size quickly because you want to accumulate Bitcoin as a business.",
-   "text_sha256": "d98828715821e99e0857d8d4cadf0b2f0209d5aaa17397296be4380101f4911f",
-   "trimmed_leading": "And"
   },
   {
    "pid": "191fea6ec4e0331dfead~trim",
@@ -715,33 +436,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "62dcff647168ef525ab7~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 13.39,
-   "text": "I think Bitcoin just works perfectly for that, for any business. Any business that's cash flow positive, Bitcoin is this. near -perfect form of money that can be used to store value and then save it over time and space.",
-   "text_sha256": "a9adbf7f0996c1a8a461e8cbea83f4d2b7b92130c528d03e13007adf9632d00e",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "7043db23dcf5d4d0d04f~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 8.96,
-   "text": "let's say you sit on real estate in Germany over 10 years and you can sell a tax free. It would be a great deal to do that and then move into Bitcoin, right?",
-   "text_sha256": "d95cea346c1ebe3543c16e28248db9d392b7d199f82f13598b7c6162c4138786",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "86f4857e4d729a56d307~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 11.75,
-   "text": "in 20 or 30 years time, we will have companies, I think, that started as real estate companies, but they became Bitcoin companies. And then you have builders that use Bitcoin as a balance sheet asset.",
-   "text_sha256": "c8d767937ebc892e968095862397e408f4a81900f6b2b6541980fa7eedc4e4ae",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "b05aed91079ce64702e4~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -751,24 +445,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "d8fae8d10cec04343e2a~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 11.95,
-   "text": "when I think about Bitcoin and as a business owner and a business operator, the game now becomes, how can I accumulate? Bitcoin and how can I create real value that allows me to accumulate Bitcoin.",
-   "text_sha256": "bde7b665f4dc7c17d1c585f1cd78b1665dbb84e1e749f46f9da402c433a918cf",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "6cb7f3e130127c6463f3~trim",
-   "video_id": "uaHNzi-Kgr8",
-   "channel": "Robert Breedlove",
-   "duration": 6.96,
-   "text": "the combination of real estate and Bitcoin is very interesting. And there can be complementary assets. They can perform different functions on the balance sheet.",
-   "text_sha256": "e7bc7b16f9c65deb3ff7c2525c829c37634b63730d61159b6b62463ce48f2691",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "77d1ff81caaa3145a815~trim",
    "video_id": "L6H7538ogGs",
    "channel": "Simply Bitcoin",
@@ -776,42 +452,6 @@
    "text": "when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
    "text_sha256": "7ebb2b96c275226dc94dc31b969a3153a691eda01c434d14282e0d9487297c04",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "83708bb3ea5d60f0130a~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 8.18,
-   "text": "the truth is that if you want to buy and hold and you don't want to mine Bitcoin, that's okay. That's great for you. I recommend getting yourself a bitax, learning how it works.",
-   "text_sha256": "d64ddee373c2d433d148e4209fcc6918aac666872b8b403cc9e103084fbed05e",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "a6d597334098a866b914~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 14.45,
-   "text": "that kind of technological compression, that same effect is happening in Bitcoin mining, which means that more people have access to these tools. And with that, I think that that gives more people the opportunity to get creative with the way they run their business, as we mentioned in the megawatt and the gridless side of things.",
-   "text_sha256": "3df2126d64c0deb13eebb377bfca22cbac9bd691b9023a3145dfb6511c154396",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "f77b9c3ec033b70d67ae~trim",
-   "video_id": "NVUxOhIV3K8",
-   "channel": "Stephan Livera",
-   "duration": 10.52,
-   "text": "in some cases, it's actually more secure, right? So in the case of SV2, there's encryption to help stop hash rate hijacking, which is actually another benefit that, you know, that mining miners like.",
-   "text_sha256": "4f5b5096639e1101114a84e10ba0290b121de53ac147cc37e8519ddd9aa2ab0e",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "79deecea80d28ec0cab1~trim",
-   "video_id": "MqVqfEDXgLo",
-   "channel": "Yahoo Finance",
-   "duration": 6.56,
-   "text": "percentage -wise, this instance actually not the largest percentage impact on Bitcoin.",
-   "text_sha256": "c3567e7fec89a5dd4bcd347d5ac72bae9ed50c7706649d768a92c2468088c037",
-   "trimmed_leading": "So"
   },
   {
    "pid": "081b03a09f0cb452e481~trim",

@@ -45,7 +45,10 @@
   "tests/package/proof/ledger_20261114_002300",
   "tests/package/proof/ledger_20261114_003823",
   "tests/package/proof/ledger_20261114_011253",
-  "tests/package/proof/ledger_20261114_021501"
+  "tests/package/proof/ledger_20261114_021501",
+  "tests/package/proof/ledger_20261114_023757",
+  "tests/package/proof/ledger_20261114_025021",
+  "tests/package/proof/ledger_20261114_031425"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {

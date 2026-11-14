@@ -1,4 +1,4 @@
-21:37 ET: BUILD 21:15 (ledger_20261114_021501, code 48770e6b): NO PACKAGE. The 20:12 candidate failed coherence with the takeaway (clip_02 NtaQGnfWRR8 rated 2, takeaway 2; closed). The search judged 7 line-ups on 3 angles, and every one failed the clips alone (2-3 joins flagged, or a clip at 1-3). RULING 76 (d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. Ruling 83 (a) at work: the whole build cost $0.24 (step A's outages booked at prompt tokens). THE REPLAY (85.1) runs at 4 calls per model since 21:36 (936 calls); its table goes on STATE the moment every type has rows. 85.2 / 86 / 87 ARE BUILT AND TESTED in a scratch copy, for one audit when the replay is in: the routing switch (each Heimdall family its own maker; Grok last; ruling 82's 120 s and the move-on rule on every verdict, which is the 20:33 order); the shadow (Grok asked the same prompts, recorded, never deciding; a side-by-side per build; it stops after 3 clean pins); Plan B (a shared health file: 15 minutes with no family answering switches; a probe every 2 min; back after 3 answers in a row; each switch written to STATE line 1 and the evidence file; Grok, then the fenced Gemini key (gemini-2.5-pro), then OpenAI / Anthropic only if a call shows credit). OPEN FOR PLAN B: with only one outside family, step A's second verdict needs the integrator's local-judge contract (asked). COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.67 of $20.00 after the build, plus the replay as it runs; stop at $16.
+22:18 ET: QUESTION, IN CAPITALS (RULING 88): WITH 88 (D) AND (E) COHERENCE HAS ONE HEIMDALL FAMILY LEFT (DEEPSEEK); WHEN DEEPSEEK WRITES AND XAI IS DOWN, COHERENCE HAS NO FAMILY AND THE PACKAGE FAILS CLOSED. ALLOW GLM AS COHERENCE'S LAST FALLBACK, OR LET IT FAIL CLOSED? BUILD 22:13 (today's routing): no package; 2 angles from deepseek, 2 new line-ups (the expiries changed the pool), both failed the clips alone with hook -> clip_01 flagged and the clips after it rated 1; it cost $0.10. RULING 76 (d): 149 moments inside 12 h, 26 cleared, 13 cuttable, 1 hook >= 4 (L6H7538ogGs, until 06:20 ET; ruling 89's answer is below: no clip has ever followed it). Ruling 88 is built and passes every suite; the cost per sealed pin under it is below (about $0.21 / $0.19 with (a)+(c), $0.18 / $0.16 with (b) too). THE REPLAY is at 382 of about 950 calls (35 calls past 300 s, no 429s); the full table and the audit of 85-88 follow when it ends. Builds go on as uploads arrive. COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $12.71 of $20.00 (the replay included); stop at $16.
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -36,6 +36,165 @@
 - Title: "A maturing asset outlasts the tech trade"
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
+
+
+## 22:18 ET: build 22:13: no package
+
+- 2 angles from deepseek (172 s). Line-up 1, 4 clips, 41.2 s: clips alone FAIL {4, 1, 1, 1}, every join flagged. Line-up 2, 3 clips, 41.5 s: FAIL {4, 1, 1}, both joins flagged.
+- Each angle was re-lined; no swap fits the line-up rules.
+- RULING 76 (d): 149 inside 12 h, 26 cleared, 13 cuttable, 1 hook >= 4. Spend $12.61 -> $12.71.
+
+Line 1 as it stood at 22:13:
+
+> 22:13 ET: RULING 88 IS BUILT AND PASSES EVERY SUITE (17 suites, 462 tests, scratch copy; one audit of 85-88 when the replay is in). QUESTION, IN CAPITALS: WITH 88 (D) AND (E) COHERENCE HAS ONE HEIMDALL FAMILY LEFT (DEEPSEEK); WHEN DEEPSEEK WRITES AND XAI IS DOWN, COHERENCE HAS NO FAMILY AND THE PACKAGE FAILS CLOSED. ALLOW GLM AS COHERENCE'S LAST FALLBACK (its out-of-contract answers move on; it agreed 93 % on the ones it answered), OR LET IT FAIL CLOSED? EXPECTED COST PER SEALED PIN, on 13949b7c's build (the last pin, $0.2399: Grok text $0.1612, Grok vision $0.0471, ElevenLabs $0.0256 estimated, Heimdall $0.0061), at the replay's median per-call costs: TODAY $0.24 TOTAL / $0.23 OUTSIDE. UNDER (A) + (C): ABOUT $0.21 / $0.19 (fidelity $0.0124 and exclusion $0.0056 leave Grok; step A's $0.0467 of Grok becomes about $0.013 of Heimdall on all 15 clips plus about $0.019 of Grok confirming the roughly 30 % that pass, in Grok's own 8-clip batch: built). WITH (B) AS WELL: ABOUT $0.18 / $0.16. What stays outside: Grok vision $0.047, speaker $0.036, ElevenLabs $0.026, Grok's step-A confirm $0.019, clips-alone $0.016, step B $0.015, coherence $0.005; the $0.05 outside target needs the visual, speaker and step-B verdicts moved too (and ElevenLabs alone is $0.026). Ruling 89's answer stands below (none; the one followable join's clip expired at 22:00:33). The replay is at 358 of about 950 calls. COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $12.0 of $20.00; stop at $16.
+
+
+## 22:13 ET: ruling 88, as built (scratch copy, for the audit)
+
+- The router: a verdict TYPE may have its own list, keyed "<role>:<kind>" (step_a_first, step_a_second, step_c, hook, clips_alone, coherence), and each call names its kind. The recording keys stay role-based, so every earlier recording is still served free.
+- Under heimdall_first (the switch):
+  - fidelity: qwen -> glm -> Grok; exclusion: glm -> qwen -> Grok (88 a).
+  - step A's first verdict: qwen -> glm -> deepseek -> Grok; the second: Grok first (88 c). A clip Heimdall refuses is refused, and Grok is never asked. Grok confirms in its own 8-clip batches, with no deadline and the move-on rule kept.
+  - step C: Grok -> glm -> deepseek; the hook rating: Grok -> qwen -> deepseek -> glm. Both stay Grok-first until the full table holds the interim (88 b).
+  - clips-alone: Grok -> qwen -> deepseek (glm out); coherence: Grok -> deepseek (glm out; qwen never decides it); 88 d / e.
+  - speaker and step B: Grok, then the 20:33 chain; the visual check: the role's chain. Neither is ruled.
+- Under today's routing, 88 (d) and (e) hold as well: coherence Grok -> deepseek; clips-alone Grok -> deepseek -> qwen; step C Grok -> deepseek -> glm.
+- With xAI answering nothing and deepseek writing (a test over the real config):
+  - fidelity -> qwen; exclusion -> glm; speaker, step B, step C -> glm; hook, clips-alone -> qwen;
+  - step A: qwen first, glm second;
+  - COHERENCE -> NONE (the question on line 1).
+
+Line 1 as it stood at 22:08:
+
+> 22:08 ET: RULING 89, FROM RECORDS, NO SPEND: FOR THE ONE HOOK (Simply Bitcoin L6H7538ogGs, f063cce3, "They can't print more Bitcoin", expires 06:20 ET) THE NUMBER OF CLEARED CUTTABLE CLIPS WHOSE JOIN AFTER IT WAS EVER RATED FOLLOWABLE IS NONE. Grok's 10 recorded clips-alone verdicts that open on it flag hook -> clip_01 nine times ("abrupt shift from AI / Bitcoin scarcity to real estate"; "to unrelated market drop stats"; "no clear link ... to mining efficiency"). The one followable join, Breedlove 2d527209 at 01:29 UTC ("both address Bitcoin's economic benefits", rated 4), was reversed when the same clip followed it again at 02:35 ("jumps from AI vs Bitcoin scarcity to real estate with no link", rated 1), and Breedlove's video expired at 22:00:33 ET with the Yahoo Finance clip. So the best single clip to follow it, by the judge's own words, no longer exists; the words say what would follow: a clip on Bitcoin's economic benefit, not on real estate, price moves or mining. WHAT IS LEFT FOR IT after 22:32 ET (three NVUxOhIV3K8 mining clips expire at 22:14 and VqNMYCgZ3Vw at 22:32): five Simply Bitcoin NtaQGnfWRR8 clips (until 00:40; the hook's own channel) and one nvEftLDdab4 clip (7004b98d, until 04:37), none of them ever judged right after this hook. Nothing is built for the two-clip Short until you rule. RULING 88 is being built (fidelity and exclusion to Heimdall now; step A Heimdall first with Grok confirming only Heimdall's passes; step C and hooks when the full table holds; clips-alone and coherence keep Grok; qwen never decides coherence or step C), with the cost per sealed pin under it. The replay is at 263 of about 950 calls. COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.95 of $20.00; stop at $16.
+
+
+## 22:08 ET: ruling 89: the one hook's joins, from the records (no spend)
+
+Every recorded clips-alone verdict whose HOOK is L6H7538ogGs (f063cce3), with the join hook -> clip_01 (all Grok, tests/package/fixtures/replies):
+
+| UTC | clip_01 | followable | clip_01 rated | the judge's words |
+|---|---|---|---|---|
+| 01:25:05 | 6058ee58 (Breedlove, real estate) | no | 4 | abrupt jump from AI and unprintable Bitcoin to real estate replacement with no shared referent |
+| 01:29:09 | 2d527209 (Breedlove) | YES | 4 | both address Bitcoin's economic benefits |
+| 01:29:29 | 3075085f (mining) | no | 1 | No clear link from AI limits on Bitcoin to mining efficiency |
+| 02:32:36 | a5f5a1d5 (Yahoo Finance, CZ) | no | 4 | abrupt topic jump from AI/Bitcoin scarcity to unrelated market drop stats |
+| 02:33:02 | a5f5a1d5 | no | 4 | abrupt shift from AI not printing Bitcoin to specific market price drops |
+| 02:34:30 | 6058ee58 | no | 4 | No link from AI/Bitcoin scarcity to real estate replacement |
+| 02:34:56 | 6058ee58 | no | 5 | abrupt shift from AI scarcity to real estate replacement |
+| 02:35:27 | 6058ee58 | no | 1 | abrupt shift from AI/Bitcoin scarcity to real estate |
+| 02:35:40 | 2d527209 | no | 1 | jumps from AI vs Bitcoin scarcity to real estate with no link |
+| 02:36:01 | a5f5a1d5 | no | 3 | abrupt shift from AI/Bitcoin supply to unrelated market drop stats |
+
+The 21:50 build's 19 cuttable clips, by expiry (ruling 76, on the clock at 22:07 ET):
+- expired 22:00:33: uaHNzi-Kgr8 (Breedlove 6058ee58, 7d8a34d1) and MqVqfEDXgLo (a5f5a1d5).
+- 22:14: NVUxOhIV3K8 (d6a09337, b8271826, 30b3768c: mining).
+- 22:32: VqNMYCgZ3Vw (9f9457fd).
+- 00:40: NtaQGnfWRR8 (d21c32a4, f003b72d, 7a033059, e05b34a6, 7e3e474c pass; 94bd089f failed the second vendor).
+- 04:37: nvEftLDdab4 (7004b98d).
+- Failed the second vendor (REFERENT_OUTSIDE / NOT_OWN_SINCERE / STALE_TIME): 43577053, d7578b88 (XXfT9oeM14c), 3754ba04 (Z1RFzHDftu8), a693c226 (FwzBGg8tHYA).
+
+Line 1 as it stood at 22:02:
+
+> 22:02 ET: THE REPLAY (85.1), INTERIM: 237 of about 950 calls in (glm and qwen about a third each, deepseek thin: Heimdall rate-limits deepseek with HTTP 429 at 7 calls in flight from one process, now 3). GROK AGAINST GROK IS THE BAR: on the same step-A excerpt asked again Grok agrees with itself 85 % (1,082 pairs); clips-alone 79 %; fidelity 60 %. SO FAR, AGREEMENT WITH GROK'S DECISIONS: step A glm 74 % / qwen 80 % / deepseek 75 % (below 85 %; glm lets 5 of 24 REFERENT_OUTSIDE refusals through, qwen 4 of 18); step C 98 % / 98 % / 100 %; clips-alone LINE-UP pass-fail qwen 13 of 15, deepseek 5 of 6, glm 4 of 7 (the flagged-join sets differ more: qwen 10 of 15 differ); coherence 93 / 86 / 80 %; hook 100 / 100 / 95 %; fidelity glm 70 % / qwen 76 % (the bar is 60 %); exclusion 100 / 93 / 100 %; speaker 78 / 78 / 100 % (few). glm answers out of contract on 10 of 17 clips-alone and 2 of 6 hook calls. ANCHORS: no anchor decision Grok passed is failed by glm or deepseek; qwen fails 2 (37c5b5f5's coherence; 0c68b589's step C on clip_01). The rule I propose for "a family passes a type" is in the section below for you to rule; on it, fidelity (qwen, glm) and exclusion (glm, qwen) would move now, and the rest keep Grok as the second family until more rows come in. Visual: nemotron and qwen agree on 13 of 13 sheets so far, but Grok flagged none of them. The full table follows when the run ends. COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.93 of $20.00 (the replay included); stop at $16.
+
+
+## 22:02 ET: the replay (ruling 85.1): method, and the rule I propose for "a family passes"
+
+How the replay works (tests/package/replay85.py, run from the scratch copy until the audit):
+- The records:
+  - every recorded Grok verdict since the first ledger build (07:37:38 UTC);
+  - plus the older Grok verdicts whose prompt carries a clip of an anchor pin (0c68b589, 41f29b1f, 37c5b5f5), kept
+    only where Grok's answer still reads under today's parsers;
+  - a prompt asked several times (other seeds) is asked once here;
+  - step B is not asked: it has no decision of its own and feeds step C.
+- Each record's own prompt is asked of deepseek-v4.1-flash, glm-5.3-flash and qwen3.8-27b. Each answer is reduced to
+  the pipeline's DECISION with the pipeline's own parsers and bars:
+  - step A: context_integrity.a_failures (pass = no failure);
+  - clips-alone: a through-line stated, every clip >= 4, at most 1 flagged join (the flagged joins compared too);
+  - coherence: the through-line, every rating >= 4;
+  - hook: the lowest of scroll / alone >= 4;
+  - exclusion: keep / exclude;
+  - speaker: the name, or unknown;
+  - step C: "entails" (a PROXY: the full rule also reads the context window, which the prompt does not carry);
+  - fidelity: every claim supported (a PROXY: the verbatim-support check needs the package's inputs).
+- A call has 300 s (production cuts at 120 s; the "> 120 s" column counts what production would lose). Step A here
+  runs Grok's own 8-clip batches; under Heimdall-first the first screen sends 2 clips a call, so step A's times
+  overstate production's.
+- Visual sheets: every sheet Grok judged (VISUAL_CACHE, 9) asked of nemotron and qwen with the same image and prompt;
+  the decision is the set of flags.
+- THE BASELINE: Grok against Grok on the same prompt asked again (from the recordings). From the waste analysis, the
+  same step-A excerpt asked twice flipped in 48 of 159 cases.
+- No Grok call is made. Heimdall's calls are on ruling 48's ledger (roles replay85_<model>).
+
+The rule I propose for "family F passes the replay for type T" (YOURS TO RULE):
+1. ANCHORS: no anchor decision where F fails what Grok passed (a delivered pin's verdict must still pass).
+2. STEP A ONLY: every clip Grok refused for REFERENT_OUTSIDE is still refused by F (for any rule).
+3. AGREEMENT: F's agreement with Grok on T's decisions is no lower than Grok's agreement with itself on T (where
+   measured), and at least 75 % otherwise.
+4. CONTRACT: at least 90 % of F's answers on T read (the move-on rule covers the rest).
+5. TIME: F's median on T within 120 s (production's deadline).
+A type gets Heimdall-first with the families that pass, best agreement first, then Grok last. A type with fewer than
+two passing Heimdall families keeps Grok as its second family (the two-family rule) until you rule.
+
+The interim table (22:02 ET, 237 rows; the file is tests/package/proof/replay85/TABLE.md, rewritten when the run ends):
+
+| type | model | records | answered | no verdict | units | agree | stricter | looser | different | agree % | median s | > 120 s | timeouts | errors | usd reported |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| step_a | deepseek | 3 | 3 | 0 | 24 | 18 | 6 | 0 | 0 | 75 | 293 | 3 | 0 | 0 | 0.0069 |
+| step_a | glm | 12 | 11 | 1 | 88 | 65 | 13 | 10 | 0 | 74 | 39 | 0 | 0 | 0 | 0.0068 |
+| step_a | qwen | 11 | 10 | 1 | 75 | 60 | 7 | 8 | 0 | 80 | 83 | 1 | 0 | 0 | 0.0564 |
+| step_c | deepseek | 4 | 4 | 0 | 12 | 12 | 0 | 0 | 0 | 100 | 206 | 4 | 0 | 0 | 0.0063 |
+| step_c | glm | 16 | 16 | 0 | 49 | 48 | 0 | 1 | 0 | 98 | 4 | 2 | 0 | 0 | 0.0034 |
+| step_c | qwen | 13 | 13 | 0 | 40 | 39 | 1 | 0 | 0 | 98 | 56 | 2 | 0 | 0 | 0.0481 |
+| clips_alone | deepseek | 6 | 6 | 0 | 12 | 7 | 0 | 1 | 4 | 58 | 76 | 0 | 0 | 0 | 0.0027 |
+| clips_alone | glm | 17 | 7 | 10 | 14 | 6 | 0 | 3 | 5 | 43 | 3 | 0 | 0 | 0 | 0.0017 |
+| clips_alone | qwen | 15 | 15 | 0 | 30 | 18 | 1 | 1 | 10 | 60 | 23 | 0 | 0 | 0 | 0.0172 |
+| coherence | deepseek | 5 | 5 | 0 | 5 | 4 | 1 | 0 | 0 | 80 | 50 | 0 | 0 | 0 | 0.0013 |
+| coherence | glm | 17 | 15 | 2 | 15 | 14 | 1 | 0 | 0 | 93 | 2 | 0 | 0 | 0 | 0.0008 |
+| coherence | qwen | 14 | 14 | 0 | 14 | 12 | 2 | 0 | 0 | 86 | 20 | 0 | 0 | 0 | 0.0111 |
+| hook | deepseek | 5 | 5 | 0 | 19 | 18 | 0 | 1 | 0 | 95 | 38 | 0 | 0 | 0 | 0.0016 |
+| hook | glm | 6 | 4 | 2 | 11 | 11 | 0 | 0 | 0 | 100 | 30 | 0 | 0 | 0 | 0.0008 |
+| hook | qwen | 6 | 5 | 1 | 15 | 15 | 0 | 0 | 0 | 100 | 22 | 0 | 0 | 0 | 0.0071 |
+| fidelity | deepseek | 4 | 4 | 0 | 12 | 6 | 5 | 1 | 0 | 50 | 237 | 3 | 0 | 0 | 0.0062 |
+| fidelity | glm | 14 | 13 | 0 | 50 | 35 | 4 | 11 | 0 | 70 | 13 | 1 | 0 | 1 | 0.0022 |
+| fidelity | qwen | 11 | 11 | 0 | 37 | 28 | 7 | 2 | 0 | 76 | 61 | 2 | 0 | 0 | 0.0451 |
+| exclusion | deepseek | 5 | 5 | 0 | 5 | 5 | 0 | 0 | 0 | 100 | 16 | 0 | 0 | 0 | 0.0005 |
+| exclusion | glm | 17 | 17 | 0 | 17 | 17 | 0 | 0 | 0 | 100 | 3 | 0 | 0 | 0 | 0.0008 |
+| exclusion | qwen | 14 | 14 | 0 | 14 | 13 | 1 | 0 | 0 | 93 | 9 | 0 | 0 | 0 | 0.0053 |
+| speaker | deepseek | 4 | 4 | 0 | 4 | 4 | 0 | 0 | 0 | 100 | 100 | 1 | 0 | 0 | 0.0029 |
+| speaker | glm | 9 | 9 | 0 | 9 | 7 | 0 | 2 | 0 | 78 | 5 | 1 | 0 | 0 | 0.0020 |
+| speaker | qwen | 9 | 9 | 0 | 9 | 7 | 0 | 2 | 0 | 78 | 34 | 1 | 0 | 0 | 0.0201 |
+
+Line 1 as it stood at 21:45:
+
+> 21:45 ET: QUESTION FROM PP-INGEST (RULING 87): DOES PLAN B SEND THE MINER TO PAID MODELS (GROK / GEMINI), OR DOES THE MINER QUEUE AND WAIT AS TODAY UNDER YOUR 05:30 NOV 12 FREEZE? It will use the same Heimdall-down signal either way, and queues until you answer. STATUS: no pin since 13949b7c. The 21:15 build had no package (the candidate failed coherence with the takeaway; the search's 7 line-ups failed the clips alone). A second build at 21:37 met the same pool and was a pure replay of its recordings ($0.00), so builds now wait for new moments rather than re-judge an unchanged pool. RULING 76 (d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. THE REPLAY (85.1) is at 63 of 948 calls (6 per model in flight, finish about 23:15). Early signal, not yet a table: glm is out of contract on hook ratings and lets through 2 of 3 step-A REFERENT_OUTSIDE refusals; qwen agrees on every decision so far but one fidelity line; deepseek takes a median 268 s on Grok's 8-clip step-A batches, so under Heimdall-first the FIRST step-A screen also runs 2 clips and 120 s a call (built). 85.2 / 86 / 87 are built and pass every suite (17 suites) in the scratch copy. The integrator builds the local step-A judge service (Plan B, one outside family) after the Breedlove window; until then that path fails closed. pp-ingest wires the shared signal once my module is committed. COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.68 of $20.00 before the replay's own spend; stop at $16.
+
+
+## 21:45 ET: rulings 85-87: what is built (scratch copy, for one audit when the replay is in)
+
+- 85.2, the routing switch (model_providers.json "routing"; proof_ledger --routing):
+  - "today" is the role chains, with the 20:33 order on every verdict role: ruling 82's Heimdall chain after Grok, 120 s a call on Heimdall, and an answer out of contract moving on (providers.call_parsed at the eight verdict call sites).
+  - "heimdall_first" puts deepseek -> glm -> qwen first and Grok last on every verdict role. Each Heimdall family is its own maker for every vendor rule (law L-s), so the two-family rule is kept inside Heimdall.
+  - The writes keep their gateway (deepseek -> qwen as today).
+  - The first step-A screen runs 2 clips and 120 s a call.
+  - A test over the real config: with xAI down and deepseek writing, every verdict role answers inside Heimdall off the writer, and step A's two verdicts come from two Heimdall families.
+- 86, the shadow:
+  - On a heimdall_first build, every verdict a Heimdall family decided is asked again of Grok (grok-4.7 for the visual sheets): the same prompt, recorded to SHADOW86.jsonl, never deciding.
+  - tests/package/shadow86.py writes the side-by-side (SHADOW86.md): every decision that differs, which side was stricter, and whether the pin would have sealed under Grok.
+  - It stops after 3 pins in a row with no decision-changing difference (tests/package/proof/SHADOW86.json).
+- 87, Plan B:
+  - pipeline/heimdall_health.py is a shared state file (tests/package/proof/HEIMDALL_HEALTH.json, under an flock).
+  - Down = no Heimdall family answering a verdict or writer call inside its deadline for 15 minutes running.
+  - Probes run every 2 min while calls fail; 3 probe answers in a row switch back.
+  - Each switch is written to STATE line 1 in capitals and to the evidence file. A drill is recorded, never counted.
+  - In Plan B the pin stage runs Grok, then gemini-2.5-pro (the fenced GEMINI_API_KEY_MEDLEY), then OpenAI / Anthropic only if a call shows credit.
+  - With one outside family, step A goes to the integrator's local gemma3:27b judge (its contract: judge_requests/ here, results in its data dir; up to 40 min, a render comes first). STATE line 1 says so when that happens.
+- Waste (85.3): a background analysis of the recorded calls is running. One finding already stands: with no new moment, a build is a deterministic replay of its recordings (21:37: $0.00, the same 7 verdicts), so a build should start only when the pool has changed.
+
+Line 1 as it stood at 21:37:
+
+> 21:37 ET: BUILD 21:15 (ledger_20261114_021501, code 48770e6b): NO PACKAGE. The 20:12 candidate failed coherence with the takeaway (clip_02 NtaQGnfWRR8 rated 2, takeaway 2; closed). The search judged 7 line-ups on 3 angles, and every one failed the clips alone (2-3 joins flagged, or a clip at 1-3). RULING 76 (d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. Ruling 83 (a) at work: the whole build cost $0.24 (step A's outages booked at prompt tokens). THE REPLAY (85.1) runs at 4 calls per model since 21:36 (936 calls); its table goes on STATE the moment every type has rows. 85.2 / 86 / 87 ARE BUILT AND TESTED in a scratch copy, for one audit when the replay is in: the routing switch (each Heimdall family its own maker; Grok last; ruling 82's 120 s and the move-on rule on every verdict, which is the 20:33 order); the shadow (Grok asked the same prompts, recorded, never deciding; a side-by-side per build; it stops after 3 clean pins); Plan B (a shared health file: 15 minutes with no family answering switches; a probe every 2 min; back after 3 answers in a row; each switch written to STATE line 1 and the evidence file; Grok, then the fenced Gemini key (gemini-2.5-pro), then OpenAI / Anthropic only if a call shows credit). OPEN FOR PLAN B: with only one outside family, step A's second verdict needs the integrator's local-judge contract (asked). COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.67 of $20.00 after the build, plus the replay as it runs; stop at $16.
 
 
 ## 21:37 ET: build 21:15: no package (ledger_20261114_021501)
