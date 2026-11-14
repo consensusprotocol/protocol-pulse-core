@@ -6,6 +6,15 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:15 THE BREEDLOVE WINDOW CLOSED AT 22:00:33 WITH NO PIN: nothing rendered, GPU0 idle. The builder's three builds after the ruling-84 merge (21:15, 21:37, 21:50 ET) each ended 'no package'. The candidate closed at coherence (21:28), and the search's one angle failed the clips-alone ratings and joins after its swap and re-judge (rulings 41 / 63).
+- The builder's own line on the 12 h pool (ruling 76 d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. Spend $11.80 of the $20.00 cap (vendor-reported).
+- The pre-check had no request after 21:23:14. Its answers stood as measured (see 21:29).
+- RULING 87 (orchestrator 21:18, to the builder; the builder relayed it verbatim): "if only ONE outside family answers, step A's second verdict is the local gemma3:27b on GPU0 through the integrator's judge service".
+  - No such service exists today: local_judge.py is the 07:28 replay tool, and stand_alone_scorer builds its own prompt.
+  - DECIDED (logged, not asked): I build it now under ruling 87 on the contract I proposed to the builder 21:3x. Requests are read-only in the builder's judge_requests/; results go to data/local_judge/results/<request_id>.<prompt_id>.json; an error is no verdict; GPU0 is taken under the lease and yields to renders.
+  - The builder has wired its side against that contract, waits up to 40 min, and its single-family Plan B fails closed until the service is live.
+  - Measured for it (07:28 replay, gemma3:27b on GPU0, digest a418f5838eaf): step A median 43.3 s, p90 62.2 s, max 79.6 s, n 48, 0 errors.
+
 ## 21:29 NO PIN, NOTHING TO RENDER: the Breedlove candidate (L6H7538ogGs -> uaHNzi-Kgr8 -> NtaQGnfWRR8) closed at the builder's coherence-with-the-takeaway check at 21:28 (hook 4, clip_01 4, clip_02 2, takeaway 2; ruling 66 closes a clip under 4). The pre-check under ruling 84 answered exactly as measured. The builder's search (8 line-ups) runs on; any line-up holding Breedlove must START its render before 22:00:33.
 - Request pp-selectid.ledger_20261114_021501.1: decode 21:22:41-21:23:00 under one GPU0 lease, answers 21:23:06-21:23:14, second readings $0.0262.
   - L6H7538ogGs 897.877-906.587: no_difference.
