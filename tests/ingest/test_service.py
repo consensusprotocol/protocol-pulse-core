@@ -868,6 +868,17 @@ def test_the_purge_cli_names_each_unresolved_video(monkeypatch, capsys):
     assert "unresolved, every copy kept (A19): KKKKKKKKKKK: pinned_x: no hash named and no own section" in out
 
 
+def test_live_json_breaks_the_publish_to_discovered_lag_down_by_listing_source():
+    """Audit pf c1 (muse P1): playlist-first's gain stays measurable in production: live.json's
+    publish_to_discovered_min_by_source gives each listing source's p50 / p90 / n (live discoveries with a publish
+    time only)."""
+    rows = [{"published_ts": 1e9, "discovered_ts": 1e9 + 60 * m, "discovered_via": via}
+            for via, m in (("uploads_playlist", 2), ("uploads_playlist", 4), ("rss", 10), ("rss", 14), ("rss", 18))]
+    rows.append({"published_ts": None, "discovered_ts": 600, "discovered_via": "rss"})       # no publish time: not counted
+    assert stats.by_source(rows) == {"rss": {"p50": 14.0, "p90": 18.0, "n": 3},
+                                     "uploads_playlist": {"p50": 3.0, "p90": 4.0, "n": 2}}
+
+
 def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):
     """Audit r92 c2 (glm): a completed pass records the question it asked; --rerun re-queues only passes of an older
     question, so a second --rerun after a successful re-run spends nothing."""

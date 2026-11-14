@@ -57,6 +57,9 @@ Listing, per channel, every ~10 min (600 s, jitter +-60 s), at most 3 yt-dlp pro
   watcher's own 102 cycles on the playlist (between 19:33 ET Nov 12 and 03:20 ET Nov 14, about 6,500 listings): a cycle takes 76 s
   on average (at most 253 s, against 7 s on RSS) through the 3-slot yt-dlp gate it shares with the captions, and no
   rate limit or bot check was met. The publish time is not the listing's: it is yt-dlp's own per video at fetch.
+  While the yt-dlp breaker is open (a rate limit) the playlist fails at once and the channel is listed on RSS, never
+  backed off, as long as RSS answers. live.json `publish_to_discovered_min_by_source` keeps the gain measured in
+  production (p50 / p90 / n per listing source, live discoveries only: audit pf c1).
 - Fallback: RSS `feeds/videos.xml?channel_id=` (conditional headers are sent when a feed returns validators; YouTube's
   return none), when the playlist listing fails and while the canary says RSS answers: RSS answered HTTP 404 for every
   channel on 2026-11-07 and at 02:45 ET Nov 12, and 200 for all 64 from 03:26 ET; a one-channel canary is retried

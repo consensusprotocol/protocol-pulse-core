@@ -92,6 +92,20 @@ class TestWatch:
                                now_ts=NOW)                            # RSS not in use: the playlist's failure stands
         assert r["error"] and r["source"] is None
 
+    def test_a_rate_limited_playlist_falls_back_to_rss_and_backs_nothing_off(self, q, monkeypatch):
+        """Audit pf c1 (glm P1): while the yt-dlp breaker is open the playlist raises 'rate_limited' at once; with RSS
+        answering the channel is listed there and never backs off (the backoff on a rate limit remains only when RSS
+        is down too, as before this change)."""
+        v = H.vid()
+        monkeypatch.setattr(watch, "playlist_list", lambda *a, **k: (_ for _ in ()).throw(
+            watch.ListError("rate_limited", "yt-dlp breaker open for 600 s")))
+        monkeypatch.setattr(watch, "rss_list", lambda *a, **k: ("ok", [
+            {"video_id": v, "title": "t", "published": "2026-11-14T08:00:00+00:00",
+             "url": f"https://www.youtube.com/watch?v={v}"}], {}))
+        r = watch.poll_channel(q, H.FakeGate(), H.CHAN, rss_mode=True, now_ts=NOW)
+        ch = q.channel(H.CHAN["channel_id"])
+        assert r["source"] == "rss" and r["error"] is None and ch["consecutive_errors"] == 0 and not ch["backoff_until"]
+
     def test_rss_is_parsed_with_its_exact_publish_time(self, q, monkeypatch):
         v = H.vid()
         monkeypatch.setattr(watch, "rss_list", lambda *a, **k: ("ok", [
