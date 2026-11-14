@@ -49,6 +49,11 @@ moment 12 h after publish, which removes most of what P1 would have released (th
     Daily 5dd8d204 "Buying crypto today ... is like buying Bitcoin over five years ago, but completely derisked", now
     returned with risk ['time_sensitive'] and the note). Cost $0.002 so far (cents a day). Live: live.json
     `second_model_checks_12h`; the adapter's report `released_by_the_second_model`.
+  - THE BUILDER CONFIRMED (20:40): its adapter read excludes on `risk` only (its HARD_RISKS: accusation,
+    partner_attack, imperative, guaranteed_return, single_source_breaking, ad_read, third_party_media), never
+    recomputes imperative or single_source_breaking (the one label it adds is price_prediction on a snapped text), so a
+    row whose label moved to `risk_notes` is eligible at its next build (about 21:05 ET, on the 12 h pool). No change
+    needed on its side.
 
 - 19:50 Nov 13 RULING 40 P2 MEASURED: THE SHARPENED DEFINITION DOES NOT MAKE THE SECOND MODEL SAFE ON ACCUSATION.
   ACCUSATION STAYS HARD AS THE MINER LABELS IT; I recommend no release path for it with this checker.
