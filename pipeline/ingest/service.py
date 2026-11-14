@@ -583,18 +583,27 @@ class Service:
         try:
             cal = json.loads(self.q.kv_get("check_calibration") or "null")
         except ValueError:
-            return False
-        eff = self.router.effective(flagcheck.ROLE)
-        if not isinstance(cal, dict) or not cal or set(cal) != set(eff) or \
-                not all(isinstance(c, dict) and c.get("model") == self.router.backends[b].model for b, c in cal.items()):
-            return False
-        asked = {c.get("asked_at") for c in cal.values()}
-        t = config.aware(asked.pop()) if len(asked) == 1 else None
-        if t is None or not 0 <= self.clock() - t.timestamp() < CHECK_RECALIBRATE_S:
-            return False
-        n = len(flagcheck.watcher_probes())
-        allowed = [b for b in eff if cal[b].get("of") == n and cal[b].get("right") == n and not cal[b].get("unmeasured")]
-        if not allowed:
+            cal = None
+        eff, t, allowed, why = self.router.effective(flagcheck.ROLE), None, [], None
+        if not isinstance(cal, dict) or not cal:
+            why = "none stored"
+        elif set(cal) != set(eff) or not all(isinstance(c, dict) and c.get("model") == self.router.backends[b].model
+                                             for b, c in cal.items()):
+            why = "its back-ends or models are not the role's now"
+        else:
+            asked = {c.get("asked_at") for c in cal.values()}
+            t = config.aware(asked.pop()) if len(asked) == 1 else None
+            if t is None:
+                why = "no single zoned asked_at (a record of the cached era)"
+            elif not 0 <= self.clock() - t.timestamp() < CHECK_RECALIBRATE_S:
+                why = f"asked {(self.clock() - t.timestamp()) / 3600:.1f} h ago"      # (negative: the clock went back)
+            else:
+                n = len(flagcheck.watcher_probes())
+                allowed = [b for b in eff if cal[b].get("of") == n and cal[b].get("right") == n and
+                           not cal[b].get("unmeasured")]
+                why = None if allowed else "no back-end passed it"
+        if why:                                              # audit reuse c1 (muse): a refusal is said, with its why
+            self.log(f"check: the stored calibration is not reused ({why}): asked live now")
             return False
         self.check_allowed, self.check_calibrated, self.check_recal_s = allowed, t.timestamp(), CHECK_RECALIBRATE_S
         self.q.event("check_calibration_reused", None, None, asked_at=t.isoformat(), allowed=allowed)

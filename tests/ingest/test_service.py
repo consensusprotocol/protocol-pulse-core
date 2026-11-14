@@ -5,6 +5,7 @@ frozen fallback is never called: the videos wait); one service per store."""
 import json
 import os
 import shutil
+import time
 from datetime import datetime, timezone
 
 import pytest
@@ -616,6 +617,28 @@ def test_a_restart_within_a_day_keeps_the_live_calibration_and_asks_nothing(svc)
     assert s2.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_reused'")[0]["n"] == 1
 
 
+def test_a_reused_calibration_keeps_the_live_ones_day_not_the_restarts(svc):
+    """Audit reuse c1 (glm P1): after a reuse the next calibration is due a day after the LIVE calibration's start,
+    not a day after the restart: none a minute before that, a live one just after it."""
+    t = [time.time()]
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    s.clock = lambda: t[0]
+    s.check_once(wait=True)
+    first = s.check_calibrated
+    s.close()
+    t[0] += 6 * 3600                                               # a restart 6 h later: reused
+    s2, _, b2 = svc(_flagging_miner, _checker("no"), n_videos=1)
+    s2.clock = lambda: t[0]
+    s2.check_once(wait=True)
+    assert not _asked_calibration(b2["fallback"]) and abs(s2.check_calibrated - first) < 60
+    t[0] = first + service.CHECK_RECALIBRATE_S - 60                # 18 h after the restart: not due yet
+    s2.check_once(wait=True)
+    assert not _asked_calibration(b2["fallback"])
+    t[0] = first + service.CHECK_RECALIBRATE_S + 1                 # a day after the live one: asked live
+    s2.check_once(wait=True)
+    assert _asked_calibration(b2["fallback"]) and s2.check_calibrated == t[0]
+
+
 @pytest.mark.parametrize("edit", ["old", "model", "no_asked_at", "none_passed"])
 def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_failed(svc, edit):
     """Anything but a live, under-a-day, same-model calibration with a back-end that passed is asked again at start:
@@ -638,9 +661,14 @@ def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_faile
     s.q.kv_set("check_calibration", json.dumps(cal))
     s.close()
     s2, _, b2 = svc(_flagging_miner, _checker("no"), n_videos=1)
+    msgs = []
+    s2.log = msgs.append
     s2.check_once(wait=True)
     assert _asked_calibration(b2["fallback"]) and s2.check_allowed == ["fallback"]
     assert s2.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_reused'")[0]["n"] == 0
+    why = {"old": "asked 25.0 h ago", "model": "its back-ends or models are not the role's now",
+           "no_asked_at": "no single zoned asked_at", "none_passed": "no back-end passed it"}[edit]
+    assert any(m.startswith("check: the stored calibration is not reused (" + why) for m in msgs)   # audit reuse c1
 
 
 def test_an_unanswered_question_records_nothing_and_waits(svc):

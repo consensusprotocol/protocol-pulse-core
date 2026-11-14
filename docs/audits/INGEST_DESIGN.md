@@ -428,7 +428,8 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   right; then that back-end may answer at once, no quote is asked, the next calibration stays due a day after the
   live one, and the event `check_calibration_reused` and the log say so ("calibration reused (asked live at ...)").
   Anything else (an older record, a changed model or chain, a record without `asked_at` from the cached era, one in
-  which nobody passed, an outage calibration) is asked live as before, so F1 holds: no allowance ever comes from a
+  which nobody passed, an outage calibration) is asked live as before, and the log says why ("the stored calibration
+  is not reused (asked 25.0 h ago): asked live now": audit reuse c1), so F1 holds: no allowance ever comes from a
   stored reply, only from a measurement taken live within the day. Why: each restart re-asked 32 quotes (the check
   loop waiting 1-2 minutes), and at 09:16 ET Nov 14 a restart's calibration ended on one 502 that a quiet watcher
   turned into a false 'down' (ruling 87, since amended at 10:05: any answer, a probe's too, resets the clock).
