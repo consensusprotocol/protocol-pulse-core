@@ -781,3 +781,64 @@ def test_the_live_probe_asks_every_family_the_watcher_calls():
     assert used and all(fam.values()), fam
     probe = [cfg["backends"][b].get("family") for b in cfg["roles"][ds["probe_role"]]["chain"]]
     assert all(probe) and len(probe) == len(set(probe)) and set(fam.values()) <= set(probe)
+
+
+def test_a_family_that_hangs_never_holds_back_the_answer_that_resets_the_clock(sig, monkeypatch):
+    """Audit r87a c1 (qwen P0): the probe reports by its longest back-end deadline + PROBE_WAIT_MARGIN_S with what
+    answered by then; a family still asking counts as not answered (an unbounded join held the answer back)."""
+    make, t, doc, tmp, msgs = sig
+    release = threading.Event()
+    s, b = make(probes={"hv_p2": lambda p: "OK" if release.wait(30) else "late"})
+    hs = s.hsig
+    for bid in ("hv_p1", "hv_p2"):
+        s.router.cfg["backends"][bid]["timeout_s"] = 0.2
+    monkeypatch.setattr(downsignal, "PROBE_WAIT_MARGIN_S", 0.3)
+    hs.noted(rec(kind="timeout"))
+    t0 = time.monotonic()
+    try:
+        hs.tick(wait=True)
+        assert time.monotonic() - t0 < 10
+        assert hs.last_probe["answered"] is True and "hv_p1 answered" in hs.last_probe["why"]
+        assert "hv_p2: no answer within the probe's" in hs.last_probe["why"] and hs.n["probes"] == 1
+    finally:
+        release.set()
+
+
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnhandledThreadExceptionWarning")   # the thread's death is the test
+def test_a_family_whose_probe_thread_dies_is_not_counted_and_breaks_nothing(sig):
+    """Audit r87a c1 (qwen P1): a family's thread that ends without an outcome (here a SystemExit, which its handler
+    does not catch) is not counted; the others' answers are reported (no KeyError, no lost probe)."""
+    make, t, doc, tmp, msgs = sig
+
+    def gone(p):
+        raise SystemExit("gone")
+    s, b = make(probes={"hv_p2": gone})
+    hs = s.hsig
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    assert hs.last_probe["answered"] is True and "hv_p2: its probe thread ended without an outcome" in \
+        hs.last_probe["why"] and hs.n["probes"] == 1
+
+
+def test_with_the_builders_module_a_slot_goes_to_the_prober_that_can_ask_a_failed_family(sig):
+    """Audit r87a c1 (muse P1): the family path against the builder's real amended module and its file lock. A failure
+    of a family this watcher's probe cannot ask (fam_x) is in failing_families and the watcher leaves the slot; once a
+    family it can ask (fam_a) fails too, it claims, asks, and the answer clears the clock and the families."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make(families={"hv1": "fam_x", "hv2": "fam_a", "hv_p1": "fam_a", "hv_p2": "fam_b"})
+    hs = s.hsig
+    if not amended(hs):
+        pytest.skip("the module at the builder's path predates ruling 87 amended")
+    assert hs.note_family is True and hs.probe_kw["families"] == ["fam_a", "fam_b"]
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)
+    st = state(tmp)
+    assert st["failing_families"] == ["fam_x"] and st["failing_since_utc"] == iso(T0)
+    assert b["hv_p1"].calls == [] and b["hv_p2"].calls == []           # the slot left to a prober that can ask fam_x
+    t[0] += 31
+    hs.noted(rec(backend="hv2", kind="timeout"))
+    hs.tick(wait=True)
+    st = state(tmp)
+    assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1
+    assert st["failing_since_utc"] is None and st["failing_families"] == [] and st["probe_streak"] == 1
+

@@ -361,7 +361,9 @@ audited 2 cycles as its audit 1008), loaded by this watcher since its start at 1
   builder's 60 s deadline, one in flight): while `probe_due`, "Reply with the single word OK." to EVERY one of them at
   once (ruling 87 amended; until then they were asked in order and the first answer ended the probe, so the family
   that failed, muse at 09:01 ET Nov 14, went unasked while qwen answered); any answer is the probe's answer, reported
-  with the time of the LATEST answer received, never when the slowest family gave up (the module's time check);
+  with the time of the LATEST answer received, never when the slowest family gave up (the module's time check); the
+  probe reports by its longest back-end deadline + 15 s at the latest (a family still asking then is not answered,
+  one whose thread ended without an outcome is not counted: audit r87a c1);
   never from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`),
   no transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called
   is no probe. A config test holds that every enabled back-end of the vendor in any role names a family the probe

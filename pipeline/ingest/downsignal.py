@@ -41,6 +41,7 @@ from zoneinfo import ZoneInfo
 from . import providers, spend
 
 SIGNAL_EVERY_S = 5.0            # the signal loop: pending notes are written this often
+PROBE_WAIT_MARGIN_S = 15.0      # the probe reports this long after its longest back-end deadline (audit r87a c1)
 SIGNAL_MODE_S = 30.0            # mode() and probe_due() at most this often (the module's probe interval is 120 s)
 SIGNAL_NOTICE_S = 1800          # the signal not read this long: one line at the top of STATE
 PROBE_PROMPT = "Reply with the single word OK."      # the builder's probe question; any answer counts
@@ -342,7 +343,15 @@ class DownSignal:
     def _start_probe(self):
         """RULING 87 AMENDED: every back-end of the probe role (one per family this watcher calls) asked at once, each
         under its own deadline. Until 10:05 ET Nov 14 they were asked in order and the first answer ended the probe,
-        so a family that failed (muse's 502 at 09:01 ET) was never asked while another answered first."""
+        so a family that failed (muse's 502 at 09:01 ET) was never asked while another answered first. The probe
+        reports at its longest back-end deadline + PROBE_WAIT_MARGIN_S at the latest, with what answered by then: a
+        family still asking then counts as not answered, one whose thread ended without an outcome is not counted
+        (audit r87a c1, its P0 and P1: an unbounded join let one hung family hold back the answer that resets the
+        clock)."""
+        chain = sorted(self.router.chain(self.probe_role))
+        wait = max([float((self.router.cfg["backends"].get(b) or {}).get("timeout_s", 60)) for b in chain] or [60.0]) \
+            + PROBE_WAIT_MARGIN_S
+
         def ask(bid, outs):
             t0 = self.clock()
             try:
@@ -359,13 +368,15 @@ class DownSignal:
 
         def run():
             outs = {}
-            asks = [threading.Thread(target=ask, args=(b, outs), daemon=True, name=f"probe87-{b}")
-                    for b in self.router.chain(self.probe_role)]
+            asks = [threading.Thread(target=ask, args=(b, outs), daemon=True, name=f"probe87-{b}") for b in chain]
+            end = time.monotonic() + wait
             for a in asks:
                 a.start()
             for a in asks:
-                a.join()
-            got = [outs[b] for b in sorted(outs)]
+                a.join(max(0.0, end - time.monotonic()))
+            got = [outs[b] if b in outs else (False, f"{b}: no answer within the probe's {wait:.0f} s", None)
+                   if a.is_alive() else (None, f"{b}: its probe thread ended without an outcome", None)
+                   for b, a in zip(chain, asks)]
             answered = True if any(a is True for a, _, _ in got) else False if any(a is False for a, _, _ in got) \
                 else None
             why = "; ".join(w for _, w, _ in got) or "the probe role names no back-end"
