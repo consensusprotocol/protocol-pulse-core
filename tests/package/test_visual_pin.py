@@ -19,7 +19,8 @@ from test_providers import Fake, router  # noqa: E402
 CLEAN = {"third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                           "finding": "only the host on camera"},
          "on_screen_text": [{"text": "SIMPLY BITCOIN", "asserts_beyond_words": False, "why": "the show's name"}],
-         "lower_third": {"name": "Mark W. Yusko", "text": "Mark W. Yusko, Morgan Creek Capital"}}
+         "lower_third": {"name": "Mark W. Yusko", "text": "Mark W. Yusko, Morgan Creek Capital"},
+         "burned_in": []}                                                        # ruling 93: question 4
 STILL = dict(CLEAN, third_person={"shown": True, "how": "photo", "words_negative": True, "name_on_screen": "null",
                                   "finding": "a photo of a man beside the host while he says a CEO made a mistake"},
              on_screen_text=[{"text": "NVIDIA CEO SCANDAL", "asserts_beyond_words": True,
@@ -62,6 +63,35 @@ class TestContract(unittest.TestCase):
         self.assertEqual(v["on_screen_text"][0]["text"], "t13")                 # the asserting one is kept first
         self.assertIn("not measured", VP.hook_block({"measured": False}))
         self.assertIn("not measured", VP.hook_block(None))
+
+    def test_ruling_93_burned_in_text_per_clip(self):
+        item = lambda kind, **k: dict({"kind": kind, "text": "BITCOIN 74,512 | ETH 2,410", "whole_in_16x9": True,
+                                       "in_9x16": "out", "covers_speaker": False}, **k)
+        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True)
+        self.assertIsNone(VP.layout_block(rec()))                                       # nothing burned in
+        for kind in ("ticker", "crawl"):                                                # a ticker or crawl: never
+            self.assertIn(f"a {kind}", VP.layout_block(rec(item(kind))))
+        strap = item("lower_third", text="BILL MILLER IV | CIO, MILLER VALUE")
+        for ok in (dict(strap, in_9x16="whole"), dict(strap, in_9x16="out"), dict(strap, kind="bug", in_9x16="whole")):
+            self.assertIsNone(VP.layout_block(rec(ok)))                                 # eligible, and flagged
+            self.assertEqual([f["kind"] for f in VP.flags(VP.check(dict(CLEAN, burned_in=[ok])))], ["burned_in"])
+        for bad, word in ((dict(strap, in_9x16="cut"), "mid-word"), (dict(strap, covers_speaker=True), "covers"),
+                          (dict(strap, whole_in_16x9=False), "not wholly inside")):
+            self.assertIn(word, VP.layout_block(rec(bad)))                              # ... unless cut, covering,
+        self.assertIn("not measured", VP.layout_block({"measured": False}))             # or not whole in the 16:9
+        self.assertIn("not asked", VP.layout_block({"measured": True, "flags": []}))    # an earlier record: never
+        for bad in ([{"kind": "banner", "text": "x", "whole_in_16x9": True, "in_9x16": "out", "covers_speaker": False}],
+                    [dict(strap, in_9x16="partly")], [dict(strap, covers_speaker="no")], "none"):
+            with self.assertRaises(ValueError):
+                VP.check(dict(CLEAN, burned_in=bad))
+        self.assertIn("burned_in", VP.sealed(rec(strap)))
+        bug = VP.check(dict(CLEAN, burned_in=[dict(strap, kind="bug", text=None, in_9x16="whole")]))
+        self.assertEqual(bug["burned_in"][0]["text"], "")                              # a wordless bug (C1, glm)
+        many = [dict(strap, text=f"strap {i}", in_9x16="out") for i in range(VP.TEXTS_MAX + 3)] + [item("ticker")]
+        v = VP.check(dict(CLEAN, burned_in=many))                                       # the ticker listed last
+        self.assertEqual((len(v["burned_in"]), v["burned_in_truncated"]), (VP.TEXTS_MAX, 4))
+        self.assertIn("a ticker", VP.layout_block(dict(v, measured=True)))            # is never cut away
+        self.assertEqual(VP.VERSION, "visual-2")                                        # every clip asked again
 
     def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
         class R:

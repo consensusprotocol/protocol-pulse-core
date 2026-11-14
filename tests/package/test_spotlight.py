@@ -69,7 +69,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
              visual={"version": "visual-1", "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                                       "finding": "none"}, "on_screen_text": [],
-                     "lower_third": {"name": None, "text": None}},
+                     "lower_third": {"name": None, "text": None}, "burned_in": []},
              scorer_verdict=sv(text, 4.0),
              spotlight_source={"ok": True, "why": "layout 'conversation'", "turns": {"measured": False},
                                "layout": {"measured": True, "layout": "conversation", "backend": "fake:vis",
@@ -495,7 +495,7 @@ class TestPackageFor(unittest.TestCase):
 class TestBuild(unittest.TestCase):
     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
 
-    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None):
+    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None):
         ctx = E.Context(NOW, REG)
         calls = {}
 
@@ -523,7 +523,8 @@ class TestBuild(unittest.TestCase):
                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
                  (SPOT.P, "hook_onset_for", lambda m, s, w, c: {"pass": True, "measured": True}),
                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
-                 (VP, "visual_for", lambda r, m, w, c: {"measured": True, "flags": [], "backend": "fake:vis"}),
+                 (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
+                                                              "backend": "fake:vis"}, **(visual or {}))),
                  (SPOT, "layout_for", lambda r, m, v, c: {"measured": True, "layout": layout, "why": "w"}),
                  (SPOT, "episode_turns", lambda vid, c=None: {"measured": False, "unmarked": True}),
                  (SPOT.P, "exclusion_for", lambda r, m, s, c: {"verdict": "keep"}),
@@ -577,6 +578,23 @@ class TestBuild(unittest.TestCase):
         with mock.patch.object(SPOT.P, "usable", usable):
             out, calls = self.run_build(ms, {"a": 5})
         self.assertIs(calls["facts"][0]["never_delivered"], False)
+
+    def test_ruling_93_a_ticker_holds_a_clip_and_a_whole_strap_is_flagged_and_clean(self):
+        ms = [moment(mid="a", channel="A")]
+        tick = {"kind": "ticker", "text": "BTC 74,512", "whole_in_16x9": True, "in_9x16": "cut",
+                "covers_speaker": False}
+        out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [tick]})
+        self.assertNotIn("package_for", calls)
+        self.assertIn("ruling 93 (1 item(s)): a ticker", out["moments"]["a"]["out"])
+        strap = dict(tick, kind="lower_third", text="BILL MILLER IV", in_9x16="out")
+        out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [strap], "flags": [
+            {"kind": "burned_in", "text": "BILL MILLER IV", "item": "lower_third", "in_9x16": "out"}]})
+        self.assertEqual(calls["package_for"], ["a"])                   # eligible, flagged, still clean
+        self.assertTrue(SPOT.clean_visual({"measured": True, "burned_in": [strap], "flags": [
+            {"kind": "burned_in", "text": "BILL MILLER IV"}]}))
+        self.assertFalse(SPOT.clean_visual({"measured": True, "burned_in": [], "flags": [
+            {"kind": "on_screen_text", "text": "SCANDAL"}]}))           # a ruling-70 flag is not clean
+        self.assertFalse(SPOT.clean_visual({"measured": True, "flags": []}))       # no question 4: never
 
     def test_ruling_92_and_a_lock_with_no_verdict_stops(self):
         ms = [moment(mid="a", channel="A")]

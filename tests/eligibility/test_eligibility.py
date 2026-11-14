@@ -6,8 +6,8 @@ pinned     every law constant equals the module it lives in today (editorial_sel
 parity     the ported helpers answer as today's (backward_reference, _same_statement, _word_sentences, _ends_statement)
 must-fail  one fixture per named reason (synthetic, plus real: Altcoin Daily's unpunctuated record, E-FAIL-033)
 must-pass  the PBX-approved preview's hook and two clips (references/pulse_preview_2026-11-11, frozen word
-           transcripts); its Bitcoin Magazine clip fails on layout_ineligible (has_chyron, DEC-12d came after) and on
-           its record's whole-record L-e readiness (one word 570 s away reads unpunctuated), on nothing in its text
+           transcripts); its Bitcoin Magazine clip fails on its record's whole-record L-e readiness (one word 570 s
+           away reads unpunctuated), on nothing in its text (ruling 93 retired DEC-12d's channel hold)
 Run: cd <repo> && python3 -m pytest -q tests/eligibility"""
 import json
 import os
@@ -185,11 +185,14 @@ class TestSource(unittest.TestCase):
         self.assertIn("not_current", E.eligible(naive, ctx()).names())
 
     def test_layout_is_a_fact_always_and_a_reason_on_screen(self):
-        bm = source([HOOK_TXT], channel="Bitcoin Magazine")    # has_chyron (DEC-12d)
-        ev = E.eligible(bm, ctx("evidence"))
-        self.assertTrue(ev.ok)
-        self.assertIs(ev.facts["layout_eligible"], False)
-        self.assertIn("layout_ineligible", E.eligible(bm, ctx("clip")).names())
+        bm = source([HOOK_TXT], channel="Bitcoin Magazine")    # has_chyron: RULING 93 (23:58 ET Nov 13) holds no
+        ev = E.eligible(bm, ctx("evidence"))                    # channel by name; its frames are judged per clip
+        self.assertTrue(ev.ok)                                  # (visual_pin.layout_block)
+        self.assertIs(ev.facts["layout_eligible"], True)
+        self.assertNotIn("layout_ineligible", E.eligible(bm, ctx("clip")).names())
+        nobody = source([HOOK_TXT], channel="No Such Channel")  # a channel with no registry id is still held
+        self.assertIs(E.eligible(nobody, ctx("evidence")).facts["layout_eligible"], False)
+        self.assertIn("layout_ineligible", E.eligible(nobody, ctx("clip")).names())
 
     def test_on_screen_needs_a_sentence_ready_word_record(self):
         seg = source([HOOK_TXT], timing="segment", method="yt_auto:en")
@@ -398,8 +401,8 @@ class TestSpan(unittest.TestCase):
         self.assertIn("no_story_statement", r.names())
 
     def test_every_reason_is_reported_not_only_the_first(self):
-        src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="Bitcoin Magazine",
-                     age_h=100)
+        src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="No Such Channel",
+                     age_h=100)                                      # no registry id: layout_ineligible (ruling 93)
         r = E.eligible(E.Span(src, 0, 0), ctx("hook", story=statements(E.Span(src, 0, 0))))
         for n in ("not_current", "layout_ineligible", "not_sentence_ready", "start_case", "duration"):
             self.assertIn(n, r.names())
@@ -454,7 +457,7 @@ class TestLineup(unittest.TestCase):
         r = self.lineup(story=s2, claim=s2[0], hook=None, clips=())
         self.assertIn("story_bitcoin_screen", r.names())
         self.assertIn("claim_no_bitcoin", r.names())
-        bm = source([CLIP_TXT], channel="Bitcoin Magazine", vid="M")
+        bm = source([CLIP_TXT], channel="No Such Channel", vid="M")   # no registry id (ruling 93: never by name)
         s3 = (E.Span(self.a, 0, 0), E.Span(bm, 0, 0))
         self.assertIn("story_layout_channels", self.lineup(story=s3, claim=s3[0], hook=None, clips=()).names())
         stale = source([CLIP2_TXT], channel="Natalie Brunell", vid="S", age_h=90)
@@ -548,10 +551,10 @@ class TestRealPreview(unittest.TestCase):
         for kind, sp, s in spans:
             r = E.eligible(sp, E.Context(self.now, REG, role=kind, story=story))
             if s["channel"] == "Bitcoin Magazine":
-                # DEC-12d (has_chyron) came after the approval; and its ~10-min frozen window transcript has one word
-                # (598.3 s, 570 s after this clip) in an unpunctuated stretch, which today's whole-record L-e rule
-                # (transcript_store.sentence_ready) rejects. Both are today's laws, measured, not this passage's text.
-                self.assertEqual(sorted(r.names()), ["layout_ineligible", "not_sentence_ready"], r.why())
+                # its ~10-min frozen window transcript has one word (598.3 s, 570 s after this clip) in an
+                # unpunctuated stretch, which today's whole-record L-e rule (transcript_store.sentence_ready) rejects:
+                # today's law, measured, not this passage's text. DEC-12d's channel hold is gone (ruling 93).
+                self.assertEqual(sorted(r.names()), ["not_sentence_ready"], r.why())
             else:
                 self.assertTrue(r.ok, f"{s['channel']}: {r.why()}")
 

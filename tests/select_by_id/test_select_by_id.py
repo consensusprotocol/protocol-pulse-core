@@ -86,7 +86,9 @@ class TestMustPassPreview(Preview):
         Yahoo's 'Bitcoin slips below ...'); whether the format allows a tolerance is PBX's call (L-o; audit C2 L-2).
         The story marks every sentence that states the development: Natalie's three (the drop, the ETF outflows,
         no part in the Monday rally) and Yahoo's two statements; Yahoo's 'But I don't check it on an hourly basis.'
-        sits between them. Bitcoin Magazine's sentence counts as evidence (has_chyron) and never goes on screen.
+        sits between them. Bitcoin Magazine's sentence never goes on screen: since RULING 93 (23:58 ET Nov 13) no
+        channel is held by name (it now counts as a fourth layout channel), and its record fails the whole-record L-e
+        readiness (not_sentence_ready), as test_eligibility's preview test measures.
         With only Natalie's first sentence marked, D4 (a) rejects her next two (no back-reference): the same reason
         today's auto path stopped her window at 7.15 s (DoD 17:34)."""
         nat_rows, yah_rows = self.rows(self.table, "Natalie Brunell"), self.rows(self.table, "Yahoo Finance")
@@ -96,9 +98,10 @@ class TestMustPassPreview(Preview):
         st = S.choose_story(Scripted(reply(story=ids, claim=ids[0])), self.table, self.ctx)
         self.assertEqual(st.status, "accepted", st.attempts)
         self.assertEqual(st.claim.text, st.story[0].text)
-        self.assertEqual(st.eligibility.facts["story_layout_channels"], 3)
+        self.assertEqual(st.eligibility.facts["story_layout_channels"], 4)   # ruling 93: no channel by name
         lt, skipped = S.lineup_table(list(self.src.values()), st.story, self.ctx)
-        self.assertIn("layout_ineligible", skipped["jbDqdLytkNM"])   # never offered for the screen (DEC-12d)
+        self.assertNotIn("layout_ineligible", skipped["jbDqdLytkNM"])
+        self.assertIn("not_sentence_ready", skipped["jbDqdLytkNM"])   # never offered for the screen: its record
         self.assertFalse(any(r.source.video_id == "jbDqdLytkNM" for r in lt.rows))
         hook = self.rows(lt, "DataDash")
         nat, yah = self.rows(lt, "Natalie Brunell"), self.rows(lt, "Yahoo Finance")

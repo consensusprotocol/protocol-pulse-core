@@ -623,10 +623,10 @@ class Rig:
     def visual(self, router, m, work_dir, cache, seed=7, log=print):
         """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
         self.visual_calls.append(m["moment_id"])
-        base = {"version": "visual-1", "measured": True, "flags": [],
+        base = {"version": "visual-2", "measured": True, "flags": [],
                 "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
                                  "finding": "no third person"},
-                "on_screen_text": [], "lower_third": {"name": None, "text": None},
+                "on_screen_text": [], "lower_third": {"name": None, "text": None}, "burned_in": [],   # ruling 93
                 "sheet": {"name": f"visual_{m['moment_id']}.jpg", "sha256": "0" * 64, "times": [0.0], "path": "/x"},
                 "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "usd_basis": "reported",
                 "cached": False}
@@ -1677,6 +1677,30 @@ class TestRuling70Visual(unittest.TestCase):
         out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": {"measured": False, "why": "no sheet"}}).run()
         self.assertIn("not measured", out["hook_pool"]["visual_blocked"]["h"])
         self.assertIsNone(out["package"])
+
+    TICKER = {"burned_in": [{"kind": "ticker", "text": "BTC 74,512 | ETH 2,410", "whole_in_16x9": True,
+                             "in_9x16": "cut", "covers_speaker": False}]}
+
+    def test_ruling_93_a_ticker_holds_the_clip_in_any_role_by_its_own_frames(self):
+        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": self.TICKER}).run()
+        self.assertIn("ruling 93 (1 item(s)): a ticker", out["hook_pool"]["visual_blocked"]["h"])     # it may not open
+        self.assertIsNone(out["package"])
+        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
+                  visuals={"y": self.TICKER})
+        out = rig.run()
+        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "x", "z"]])          # dropped and re-lined
+        self.assertIn("ruling 93 (1 item(s)): a ticker", out["tried"][0]["why"])
+        self.assertEqual(rig.write_calls, [(["h", "x", "z"], None)])                   # no write for it
+        self.assertIsNotNone(out["package"])
+
+    def test_ruling_93_a_whole_lower_third_is_eligible_and_flagged(self):
+        strap = {"kind": "lower_third", "text": "JOE CARLASARE", "whole_in_16x9": True, "in_9x16": "out",
+                 "covers_speaker": False}
+        flag = {"kind": "burned_in", "text": "JOE CARLASARE", "item": "lower_third", "in_9x16": "out"}
+        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
+                  visuals={"x": {"burned_in": [strap], "flags": [flag]}}).run()
+        self.assertIsNotNone(out["package"])
+        self.assertEqual(out["package"]["gates"]["visual"]["flags"], [dict(flag, segment=1)])
 
 
 class TestRuling66Candidate(unittest.TestCase):

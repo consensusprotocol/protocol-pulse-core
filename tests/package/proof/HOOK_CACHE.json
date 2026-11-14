@@ -251,5 +251,27 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "0bc96b99755bbebebb40:cb0145cf19643627cb61c053099c4bf95b887319bfe13d469319f843bf1a94a9:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 5,
+   "setup": 4,
+   "rating": 3,
+   "why": "first seconds lack punch to stop scroll",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "aa2329e4863bcd83b6ad:8b70d09a4b7608afceaa000d693c064262f1b21aba8d2263a3b1ad2bccf2aa89:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 4,
+   "alone": 3,
+   "setup": 3,
+   "rating": 3,
+   "why": "sounds like mid-analysis not video opener",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

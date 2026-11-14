@@ -1,0 +1,47 @@
+You are auditing a SMALL change on branch pp-selectid (Protocol Pulse: the builder of sealed "moments" pins that
+another session renders into short Bitcoin videos). Only state what you can verify from the diff; if uncertain, say
+so; do not guess. Be specific: file:line and a concrete input that breaks it.
+
+Background (static):
+- DEC-12d (Nov 11) held every clip of a channel the registry marks has_chyron (Bitcoin Magazine, CoinDesk) out of any
+  on-screen role, by name: eligibility.layout_ok. The render's G10 TEXT CROP gate measured only those channels.
+- RULING 70: the pin-stage VISUAL check (visual_pin): one contact sheet per clip, judged by a vision model; findings
+  are sealed as FLAGS, never a reject by themselves, except that a third_person finding may not be the HOOK. A clip
+  whose check is not measured is never a pass (law L-m).
+- The medley build (package.build) sees every hook before any angle and every clip of a line-up before any write;
+  the spotlight (spotlight.build, committed earlier tonight) needs "the visual check clean".
+
+The order (verbatim): "RULING 93: DEC-12d IS MEASURED PER CLIP, NOT PER CHANNEL. ... THE RULE NOW: no channel is
+layout_ineligible by name. Every clip, any channel, is judged on its own frames by the pin-stage visual check (ruling
+70), which gains one question: 'is there burned-in running text (a ticker, a crawl) or a lower third that the 9:16
+crop would cut through mid-word, or that covers the speaker?' A ticker or crawl = not eligible. A static lower third or
+channel bug that sits whole in the 16:9 and is either wholly in or wholly out of the 9:16 crop = eligible, flagged for
+me. The render's G10 stays as it is and runs on EVERY clip (not only has_chyron channels), still monitoring. The
+has_chyron flag stays in the registry as a hint that orders the check, nothing more. YOUR SIDE: eligibility drops the
+channel-name hold and reads the visual verdict."
+The render's 9:16 (vertical_layout): one speaker = a fixed full-height strip centred on the face, about one third of
+the width; two or three people = stacked bands; a shared screen = the whole frame, letterboxed.
+
+The change:
+1. eligibility.layout_ok: a registry channel with an id (has_chyron no longer holds); layout_ineligible only for a
+   channel with no registry id.
+2. visual_pin: VERSION visual-2 (every clip is asked again: the cache key holds the version); question 4 "burned_in"
+   (kind ticker / crawl / lower_third / bug, text, whole_in_16x9, in_9x16 whole / out / cut, covers_speaker) in the
+   prompt and in check(); burned_block() per item; layout_block(rec): not measured, a record without question 4, a
+   ticker or crawl, or a lower third / bug that is not whole in the 16:9, that the 9:16 would cut mid-word, or that
+   covers the speaker -> not eligible; otherwise eligible, and each item is a "burned_in" FLAG (flags()); sealed()
+   keeps burned_in.
+3. package.build: a hook's visual block is hook_block OR layout_block; a line-up clip (and the no-voice line-up's
+   clips) blocked by layout_block is dropped and re-lined before any write, as an unmeasured one was.
+4. spotlight.clean_visual: measured, not hook-blocked, not layout-blocked, no ruling-70 flag; a ruling-93 burned_in
+   flag keeps it clean (eligible, flagged). The spotlight's visual gate row uses it.
+5. Tests: the medley rig's records are visual-2; new cases (a ticker holds a hook and a line-up clip; a whole strap is
+   eligible and flagged; the contract and each block reason); the eligibility and select_by_id tests that asserted the
+   channel hold now assert ruling 93 (Bitcoin Magazine no longer held by name; a channel with no registry id still
+   is; the preview's Bitcoin Magazine clip is still never on screen, now on its record's sentence readiness).
+
+Check: that no channel is held by name anywhere in this path; that a ticker / crawl / cut / covering item can never
+reach a pin; that an unmeasured or pre-ruling-93 record is never a pass; that a whole, static item is eligible and
+flagged, never dropped; that medley pins sealed before the change still recompute (the seal reads the visual record
+only through sealed(), whose new key appears only on new records). Answer with findings tagged <critical>, <high>,
+<medium> (file:line, a concrete scenario), then "SHIP: yes / no / yes with conditions".

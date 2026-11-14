@@ -10686,5 +10686,769 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "89d5c05be258c4069a4e~trim:15e6e668b792e570c6606c3f5e5a6aac08769dbaa199110ee501aeaaaf1e39a9:f91eb2f8e01bce1b71aaa5a73a5fbbc69b9aeb93bc51ad19d1869012bd74fa54:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "89d5c05be258c4069a4e~trim",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the hypothetical scenario of public miners leaving Bitcoin for AI",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if public miners leave Bitcoin for AI",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asks what it would mean and what would happen to hash rate and network security if public miners left Bitcoin for AI.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "495baf5b615338e88454:366cc96074a4c036edc254568823dff9a9fc1b3e69b1dd0b29d06e76fb76d0ec:caa038041b068a9bb244a3717e45c4f5db7538be346d40da72b0259cff3a6786:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "495baf5b615338e88454",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "AI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "These cyber attacks",
+     "refers_to": "cyberattacks on big companies like Microsoft",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in the near future",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "AI can copy software, undercut margins, replace employees, and help foreign actors overthrow your CEO, but AI cannot print more Bitcoin, cannot hack Bitcoin despite quantum talk, and these cyber attacks will continue to occur.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1060f77a569324ebe1ed:159fb628f3f59fa44eae77836ab7efe6ecd27a235913cbb987b90e87f7ac21ee:f2699eb9ad6ef29c6036f645002ada503aa498e99436afb30e5654d9b12ba2b1:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1060f77a569324ebe1ed",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "these treasury companies",
+     "refers_to": "Bitcoin treasury companies such as MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "custody risk",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they",
+     "refers_to": "treasury companies",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is a life lesson in patience and conviction and no one talks about the custody risk of these treasury companies even though we talk about it all the time without knowing how they custody.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "thank you, man. And and forgive me for, you know, going on the boomer rant sometimes and not talking about you as a Bitcoiner.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "4106354b7a5f192ea274:cc9446624ff434535cbe6e9151233f8f773a1509d7ac12ccc788161a52c984e5:14c645d2c60b1fc4a611c5f8fddf8f1de46022def6f263d8a0b8e6ef67ec66e0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "4106354b7a5f192ea274",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "current macro situation or Fed rate hikes",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the current Bitcoin bear market length",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "even if they do wind up hiking some more",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Current Fed actions or rate hikes do not really matter for Bitcoin as shown in the chart over the last five years where Bitcoin rallied once the Fed was on hold after hikes.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "We go over the last five years.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": true
+  }
+ },
+ "615f6acc1ba7bfe5a139:f91fcabc1c235167b1dcd33a41f04b0e09ae45ff1419c75c6236163e5ef5ce09:303179267ae6026696c284df27f8d2c10132508d43a88baaf8f9bc4f8c70ab57:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "615f6acc1ba7bfe5a139",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Jensen Wong ouster, AI chip export issues, espionage and cyberattacks",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin being the only asset AI cannot touch",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the next year, as things get much worse",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin predicted current AI-related events, is the only asset AI cannot touch, and over the next year as things get much worse this will become obvious so Bitcoin is the escape hatch.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "This is Dante Cook with Bitcoin simply. Let's go.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0bc96b99755bbebebb40:cb0145cf19643627cb61c053099c4bf95b887319bfe13d469319f843bf1a94a9:cf399cf0e59f7eaf824637671d236a09e76be9cd886f1c4a696869cdbc491163:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0bc96b99755bbebebb40",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Michael Saylor Strategy has been removed from the MSCI Index but that is not the reason for Bitcoin dropping to $67,000 and we are going to discuss it today on The Daily Wolf.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I am your host Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "aa2329e4863bcd83b6ad:8b70d09a4b7608afceaa000d693c064262f1b21aba8d2263a3b1ad2bccf2aa89:6b43ab845bb16bb97ace71e98a5f053dedcc73ebc14f400364c1dfb33016aac9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "aa2329e4863bcd83b6ad",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the current liquidation situation and map",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "next week",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Longs have been flushed creating 20x more liquidity to the upside than downside so there appears to be a lot of liquidity above Bitcoin price though a short squeeze is not guaranteed next week.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b7ad28259fdb6eb11056:81625876e8339d56722af94992d5ae22509fb63761371a0e03ed40eee8ece083:48db077b10ca613bba9077b038af6260fa1287ac21fe083f7c62c6a1b4c0feb5:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b7ad28259fdb6eb11056",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "removal of MSTR from MSCI Index",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "removal of MSTR from MSCI Index",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the $2.8 billion outflows",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that index",
+     "refers_to": "the MSCI index",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "JP Morgan estimates the MSCI delisting of MicroStrategy will cause about $2.8 billion in enforced outflows which should not be a big deal relative to daily volume but will create selling pressure as the index sells shares.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "I am your host Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6f31eb77c71e586e2b1f:f10f589d12583ba5bb2cb058ee04b81bfb8530de3efbf24c56e97368fe3b44e0:437812a7544e68179f78d8b871f30637055e43672d03a60e09946fa041022284:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6f31eb77c71e586e2b1f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "the Rumble stream or comments",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "To fake a dump one sells Bitcoin to oneself at lower prices and we are all losing brain cells together while the host checks Rumble.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Thanks, Opie.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "8b670dccd7bb802349dc:90abc525c48f62e1a02df6032340f5e52edf52e88c9faec6cbd7cc4bed002d69:d0eb138fe8bbf5a8bff9bf1b79dfe15ed2e5d099576113bcff3fcc30558487a3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "8b670dccd7bb802349dc",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "200-week moving average",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in Q4",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Some expect Bitcoin to drop much lower to 10-40K but the speaker doesn't know and sees buying below the 200-week moving average as a solid plan for 2-8X gains over time.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "let me know what you think about that in the comments section. And that is it for today.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ab188c3e3941fd069eaf:f16e2e5680d3ecb37f9a5da09578349590489e2e50748017abe5a1839ec378fa:28e4f6e9d451ee8a1eb417d39c78eb5e3b338b8058831f7a27e56afd995f6bbf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ab188c3e3941fd069eaf",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those",
+     "refers_to": "U.S. spot Bitcoin ETFs",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "current Bitcoin market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "More than half a billion dollars flowed out of U.S. spot Bitcoin ETFs this week mostly from BlackRock but negative futures funding rates may signal a short-term bottom.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC. \u203a\u203a SO JOHN BITCOIN BRIEFLY FALLING BELOW $68,000 EARLIER TODAY.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "948666d3052f144f9ca0:f65735863566f4f27e3869fe5d1b6af7cac1d7009874e7b47dbc88b225c8dc03:6b3ca9f3d6446eab0b591eebeed49cd1f1de15e0392177ac49803b6648fd59e0:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "948666d3052f144f9ca0",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "up here",
+     "refers_to": "5.5% cost of capital period on chart",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the economy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "down here",
+     "refers_to": "0% cost of capital period on chart",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "Fed no longer hiking",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "until Fed stops hiking around March",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The economy adjusts to different interest rate levels and Bitcoin will chop until the Fed stops hiking which the speaker expects around March.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "This reminds me a lot of the summer of 2024, although they're much more violent swings.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2dbe0376eb3a9f200e01:1bc05d75d0063a5eeba16c4e140829c7275ff9d317de9dac5459f31684d5c42d:85d461a686ec375fe3ca99c929fe903510eaa8cf2886b15afcd2ffc994ee35b9:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2dbe0376eb3a9f200e01",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "being the lone Bitcoiner",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Being the only Bitcoiner in your personal circle gets lonely but discovering others online and moving to be with Bitcoiners builds community.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "appreciate it. you know, um I actually I actually on this on this topic, McFly, um German Corpo Mike was just down in uh El Salvador for Bitcoin Historico and uh he's he sent a really nice message to the entire team this morning",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6688f89bbbe5f8cde2da:9dea83c478551b932b16eafa402912579c826bee6a869620789125bd592499a6:f5f442d8f92f50c7d685c453a19430451cb3b743290b1a794504d7ea88e178f7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6688f89bbbe5f8cde2da",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "recent Bitcoin drop to 200-week MA",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the drop",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "They",
+     "refers_to": "people selling Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "equity sell off",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "These things",
+     "refers_to": "Bitcoin's inconsistent correlation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The recent Bitcoin drop was spot selling catching up to the equity selloff rather than a leverage flush and Bitcoin correlates down but not up in ways that are hard to explain.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "before coming back above it. 2022 is really the only thing that bucked the trend.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b38ecb553a5c33494cc8:1d02b147fde4cc1fe25238c009ee7964933586daeb7dbca2cec869978bab6ffa:0b8448bc2b725fbb259003e35431f9fedffb4f1d33cb4faa7b0fe8440e55d877:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b38ecb553a5c33494cc8",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "impact of Bitcoin and the show",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has fundamentally changed the speaker's finances career location worldview and entire life.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Bitcoin did change my life. 100%. ... you know, um I actually I actually on this on this topic, McFly,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ec75803efb5da45e5fa6:2e44677ed7aa2d40061674bedf4ebaf971f56162f7ec735d9232fef4fe7adab4:01be980b92aac3bc005ce7ee6051bf161324b61f6069a0e74374807d20affbf1:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ec75803efb5da45e5fa6",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the show and host",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Strategy being dropped from MSCI indexes",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy the largest corporate Bitcoin holder is being dropped from MSCI indexes which it called discriminatory arbitrary and misguided and the speaker anticipated this from prior MSCI rule change reports.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "What is up everybody? Welcome to the Daily Wolf on Yahoo Finance. I am your host Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b34c1e5b5a4b7d17de6e:e34b67a65e78d310ffda7a7c4debd579e542e19fb73d03122e92c9a507fdb65d:fba19ff41efa5c66f6592d02ea07fe7e794bef3d1d4b587cd7d185cb2ff53143:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b34c1e5b5a4b7d17de6e",
+   "speaker_changes_inside": "no",
+   "view": "reading_aloud",
+   "referents": [
+    {
+     "word": "That",
+     "refers_to": "Bitcoin at 25K or below",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin at 25K or lower would be over an 80% drop and the speaker reads a comment from Eric David about visiting San Juan and Condalo.",
+   "certainty": "uncertain",
+   "speaker_is": "host",
+   "speaker_evidence": "Domer, maybe not. 100K by November. No, I don't think it's gonna happen. 86. AI says 118. Nope. Nope. Nope. Well, Blockhead 71K by December. Marty, you are suspicious to me. October. No, you're wrong. The closest one so far has been Echo. October 2026. 69K. 69K. October. It's pretty close. 77. So about 8K off. Not too bad. Echo. Good job. So that's what we have. If you want to put in your price prediction, go there.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "fd9217f29c14e57f7af5:316bc3fca78e80ae551cafc83d059250a6a9b56619f66db312768a8318916993:b269c256a183a43b99bd6e9677eb842fda2af087085a2c47f4e73f34ef888994:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "fd9217f29c14e57f7af5",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "MSCI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "MSCI",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "those",
+     "refers_to": "MSCI's major stock indexes",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "yesterday",
+     "refers_to": "the day before the broadcast",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at the end of this month",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Adding to pressure on Bitcoin, MSCI will drop MicroStrategy (largest corporate Bitcoin holder) from its major stock indexes at month-end, forcing tracking funds to sell, though CEO Fang Lee says the move is immaterial as only 3% of shares are tied to those indexes.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "MACKENZIE SIGALOS BACK WITH US WITH MORE MAC.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "fc51c51303ad148ee305:fd726e7557fcce126c994c18690ffedff6b7754e7d08550a7038f37f87d0b44c:e74e60499bcf86771b87435687d7a1366db6a93569ecce4d7a52806dd1363ce7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "fc51c51303ad148ee305",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "narrative of Bitcoin being lumped in with shitcoins",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "this narrative",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "That",
+     "refers_to": "the idea that Bitcoiners are scammers or gamblers",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Lumping Bitcoin in with shitcoins creates a narrative that makes Bitcoiners look like scammers and gamblers, but that is not what Bitcoin is about if you talk to normal people or watch adjacent content.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "you guys know, if you seen me this year, everyone that's seen me is like, \"Damn, Opti, you're so much bigger than I thought you were.\"",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2c8a9db6b8672c7f6e23:a4c78ec3f673b1193dc860ed18f9187d26fa65bb12dc1ed3f331be90aacbd9d5:4e8624d4d8ce00378be53a8e1bbe1303ef09a3112655df208e34d752fad85eb1:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2c8a9db6b8672c7f6e23",
+   "speaker_changes_inside": "no",
+   "view": "reading_aloud",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the poll percentage for Bitcoin crossing 100k",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "the poll on Koshi",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the 6% odds of Bitcoin reaching 100k before Jan 2027",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "the current chart and market situation",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "before January 2027",
+     "inside": true
+    },
+    {
+     "text": "by December",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The Koshi poll gives only a 6% chance of Bitcoin crossing 100k before January 2027 after rising 1% since the speaker started looking, and the speaker would be happy with 90k by December but views that as unlikely right now.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "I'm going to do a little shorter show today.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "bd18dc801fb57c4a2d0d:31427b3ba14e6e15b10f8606d14ae527bc08b79c98706bd7ec28410595c9f5db:edf7fcb71b459ea3d5821139fbc0f7c1c4b9629c75e1b3c6536e52fd70595ad1:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "bd18dc801fb57c4a2d0d",
+   "speaker_changes_inside": "yes",
+   "view": "uncertain",
+   "referents": [
+    {
+     "word": "that's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin being below $70,000",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "now",
+     "refers_to": "the present moment in the broadcast",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if that is an indication of anything",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Gold stands at 3,800 with Bitcoin below $70,000 a coin if that indicates anything, as the broadcast now turns to other premarket movers starting with chipmaker Cerebrous Systems.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "with Bloomberg's Nora Melinda. Hey, Bonnie. First up, Chipmaker's Cerebrous Systems.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

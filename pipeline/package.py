@@ -2336,7 +2336,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     see(rated_open)                                                          # seen before any angle is asked
     blocked = {}
     for m in rated_open:
-        why_v = VP.hook_block(m["visual"])
+        why_v = "; ".join(w for w in (VP.hook_block(m["visual"]), VP.layout_block(m["visual"])) if w) or None
+        #   ruling 93: its own frames, per clip; both reasons when both hold (audit 0003 C1, glm)
         if why_v:
             m["visual_hook_block"] = blocked[m["moment_id"]] = why_v
     out["visual"] = out_visual
@@ -2553,9 +2554,10 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                       "back to back with the sign-off only", "added_clip": added,
                                "lineup_before": [m["moment_id"] for m in segs]}}
         see(order)                                        # RULING 70: the added clip is seen too
-        vbad = [m["moment_id"] for m in order if not (m.get("visual") or {}).get("measured")]
+        vbad = {m["moment_id"]: VP.layout_block(m.get("visual")) for m in order      # ruling 93 (not measured
+                if VP.layout_block(m.get("visual"))}                                 # included, law L-m)
         if vbad:
-            note["why_not"] = f"ruling 70: the visual check is not measured for {vbad}"
+            note["why_not"] = ("rulings 70 / 93: " + "; ".join(f"{k}: {v}" for k, v in vbad.items()))[:400]
             return None
         nv_pre = None
         if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
@@ -2741,8 +2743,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
                 extra, relined, w_used, written = "", False, 0, ()
                 see(segs)                                   # RULING 70: every clip seen before any write is paid
-                vbad = {m["moment_id"]: (m.get("visual") or {}).get("why") for m in segs
-                        if not (m.get("visual") or {}).get("measured")}
+                vbad = {m["moment_id"]: ((m.get("visual") or {}).get("why") if not (m.get("visual") or {}).get(
+                            "measured") else None) or VP.layout_block(m.get("visual"))     # ruling 93: per clip (L-m
+                        for m in segs if VP.layout_block(m.get("visual"))}                 # included); the cause named
                 if vbad or segs[0].get("visual_hook_block"):
                     vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
                     dropped |= set(vbad)

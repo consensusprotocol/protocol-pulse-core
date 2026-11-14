@@ -1,41 +1,41 @@
 {
- "usd_estimate": 124.831382,
- "calls": 1457,
+ "usd_estimate": 128.201077,
+ "calls": 1484,
  "by_backend": {
   "xai:grok-4.20-0309-reasoning": {
-   "calls": 393,
-   "in": 869352,
-   "out": 1887296,
-   "usd_estimate": 51.52916,
+   "calls": 398,
+   "in": 887272,
+   "out": 1919238,
+   "usd_estimate": 52.41731,
    "price_usd_per_1m": [
     5,
     25
    ],
-   "usd_reported": 5.7324884,
-   "reported_calls": 393
+   "usd_reported": 5.8340714,
+   "reported_calls": 398
   },
   "heimdall:deepseek/deepseek-v4.1-flash": {
-   "calls": 305,
-   "in": 516693,
-   "out": 1870029,
-   "usd_estimate": 32.180607,
+   "calls": 322,
+   "in": 553903,
+   "out": 2026486,
+   "usd_estimate": 34.639092,
    "price_usd_per_1m": [
     3,
     15
    ],
-   "usd_reported": 0.37717544,
-   "reported_calls": 295
+   "usd_reported": 0.40853702,
+   "reported_calls": 312
   },
   "elevenlabs_stt:scribe_v1": {
-   "calls": 206,
+   "calls": 211,
    "in": 0,
    "out": 0,
-   "usd_estimate": 0.648114,
+   "usd_estimate": 0.671174,
    "price_usd_per_1m": [
     0.0,
     0.0
    ],
-   "audio_s": 3240.57
+   "audio_s": 3355.87
   },
   "heimdall:qwen/qwen3.8-27b": {
    "calls": 234,
@@ -88,24 +88,24 @@
  },
  "by_role": {
   "context_verdict": {
-   "calls": 179,
-   "usd_estimate": 34.973437
+   "calls": 183,
+   "usd_estimate": 35.793747
   },
   "angle_write": {
    "calls": 102,
    "usd_estimate": 13.592081
   },
   "coherence_verdict": {
-   "calls": 132,
-   "usd_estimate": 9.906522
+   "calls": 133,
+   "usd_estimate": 9.974362
   },
   "exclusion_verdict": {
    "calls": 40,
    "usd_estimate": 0.93333
   },
   "transcribe": {
-   "calls": 206,
-   "usd_estimate": 0.648114
+   "calls": 211,
+   "usd_estimate": 0.671174
   },
   "viewer_takeaway": {
    "calls": 50,
@@ -132,8 +132,8 @@
    "usd_estimate": 17.377422
   },
   "replay85_deepseek": {
-   "calls": 172,
-   "usd_estimate": 16.104438
+   "calls": 189,
+   "usd_estimate": 18.562923
   },
   "replay85v_nemotron": {
    "calls": 9,
@@ -145,11 +145,11 @@
   }
  },
  "reserved": {
-  "1868872:58c41913cb": 0.252309,
-  "1868872:3683b7af13": 0.315933,
-  "1868872:ef2db62961": 0.253851
+  "1868872:684b7ea017": 0.32454,
+  "1868872:5b55d310a8": 0.254121,
+  "1868872:7f08e57074": 0.246537
  },
- "usd_reported": 7.34269694,
- "usd_unreported_estimate": 5.742507,
- "late_answers": 101
+ "usd_reported": 7.47564152,
+ "usd_unreported_estimate": 5.765567,
+ "late_answers": 105
 }

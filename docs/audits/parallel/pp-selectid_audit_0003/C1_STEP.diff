@@ -1,0 +1,523 @@
+diff --git a/pipeline/eligibility.py b/pipeline/eligibility.py
+index adb3d40..65c73c4 100644
+--- a/pipeline/eligibility.py
++++ b/pipeline/eligibility.py
+@@ -20,7 +20,8 @@ Result           ok; reasons (EVERY blocking reason, named, with its detail); fa
+                  layout_eligible, age_h, tier, duration_s, ...); parts (a Lineup's per-span results)
+ 
+ Layout eligibility is measured for every item and reported as the fact `layout_eligible`; for an on-screen role it is
+-also the blocking reason 'layout_ineligible', so the supply DEC-12d removes can be counted.
++also the blocking reason 'layout_ineligible' (since RULING 93, 23:58 ET Nov 13: only a channel with no registry id; the
++frames of each clip are judged at the pin stage, visual_pin.layout_block).
+ """
+ import math
+ import re
+@@ -329,8 +330,11 @@ def age_hours(published_at, now):
+ 
+ 
+ def layout_ok(reg):
+-    """Rule S6 (editorial_select.layout_eligible, DEC-12d): a registry channel with an id and no burned-in chyron."""
+-    return bool(reg and reg.get("channel_id") and not reg.get("has_chyron"))
++    """Rule S6: a registry channel with an id. RULING 93 (orchestrator 23:58 ET Nov 13): DEC-12d is measured per CLIP,
++    not per channel. No channel is layout_ineligible by name: every clip, any channel, is judged on its own frames by
++    the pin-stage visual check (visual_pin.layout_block: a ticker or crawl, or a lower third the 9:16 crop would cut
++    mid-word or that covers the speaker). The registry's has_chyron is a hint that orders that check, nothing more."""
++    return bool(reg and reg.get("channel_id"))
+ 
+ 
+ # ── the predicate ──
+@@ -380,8 +384,7 @@ def _source(src, ctx, role):
+         R("no_transcript", "no transcript words")
+     if role in ON_SCREEN:
+         if not facts["layout_eligible"]:
+-            R("layout_ineligible", f"{facts['channel']}: " + ("burned-in chyron (has_chyron, DEC-12d)"
+-                                                             if reg and reg.get("has_chyron") else "no registry channel id"))
++            R("layout_ineligible", f"{facts['channel']}: no registry channel id")   # ruling 93: never by name
+         if not sentence_ready(src):
+             R("not_sentence_ready", "no sentence-ready word record (law L-e): " +
+               ("segment timing only" if src.timing != "word" else "a stretch reads unpunctuated"))
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 8972b95..1dc0f26 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -2336,7 +2336,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     see(rated_open)                                                          # seen before any angle is asked
+     blocked = {}
+     for m in rated_open:
+-        why_v = VP.hook_block(m["visual"])
++        why_v = VP.hook_block(m["visual"]) or VP.layout_block(m["visual"])    # ruling 93: its own frames, per clip
+         if why_v:
+             m["visual_hook_block"] = blocked[m["moment_id"]] = why_v
+     out["visual"] = out_visual
+@@ -2553,9 +2553,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                       "back to back with the sign-off only", "added_clip": added,
+                                "lineup_before": [m["moment_id"] for m in segs]}}
+         see(order)                                        # RULING 70: the added clip is seen too
+-        vbad = [m["moment_id"] for m in order if not (m.get("visual") or {}).get("measured")]
+-        if vbad:
+-            note["why_not"] = f"ruling 70: the visual check is not measured for {vbad}"
++        vbad = [m["moment_id"] for m in order if VP.layout_block(m.get("visual"))]   # ruling 93 (not measured
++        if vbad:                                                                    # included, law L-m)
++            note["why_not"] = f"rulings 70 / 93: not measured, or not eligible on its frames: {vbad}"
+             return None
+         nv_pre = None
+         if lock_check is not None:                         # RULINGS 68 / 72: its own line-up
+@@ -2741,8 +2741,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                        pool.submit(truth_for, router, m, work_dir, tru)) for m in segs}
+                 extra, relined, w_used, written = "", False, 0, ()
+                 see(segs)                                   # RULING 70: every clip seen before any write is paid
+-                vbad = {m["moment_id"]: (m.get("visual") or {}).get("why") for m in segs
+-                        if not (m.get("visual") or {}).get("measured")}
++                vbad = {m["moment_id"]: (m.get("visual") or {}).get("why") or VP.layout_block(m.get("visual"))
++                        for m in segs if VP.layout_block(m.get("visual"))}   # ruling 93: per clip (L-m included)
+                 if vbad or segs[0].get("visual_hook_block"):
+                     vbad = vbad or {segs[0]["moment_id"]: segs[0]["visual_hook_block"]}
+                     dropped |= set(vbad)
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index b4ee879..effb73e 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -350,6 +350,16 @@ def layout_for(router, m, vrec, cache_path=None, seed=7):
+     return rec
+ 
+ 
++def clean_visual(v):
++    """RULING 90's "visual check clean" with RULING 93: measured, no ruling-70 flag (a third person shown as a still
++    with a negative claim, on-screen text that asserts beyond the words), not blocked as a hook, and eligible on its
++    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) is
++    eligible and flagged for the orchestrator, so it does not make the clip unclean."""
++    import visual_pin as VP
++    return (v or {}).get("measured") is True and not VP.hook_block(v) and not VP.layout_block(v) and \
++        not [f for f in v.get("flags") or [] if f.get("kind") != "burned_in"]
++
++
+ def alone_score(m):
+     """The ALONE scorer's rating of the moment's CURRENT text (package.verdict_of: the integrator's verdicts of the
+     render's own scorer, rulings 56 / 60), or None when it has none yet."""
+@@ -595,9 +605,10 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre,
+     rows.pop("r4", None)
+     rows.pop("coherence", None)
+     v = m.get("visual") or {}
+-    rows["visual"] = _row(v.get("measured") is True and not v.get("flags"), v.get("backend"), v.get("replayed"),
++    rows["visual"] = _row(clean_visual(v), v.get("backend"), v.get("replayed"),
+                           measured=v.get("measured") is True, flags=list(v.get("flags") or []),
+-                          by_rule="ruling 90: the visual check clean (no flag; ruling 70's sheet)")
++                          by_rule="ruling 90: the visual check clean (no ruling-70 flag, not blocked as a hook, and "
++                                  "eligible on its frames under ruling 93; a ruling-93 burned_in flag is listed)")
+     own, hr = P.hook_own(m), m.get("hook_rating") or {}
+     rows["hook_own"] = _row(own is not None and own["rating"] >= HOOK_MIN, hr.get("backend"),
+                             bool(hr.get("replayed", False)), measured=own is not None,
+@@ -767,10 +778,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     clean = {}
+     for mid, m in strong.items():
+         v = m.get("visual") or {}
+-        if v.get("measured") is True and not v.get("flags") and not VP.hook_block(v):
++        if clean_visual(v):
+             clean[mid] = m
+         else:
+             stop(mid, "the visual check: " + (f"not measured ({v.get('why')})" if v.get("measured") is not True else
++                                              VP.layout_block(v) or
+                                               f"not clean ({[f.get('kind') for f in v.get('flags') or []]})"))
+     passed(clean, 5)
+     two, off_fail = P.second_screen(router, clean, a_by, sources, ctx, log=log, cache=step_a_cache) if clean else \
+diff --git a/pipeline/visual_pin.py b/pipeline/visual_pin.py
+index 4cecca8..df3c7bb 100644
+--- a/pipeline/visual_pin.py
++++ b/pipeline/visual_pin.py
+@@ -16,6 +16,11 @@ Per clip (a moment's [start, end]):
+   it cannot be sealed (law L-m).
+ - flags(): a third_person finding (a person other than the speaker shown as a still, photo or graphic while the words
+   make a negative claim) and every on-screen text that asserts more than the words. They are sealed, never a reject.
++- RULING 93 (23:58 ET Nov 13): question 4 (burned_in): every ticker, crawl, lower third or channel bug burned into
++  the source, and how the 9:16 version treats it. layout_block(): a ticker or crawl, or a lower third or bug that is
++  not wholly in the 16:9, that the 9:16 edge would cut mid-word, or that covers the speaker, makes the clip NOT
++  eligible in any role (per clip, never by channel name); one that sits whole in the 16:9 and wholly in or out of the
++  9:16 is eligible and sealed as a "burned_in" FLAG for the orchestrator.
+ - hook_block(): why the clip may not be the HOOK, or None. Step A passes only a clip whose view is "own_sincere" (the
+   speaker's own assertion: context_integrity.a_failures), so no step-A verdict confirms a claim as REPORTED fact; a
+   third_person finding therefore blocks the hook (fail closed) until step A is asked that.
+@@ -27,10 +32,13 @@ import os
+ import subprocess
+ import threading
+ 
+-VERSION = "visual-1"
++VERSION = "visual-2"                     # RULING 93 (23:58 ET Nov 13): question 4, burned-in text and the 9:16
+ ROLE = "visual_check"
+ TILES, EVERY_S, TILE_W = 8, 2.0, 480
+ HOW = ("still", "photo", "graphic", "none")
++BURNED = ("ticker", "crawl", "lower_third", "bug")      # ruling 93: question 4's kinds
++RUNNING = ("ticker", "crawl")                          # ruling 93: "a ticker or crawl = not eligible"
++IN_9X16 = ("whole", "out", "cut")
+ FORMAT = "bv*[height<=480][ext=mp4]/bv*[height<=480]/b[height<=480]"
+ CACHE_LOCK = threading.Lock()
+ TEXTS_MAX, TEXT_CHARS = 12, 200          # audit 1541 C2: a verbose reply never bloats the sealed pin
+@@ -40,7 +48,7 @@ The image is a contact sheet of {n} frames of the clip, left to right and top to
+ the source video (seconds). The clip's words, as spoken:
+ "{text}"
+ 
+-Answer three questions from the frames only:
++Answer four questions from the frames only:
+ 1. third_person: is a person who is NOT the one speaking shown as a STILL, a PHOTO or a GRAPHIC (not live video of a
+    person taking part in the show) while the clip's words make a NEGATIVE claim (a mistake, an accusation, a scandal,
+    a crime, a failure)? Report any NAME the screen shows as TEXT with that person. Never name anyone from a face: only
+@@ -48,12 +56,22 @@ Answer three questions from the frames only:
+ 2. on_screen_text: every headline graphic, chyron, banner or title card the SOURCE shows (not subtitles of the spoken
+    words, not the channel's logo), copied exactly, each with whether it ASSERTS something the clip's words do not.
+ 3. lower_third: the on-screen name strap (lower third) of the person speaking, copied exactly, or null.
++4. burned_in: every piece of text or graphic burned into the SOURCE picture that stays on screen: a ticker or a crawl
++   (text that runs or scrolls across the frame), a lower third (a name or headline strap), or a channel bug (a logo or
++   watermark). Not subtitles of the spoken words. For each say whether it sits WHOLLY inside the frame, and how the
++   VERTICAL 9:16 version would treat it. The 9:16 version shows, for ONE speaker, a full-height strip about one third
++   of the frame's width, centred on the speaker's face; for two or three people, a band around each face, stacked; for
++   a shared screen (a chart, a slide, b-roll), the whole frame. "in_9x16" is "whole" (wholly inside the 9:16 picture),
++   "out" (wholly outside it) or "cut" (the 9:16 edge would cut through it mid-word). "covers_speaker": does it cover
++   the speaking person's face or mouth?
+ 
+ Return ONLY this JSON object:
+ {{"third_person": {{"shown": true or false, "how": "still|photo|graphic|none", "words_negative": true or false,
+   "name_on_screen": "<the on-screen text naming them> or null", "finding": "<one sentence>"}},
+  "on_screen_text": [{{"text": "...", "asserts_beyond_words": true or false, "why": "..."}}],
+- "lower_third": {{"name": "<the name on the strap> or null", "text": "<the strap's full text> or null"}}}}"""
++ "lower_third": {{"name": "<the name on the strap> or null", "text": "<the strap's full text> or null"}},
++ "burned_in": [{{"kind": "ticker|crawl|lower_third|bug", "text": "<its text, copied>", "whole_in_16x9": true or false,
++   "in_9x16": "whole|out|cut", "covers_speaker": true or false}}]}}"""
+ 
+ 
+ def load_cache(path):
+@@ -171,10 +189,15 @@ def _opt_str(x):
+ 
+ 
+ def check(v):
+-    """The verdict, in contract or ValueError -> {"third_person", "on_screen_text", "lower_third"}."""
+-    if not isinstance(v, dict) or set(v) != {"third_person", "on_screen_text", "lower_third"}:
+-        raise ValueError("keys must be exactly third_person, on_screen_text, lower_third")
+-    tp, ost, lt = v["third_person"], v["on_screen_text"], v["lower_third"]
++    """The verdict, in contract or ValueError -> {"third_person", "on_screen_text", "lower_third", "burned_in"}."""
++    if not isinstance(v, dict) or set(v) != {"third_person", "on_screen_text", "lower_third", "burned_in"}:
++        raise ValueError("keys must be exactly third_person, on_screen_text, lower_third, burned_in")
++    tp, ost, lt, bi = v["third_person"], v["on_screen_text"], v["lower_third"], v["burned_in"]
++    if not isinstance(bi, list) or any(
++            not isinstance(x, dict) or x.get("kind") not in BURNED or not isinstance(x.get("text"), str) or
++            type(x.get("whole_in_16x9")) is not bool or x.get("in_9x16") not in IN_9X16 or
++            type(x.get("covers_speaker")) is not bool for x in bi):
++        raise ValueError("burned_in out of contract (ruling 93)")
+     if not isinstance(tp, dict) or type(tp.get("shown")) is not bool or tp.get("how") not in HOW or \
+             type(tp.get("words_negative")) is not bool or not isinstance(tp.get("finding"), str):
+         raise ValueError("third_person out of contract")
+@@ -191,7 +214,10 @@ def check(v):
+             "on_screen_text": [{"text": x["text"].strip()[:TEXT_CHARS], "asserts_beyond_words": x["asserts_beyond_words"],
+                                 "why": str(x.get("why") or "").strip()[:TEXT_CHARS]} for x in keep],
+             **({"on_screen_text_truncated": len(texts) - len(keep)} if len(texts) > len(keep) else {}),
+-            "lower_third": {"name": _opt_str(lt.get("name")), "text": _opt_str(lt.get("text"))}}
++            "lower_third": {"name": _opt_str(lt.get("name")), "text": _opt_str(lt.get("text"))},
++            "burned_in": [{"kind": x["kind"], "text": x["text"].strip()[:TEXT_CHARS],
++                           "whole_in_16x9": x["whole_in_16x9"], "in_9x16": x["in_9x16"],
++                           "covers_speaker": x["covers_speaker"]} for x in bi][:TEXTS_MAX]}
+ 
+ 
+ def flags(v):
+@@ -202,7 +228,35 @@ def flags(v):
+         out.append({"kind": "third_person", "text": tp["finding"], "name_on_screen": tp["name_on_screen"]})
+     out += [{"kind": "on_screen_text", "text": x["text"], "why": x["why"]} for x in v["on_screen_text"]
+             if x["asserts_beyond_words"]]
+-    return out
++    out += [{"kind": "burned_in", "text": x["text"], "item": x["kind"], "in_9x16": x["in_9x16"]}   # ruling 93: an
++            for x in v.get("burned_in") or [] if not burned_block(x)]            # eligible lower third or bug,
++    return out                                                                   # flagged for the orchestrator
++
++
++def burned_block(x):
++    """RULING 93 on one burned-in item -> why it makes the clip NOT eligible, or None (eligible, flagged): a ticker or
++    a crawl; a lower third or bug that is not wholly inside the 16:9, that the 9:16 edge would cut through mid-word, or
++    that covers the speaker."""
++    if x["kind"] in RUNNING:
++        return f"a {x['kind']} ({x['text'][:80]!r}): not eligible"
++    if not x["whole_in_16x9"]:
++        return f"a {x['kind']} not wholly inside the 16:9 ({x['text'][:80]!r})"
++    if x["in_9x16"] == "cut":
++        return f"a {x['kind']} the 9:16 crop would cut through mid-word ({x['text'][:80]!r})"
++    if x["covers_speaker"]:
++        return f"a {x['kind']} that covers the speaker ({x['text'][:80]!r})"
++    return None
++
++
++def layout_block(rec):
++    """RULING 93 (23:58 ET Nov 13): why the clip may not be on screen in ANY role, or None. Not measured, or a record
++    without question 4 (an earlier version), is never a pass (law L-m); otherwise burned_block() on every item."""
++    if not (rec or {}).get("measured"):
++        return "its visual check is not measured (law L-m)"
++    if not isinstance(rec.get("burned_in"), list):
++        return "ruling 93: the burned-in text question was not asked (an earlier visual record)"
++    why = [w for w in (burned_block(x) for x in rec["burned_in"]) if w]
++    return ("ruling 93: " + "; ".join(why))[:300] if why else None
+ 
+ 
+ def hook_block(rec):
+@@ -222,7 +276,7 @@ def sealed(rec):
+     """The part of a visual record a pin seals (package_pin.SEALED_LATER "visual"): the findings, the flags, the sheet's
+     name, sha256 and times (the sheet itself is copied beside the pin), the back-end. Never a scratch path or a cost."""
+     out = {k: rec[k] for k in ("version", "measured", "flags", "third_person", "on_screen_text", "lower_third",
+-                               "backend", "replayed", "why") if k in rec}
++                               "burned_in", "backend", "replayed", "why") if k in rec}
+     if isinstance(rec.get("sheet"), dict):
+         out["sheet"] = {k: rec["sheet"][k] for k in ("name", "sha256", "times") if k in rec["sheet"]}
+     return out
+diff --git a/tests/eligibility/test_eligibility.py b/tests/eligibility/test_eligibility.py
+index 17896e4..cd89e2d 100644
+--- a/tests/eligibility/test_eligibility.py
++++ b/tests/eligibility/test_eligibility.py
+@@ -6,8 +6,8 @@ pinned     every law constant equals the module it lives in today (editorial_sel
+ parity     the ported helpers answer as today's (backward_reference, _same_statement, _word_sentences, _ends_statement)
+ must-fail  one fixture per named reason (synthetic, plus real: Altcoin Daily's unpunctuated record, E-FAIL-033)
+ must-pass  the PBX-approved preview's hook and two clips (references/pulse_preview_2026-11-11, frozen word
+-           transcripts); its Bitcoin Magazine clip fails on layout_ineligible (has_chyron, DEC-12d came after) and on
+-           its record's whole-record L-e readiness (one word 570 s away reads unpunctuated), on nothing in its text
++           transcripts); its Bitcoin Magazine clip fails on its record's whole-record L-e readiness (one word 570 s
++           away reads unpunctuated), on nothing in its text (ruling 93 retired DEC-12d's channel hold)
+ Run: cd <repo> && python3 -m pytest -q tests/eligibility"""
+ import json
+ import os
+@@ -185,11 +185,14 @@ class TestSource(unittest.TestCase):
+         self.assertIn("not_current", E.eligible(naive, ctx()).names())
+ 
+     def test_layout_is_a_fact_always_and_a_reason_on_screen(self):
+-        bm = source([HOOK_TXT], channel="Bitcoin Magazine")    # has_chyron (DEC-12d)
+-        ev = E.eligible(bm, ctx("evidence"))
+-        self.assertTrue(ev.ok)
+-        self.assertIs(ev.facts["layout_eligible"], False)
+-        self.assertIn("layout_ineligible", E.eligible(bm, ctx("clip")).names())
++        bm = source([HOOK_TXT], channel="Bitcoin Magazine")    # has_chyron: RULING 93 (23:58 ET Nov 13) holds no
++        ev = E.eligible(bm, ctx("evidence"))                    # channel by name; its frames are judged per clip
++        self.assertTrue(ev.ok)                                  # (visual_pin.layout_block)
++        self.assertIs(ev.facts["layout_eligible"], True)
++        self.assertNotIn("layout_ineligible", E.eligible(bm, ctx("clip")).names())
++        nobody = source([HOOK_TXT], channel="No Such Channel")  # a channel with no registry id is still held
++        self.assertIs(E.eligible(nobody, ctx("evidence")).facts["layout_eligible"], False)
++        self.assertIn("layout_ineligible", E.eligible(nobody, ctx("clip")).names())
+ 
+     def test_on_screen_needs_a_sentence_ready_word_record(self):
+         seg = source([HOOK_TXT], timing="segment", method="yt_auto:en")
+@@ -398,8 +401,8 @@ class TestSpan(unittest.TestCase):
+         self.assertIn("no_story_statement", r.names())
+ 
+     def test_every_reason_is_reported_not_only_the_first(self):
+-        src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="Bitcoin Magazine",
+-                     age_h=100)
++        src = source(["so " + ("bitcoin went sideways " * 2) + "today?"], timing="segment", channel="No Such Channel",
++                     age_h=100)                                      # no registry id: layout_ineligible (ruling 93)
+         r = E.eligible(E.Span(src, 0, 0), ctx("hook", story=statements(E.Span(src, 0, 0))))
+         for n in ("not_current", "layout_ineligible", "not_sentence_ready", "start_case", "duration"):
+             self.assertIn(n, r.names())
+@@ -454,7 +457,7 @@ class TestLineup(unittest.TestCase):
+         r = self.lineup(story=s2, claim=s2[0], hook=None, clips=())
+         self.assertIn("story_bitcoin_screen", r.names())
+         self.assertIn("claim_no_bitcoin", r.names())
+-        bm = source([CLIP_TXT], channel="Bitcoin Magazine", vid="M")
++        bm = source([CLIP_TXT], channel="No Such Channel", vid="M")   # no registry id (ruling 93: never by name)
+         s3 = (E.Span(self.a, 0, 0), E.Span(bm, 0, 0))
+         self.assertIn("story_layout_channels", self.lineup(story=s3, claim=s3[0], hook=None, clips=()).names())
+         stale = source([CLIP2_TXT], channel="Natalie Brunell", vid="S", age_h=90)
+@@ -548,10 +551,10 @@ class TestRealPreview(unittest.TestCase):
+         for kind, sp, s in spans:
+             r = E.eligible(sp, E.Context(self.now, REG, role=kind, story=story))
+             if s["channel"] == "Bitcoin Magazine":
+-                # DEC-12d (has_chyron) came after the approval; and its ~10-min frozen window transcript has one word
+-                # (598.3 s, 570 s after this clip) in an unpunctuated stretch, which today's whole-record L-e rule
+-                # (transcript_store.sentence_ready) rejects. Both are today's laws, measured, not this passage's text.
+-                self.assertEqual(sorted(r.names()), ["layout_ineligible", "not_sentence_ready"], r.why())
++                # its ~10-min frozen window transcript has one word (598.3 s, 570 s after this clip) in an
++                # unpunctuated stretch, which today's whole-record L-e rule (transcript_store.sentence_ready) rejects:
++                # today's law, measured, not this passage's text. DEC-12d's channel hold is gone (ruling 93).
++                self.assertEqual(sorted(r.names()), ["not_sentence_ready"], r.why())
+             else:
+                 self.assertTrue(r.ok, f"{s['channel']}: {r.why()}")
+ 
+diff --git a/tests/package/funnel.py b/tests/package/funnel.py
+index 5e25d43..044385c 100644
+--- a/tests/package/funnel.py
++++ b/tests/package/funnel.py
+@@ -125,7 +125,7 @@ DESC = {"opener": "opens on a pronoun or reply word that needs what came before
+         "no_bitcoin": "does not name Bitcoin: regex `\\b(bitcoins?|btcs?)\\b` (T11, the old story selector's subject "
+                       "screen; 'Bitcoiners', 'sats', 'Satoshi' do not count)",
+         "too_many_sentences": "more than 3 sentences (T9, the old selector's MAX_WINDOW_SENTENCES = 3)",
+-        "layout_ineligible": "the channel has a burned-in chyron (registry has_chyron, DEC-12d)",
++        "layout_ineligible": "the channel has no registry id (ruling 93: never a hold by channel name)",
+         "not_statement": "ends on a question",
+         "hook_lead": "hook only: transcript gap before the first word < 80 ms",
+         "start_case": "starts lower-case", "fragment": "not a sentence start / end", "too_short": "< 5 words",
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index 1e3d997..dc22632 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -623,10 +623,10 @@ class Rig:
+     def visual(self, router, m, work_dir, cache, seed=7, log=print):
+         """visual_pin.visual_for as the build calls it: a measured clean record unless self.visuals says otherwise."""
+         self.visual_calls.append(m["moment_id"])
+-        base = {"version": "visual-1", "measured": True, "flags": [],
++        base = {"version": "visual-2", "measured": True, "flags": [],
+                 "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                  "finding": "no third person"},
+-                "on_screen_text": [], "lower_third": {"name": None, "text": None},
++                "on_screen_text": [], "lower_third": {"name": None, "text": None}, "burned_in": [],   # ruling 93
+                 "sheet": {"name": f"visual_{m['moment_id']}.jpg", "sha256": "0" * 64, "times": [0.0], "path": "/x"},
+                 "backend": "xai_vision:grok-4.7", "replayed": False, "usd": 0.002, "usd_basis": "reported",
+                 "cached": False}
+@@ -1678,6 +1678,30 @@ class TestRuling70Visual(unittest.TestCase):
+         self.assertIn("not measured", out["hook_pool"]["visual_blocked"]["h"])
+         self.assertIsNone(out["package"])
+ 
++    TICKER = {"burned_in": [{"kind": "ticker", "text": "BTC 74,512 | ETH 2,410", "whole_in_16x9": True,
++                             "in_9x16": "cut", "covers_speaker": False}]}
++
++    def test_ruling_93_a_ticker_holds_the_clip_in_any_role_by_its_own_frames(self):
++        out = Rig(self.MS, ["h", "x", "y", "z"], [], [], visuals={"h": self.TICKER}).run()
++        self.assertIn("ruling 93: a ticker", out["hook_pool"]["visual_blocked"]["h"])     # it may not open
++        self.assertIsNone(out["package"])
++        rig = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE), (True, [], None, Rig.LINE)], [None],
++                  visuals={"y": self.TICKER})
++        out = rig.run()
++        self.assertEqual(rig.medley_calls, [["h", "x", "y"], ["h", "x", "z"]])          # dropped and re-lined
++        self.assertIn("ruling 93: a ticker", out["tried"][0]["why"])
++        self.assertEqual(rig.write_calls, [(["h", "x", "z"], None)])                   # no write for it
++        self.assertIsNotNone(out["package"])
++
++    def test_ruling_93_a_whole_lower_third_is_eligible_and_flagged(self):
++        strap = {"kind": "lower_third", "text": "JOE CARLASARE", "whole_in_16x9": True, "in_9x16": "out",
++                 "covers_speaker": False}
++        flag = {"kind": "burned_in", "text": "JOE CARLASARE", "item": "lower_third", "in_9x16": "out"}
++        out = Rig(self.MS, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None],
++                  visuals={"x": {"burned_in": [strap], "flags": [flag]}}).run()
++        self.assertIsNotNone(out["package"])
++        self.assertEqual(out["package"]["gates"]["visual"]["flags"], [dict(flag, segment=1)])
++
+ 
+ class TestRuling66Candidate(unittest.TestCase):
+     """RULING 66 (13:18): A PASSED LINE-UP IS KEPT. A line-up that passed the clips-alone verdict is a candidate. A build
+diff --git a/tests/package/test_spotlight.py b/tests/package/test_spotlight.py
+index 0e62176..779e766 100644
+--- a/tests/package/test_spotlight.py
++++ b/tests/package/test_spotlight.py
+@@ -69,7 +69,7 @@ def moment(text=TEXT, dur=20.0, mid="m1", channel="DataDash", **kw):
+              visual={"version": "visual-1", "measured": True, "flags": [], "backend": "fake:vis", "replayed": False,
+                      "third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                                       "finding": "none"}, "on_screen_text": [],
+-                     "lower_third": {"name": None, "text": None}},
++                     "lower_third": {"name": None, "text": None}, "burned_in": []},
+              scorer_verdict=sv(text, 4.0),
+              spotlight_source={"ok": True, "why": "layout 'conversation'", "turns": {"measured": False},
+                                "layout": {"measured": True, "layout": "conversation", "backend": "fake:vis",
+@@ -495,7 +495,7 @@ class TestPackageFor(unittest.TestCase):
+ class TestBuild(unittest.TestCase):
+     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
+ 
+-    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None):
++    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None):
+         ctx = E.Context(NOW, REG)
+         calls = {}
+ 
+@@ -523,7 +523,8 @@ class TestBuild(unittest.TestCase):
+                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
+                  (SPOT.P, "hook_onset_for", lambda m, s, w, c: {"pass": True, "measured": True}),
+                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
+-                 (VP, "visual_for", lambda r, m, w, c: {"measured": True, "flags": [], "backend": "fake:vis"}),
++                 (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
++                                                              "backend": "fake:vis"}, **(visual or {}))),
+                  (SPOT, "layout_for", lambda r, m, v, c: {"measured": True, "layout": layout, "why": "w"}),
+                  (SPOT, "episode_turns", lambda vid, c=None: {"measured": False, "unmarked": True}),
+                  (SPOT.P, "exclusion_for", lambda r, m, s, c: {"verdict": "keep"}),
+@@ -578,6 +579,23 @@ class TestBuild(unittest.TestCase):
+             out, calls = self.run_build(ms, {"a": 5})
+         self.assertIs(calls["facts"][0]["never_delivered"], False)
+ 
++    def test_ruling_93_a_ticker_holds_a_clip_and_a_whole_strap_is_flagged_and_clean(self):
++        ms = [moment(mid="a", channel="A")]
++        tick = {"kind": "ticker", "text": "BTC 74,512", "whole_in_16x9": True, "in_9x16": "cut",
++                "covers_speaker": False}
++        out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [tick]})
++        self.assertNotIn("package_for", calls)
++        self.assertIn("ruling 93: a ticker", out["moments"]["a"]["out"])
++        strap = dict(tick, kind="lower_third", text="BILL MILLER IV", in_9x16="out")
++        out, calls = self.run_build(ms, {"a": 5}, visual={"burned_in": [strap], "flags": [
++            {"kind": "burned_in", "text": "BILL MILLER IV", "item": "lower_third", "in_9x16": "out"}]})
++        self.assertEqual(calls["package_for"], ["a"])                   # eligible, flagged, still clean
++        self.assertTrue(SPOT.clean_visual({"measured": True, "burned_in": [strap], "flags": [
++            {"kind": "burned_in", "text": "BILL MILLER IV"}]}))
++        self.assertFalse(SPOT.clean_visual({"measured": True, "burned_in": [], "flags": [
++            {"kind": "on_screen_text", "text": "SCANDAL"}]}))           # a ruling-70 flag is not clean
++        self.assertFalse(SPOT.clean_visual({"measured": True, "flags": []}))       # no question 4: never
++
+     def test_ruling_92_and_a_lock_with_no_verdict_stops(self):
+         ms = [moment(mid="a", channel="A")]
+         out, calls = self.run_build(ms, {"a": 5}, layout="reaction")
+diff --git a/tests/package/test_visual_pin.py b/tests/package/test_visual_pin.py
+index 22f9647..0d3a635 100644
+--- a/tests/package/test_visual_pin.py
++++ b/tests/package/test_visual_pin.py
+@@ -19,7 +19,8 @@ from test_providers import Fake, router  # noqa: E402
+ CLEAN = {"third_person": {"shown": False, "how": "none", "words_negative": False, "name_on_screen": None,
+                           "finding": "only the host on camera"},
+          "on_screen_text": [{"text": "SIMPLY BITCOIN", "asserts_beyond_words": False, "why": "the show's name"}],
+-         "lower_third": {"name": "Mark W. Yusko", "text": "Mark W. Yusko, Morgan Creek Capital"}}
++         "lower_third": {"name": "Mark W. Yusko", "text": "Mark W. Yusko, Morgan Creek Capital"},
++         "burned_in": []}                                                        # ruling 93: question 4
+ STILL = dict(CLEAN, third_person={"shown": True, "how": "photo", "words_negative": True, "name_on_screen": "null",
+                                   "finding": "a photo of a man beside the host while he says a CEO made a mistake"},
+              on_screen_text=[{"text": "NVIDIA CEO SCANDAL", "asserts_beyond_words": True,
+@@ -63,6 +64,29 @@ class TestContract(unittest.TestCase):
+         self.assertIn("not measured", VP.hook_block({"measured": False}))
+         self.assertIn("not measured", VP.hook_block(None))
+ 
++    def test_ruling_93_burned_in_text_per_clip(self):
++        item = lambda kind, **k: dict({"kind": kind, "text": "BITCOIN 74,512 | ETH 2,410", "whole_in_16x9": True,
++                                       "in_9x16": "out", "covers_speaker": False}, **k)
++        rec = lambda *items: dict(VP.check(dict(CLEAN, burned_in=list(items))), measured=True)
++        self.assertIsNone(VP.layout_block(rec()))                                       # nothing burned in
++        for kind in ("ticker", "crawl"):                                                # a ticker or crawl: never
++            self.assertIn(f"a {kind}", VP.layout_block(rec(item(kind))))
++        strap = item("lower_third", text="BILL MILLER IV | CIO, MILLER VALUE")
++        for ok in (dict(strap, in_9x16="whole"), dict(strap, in_9x16="out"), dict(strap, kind="bug", in_9x16="whole")):
++            self.assertIsNone(VP.layout_block(rec(ok)))                                 # eligible, and flagged
++            self.assertEqual([f["kind"] for f in VP.flags(VP.check(dict(CLEAN, burned_in=[ok])))], ["burned_in"])
++        for bad, word in ((dict(strap, in_9x16="cut"), "mid-word"), (dict(strap, covers_speaker=True), "covers"),
++                          (dict(strap, whole_in_16x9=False), "not wholly inside")):
++            self.assertIn(word, VP.layout_block(rec(bad)))                              # ... unless cut, covering,
++        self.assertIn("not measured", VP.layout_block({"measured": False}))             # or not whole in the 16:9
++        self.assertIn("not asked", VP.layout_block({"measured": True, "flags": []}))    # an earlier record: never
++        for bad in ([{"kind": "banner", "text": "x", "whole_in_16x9": True, "in_9x16": "out", "covers_speaker": False}],
++                    [dict(strap, in_9x16="partly")], [dict(strap, covers_speaker="no")], "none"):
++            with self.assertRaises(ValueError):
++                VP.check(dict(CLEAN, burned_in=bad))
++        self.assertIn("burned_in", VP.sealed(rec(strap)))
++        self.assertEqual(VP.VERSION, "visual-2")                                        # every clip asked again
++
+     def test_the_cost_is_the_vendors_figure_and_an_estimate_is_labelled(self):
+         class R:
+             cached, usd = False, 0.37
+diff --git a/tests/select_by_id/test_select_by_id.py b/tests/select_by_id/test_select_by_id.py
+index eafecb0..51d8333 100644
+--- a/tests/select_by_id/test_select_by_id.py
++++ b/tests/select_by_id/test_select_by_id.py
+@@ -86,7 +86,9 @@ class TestMustPassPreview(Preview):
+         Yahoo's 'Bitcoin slips below ...'); whether the format allows a tolerance is PBX's call (L-o; audit C2 L-2).
+         The story marks every sentence that states the development: Natalie's three (the drop, the ETF outflows,
+         no part in the Monday rally) and Yahoo's two statements; Yahoo's 'But I don't check it on an hourly basis.'
+-        sits between them. Bitcoin Magazine's sentence counts as evidence (has_chyron) and never goes on screen.
++        sits between them. Bitcoin Magazine's sentence never goes on screen: since RULING 93 (23:58 ET Nov 13) no
++        channel is held by name (it now counts as a fourth layout channel), and its record fails the whole-record L-e
++        readiness (not_sentence_ready), as test_eligibility's preview test measures.
+         With only Natalie's first sentence marked, D4 (a) rejects her next two (no back-reference): the same reason
+         today's auto path stopped her window at 7.15 s (DoD 17:34)."""
+         nat_rows, yah_rows = self.rows(self.table, "Natalie Brunell"), self.rows(self.table, "Yahoo Finance")
+@@ -96,9 +98,10 @@ class TestMustPassPreview(Preview):
+         st = S.choose_story(Scripted(reply(story=ids, claim=ids[0])), self.table, self.ctx)
+         self.assertEqual(st.status, "accepted", st.attempts)
+         self.assertEqual(st.claim.text, st.story[0].text)
+-        self.assertEqual(st.eligibility.facts["story_layout_channels"], 3)
++        self.assertEqual(st.eligibility.facts["story_layout_channels"], 4)   # ruling 93: no channel by name
+         lt, skipped = S.lineup_table(list(self.src.values()), st.story, self.ctx)
+-        self.assertIn("layout_ineligible", skipped["jbDqdLytkNM"])   # never offered for the screen (DEC-12d)
++        self.assertNotIn("layout_ineligible", skipped["jbDqdLytkNM"])
++        self.assertIn("not_sentence_ready", skipped["jbDqdLytkNM"])   # never offered for the screen: its record
+         self.assertFalse(any(r.source.video_id == "jbDqdLytkNM" for r in lt.rows))
+         hook = self.rows(lt, "DataDash")
+         nat, yah = self.rows(lt, "Natalie Brunell"), self.rows(lt, "Yahoo Finance")

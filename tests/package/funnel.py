@@ -125,7 +125,7 @@ DESC = {"opener": "opens on a pronoun or reply word that needs what came before 
         "no_bitcoin": "does not name Bitcoin: regex `\\b(bitcoins?|btcs?)\\b` (T11, the old story selector's subject "
                       "screen; 'Bitcoiners', 'sats', 'Satoshi' do not count)",
         "too_many_sentences": "more than 3 sentences (T9, the old selector's MAX_WINDOW_SENTENCES = 3)",
-        "layout_ineligible": "the channel has a burned-in chyron (registry has_chyron, DEC-12d)",
+        "layout_ineligible": "the channel has no registry id (ruling 93: never a hold by channel name)",
         "not_statement": "ends on a question",
         "hook_lead": "hook only: transcript gap before the first word < 80 ms",
         "start_case": "starts lower-case", "fragment": "not a sentence start / end", "too_short": "< 5 words",

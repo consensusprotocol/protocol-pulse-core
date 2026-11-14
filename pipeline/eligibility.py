@@ -20,7 +20,8 @@ Result           ok; reasons (EVERY blocking reason, named, with its detail); fa
                  layout_eligible, age_h, tier, duration_s, ...); parts (a Lineup's per-span results)
 
 Layout eligibility is measured for every item and reported as the fact `layout_eligible`; for an on-screen role it is
-also the blocking reason 'layout_ineligible', so the supply DEC-12d removes can be counted.
+also the blocking reason 'layout_ineligible' (since RULING 93, 23:58 ET Nov 13: only a channel with no registry id; the
+frames of each clip are judged at the pin stage, visual_pin.layout_block).
 """
 import math
 import re
@@ -329,8 +330,11 @@ def age_hours(published_at, now):
 
 
 def layout_ok(reg):
-    """Rule S6 (editorial_select.layout_eligible, DEC-12d): a registry channel with an id and no burned-in chyron."""
-    return bool(reg and reg.get("channel_id") and not reg.get("has_chyron"))
+    """Rule S6: a registry channel with an id. RULING 93 (orchestrator 23:58 ET Nov 13): DEC-12d is measured per CLIP,
+    not per channel. No channel is layout_ineligible by name: every clip, any channel, is judged on its own frames by
+    the pin-stage visual check (visual_pin.layout_block: a ticker or crawl, or a lower third the 9:16 crop would cut
+    mid-word or that covers the speaker). The registry's has_chyron is a hint that orders that check, nothing more."""
+    return bool(reg and reg.get("channel_id"))
 
 
 # ── the predicate ──
@@ -380,8 +384,7 @@ def _source(src, ctx, role):
         R("no_transcript", "no transcript words")
     if role in ON_SCREEN:
         if not facts["layout_eligible"]:
-            R("layout_ineligible", f"{facts['channel']}: " + ("burned-in chyron (has_chyron, DEC-12d)"
-                                                             if reg and reg.get("has_chyron") else "no registry channel id"))
+            R("layout_ineligible", f"{facts['channel']}: no registry channel id")   # ruling 93: never by name
         if not sentence_ready(src):
             R("not_sentence_ready", "no sentence-ready word record (law L-e): " +
               ("segment timing only" if src.timing != "word" else "a stretch reads unpunctuated"))

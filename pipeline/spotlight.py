@@ -350,6 +350,16 @@ def layout_for(router, m, vrec, cache_path=None, seed=7):
     return rec
 
 
+def clean_visual(v):
+    """RULING 90's "visual check clean" with RULING 93: measured, no ruling-70 flag (a third person shown as a still
+    with a negative claim, on-screen text that asserts beyond the words), not blocked as a hook, and eligible on its
+    own frames (visual_pin.layout_block). A ruling-93 "burned_in" flag (a lower third or bug that sits whole) is
+    eligible and flagged for the orchestrator, so it does not make the clip unclean."""
+    import visual_pin as VP
+    return (v or {}).get("measured") is True and not VP.hook_block(v) and not VP.layout_block(v) and \
+        not [f for f in v.get("flags") or [] if f.get("kind") != "burned_in"]
+
+
 def alone_score(m):
     """The ALONE scorer's rating of the moment's CURRENT text (package.verdict_of: the integrator's verdicts of the
     render's own scorer, rulings 56 / 60), or None when it has none yet."""
@@ -595,9 +605,10 @@ def inventory(pk, m, fid, dup, rt_ok, style, cx, a_off, a_two, exc, truth, pre, 
     rows.pop("r4", None)
     rows.pop("coherence", None)
     v = m.get("visual") or {}
-    rows["visual"] = _row(v.get("measured") is True and not v.get("flags"), v.get("backend"), v.get("replayed"),
+    rows["visual"] = _row(clean_visual(v), v.get("backend"), v.get("replayed"),
                           measured=v.get("measured") is True, flags=list(v.get("flags") or []),
-                          by_rule="ruling 90: the visual check clean (no flag; ruling 70's sheet)")
+                          by_rule="ruling 90: the visual check clean (no ruling-70 flag, not blocked as a hook, and "
+                                  "eligible on its frames under ruling 93; a ruling-93 burned_in flag is listed)")
     own, hr = P.hook_own(m), m.get("hook_rating") or {}
     rows["hook_own"] = _row(own is not None and own["rating"] >= HOOK_MIN, hr.get("backend"),
                             bool(hr.get("replayed", False)), measured=own is not None,
@@ -767,10 +778,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     clean = {}
     for mid, m in strong.items():
         v = m.get("visual") or {}
-        if v.get("measured") is True and not v.get("flags") and not VP.hook_block(v):
+        if clean_visual(v):
             clean[mid] = m
         else:
             stop(mid, "the visual check: " + (f"not measured ({v.get('why')})" if v.get("measured") is not True else
+                                              VP.layout_block(v) or
                                               f"not clean ({[f.get('kind') for f in v.get('flags') or []]})"))
     passed(clean, 5)
     two, off_fail = P.second_screen(router, clean, a_by, sources, ctx, log=log, cache=step_a_cache) if clean else \
