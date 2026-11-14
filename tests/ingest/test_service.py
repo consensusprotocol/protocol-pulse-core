@@ -588,6 +588,58 @@ def test_f1_a_calibration_with_no_back_end_to_ask_is_tried_again_soon(svc):
     assert json.loads(s.q.kv_get("check_calibration")) == {}
 
 
+def _asked_calibration(backend):
+    from pipeline.ingest import flagcheck as FC
+    quotes = [t for _, _, t in FC.watcher_probes()]
+    return [p for p in backend.calls if any(q in p for q in quotes)]
+
+
+def test_a_restart_within_a_day_keeps_the_live_calibration_and_asks_nothing(svc):
+    """09:16 ET Nov 14: each restart's live calibration ended on muse's 502s, and a quiet watcher turned that dangling
+    failure into a false plan_b. A restart within a day of the last LIVE calibration keeps its measured result (its
+    asked_at, the same back-ends and models, at least one passed) and asks no quote; the next calibration stays due a
+    day after the live one."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    while s.check_once(wait=True):
+        pass
+    assert s.check_allowed == ["fallback"] and _asked_calibration(b["fallback"])
+    first = s.check_calibrated
+    s.close()
+    s2, _, b2 = svc(_flagging_miner, _checker("no"), n_videos=1)
+    s2.check_once(wait=True)
+    assert s2.check_allowed == ["fallback"] and not _asked_calibration(b2["fallback"])
+    assert abs(s2.check_calibrated - first) < 60 and s2.check_recal_s == service.CHECK_RECALIBRATE_S
+    assert s2.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_reused'")[0]["n"] == 1
+
+
+@pytest.mark.parametrize("edit", ["old", "model", "no_asked_at", "none_passed"])
+def test_a_restart_asks_live_when_the_stored_calibration_is_old_changed_or_failed(svc, edit):
+    """Anything but a live, under-a-day, same-model calibration with a back-end that passed is asked again at start:
+    an old one, a changed model, the record of the cached era (no asked_at), one in which nobody passed."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    while s.check_once(wait=True):
+        pass
+    cal = json.loads(s.q.kv_get("check_calibration"))
+    old = datetime.fromtimestamp(s.clock() - 25 * 3600, timezone.utc).isoformat()   # ONE time, as a calibration stores
+    for c in cal.values():
+        if edit == "old":
+            c["asked_at"] = old
+        elif edit == "model":
+            c["model"] = "another-model"
+        elif edit == "no_asked_at":
+            c.pop("asked_at")
+        else:
+            c["right"] = c["of"] - 1
+    s.q.kv_set("check_calibration", json.dumps(cal))
+    s.close()
+    s2, _, b2 = svc(_flagging_miner, _checker("no"), n_videos=1)
+    s2.check_once(wait=True)
+    assert _asked_calibration(b2["fallback"]) and s2.check_allowed == ["fallback"]
+    assert s2.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_reused'")[0]["n"] == 0
+
+
 def test_an_unanswered_question_records_nothing_and_waits(svc):
     s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
     run_once(s)

@@ -417,6 +417,16 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   `second_model_checks_12h.calibration`, per back-end: right, of, unmeasured, `wrong` (flag, expected, answered, the
   quote), `asked_at` (the calibration's start) and `seconds` (its duration), and `calibration_crashes` (the crash
   events of the last 12 h: audit f1 c2); the log line says the same.
+- A RESTART keeps the last live calibration when it is under a day old (`service._reuse_calibration`, Nov 14): the
+  stored record must name exactly the role's callable back-ends with their current models, carry ONE `asked_at` (the
+  live calibration's start) under CHECK_RECALIBRATE_S old, and show at least one back-end that answered all 16 quotes
+  right; then that back-end may answer at once, no quote is asked, the next calibration stays due a day after the
+  live one, and the event `check_calibration_reused` and the log say so ("calibration reused (asked live at ...)").
+  Anything else (an older record, a changed model or chain, a record without `asked_at` from the cached era, one in
+  which nobody passed, an outage calibration) is asked live as before, so F1 holds: no allowance ever comes from a
+  stored reply, only from a measurement taken live within the day. Why: each restart re-asked 32 quotes (the check
+  loop waiting 1-2 minutes), and at 09:16 ET Nov 14 a restart's calibration ended on one 502 that a quiet watcher
+  turned into a false 'down' (ruling 87, since amended at 10:05: any answer, a probe's too, resets the clock).
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

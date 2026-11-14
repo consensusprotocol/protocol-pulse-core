@@ -330,13 +330,21 @@ def record(ans, version=PROMPT_VERSION):
             "at": config.iso()}                                          # (audit r40p1 c2, glm)
 
 
-def watcher_checkers(router, workers=4, flags=("imperative", "single_source_breaking"), rounds=CALIBRATION_ROUNDS):
+WATCHER_FLAGS = ("imperative", "single_source_breaking")    # the flags the watcher may release (ruling 40 P1)
+
+
+def watcher_probes(flags=WATCHER_FLAGS):
+    """The calibration quotes of the flags the watcher may release (16: 4 yes + 4 no for each of the two)."""
+    return tuple(p for p in PROBES if p[0] in flags)
+
+
+def watcher_checkers(router, workers=4, flags=WATCHER_FLAGS, rounds=CALIBRATION_ROUNDS):
     """The back-ends allowed to answer in the watcher: those that answered EVERY calibration quote of the flags the
     watcher can release, right (ruling 40 P1 releases a hard flag on their answer: a checker that misses a known case
     never does; accusation is never released, so its quotes are not asked here: audit r40p1 c2, glm). Every quote is
     put to the model live (F1, Nov 14: the calibration had replayed the reply cache, so the daily one re-measured
     nothing); a quote it did not answer is asked again, up to `rounds` rounds. -> (ids, calibration)."""
-    probes = tuple(p for p in PROBES if p[0] in flags)
+    probes = watcher_probes(flags)
     cal = calibrate(router, workers, probes, fresh=True, rounds=rounds)
     return [b for b, c in cal.items() if c["of"] == len(probes) and c["right"] == c["of"]], cal
 

@@ -17,10 +17,11 @@ Loops (threads, one process):
   check   every 30 s (ruling 40 P1): the second model's narrow question on every imperative / single_source_breaking
           flag of a moment still usable (published in the last 12 h, newest first) that has no answer that counts; the
           answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no". The
-          checker is calibrated at start and daily inside this loop (16 short questions per back-end, the loop waits
-          for it), every question put to the model live, never answered from a stored reply (F1, Nov 14); a question
-          not answered is asked again (flagcheck.CALIBRATION_ROUNDS); when no back-end passed and one still could (a
-          question unanswered, none wrong; or the calibration crashed) the calibration is tried again after
+          checker is calibrated daily inside this loop (16 short questions per back-end, the loop waits for it), and
+          at a start unless the last live calibration is under a day old and passed (then its result is kept: no
+          quote asked), every question put to the model live, never answered from a stored reply (F1, Nov 14); a
+          question not answered is asked again (flagcheck.CALIBRATION_ROUNDS); when no back-end passed and one still
+          could (a question unanswered, none wrong; or the calibration crashed) the calibration is tried again after
           CHECK_RETRY_S, not a day later, the wait doubling while it keeps failing (up to a day)
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
@@ -72,7 +73,8 @@ CHECK_EVERY_S = 30             # ruling 40 P1: the second-model check loop
 CHECK_ROWS = 8                 # rows started per loop
 CHECK_INFLIGHT = 4             # rows being checked at once (their questions are short; Heimdall stays under ~20)
 CHECK_RETRY_S = 600            # a question nobody answered is asked again after this (the flag stands meanwhile)
-CHECK_RECALIBRATE_S = 86400    # the checker is re-calibrated on the known quotes once a day (and at every start),
+CHECK_RECALIBRATE_S = 86400    # the checker is re-calibrated on the known quotes once a day (and at a start whose
+                               # last live calibration is a day old or failed: _reuse_calibration),
                                # asked live (F1); after CHECK_RETRY_S instead when none passed and one still could,
                                # the wait doubling while it keeps failing (up to a day)
 
@@ -137,6 +139,7 @@ class Service:
         self.check_inflight, self.check_next, self.clock_lock = set(), {}, threading.Lock()
         self.check_allowed, self.check_calibrated = None, 0.0
         self.check_recal_s = CHECK_RECALIBRATE_S        # the wait before the next calibration (set by each one)
+        self._reuse_tried = False                       # the start's one look at the stored live calibration
         self.stop = threading.Event()
         self.rss_mode, self.rss_checked = False, 0.0
         self.cycle = None
@@ -568,10 +571,45 @@ class Service:
                  + (f"; wrong (back-end, flag, expected, answered) {wrong}" if wrong else "")
                  + f"; allowed to answer: {allowed or 'none (every flag stands)'}; {nxt}")
 
+    def _reuse_calibration(self):
+        """At start only: a restart within CHECK_RECALIBRATE_S of the last LIVE calibration keeps its measured result
+        instead of asking the 32 quotes again (F1 holds: that result was asked live, with its asked_at; nothing comes
+        from the reply cache). Reused only when the stored calibration names exactly the role's callable back-ends with
+        their current models, carries one asked_at (the live calibration's start) that is under a day old, and let at
+        least one back-end answer; anything else (a failed or outage calibration, an old record without asked_at, a
+        changed model) is asked live as before. Why (09:16 ET Nov 14): each restart's live calibration ended on muse's
+        502s, and on a quiet watcher that dangling failure became a false plan_b 15 minutes later. -> True when
+        reused."""
+        try:
+            cal = json.loads(self.q.kv_get("check_calibration") or "null")
+        except ValueError:
+            return False
+        eff = self.router.effective(flagcheck.ROLE)
+        if not isinstance(cal, dict) or not cal or set(cal) != set(eff) or \
+                not all(isinstance(c, dict) and c.get("model") == self.router.backends[b].model for b, c in cal.items()):
+            return False
+        asked = {c.get("asked_at") for c in cal.values()}
+        t = config.aware(asked.pop()) if len(asked) == 1 else None
+        if t is None or not 0 <= self.clock() - t.timestamp() < CHECK_RECALIBRATE_S:
+            return False
+        n = len(flagcheck.watcher_probes())
+        allowed = [b for b in eff if cal[b].get("of") == n and cal[b].get("right") == n and not cal[b].get("unmeasured")]
+        if not allowed:
+            return False
+        self.check_allowed, self.check_calibrated, self.check_recal_s = allowed, t.timestamp(), CHECK_RECALIBRATE_S
+        self.q.event("check_calibration_reused", None, None, asked_at=t.isoformat(), allowed=allowed)
+        self.log(f"check: calibration reused (asked live at {t.isoformat()[:19]}Z, "
+                 f"{(self.clock() - t.timestamp()) / 3600:.1f} h ago): allowed to answer: {allowed}; next calibration in "
+                 f"{CHECK_RECALIBRATE_S - (self.clock() - t.timestamp()):.0f} s")
+        return True
+
     def check_once(self, wait=False):
         """RULING 40 P1: start the second-model check on the newest still-usable moments whose imperative /
         single_source_breaking flag has no answer that counts. Only back-ends that answer every calibration quote
         right may answer (none: nothing is checked, every flag stands)."""
+        if self.check_allowed is None and not self._reuse_tried:
+            self._reuse_tried = True                       # at start only: a live calibration under a day old is kept
+            self._reuse_calibration()
         if self.check_allowed is None or self.clock() - self.check_calibrated >= self.check_recal_s:
             self._calibrate_checkers()
         if not self.check_allowed:
