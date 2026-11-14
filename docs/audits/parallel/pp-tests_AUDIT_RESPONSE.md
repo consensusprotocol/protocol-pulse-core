@@ -432,3 +432,57 @@ How it was audited (two cycles; every call checked against and logged in the $3.
   - glm's evidence-count gap (glm read a diff built before the evidence was regenerated; it closes at 384).
 - Records: pp-tests_AUDIT_B78_*.md.
 - Spend: $0.170 (gemini-2.5-pro 2 calls $0.160; Heimdall $0.010). The ledger stands at $2.019 of $3.00.
+
+## INTEGRATOR AUDIT BATCH 78, CYCLE 2 (pipeline_pp_dod, 2026-11-14 ~09:00 ET): the key test pinned configuration
+
+The message (essentials): d7ed4ff8's two cycle-1 fixes are FIXED and verified (relay.get_key loaded by path, one shared
+netguard list; the integrator's wall on merge 4d9fe3f6: 381 passed, 40 xfailed, 3 skipped, 0 failed). ONE NEW
+CONSENSUS (qwen27b + glm + Grok): test_f0's key test pinned configuration, not behaviour (a constant equality and a
+string search of `_key`'s source). Keep the AST scan; add a behavioural check (a stub loader through KEY_LOADER, the
+sentinel returned for the name asked, the stub saw exactly that name, no file opened during the call); show it fails on
+a `_key` that parses a file; drop the path equality or keep it as a labelled control.
+
+What was done (test_f0_cpu_guard.py; BIBLE):
+- Split. test_no_file_of_this_suite_names_the_key_file keeps the AST scan, with the source search and the equality
+  removed from it.
+- New test_the_baseline_reads_a_key_only_by_name_through_its_loader:
+  - It loads a fresh copy of frontier_blind by path and points its KEY_LOADER at a stub loader file in tmp_path. The
+    stub's get_key records each name in a module the test owns, returns a sentinel and counts its loads.
+  - It calls _key("XAI_API_KEY") then _key("OPENAI_API_KEY") with open, io.open and os.open patched to raise a
+    BaseException, which an `except Exception` cannot hide; attempts are recorded either way. Bytecode writing is
+    forced ON during the calls.
+  - It asserts: nothing opened; both returns are the sentinel (a failure shows the types, never the values); the stub
+    saw exactly those two names and was loaded once; sys.path unchanged; the flag restored by _key; no __pycache__
+    beside the stub.
+  - The path equality survives only as a labelled H.control ("configuration pin").
+- Scratch mutations: copies of frontier_blind with `_key` replaced, each in its own process, run both with bytecode
+  on and under -B.
+  - The real _key PASSES.
+  - These FAIL, each on its own assertion:
+    - parses a file with open(): "_key opened a file: [<the stub>]";
+    - parses through os.open / os.read: the same;
+    - bypasses the loader: "did not return the loader's value: ['str', 'str']";
+    - grok_audit's sys.path form: "_key changed sys.path";
+    - leaves bytecode on: "bytecode was written beside the loader".
+- BIBLE PP-E32: a check that reads the source or restates a constant tests configuration. Test the seam with a stub,
+  deny the effect, force the environment-dependent state, and say what is not denied.
+
+Verification (release line merged, CPU only, no network):
+- Whole wall: 425 tests = 382 passed, 40 strict xfails, 3 skipped, 0 failed, 0 errors.
+- --runxfail: exactly the 40.
+- regression_test.sh: 26 PASS / 0 FAIL / 5 WARN.
+
+How it was audited (two cycles, every call in the $3.00 ledger; consensus by the session: Anthropic and OpenAI out of
+credit; Grok not run):
+- Cycle 1: gemini-2.5-pro 98, Heimdall qwen 95, Heimdall glm 92.
+  - Implemented: glm P1 (force bytecode ON for the calls; before, the leave-bytecode-on mutation PASSED under -B);
+    the stub-record insertion inside the try; two comments.
+  - Refuted: qwen's sys.modules cleanup (nothing is registered, measured); Gemini's "deny os.environ / subprocess"
+    (the value check already fails such a _key, and relay reads the environment first by design); "dead parameter"
+    (it is the mutation seam).
+- Cycle 2: all three "Yes".
+  - glm's N5 (os.open not denied): DONE, stricter than its doc-only suggestion: denied, documented, and a new
+    os.open mutation fails it.
+  - qwen's P2 misread the flag check: answered with a clearer comment.
+- Records: pp-tests_AUDIT_B78C2_*.md.
+- Spend: $0.135 (gemini-2.5-pro 2 calls $0.127; Heimdall $0.008). The ledger stands at $2.154 of $3.00.

@@ -287,5 +287,25 @@ the project's key files), as scripts/integrator/grok_audit.py does. Load the MAI
 key file next to itself, and pin its path: a loader path taken from the environment would choose a file to EXECUTE
 in a process that holds keys. In a long-lived process that imports modules by name, load it by file path without
 changing sys.path and with sys.dont_write_bytecode set, so no __pycache__ lands in the main tree. **Detection:**
-test_f0 test_keys_are_read_only_by_name_through_the_pipelines_loader (added in the same batch on glm's P1: no string
-constant of the suite names the key file; the baseline's `_key` only calls relay.get_key).
+test_f0 test_no_file_of_this_suite_names_the_key_file (static: no string constant of the suite names the key file)
+and test_the_baseline_reads_a_key_only_by_name_through_its_loader (behaviour, batch 78 cycle 2: PP-E32).
+
+### PP-E32: A check that reads the source or restates a constant tests configuration, not behaviour
+**Evidence (integrator batch 78 cycle 2, consensus of qwen27b, glm and Grok):** the first PP-E31 detection asserted
+`".get_key" in inspect.getsource(_key) and "open(" not in src` and `KEY_LOADER == <the path>`. A `_key` reading a
+file through pathlib or a helper would pass the string search, and the equality only restated the constant.
+**Rule:** test what the code DOES at its seam:
+- point the dependency at a stub that records its calls (here KEY_LOADER -> a stub loader file);
+- deny the forbidden effect during the call (open, io.open and os.open patched to raise a BaseException; the import
+  machinery reads source through io.open_code, so loading the stub still works). Say what is NOT denied: a
+  subprocess or a C-level read is caught only if what the code returns is not the stub's value;
+- force the environment-dependent state the check reads (sys.dont_write_bytecode = False for the call): under -B
+  or PYTHONDONTWRITEBYTECODE a 'no bytecode written' check otherwise tests nothing (measured: it passed a broken
+  _key);
+- assert the calls observed and the absence of side effects (sys.path, the bytecode flag, files written);
+- show it fails on a mutation of each kind. Keep a constant equality only as a labelled configuration control.
+A failure message must never show a value the code returned when that value can be a secret (show its type).
+**Detection:** test_f0 test_the_baseline_reads_a_key_only_by_name_through_its_loader. Scratch mutations, run both
+with bytecode writing on and under -B: it fails on a `_key` that parses a file with open(), one that parses through
+os.open / os.read, one that bypasses the loader, the sys.path form, and one that leaves bytecode on, each on its
+own assertion; the real `_key` passes.
