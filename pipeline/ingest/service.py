@@ -315,6 +315,9 @@ class Service:
         was_partial = v.get("state") == Q.MINED_PARTIAL
         common = dict(miners=json.dumps(rep["miners"]), windows=rep["windows"], windows_screened=rep["screened"],
                       windows_failed=len(failed), mine_cost_usd=cost, mine_tries=passes, mine_route=route)
+        if route == (self.cfg.get("paid_route") or {}).get("role"):
+            common["recheck_ts"] = None                   # mined on the paid route again: its Heimdall re-mine is due
+                                                          # again once the signal is back (audit r98 c1, muse)
         what = (f"{len(lines)} moments, windows {rep['windows']} (screened {rep['screened']}, failed {len(failed)}: "
                 f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
                 f"${(cost or 0):.4f}, {now - t0:.0f} s")
@@ -565,8 +568,10 @@ class Service:
             if vid not in self._conv:
                 try:
                     tpm = mine.episode_measure(config.ts().canonical_transcript(vid)).get("turns_per_min")
-                except Exception:                         # noqa: BLE001 (unmeasured: not a conversation, still mined)
-                    tpm = None
+                except Exception as e:                    # noqa: BLE001 (unmeasured: not a conversation, still mined;
+                    tpm = None                            # said once: audit r98 c1)
+                    self.log(f"ruling 98: {vid}'s caption turns not measured ({type(e).__name__}: {e}): mined after "
+                             "the conversations")
                 self._conv[vid] = tpm is not None and tpm >= float(pr["conversation_tpm"])
             return self._conv[vid]
         vs.sort(key=lambda v: (conv(v), v.get("published_ts") or 0), reverse=True)

@@ -856,9 +856,12 @@ class Router:
             if not ok:
                 tried.append((bid, "skipped", why))
                 continue
-            if cap is not None and not self.caps.reserve(role, reserve, float(cap)):
+            need = max(reserve, self._worst_cost(bid, prompt, mt, int(rc.get("attempts", 3)))) if cap is not None \
+                else 0.0                                      # audit r98 c1: the call's priced worst case is held
+            if cap is not None and not self.caps.reserve(role, need, float(cap)):
                 tried.append((bid, "skipped", f"the role's daily cap ${float(cap):.2f} is reached "
-                                              f"(${self.caps.today(role):.2f} today, ET)"))
+                                              f"(${self.caps.today(role):.2f} today, ET; this call may cost "
+                                              f"${need:.2f})"))
                 continue
             try:
                 out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
@@ -872,12 +875,19 @@ class Router:
                 raise
             finally:
                 if cap is not None:
-                    self.caps.release(role, reserve)
+                    self.caps.release(role, need)
             if isinstance(out, Outcome):
                 out.tried = tried + [(bid, "ok", f"attempt {out.attempt}")]
                 return out
             tried.append((bid,) + out)
         raise AllBackendsFailed(tried)
+
+    def _worst_cost(self, bid, prompt, max_tokens, attempts):
+        """Ruling 98 (audit r98 c1): the most one run() on this back-end can cost by its price table: every attempt
+        at its full reply budget, the prompt at ~3 characters a token (the role's cap holds this for the call)."""
+        p = self.backends[bid].cfg.get("price") or {}
+        return attempts * ((len(prompt) / 3.0) * float(p.get("in_per_mtok", 0)) +
+                           max_tokens * float(p.get("out_per_mtok", 0))) / 1e6
 
     def _key(self, bid, prompt, schema, max_tokens):
         return sha256(json.dumps([bid, self.backends[bid].model, sha256(prompt), json.dumps(schema, sort_keys=True),

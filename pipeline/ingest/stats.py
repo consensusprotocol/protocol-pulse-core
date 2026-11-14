@@ -137,6 +137,7 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
     out["second_model_checks_12h"] = ck
     if signal is not None:
         out["down_signal"] = signal                                   # ruling 87 (downsignal.DownSignal.snapshot)
+        out["paid_route"] = signal.get("paid_route")                  # ruling 98, at the top (audit r98 c1)
     return out
 
 

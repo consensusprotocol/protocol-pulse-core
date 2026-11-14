@@ -73,6 +73,7 @@ def cmd_status(a):
             sig = json.load(f).get("down_signal")
         if sig is not None:
             out["down_signal"] = dict(sig, from_live_json_age_s=round(time.time() - os.path.getmtime(p["live"])))
+            out["paid_route"] = sig.get("paid_route")             # ruling 98: is the miner on the paid route?
     except (OSError, ValueError):
         out["down_signal"] = None
     print(json.dumps(out, indent=1, default=str))

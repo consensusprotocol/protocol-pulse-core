@@ -217,3 +217,64 @@ def test_the_paid_routes_videos_are_mined_again_on_heimdall_once_it_is_back(paid
     s.q.set_state("paid2h", Q.MINED, next_at=now + 10 ** 9, mine_route="mine_paid")   # mined again, say on the
     s._queue_rechecks(pr)                                              # paid route once more: queued once only
     assert s.q.video("paid2h")["state"] == Q.MINED
+
+
+# ── audit r98 cycle 1 ──
+
+def test_a_call_whose_priced_worst_case_does_not_fit_under_the_cap_never_starts():
+    """qwen P0 / glm P1: the cap holds each call's worst case by its price table (every attempt at its full budget)."""
+    cfg = paid_cfg()
+    cfg["backends"]["pg"]["price"] = {"in_per_mtok": 5.0, "out_per_mtok": 25.0, "basis": "estimate"}
+    b = fakes()
+    b["pg"].cfg["price"] = cfg["backends"]["pg"]["price"]              # a real back-end carries its config entry
+    b["px"].fn = lambda p: BackendError("network", "down")             # Grok down: the chain falls to Gemini
+    r = providers.Router(cfg, keyring=providers.Keyring("/nonexistent"), backends=b, sleep=lambda s: None,
+                         role_spend=lambda role, since: 0.0)
+    with pytest.raises(providers.AllBackendsFailed) as e:              # 2 x 1000 tokens x $25/M = $0.05 > $0.01
+        r.run("mine_paid", "p", None, lambda c: c, use_cache=False)
+    last = e.value.tried[-1]
+    assert last[0] == "pg" and last[1] == "skipped" and "may cost $0.05" in last[2]
+    assert b["pg"].calls == [] and r.caps.reserved["mine_paid"] == 0.0   # every reservation released
+
+
+def test_a_failure_clock_without_its_zone_never_opens_the_route(paid):
+    """glm P0: a zoneless time would read as local (ET) time and open the route 5 h late: it is no clock."""
+    make, t, doc, tmp, msgs = paid
+    s, b = make()
+    (tmp / "HH.json").write_text(json.dumps({"mode": "plan_b", "last_answer_utc": None,
+                                             "failing_since_utc": "2026-11-14T07:00:00", "last_probe_utc": None,
+                                             "probe_streak": 0, "switches": [], "notes": 1}))
+    t[0] = T0 + 25 * 60
+    s.hsig.tick(wait=True)
+    snap = s.hsig.snapshot()["paid_route"]
+    assert snap["open"] is False and "unreadable or cleared" in snap["why_not_open"]
+    assert "PAID ROUTE" not in doc.read_text()
+
+
+def test_a_route_head_the_state_file_did_not_take_is_kept_and_written_later(paid):
+    """glm P1: every switch reaches STATE line 1, as the signal's own switches do."""
+    import os
+    make, t, doc, tmp, msgs = paid
+    s, b = make()
+    os.chmod(doc, 0)
+    try:
+        s.hsig._route_switch(None, "MINER PAID ROUTE CAP REACHED (TEST)", "paid_route_cap")
+        assert len(s.hsig.route_heads) == 1 and any("kept, tried again" in m for m in msgs)
+    finally:
+        os.chmod(doc, 0o644)
+    assert doc.read_text() == "# STATE\n"
+    s.hsig._flush_route_heads()
+    assert s.hsig.route_heads == [] and doc.read_text().startswith("02:00 ET: MINER PAID ROUTE CAP REACHED (TEST) |")
+
+
+def test_mining_on_the_paid_route_again_makes_its_heimdall_remine_due_again(paid):
+    """muse P2: a second outage inside the video's 12 h: its new paid labels are re-checked too."""
+    make, t, doc, tmp, msgs = paid
+    s, b = make()
+    s.q.add_video("again1", H.CHAN["channel_id"], "t", "uploads_playlist")
+    s.q.set_state("again1", Q.MINING, next_at=t[0], published_ts=t[0] - 3600, recheck_ts=t[0] - 600,
+                  mine_route="mine")
+    rep = {"failed": [], "miners": {"px": 1}, "windows": 1, "screened": 0}
+    s._settle(s.q.video("again1"), H.CHAN, [], rep, 0.001, t[0], route="mine_paid")
+    v = s.q.video("again1")
+    assert v["state"] == Q.MINED and v["mine_route"] == "mine_paid" and v["recheck_ts"] is None

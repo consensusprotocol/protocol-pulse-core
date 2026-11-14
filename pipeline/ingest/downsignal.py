@@ -103,6 +103,7 @@ class DownSignal:
         self.vendor, self.probe_role, self.label = ds["vendor"], ds["probe_role"], ds["label"]
         self.paid, self.roles = cfg.get("paid_route"), cfg["roles"]     # ruling 98: the miner's paid route
         self.paid_open, self.view = False, None   # the miner reads paid_open; view: the shared state as last read
+        self.route_heads, self.route_why, self.route_err = [], None, None   # heads not yet on STATE; why closed
         pr = self.paid
         self.plan_b_tail = (f"; THE MINER'S PLAN B (RULING 98): NEW UPLOADS ON {pr['label']} AFTER "
                             f"{int(pr['after_down_s'] // 60)} MINUTES DOWN, CAPPED" if pr else
@@ -202,17 +203,28 @@ class DownSignal:
         pr = self.paid
         if not pr:
             return
+        self._flush_route_heads()
         now, v = self.clock(), (self.view if not self.error else None)
         st = self.q.kv_get("paid_route") or {"open": False, "since": None}
         if v is None:
-            self.paid_open = False
+            self.paid_open, self.route_why = False, "the shared signal is not read: no spend, nothing announced"
             return
         if not st["open"]:
-            fs = v.get("failing_since_utc")
-            try:
-                fs_t = datetime.fromisoformat(str(fs).replace("Z", "+00:00")).timestamp() if fs else None
-            except ValueError:
-                fs_t = None
+            fs, fs_t = v.get("failing_since_utc"), None
+            if fs:
+                try:                                 # a time without its zone is no clock (the module's own rule):
+                    d = datetime.fromisoformat(str(fs).replace("Z", "+00:00"))   # never read as local time, which
+                    fs_t = d.timestamp() if d.tzinfo is not None else None      # would open the route 5 h late
+                except ValueError:                   # (audit r98 c1)
+                    fs_t = None
+            if v.get("mode") != DOWN:
+                self.route_why = f"the signal says {v.get('mode')}"
+            elif fs_t is None:
+                self.route_why = (f"plan_b, but its failure clock {fs!r} is unreadable or cleared: not opened"
+                                  if fs else "plan_b, but a family answered since (no failure clock): not opened")
+            else:
+                self.route_why = (f"plan_b, no answer for {int((now - fs_t) // 60)} of "
+                                  f"{int(pr['after_down_s'] // 60)} min")
             if v.get("mode") == DOWN and fs_t is not None and now - fs_t >= float(pr["after_down_s"]):
                 st = {"open": True, "since": _iso(now)}
                 cap = float(self.roles[pr["role"]]["daily_cap_usd"])
@@ -227,6 +239,7 @@ class DownSignal:
                                    "THERE)", "paid_route_closed")
         self.paid_open = bool(st["open"])
         if self.paid_open:
+            self.route_why = None
             rc = self.roles[pr["role"]]
             cap, spent = float(rc["daily_cap_usd"]), self.router.caps.today(pr["role"])
             day = datetime.fromtimestamp(now, ET).date().isoformat()
@@ -240,10 +253,8 @@ class DownSignal:
         if st is not None:
             self.q.kv_set("paid_route", st)
         h = " ".join(f"{_utc(now).astimezone(ET).strftime('%H:%M')} ET: {words} |".upper().split())
-        try:
-            spend.write_switch_head(h, notify_path=self.notify)
-        except (OSError, ValueError) as e:
-            self.log(f"RULING 98: STATE line 1 not written: {type(e).__name__}: {e}")
+        self.route_heads.append(h)                   # written in order, kept until written (audit r98 c1)
+        self._flush_route_heads()
         self._evidence({"kind": kind, "utc": _iso(now), "head": h, "by": WHO})
         self.q.event(kind, None, None, head=h)
         self.log(f"RULING 98: {h}")
@@ -438,6 +449,19 @@ class DownSignal:
                 "paid_route": self._route_snapshot(),
                 "miner_plan_b": self.miner_plan_b}
 
+    def _flush_route_heads(self):
+        while self.route_heads:
+            try:
+                spend.write_switch_head(self.route_heads[0], notify_path=self.notify)
+            except (OSError, ValueError) as e:
+                msg = f"RULING 98: STATE line 1 not written (kept, tried again next tick): {type(e).__name__}: {e}"
+                if msg != self.route_err:
+                    self.log(msg)
+                self.route_err = msg
+                return
+            self.route_heads.pop(0)
+            self.route_err = None
+
     def signal_back(self):
         """Ruling 98: the signal is read and says up, and the paid route is closed (the paid route's videos may be
         mined again on the mine role)."""
@@ -449,7 +473,8 @@ class DownSignal:
             return None
         rc = self.roles[self.paid["role"]]
         st = self.q.kv_get("paid_route") or {"open": False, "since": None}
-        return {"open": self.paid_open, "recorded": st, "role": self.paid["role"],
+        return {"open": self.paid_open, "why_not_open": self.route_why, "heads_waiting": len(self.route_heads),
+                "recorded": st, "role": self.paid["role"],
                 "spent_today_usd": round(self.router.caps.today(self.paid["role"]), 4),
                 "cap_usd": float(rc["daily_cap_usd"]), "label": self.paid["label"]}
 
