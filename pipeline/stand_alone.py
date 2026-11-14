@@ -24,6 +24,11 @@ PRONOUNS = {"i", "me", "my", "it", "its", "this", "that", "these", "those", "the
 REPLY_FRAGMENTS = {"yeah", "yes", "yep", "no", "nope", "right", "exactly", "absolutely", "totally", "sure", "okay",
                    "ok", "oh", "well", "um", "uh", "agreed", "true", "correct", "indeed", "anyway", "anyways"}
 BACKREF = {"it", "its", "this", "that", "these", "those", "they"}
+# RULING 94 (b) (orchestrator 2026-11-14 '00:40'): a first- or second-person pronoun opener is NOT a cold-open fault
+# ("I will bet you one Bitcoin that..." is a fine first line); only a third-person or demonstrative pronoun with no
+# referent in the clip is, and the clip scorer judges exactly that (affirmed: it opens; else a fault, fail closed)
+FIRST_SECOND = {"i", "me", "my", "we", "us", "our", "you", "your"}
+THIRD = PRONOUNS - FIRST_SECOND
 BITCOIN = re.compile(r"\b(bitcoin|btc)\b", re.I)
 FIGURE = re.compile(r"\$\s?\d|\d\s?%|\bpercent\b|\b\d{1,3}(?:\s?,\s?\d{3})+\b|\b\d+(?:\s?\.\s?\d+)?\s?(?:k|thousand|million|billion)\b",
                     re.I)
@@ -78,9 +83,15 @@ def opener(kind, text, score=None, fault=None, moments=False):
         return False, "empty segment"
     w = ws[0]
     if kind == "hook":
-        for group, name in ((PRONOUNS, "pronoun"), (CONJUNCTIONS, "conjunction"), (REPLY_FRAGMENTS, "reply fragment")):
-            if w in group:
+        for group, name in ((CONJUNCTIONS, "conjunction"), (REPLY_FRAGMENTS, "reply fragment")):
+            if w in group:          # ruling 94 (a): only ruling 33's one-word trim variant opens (check_edl's trim rule)
                 return False, f"hook opens on the {name} {w!r}: nothing is heard before a hook"
+        if w in THIRD:              # ruling 94 (b): a referent the clip may not carry: the scorer judges it
+            if score is None:
+                return False, f"hook opens on the pronoun {w!r} and no clip-scorer verdict is available (fail closed)"
+            if affirmed(score, fault, moments):
+                return True, f"hook opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault})"
+            return False, f"hook opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
         return True, f"opens on {w!r}"
     if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
         if score is None:
@@ -164,15 +175,17 @@ def trimmed_opener(word, score, fault, moments=False):
 
 def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None, moments=False):
     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
-    clips opening on a conjunction / reply fragment (the clip scorer) and for every segment whose lock trims a leading
-    word (ruling 33 part 2, the hook included); without it they fail closed.
+    clips opening on a conjunction / reply fragment (the clip scorer), for every segment whose lock trims a leading
+    word (ruling 33 part 2, the hook included) and for a hook opening on a third-person or demonstrative pronoun
+    (ruling 94 (b)); without it they fail closed.
     screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
     and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
     speaker's own words. screen None: every segment names the subject, as before (the story path).
     moments (ruling 60, a moments pin): the scorer's verdict is read with affirmed(..., moments=True), the score alone."""
     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
     need = [(label, s) for label, kind, s in segs if trimmed_word(s) or (kind == "clip" and _words(s.get("text"))[:1]
-            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS))]
+            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS))
+            or (kind == "hook" and _words(s.get("text"))[:1] and _words(s.get("text"))[0] in THIRD)]   # ruling 94 (b)
     scores, rate_error = {}, None
     if need and rate is not None:
         try:
