@@ -1,0 +1,569 @@
+diff --git a/pipeline/package.py b/pipeline/package.py
+index f7f2d5a5..d542ae59 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -23,8 +23,8 @@ GATES (hard, every one, recorded in a sealed inventory, package_pin.required_gat
+               the clips-alone verdict first (no writing before it passes);
+               cheap (no model): VO fidelity's deterministic rules, DUPLICATE, runtime, R4, the L-y shape;
+               then RULING 91's VALUE verdict on the takeaway (takeaway_value, before any paid gate; a takeaway
+-              that loses it never ships: the no-voice shape when the line-up's own clips meet the seconds, else ONE
+-              rewrite of the takeaway alone; a second loss ends the line-up);
++              that loses it never ships: the one no-voice shape (07:30 (A): its own clips or the added clip), else,
++              when no no-voice line-up exists, ONE rewrite of the takeaway alone; a second loss ends the line-up);
+               then concurrently: the classifying fidelity verdict (A / B / C / D, 05:25 items 1-2) and context
+               integrity B0 / B / C (L-s; step A precomputed); exclusion (L-u) and the second recognition pass (L-v 2)
+               start in the background once the clips-alone verdict passes; then COHERENCE with the takeaway (>= 4).
+@@ -1830,16 +1830,6 @@ def takeaway_value(router, segs, ctx, line, writers_v, writers_f, seed=7):
+                 ok=all(v[k] == "yes" for k in SPOT.VALUE_KEYS) and base["words"] <= LY_TAKEAWAY_MAX_WORDS)
+ 
+ 
+-def no_voice_fits(segs, med):
+-    """RULING 91 (medley half): whether a line-up's OWN clips meet the seconds with no VO line, so that a takeaway the
+-    value verdict refused falls back to L-y's no-voice shape with no clip added: the clips-alone verdict measured with
+-    no flagged join (a no-voice medley carries no bridge either: ruling 3), and the clips' seconds inside what
+-    no_voice() accepts (the factory's estimate, the clips + FINAL_TAIL_S, inside 60-70 s)."""
+-    content = sum(m["duration_s"] for m in segs)
+-    return med.get("measured") is True and med.get("flagged") == [] and \
+-        RUNTIME_S[0] - FINAL_TAIL_S <= content <= RUNTIME_S[1] - FINAL_TAIL_S
+-
+-
+ def lone_slot(violations):
+     """RULING 65: "caption" or "title" when EVERY violation is on that one line (the takeaway and the other line pass),
+     else None."""
+@@ -1922,6 +1912,29 @@ def merge_fid(fid, slot, one):
+                 backend=f"{fid.get('backend')}; the {slot} alone: {one.get('backend')} (ruling 65)")
+ 
+ 
++def fixed_caption_gates(router, pk, fields, fid, segs, by_id, ctx, a_by, sources, levels, writers_v, writers_f, why):
++    """RULING 65 (b): the package with the FIXED caption (fixed_caption: code-written, no model, so no model verdict;
++    caption_fallback: true). Its deterministic fidelity layer and the house style (cheap_checks) and context integrity
++    on the package as it will be sealed still run; the other lines keep their verdicts in `fid` (merge_fid). One code
++    path for ruling 65's caption and, since the orchestrator's 07:30 ruling (C), for a caption that alone fails its gates
++    on a no-voice path. -> (pk, fid, cx, (cheap, det, dup, rt_ok, r4_res), the fixed line)."""
++    line = fixed_caption(fields, segs, ctx)
++    pk3 = assemble_medley([m["moment_id"] for m in segs], by_id, dict(fields, caption=line), ctx,
++                          f"{pk.get('vo_kind')}; {why}")
++    pk3["medley"] = pk.get("medley")
++    pk3["caption_fallback"] = True
++    cheap3 = cheap_checks(pk3, a_by, levels, ctx.now)
++    man = {"channels": [sg["channel"] for sg in pk3["segments"]], "date": ctx.now.strftime("%Y-%m-%d")}
++    ln = [{k: x[k] for k in ("slot", "text", "cites")} for x in pk3["lines"] if x["slot"] == "caption"]
++    one = {"deterministic": VF.check_deterministic(fidelity_segments(pk3, a_by), ln, man, levels),
++           "verdict": {"ok": True, "violations": [], "claims": [], "classes": {"caption": ["the fixed line: no fact"]}},
++           "measured": True, "replayed": False, "backend": "code, no model: the fixed caption (ruling 65 b)"}
++    fid3 = merge_fid(fid, "caption", one)
++    cx3 = CI.check_contexts(router, pk3, CI.contexts_from_sources(pk3, sources, ctx.now), writers_v, 7,
++                            {sg["label"]: a_by[sg["moment_id"]] for sg in pk3["segments"]}, writers_f, True)
++    return pk3, fid3, cx3, cheap3, line
++
++
+ def rewrite_alone(router, slot, pk, fields, fid, refused, angle, segs, by_id, ctx, a_by, sources, levels, writers_v,
+                   writers_f, avoid_vendor=None, seed=7):
+     """RULING 65 (12:52): only `slot` ("caption" or "title") failed (`refused`: its violations); the takeaway and the
+@@ -1980,18 +1993,9 @@ def rewrite_alone(router, slot, pk, fields, fid, refused, angle, segs, by_id, ct
+         rec["why"] = (f"the title failed alone {1 + len(rec.get('tries') or [])} times (its second write on the other "
+                       f"writer model, 17:20): held (ruling 65 c): {rec['why']}")
+         return pk, dict(fid, ok=False), {"ok": True, "violations": []}, cheap_checks(pk, a_by, levels, ctx.now), rec
+-    line = fixed_caption(fields, segs, ctx)               # (b): the fixed caption, code-written, no model
+-    pk3 = build_pk(line, "the fixed caption (ruling 65 b)")
+-    pk3["caption_fallback"] = True
+-    cheap3 = cheap_checks(pk3, a_by, levels, ctx.now)
+-    ln = [{k: x[k] for k in ("slot", "text", "cites")} for x in pk3["lines"] if x["slot"] == "caption"]
+-    one = {"deterministic": VF.check_deterministic(fidelity_segments(pk3, a_by), ln, man, levels),
+-           "verdict": {"ok": True, "violations": [], "claims": [], "classes": {"caption": ["the fixed line: no fact"]}},
+-           "measured": True, "replayed": False, "backend": "code, no model: the fixed caption (ruling 65 b)"}
+-    fid3 = merge_fid(fid, "caption", one)
+-    cx3 = CI.check_contexts(router, pk3, CI.contexts_from_sources(pk3, sources, ctx.now), writers_v, 7, a_use(pk3),
+-                            writers_f, True)
+-    rec.update(fallback=line["text"], caption_fallback=True)
++    pk3, fid3, cx3, cheap3, line = fixed_caption_gates(router, pk, fields, fid, segs, by_id, ctx, a_by, sources, levels,
++                                                       writers_v, writers_f, "the fixed caption (ruling 65 b)")
++    rec.update(fallback=line["text"], caption_fallback=True)       # (b): the fixed caption, code-written, no model
+     return pk3, fid3, cx3, cheap3, rec
+ 
+ 
+@@ -2328,11 +2332,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     only if its clips meet the seconds; otherwise the takeaway may be rewritten once"): every written takeaway that
+     passes its cheap gates is asked ONE value verdict (takeaway_value) before any paid gate. A clear yes on all four
+     (and <= 20 words in code): the write goes on, and the package seals the "takeaway_value" row with the line it
+-    judged. A loss (no verdict included): the takeaway never ships. When the line-up's OWN clips meet the seconds with
+-    no VO line (no_voice_fits), the no-voice shape follows at once (no_voice(value=...): no clip added). Otherwise ONE
+-    rewrite of the takeaway alone, told the refusal, whatever the ruling-66 counts say. Its loss ends the line-up with no
+-    package. A value loss never counts toward ruling 3's two failures, so ruling 3's no-voice (which may add a clip)
+-    keeps its own trigger.
++    judged. A loss (no verdict included) removes the takeaway, and THE ONE NO-VOICE SHAPE follows at once (the
++    orchestrator's 07:30 ruling (A): "one shape whatever removed the takeaway"): nv_order's line-up, the line-up's own
++    clips or the added clip when the seconds need it, every clip gate and join as usual (no_voice(value=...)). Only
++    when no no-voice line-up exists (no clip lands the seconds, or a join needs a bridge) is the takeaway alone
++    rewritten ONCE, told the refusal, whatever the ruling-66 counts say; its loss ends the line-up with no package.
++    A failed no-voice line-up ends the line-up too, as on ruling 3's path. A value loss never counts toward ruling 3's
++    two failures (it already leads to the same shape). On either no-voice path, a caption that alone fails its gates
++    becomes ruling 65 (b)'s fixed caption (07:30 (C)); a failing title holds.
+     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
+     t0 = time.time()
+     usd0 = _spent(spend)
+@@ -2624,53 +2631,63 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 f"${BUDGET_USD_REPORTED:.2f} reported / ${l_est:.2f} of the ${BUDGET_USD_ESTIMATE:.2f} estimate (ruling 5, "
+                 f"per package delivered: ruling 41)")
+ 
+-    def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup, value=None):
+-        """Ruling 3 (22:40): the takeaway failed its gates twice on a line-up whose clips ALONE passed with no join a
+-        viewer cannot follow, so the package ships with NO VO line: clips back to back and the sign-off. It is not
+-        dropped. The title and caption are the latest write's and go through every gate again. The factory's estimate
+-        must still land 60-70 s, so when the clips are too short one more clip of the angle is added in the proposer's
+-        order, and the new line-up is judged on the clips alone again. -> a package, or None (rec["no_voice"] why).
+-        RULING 91 (medley half), value = the value verdict the takeaway lost: "a medley that loses its takeaway falls
+-        back to L-y's no-voice shape only if its clips meet the seconds": the line-up's OWN clips (no_voice_fits), so no
+-        clip is ever added on this path; the record names ruling 91 and carries the verdict."""
++    def nv_order(angle, segs, med, dropped):
++        """THE NO-VOICE LINE-UP, decided by code before any paid call (ruling 3; the orchestrator's 07:30 ruling (A):
++        "the no-voice shape is one shape whatever removed the takeaway"): the clips-alone verdict measured with every
++        join followable; the line-up's OWN clips when they meet the seconds with no VO line; else ONE more clip of the
++        angle, in the proposer's order, that lands them under the line-up rules (never the registry's line-up, ruling
++        66). -> {"order", "added", "why_not", "registered_skipped"}; order None when no no-voice line-up exists."""
+         nv_lo, nv_hi = RUNTIME_S[0] - FINAL_TAIL_S, RUNTIME_S[1] - FINAL_TAIL_S
+-        pos = {m_: i for i, m_ in enumerate(angle["moments"])}
+-        rec["no_voice"] = note = {"tried": True, "ruling": 3 if value is None else 91}
++        plan = {"order": None, "added": None, "why_not": None, "registered_skipped": []}
+         if med.get("measured") is not True or med.get("flagged") != []:     # audit 2240 C1 (qwen, glm): its own guard
+-            note["why_not"] = "the clips-alone verdict is not a measured pass with every join followable"
+-            return None
+-        order, added, nv_med = list(segs), None, med
+-        content = sum(m["duration_s"] for m in order)
++            return dict(plan, why_not="the clips-alone verdict is not a measured pass with every join followable")
++        content = sum(m["duration_s"] for m in segs)
+         if content > nv_hi:
+-            note["why_not"] = f"{content:.1f} s of clips: over {nv_hi:.1f} s with no VO line"
+-            return None
+-        if content < nv_lo and value is not None:            # ruling 91: only if its OWN clips meet the seconds
+-            note["why_not"] = (f"ruling 91: {content:.1f} s of clips, under {nv_lo:.1f} s with no VO line, and no clip "
+-                               f"is added for a takeaway the value verdict refused")
++            return dict(plan, why_not=f"{content:.1f} s of clips: over {nv_hi:.1f} s with no VO line")
++        if content >= nv_lo:
++            return dict(plan, order=list(segs))
++        pos = {m_: i for i, m_ in enumerate(angle["moments"])}
++        chans = {m["channel_id"] for m in segs}               # "the packager may add a clip"
++        for mid in angle["moments"]:
++            m = cleared.get(mid)
++            if m is None or m in segs or mid in dropped or mid in doomed or m["channel_id"] in chans or \
++                    not (m.get("eligibility") or {}).get("clip", {}).get("ok"):
++                continue
++            cand = [segs[0]] + sorted(segs[1:] + [m], key=lambda x: pos.get(x["moment_id"], 99))
++            if len(cand) - 1 > LY_CLIPS[1] or [x for x in cand[1:-1] if x["duration_s"] < SHORT_CLIP_S] or \
++                    sum("price_prediction" in x.get("risk", []) for x in cand) > PRICE_PREDICTIONS_MAX or \
++                    sum(bool(x.get("trimmed_leading")) for x in cand) > TRIMMED_PER_LINEUP_MAX or \
++                    not nv_lo <= sum(x["duration_s"] for x in cand) <= nv_hi:
++                continue
++            if tuple(x["moment_id"] for x in cand) in held_map:   # ruling 66: the registry's, never this search's
++                plan["registered_skipped"].append(held_map[tuple(x["moment_id"] for x in cand)]["key"])
++                continue
++            return dict(plan, order=cand, added=mid)
++        return dict(plan, why_not=(f"{content:.1f} s of clips and no one clip of the angle lands {nv_lo:.1f}-{nv_hi:.1f} s"
++                                   + (f" (ruling 66: {plan['registered_skipped']} left to the registry)"
++                                      if plan["registered_skipped"] else "")))
++
++    def no_voice(angle, segs, med, last, exception, dropped, rec, ai, n_lineup, value=None, plan=None):
++        """THE NO-VOICE SHAPE: the package ships with NO VO line, clips back to back and the sign-off; it is not
++        dropped. Ruling 3 (22:40): the takeaway failed its gates twice; RULING 91 (value = the value verdict the
++        takeaway lost): its value verdict said no. The orchestrator's 07:30 ruling (A): "one shape whatever removed the
++        takeaway": the line-up is nv_order's (its own clips, or the added clip when the seconds need it); a line-up
++        with an added clip is judged on the clips alone again, and every clip gate runs on every clip. The title and
++        caption are the latest write's and go through every gate again. 07:30 (C): when ONLY the caption fails (its
++        cheap gates, or its verdict with context integrity passing: ruling 65's own trigger), ruling 65 (b)'s fixed
++        caption is used, as there (fixed_caption_gates, caption_fallback true); a failing title still holds (65 c).
++        The record names the ruling and, for 91, carries the verdict. plan: the nv_order() result the caller already
++        decided on (the value-loss branch passes its own, so the decision and what is built are one object; audit 0734
++        C2, grok and glm); None computes it here (ruling 3's path). -> a package, or None (rec["no_voice"] why)."""
++        rec["no_voice"] = note = {"tried": True, "ruling": 3 if value is None else 91}
++        plan = plan if plan is not None else nv_order(angle, segs, med, dropped)
++        if plan["registered_skipped"]:
++            note["registered_skipped"] = plan["registered_skipped"]
++        if plan["order"] is None:
++            note["why_not"] = plan["why_not"]
+             return None
+-        if content < nv_lo:                                  # "the packager may add a clip"
+-            chans = {m["channel_id"] for m in segs}
+-            for mid in angle["moments"]:
+-                m = cleared.get(mid)
+-                if m is None or m in segs or mid in dropped or mid in doomed or m["channel_id"] in chans or \
+-                        not (m.get("eligibility") or {}).get("clip", {}).get("ok"):
+-                    continue
+-                cand = [segs[0]] + sorted(segs[1:] + [m], key=lambda x: pos.get(x["moment_id"], 99))
+-                if len(cand) - 1 > LY_CLIPS[1] or [x for x in cand[1:-1] if x["duration_s"] < SHORT_CLIP_S] or \
+-                        sum("price_prediction" in x.get("risk", []) for x in cand) > PRICE_PREDICTIONS_MAX or \
+-                        sum(bool(x.get("trimmed_leading")) for x in cand) > TRIMMED_PER_LINEUP_MAX or \
+-                        not nv_lo <= sum(x["duration_s"] for x in cand) <= nv_hi:
+-                    continue
+-                if tuple(x["moment_id"] for x in cand) in held_map:   # ruling 66: the registry's, never this search's
+-                    note.setdefault("registered_skipped", []).append(held_map[tuple(x["moment_id"] for x in cand)]["key"])
+-                    continue
+-                order, added = cand, mid
+-                break
+-            if added is None:
+-                note["why_not"] = (f"{content:.1f} s of clips and no one clip of the angle lands {nv_lo:.1f}-{nv_hi:.1f} s"
+-                                   + (f" (ruling 66: {note['registered_skipped']} left to the registry)"
+-                                      if note.get("registered_skipped") else ""))
+-                return None
++        order, added, nv_med = plan["order"], plan["added"], med
++        if added is not None:                                # its new line-up, judged on the clips alone again
+             ok2, nv_med = medley(router, order, ctx, writers_v, seed=50 + n_lineup + 10 * ai, writer_family=writers_f)
+             note["medley"] = nv_med
+             if not ok2 or nv_med["flagged"]:
+@@ -2681,8 +2698,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+             ("ruling 91: the takeaway did not earn its place (its value verdict: " +
+              (", ".join(f"{k} {value.get(k)}" for k in ("adds", "no_restate", "missed", "short"))
+               if value.get("measured") else "no verdict") +
+-             f"; {str(value.get('why') or '')[:200]}); the line-up's own clips meet the seconds, so L-y's no-voice "
+-             f"shape ships them back to back with the sign-off only")
++             f"; {str(value.get('why') or '')[:200]}); L-y's no-voice shape (one shape, 07:30 (A)) ships the clips back "
++             f"to back with the sign-off only" + (f", one clip added ({added})" if added else ""))
+         fields = {"takeaway": None, "bridge": None, "bridge_after": None, "title": last["title"],
+                   "caption": last["caption"], "type": "moments", "angle": angle["angle"], "style": "medley, no voice",
+                   "supply_exception": exception,
+@@ -2710,7 +2727,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         pk = assemble_medley([m["moment_id"] for m in order], cleared, fields, ctx, "medley (L-y), no voice")
+         pk["medley"] = nv_med
+         cheap, det, dup, rt_ok, r4_res = cheap_checks(pk, a_by, levels, ctx.now)
+-        if cheap:
++        if cheap and lone_slot(cheap) != "caption":          # 07:30 (C): only the caption failing alone goes on
+             note["why_not"] = f"cheap gates: {sorted({v['rule'] for v in cheap})}"
+             note["violations"] = cheap
+             return None
+@@ -2723,10 +2740,23 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                 note["why_not"] = "a clip fails exclusion, the second pass or CUTTABLE"
+                 return None
+             fid, cx = paid_gates(router, pk, sources, a_by, levels, ctx.now, writers_v, writers_f, nv_pool)
+-        if not fid["ok"] or not cx["ok"]:
+-            note["why_not"] = "the title / caption fail VO fidelity or context integrity"
+-            note["violations"] = fid["violations"] + cx["violations"]
+-            return None
++        fixed = None                                       # fid and cx are bound: every exit above returns None
++        if cheap or not fid["ok"] or not cx["ok"]:         # ruling 65's own trigger: context integrity must pass on
++            if not (cx["ok"] and fid.get("measured") and lone_slot(cheap + fid["violations"]) == "caption"):   # its own
++                note["why_not"] = "the title / caption fail VO fidelity or context integrity" + \
++                    (f" (cheap gates: {sorted({v['rule'] for v in cheap})})" if cheap else "")
++                note["violations"] = cheap + fid["violations"] + cx["violations"]
++                return None
++            refused = [{k: v.get(k) for k in ("rule", "detail")} for v in cheap + fid["violations"]]
++            pk, fid, cx, (cheap, det, dup, rt_ok, r4_res), fixed = fixed_caption_gates(   # 07:30 (C): ruling 65 (b)
++                router, pk, fields, fid, order, cleared, ctx, a_by, sources, levels, writers_v, writers_f,
++                "the fixed caption on a no-voice path (07:30 (C), ruling 65 b)")
++            note["caption_fallback"] = {"refused": refused, "written": fields["caption"]["text"],
++                                        "fixed": fixed["text"]}
++            if cheap or not fid["ok"] or not cx["ok"]:
++                note["why_not"] = "the fixed caption (07:30 (C), ruling 65 b) did not pass its gates"
++                note["violations"] = cheap + fid["violations"] + cx["violations"]
++                return None
+         coh = dict(nv_med, vo_point=None,
+                    note=f"no VO line: the clips-alone verdict is the coherence verdict (ruling {note['ruling']})")
+         a_lab = {sg["label"]: a_by[sg["moment_id"]] for sg in pk["segments"]}
+@@ -2741,7 +2771,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         if problems:
+             note["why_not"] = f"a required gate is not exactly PASS: {problems}"
+             return None
+-        pk["models"] = {"angle": angle_reply.backend, "writer": "the latest write's title and caption",
++        pk["models"] = {"angle": angle_reply.backend,
++                        "writer": "the latest write's title and caption" if fixed is None else
++                                  "the latest write's title; the caption is code's fixed line (07:30 (C), ruling 65 b)",
+                         "medley": nv_med.get("backend"), "fidelity_verdict": fid.get("backend"),
+                         "context": cx.get("backends"), "coherence": nv_med.get("backend")}
+         pk["checks"] = {"fidelity": fid, "context": cx, "coherence": coh, "medley": nv_med}
+@@ -2915,9 +2947,9 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         relined, w_used = True, writes
+                 take_failed, last_fields = 0, None         # ruling 3 (22:40): the no-voice fallback reads these
+                 alone_n, alone_by, t_refused, t_alone, last_fid, last_rw65 = 0, None, [], False, None, False
+-                v_lost, v_redo, v_novoice, val = [], False, None, None   # RULING 91 (medley half): the value
+-                #   verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to the no-voice
+-                #   shape, and the verdict of the takeaway now written
++                v_lost, v_redo, v_novoice, v_plan, val = [], False, None, None, None   # RULING 91 (medley half):
++                #   the value verdicts the takeaway lost, its ONE rewrite still due, the loss that sends the line-up to
++                #   the no-voice shape with the plan decided for it (nv_order), and the verdict of the takeaway now written
+                 while True:                                # RULING 66 amended (17:02): the writes; then, when the
+                     lone = w_used >= writes or v_redo      # takeaway alone failed, the takeaway ALONE, up to twice
+                     if lone and not v_redo and not (alone_n < LINE_ONLY_WRITES and t_alone and last_fields is not None
+@@ -3077,13 +3109,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                                "detail": (f"{answers}: {val.get('why')}" if val.get("measured") else
+                                           f"no clear yes ({val.get('why')})")[:300]}
+                         t_refused += [ref] if ref not in t_refused else []      # what its one rewrite is told
+-                        if no_voice_fits(segs, med):       # its OWN clips meet the seconds: L-y's no-voice shape
+-                            v_novoice = val
++                        nv_plan = nv_order(angle, segs, med, dropped)          # 07:30 (A): the ONE no-voice shape,
++                        if nv_plan["order"] is not None:   # its own clips or the added clip: no_voice() below
++                            v_novoice, v_plan = val, nv_plan                  # built from this very plan
+                             break
++                        rec["no_voice_plan"] = {k: nv_plan[k] for k in ("why_not", "registered_skipped")}
+                         if len(v_lost) > 1:                # its one rewrite did not earn its place either
+                             rec["why"] = ("ruling 91: the takeaway did not earn its place, nor did its one rewrite, "
+-                                          "and the line-up's own clips do not meet the no-voice seconds "
+-                                          f"({sum(m['duration_s'] for m in segs):.1f} s of clips)")
++                                          f"and no no-voice line-up exists ({nv_plan['why_not']})")[:500]
+                             break
+                         v_redo = True                      # ONE rewrite of the takeaway alone, told why
+                         last_fid, last_rw65 = (last_fid if lone else None), False   # a write's own lines: unjudged
+@@ -3195,7 +3228,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+                         (v_novoice is not None or take_failed >= NO_VOICE_AFTER) and last_fields is not None and \
+                         not out.get("budget_stop") and not out.get("lock_stop"):
+                     nv = no_voice(angle, segs, med, last_fields, exception, dropped, rec, ai, n_lineup,
+-                                  value=v_novoice)      # ruling 91 (its own clips, none added) before ruling 3
++                                  value=v_novoice, plan=v_plan)   # ruling 91 with its decided plan; else ruling 3
+                     if nv is not None:
+                         out["packages"].append(nv)
+                         rec["result"] = f"PACKAGE (no voice, ruling {3 if v_novoice is None else 91})"
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index ed2b1e39..fefacdc6 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -530,10 +530,11 @@ class Rig:
+                  spend=None, no_hook=(), a_fail=None, unavailable=(), angle_from=None, write_from=None,
+                  trim_fail=(), hooks=None, hook_err=None, verdicts=None, follow_up=None, fids=None, lines=None,
+                  cached=False, candidate=None, visuals=None, registered=None, lock_check=None, values=None,
+-                 real_value=False):
++                 real_value=False, caption=None):
+         import providers as P
+         self.values, self.value_calls = list(values or []), []   # ruling 91: the value verdicts' answers, in order
+         self.real_value = real_value                       # ruling 91: package.takeaway_value itself, on the router
++        self.caption = caption or "nobody bends these rules"   # 07:30 (C): a caption that fails its own gates
+         self.P, self.moments, self.medleys, self.writes = P, moments, list(medleys), list(writes)
+         self.takeaways, self.spend = list(takeaways or []), spend
+         self.uncuttable, self.excluded, self.no_hook = set(uncuttable), set(excluded), set(no_hook)
+@@ -625,7 +626,7 @@ class Rig:
+         fields = {"takeaway": {"text": self.takeaways.pop(0) if self.takeaways else self.LINE, "cites": []}, "bridge": b,
+                   "bridge_after": join[0] if join is not None and b is not None else None,
+                   "title": {"text": "Nobody bends the rules", "cites": []},
+-                  "caption": {"text": "nobody bends these rules", "cites": []},
++                  "caption": {"text": self.caption, "cites": []},
+                   "type": "moments", "angle": angle_["angle"], "style": "medley", "takeaway_budget": [10, 30]}
+         return self.P.Reply("{}", self.write_from[0], self.write_from[1], family=self.write_from[2]), fields
+ 
+@@ -3261,17 +3262,94 @@ class TestRuling91MedleyHalf(unittest.TestCase):
+         self.assertEqual([x["text"] for x in tried["value_lost"]], [Rig.LINE])
+         self.assertEqual(tried["result"], "PACKAGE")
+ 
+-    def test_a_second_loss_ends_the_line_up_and_never_adds_a_clip(self):
+-        ms = self.SHORT + [pm("z", "D", 13.0)]                                    # ruling 3 would add z (52 s)
+-        rig = Rig(ms, ["h", "x", "y", "z"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
++    def test_a_lost_takeaway_takes_the_one_no_voice_shape_with_the_added_clip(self):
++        """The orchestrator's 07:30 ruling (A): "the no-voice shape is one shape whatever removed the takeaway (two
++        failed writes, or the value verdict's no): clips back to back, the sign-off, and the added clip when the seconds
++        need it, each added clip passing every clip gate and the joins as usual." No rewrite is spent."""
++        ms = self.SHORT + [pm("z", "D", 13.0)]                                    # 39 s + z = 52 s with no VO line
++        rig = Rig(ms, ["h", "x", "y", "z"], self.MED * 2, [None], values=[{"adds": "no", "why": "it restates"}])
++        out = rig.run()
++        pk = out["package"]
++        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y", "z"])
++        self.assertEqual(pk["no_voice"]["added_clip"], "z")
++        self.assertIn("one clip added (z)", pk["no_voice"]["why"])
++        self.assertEqual(pk["no_voice"]["value"]["adds"], "no")
++        self.assertEqual(rig.medley_calls[-1], ["h", "x", "y", "z"])          # the new line-up judged on the clips alone
++        self.assertEqual((len(rig.write_calls), len(rig.value_calls)), (1, 1))  # no rewrite of the takeaway
++        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 91)")
++        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
++        self.assertNotIn("takeaway_value", pk["gates"])
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
++        self.assertEqual(mp["edl_vo"], {"intro": None, "bridges": []})
++
++    def test_a_failed_no_voice_line_up_ends_the_line_up_without_a_rewrite(self):
++        """As on ruling 3's path: the added clip's line-up fails the clips-alone verdict, so there is no package, and
++        the takeaway is not rewritten (a no-voice line-up existed)."""
++        ms = self.SHORT + [pm("z", "D", 13.0)]
++        rig = Rig(ms, ["h", "x", "y", "z"], self.MED + [(False, [], {"clip_03": 2}, Rig.LINE)], [None],
++                  values=[{"adds": "no"}])
++        out = rig.run()
++        self.assertIsNone(out["package"])
++        self.assertEqual(len(rig.value_calls), 1)
++        self.assertIn("ruling 91", out["tried"][0]["why"])
++        self.assertIn("fails on the clips alone", out["tried"][0]["why"])
++
++    def test_a_doomed_clip_is_never_the_added_clip(self):
++        """Audit 0734 C1 (qwen's condition): z fails exclusion in angle 1's line-up, so it is doomed for the whole build.
++        Angle 2's takeaway then loses its value verdict on 39 s of clips: nv_order skips z, no no-voice line-up exists,
++        and ruling 91's one rewrite is used instead."""
++        ms = self.SHORT + [pm("z", "D", 13.0)]
++        rig = Rig(ms, [["h", "z", "y"], ["h", "x", "y", "z"]], self.MED * 2, [None, None], excluded={"z"},
++                  lines=[{"takeaway": {"text": self.NEW, "cites": []}}], values=[{"adds": "no"}])
++        out = rig.run()
++        pk = out["package"]
++        self.assertIn("'z': 'exclusion'", out["tried"][0]["why"])                # doomed in angle 1
++        self.assertEqual([s["moment_id"] for s in pk["segments"]], ["h", "x", "y"])   # never added back
++        self.assertNotIn("no_voice", out["tried"][-1])
++        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "takeaway"), self.NEW)
++        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])
++
++    def test_a_lone_caption_failure_with_a_clip_failing_its_gate_ends_cleanly(self):
++        """Audit 0734 C2 (grok): the no-voice line-up's caption fails alone AND its added clip fails exclusion. The
++        clip's gate ends it first (return None before any verdict is read): no fixed caption, no unbound name."""
++        restore = self.contexts_pass()
++        try:
++            rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED * 2, [None],
++                      values=[{"adds": "no"}], caption=self.UPPER, excluded={"z"})
++            out = rig.run()
++        finally:
++            restore()
++        self.assertIsNone(out["package"])
++        nv = out["tried"][0]["no_voice"]
++        self.assertEqual(nv["why_not"], "a clip fails exclusion, the second pass or CUTTABLE")
++        self.assertNotIn("caption_fallback", nv)
++
++    def test_a_value_loss_leaves_a_registered_line_up_to_the_registry(self):
++        """Audit 0734 C2 (glm): on ruling 91's path too, the only clip that would land the seconds forms a registered
++        line-up, so it is left to the registry (ruling 66): no no-voice line-up exists, the reason is recorded, and the
++        one rewrite is used."""
++        rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED, [None],
++                  lines=[{"takeaway": {"text": self.NEW, "cites": []}}], values=[{"adds": "no"}],
++                  registered={("h", "x", "y", "z"): {"key": "h+x+y+z", "state": "resting", "until": None,
++                                                     "source": "proof/ledger_x", "index": 0}})
++        out = rig.run()
++        plan = out["tried"][0]["no_voice_plan"]
++        self.assertEqual(plan["registered_skipped"], ["h+x+y+z"])
++        self.assertIn("left to the registry", plan["why_not"])
++        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])                    # h+x+y+z never judged
++        self.assertEqual(next(x["text"] for x in out["package"]["lines"] if x["slot"] == "takeaway"), self.NEW)
++
++    def test_a_second_loss_ends_the_line_up_when_no_no_voice_line_up_exists(self):
++        """No clip of the angle can be added (h, x, y are all it has), so ruling 91's one rewrite is used; its loss
++        ends the line-up."""
++        rig = Rig(self.SHORT, ["h", "x", "y"], self.MED, [None], lines=[{"takeaway": {"text": self.NEW, "cites": []}}],
+                   values=[{"adds": "no"}, {"missed": "no"}])
+         out = rig.run()
+         self.assertIsNone(out["package"])
+         self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])   # one rewrite, no more
+-        self.assertIn("ruling 91", out["tried"][0]["why"])
+         self.assertIn("nor did its one rewrite", out["tried"][0]["why"])
+-        self.assertNotIn("no_voice", out["tried"][0])                            # never the no-voice shape with z
+-        self.assertEqual(rig.medley_calls, [["h", "x", "y"]])
++        self.assertIn("no no-voice line-up exists", out["tried"][0]["why"])
++        self.assertNotIn("no_voice", out["tried"][0])
+         self.assertIn("ruling 91", out["why_none"])
+ 
+     def test_no_verdict_is_a_loss(self):
+@@ -3294,18 +3372,118 @@ class TestRuling91MedleyHalf(unittest.TestCase):
+         self.assertEqual(out["package"]["no_voice"]["added_clip"], "z")          # ruling 3 may still add a clip
+         self.assertNotIn("value", out["package"]["no_voice"])
+ 
+-    def test_a_value_loss_never_counts_toward_ruling_3s_two_failures(self):
+-        """One value loss, one ordinary failure (its rewrite breaks house style), then a second value loss: the
+-        takeaway failed its OTHER gates once, so ruling 3's no-voice (which would add z) is not reached."""
+-        bad = "Ultimately nobody bends the rules."                                # house style: the opener
+-        rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED * 2, [None, None],
+-                  takeaways=[Rig.LINE, self.NEW], lines=[{"takeaway": {"text": bad, "cites": []}}],
+-                  values=[{"adds": "no"}, {"adds": "no"}])
+-        out = rig.run()
+-        self.assertIsNone(out["package"])
+-        self.assertEqual([c["line"] for c in rig.value_calls], [Rig.LINE, self.NEW])   # the bad line never reached it
+-        self.assertNotIn("no_voice", out["tried"][0])
+-        self.assertIn("ruling 91", out["tried"][0]["why"])
++    @staticmethod
++    def contexts_pass():
++        """context_integrity stubbed to a measured pass (the fixed caption's own context run calls it directly);
++        returns the restore function."""
++        import context_integrity as CI
++        saved = (CI.check_contexts, CI.contexts_from_sources)
++        CI.check_contexts = lambda *a, **k: {"ok": True, "violations": [], "measured": True, "replayed": False,
++                                             "backends": {"B": "xai", "C": "xai"}}
++        CI.contexts_from_sources = lambda *a, **k: {}
++
++        def restore():
++            CI.check_contexts, CI.contexts_from_sources = saved
++        return restore
++
++    UPPER = "Nobody Bends These Rules."                           # house style: a caption is all lowercase
++    FIXED = "nobody bends the rules\na / b / c"                   # ruling 65 (b): the title lowercase, then the shows
++
++    def test_c_a_no_voice_caption_that_fails_its_cheap_gates_becomes_the_fixed_caption(self):
++        """The orchestrator's 07:30 ruling (C): "on a no-voice path, when only the caption fails its gates, ruling 65
++        (b)'s fixed caption is used and the line-up goes on (caption_fallback: true, as there)."""
++        restore = self.contexts_pass()
++        try:
++            rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no"}], caption=self.UPPER)
++            out = rig.run()
++        finally:
++            restore()
++        pk = out["package"]
++        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 91)")
++        self.assertTrue(pk["caption_fallback"])
++        self.assertEqual(pk["caption"], self.FIXED)
++        self.assertEqual(next(x["text"] for x in pk["lines"] if x["slot"] == "caption"), self.FIXED)
++        self.assertEqual(pk["title"], "Nobody bends the rules")                  # the title as written and gated
++        cf = out["tried"][0]["no_voice"]["caption_fallback"]
++        self.assertEqual((cf["written"], cf["fixed"]), (self.UPPER, self.FIXED))
++        self.assertTrue(cf["refused"])
++        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
++        self.assertIn("ruling 65 b", pk["checks"]["fidelity"]["backend"])        # no model judged the fixed line
++        mp = package_pin.to_pin(spk(pk), "test")["moments_package"]
++        self.assertTrue(mp["caption_fallback"])
++        self.assertEqual(mp["caption"], self.FIXED)
++
++    def test_c_a_no_voice_caption_that_fails_its_verdict_becomes_the_fixed_caption(self):
++        restore = self.contexts_pass()
++        try:
++            bad = TestRuling66Amended().failing("caption", "it says the clips agree", "VERDICT_NO")
++            rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no"}], fids=[bad])
++            out = rig.run()
++        finally:
++            restore()
++        pk = out["package"]
++        self.assertTrue(pk["caption_fallback"])
++        self.assertEqual(pk["caption"], self.FIXED)
++        self.assertTrue(all(g["status"] == "PASS" for g in pk["gates"].values()), pk["gates"])
++        self.assertEqual(out["tried"][0]["no_voice"]["caption_fallback"]["refused"][0]["rule"], "VERDICT_NO")
++
++    def test_c_a_failing_title_still_holds_and_so_do_a_title_and_caption_together(self):
++        """"The title keeps ruling 65 (c)": no fixed title. A title failing alone, or with the caption, holds."""
++        restore = self.contexts_pass()
++        try:
++            title_bad = TestRuling66Amended().failing("title", "it names no show", "VERDICT_NO")
++            rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no"}], fids=[title_bad])
++            out = rig.run()
++            self.assertIsNone(out["package"])
++            self.assertIn("title / caption fail", out["tried"][0]["no_voice"]["why_not"])
++            self.assertNotIn("caption_fallback", out["tried"][0]["no_voice"])
++            rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no"}], fids=[title_bad],
++                      caption=self.UPPER)                                       # both lines fail: no lone caption
++            out = rig.run()
++            self.assertIsNone(out["package"])
++            self.assertNotIn("caption_fallback", out["tried"][0]["no_voice"])
++        finally:
++            restore()
++
++    def test_c_the_fixed_caption_still_passes_its_own_gates_or_the_line_up_ends(self):
++        """As there (ruling 65 b): the fixed line has no model verdict, but context integrity on the package as it will
++        be sealed still decides. A failing run ends the line-up; nothing ships unchecked."""
++        import context_integrity as CI
++        saved = (CI.check_contexts, CI.contexts_from_sources)
++        failing = {"ok": False, "violations": [{"rule": "STRONGER", "segment": "hook", "detail": "x"}], "measured": True,
++                   "replayed": False, "backends": {"B": "xai", "C": "xai"}}
++        unmeasured = {"ok": False, "violations": [], "measured": False, "replayed": False,     # audit 0734 C3 (grok):
++                      "error": "ProviderError: no verdict", "backends": {}}                    # nothing measured
++        for run in (failing, unmeasured):
++            CI.check_contexts = lambda *a, **k: dict(run)
++            CI.contexts_from_sources = lambda *a, **k: {}
++            try:
++                rig = Rig(self.FITS, ["h", "x", "y"], self.MED, [None], values=[{"adds": "no"}], caption=self.UPPER)
++                out = rig.run()
++            finally:
++                CI.check_contexts, CI.contexts_from_sources = saved
++            self.assertIsNone(out["package"], run)
++            nv = out["tried"][0]["no_voice"]
++            self.assertIn("the fixed caption", nv["why_not"], run)
++            self.assertEqual(nv["caption_fallback"]["fixed"], self.FIXED, run)
++
++    def test_c_ruling_3s_no_voice_path_takes_the_fixed_caption_too(self):
++        """(C) covers either no-voice path: the takeaway failed its gates twice (ruling 3), clip z is added, and the
++        latest write's caption, failing alone, becomes the fixed line."""
++        bad = ["Ultimately the network decides what it is worth.", "In the end the rules decide everything here."]
++        restore = self.contexts_pass()
++        try:
++            rig = Rig(self.SHORT + [pm("z", "D", 13.0)], ["h", "x", "y", "z"], self.MED * 2, [None, None],
++                      takeaways=bad, caption=self.UPPER)
++            out = rig.run()
++        finally:
++            restore()
++        pk = out["package"]
++        self.assertEqual(out["tried"][0]["result"], "PACKAGE (no voice, ruling 3)")
++        self.assertEqual(pk["no_voice"]["added_clip"], "z")
++        self.assertTrue(pk["caption_fallback"])
++        self.assertEqual(pk["caption"], "nobody bends the rules\na / b / c / d")
++        self.assertEqual(rig.value_calls, [])                                  # house style refused both takeaways first
+ 
+     def test_the_real_verdict_runs_inside_the_build_and_its_row_seals(self):
+         """build() with package.takeaway_value itself (not the Rig's stub), only the router faked: a clear yes seals

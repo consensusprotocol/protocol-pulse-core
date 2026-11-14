@@ -1,0 +1,58 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse's moments-first video builder). Only state what you
+can verify from the diff; if uncertain, say so; do not guess. Be specific: file:line and a concrete input that breaks it.
+
+BACKGROUND (static):
+- A MEDLEY pin: the hook clip + 2-4 clips back to back, then at most ONE spoken VO line after the LAST clip (the
+  takeaway), then a code-written sign-off. package.build() writes the takeaway, gates it, and seals a pin.
+- THE NO-VOICE SHAPE (ruling 3, Nov 12): when the takeaway is removed, the package ships with NO VO line: clips back to
+  back and the sign-off. When the clips are too short for the 60-70 s format, ONE more clip of the angle is added (the
+  proposer's order), and the new line-up is judged on the clips alone again; every clip gate runs.
+- RULING 91's medley half (committed earlier today, 6626c45d): every written takeaway gets ONE value verdict (four
+  clear yeses) before any paid gate; a takeaway that loses it never ships. The text: "a medley that loses its takeaway
+  falls back to L-y's no-voice shape only if its clips meet the seconds; otherwise the takeaway may be rewritten once."
+  As committed, a value loss went to the no-voice shape only on the line-up's OWN clips (never an added clip), else one
+  rewrite of the takeaway alone; a second loss ended the line-up.
+- RULING 65 (b): when a medley's caption fails its gates, the caption becomes a FIXED line written by code (the title in
+  lowercase, a line break, the shows' names; caption_fallback true): no model verdict on it, but its deterministic layer,
+  the house style and context integrity still run. Ruling 65 (c): a failing title is held (no fixed title).
+
+THE ORCHESTRATOR'S RULINGS (07:30 ET Nov 14), verbatim:
+(A) "NO. Ruling 91 does not end ruling 3's added clip. The no-voice shape is one shape whatever removed the takeaway
+    (two failed writes, or the value verdict's no): clips back to back, the sign-off, and the added clip when the seconds
+    need it, each added clip passing every clip gate and the joins as usual."
+(C) "YES, build it: on a no-voice path, when only the caption fails its gates, ruling 65 (b)'s fixed caption is used and
+    the line-up goes on (caption_fallback: true, as there). The title keeps ruling 65 (c)."
+
+THE BUILDER'S READING OF (A), stated on STATE for the orchestrator:
+a value verdict's no removes the takeaway and the ONE no-voice shape follows (own clips, or the added clip when the
+seconds need it). Ruling 91's one rewrite is used only when NO no-voice line-up can be formed (no clip lands the
+seconds, or a join needs a bridge). A no-voice line-up that then fails a gate ends the line-up, as on ruling 3's path.
+
+THE CHANGE (pipeline/package.py; the diff follows):
+1. nv_order() (a closure in build()): the no-voice line-up decided by code before any paid call, with ruling 3's own
+   rules moved out of no_voice() unchanged. no_voice() uses it for BOTH rulings; the "no clip added on the ruling-91
+   path" guard is gone. The module-level no_voice_fits() (own clips only) is removed: nothing calls it now.
+2. The value-loss branch asks nv_order(): a line-up exists -> break to no_voice(value=...) (which adds the clip when
+   needed and judges the new line-up on the clips alone); none -> one rewrite; a second loss ends the line-up.
+3. fixed_caption_gates(): ruling 65 (b)'s fixed-caption gating, extracted unchanged from rewrite_alone() (which now
+   calls it), and used by no_voice() when ONLY the caption fails, by ruling 65's own trigger: every cheap and fidelity
+   violation on the caption slot, context integrity passing, the fidelity verdict measured. The fixed line's cheap
+   gates, merged fidelity and context integrity must then pass, or the line-up ends. A failing title still holds.
+4. Tests (tests/package/test_medley.py): (A) the added clip on a value loss; a failed no-voice line-up ends without a
+   rewrite; the rewrite only when no no-voice line-up exists. (C) the fixed caption after a cheap failure and after a
+   verdict failure; a failing title holds (alone or with the caption); the fixed line's own context run still decides;
+   ruling 3's path gets it too. One test removed: "a value loss never counts toward ruling 3's two failures" (under (A)
+   both paths lead to the same shape, so that count changes no outcome). 15 mutations, each killed. 19 suites, 543 tests.
+
+ATTACK:
+(a) Is (A) implemented exactly: same shape and same added-clip rules on both paths; no path where a value loss adds a
+    clip that ruling 3 would not, or vice versa; the added clip's line-up judged on the clips alone again?
+(b) Is the extraction of fixed_caption_gates() behaviour-preserving for ruling 65's voiced path (rewrite_alone)?
+(c) (C): can a fixed caption ship when anything OTHER than the caption failed (the title, a "-" rule such as RUNTIME
+    or R4, a clip's own gate, context integrity)? Can a fixed caption skip its own gates?
+(d) Is nv_order() deterministic and identical between the in-loop decision and the post-loop no_voice() call (same
+    dropped / doomed / registry state), so the decision to skip the rewrite always matches what no_voice() does?
+(e) The removed test and the removed no_voice_fits(): any remaining caller or any behaviour now untested?
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario), then
+"SHIP: yes / no / yes with conditions".

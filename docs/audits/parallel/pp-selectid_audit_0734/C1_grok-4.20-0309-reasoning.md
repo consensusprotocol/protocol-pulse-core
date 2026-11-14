@@ -1,0 +1,7 @@
+# grok-4.20-0309-reasoning (grok-4.20-0309-reasoning) 68 s finish=stop usage in 16959 / out 264 usd~0.091 (upper-bound price)
+
+<medium> pipeline/package.py:60 (rewrite_alone call to fixed_caption_gates): extraction changes pk3 construction from build_pk(line, msg) to assemble_medley(..., by_id, dict(fields, caption=line), ctx, f"{pk.get('vo_kind')}; {why}"); old code used a_use(pk3) for context call while new uses dict comp on pk3["segments"]. Cannot verify exact preservation for voiced ruling-65 path (no test in diff exercises rewrite_alone + fixed_caption).</medium>
+<medium> pipeline/package.py:247 (no_voice call to fixed_caption_gates): passes 'cleared' as by_id param (and order as segs) vs. voiced path passing explicit by_id; function assumes they are interchangeable dicts but diff provides no proof they are identical for all inputs (e.g. a moment_id present in by_id but absent from cleared after prior drops).</medium>
+<medium> tests/package/test_medley.py:328 (test_a_lost_takeaway...): asserts pk["no_voice"]["added_clip"] but diff does not show note["added_clip"] = added (only note["why"] uses added and note["registered_skipped"]); uncertain how key appears on final pk without guessing unshown code.</medium>
+
+SHIP: yes
