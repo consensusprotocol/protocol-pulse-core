@@ -1,0 +1,534 @@
+diff --git a/pipeline/eligibility.py b/pipeline/eligibility.py
+index 65c73c4..213a069 100644
+--- a/pipeline/eligibility.py
++++ b/pipeline/eligibility.py
+@@ -436,7 +436,7 @@ def _span(span, ctx, role):
+     if conj:
+         targets.append(f"opens on the conjunction{'s' if len(conj) > 1 else ''} {' '.join(conj)!r}")
+     if rest:                       # pronoun / reply-word openers are not in L-o: still hard, after any conjunction too
+-        sc = (ctx.scorer or {}).get(span.key) if role == "clip" else None
++        sc = (ctx.scorer or {}).get(span.key) if role in ("clip", "hook") else None   # ruling 94 (b): the hook too
+         ok, why = stand_alone.opener(role, rest, *(sc if sc else (None, None)))
+         if not ok:
+             R("opener", why + (f" (after {' '.join(conj)!r})" if conj else ""))
+diff --git a/pipeline/package.py b/pipeline/package.py
+index 07c997d..aed90c6 100644
+--- a/pipeline/package.py
++++ b/pipeline/package.py
+@@ -1167,7 +1167,8 @@ def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name, ex
+         left = [(m, no_role_on_screen(m), no_topic(m)) for m in
+                 ({k: x for k, x in m.items() if k != "scorer_verdict"} for m in ms)]
+         ask = [m for m, o, t in left if o and not t] + \
+-            [v for m, o, t in left if o or t for v in [trim_variant(m, sources)] if v]
++            [v for m, o, t in left if o or t or hook_trim(m) for v in [trim_variant(m, sources)] if v] + \
++            [m for m, o, t in left if not o and not t and third_opener(m)]      # ruling 94 (a), (b): the hook's
+         have = {(m["moment_id"], text_sha(m["text"])) for m in ask}
+         for m in extra or ():                            # ruling 90: once each (same id and text)
+             k = (m["moment_id"], text_sha(m["text"]))
+@@ -1221,14 +1222,37 @@ def can_open(m):
+     return _can_open(m)
+ 
+ 
+-def _can_open(m):
++def hook_trim(m):
++    """RULING 94 (a): the moment opens on a conjunction or reply word that ruling 33's ONE-word trim may cut
++    (TRIM_WORDS): its trim variant is what may open, whatever its clip role."""
++    import stand_alone as SA
++    w = SA._words(m.get("text") or "")[:1]
++    return bool(w) and w[0] in TRIM_WORDS
++
++
++def third_opener(m):
++    """RULING 94 (b): the moment opens on a third-person or demonstrative pronoun: as a hook it needs the clip scorer's
++    affirmation (stand_alone.THIRD)."""
++    import stand_alone as SA
++    w = SA._words(m.get("text") or "")[:1]
++    return bool(w) and w[0] in SA.THIRD
++
++
++def _can_open(m, pending_verdict=False):
+     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
+     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
+     59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
+     (an unmeasured rating is never a pass, law L-m). A moment without the key is judged as before ruling 59."""
+     import stand_alone as SA
+-    if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True
+-            and SA.opener("hook", m.get("text") or "")[0]):
++    v = verdict_of(m)                                    # RULING 94 (b): the scorer's verdict on its current text
++    sc = (v["score"], v["fault"]) if v else (None, None)
++    if pending_verdict and v is None and third_opener(m):
++        sc = (5, None)                                   # the spotlight's ALONE >= 4 decides it later (never sealed
++    hook = (m.get("eligibility") or {}).get("hook") or {}  # without a verdict: stand_alone_check reads the real one)
++    elig = hook.get("ok") or (set(hook.get("reasons") or []) == {"opener"} and   # the ledger had no verdict to read
++                              SA.opener("hook", m.get("text") or "", *sc, moments=True)[0])
++    if not (elig and (m.get("hook_onset") or {}).get("pass") is True and
++            SA.opener("hook", m.get("text") or "", *sc, moments=True)[0]):
+         return False
+     if "hook_rating" not in m:
+         return True                                      # not rated yet: judged as before ruling 59
+@@ -2253,11 +2277,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
+                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
+     admitted = sorted(m["moment_id"] for m in ms if verdict_of(m) and m["moment_id"] not in no_role)   # ruling 56
+-    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms if m["moment_id"] in no_role
+-             for v in [trim_variant(m, sources)] if v}
++    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms
++             if m["moment_id"] in no_role or hook_trim(m)                   # ruling 94 (a): a hook's trim variant
++             for v in [trim_variant(m, sources)] if v}                      # joins the pool (the original stays a clip)
+     trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
+     trims = {k: v for k, v in trims.items() if k not in trim_out}
+-    ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42)
++    ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42);
++    #   a variant of a moment that keeps its own place (ruling 94 a) sits beside it: one line-up never takes both (one
++    #   video at most once, L-y 4)
+     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
+     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
+     wv, wf = _writers(router)
+diff --git a/pipeline/spotlight.py b/pipeline/spotlight.py
+index effb73e..3a0a61d 100644
+--- a/pipeline/spotlight.py
++++ b/pipeline/spotlight.py
+@@ -60,6 +60,8 @@ CLOSING_MAX_WORDS = PP.SPOT_CLOSING_MAX_WORDS   # 12
+ COMMENT_MAX_LINES = 2                  # ruling 90: "one or two short casual lines"
+ COMMENT_MAX_WORDS = 30
+ MARKER_TOL_S = 1.0                     # = ledger_build.MARKER_EDGE_S: a caption marker this close to an edge is not in
++TRIM_MARGIN_S = 1.0                    # RULING 94 (a): a moment to be trimmed is snapped this much further, so the
++                                       # ONE trimmed word never takes it back under SNAP_TO_S
+ LAYOUTS = ("conversation", "first_hand", "recap", "reaction", "other")
+ LAYOUT_OK = ("conversation", "first_hand")
+ CONVERSATION_TPM = 1.0                 # ruling 92's caption half (see source_test)
+@@ -106,7 +108,7 @@ def record_spotlit(path, row):
+     os.replace(path + ".tmp", path)
+ 
+ 
+-def snap(m, sources, ctx, captions_for=None):
++def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
+     """RULING 90 with ruling 32's snap: a moment shorter than SNAP_TO_S is snapped OUTWARD to the speaker's whole
+     thought: whole sentences of the SAME word record, the next ones first (the speaker going on), then the ones before
+     it, until it lasts SNAP_TO_S, never past SPOT_S[1] and never across a caption speaker-change marker (ruling 69's
+@@ -145,10 +147,10 @@ def snap(m, sources, ctx, captions_for=None):
+     dur, why = measure(a, b)
+     if dur is None:
+         return None, f"the moment itself: {why}"
+-    if dur >= SNAP_TO_S:
++    if dur >= target:
+         return m, None                                 # long enough: no snap, the moment as it is
+     blocked = []
+-    while dur < SNAP_TO_S:
++    while dur < target:
+         step = None
+         for na, nb, side in ((a, b + 1, "the next sentence"), (a - 1, b, "the sentence before")):
+             if na < 0 or nb >= n:
+@@ -203,11 +205,11 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
+         if m["channel_id"] in taken:
+             why[mid] = f"ruling 90: this channel already has a spotlight on {day} (ET)"
+             continue
+-        v = m
+-        if float(m["duration_s"]) < SNAP_TO_S:
+-            v, w = snap(m, sources, ctx, captions_for)
++        v, target = m, SNAP_TO_S + (TRIM_MARGIN_S if P.hook_trim(m) else 0.0)
++        if float(m["duration_s"]) < target:
++            v, w = snap(m, sources, ctx, captions_for, target=target)
+             if v is None:
+-                why[mid] = f"ruling 90: {m['duration_s']} s is under {SNAP_TO_S:g} s and the snap fails: {w}"
++                why[mid] = f"ruling 90: {m['duration_s']} s is under {target:g} s and the snap fails: {w}"
+                 continue
+             ok, w2 = P.usable([v], ctx, delivered, optout, seg_max=SPOT_S[1])
+             if not ok:
+@@ -217,9 +219,18 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
+         if v["moment_id"] in seen:
+             why[mid] = f"the same span as {v['moment_id']}, already in the pool"
+             continue
++        if P.hook_trim(v):                             # RULING 94 (a): ruling 33's one-word trim variant is what
++            t = P.trim_variant(v, sources)             # opens; the trim must cut cleanly (build: hook_onset's trim
++            if t is None:                              # record) and the ALONE scorer must affirm it
++                why[mid] = f"ruling 94 (a): it opens on {SA._words(v.get('text') or '')[:1]} and has no trim variant"
++                continue
++            if t["duration_s"] < SNAP_TO_S:
++                why[mid] = f"ruling 94 (a): trimmed, {t['duration_s']} s is under {SNAP_TO_S:g} s"
++                continue
++            v = t
+         ok, w = SA.opener("hook", v.get("text") or "")
+-        if not ok:
+-            why[mid] = f"ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): {w}"
++        if not ok and not P.third_opener(v):           # RULING 94 (b): a third-person opener is judged by the ALONE
++            why[mid] = f"ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): {w}"   # scorer (>= 4)
+             continue
+         top = P.no_topic(v)
+         if top:
+@@ -269,6 +280,43 @@ def source_test(turns, layout):
+                                       if (turns or {}).get("measured") else "; captions unmarked")
+ 
+ 
++def next_attempt(rows, word_pass, now, captions_for=None):
++    """RULING 95 (00:40 ET Nov 14): when a build ends with no medley and no spotlight, when the next qualifying episode
++    could arrive. The NEWEST conversation upload among the adapter's rows: caption turns from pp-ingest's `episode`
++    (mine-hook/2 rows), else episode_turns(), at least CONVERSATION_TPM a minute (an unmarked episode is not counted:
++    unknown). Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
++    waiting (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
++    "newest_upload": {...} or None}."""
++    from datetime import datetime, timedelta, timezone
++    import package_pin as PPN
++    by_vid = {}
++    for r in rows or ():
++        if isinstance(r, dict) and r.get("video_id"):
++            by_vid.setdefault(r["video_id"], []).append(r)
++
++    def state(vid, rs):
++        pub = P.utc_z(rs[0].get("published_at"))
++        ep = next((r.get("episode") for r in rs if isinstance(r.get("episode"), dict)), None)
++        tpm, frm = (ep or {}).get("turns_per_min"), "pp-ingest episode"
++        if not isinstance(tpm, (int, float)) and not (ep or {}).get("unmarked"):
++            t = episode_turns(vid, captions_for)
++            tpm, frm = t.get("turns_per_min"), "the caption record (recount)"
++        passes = {}
++        for r in rs:
++            k = f"{(r.get('mined') or {}).get('pass')}/{(r.get('mined') or {}).get('prompt_version')}"
++            passes[k] = passes.get(k, 0) + 1
++        ready = sum(1 for r in rs if (word_pass.get(r.get("moment_id")) or {}).get("sentence_ready"))
++        exp = (datetime.strptime(pub, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) +
++               timedelta(hours=PPN.WINDOW_H)).strftime("%Y-%m-%dT%H:%M:%SZ") if pub else None
++        return {"video_id": vid, "channel": rs[0].get("channel_name"), "published_at": pub, "expires_at": exp,
++                "turns_per_min": tpm, "turns_from": frm, "rows": len(rs), "passes": passes,
++                "word_pass_ready": ready, "word_pass_waiting": len(rs) - ready}
++    sts = sorted((state(v, rs) for v, rs in by_vid.items()), key=lambda x: x["published_at"] or "", reverse=True)
++    conv = [x for x in sts if isinstance(x["turns_per_min"], (int, float)) and x["turns_per_min"] >= CONVERSATION_TPM]
++    return {"conversation": conv[0] if conv else None, "newest_upload": sts[0] if sts else None,
++            "rule": f"the newest upload with >= {CONVERSATION_TPM:g} caption turns a minute (ruling 95)"}
++
++
+ LAYOUT_PROMPT = """You see a contact sheet of {n} frames of ONE clip from a Bitcoin video, left to right and top to
+ bottom. The clip's words, as spoken: "{text}"
+ From the frames only, classify the SOURCE's format:
+@@ -748,8 +796,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
+         m["hook_onset"] = P.hook_onset_for(m, sources, work_dir, hk)
+         m.pop("hook_rating", None)                       # a rating is this build's own (its cache's)
+         m.pop("visual_hook_block", None)
+-        if P._can_open(m):
+-            openers[mid] = m
++        trim = (m["hook_onset"] or {}).get("trim") or {}
++        if m.get("trimmed_leading") and trim.get("pass") is not True:          # RULING 94 (a): the trim cuts cleanly
++            stop(mid, f"ruling 94 (a): the trimmed cut is not clean: {trim.get('why') or 'not measured'}")
++        elif P._can_open(m, pending_verdict=True):     # ruling 94 (b): a third-person opener waits for the ALONE
++            openers[mid] = m                           # scorer, which must give >= 4 below
+         else:
+             stop(mid, f"it cannot open cold: hook eligibility, G17a ({(m['hook_onset'] or {}).get('why')}) or the "
+                       f"render's hook rule")
+diff --git a/pipeline/stand_alone.py b/pipeline/stand_alone.py
+index a8b2f45..b15cb36 100644
+--- a/pipeline/stand_alone.py
++++ b/pipeline/stand_alone.py
+@@ -21,6 +21,8 @@ CONJUNCTIONS = {"and", "but", "or", "so", "because", "cause", "which", "also", "
+                 "although", "whereas", "nor", "yet"}          # = editorial_select.CONTINUATION_OPENERS
+ PRONOUNS = {"i", "me", "my", "it", "its", "this", "that", "these", "those", "they", "them", "their", "he", "him",
+             "his", "she", "her", "we", "us", "our", "you", "your", "there"}
++FIRST_SECOND = {"i", "me", "my", "we", "us", "our", "you", "your"}   # RULING 94 (b): never a cold-open fault
++THIRD = PRONOUNS - FIRST_SECOND        # RULING 94 (b): a hook fault unless the clip scorer affirms it stands alone
+ REPLY_FRAGMENTS = {"yeah", "yes", "yep", "no", "nope", "right", "exactly", "absolutely", "totally", "sure", "okay",
+                    "ok", "oh", "well", "um", "uh", "agreed", "true", "correct", "indeed", "anyway", "anyways"}
+ BACKREF = {"it", "its", "this", "that", "these", "those", "they"}
+@@ -77,10 +79,20 @@ def opener(kind, text, score=None, fault=None, moments=False):
+     if not ws:
+         return False, "empty segment"
+     w = ws[0]
+-    if kind == "hook":
+-        for group, name in ((PRONOUNS, "pronoun"), (CONJUNCTIONS, "conjunction"), (REPLY_FRAGMENTS, "reply fragment")):
+-            if w in group:
++    if kind == "hook":                 # RULING 94 (orchestrator 00:40 ET Nov 14)
++        for group, name in ((CONJUNCTIONS, "conjunction"), (REPLY_FRAGMENTS, "reply fragment")):
++            if w in group:             # (a): only ruling 33's one-word trim variant may open (trimmed_opener)
+                 return False, f"hook opens on the {name} {w!r}: nothing is heard before a hook"
++        if w in FIRST_SECOND:          # (b): "I will bet you one Bitcoin that..." is a fine first line
++            return True, f"opens on the first/second-person {w!r} (ruling 94: not a cold-open fault)"
++        if w in THIRD:                 # (b): a referent outside the clip is the fault; the clip scorer judges it
++            if score is None:
++                return False, (f"hook opens on the third-person or demonstrative {w!r} and no clip-scorer verdict is "
++                               f"available (fail closed, ruling 94)")
++            if affirmed(score, fault, moments):
++                return True, (f"hook opens on {w!r}; the clip scorer affirms it stands alone ({score}, fault {fault}; "
++                              f"ruling 94)")
++            return False, f"hook opens on {w!r}; the clip scorer does not affirm it stands alone ({score}, fault {fault})"
+         return True, f"opens on {w!r}"
+     if w in CONJUNCTIONS or w in REPLY_FRAGMENTS:
+         if score is None:
+@@ -164,15 +176,17 @@ def trimmed_opener(word, score, fault, moments=False):
+ 
+ def check_edl(edl, rate=None, subject=("bitcoin", "btc"), screen=None, moments=False):
+     """Every segment of an EDL in order. rate(passages) -> {pid: (score, reason, fault)} is called only for
+-    clips opening on a conjunction / reply fragment (the clip scorer) and for every segment whose lock trims a leading
+-    word (ruling 33 part 2, the hook included); without it they fail closed.
++    clips opening on a conjunction / reply fragment (the clip scorer), for every segment whose lock trims a leading
++    word (ruling 33 part 2, the hook included), and for a hook opening on a third-person or demonstrative pronoun
++    (ruling 94 b); without it they fail closed.
+     screen (ruling 34, a moments package's carried BTC_SCREEN, compiled): each segment's TOPIC test is the screen,
+     and the medley must name Bitcoin (BITCOIN: bitcoin / btc) in at least one segment, the hook or a clip, in the
+     speaker's own words. screen None: every segment names the subject, as before (the story path).
+     moments (ruling 60, a moments pin): the scorer's verdict is read with affirmed(..., moments=True), the score alone."""
+     segs = [("hook", "hook", edl["hook"])] + [(f"clip_{c['index']:02d}", "clip", c) for c in edl.get("clips", [])]
+     need = [(label, s) for label, kind, s in segs if trimmed_word(s) or (kind == "clip" and _words(s.get("text"))[:1]
+-            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS))]
++            and (_words(s["text"])[0] in CONJUNCTIONS or _words(s["text"])[0] in REPLY_FRAGMENTS)) or
++            (kind == "hook" and _words(s.get("text"))[:1] and _words(s["text"])[0] in THIRD)]   # ruling 94 (b)
+     scores, rate_error = {}, None
+     if need and rate is not None:
+         try:
+diff --git a/pipeline/test_stand_alone.py b/pipeline/test_stand_alone.py
+index cdb3ce3..972272f 100644
+--- a/pipeline/test_stand_alone.py
++++ b/pipeline/test_stand_alone.py
+@@ -23,16 +23,28 @@ DATADASH = ("Bitcoin has now seen a 16 % decline from the overall high from $88
+ 
+ class TestOpener(unittest.TestCase):
+     def test_hook_must_fail(self):
+-        for text in (RUN6_HOOK, "I don't check it on an hourly basis. It seemed to have bounced.",
+-                     "It seemed to have bounced very nicely at $74,000.", "Yeah, Bitcoin is down 16 %.",
+-                     "So Bitcoin is down.", "We've seen Bitcoin lose 16 %."):
++        for text in (RUN6_HOOK, "It seemed to have bounced very nicely at $74,000.", "Yeah, Bitcoin is down 16 %.",
++                     "So Bitcoin is down.", "They sold it all at the bottom."):
+             ok, why = S.opener("hook", text)
+             self.assertFalse(ok, (text, why))
+ 
+     def test_hook_must_pass(self):
+-        for text in (DATADASH, "Michael Saylor is back. Strategy purchased 1 ,036 Bitcoin."):
++        for text in (DATADASH, "Michael Saylor is back. Strategy purchased 1 ,036 Bitcoin.",
++                     "I don't check it on an hourly basis. It seemed to have bounced.",      # RULING 94 (b): first or
++                     "We've seen Bitcoin lose 16 %.", "I will bet you one Bitcoin that it gets there."):   # second person
+             self.assertTrue(S.opener("hook", text)[0], text)
+ 
++    def test_ruling_94_a_third_person_hook_needs_the_scorer(self):
++        text = "This is ultimately a bipartisan issue."
++        self.assertFalse(S.opener("hook", text)[0])                                  # no verdict: fail closed
++        self.assertTrue(S.opener("hook", text, 4.0, "none", moments=True)[0])
++        self.assertFalse(S.opener("hook", text, 3.0, "none", moments=True)[0])
++        self.assertEqual(S.PRONOUNS, S.FIRST_SECOND | S.THIRD)
++        edl = {"hook": {"channel": "H", "text": text}, "clips": []}
++        r = S.check_edl(edl, rate=lambda ps: {p["pid"]: (4.0, "r", "none") for p in ps}, moments=True)
++        self.assertTrue(r["rows"][0]["opener"]["pass"], r["rows"][0])                # the hook is rated (check_edl)
++        self.assertFalse(S.check_edl(edl, rate=None, moments=True)["rows"][0]["opener"]["pass"])
++
+     def test_clip_conjunction_needs_the_scorer(self):
+         self.assertTrue(S.opener("clip", RUN6_CLIP01, 5.0, "none")[0])
+         self.assertFalse(S.opener("clip", RUN6_CLIP01, 3.0, "starts_mid_thought")[0])
+@@ -102,7 +114,8 @@ class TestAutoSelectionScreen(unittest.TestCase):
+     def test_selection_uses_the_same_rule(self):
+         import editorial_select as es
+         subj = S.subject_terms("Binance exchange", "Binance hacked for six billion dollars")
+-        self.assertFalse(es._stand_alone_ok("hook", "We just had, of course, Binance with $6 .3 billion in hacks.", subj)[0])
++        self.assertFalse(es._stand_alone_ok("hook", "They just had, of course, Binance with $6 .3 billion in hacks.",
++                                            subj)[0])                # ruling 94 (b): a third-person opener, no verdict
+         self.assertTrue(es._stand_alone_ok("hook", "Binance confirmed the hack this morning. It means six billion "
+                                                    "dollars of customer money left the exchange.", subj)[0])
+         self.assertFalse(es._stand_alone_ok("clip", RUN6_CLIP02, S.subject_terms("Bitcoin / US spot Bitcoin ETFs"))[0])
+diff --git a/tests/eligibility/test_eligibility.py b/tests/eligibility/test_eligibility.py
+index cd89e2d..583fe06 100644
+--- a/tests/eligibility/test_eligibility.py
++++ b/tests/eligibility/test_eligibility.py
+@@ -194,6 +194,14 @@ class TestSource(unittest.TestCase):
+         self.assertIs(E.eligible(nobody, ctx("evidence")).facts["layout_eligible"], False)
+         self.assertIn("layout_ineligible", E.eligible(nobody, ctx("clip")).names())
+ 
++    def test_ruling_94_pronoun_openers_on_the_hook(self):
++        first = source(["I will bet you one Bitcoin that it gets back to the highs before the end of next year."])
++        self.assertNotIn("opener", E.eligible(E.Span(first, 0, 0), ctx("hook")).names())    # (b): no fault
++        third = source(["They sold every Bitcoin they had at the very bottom of the market last week."])
++        r = E.eligible(E.Span(third, 0, 0), ctx("hook"))
++        self.assertIn("opener", r.names())                         # no verdict at the ledger: the pin stage decides
++        self.assertIn("no clip-scorer verdict", r.why())
++
+     def test_on_screen_needs_a_sentence_ready_word_record(self):
+         seg = source([HOOK_TXT], timing="segment", method="yt_auto:en")
+         self.assertTrue(E.eligible(seg, ctx("evidence")).ok)
+diff --git a/tests/package/proof_ledger.py b/tests/package/proof_ledger.py
+index 1a1371b..74013a1 100644
+--- a/tests/package/proof_ledger.py
++++ b/tests/package/proof_ledger.py
+@@ -257,6 +257,10 @@ def main(argv=None):
+                     spotlit=spotlit)
+     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
+                                                 "scorer_waited_s", "lock_stop", "scorer")}
++    try:                                                 # RULING 95: when the next qualifying episode could arrive
++        res["next_attempt"] = SPOT.next_attempt(rows, wp, now)
++    except Exception as e:                               # noqa: BLE001  a report, never the build
++        res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
+     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
+                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
+                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
+@@ -313,6 +317,11 @@ def main(argv=None):
+             res["spotlight_pin_refused"] = f"{type(e).__name__}: {e}"
+             say(f"SPOTLIGHT PIN REFUSED: {e}")
+     else:
++        na = (res.get("next_attempt") or {}).get("conversation") or {}
++        say(f"  RULING 95: the newest conversation upload: {na.get('channel')} {na.get('video_id')} published "
++            f"{na.get('published_at')} (expires {na.get('expires_at')}), {na.get('turns_per_min')} turns a minute, "
++            f"rows {na.get('passes')}, word pass {na.get('word_pass_ready')} ready / {na.get('word_pass_waiting')} "
++            f"waiting" if na else "  RULING 95: no conversation upload in the window")
+         say(f"no spotlight ({sp.get('why_none')})" + "".join(
+             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
+             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))
+diff --git a/tests/package/test_medley.py b/tests/package/test_medley.py
+index f1f2942..0497719 100644
+--- a/tests/package/test_medley.py
++++ b/tests/package/test_medley.py
+@@ -14,6 +14,8 @@ import json
+ import re
+ import os
+ import sys
++import shutil
++import tempfile
+ import unittest
+ from datetime import timedelta
+ 
+@@ -1090,6 +1092,65 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
+         self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
+ 
+ 
++class TestRuling94HookOpeners(unittest.TestCase):
++    """RULING 94 (00:40 ET Nov 14): (a) a hook opening on a conjunction or reply word opens as ruling 33's one-word trim
++    variant, whatever its clip role (the trim cuts cleanly, the scorer affirms it); (b) a first/second-person opener is
++    no fault; a third-person or demonstrative one needs the clip scorer's affirmation."""
++
++    def opener(self, text, reasons=(), verdict=None):
++        m = dict(pm("o", "O", 13.0), text=text, hook_onset={"pass": True, "measured": True})
++        m["eligibility"] = {"hook": {"ok": not reasons, "reasons": list(reasons)}, "clip": {"ok": True}}
++        return dict(m, scorer_verdict=verdict) if verdict else m
++
++    def test_first_and_second_person_open_and_third_person_needs_the_scorer(self):
++        self.assertTrue(PK._can_open(self.opener("I will bet you one Bitcoin that it gets there.")))
++        self.assertTrue(PK._can_open(self.opener("You know, Bitcoin is not done.")))
++        t = "This is ultimately a bipartisan issue for Bitcoin."
++        self.assertTrue(PK.third_opener({"text": t}))
++        self.assertFalse(PK._can_open(self.opener(t, ["opener"])))                         # no verdict: closed
++        self.assertTrue(PK._can_open(self.opener(t, ["opener"], sv(t, 4.0))))              # affirmed: open
++        self.assertFalse(PK._can_open(self.opener(t, ["opener"], sv(t, 3.0))))
++        self.assertTrue(PK._can_open(self.opener(t, ["opener"]), pending_verdict=True))   # the spotlight waits
++        self.assertFalse(PK._can_open(self.opener(t, ["opener", "hook_lead"], sv(t, 4.0))))   # another reason holds
++        self.assertFalse(PK._can_open(self.opener("So Bitcoin is down.")))                 # (a): only the trim opens
++        self.assertTrue(PK.hook_trim({"text": "So Bitcoin is down."}))
++        self.assertFalse(PK.hook_trim({"text": "Because Bitcoin is down."}))               # not a ruled trim word
++
++    def test_the_scorer_is_asked_for_a_hook_trim_and_a_third_person_opener(self):
++        d = tempfile.mkdtemp()
++        try:
++            src = source(["So Bitcoin has rarely seen six negative weeks back to back in its whole history."],
++                         vid="vS")
++            a, b = src.sentences[0]
++            so = dict(pm("s", "S", 0.0, vid="vS"), text=E.spoken(src.tokens[a:b + 1]), words=[a, b],
++                      start=float(src.tokens[a]["start"]), end=float(src.tokens[b]["end"]))
++            so = dict(so, scorer_verdict=sv(so["text"], 4.0))          # its CLIP role is affirmed as it is
++            this = dict(pm("t", "T", 12.0), text="This is ultimately a bipartisan issue for Bitcoin.")
++            plain = dict(pm("p", "P", 12.0), text="Bitcoin is the hardest money there is.")
++            PK.scorer_pass([so, this, plain], {"vS": src}, E.Context(NOW, REG), None,
++                           os.path.join(d, "c.json"), "b")
++            asked = [c["pid"] for c in json.load(open(os.path.join(d, "c.json")))["candidates"]]
++            self.assertIn("s~trim", asked)                              # (a): its hook trim variant
++            self.assertIn("t", asked)                                   # (b): the third-person opener itself
++            self.assertNotIn("p", asked)
++        finally:
++            shutil.rmtree(d, ignore_errors=True)
++
++    def test_a_hook_trim_variant_joins_the_pool_beside_its_affirmed_original(self):
++        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
++              dict(pm("s", "E", 13.0), text="So Bitcoin x.")]
++        v = dict(ms[4], moment_id="s~trim", text="Bitcoin x.", trimmed_leading="So", untrimmed_start=0.0)
++        saved = PK.trim_variant
++        try:
++            PK.trim_variant = lambda m, sources: v if m["moment_id"] == "s" else None
++            ok = {"s": fv("So Bitcoin x.", 4.0), "s~trim": fv("Bitcoin x.", 4.0)}   # the clip role affirmed as it is
++            out = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], verdicts=ok).run()
++        finally:
++            PK.trim_variant = saved
++        self.assertEqual(out["trimmed"], {"s": "s~trim"})               # ruling 94 (a): not only for no_role ones
++        self.assertIsNotNone(out["package"])
++
++
+ class TestRuling58StepAEveryCandidate(unittest.TestCase):
+     """RULING 58 (11:00): EVERY candidate is screened at step A, the miner's best first, and a verdict is cached by the
+     moment id + its text sha (and the exact context step A reads), so a moment is paid for once, not once per build."""
+diff --git a/tests/package/test_spotlight.py b/tests/package/test_spotlight.py
+index 438d123..f54e108 100644
+--- a/tests/package/test_spotlight.py
++++ b/tests/package/test_spotlight.py
+@@ -389,7 +389,7 @@ class TestPool(unittest.TestCase):
+         caps = lambda vid: (None, None)
+         long_ok = moment(mid="l", dur=30.0, channel="A")
+         too_long = moment(mid="t", dur=36.0, channel="B", text=TEXT.replace("money", "asset"))
+-        conj = moment(mid="c", channel="C", text="And " + TEXT.replace("money", "thing"))
++        conj = moment(mid="c", channel="C", text="Because " + TEXT.replace("money", "thing"))   # not a trim word
+         got, why = SPOT.pool([long_ok, too_long, conj], {}, ctx, spotlit=[], captions_for=caps)
+         self.assertEqual([m["moment_id"] for m in got], ["l"])               # 30 s: a medley's 20 s does not bind
+         self.assertIn("35.0 s", why["t"])
+@@ -411,6 +411,55 @@ class TestPool(unittest.TestCase):
+                 os.remove(p)
+ 
+ 
++class TestRuling94And95(unittest.TestCase):
++    def test_a_conjunction_opener_is_trimmed_and_a_third_person_one_waits_for_the_alone_scorer(self):
++        so = "So Bitcoin keeps moving and people keep watching it closely right now in every single market we follow."
++        m, srcs, ctx, caps = snap_rig([S5, so, S20, S5], 1)
++        got, why = SPOT.pool([m], srcs, ctx, spotlit=[], captions_for=caps)
++        self.assertEqual(len(got), 1, why)
++        v = got[0]
++        self.assertEqual(v["trimmed_leading"], "So")                    # ruling 94 (a): the variant opens
++        self.assertTrue(v["moment_id"].endswith("~trim"))
++        self.assertGreaterEqual(v["duration_s"], SPOT.SNAP_TO_S)       # snapped with the margin, then trimmed
++        this = moment(mid="t", channel="T", text="This is ultimately a bipartisan issue for Bitcoin and for every "
++                                                   "holder of it, whatever their politics, as far as I can tell.")
++        got, why = SPOT.pool([this], {}, E.Context(NOW, REG), spotlit=[], captions_for=lambda vid: (None, None))
++        self.assertEqual([x["moment_id"] for x in got], ["t"])          # (b): the ALONE scorer decides later
++        they = moment(mid="u", channel="U", text="And " + TEXT)             # no word record: no trim variant
++        got, why = SPOT.pool([they], {}, E.Context(NOW, REG), spotlit=[], captions_for=lambda vid: (None, None))
++        self.assertIn("ruling 94 (a)", why["u"])
++
++    def test_an_unclean_trim_cut_is_stopped(self):
++        b = TestBuild()
++        ms = [moment(mid="a~trim", channel="A", trimmed_leading="So", untrimmed_start=0.0)]
++        out, calls = b.run_build(ms, {"a~trim": 5}, onset={"pass": True, "measured": True,
++                                                         "trim": {"pass": False, "why": "it bleeds"}})
++        self.assertIn("ruling 94 (a): the trimmed cut is not clean: it bleeds", out["moments"]["a~trim"]["out"])
++        self.assertNotIn("package_for", calls)
++
++    def test_ruling_95_the_newest_conversation_upload_and_its_mining_state(self):
++        rows = [{"video_id": "old", "channel_name": "Talk", "published_at": "2026-11-13T18:00:00+00:00",
++                 "moment_id": "o1", "episode": {"turns_per_min": 2.0}, "mined": {"pass": "hook",
++                                                                                "prompt_version": "mine-hook/2"}},
++                {"video_id": "new", "channel_name": "Solo", "published_at": "2026-11-13T22:00:00+00:00",
++                 "moment_id": "n1", "episode": {"turns_per_min": 0.4}, "mined": {"pass": "moment",
++                                                                                "prompt_version": "mine/2"}},
++                {"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
++                 "moment_id": "m1", "episode": {"turns_per_min": 1.5}, "mined": {"pass": "hook",
++                                                                                "prompt_version": "mine-hook/2"}},
++                {"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
++                 "moment_id": "m2", "episode": {"turns_per_min": 1.5}, "mined": {"pass": "moment",
++                                                                                "prompt_version": "mine/2"}}]
++        na = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW)
++        c = na["conversation"]
++        self.assertEqual((c["video_id"], c["published_at"], c["expires_at"]),
++                         ("mid", "2026-11-13T20:00:00Z", "2026-11-14T08:00:00Z"))
++        self.assertEqual((c["rows"], c["word_pass_ready"], c["word_pass_waiting"]), (2, 1, 1))
++        self.assertEqual(c["passes"], {"hook/mine-hook/2": 1, "moment/mine/2": 1})
++        self.assertEqual(na["newest_upload"]["video_id"], "new")           # newer, but not a conversation
++        self.assertIsNone(SPOT.next_attempt([], {}, NOW)["conversation"])
++
++
+ class TestPackageFor(unittest.TestCase):
+     def test_the_closing_line_ships_only_with_every_gate(self):
+         pk, why, router, asked, fids = package()
+@@ -495,7 +544,8 @@ class TestPackageFor(unittest.TestCase):
+ class TestBuild(unittest.TestCase):
+     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
+ 
+-    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None):
++    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None,
++                  onset=None):
+         ctx = E.Context(NOW, REG)
+         calls = {}
+ 
+@@ -521,7 +571,7 @@ class TestBuild(unittest.TestCase):
+         stubs = [(SPOT.P, "prescreen", prescreen), (SPOT.P, "hook_ratings", hook_ratings),
+                  (SPOT.P, "second_screen", second), (SPOT, "package_for", package_for),
+                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
+-                 (SPOT.P, "hook_onset_for", lambda m, s, w, c: {"pass": True, "measured": True}),
++                 (SPOT.P, "hook_onset_for", lambda m, s, w, c: onset or {"pass": True, "measured": True}),
+                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
+                  (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
+                                                               "backend": "fake:vis"}, **(visual or {}))),

@@ -17,7 +17,7 @@ import shutil
 import sys
 import tempfile
 import unittest
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -389,7 +389,7 @@ class TestPool(unittest.TestCase):
         caps = lambda vid: (None, None)
         long_ok = moment(mid="l", dur=30.0, channel="A")
         too_long = moment(mid="t", dur=36.0, channel="B", text=TEXT.replace("money", "asset"))
-        conj = moment(mid="c", channel="C", text="And " + TEXT.replace("money", "thing"))
+        conj = moment(mid="c", channel="C", text="Because " + TEXT.replace("money", "thing"))   # not a trim word
         got, why = SPOT.pool([long_ok, too_long, conj], {}, ctx, spotlit=[], captions_for=caps)
         self.assertEqual([m["moment_id"] for m in got], ["l"])               # 30 s: a medley's 20 s does not bind
         self.assertIn("35.0 s", why["t"])
@@ -409,6 +409,71 @@ class TestPool(unittest.TestCase):
         finally:
             if os.path.exists(p):
                 os.remove(p)
+
+
+class TestRuling94And95(unittest.TestCase):
+    def test_a_conjunction_opener_is_trimmed_and_a_third_person_one_waits_for_the_alone_scorer(self):
+        so = "So Bitcoin keeps moving and people keep watching it closely right now in every single market we follow."
+        m, srcs, ctx, caps = snap_rig([S5, so, S20, S5], 1)
+        got, why = SPOT.pool([m], srcs, ctx, spotlit=[], captions_for=caps)
+        self.assertEqual(len(got), 1, why)
+        v = got[0]
+        self.assertEqual(v["trimmed_leading"], "So")                    # ruling 94 (a): the variant opens
+        self.assertTrue(v["moment_id"].endswith("~trim"))
+        self.assertGreaterEqual(v["duration_s"], SPOT.SNAP_TO_S)       # snapped with the margin, then trimmed
+        this = moment(mid="t", channel="T", text="This is ultimately a bipartisan issue for Bitcoin and for every "
+                                                   "holder of it, whatever their politics, as far as I can tell.")
+        got, why = SPOT.pool([this], {}, E.Context(NOW, REG), spotlit=[], captions_for=lambda vid: (None, None))
+        self.assertEqual([x["moment_id"] for x in got], ["t"])          # (b): the ALONE scorer decides later
+        they = moment(mid="u", channel="U", text="And " + TEXT)             # no word record: no trim variant
+        got, why = SPOT.pool([they], {}, E.Context(NOW, REG), spotlit=[], captions_for=lambda vid: (None, None))
+        self.assertIn("ruling 94 (a)", why["u"])
+
+    def test_a_third_person_spotlight_needs_the_alone_scorer_at_four(self):
+        t = ("This is ultimately a bipartisan issue for Bitcoin and for every holder of it, whatever their politics, "
+             "as far as I can tell.")
+        b = TestBuild()
+        for alone, sealed, why in ((3.0, False, "cannot open cold"),        # a verdict that does not affirm: the
+                                   (None, False, "ALONE scorer: no rating"),  # opener rule itself refuses; none yet:
+                                   (4.0, True, None)):                          # deferred, then refused at ALONE
+            m = moment(mid="t", channel="T", text=t, scorer_verdict=None)
+            m.pop("scorer_verdict")
+            out, calls = b.run_build([m], {"t": 5}, alone=[alone])
+            self.assertEqual("package_for" in calls, sealed, (alone, out["moments"]["t"].get("out")))
+            if why:
+                self.assertIn(why, out["moments"]["t"]["out"])
+
+    def test_an_unclean_trim_cut_is_stopped(self):
+        b = TestBuild()
+        ms = [moment(mid="a~trim", channel="A", trimmed_leading="So", untrimmed_start=0.0)]
+        out, calls = b.run_build(ms, {"a~trim": 5}, onset={"pass": True, "measured": True,
+                                                         "trim": {"pass": False, "why": "it bleeds"}})
+        self.assertIn("ruling 94 (a): the trimmed cut is not clean: it bleeds", out["moments"]["a~trim"]["out"])
+        self.assertNotIn("package_for", calls)
+
+    def test_ruling_95_the_newest_conversation_upload_and_its_mining_state(self):
+        rows = [{"video_id": "old", "channel_name": "Talk", "published_at": "2026-11-13T18:00:00+00:00",
+                 "moment_id": "o1", "episode": {"turns_per_min": 2.0}, "mined": {"pass": "hook",
+                                                                                "prompt_version": "mine-hook/2"}},
+                {"video_id": "new", "channel_name": "Solo", "published_at": "2026-11-13T22:00:00+00:00",
+                 "moment_id": "n1", "episode": {"turns_per_min": 0.4}, "mined": {"pass": "moment",
+                                                                                "prompt_version": "mine/2"}},
+                {"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
+                 "moment_id": "m1", "episode": {"turns_per_min": 1.5}, "mined": {"pass": "hook",
+                                                                                "prompt_version": "mine-hook/2"}},
+                {"video_id": "mid", "channel_name": "Panel", "published_at": "2026-11-13T20:00:00+00:00",
+                 "moment_id": "m2", "episode": {"turns_per_min": 1.5}, "mined": {"pass": "moment",
+                                                                                "prompt_version": "mine/2"}}]
+        na = SPOT.next_attempt(rows, {"m1": {"sentence_ready": True}}, NOW)
+        c = na["conversation"]
+        self.assertEqual((c["video_id"], c["published_at"], c["expires_at"]),
+                         ("mid", "2026-11-13T20:00:00Z", "2026-11-14T08:00:00Z"))
+        self.assertEqual((c["rows"], c["word_pass_ready"], c["word_pass_waiting"]), (2, 1, 1))
+        self.assertEqual(c["passes"], {"hook/mine-hook/2": 1, "moment/mine/2": 1})
+        self.assertEqual(na["newest_upload"]["video_id"], "new")           # newer, but not a conversation
+        self.assertEqual(c["age_h"], round((NOW - datetime(2026, 11, 13, 20, 0, tzinfo=timezone.utc)).total_seconds()
+                                           / 3600, 1))
+        self.assertIsNone(SPOT.next_attempt([], {}, NOW)["conversation"])
 
 
 class TestPackageFor(unittest.TestCase):
@@ -495,7 +560,8 @@ class TestPackageFor(unittest.TestCase):
 class TestBuild(unittest.TestCase):
     """The stages in order on stubs: each stage's failure is recorded with how far the moment got."""
 
-    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None):
+    def run_build(self, ms, ratings, alone=None, layout="conversation", poll=None, lock=None, visual=None,
+                  onset=None):
         ctx = E.Context(NOW, REG)
         calls = {}
 
@@ -521,7 +587,7 @@ class TestBuild(unittest.TestCase):
         stubs = [(SPOT.P, "prescreen", prescreen), (SPOT.P, "hook_ratings", hook_ratings),
                  (SPOT.P, "second_screen", second), (SPOT, "package_for", package_for),
                  (SPOT.P, "truth_for", lambda r, m, w, c: {"ok": True, "edges": {"cuttable": True}}),
-                 (SPOT.P, "hook_onset_for", lambda m, s, w, c: {"pass": True, "measured": True}),
+                 (SPOT.P, "hook_onset_for", lambda m, s, w, c: onset or {"pass": True, "measured": True}),
                  (SPOT.P, "scorer_verdicts", verdicts), (SPOT.P, "render_scorer_sha", lambda *a: "s" * 64),
                  (VP, "visual_for", lambda r, m, w, c: dict({"measured": True, "flags": [], "burned_in": [],
                                                               "backend": "fake:vis"}, **(visual or {}))),

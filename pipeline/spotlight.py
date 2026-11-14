@@ -60,6 +60,8 @@ CLOSING_MAX_WORDS = PP.SPOT_CLOSING_MAX_WORDS   # 12
 COMMENT_MAX_LINES = 2                  # ruling 90: "one or two short casual lines"
 COMMENT_MAX_WORDS = 30
 MARKER_TOL_S = 1.0                     # = ledger_build.MARKER_EDGE_S: a caption marker this close to an edge is not in
+TRIM_MARGIN_S = 1.0                    # RULING 94 (a): a moment to be trimmed is snapped this much further, so the
+                                       # ONE trimmed word never takes it back under SNAP_TO_S
 LAYOUTS = ("conversation", "first_hand", "recap", "reaction", "other")
 LAYOUT_OK = ("conversation", "first_hand")
 CONVERSATION_TPM = 1.0                 # ruling 92's caption half (see source_test)
@@ -106,7 +108,7 @@ def record_spotlit(path, row):
     os.replace(path + ".tmp", path)
 
 
-def snap(m, sources, ctx, captions_for=None):
+def snap(m, sources, ctx, captions_for=None, target=SNAP_TO_S):
     """RULING 90 with ruling 32's snap: a moment shorter than SNAP_TO_S is snapped OUTWARD to the speaker's whole
     thought: whole sentences of the SAME word record, the next ones first (the speaker going on), then the ones before
     it, until it lasts SNAP_TO_S, never past SPOT_S[1] and never across a caption speaker-change marker (ruling 69's
@@ -145,10 +147,10 @@ def snap(m, sources, ctx, captions_for=None):
     dur, why = measure(a, b)
     if dur is None:
         return None, f"the moment itself: {why}"
-    if dur >= SNAP_TO_S:
+    if dur >= target:
         return m, None                                 # long enough: no snap, the moment as it is
     blocked = []
-    while dur < SNAP_TO_S:
+    while dur < target:
         step = None
         for na, nb, side in ((a, b + 1, "the next sentence"), (a - 1, b, "the sentence before")):
             if na < 0 or nb >= n:
@@ -203,11 +205,11 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
         if m["channel_id"] in taken:
             why[mid] = f"ruling 90: this channel already has a spotlight on {day} (ET)"
             continue
-        v = m
-        if float(m["duration_s"]) < SNAP_TO_S:
-            v, w = snap(m, sources, ctx, captions_for)
+        v, target = m, SNAP_TO_S + (TRIM_MARGIN_S if P.hook_trim(m) else 0.0)
+        if float(m["duration_s"]) < target:
+            v, w = snap(m, sources, ctx, captions_for, target=target)
             if v is None:
-                why[mid] = f"ruling 90: {m['duration_s']} s is under {SNAP_TO_S:g} s and the snap fails: {w}"
+                why[mid] = f"ruling 90: {m['duration_s']} s is under {target:g} s and the snap fails: {w}"
                 continue
             ok, w2 = P.usable([v], ctx, delivered, optout, seg_max=SPOT_S[1])
             if not ok:
@@ -217,9 +219,22 @@ def pool(moments, sources, ctx, delivered=(), optout=frozenset(), spotlit=(), ca
         if v["moment_id"] in seen:
             why[mid] = f"the same span as {v['moment_id']}, already in the pool"
             continue
+        if P.hook_trim(v):                             # RULING 94 (a): ruling 33's one-word trim variant is what
+            t = P.trim_variant(v, sources)             # opens; the trim must cut cleanly (build: hook_onset's trim
+            if t is None:                              # record) and the ALONE scorer must affirm it
+                why[mid] = f"ruling 94 (a): it opens on {SA._words(v.get('text') or '')[:1]} and has no trim variant"
+                continue
+            if t["duration_s"] < SNAP_TO_S:
+                why[mid] = f"ruling 94 (a): trimmed, {t['duration_s']} s is under {SNAP_TO_S:g} s"
+                continue
+            ok_t, w_t = P.usable([t], ctx, delivered, optout, seg_max=SPOT_S[1])     # the variant is a moment too
+            if not ok_t or t["moment_id"] in seen:
+                why[mid] = f"ruling 94 (a): its trim variant is out: {w_t.get(t['moment_id']) or 'already in the pool'}"
+                continue
+            v = t
         ok, w = SA.opener("hook", v.get("text") or "")
-        if not ok:
-            why[mid] = f"ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): {w}"
+        if not ok and not P.third_opener(v):           # RULING 94 (b): a third-person opener is judged by the ALONE
+            why[mid] = f"ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): {w}"   # scorer (>= 4)
             continue
         top = P.no_topic(v)
         if top:
@@ -267,6 +282,45 @@ def source_test(turns, layout):
                        f"minute (under {CONVERSATION_TPM:g})")
     return True, f"layout '{lay}'" + (f"; {turns['turns']} caption turns in {turns['minutes']} min ({tpm} a minute)"
                                       if (turns or {}).get("measured") else "; captions unmarked")
+
+
+def next_attempt(rows, word_pass, now, captions_for=None):
+    """RULING 95 (00:40 ET Nov 14): when a build ends with no medley and no spotlight, when the next qualifying episode
+    could arrive. The NEWEST conversation upload among the adapter's rows: caption turns from pp-ingest's `episode`
+    (mine-hook/2 rows), else episode_turns(), at least CONVERSATION_TPM a minute (an unmarked episode is not counted:
+    unknown). Each upload's mining state: its rows by pass and prompt version, and its word-pass windows ready or still
+    waiting (word_pass: ledger_build.word_pass_index's {moment_id: row}). -> {"conversation": {...} or None,
+    "newest_upload": {...} or None}."""
+    from datetime import datetime, timedelta, timezone
+    import package_pin as PPN
+    by_vid = {}
+    for r in rows or ():
+        if isinstance(r, dict) and r.get("video_id"):
+            by_vid.setdefault(r["video_id"], []).append(r)
+
+    def state(vid, rs):
+        pub = P.utc_z(rs[0].get("published_at"))
+        ep = next((r.get("episode") for r in rs if isinstance(r.get("episode"), dict)), None)
+        tpm, frm = (ep or {}).get("turns_per_min"), "pp-ingest episode"
+        if not isinstance(tpm, (int, float)) and not (ep or {}).get("unmarked"):
+            t = episode_turns(vid, captions_for)
+            tpm, frm = t.get("turns_per_min"), "the caption record (recount)"
+        passes = {}
+        for r in rs:
+            k = f"{(r.get('mined') or {}).get('pass')}/{(r.get('mined') or {}).get('prompt_version')}"
+            passes[k] = passes.get(k, 0) + 1
+        ready = sum(1 for r in rs if (word_pass.get(r.get("moment_id")) or {}).get("sentence_ready"))
+        exp = (datetime.strptime(pub, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc) +
+               timedelta(hours=PPN.WINDOW_H)).strftime("%Y-%m-%dT%H:%M:%SZ") if pub else None
+        age = E.age_hours(rs[0].get("published_at"), now)
+        return {"video_id": vid, "channel": rs[0].get("channel_name"), "published_at": pub, "expires_at": exp,
+                "age_h": round(age, 1) if age is not None else None,
+                "turns_per_min": tpm, "turns_from": frm, "rows": len(rs), "passes": passes,
+                "word_pass_ready": ready, "word_pass_waiting": len(rs) - ready}
+    sts = sorted((state(v, rs) for v, rs in by_vid.items()), key=lambda x: x["published_at"] or "", reverse=True)
+    conv = [x for x in sts if isinstance(x["turns_per_min"], (int, float)) and x["turns_per_min"] >= CONVERSATION_TPM]
+    return {"conversation": conv[0] if conv else None, "newest_upload": sts[0] if sts else None,
+            "rule": f"the newest upload with >= {CONVERSATION_TPM:g} caption turns a minute (ruling 95)"}
 
 
 LAYOUT_PROMPT = """You see a contact sheet of {n} frames of ONE clip from a Bitcoin video, left to right and top to
@@ -748,8 +802,11 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
         m["hook_onset"] = P.hook_onset_for(m, sources, work_dir, hk)
         m.pop("hook_rating", None)                       # a rating is this build's own (its cache's)
         m.pop("visual_hook_block", None)
-        if P._can_open(m):
-            openers[mid] = m
+        trim = (m["hook_onset"] or {}).get("trim") or {}
+        if m.get("trimmed_leading") and trim.get("pass") is not True:          # RULING 94 (a): the trim cuts cleanly
+            stop(mid, f"ruling 94 (a): the trimmed cut is not clean: {trim.get('why') or 'not measured'}")
+        elif P._can_open(m, pending_verdict=True):     # ruling 94 (b): a third-person opener waits for the ALONE
+            openers[mid] = m                           # scorer, which must give >= 4 below
         else:
             stop(mid, f"it cannot open cold: hook eligibility, G17a ({(m['hook_onset'] or {}).get('why')}) or the "
                       f"render's hook rule")

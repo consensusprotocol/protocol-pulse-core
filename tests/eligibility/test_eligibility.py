@@ -194,6 +194,14 @@ class TestSource(unittest.TestCase):
         self.assertIs(E.eligible(nobody, ctx("evidence")).facts["layout_eligible"], False)
         self.assertIn("layout_ineligible", E.eligible(nobody, ctx("clip")).names())
 
+    def test_ruling_94_pronoun_openers_on_the_hook(self):
+        first = source(["I will bet you one Bitcoin that it gets back to the highs before the end of next year."])
+        self.assertNotIn("opener", E.eligible(E.Span(first, 0, 0), ctx("hook")).names())    # (b): no fault
+        third = source(["They sold every Bitcoin they had at the very bottom of the market last week."])
+        r = E.eligible(E.Span(third, 0, 0), ctx("hook"))
+        self.assertIn("opener", r.names())                         # no verdict at the ledger: the pin stage decides
+        self.assertIn("no clip-scorer verdict", r.why())
+
     def test_on_screen_needs_a_sentence_ready_word_record(self):
         seg = source([HOOK_TXT], timing="segment", method="yt_auto:en")
         self.assertTrue(E.eligible(seg, ctx("evidence")).ok)

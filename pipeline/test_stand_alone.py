@@ -23,15 +23,27 @@ DATADASH = ("Bitcoin has now seen a 16 % decline from the overall high from $88 
 
 class TestOpener(unittest.TestCase):
     def test_hook_must_fail(self):
-        for text in (RUN6_HOOK, "I don't check it on an hourly basis. It seemed to have bounced.",
-                     "It seemed to have bounced very nicely at $74,000.", "Yeah, Bitcoin is down 16 %.",
-                     "So Bitcoin is down.", "We've seen Bitcoin lose 16 %."):
+        for text in (RUN6_HOOK, "It seemed to have bounced very nicely at $74,000.", "Yeah, Bitcoin is down 16 %.",
+                     "So Bitcoin is down.", "They sold it all at the bottom."):
             ok, why = S.opener("hook", text)
             self.assertFalse(ok, (text, why))
 
     def test_hook_must_pass(self):
-        for text in (DATADASH, "Michael Saylor is back. Strategy purchased 1 ,036 Bitcoin."):
+        for text in (DATADASH, "Michael Saylor is back. Strategy purchased 1 ,036 Bitcoin.",
+                     "I don't check it on an hourly basis. It seemed to have bounced.",      # RULING 94 (b): first or
+                     "We've seen Bitcoin lose 16 %.", "I will bet you one Bitcoin that it gets there."):   # second person
             self.assertTrue(S.opener("hook", text)[0], text)
+
+    def test_ruling_94_a_third_person_hook_needs_the_scorer(self):
+        text = "This is ultimately a bipartisan issue."
+        self.assertFalse(S.opener("hook", text)[0])                                  # no verdict: fail closed
+        self.assertTrue(S.opener("hook", text, 4.0, "none", moments=True)[0])
+        self.assertFalse(S.opener("hook", text, 3.0, "none", moments=True)[0])
+        self.assertEqual(S.PRONOUNS, S.FIRST_SECOND | S.THIRD)
+        edl = {"hook": {"channel": "H", "text": text}, "clips": []}
+        r = S.check_edl(edl, rate=lambda ps: {p["pid"]: (4.0, "r", "none") for p in ps}, moments=True)
+        self.assertTrue(r["rows"][0]["opener"]["pass"], r["rows"][0])                # the hook is rated (check_edl)
+        self.assertFalse(S.check_edl(edl, rate=None, moments=True)["rows"][0]["opener"]["pass"])
 
     def test_clip_conjunction_needs_the_scorer(self):
         self.assertTrue(S.opener("clip", RUN6_CLIP01, 5.0, "none")[0])
@@ -102,7 +114,8 @@ class TestAutoSelectionScreen(unittest.TestCase):
     def test_selection_uses_the_same_rule(self):
         import editorial_select as es
         subj = S.subject_terms("Binance exchange", "Binance hacked for six billion dollars")
-        self.assertFalse(es._stand_alone_ok("hook", "We just had, of course, Binance with $6 .3 billion in hacks.", subj)[0])
+        self.assertFalse(es._stand_alone_ok("hook", "They just had, of course, Binance with $6 .3 billion in hacks.",
+                                            subj)[0])                # ruling 94 (b): a third-person opener, no verdict
         self.assertTrue(es._stand_alone_ok("hook", "Binance confirmed the hack this morning. It means six billion "
                                                    "dollars of customer money left the exchange.", subj)[0])
         self.assertFalse(es._stand_alone_ok("clip", RUN6_CLIP02, S.subject_terms("Bitcoin / US spot Bitcoin ETFs"))[0])

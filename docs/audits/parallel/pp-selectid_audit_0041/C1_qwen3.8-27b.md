@@ -1,0 +1,34 @@
+# qwen3.8-27b (qwen/qwen3.8-27b) 35 s finish=stop usage in 19375 / out 1847 usd~0.086 (upper-bound price)
+
+I have reviewed the diff against the governing laws and the specific audit checklist. Here are my findings.
+
+<critical>
+**1. `pending_verdict` bypasses the "Fail Closed" law (L-m / M12) in `spotlight.py`**
+*   **File:** `pipeline/spotlight.py` (lines 212-213 in diff, corresponding to `build()` function) and `pipeline/package.py` (lines 59-60 in diff, `_can_open`).
+*   **Scenario:** In `spotlight.py`'s `build()`, the code calls `P._can_open(m, pending_verdict=True)`. Inside `_can_open`, if `pending_verdict` is True and the moment is a `third_opener` but has no verdict (`v is None`), it sets `sc = (5, None)`. This hardcodes a score of 5 (pass) to allow the moment to proceed to the `openers` list.
+*   **Violation:** Law L-m states "nothing measured is never a pass." The spotlight's `ALONE` scorer gate (which requires a score >= 4) is intended to be the *decider*. By injecting a fake score of 5 in `_can_open`, the code allows a third-person hook with **no measured verdict** to pass the initial eligibility check. While the spotlight `pool()` function later checks `SA.opener` (which will fail closed if `score is None`), the `build()` function's logic relies on `_can_open` to filter candidates. If the `pool()` check is bypassed or if the flow changes, this hardcoded `5` creates a path where an unmeasured hook is treated as affirmed. More critically, the audit requirement states: *"pending_verdict cannot leak into the medley or into a sealed pin"*. The `pending_verdict` flag is explicitly designed for the spotlight to *defer* judgment, but the implementation in `_can_open` actively *fakes* a pass (`sc = (5, None)`) rather than just allowing the check to proceed to the next stage. This violates the spirit of "Fail Closed" because it assumes success before measurement.
+*   **Fix:** `_can_open` should not fabricate a score. It should return `True` (allowing the moment to proceed to the spotlight's specific `ALONE` gate) only if the *other* conditions (hook onset, etc.) are met, leaving the pronoun judgment entirely to the spotlight's `pool()` or `build()` specific scorer call, which must fail closed if the verdict is missing.
+
+<high>
+**2. `hook_trim` variant may violate SNAP LIMIT / SELECTION LOCK if the trim word is not in the gap**
+*   **File:** `pipeline/package.py` (lines 33-38 in diff, `hook_trim` function) and `pipeline/spotlight.py` (lines 142-150 in diff, `pool` function).
+*   **Scenario:** `hook_trim` checks if the first word is in `TRIM_WORDS`. The `pool` function then calls `P.trim_variant(v, sources)`. The `trim_variant` function (not shown in diff but implied by context) cuts the first word.
+*   **Violation:** The **SNAP LIMIT** law states: *"a cut may move only inside the heard gap between the chosen sentence and its neighbour... it may never add or drop a word."* However, Ruling 33 explicitly allows dropping *one* leading word if it's a conjunction/reply word. The risk here is that `trim_variant` might drop a word that is *not* actually a standalone conjunction in the audio (e.g., if the ASR merged "So" with the next word, or if the "So" is part of a compound). The code relies on `SA._words` (text-based) to identify the trim word. If the text says "So Bitcoin..." but the audio onset of "So" is not cleanly separable (i.e., no gap), the `hook_onset` check in `spotlight.py` `build()` (line 210-211) checks `trim.get("pass")`. This is good. However, in `package.py` `build()` (line 75-77), the trim variant is added to the pool *before* the `hook_onset` check is performed in the spotlight. If this trim variant is used in a **Medley** (not just Spotlight), does the Medley path verify the `hook_onset` trim cleanliness? The diff shows `spotlight.py` `build()` checking it. The `package.py` `build()` adds the trim to `ms`. If the Medley renderer uses this `ms` list, it must also verify the trim cut. The audit says *"a trimmed hook is only ever the variant... and is sealed with its affirmation"*. If the Medley path does not re-verify the `hook_onset` trim pass for the `~trim` variant, it could seal a pin with a dirty cut.
+*   **Fix:** Ensure that any path using the `~trim` variant (Medley or Spotlight) explicitly checks `hook_onset["trim"]["pass"]` before sealing.
+
+<medium>
+**3. `next_attempt` uses `published_at` which may be timezone-naive or inconsistent**
+*   **File:** `pipeline/spotlight.py` (lines 178-190 in diff, `next_attempt` function).
+*   **Scenario:** The function parses `pub` using `datetime.strptime(pub, "%Y-%m-%dT%H:%M:%SZ")`. If the `published_at` field in the database/adapter rows contains a timezone offset other than `Z` (e.g., `+00:00` or `+05:00`), `strptime` will raise a `ValueError`.
+*   **Violation:** **M12 FAIL CLOSED**: An exception here would crash the `next_attempt` call. While `proof_ledger.py` wraps the call in a `try/except` (line 351-352), this means the "Ruling 95" report will be missing or show an error, rather than failing the build. This is acceptable for a *reporting* feature, but the code is fragile.
+*   **Fix:** Use `datetime.fromisoformat` (Python 3.11+ handles `Z` and offsets) or normalize the string before parsing.
+
+<medium>
+**4. `THIRD` pronoun set includes `it` and `its`, which are often demonstrative/neutral, not strictly "third person" in the sense of a missing referent**
+*   **File:** `pipeline/stand_alone.py` (lines 225-226 in diff).
+*   **Scenario:** `THIRD = PRONOUNS - FIRST_SECOND`. `PRONOUNS` includes `it`, `its`, `this`, `that`, `these`, `those`, `they`, `them`, `their`, `he`, `him`, `his`, `she`, `her`.
+*   **Observation:** The law says *"only a THIRD-person or demonstrative pronoun with no referent in the clip... is [a fault]"*. The code treats *all* of these as requiring a scorer verdict. This is correct behavior (fail closed until affirmed). However, the comment in `stand_alone.py` line 243 says *"a referent outside the clip is the fault"*. The scorer (`ALONE`) is expected to judge if the referent is clear. This is consistent. No violation, but worth noting that `it` is very common in Bitcoin clips ("It's up 5%"). The scorer must be robust to this.
+
+**SHIP: no**
+
+**Reason:** The `pending_verdict` logic in `_can_open` (package.py) fabricates a score of 5 for third-person hooks when no verdict exists. This violates the **Fail Closed** principle (L-m/M12) because it allows an unmeasured hook to pass the initial gate based on a hardcoded assumption of success, rather than deferring to the actual measurement. The spotlight `pool()` function does check the opener again, but the `build()` function's reliance on `_can_open` with `pending_verdict=True` creates a dangerous bypass if the flow is altered or if the `pool` check is not the final gate. The code must ensure that *no* path seals a pin with a third-person hook unless a real, measured verdict >= 4 exists.

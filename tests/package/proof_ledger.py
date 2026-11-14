@@ -257,6 +257,10 @@ def main(argv=None):
                     spotlit=spotlit)
     res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
                                                 "scorer_waited_s", "lock_stop", "scorer")}
+    try:                                                 # RULING 95: when the next qualifying episode could arrive
+        res["next_attempt"] = SPOT.next_attempt(rows, wp, now)
+    except Exception as e:                               # noqa: BLE001  a report, never the build
+        res["next_attempt"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
@@ -313,6 +317,11 @@ def main(argv=None):
             res["spotlight_pin_refused"] = f"{type(e).__name__}: {e}"
             say(f"SPOTLIGHT PIN REFUSED: {e}")
     else:
+        na = (res.get("next_attempt") or {}).get("conversation") or {}
+        say(f"  RULING 95: the newest conversation upload: {na.get('channel')} {na.get('video_id')} published "
+            f"{na.get('published_at')} (expires {na.get('expires_at')}), {na.get('turns_per_min')} turns a minute, "
+            f"rows {na.get('passes')}, word pass {na.get('word_pass_ready')} ready / {na.get('word_pass_waiting')} "
+            f"waiting" if na else "  RULING 95: no conversation upload in the window")
         say(f"no spotlight ({sp.get('why_none')})" + "".join(
             f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
             f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))

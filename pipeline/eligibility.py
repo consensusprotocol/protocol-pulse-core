@@ -436,7 +436,7 @@ def _span(span, ctx, role):
     if conj:
         targets.append(f"opens on the conjunction{'s' if len(conj) > 1 else ''} {' '.join(conj)!r}")
     if rest:                       # pronoun / reply-word openers are not in L-o: still hard, after any conjunction too
-        sc = (ctx.scorer or {}).get(span.key) if role == "clip" else None
+        sc = (ctx.scorer or {}).get(span.key) if role in ("clip", "hook") else None   # ruling 94 (b): the hook too
         ok, why = stand_alone.opener(role, rest, *(sc if sc else (None, None)))
         if not ok:
             R("opener", why + (f" (after {' '.join(conj)!r})" if conj else ""))

@@ -1,0 +1,59 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder of sealed "moments" pins that another
+session renders into short Bitcoin videos). Only state what you can verify from the diff; if uncertain, say so; do
+not guess. Be specific: file:line and a concrete input that breaks it.
+
+Background (static):
+- A pin's HOOK opens the video cold. The render's STAND_ALONE (stand_alone.py, the same rule on the render's side and
+  this builder's pin stage) refused a hook whose first word is a conjunction, a reply word or any pronoun. A CLIP
+  opening on a conjunction or reply word passes only with the render's clip scorer's affirmation (the "ALONE scorer":
+  verdicts on exactly the text, read through package.verdict_of).
+- Ruling 33 part 2: a moment opening on ONE of TRIM_WORDS (but, and, so, well, now, yeah) may be cut one word in (a
+  "~trim" variant carrying trimmed_leading / untrimmed_start). The variant is judged like any moment, its trimmed cut
+  must open cleanly (hook_onset's "trim" record), and the scorer must affirm the trimmed text (trim_refused /
+  check_edl's trimmed_opener). Until now the medley built trim variants only for moments with no on-screen role.
+- The medley build rates hooks (hook_ratings) only for moments that can open (package._can_open: hook eligibility from
+  the ledger, G17a, the opener rule). The spotlight (pipeline/spotlight.py) is a one-clip pin that needs, among
+  others, the ALONE scorer >= 4 on its text.
+- Law L-m: nothing measured is never a pass. Fail closed.
+
+The order (verbatim): "94. Of the 23 Bitcoin Magazine interview moments, 13 never reach a judge because they open on
+a conjunction or a pronoun. For SPOTLIGHT and for a medley HOOK alike: (a) a leading conjunction or reply word gets
+ruling 33's ONE-word trim variant and that variant is what is rated as an opener (the trim must cut cleanly and the
+ALONE scorer must affirm it, as for a clip); (b) a first-person or second-person pronoun opener ('I', 'we', 'you',
+'my', 'our') is NOT a cold-open fault at all: 'I will bet you one Bitcoin that...' is a fine first line; only a
+THIRD-person or demonstrative pronoun with no referent in the clip ('he', 'they', 'it', 'this', 'that') is, and the
+ALONE scorer + step A already judge exactly that. ... This touches the render's hook opener rule too: agree the change
+with the integrator, one audited change each side." and "95. When a build ends with no medley and no spotlight, STATE
+line 1 carries the three nearest ...; Add the time the next qualifying episode could arrive (the newest conversation
+upload's publish time + its mining state)."
+The integrator AGREED (01:0x ET) the hook rule below, with check_edl rating a third-person hook; its side is audited
+separately.
+
+The change:
+1. stand_alone.py: FIRST_SECOND = {i, me, my, we, us, our, you, your}; THIRD = PRONOUNS - FIRST_SECOND. opener("hook"):
+   a conjunction or reply word is still a fault (only a trim variant opens); FIRST_SECOND is ok; THIRD is ok only
+   with an affirming scorer verdict (affirmed(score, fault, moments)), else a fault. check_edl asks the scorer about a
+   hook whose first word is in THIRD.
+2. eligibility.py: the hook role, like the clip role, reads the scorer verdict when the ledger has one (it does not:
+   a third-person hook fails "opener" at the ledger and is decided at the pin stage).
+3. package.py: hook_trim(m) and third_opener(m); _can_open re-checks a hook whose ONLY failing eligibility reason is
+   "opener" with the verdict now attached (pending_verdict=True lets the spotlight defer a third-person opener to its
+   ALONE >= 4 gate); scorer_pass asks for the trim variant of every hook_trim moment and for every third-person
+   opener; build() adds a trim variant for every hook_trim moment (the original keeps its own place as a clip; a
+   line-up never takes one video twice).
+4. spotlight.py: pool() snaps a moment to be trimmed TRIM_MARGIN_S further, then takes its trim variant (refused when
+   none exists or it ends under 13.7 s); a third-person opener enters the pool for the ALONE scorer to decide; build()
+   stops a trimmed moment whose trimmed cut is not clean and opens with _can_open(m, pending_verdict=True).
+   next_attempt() (ruling 95): the newest upload with >= 1.0 caption turns a minute among the adapter's rows, its
+   publish time, its expiry (12 h), its rows by mining pass and its word-pass windows ready / waiting; the driver
+   records and logs it.
+5. Tests: the hook rule's cases (stand_alone and eligibility), _can_open, the scorer's candidates, a hook trim variant
+   beside its affirmed original in a medley build, the spotlight's trim and third-person paths and the unclean trim
+   cut, next_attempt.
+
+Check: that no third-person hook can open, or be sealed, without an affirming verdict on its exact text (and that
+pending_verdict cannot leak into the medley or into a sealed pin); that a trimmed hook is only ever the variant (never
+the untrimmed original) and is sealed with its affirmation; that a first/second-person opener is the only new pass
+without a verdict; that the margin keeps a trimmed spotlight at or over 13.7 s; that next_attempt reports only measured
+facts. Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario), then
+"SHIP: yes / no / yes with conditions".

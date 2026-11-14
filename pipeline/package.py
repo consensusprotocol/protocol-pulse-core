@@ -1167,7 +1167,8 @@ def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name, ex
         left = [(m, no_role_on_screen(m), no_topic(m)) for m in
                 ({k: x for k, x in m.items() if k != "scorer_verdict"} for m in ms)]
         ask = [m for m, o, t in left if o and not t] + \
-            [v for m, o, t in left if o or t for v in [trim_variant(m, sources)] if v]
+            [v for m, o, t in left if o or t or hook_trim(m) for v in [trim_variant(m, sources)] if v] + \
+            [m for m, o, t in left if not o and not t and third_opener(m)]      # ruling 94 (a), (b): the hook's
         have = {(m["moment_id"], text_sha(m["text"])) for m in ask}
         for m in extra or ():                            # ruling 90: once each (same id and text)
             k = (m["moment_id"], text_sha(m["text"]))
@@ -1221,14 +1222,37 @@ def can_open(m):
     return _can_open(m)
 
 
-def _can_open(m):
+def hook_trim(m):
+    """RULING 94 (a): the moment opens on a conjunction or reply word that ruling 33's ONE-word trim may cut
+    (TRIM_WORDS): its trim variant is what may open, whatever its clip role."""
+    import stand_alone as SA
+    w = SA._words(m.get("text") or "")[:1]
+    return bool(w) and w[0] in TRIM_WORDS
+
+
+def third_opener(m):
+    """RULING 94 (b): the moment opens on a third-person or demonstrative pronoun: as a hook it needs the clip scorer's
+    affirmation (stand_alone.THIRD)."""
+    import stand_alone as SA
+    w = SA._words(m.get("text") or "")[:1]
+    return bool(w) and w[0] in SA.THIRD
+
+
+def _can_open(m, pending_verdict=False):
     """Whether a moment may OPEN a line-up: hook-eligible, its hook onset measured and passed (G17a), a first word the
     render's STAND_ALONE takes for a hook (stand_alone.opener), and, once the build has rated the pool's hooks (RULING
     59: build() sets "hook_rating" on every cleared moment before any line-up), rated >= HOOK_MIN on the hook's own job
     (an unmeasured rating is never a pass, law L-m). A moment without the key is judged as before ruling 59."""
     import stand_alone as SA
-    if not ((m.get("eligibility") or {}).get("hook", {}).get("ok") and (m.get("hook_onset") or {}).get("pass") is True
-            and SA.opener("hook", m.get("text") or "")[0]):
+    v = verdict_of(m)                                    # RULING 94 (b): the scorer's verdict on its current text
+    sc = (v["score"], v["fault"]) if v else (None, None)
+    defer = pending_verdict and v is None and third_opener(m)    # the spotlight only: a third-person opener with NO
+    #   verdict yet is left to its own ALONE >= 4 gate, which reads the real verdict; nothing is assumed about it here,
+    #   and the medley never defers (audit 0041 C1: qwen, glm)
+    opens = lambda: defer or SA.opener("hook", m.get("text") or "", *sc, moments=True)[0]
+    hook = (m.get("eligibility") or {}).get("hook") or {}
+    elig = hook.get("ok") or (set(hook.get("reasons") or []) == {"opener"} and opens())   # the ledger had no verdict
+    if not (elig and (m.get("hook_onset") or {}).get("pass") is True and opens()):
         return False
     if "hook_rating" not in m:
         return True                                      # not rated yet: judged as before ruling 59
@@ -2253,11 +2277,14 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}
     admitted = sorted(m["moment_id"] for m in ms if verdict_of(m) and m["moment_id"] not in no_role)   # ruling 56
-    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms if m["moment_id"] in no_role
-             for v in [trim_variant(m, sources)] if v}
+    trims = {m["moment_id"]: with_verdict(v, scorer["index"]) for m in ms
+             if m["moment_id"] in no_role or hook_trim(m)                   # ruling 94 (a): a hook's trim variant
+             for v in [trim_variant(m, sources)] if v}                      # joins the pool (the original stays a clip)
     trim_out = {k: why for k, v in trims.items() for why in [trim_refused(v)] if why}   # ruling 56: never sealed
     trims = {k: v for k, v in trims.items() if k not in trim_out}
-    ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42)
+    ms = [m for m in ms if m["moment_id"] not in no_role] + list(trims.values())     # ruling 33 part 2 (item 42);
+    #   a variant of a moment that keeps its own place (ruling 94 a) sits beside it: one line-up never takes both (one
+    #   video at most once, L-y 4)
     ad_read = ad_read_out(ms, sources)                # the exclusion screen's free part, BEFORE the angle is built
     ms = [m for m in ms if m["moment_id"] not in ad_read]     # around a moment it refuses (the 03:39 build's hook)
     wv, wf = _writers(router)

@@ -14,6 +14,8 @@ import json
 import re
 import os
 import sys
+import shutil
+import tempfile
 import unittest
 from datetime import timedelta
 
@@ -1088,6 +1090,65 @@ class TestRuling33TrimAtThePinStage(unittest.TestCase):
         self.assertTrue(out2["prescreen"]["hook_onset"]["b~trim"].startswith("FAIL"))   # cannot open (glm C2 N5)
         self.assertEqual(out2["prescreen"]["trim_cut"], {})        # its cut is clean, only its hook lead fails: it
         self.assertIn("id=b~trim ", next(p for r, p in rig2.prompts if r == "angle_write"))   # stays as a clip
+
+
+class TestRuling94HookOpeners(unittest.TestCase):
+    """RULING 94 (00:40 ET Nov 14): (a) a hook opening on a conjunction or reply word opens as ruling 33's one-word trim
+    variant, whatever its clip role (the trim cuts cleanly, the scorer affirms it); (b) a first/second-person opener is
+    no fault; a third-person or demonstrative one needs the clip scorer's affirmation."""
+
+    def opener(self, text, reasons=(), verdict=None):
+        m = dict(pm("o", "O", 13.0), text=text, hook_onset={"pass": True, "measured": True})
+        m["eligibility"] = {"hook": {"ok": not reasons, "reasons": list(reasons)}, "clip": {"ok": True}}
+        return dict(m, scorer_verdict=verdict) if verdict else m
+
+    def test_first_and_second_person_open_and_third_person_needs_the_scorer(self):
+        self.assertTrue(PK._can_open(self.opener("I will bet you one Bitcoin that it gets there.")))
+        self.assertTrue(PK._can_open(self.opener("You know, Bitcoin is not done.")))
+        t = "This is ultimately a bipartisan issue for Bitcoin."
+        self.assertTrue(PK.third_opener({"text": t}))
+        self.assertFalse(PK._can_open(self.opener(t, ["opener"])))                         # no verdict: closed
+        self.assertTrue(PK._can_open(self.opener(t, ["opener"], sv(t, 4.0))))              # affirmed: open
+        self.assertFalse(PK._can_open(self.opener(t, ["opener"], sv(t, 3.0))))
+        self.assertTrue(PK._can_open(self.opener(t, ["opener"]), pending_verdict=True))   # the spotlight waits
+        self.assertFalse(PK._can_open(self.opener(t, ["opener", "hook_lead"], sv(t, 4.0))))   # another reason holds
+        self.assertFalse(PK._can_open(self.opener("So Bitcoin is down.")))                 # (a): only the trim opens
+        self.assertTrue(PK.hook_trim({"text": "So Bitcoin is down."}))
+        self.assertFalse(PK.hook_trim({"text": "Because Bitcoin is down."}))               # not a ruled trim word
+
+    def test_the_scorer_is_asked_for_a_hook_trim_and_a_third_person_opener(self):
+        d = tempfile.mkdtemp()
+        try:
+            src = source(["So Bitcoin has rarely seen six negative weeks back to back in its whole history."],
+                         vid="vS")
+            a, b = src.sentences[0]
+            so = dict(pm("s", "S", 0.0, vid="vS"), text=E.spoken(src.tokens[a:b + 1]), words=[a, b],
+                      start=float(src.tokens[a]["start"]), end=float(src.tokens[b]["end"]))
+            so = dict(so, scorer_verdict=sv(so["text"], 4.0))          # its CLIP role is affirmed as it is
+            this = dict(pm("t", "T", 12.0), text="This is ultimately a bipartisan issue for Bitcoin.")
+            plain = dict(pm("p", "P", 12.0), text="Bitcoin is the hardest money there is.")
+            PK.scorer_pass([so, this, plain], {"vS": src}, E.Context(NOW, REG), None,
+                           os.path.join(d, "c.json"), "b")
+            asked = [c["pid"] for c in json.load(open(os.path.join(d, "c.json")))["candidates"]]
+            self.assertIn("s~trim", asked)                              # (a): its hook trim variant
+            self.assertIn("t", asked)                                   # (b): the third-person opener itself
+            self.assertNotIn("p", asked)
+        finally:
+            shutil.rmtree(d, ignore_errors=True)
+
+    def test_a_hook_trim_variant_joins_the_pool_beside_its_affirmed_original(self):
+        ms = [pm("h", "A", 12.0), pm("x", "B", 14.0), pm("y", "C", 13.0), pm("z", "D", 13.0),
+              dict(pm("s", "E", 13.0), text="So Bitcoin x.")]
+        v = dict(ms[4], moment_id="s~trim", text="Bitcoin x.", trimmed_leading="So", untrimmed_start=0.0)
+        saved = PK.trim_variant
+        try:
+            PK.trim_variant = lambda m, sources: v if m["moment_id"] == "s" else None
+            ok = {"s": fv("So Bitcoin x.", 4.0), "s~trim": fv("Bitcoin x.", 4.0)}   # the clip role affirmed as it is
+            out = Rig(ms, ["h", "x", "y", "z"], [(True, [], None, Rig.LINE)], [None], verdicts=ok).run()
+        finally:
+            PK.trim_variant = saved
+        self.assertEqual(out["trimmed"], {"s": "s~trim"})               # ruling 94 (a): not only for no_role ones
+        self.assertIsNotNone(out["package"])
 
 
 class TestRuling58StepAEveryCandidate(unittest.TestCase):
