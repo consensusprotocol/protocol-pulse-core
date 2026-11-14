@@ -1,0 +1,258 @@
+{
+ "6aad8f2f278340a46449:9d43580c729b": {
+  "label": "6aad8f2f278340a46449",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "today",
+    "refers_to": "current time/show date (2026-11-14)",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "it",
+    "refers_to": "Bitcoin price",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Buying crypto today at around $67,000 is like buying Bitcoin over five years ago but completely derisked due to improved fundamentals while the price remains similar.",
+  "certainty": "speculative",
+  "speaker_is": "host",
+  "speaker_evidence": "But here's what they don't want you to know about crypto. Let me show",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "72e9a3529c27be3eb69d:9d43580c729b": {
+  "label": "72e9a3529c27be3eb69d",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the last five years BlackRock has institutionalized Bitcoin and Ethereum while Fidelity and Charles Schwab now offer crypto.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "But here's what they don't want you to know about crypto. Let me show you. Buying crypto today at the price of around 6768,000 is like buying Bitcoin over five years ago, but completely derisked.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "72e9a3529c27be3eb69d~trim:9d43580c729b": {
+  "label": "72e9a3529c27be3eb69d~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [
+   {
+    "text": "in the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the last five years BlackRock has institutionalized Bitcoin as well as Ethereum while Fidelity and Charles Schwab now offer crypto.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "89d5c05be258c4069a4e~trim:9d43580c729b": {
+  "label": "89d5c05be258c4069a4e~trim",
+  "speaker_changes_inside": "no",
+  "view": "question",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "the hypothetical scenario of public miners leaving Bitcoin for AI",
+    "inside": true,
+    "changes_assertion": "yes"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "if public miners leave Bitcoin for AI",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "The speaker asks what it would mean and what would happen to hash rate and network security if public miners left Bitcoin for AI.",
+  "certainty": "certain",
+  "speaker_is": "uncertain",
+  "speaker_evidence": "",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "05f1e4a9f750546eb83a:9d43580c729b": {
+  "label": "05f1e4a9f750546eb83a",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [],
+  "conditions": [],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "It is one of the most beautiful unforeseen aspects of Bitcoin that miners in sub-Saharan Africa are electrifying rural villages using stranded energy to mine profitably.",
+  "certainty": "certain",
+  "speaker_is": "guest",
+  "speaker_evidence": "what would excite me the most in the next 10 years would be to go on a grand tour of the world",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "ab72c96d18f352cd82fa~trim:9d43580c729b": {
+  "label": "ab72c96d18f352cd82fa~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "we",
+    "refers_to": "speaker and audience/current Bitcoin market position",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "now",
+    "refers_to": "present time in 2026",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "currently",
+    "refers_to": "present Bitcoin price level",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the last five years",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "In the last five years Bitcoin and Ethereum have become institutionalized by BlackRock while Fidelity, Charles Schwab, the SEC and CFTC have all embraced crypto, with the 200-month moving average now sitting at the current price around $63k instead of far below it as in 2021.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "I mean, the top companies in America, Tesla, SpaceX, Apple, Meta, we like that strong figurehead.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "a5438e7235bf6e4aaa84~trim:9d43580c729b": {
+  "label": "a5438e7235bf6e4aaa84~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "that",
+    "refers_to": "Bitcoin being completely de-risked when buying at the same price as five years ago",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "here today",
+    "refers_to": "current Bitcoin price and moment in 2026",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "When everybody doesn't care about crypto, when nobody cares about crypto, And everybody's apathetic",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Recognizing that Bitcoin is completely derisked at today's price compared to the same price five years ago makes the speaker feel good, especially during the apathy phase when nobody cares about crypto.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "When I say these are the top altcoins that I think will do very, very well in 2027.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ },
+ "58fe56ce50d3cb5626a7~trim:9d43580c729b": {
+  "label": "58fe56ce50d3cb5626a7~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "these",
+    "refers_to": "current prices",
+    "inside": true,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "I",
+    "refers_to": "the speaker",
+    "inside": true,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "even at these prices",
+    "inside": true
+   },
+   {
+    "text": "in 2027",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Even at current prices everyone was screaming Bitcoin would go way lower, there was apathy and chop with prices not going parabolic yet, and the top altcoins for 2027 will not necessarily perform in January but only after the apathy layer churns.",
+  "certainty": "likely",
+  "speaker_is": "host",
+  "speaker_evidence": "When I say these are the top alt coins that I think will do very, very well in 2027, that doesn't mean January.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": true
+ },
+ "b05aed91079ce64702e4~trim:9d43580c729b": {
+  "label": "b05aed91079ce64702e4~trim",
+  "speaker_changes_inside": "no",
+  "view": "own_sincere",
+  "referents": [
+   {
+    "word": "they",
+    "refers_to": "those creating or benefiting from the FUD",
+    "inside": false,
+    "changes_assertion": "no"
+   },
+   {
+    "word": "you",
+    "refers_to": "the audience or viewers",
+    "inside": false,
+    "changes_assertion": "no"
+   }
+  ],
+  "conditions": [
+   {
+    "text": "in the short term",
+    "inside": true
+   }
+  ],
+  "retraction": "none",
+  "time_ok": "yes",
+  "proposition": "Investors see no end to short-term fear, uncertainty, and doubt, sucking liquidity from Nvidia stock and Bitcoin, but there are positive derisked aspects of crypto that they don't want you to know.",
+  "certainty": "certain",
+  "speaker_is": "host",
+  "speaker_evidence": "Let me show you. Buying crypto today at the price of around 6768,000 is like buying Bitcoin over five years ago, but completely derisked.",
+  "backend": "xai:grok-4.20-0309-reasoning",
+  "replayed": false,
+  "speaker_verified": false
+ }
+}

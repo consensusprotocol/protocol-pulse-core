@@ -1,26 +1,8 @@
 {
- "generated_at": "2026-11-14T10:41:07+00:00",
- "build": "ledger_20261114_104059",
+ "generated_at": "2026-11-14T11:33:54+00:00",
+ "build": "ledger_20261114_113351",
  "kind": "moments",
  "candidates": [
-  {
-   "pid": "05c4700757ff96dd6aca",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 6.56,
-   "text": "But still, you have to understand that Bitcoin is the only asset that will not be affected by AI today.",
-   "text_sha256": "4fc1ab6a6dfacb64116289b84ff900a7a9d2fa333053422ac52ac72d8524510e",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "79054d4b967721a77c40",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 10.96,
-   "text": "But here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
-   "text_sha256": "5c65b0fe2e247888f39c43a5c026968ee30f092c4fc13ac2839a74473284704f",
-   "trimmed_leading": null
-  },
   {
    "pid": "72e9a3529c27be3eb69d",
    "video_id": "WJL2Ta9ZNDg",
@@ -28,15 +10,6 @@
    "duration": 11.4,
    "text": "So in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
    "text_sha256": "040e83c0beaf6b43f2fb289d71c31715796be0638468ff393d71e5af716bebe1",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "7f2bf26b73cabe67ba12",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 15.67,
-   "text": "So my whole belief has been, and this is the reason why I believe in Bitcoin is that there are no more moats and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from, a lack of government involvement. It comes from multiple expansion.",
-   "text_sha256": "014105019821f99902e93be84ac632dde117d39dfa437ea9d32ec734aae9c5a5",
    "trimmed_leading": null
   },
   {
@@ -49,30 +22,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "be86cfbb5bfd3f37541e",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 10.09,
-   "text": "And when their companies are hacked and their systems are breached, there's going to be one asset that's going to be outside of this entire realm. And this is why Jordi Visser believes that Bitcoin is valuable moving forward.",
-   "text_sha256": "8db487d1ce375bbfbd2a6b522b00ebff7f88d2e717ba26fd1da7cddc12357669",
-   "trimmed_leading": null
-  },
-  {
    "pid": "c0b10dbdc0b9dbadfac2",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
    "duration": 9.28,
    "text": "But understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
    "text_sha256": "cf51bb308c9b62bf39178763110899ac82a66c9d7fb87db8e48dc54f834425f2",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "45d9b39296c39a885ab5",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 7.86,
-   "text": "And why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
-   "text_sha256": "37c28248637ee8060b66a6fb3189623d9c3e78bfc6d47c3618e01d26e90a412d",
    "trimmed_leading": null
   },
   {
@@ -94,48 +49,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "77d1ff81caaa3145a815",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 6.1,
-   "text": "And when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
-   "text_sha256": "8e8ab6c2087c1ebf411e0e89d16e2876f9fca4bf798e4e9b36234066495bb3d6",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "05c4700757ff96dd6aca~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 6.46,
-   "text": "still, you have to understand that Bitcoin is the only asset that will not be affected by AI today.",
-   "text_sha256": "4e2ef9d35093c5db6a36f5334623933abe8dc9dba3ed8e3b2e064dae4e7c706d",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "79054d4b967721a77c40~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 10.9,
-   "text": "here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it.",
-   "text_sha256": "20018e3838b693fe28c2e84848cba1197af5a59280ae7899cd9b7c8e6210ef93",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "72e9a3529c27be3eb69d~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
    "duration": 11.28,
    "text": "in the last five years, Black Rock has completely institutionalized Bitcoin as well as Ethereum. Fidelity now offers crypto. Charles Schwab now offers crypto.",
    "text_sha256": "8d1ecc96f033866ed3f03c70fa49647ad882142958df1024864c312826471b35",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "7f2bf26b73cabe67ba12~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 15.59,
-   "text": "my whole belief has been, and this is the reason why I believe in Bitcoin is that there are no more moats and that when your business gets there, it's not that you won't be a $5 trillion company. But growth comes from, a lack of government involvement. It comes from multiple expansion.",
-   "text_sha256": "015b3cfde370aab8580bbe4529a07f64f9498e7ed6a7949674b452b7c7ffdcaa",
    "trimmed_leading": "So"
   },
   {
@@ -148,15 +67,6 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "be86cfbb5bfd3f37541e~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 10.09,
-   "text": "when their companies are hacked and their systems are breached, there's going to be one asset that's going to be outside of this entire realm. And this is why Jordi Visser believes that Bitcoin is valuable moving forward.",
-   "text_sha256": "0007d421f8ea5a387ed2941c76f8aabd2438440821a7e70ef7c4ba6c878679bc",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "c0b10dbdc0b9dbadfac2~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -164,15 +74,6 @@
    "text": "understanding that Bitcoin is completely de -risked buying here today versus buying at the same price five years ago, that makes me feel good.",
    "text_sha256": "873ebe6552da466f8932df2847771fa3f2bf97769aa49aa4baf5fe2573c8aec0",
    "trimmed_leading": "But"
-  },
-  {
-   "pid": "45d9b39296c39a885ab5~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 7.8,
-   "text": "why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
-   "text_sha256": "ce6f945927af4f54d32a0494c9139cb4e9e3c5cd1d4d0e018636ea92e217eaab",
-   "trimmed_leading": "And"
   },
   {
    "pid": "6251a82fa63ed051ea3f~trim",
@@ -193,84 +94,12 @@
    "trimmed_leading": "And"
   },
   {
-   "pid": "77d1ff81caaa3145a815~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 6.08,
-   "text": "when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack.",
-   "text_sha256": "7ebb2b96c275226dc94dc31b969a3153a691eda01c434d14282e0d9487297c04",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "ced20f9abe9defd2eb36",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 15.28,
-   "text": "It's a network who doesn't have a CEO that you can blackmail into selling chips. to your greatest adversaries over the next year, bitcoin is going to prove to itself, even if the price doesn't reflect it today or in the short term, that it's the last thing standing.",
-   "text_sha256": "5cf905756b39c9fa15e3b42f0f38f9280b9e24164fa43b81ff6059ce6cf8337a",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "19ba6bd39cf325bf46c3",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 11.44,
-   "text": "They're going to buy Bitcoin because robots can't make more Bitcoin, you know? Even if every human being is a million times smarter than Einstein, they're not going to make more Bitcoin.",
-   "text_sha256": "601b72e3afef837d2e22261ac95c05a535c749c201ec777bb160127b25006a9f",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "495baf5b615338e88454",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 13.93,
-   "text": "AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin. They can't hack Bitcoin. They can talk about quantum all they want. These cyber attacks are going to continue to pop up.",
-   "text_sha256": "366cc96074a4c036edc254568823dff9a9fc1b3e69b1dd0b29d06e76fb76d0ec",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b734abb0ab69e02cbf19~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 25.22,
-   "text": "still, you have to understand that Bitcoin is the only asset that will not be affected by AI today. All of the major companies, all of the big hyperscalers, all of the big cloud providers, All of the big chip makers that were riding this AI trade that were being funded from the capital that was being sourced from the central bank of AI, which was Nvidia, which is no longer there and experiencing turmoil, that whole trade's going to come crashing down.",
-   "text_sha256": "92c9b4f4205916347d7c0f1b04c62f71c53a6df5a4213639f80d8e44d5fb4286",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "6aad8f2f278340a46449",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
    "duration": 17.88,
    "text": "Buying crypto today at the price of around $67,000 is like buying Bitcoin over five years ago, but completely derisked. So again, the Bitcoin price. is around the same price that it was in 2021.",
    "text_sha256": "13ac9b6aa8a98bd140a2e28393b6be874fa1fb36d492cf9ef328e108323c0bae",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "35160833f97c13bf4ce5~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 21.08,
-   "text": "here's the thing about Bitcoin. There's no CEO. There's no central bank, there's no capital allocator, just the code and the rules, 21 million Bitcoin and nodes all across the globe, running this code, willingly, choosing to do it. No espionage, no affairs, no circular financing. Just a coin -based fee to a random miner who might figure out the next block or next hash to stick on the end of the blockchain, fair and square.",
-   "text_sha256": "9b533bc4faf304db11c5bc6e6f66409475d9ea7132a2e56c42ba397139dfa893",
-   "trimmed_leading": "But"
-  },
-  {
-   "pid": "615f6acc1ba7bfe5a139",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 13.76,
-   "text": "What if I told you that Bitcoin predicted this? What if I told you that Bitcoin is the only asset that AI can't touch? And why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today.",
-   "text_sha256": "f91fcabc1c235167b1dcd33a41f04b0e09ae45ff1419c75c6236163e5ef5ce09",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "ac64cce1167a570fe7ff",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 16.93,
-   "text": "They're going to buy Bitcoin because robots can't make more Bitcoin, you know? Even if every human being is a million times smarter than Einstein, they're not going to make more Bitcoin. So I would invest in something that the robots can't make more of.",
-   "text_sha256": "50cdf14a0e68569d00a936731756432c547adecda3e6a5d0f07a4f187f6d41a7",
    "trimmed_leading": null
   },
   {
@@ -292,24 +121,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "8b670dccd7bb802349dc",
-   "video_id": "m83V9Xl9wLg",
-   "channel": "Digital Asset News",
-   "duration": 15.94,
-   "text": "The second group is like, no, it's going to go down even lower. And we could see a 10K Bitcoin, 20K, maybe a 40K. And there's me who's like, I don't know. I think the 200 -week moving average is a pretty good one to just buy below that and double or quadruple or 8X up, which you usually buy.",
-   "text_sha256": "90abc525c48f62e1a02df6032340f5e52edf52e88c9faec6cbd7cc4bed002d69",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "a9c047f96aca4be3b265~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 20.39,
-   "text": "when their companies are hacked and their systems are breached, there's going to be one asset that's going to be outside of this entire realm. And this is why Jordi Visser believes that Bitcoin is valuable moving forward. The reason that I'm interested in Bitcoin is because I'm looking for things that are benefiting from growth that is going to happen of which there's going to be difficulty for competition.",
-   "text_sha256": "aad7f7cbec465f17d25fdb95ae0b8ccd6ffc5410905323627bf1cb32ffa95d59",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "a5438e7235bf6e4aaa84~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -319,15 +130,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "558ddf87fe4ab2156038~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 18.4,
-   "text": "why over the next year, as things get much worse, this is going to become more obvious. Bitcoin is the escape hatch. And I'll tell you why today. This is Dante Cook with Bitcoin Simply. Let's go. If you didn't know this week, Jensen Wong at NVIDIA has been pushed out as CEO.",
-   "text_sha256": "9ffe5db29097725a0a45a7368d1ab72611e2e59609243744ed1c6da1c7e8486c",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "58fe56ce50d3cb5626a7~trim",
    "video_id": "WJL2Ta9ZNDg",
    "channel": "Altcoin Daily",
@@ -335,42 +137,6 @@
    "text": "by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower. We had apathy. We had chop around, meaning prices aren't going to go parabolic yet. When I say these are the top alt coins that I think will do very, very well in 2027, that doesn't mean January.",
    "text_sha256": "8e01ee07218f8822eea56ceda1a3bda70ad9a8c9f8b52032eccbe963c616e7ae",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "2184e3ea5900463421f8",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 17.75,
-   "text": "You want to find something where money goes into that's growing. Bitcoin doesn't have the hurdles. that stocks do. So you've got to remember, you've been doing this for a long time with Bitcoin. It's been under attack for the entire time. Correct.",
-   "text_sha256": "173ec93f303fd406ccac8cecc86d93557106f68c8c2ef7cd0a7a3abca242d981",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b34c1e5b5a4b7d17de6e",
-   "video_id": "m83V9Xl9wLg",
-   "channel": "Digital Asset News",
-   "duration": 16.7,
-   "text": "25K for Bitcoin and below. Who knows? That would be something. That'd be over 80 % plus down. Eric David says, hey, Rob, I visited San Juan and Condalo.",
-   "text_sha256": "e34b67a65e78d310ffda7a7c4debd579e542e19fb73d03122e92c9a507fdb65d",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "c19c84270b4db30d9c1a~trim",
-   "video_id": "L6H7538ogGs",
-   "channel": "Simply Bitcoin",
-   "duration": 16.05,
-   "text": "when all of this happens, people are going to understand why Bitcoin is so valuable. It's a network that the hackers can't so easily hack. It's a network that foreign adversaries can't lobby to change. It's a network who doesn't have a CEO that you can blackmail into selling chips to your greatest adversaries.",
-   "text_sha256": "15d76dcc998521b83e3fe915524eb41074f798caae3429707439c36af288b326",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "b24c401091919954acc7~trim",
-   "video_id": "m83V9Xl9wLg",
-   "channel": "Digital Asset News",
-   "duration": 34.9,
-   "text": "I know everybody just says like, everybody says one of two things. First of all, we're going to keep going higher. Bull run starts today. It's going to be awesome. The second group is like, no. it's going to go down even lower and we could see a 10k bitcoin 20k maybe a 40k and there's me who's like i don't know i think the 200 week moving average is a pretty good one to just buy below that and double or quadruple or 8x up what you usually buy that's what i do and just write things out over time anyhow so now we're all crystal clear where i stand anyhow Let me know what you think about that in the comment section.",
-   "text_sha256": "63b1f8f3834f88dfec27c29407efc5f4db1d6f8f77156cae43c7f9ff46b025b0",
-   "trimmed_leading": "So"
   }
  ]
 }
