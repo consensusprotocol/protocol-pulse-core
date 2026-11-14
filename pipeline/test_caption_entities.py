@@ -105,8 +105,13 @@ class TestClusterClaimIsTheEvent(unittest.TestCase):
 
         def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
             self.prompts.append(prompt)
-            return {"underlying_event": "The US held its general elections on November 8th, 2026.",
-                    "bitcoin_relevance": 5, "importance": 4, "action": "sell-off", "affected_object": "Bitcoin"}
+            obj = {"underlying_event": "The US held its general elections on November 8th, 2026.",
+                   "bitcoin_relevance": 5, "importance": 4, "action": "sell-off", "affected_object": "Bitcoin",
+                   "event_date": "2026-11-08", "event_recency": "current", "entities": [], "concepts": [],
+                   "must_not_confuse_with": []}
+            if validate:
+                validate(obj)
+            return obj
 
     def test_a_cluster_claim_is_its_event_and_a_wire_item_is_unchanged(self):
         claim = "Following the US elections, Bitcoin experienced a sell-off and net outflows from US Bitcoin ETFs."

@@ -229,8 +229,14 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
                 self.score = score
 
             def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
-                return {"ratings": [{"id": i, "score": self.score, "reason": "start at 0.0 instead"}
-                                    for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+                if prompt.startswith("You check ONE SENTENCE"):        # the adjacent-sentence verifier: a new subject
+                    reply = {"label": "NEW_SUBJECT", "reason": "fake"}
+                else:
+                    reply = {"ratings": [{"id": i, "score": self.score, "fault": "none", "reason": "start at 0.0 instead"}
+                                         for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+                if validate:
+                    validate(reply)
+                return reply
         c = {"query": RUN3["binance"]["query"], "headline": RUN3["binance"]["headline"]}
         cq = es._clip_quality(c, same, FakeEmbedder(), Rater(5), reg, words, log=lambda s: None)
         self.assertTrue(any("deduped" in str(x) for a in cq["anchors"] for x in a.get("windows", {}).values()), cq["anchors"])
@@ -279,9 +285,99 @@ class ScriptedLLM(sm.LocalLLM):
 
 class TestMalformedLLM(unittest.TestCase):
     def test_retry_then_valid(self):
-        llm = ScriptedLLM(['{"verdict": "CURRENT_EVENT" "x": 1}', '```json\n{"support": "SUPPORTS",}\n```'])
+        llm = ScriptedLLM(['{"verdict": "CURRENT_EVENT" "x": 1}',
+                           '```json\n{"support": "SUPPORTS", "same_actor_action_object": true, "presented_as": "current", '
+                           '"reason": "r",}\n```'])
         self.assertEqual(llm.chat_json("p", validate=sm._v_sup)["support"], "SUPPORTS")
         self.assertEqual(llm.calls, 2)
+
+    def test_a_reply_missing_or_mistyping_a_deciding_field_is_a_failed_call(self):
+        """Red-team B (GPT-select F01 / F11 / F12; batch 17 audits): ONE defect per case on an otherwise valid reply,
+        so each case proves its own rule; the valid bases themselves pass."""
+        import copy
+        bases = {
+            "sup": (sm._v_sup, {"support": "SUPPORTS", "same_actor_action_object": True, "presented_as": "current",
+                                "reason": "r"}),
+            "adj": (sm._v_adj, {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": ["AAA:0-1"], "evidence_quote": "q q q",
+                                "confidence": 0.9, "reason": "r"}),
+            "derive": (sm._v_derive, {"underlying_event": "x", "bitcoin_relevance": 5, "importance": 3,
+                                      "event_date": "2026-11-10", "event_recency": "current", "action": "a",
+                                      "affected_object": "b", "entities": [{"name": "n", "aliases": []}],
+                                      "must_not_confuse_with": [], "concepts": []}),
+            "label": (sm._v_label, {"is_specific_event": True, "headline": "h", "event_date": "2026-11",
+                                    "current_development_quote": "q", "current_development_chunk_id": "c",
+                                    "member_chunk_ids": ["c"]}),
+            "rate": (lambda o: sm._v_rate(o, {"p0", "p1"}), {"ratings": [{"id": "p0", "score": 4, "fault": "none"},
+                                                                       {"id": "p1", "score": 2.5, "fault": "off_topic"}]}),
+        }
+        for name, (v, base) in bases.items():
+            v(copy.deepcopy(base))                                                     # the base is valid
+        defects = [
+            ("sup", lambda o: o.pop("same_actor_action_object")), ("sup", lambda o: o.pop("presented_as")),
+            ("sup", lambda o: o.__setitem__("same_actor_action_object", "true")),
+            ("adj", lambda o: o.__setitem__("supporting_chunk_ids", "AAA:0-1")),
+            ("adj", lambda o: o.__setitem__("supporting_chunk_ids", [])),             # positive without evidence
+            ("adj", lambda o: o.__setitem__("evidence_quote", "")),
+            ("adj", lambda o: o.__setitem__("confidence", float("nan"))),
+            ("derive", lambda o: o.__setitem__("bitcoin_relevance", True)),           # a bool is not an int
+            ("derive", lambda o: o.__setitem__("importance", 7)),
+            ("derive", lambda o: o.__setitem__("event_date", "n/a")),
+            ("label", lambda o: o.pop("current_development_quote")),
+            ("label", lambda o: o.__setitem__("member_chunk_ids", [])),
+            ("label", lambda o: o.__setitem__("member_chunk_ids", [""])),
+            ("rate", lambda o: o["ratings"][0].__setitem__("score", 9)),
+            ("rate", lambda o: o["ratings"][0].__setitem__("score", float("nan"))),
+            ("rate", lambda o: o["ratings"].pop()),                                   # a passage left unrated
+            ("rate", lambda o: o["ratings"].append(dict(o["ratings"][0]))),           # a duplicate id
+            ("rate", lambda o: o["ratings"].__setitem__(0, "p0")),                    # an entry that is not an object
+            ("rate", lambda o: o["ratings"][0].__setitem__("fault", "great")),
+        ]
+        for name, fn in defects:
+            v, base = bases[name]
+            o = copy.deepcopy(base)
+            fn(o)
+            with self.assertRaises(ValueError, msg=f"{name}: {o}"):
+                v(o)
+
+    def test_harmless_variations_are_accepted(self):
+        """claude-fable B #5: case, an integral float, a null aliases list or a missing reason are not failures."""
+        o = {"support": "Supports", "same_actor_action_object": True, "presented_as": "Current"}
+        sm._v_sup(o)
+        self.assertEqual((o["support"], o["presented_as"]), ("SUPPORTS", "current"))
+        d = {"underlying_event": "x", "bitcoin_relevance": 5.0, "importance": 3, "event_date": "unknown",
+             "event_recency": "Current", "action": "a", "affected_object": "b", "entities": [{"name": "n", "aliases": None}],
+             "must_not_confuse_with": [], "concepts": []}
+        sm._v_derive(d)
+        self.assertEqual((d["bitcoin_relevance"], d["entities"][0]["aliases"]), (5, []))
+
+    def test_an_invalid_reply_through_the_real_call_is_inconclusive_never_counted(self):
+        """The whole path: a support reply without its deciding fields, every attempt, through the REAL chat_json
+        (ScriptedLLM) and adjudicate: not counted, INCONCLUSIVE with the attempts recorded."""
+        adj = json.dumps({"verdict": "CURRENT_EVENT", "supporting_chunk_ids": ["AAAAAAAAAAA:0-1000"],
+                          "evidence_quote": "some text here and more words", "confidence": 0.9, "reason": "r"})
+        llm = ScriptedLLM([adj] + ['{"support": "SUPPORTS", "reason": "r"}'] * 3)
+        v = sm.adjudicate(llm, {"underlying_event": "x"}, {"title": "t", "channel": "c"},
+                          [{"chunk_id": "AAAAAAAAAAA:0-1000", "text": "some text here and more words"}])
+        self.assertFalse(v["counted_as_same_event"])
+        self.assertEqual(v["support"], "INCONCLUSIVE")
+        self.assertEqual(len(v["support_error"]["llm_attempts"]), 3)
+
+    def test_supports_needs_both_deciding_fields_exactly(self):
+        class One:
+            model, calls = "fake", 0
+
+            def __init__(self, reply):
+                self.reply = reply
+
+            def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+                if validate:
+                    validate(self.reply)
+                return dict(self.reply)
+        base = {"support": "SUPPORTS", "same_actor_action_object": True, "presented_as": "current", "reason": "r"}
+        self.assertEqual(sm.verify_support(One(base), {"underlying_event": "x"}, "q")["support"], "SUPPORTS")
+        for change, want in (({"same_actor_action_object": False}, "TOPIC_ONLY"), ({"presented_as": "past"}, "BACKGROUND"),
+                             ({"presented_as": "unclear"}, "INCONCLUSIVE")):
+            self.assertEqual(sm.verify_support(One({**base, **change}), {"underlying_event": "x"}, "q")["support"], want)
 
     def test_bounded_and_recorded(self):
         llm = ScriptedLLM(["not json", '{"verdict": "MAYBE"}', '{"verdict": '])
@@ -348,26 +444,38 @@ class FakeLLM:
             if "PARSEFAIL" in h:
                 raise sm.LLMParseError("no valid JSON after 3 attempts",
                                        [{"attempt": i + 1, "error": "bad", "raw": "{oops"} for i in range(3)])
-            return {"short_label": "midterms", "underlying_event": h, "event_date": self.model_date,
+            return self._ok(validate, {"short_label": "midterms", "underlying_event": h, "event_date": self.model_date,
                     "event_recency": self.model_recency, "entities": [{"name": "Congress", "aliases": ["midterms", "Senate"]}],
                     "action": "flip", "affected_object": "Congress", "concepts": ["midterms", "Congress"],
-                    "bitcoin_relevance": 5, "importance": 5, "is_specific_event": True}
+                    "must_not_confuse_with": [], "bitcoin_relevance": 5, "importance": 5, "is_specific_event": True})
         if prompt.startswith("You verify whether"):
             self.adj += 1
             if self.crash and self.adj == self.crash:
                 raise RuntimeError("boom (simulated crash)")
             m = re.search(r'<excerpt id="([^"]+)">(.*?)</excerpt>', prompt, re.S)
             words = m.group(2).split()[:10]
-            return {"verdict": self.adj_verdict, "supporting_chunk_ids": [m.group(1)],
-                    "evidence_quote": " ".join(words), "confidence": 0.9, "reason": "fake"}
+            return self._ok(validate, {"verdict": self.adj_verdict, "supporting_chunk_ids": [m.group(1)],
+                    "evidence_quote": " ".join(words), "confidence": 0.9, "reason": "fake"})
         if prompt.startswith("Decide whether a QUOTE"):
-            return {"support": "SUPPORTS", "reason": "fake"}
+            return self._ok(validate, {"support": "SUPPORTS", "same_actor_action_object": True,
+                                       "presented_as": "current", "reason": "fake"})
         if prompt.startswith("These transcript excerpts"):
-            return {"is_specific_event": False}
+            return self._ok(validate, {"is_specific_event": False})
         if prompt.startswith("You pick clips"):
-            return {"ratings": [{"id": i, "score": 5, "reason": "fake"}
-                                for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+            return self._ok(validate, {"ratings": [{"id": i, "score": 5, "fault": "none", "reason": "fake"}
+                                                   for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]})
         raise AssertionError("unexpected prompt")
+
+    @staticmethod
+    def _ok(validate, obj):
+        """The real chat_json contract: a reply the validator rejects is a failed call (LLMParseError), never
+        returned."""
+        if validate:
+            try:
+                validate(obj)
+            except ValueError as e:
+                raise sm.LLMParseError(f"no valid JSON after 3 attempts: {e}", [{"attempt": 1, "error": str(e)}])
+        return obj
 
 
 TXT = ("Democrats took the House and the Senate in the midterms this week and Congress flips, "

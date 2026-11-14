@@ -32,7 +32,10 @@ class FakeLLM:
             raise __import__("story_semantics").LLMParseError("unparseable", ["x"])
         out = {"ratings": [{"id": pid, "score": s, "reason": "r", "fault": f} for pid, (s, f) in self.scores.items()]}
         if validate:
-            validate(out)
+            try:
+                validate(out)
+            except ValueError as e:     # LocalLLM.chat_json's contract: a reply failing validation is a failed call
+                raise __import__("story_semantics").LLMParseError(f"no valid JSON: {e}", [{"error": str(e)}])
         return out
 
 
@@ -84,9 +87,10 @@ class TestOneCodePath(unittest.TestCase):
     def test_the_service_asks_the_byte_identical_prompt_validate_asks(self):
         r = req()
         ps = [{k: p[k] for k in ("pid", "channel", "duration", "text")} for p in r["passages"]]
-        validate_llm = FakeLLM({"clip_01": (4.0, "none")})
+        whole = {"clip_01": (4.0, "none"), "clip_02": (3.0, "none")}  # law L-l: a reply rates every passage it was sent
+        validate_llm = FakeLLM(whole)
         SA.clip_scorer(r["event"], llm=validate_llm)(ps)               # what stage_validate's rate() sends
-        svc = FakeLLM({"clip_01": (4.0, "none")})
+        svc = FakeLLM(whole)
         rec = SS.Recording(svc)
         SA.clip_scorer(r["event"], llm=rec)([dict(p) for p in r["passages"]])
         self.assertEqual(rec.prompts, validate_llm.prompts)          # moment_id never reaches the prompt
@@ -129,10 +133,13 @@ class TestService(unittest.TestCase):
         v = json.load(open(SS.result_path("m1", "But we have rarely seen six red weeks.", "cd" * 32)))
         self.assertEqual((v[0]["score"], v[0]["affirmed"]), (None, False))
         self.assertIn("unparseable", v[0]["error"])
+        # law L-l: a reply that leaves a passage unrated is not whole, so it is a failed call: the rated 5.0 is not
+        # affirmed either (before L-l the missing pid alone was refused, "no rating for this pid in the reply")
         SS.answer(self.put(req(rid="r3")), FakeLLM({"clip_01": (5.0, "none")}), "cd" * 32, log=lambda *a: None)
-        v = json.load(open(SS.result_path("m2", "So the cycle repeats.", "cd" * 32)))
-        self.assertEqual((v[-1]["score"], v[-1]["affirmed"], v[-1]["error"]),
-                         (None, False, "no rating for this pid in the reply"))
+        for mid, text in (("m1", "But we have rarely seen six red weeks."), ("m2", "So the cycle repeats.")):
+            v = json.load(open(SS.result_path(mid, text, "cd" * 32)))
+            self.assertEqual((v[-1]["score"], v[-1]["affirmed"]), (None, False), mid)
+            self.assertIn("unrated passages: ['clip_02']", v[-1]["error"], mid)
 
     def test_a_malformed_request_is_refused_with_why_and_never_scored(self):
         bad = [({"request_id": "../x", "event": "e", "passages": req()["passages"]}, "request_id"),

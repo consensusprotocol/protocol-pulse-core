@@ -24,6 +24,7 @@ Identity rules (nothing lexical stands in for semantics):
 import gc
 import hashlib
 import json
+import math
 import os
 import re
 import subprocess
@@ -423,11 +424,64 @@ Return ONLY JSON with keys:
 "rationale": one sentence}}"""
 
 
+def _field(o, key, kind, allowed=None, nonempty=False, lo=None, hi=None, optional=False):
+    """One field of a model reply, strictly (red-team B): exact type (an int is never a bool or a string; an
+    integral float such as 5.0 counts as an int), an enumerated value (compared, and written back, stripped and
+    lower-case: 'Current' is 'current'), a non-empty string, a finite number in range. optional: an absent / null
+    field is accepted (a reason no decision reads). Raises ValueError: the call failed."""
+    if not isinstance(o, dict):
+        raise ValueError("reply is not a JSON object")
+    v = o.get(key)
+    if optional and v is None:
+        return None
+    if kind == "int" and type(v) is float and math.isfinite(v) and v == int(v):
+        v = o[key] = int(v)
+    if allowed is not None and isinstance(v, str):
+        v = o[key] = v.strip().lower()
+    # type(), not isinstance(): bool is a subclass of int, so isinstance(True, int) would accept True as 1
+    ok = {"int": type(v) is int, "bool": type(v) is bool, "str": isinstance(v, str), "list": isinstance(v, list),
+          "num": type(v) in (int, float) and math.isfinite(v)}[kind]      # NaN / inf never pass (batch 17 audit #1)
+    if not ok:
+        raise ValueError(f"{key} must be {kind}, got {type(v).__name__}")
+    if allowed is not None and v not in allowed:
+        raise ValueError(f"{key} {v!r} not in {allowed}")
+    if nonempty and not (v.strip() if isinstance(v, str) else v):
+        raise ValueError(f"{key} is empty")
+    if (lo is not None and v < lo) or (hi is not None and v > hi):
+        raise ValueError(f"{key} {v!r} outside [{lo}, {hi}]")
+    return v
+
+
+def _str_list(o, key, nonempty=False):
+    """A list of strings; nonempty: at least one, and no empty string in it."""
+    v = _field(o, key, "list")
+    if not all(isinstance(x, str) and (x.strip() or not nonempty) for x in v) or (nonempty and not v):
+        raise ValueError(f"{key} must be a list of {'non-empty ' if nonempty else ''}strings")
+
+
+EVENT_DATE = re.compile(r"unknown|(19|20)\d{2}(-\d{2}(-\d{2})?)?")   # the forms the prompts ask for
+
+
 def _v_derive(o):
-    for k in ("underlying_event", "bitcoin_relevance", "importance"):
-        if k not in o:
-            raise ValueError(f"missing {k}")
-    int(o["bitcoin_relevance"]), int(o["importance"])
+    """Every field a decision reads: the event, its Bitcoin relevance and importance (the screen and the ranking),
+    its date and recency (currentness), the entities / action / object / confusables (adjudication context)."""
+    _field(o, "underlying_event", "str", nonempty=True)
+    _field(o, "bitcoin_relevance", "int", lo=0, hi=5)
+    _field(o, "importance", "int", lo=0, hi=5)
+    if not EVENT_DATE.fullmatch(_field(o, "event_date", "str", nonempty=True).strip()):
+        raise ValueError(f"event_date {o['event_date']!r} is not YYYY-MM-DD / YYYY-MM / YYYY / unknown")
+    _field(o, "event_recency", "str", allowed=("current", "recent", "historical"))
+    _field(o, "action", "str")
+    _field(o, "affected_object", "str")
+    ents = _field(o, "entities", "list")
+    for e in ents:
+        if isinstance(e, dict) and e.get("aliases") is None:
+            e["aliases"] = []                       # a null aliases list is an empty one
+    if not all(isinstance(e, dict) and isinstance(e.get("name"), str) and e["name"].strip()
+               and isinstance(e["aliases"], list) for e in ents):
+        raise ValueError("entities must be objects with a name and an aliases list")
+    _str_list(o, "must_not_confuse_with")
+    _str_list(o, "concepts")
 
 
 CLUSTER_NOTE = ("This item is a development several Bitcoin channels state in common (DEC-13): underlying_event "
@@ -613,13 +667,26 @@ Return ONLY JSON: {{"quote_actor": who acts in the quote ("unstated" if nobody i
 
 
 def _v_adj(o):
-    if o.get("verdict") not in VERDICTS:
-        raise ValueError(f"verdict {o.get('verdict')!r} not in {VERDICTS}")
+    """A positive verdict must carry its evidence: supporting chunk ids and a quote (claude-fable B #4)."""
+    positive = _field(o, "verdict", "str", allowed=tuple(v.lower() for v in VERDICTS)) == "current_event"
+    o["verdict"] = o["verdict"].upper()           # the canonical label form
+    _str_list(o, "supporting_chunk_ids", nonempty=positive)
+    _field(o, "evidence_quote", "str", nonempty=positive)
+    _field(o, "confidence", "num", lo=0, hi=1)
+    _field(o, "reason", "str", optional=True)
+
+
+SUPPORT_PRESENTED = ("current", "past", "unclear")
 
 
 def _v_sup(o):
-    if o.get("support") not in SUPPORT:
-        raise ValueError(f"support {o.get('support')!r} not in {SUPPORT}")
+    """GPT-select F01: the fields that decide SUPPORTS are required and typed (a missing same_actor_action_object
+    or presented_as was read as agreement)."""
+    _field(o, "support", "str", allowed=tuple(x.lower() for x in SUPPORT))
+    o["support"] = o["support"].upper()            # the canonical label form
+    _field(o, "same_actor_action_object", "bool")
+    _field(o, "presented_as", "str", allowed=SUPPORT_PRESENTED)
+    _field(o, "reason", "str", optional=True)
 
 
 def _entities_str(q):
@@ -654,8 +721,9 @@ Return ONLY JSON: {{"label": one of the three, "reason": one sentence}}"""
 
 
 def _v_react(o):
-    if o.get("label") not in REACTION_LABELS:
-        raise ValueError(f"label {o.get('label')!r} not in {REACTION_LABELS}")
+    _field(o, "label", "str", allowed=tuple(x.lower() for x in REACTION_LABELS))
+    o["label"] = o["label"].upper()
+    _field(o, "reason", "str", optional=True)
 
 
 def verify_reaction(llm, q, anchor, sentence):
@@ -671,11 +739,13 @@ def verify_support(llm, q, quote):
                               obj=q.get("affected_object", "-"), entities=_entities_str(q),
                               note=UNTRUSTED_NOTE, quote=quote_data(quote, 600))
     s = llm.chat_json(p, max_tokens=350, validate=_v_sup)
-    if s["support"] == "SUPPORTS":       # the structured fields must agree with the label
-        if s.get("same_actor_action_object") is False:
-            s["support"], s["downgraded"] = "TOPIC_ONLY", "same_actor_action_object is false"
-        elif str(s.get("presented_as", "")).lower() == "past":
+    if s["support"] == "SUPPORTS":       # the structured fields must AGREE with the label (fail closed: GPT-select F01)
+        if s["same_actor_action_object"] is not True:
+            s["support"], s["downgraded"] = "TOPIC_ONLY", "same_actor_action_object is not true"
+        elif s["presented_as"] == "past":
             s["support"], s["downgraded"] = "BACKGROUND", "presented_as past"
+        elif s["presented_as"] != "current":
+            s["support"], s["downgraded"] = "INCONCLUSIVE", f"presented_as {s['presented_as']}"
     return s
 
 
@@ -763,8 +833,14 @@ def emergent_clusters(chunks, vecs, min_channels=3, threshold=0.22, max_clusters
 
 
 def _v_label(o):
-    if not isinstance(o.get("is_specific_event"), bool):
-        raise ValueError("is_specific_event must be boolean")
+    """A specific event must come with everything the current-development check reads."""
+    if _field(o, "is_specific_event", "bool"):
+        _field(o, "headline", "str", nonempty=True)
+        if not EVENT_DATE.fullmatch(_field(o, "event_date", "str", nonempty=True).strip()):
+            raise ValueError(f"event_date {o['event_date']!r} is not YYYY-MM-DD / YYYY-MM / YYYY / unknown")
+        _field(o, "current_development_quote", "str", nonempty=True)
+        _field(o, "current_development_chunk_id", "str", nonempty=True)
+        _str_list(o, "member_chunk_ids", nonempty=True)
 
 
 def label_cluster(llm, chunks, vecs, group, today, k=8):
@@ -830,9 +906,24 @@ Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "fault": one o
 BOUNDARY_FAULTS = ("starts_mid_thought", "ends_mid_thought")   # D3: the only faults a repair may address
 
 
-def _v_rate(o):
-    if not isinstance(o.get("ratings"), list):
-        raise ValueError("ratings must be a list")
+RATE_FAULTS = BOUNDARY_FAULTS + ("none", "off_topic", "other")
+
+
+def _v_rate(o, ids=None):
+    """GPT-select F12: a score outside 1-5 or not a number, an unknown fault, a duplicate or unknown passage id, or
+    (with ids) a passage left unrated is a failed call; it is never clamped into a perfect score."""
+    seen = set()
+    for x in _field(o, "ratings", "list"):
+        if not isinstance(x, dict):                   # an entry that is not an object is a failed call (audit #2)
+            raise ValueError("a rating is not an object")
+        pid = str(_field(x, "id", "str") if isinstance(x.get("id"), str) else _field(x, "id", "int"))
+        _field(x, "score", "num", lo=1, hi=5)
+        _field(x, "fault", "str", allowed=RATE_FAULTS)              # stripped / lower-cased before the check
+        if pid in seen or (ids is not None and pid not in ids):
+            raise ValueError(f"rating id {pid!r} duplicate or unknown")
+        seen.add(pid)
+    if ids is not None and seen != set(ids):
+        raise ValueError(f"unrated passages: {sorted(set(ids) - seen)[:5]}")
 
 
 def rate_passages(llm, q, passages):
@@ -841,21 +932,17 @@ def rate_passages(llm, q, passages):
     ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
                    f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
     try:
+        ids = {str(p["pid"]) for p in passages}
         r = llm.chat_json(CLIP_PROMPT.format(event=q.get("underlying_event", ""), note=UNTRUSTED_NOTE,
-                                             passages=ex), max_tokens=1200, validate=_v_rate)
+                                             passages=ex), max_tokens=1200, validate=lambda o: _v_rate(o, ids))
     except LLMParseError as e:
         return {}, {"error": str(e), "llm_attempts": e.attempts}
     out = {}
-    valid = {p["pid"] for p in passages}
-    for x in r.get("ratings", []) or []:
-        try:
-            pid = str(x["id"])
-            if pid in valid:
-                fault = x.get("fault") if x.get("fault") in BOUNDARY_FAULTS + ("none", "off_topic", "other") \
-                    else "unspecified"
-                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
-        except Exception:
-            pass
+    by_id = {str(p["pid"]): p["pid"] for p in passages}   # one normalisation for validation and output (audit #3)
+    for x in r["ratings"]:                          # validated: every passage once, score 1-5, a known fault
+        pid = str(x["id"])
+        if pid in by_id:
+            out[by_id[pid]] = (float(x["score"]), str(x.get("reason", "")), x["fault"])
     return out, None
 
 

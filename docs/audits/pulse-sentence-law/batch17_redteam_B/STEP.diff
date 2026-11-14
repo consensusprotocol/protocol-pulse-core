@@ -1,0 +1,353 @@
+diff --git a/pipeline/story_semantics.py b/pipeline/story_semantics.py
+index f6cbdc63..e85f7ff2 100644
+--- a/pipeline/story_semantics.py
++++ b/pipeline/story_semantics.py
+@@ -398,11 +398,45 @@ Return ONLY JSON with keys:
+ "rationale": one sentence}}"""
+ 
+ 
++def _field(o, key, kind, allowed=None, nonempty=False, lo=None, hi=None):
++    """One field of a model reply, strictly (red-team B): exact type (an int is never a bool or a string, a list
++    is a list), an enumerated value, a non-empty string, a number in range. Raises ValueError: the call failed."""
++    if not isinstance(o, dict):
++        raise ValueError("reply is not a JSON object")
++    v = o.get(key)
++    ok = {"int": type(v) is int, "bool": type(v) is bool, "str": isinstance(v, str), "list": isinstance(v, list),
++          "num": type(v) in (int, float)}[kind]
++    if not ok:
++        raise ValueError(f"{key} must be {kind}, got {type(v).__name__}")
++    if allowed is not None and v not in allowed:
++        raise ValueError(f"{key} {v!r} not in {allowed}")
++    if nonempty and not (v.strip() if isinstance(v, str) else v):
++        raise ValueError(f"{key} is empty")
++    if (lo is not None and v < lo) or (hi is not None and v > hi):
++        raise ValueError(f"{key} {v!r} outside [{lo}, {hi}]")
++    return v
++
++
++def _str_list(o, key):
++    if not all(isinstance(x, str) for x in _field(o, key, "list")):
++        raise ValueError(f"{key} must be a list of strings")
++
++
+ def _v_derive(o):
+-    for k in ("underlying_event", "bitcoin_relevance", "importance"):
+-        if k not in o:
+-            raise ValueError(f"missing {k}")
+-    int(o["bitcoin_relevance"]), int(o["importance"])
++    """Every field a decision reads: the event, its Bitcoin relevance and importance (the screen and the ranking),
++    its date and recency (currentness), the entities / action / object / confusables (adjudication context)."""
++    _field(o, "underlying_event", "str", nonempty=True)
++    _field(o, "bitcoin_relevance", "int", lo=0, hi=5)
++    _field(o, "importance", "int", lo=0, hi=5)
++    _field(o, "event_date", "str", nonempty=True)
++    _field(o, "event_recency", "str", allowed=("current", "recent", "historical"))
++    _field(o, "action", "str")
++    _field(o, "affected_object", "str")
++    if not all(isinstance(e, dict) and isinstance(e.get("name"), str) and e["name"].strip()
++               and isinstance(e.get("aliases", []), list) for e in _field(o, "entities", "list")):
++        raise ValueError("entities must be objects with a name and an aliases list")
++    _str_list(o, "must_not_confuse_with")
++    _str_list(o, "concepts")
+ 
+ 
+ CLUSTER_NOTE = ("This item is a development several Bitcoin channels state in common (DEC-13): underlying_event "
+@@ -588,13 +622,23 @@ Return ONLY JSON: {{"quote_actor": who acts in the quote ("unstated" if nobody i
+ 
+ 
+ def _v_adj(o):
+-    if o.get("verdict") not in VERDICTS:
+-        raise ValueError(f"verdict {o.get('verdict')!r} not in {VERDICTS}")
++    _field(o, "verdict", "str", allowed=VERDICTS)
++    _str_list(o, "supporting_chunk_ids")
++    _field(o, "evidence_quote", "str")
++    _field(o, "confidence", "num", lo=0, hi=1)
++    _field(o, "reason", "str")
++
++
++SUPPORT_PRESENTED = ("current", "past", "unclear")
+ 
+ 
+ def _v_sup(o):
+-    if o.get("support") not in SUPPORT:
+-        raise ValueError(f"support {o.get('support')!r} not in {SUPPORT}")
++    """GPT-select F01: the fields that decide SUPPORTS are required and typed (a missing same_actor_action_object
++    or presented_as was read as agreement)."""
++    _field(o, "support", "str", allowed=SUPPORT)
++    _field(o, "same_actor_action_object", "bool")
++    _field(o, "presented_as", "str", allowed=SUPPORT_PRESENTED)
++    _field(o, "reason", "str")
+ 
+ 
+ def _entities_str(q):
+@@ -629,8 +673,8 @@ Return ONLY JSON: {{"label": one of the three, "reason": one sentence}}"""
+ 
+ 
+ def _v_react(o):
+-    if o.get("label") not in REACTION_LABELS:
+-        raise ValueError(f"label {o.get('label')!r} not in {REACTION_LABELS}")
++    _field(o, "label", "str", allowed=REACTION_LABELS)
++    _field(o, "reason", "str")
+ 
+ 
+ def verify_reaction(llm, q, anchor, sentence):
+@@ -646,11 +690,13 @@ def verify_support(llm, q, quote):
+                               obj=q.get("affected_object", "-"), entities=_entities_str(q),
+                               note=UNTRUSTED_NOTE, quote=quote_data(quote, 600))
+     s = llm.chat_json(p, max_tokens=350, validate=_v_sup)
+-    if s["support"] == "SUPPORTS":       # the structured fields must agree with the label
+-        if s.get("same_actor_action_object") is False:
+-            s["support"], s["downgraded"] = "TOPIC_ONLY", "same_actor_action_object is false"
+-        elif str(s.get("presented_as", "")).lower() == "past":
++    if s["support"] == "SUPPORTS":       # the structured fields must AGREE with the label (fail closed: GPT-select F01)
++        if s["same_actor_action_object"] is not True:
++            s["support"], s["downgraded"] = "TOPIC_ONLY", "same_actor_action_object is not true"
++        elif s["presented_as"] == "past":
+             s["support"], s["downgraded"] = "BACKGROUND", "presented_as past"
++        elif s["presented_as"] != "current":
++            s["support"], s["downgraded"] = "INCONCLUSIVE", f"presented_as {s['presented_as']}"
+     return s
+ 
+ 
+@@ -738,8 +784,13 @@ def emergent_clusters(chunks, vecs, min_channels=3, threshold=0.22, max_clusters
+ 
+ 
+ def _v_label(o):
+-    if not isinstance(o.get("is_specific_event"), bool):
+-        raise ValueError("is_specific_event must be boolean")
++    """A specific event must come with everything the current-development check reads."""
++    if _field(o, "is_specific_event", "bool"):
++        _field(o, "headline", "str", nonempty=True)
++        _field(o, "event_date", "str", nonempty=True)
++        _field(o, "current_development_quote", "str", nonempty=True)
++        _field(o, "current_development_chunk_id", "str", nonempty=True)
++        _str_list(o, "member_chunk_ids")
+ 
+ 
+ def label_cluster(llm, chunks, vecs, group, today, k=8):
+@@ -805,9 +856,22 @@ Return ONLY JSON: {{"ratings": [{{"id": passage id, "score": 1-5, "fault": one o
+ BOUNDARY_FAULTS = ("starts_mid_thought", "ends_mid_thought")   # D3: the only faults a repair may address
+ 
+ 
+-def _v_rate(o):
+-    if not isinstance(o.get("ratings"), list):
+-        raise ValueError("ratings must be a list")
++RATE_FAULTS = BOUNDARY_FAULTS + ("none", "off_topic", "other")
++
++
++def _v_rate(o, ids=None):
++    """GPT-select F12: a score outside 1-5 or not a number, an unknown fault, a duplicate or unknown passage id, or
++    (with ids) a passage left unrated is a failed call; it is never clamped into a perfect score."""
++    seen = set()
++    for x in _field(o, "ratings", "list"):
++        pid = str(_field(x, "id", "str") if isinstance((x or {}).get("id"), str) else _field(x, "id", "int"))
++        _field(x, "score", "num", lo=1, hi=5)
++        _field(x, "fault", "str", allowed=RATE_FAULTS)
++        if pid in seen or (ids is not None and pid not in ids):
++            raise ValueError(f"rating id {pid!r} duplicate or unknown")
++        seen.add(pid)
++    if ids is not None and seen != set(ids):
++        raise ValueError(f"unrated passages: {sorted(set(ids) - seen)[:5]}")
+ 
+ 
+ def rate_passages(llm, q, passages):
+@@ -816,19 +880,15 @@ def rate_passages(llm, q, passages):
+     ex = "\n".join(f'<excerpt id="{p["pid"]}" channel="{p["channel"]}" seconds="{p["duration"]:.0f}">'
+                    f'{quote_data(p["text"], 700)}</excerpt>' for p in passages)
+     try:
++        ids = {str(p["pid"]) for p in passages}
+         r = llm.chat_json(CLIP_PROMPT.format(event=q.get("underlying_event", ""), note=UNTRUSTED_NOTE,
+-                                             passages=ex), max_tokens=1200, validate=_v_rate)
++                                             passages=ex), max_tokens=1200, validate=lambda o: _v_rate(o, ids))
+     except LLMParseError as e:
+         return {}, {"error": str(e), "llm_attempts": e.attempts}
+     out = {}
+     valid = {p["pid"] for p in passages}
+-    for x in r.get("ratings", []) or []:
+-        try:
+-            pid = str(x["id"])
+-            if pid in valid:
+-                fault = x.get("fault") if x.get("fault") in BOUNDARY_FAULTS + ("none", "off_topic", "other") \
+-                    else "unspecified"
+-                out[pid] = (max(1.0, min(5.0, float(x["score"]))), x.get("reason", ""), fault)
+-        except Exception:
+-            pass
++    for x in r["ratings"]:                          # validated: every passage once, score 1-5, a known fault
++        pid = str(x["id"])
++        if pid in valid:
++            out[pid] = (float(x["score"]), str(x.get("reason", "")), x["fault"])
+     return out, None
+diff --git a/pipeline/test_caption_entities.py b/pipeline/test_caption_entities.py
+index 09b15c3f..cdf2f9e5 100644
+--- a/pipeline/test_caption_entities.py
++++ b/pipeline/test_caption_entities.py
+@@ -105,8 +105,13 @@ class TestClusterClaimIsTheEvent(unittest.TestCase):
+ 
+         def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+             self.prompts.append(prompt)
+-            return {"underlying_event": "The US held its general elections on November 8th, 2026.",
+-                    "bitcoin_relevance": 5, "importance": 4, "action": "sell-off", "affected_object": "Bitcoin"}
++            obj = {"underlying_event": "The US held its general elections on November 8th, 2026.",
++                   "bitcoin_relevance": 5, "importance": 4, "action": "sell-off", "affected_object": "Bitcoin",
++                   "event_date": "2026-11-08", "event_recency": "current", "entities": [], "concepts": [],
++                   "must_not_confuse_with": []}
++            if validate:
++                validate(obj)
++            return obj
+ 
+     def test_a_cluster_claim_is_its_event_and_a_wire_item_is_unchanged(self):
+         claim = "Following the US elections, Bitcoin experienced a sell-off and net outflows from US Bitcoin ETFs."
+diff --git a/pipeline/test_editorial_robust.py b/pipeline/test_editorial_robust.py
+index 59a1c282..498884d2 100644
+--- a/pipeline/test_editorial_robust.py
++++ b/pipeline/test_editorial_robust.py
+@@ -229,7 +229,7 @@ class TestQuoteAnchoredWindows(unittest.TestCase):
+                 self.score = score
+ 
+             def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+-                return {"ratings": [{"id": i, "score": self.score, "reason": "start at 0.0 instead"}
++                return {"ratings": [{"id": i, "score": self.score, "fault": "none", "reason": "start at 0.0 instead"}
+                                     for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+         c = {"query": RUN3["binance"]["query"], "headline": RUN3["binance"]["headline"]}
+         cq = es._clip_quality(c, same, FakeEmbedder(), Rater(5), reg, words, log=lambda s: None)
+@@ -279,10 +279,45 @@ class ScriptedLLM(sm.LocalLLM):
+ 
+ class TestMalformedLLM(unittest.TestCase):
+     def test_retry_then_valid(self):
+-        llm = ScriptedLLM(['{"verdict": "CURRENT_EVENT" "x": 1}', '```json\n{"support": "SUPPORTS",}\n```'])
++        llm = ScriptedLLM(['{"verdict": "CURRENT_EVENT" "x": 1}',
++                           '```json\n{"support": "SUPPORTS", "same_actor_action_object": true, "presented_as": "current", '
++                           '"reason": "r",}\n```'])
+         self.assertEqual(llm.chat_json("p", validate=sm._v_sup)["support"], "SUPPORTS")
+         self.assertEqual(llm.calls, 2)
+ 
++    def test_a_reply_missing_or_mistyping_a_deciding_field_is_a_failed_call(self):
++        """Red-team B (GPT-select F01 / F11 / F12): missing / mistyped / out-of-range fields are never accepted."""
++        for v, bad in ((sm._v_sup, {"support": "SUPPORTS", "reason": "r"}),                       # fields missing
++                       (sm._v_sup, {"support": "SUPPORTS", "same_actor_action_object": "true", "presented_as": "current",
++                                    "reason": "r"}),                                              # a string bool
++                       (sm._v_adj, {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": "AAA:0-1", "evidence_quote": "q",
++                                    "confidence": 0.9, "reason": "r"}),                           # ids not a list
++                       (sm._v_derive, {"underlying_event": "x", "bitcoin_relevance": True, "importance": 3}),  # bool int
++                       (sm._v_label, {"is_specific_event": True, "headline": "h"}),             # quote / ids missing
++                       (lambda o: sm._v_rate(o, {"p0", "p1"}), {"ratings": [{"id": "p0", "score": 9, "fault": "none"},
++                                                                          {"id": "p1", "score": 4, "fault": "none"}]}),
++                       (lambda o: sm._v_rate(o, {"p0", "p1"}), {"ratings": [{"id": "p0", "score": 4, "fault": "none"}]}),
++                       (lambda o: sm._v_rate(o, {"p0"}), {"ratings": [{"id": "p0", "score": 4, "fault": "great"}]})):
++            with self.assertRaises(ValueError, msg=str(bad)):
++                v(bad)
++
++    def test_supports_needs_both_deciding_fields_exactly(self):
++        class One:
++            model, calls = "fake", 0
++
++            def __init__(self, reply):
++                self.reply = reply
++
++            def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
++                if validate:
++                    validate(self.reply)
++                return dict(self.reply)
++        base = {"support": "SUPPORTS", "same_actor_action_object": True, "presented_as": "current", "reason": "r"}
++        self.assertEqual(sm.verify_support(One(base), {"underlying_event": "x"}, "q")["support"], "SUPPORTS")
++        for change, want in (({"same_actor_action_object": False}, "TOPIC_ONLY"), ({"presented_as": "past"}, "BACKGROUND"),
++                             ({"presented_as": "unclear"}, "INCONCLUSIVE")):
++            self.assertEqual(sm.verify_support(One({**base, **change}), {"underlying_event": "x"}, "q")["support"], want)
++
+     def test_bounded_and_recorded(self):
+         llm = ScriptedLLM(["not json", '{"verdict": "MAYBE"}', '{"verdict": '])
+         with self.assertRaises(sm.LLMParseError) as cm:
+@@ -348,27 +383,35 @@ class FakeLLM:
+             if "PARSEFAIL" in h:
+                 raise sm.LLMParseError("no valid JSON after 3 attempts",
+                                        [{"attempt": i + 1, "error": "bad", "raw": "{oops"} for i in range(3)])
+-            return {"short_label": "midterms", "underlying_event": h, "event_date": self.model_date,
++            return self._ok(validate, {"short_label": "midterms", "underlying_event": h, "event_date": self.model_date,
+                     "event_recency": self.model_recency, "entities": [{"name": "Congress", "aliases": ["midterms", "Senate"]}],
+                     "action": "flip", "affected_object": "Congress", "concepts": ["midterms", "Congress"],
+-                    "bitcoin_relevance": 5, "importance": 5, "is_specific_event": True}
++                    "must_not_confuse_with": [], "bitcoin_relevance": 5, "importance": 5, "is_specific_event": True})
+         if prompt.startswith("You verify whether"):
+             self.adj += 1
+             if self.crash and self.adj == self.crash:
+                 raise RuntimeError("boom (simulated crash)")
+             m = re.search(r'<excerpt id="([^"]+)">(.*?)</excerpt>', prompt, re.S)
+             words = m.group(2).split()[:10]
+-            return {"verdict": self.adj_verdict, "supporting_chunk_ids": [m.group(1)],
+-                    "evidence_quote": " ".join(words), "confidence": 0.9, "reason": "fake"}
++            return self._ok(validate, {"verdict": self.adj_verdict, "supporting_chunk_ids": [m.group(1)],
++                    "evidence_quote": " ".join(words), "confidence": 0.9, "reason": "fake"})
+         if prompt.startswith("Decide whether a QUOTE"):
+-            return {"support": "SUPPORTS", "reason": "fake"}
++            return self._ok(validate, {"support": "SUPPORTS", "same_actor_action_object": True,
++                                       "presented_as": "current", "reason": "fake"})
+         if prompt.startswith("These transcript excerpts"):
+-            return {"is_specific_event": False}
++            return self._ok(validate, {"is_specific_event": False})
+         if prompt.startswith("You pick clips"):
+-            return {"ratings": [{"id": i, "score": 5, "reason": "fake"}
+-                                for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
++            return self._ok(validate, {"ratings": [{"id": i, "score": 5, "fault": "none", "reason": "fake"}
++                                                   for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]})
+         raise AssertionError("unexpected prompt")
+ 
++    @staticmethod
++    def _ok(validate, obj):
++        """The real chat_json contract: a reply the validator rejects is a failed call, never returned."""
++        if validate:
++            validate(obj)
++        return obj
++
+ 
+ TXT = ("Democrats took the House and the Senate in the midterms this week and Congress flips, "
+        "which changes the outlook for Bitcoin policy and crypto legislation next year. ")
+diff --git a/pipeline/test_same_event_merge.py b/pipeline/test_same_event_merge.py
+index 966ebae6..0853841b 100644
+--- a/pipeline/test_same_event_merge.py
++++ b/pipeline/test_same_event_merge.py
+@@ -47,8 +47,13 @@ class MergeLLM(RoutedLLM):
+     def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+         if prompt.startswith(sm.DERIVE_PROMPT.split("{")[0][:40]):
+             self.prompts.append(prompt)
+-            return {"underlying_event": "Bitcoin fell below $75k over the weekend amid a tech selloff and ETF outflows",
+-                    "short_label": "Bitcoin price dip", "bitcoin_relevance": 5, "importance": 4, "event_recency": "current"}
++            obj = {"underlying_event": "Bitcoin fell below $75k over the weekend amid a tech selloff and ETF outflows",
++                   "short_label": "Bitcoin price dip", "bitcoin_relevance": 5, "importance": 4, "event_recency": "current",
++                   "event_date": "2026-11-09", "action": "fell", "affected_object": "Bitcoin price", "entities": [],
++                   "concepts": [], "must_not_confuse_with": []}
++            if validate:
++                validate(obj)
++            return obj
+         return super().chat_json(prompt, max_tokens, validate, attempts)
+ 
+ 
+diff --git a/pipeline/test_window_review.py b/pipeline/test_window_review.py
+index 3e14b898..7cbc5183 100644
+--- a/pipeline/test_window_review.py
++++ b/pipeline/test_window_review.py
+@@ -136,7 +136,7 @@ class TestHooksUseVerifiedExpansion(unittest.TestCase):
+             model = "fake"
+ 
+             def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
+-                return {"ratings": [{"id": i, "score": 3, "reason": "x"}
++                return {"ratings": [{"id": i, "score": 3, "fault": "none", "reason": "x"}
+                                     for i in re.findall(r'<excerpt id="(p\d+)"', prompt)]}
+         seen = []
+         orig_e, orig_a = es.expanded_window, es.anchored_window
+@@ -331,12 +331,14 @@ class RoutedLLM:
+             hit = [i for i, t in re.findall(r'<excerpt id="([^"]+)">(.*?)</excerpt>', prompt, re.S)
+                    if self.second_quote and sm._norm(self.second_quote) in sm._norm(t)]
+             if not hit:
+-                return {"verdict": "UNRELATED", "supporting_chunk_ids": [], "evidence_quote": "", "reason": "fake"}
++                return {"verdict": "UNRELATED", "supporting_chunk_ids": [], "evidence_quote": "", "confidence": 0.9,
++                        "reason": "fake"}
+             return {"verdict": "CURRENT_EVENT", "supporting_chunk_ids": hit[:1],
+                     "evidence_quote": self.second_quote, "confidence": 0.9, "reason": "fake"}
+         if prompt.startswith("Decide whether a QUOTE"):
+             q = re.search(r'<excerpt id="quote">(.*?)</excerpt>', prompt, re.S).group(1)
+-            return {"support": "SUPPORTS" if sm._norm(q) in self.on_event else "TOPIC_ONLY", "reason": "fake"}
++            return {"support": "SUPPORTS" if sm._norm(q) in self.on_event else "TOPIC_ONLY",
++                    "same_actor_action_object": sm._norm(q) in self.on_event, "presented_as": "current", "reason": "fake"}
+         if prompt.startswith("You check ONE SENTENCE"):                 # D4 reaction / consequence verifier
+             t = re.search(r'<excerpt id="sentence">(.*?)</excerpt>', prompt, re.S).group(1)
+             return {"label": sm.REACTION_OK if sm._norm(t) in self.reactions else "NEW_SUBJECT", "reason": "fake"}

@@ -47,8 +47,13 @@ class MergeLLM(RoutedLLM):
     def chat_json(self, prompt, max_tokens=700, validate=None, attempts=3):
         if prompt.startswith(sm.DERIVE_PROMPT.split("{")[0][:40]):
             self.prompts.append(prompt)
-            return {"underlying_event": "Bitcoin fell below $75k over the weekend amid a tech selloff and ETF outflows",
-                    "short_label": "Bitcoin price dip", "bitcoin_relevance": 5, "importance": 4, "event_recency": "current"}
+            obj = {"underlying_event": "Bitcoin fell below $75k over the weekend amid a tech selloff and ETF outflows",
+                   "short_label": "Bitcoin price dip", "bitcoin_relevance": 5, "importance": 4, "event_recency": "current",
+                   "event_date": "2026-11-09", "action": "fell", "affected_object": "Bitcoin price", "entities": [],
+                   "concepts": [], "must_not_confuse_with": []}
+            if validate:
+                validate(obj)
+            return obj
         return super().chat_json(prompt, max_tokens, validate, attempts)
 
 

@@ -1,0 +1,50 @@
+{
+ "question": "Batch 17 = red-team hardening B (order 2026-11-11 21:55): strict schemas for every local-model reply that feeds a decision in the Pulse Check editorial selection (Python; a 60-70 s Bitcoin news medley of other channels' clips; nothing is published). A missing or mistyped field is a FAILED call (story_semantics.LocalLLM.chat_json retries, then raises LLMParseError; the callers then record INCONCLUSIVE / no ratings = not counted / not producible), never a pass. New _field(o, key, kind, allowed, nonempty, lo, hi): exact types (an int is never a bool or a string; a list is a list), enumerated values, non-empty strings, numeric ranges. Validators: _v_derive (every field a decision reads: underlying_event, bitcoin_relevance 0-5, importance 0-5, event_date, event_recency, action, affected_object, entities with names, must_not_confuse_with, concepts), _v_adj (verdict, supporting_chunk_ids list of str, evidence_quote str, confidence 0-1, reason), _v_sup (support, same_actor_action_object bool, presented_as current/past/unclear, reason) and verify_support now downgrades SUPPORTS unless same_actor_action_object is exactly True and presented_as is exactly 'current' (GPT-select F01: a missing field read as agreement), _v_react, _v_label (a specific event must carry headline, date, quote, chunk id, member ids), _v_rate (GPT-select F12: every passage rated exactly once, score a number in 1-5, a known fault; never clamped into a perfect score). Cached replies are re-validated on read (a reply the stricter validator rejects is asked again). Test fakes now return schema-complete replies and validate them like the real call. FIND: any path where a missing / mistyped / out-of-range model field still becomes a counted verdict, a support, a rating or a producible story; any validator that rejects a VALID reply the prompt asks for (a false failure = a needless HOLD); any caller that crashes on a validated reply; tests that do not test what they claim. At most 6 findings, quoted evidence (file:line), severity, fix.\n\n\nCYCLE 2: this is the diff AFTER the cycle-1 fixes (claude-fable-5-2 / gpt-6.1-sol / Grok-Gemini-GPT4o findings applied: harmless variations accepted - integral floats as ints, enum case / whitespace, absent optional reasons, null aliases; a positive adjudication needs ids + quote; presented_as unclear = INCONCLUSIVE; the bool-vs-int comment). Check the fixes did not reopen a fail-open path.",
+ "files": [],
+ "panel": {
+  "deepseek": "deepseek/deepseek-v4.1-flash",
+  "qwen27b": "qwen/qwen3.8-27b",
+  "glm": "z-ai/glm-5.3-flash"
+ },
+ "cycle1": [
+  {
+   "name": "deepseek",
+   "model": "deepseek/deepseek-v4.1-flash",
+   "status": 200,
+   "latency_s": 292.5,
+   "cost": 0.00359693,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "qwen27b",
+   "model": "qwen/qwen3.8-27b",
+   "status": 200,
+   "latency_s": 190.2,
+   "cost": 0.012094061,
+   "provider": "ImpCC",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  },
+  {
+   "name": "glm",
+   "model": "z-ai/glm-5.3-flash",
+   "status": 200,
+   "latency_s": 443.2,
+   "cost": 0.002290559,
+   "provider": "Consensus Protocol",
+   "verdict": null,
+   "n_findings": 0,
+   "parse_ok": false
+  }
+ ],
+ "cycle2": [],
+ "consensus_findings": [],
+ "rejected_findings": [],
+ "missed_in_cycle2_unvoted": [],
+ "total_cost": 0.017981550000000002,
+ "out_dir": "docs/audits/pulse-sentence-law/batch17_redteam_B/cycle2/heimdall"
+}
