@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 09:50 ORCHESTRATOR '09:03' (R-29 and ruling 92 amended), as relayed by the builder (91d37100 on pp-selectid, its audit 0915, two cycles): NO RENDER CHANGE; seal and package_pin.py unchanged.
+- Ruling 92 amended (the builder's spotlight.py only):
+  - the layout verdict alone decides a spotlight's source test;
+  - caption markers are evidence in the layout judge's prompt; on their own they refuse only a marked episode with zero speaker changes in the 10 minutes around the clip;
+  - the 1.0-turns-a-minute line is retired;
+  - the spotlight_source row now carries `evidence` where it carried `turns`, and its status rule is unchanged.
+- CHECKED here: the only render reference to spotlight_source is pinned.py:70 (SPOTLIGHT_ROWS, by name; _spotlight_vo reads only status and replayed). Nothing in pipeline/, scripts/integrator/ or segment_v1/ reads `turns` or `evidence`.
+- PIPELINE_LAWS.md L-ab (92) is NOT edited: that needs the ruling's verbatim text, and this is the builder's summary.
+- R-29 fixed (moments_gate_adapter.py, run_exam_record.py): the exam's adapter judges a v1.1 case's title and reads current levels from its universe, with one router (heimdall_first, vendor-reported dollars, $5.00 bound). No build path imports it.
+- The exam runs after the pp-tests merge, on its own ledger, with a hard stop at $4.00.
+- The builder's 09:40 build is running on 91d37100. A pin it seals renders at once; main has nothing staged.
+
 ## 09:28 PP-TESTS MERGE, batch 78 cycle 3 (verification of a55e4dcf, the behavioural key test): sound; ONE NARROW CONSENSUS FINDING (no denial of subprocess / exec side reads during _key) sent to pp-tests; MERGE HELD for that one fix.
 - a55e4dcf, checked here: one commit on d7ed4ff8; nothing outside tests/adversarial or docs/audits/parallel/pp-tests_*; 0 conflicts against HEAD 5d233808.
 - The new behavioural test loads frontier_blind against a stub loader, with open / io.open / os.open denied and bytecode forced on. It asserts:
