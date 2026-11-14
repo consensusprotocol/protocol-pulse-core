@@ -6,6 +6,19 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:07 RULINGS 103 / 104 RECEIVED (orchestrator 14:13, to the integrator): the targeted re-listen is mine to build, landing WITH the canon-401k fix (one decoder-sha move); then the Blockware spotlight 06d34e15 is the first SPOTLIGHT render, labelled SPOTLIGHT DEMO.
+- RULING 103, verbatim: "THE TARGETED RE-LISTEN (for a hold where the two independent readings differ on ONE number or name token, as '401k' against '401' on Blockware 06d34e15). The hold stands as the default: a number or name disagreement is never waved through. But one long-span reading against another is weak evidence about one token. Before the hold is final, BOTH recognisers are asked again on a SHORT window cut around that token alone (the token's word times, 1.5 s either side, the same audio the cut will use). The lock passes on that token only if BOTH short-window readings give the lock's token (after the canon, with the 401k fix: a plan's name is not the number 401000). If either short reading still differs, or the two differ from each other, the hold is final and the clip may only be saved by a variant that leaves the token out. Record both short readings on the pin. Scribe's cost for 4 s is nothing; say it."
+  - "YOUR SIDE: the re-listen lives in the pre-check service (adjudicate_lock's number / name class), with the canon-401k fix; audit two cycles; land both with the builder's matching decoder update so the sha moves once. Must-fail tests: a real number disagreement ('68,000' against '86,000') still holds after the re-listen; '401k' against '401' passes only when both short readings say 401k."
+- RULING 104 (to the builder): a spotlight or clip may be sealed as a variant ending at an earlier sentence boundary. On the render side it is a span like any other, cut by rule 73; nothing to build here.
+- PLAN (integrator):
+  1. Read adjudicate_lock / lock_precheck's ruling-72 / 84 path, the second recogniser and the window decode.
+  2. Build the re-listen on branch canon-401k's tip, with fakes for the recognisers in the must-fail tests.
+  3. A real one-shot pre-check of the Blockware span from the branch.
+  4. Audits batch 80, two cycles.
+  5. The final decoder sha to the builder; land together; the builder re-asks the pre-check and seals.
+  6. Render the spotlight; the DoD first line says PASS path (SPOTLIGHT DEMO) or HOLD.
+- The builder has been told: d3cf295ee5f9 is superseded; the pre-check result carries a `relisten` record (token, window, decoder_reading, second_reading, verdict) to seal onto the pin; the clip's video expires 00:00 ET.
+
 ## 14:01 CANON FIX READY, NOT LIVE (branch canon-401k, 373d0fed; audits batch 79 x2, both clean on qwen27b, glm and Grok). It waits for the builder's matching decoder update, so the pre-check's sha moves on both sides at once.
 - THE FIX (law L-k): _PLANS = ("401k", "403b", "457b").
   - A plan name, or its split form '401', 'k' (from "401(k)"), is one token spanning its words, never the number.
