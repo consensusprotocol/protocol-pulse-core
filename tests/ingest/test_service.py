@@ -527,6 +527,7 @@ def test_f1_a_calibration_an_outage_left_unanswered_is_tried_again_soon_and_the_
     assert s.check_allowed == ["fallback"] and s.check_recal_s == service.CHECK_RECALIBRATE_S
     cal = json.loads(s.q.kv_get("check_calibration"))
     assert cal["fallback"]["right"] == cal["fallback"]["of"] == 16 and cal["fallback"]["asked_at"]
+    assert cal["fallback"]["wrong"] == [] and cal["fallback"]["seconds"] >= 0
     since = datetime.fromtimestamp(s.clock() - 3600, timezone.utc)
     out, rep = ledger.best_unused_moments(s.p["ledger"], since, registry=[H.CHAN], optout=(), store_root=s.p["root"])
     assert out and rep["released_by_the_second_model"] == len(out)
@@ -539,6 +540,37 @@ def test_f1_a_checker_that_answers_a_quote_wrong_waits_for_the_daily_calibration
     run_once(s)
     assert s.check_once(wait=True) == 0 and s.check_allowed == []
     assert s.check_recal_s == service.CHECK_RECALIBRATE_S
+    cal = json.loads(s.q.kv_get("check_calibration"))                 # the wrong answer is kept (audit f1 c1, glm)
+    from pipeline.ingest import flagcheck as FC
+    for bid in ("primary", "fallback"):
+        assert [(w["flag"], w["gold"], w["answer"]) for w in cal[bid]["wrong"]] == [("imperative", "yes", "no")]
+        assert cal[bid]["wrong"][0]["text"] == FC.PROBES[0][2][:80]
+
+
+def test_f1_a_calibration_that_crashes_fails_closed_and_waits_like_an_unanswered_one(svc, monkeypatch):
+    """Audit f1 c1 (glm): a calibration that raises (say after its live calls) must not run again every 30 s. Nobody
+    answers (nothing measured; the earlier allowance is not kept), the stored calibration is emptied, the crash is an
+    event, and the next calibration comes after CHECK_RETRY_S, the wait doubling."""
+    s, vids, b = svc(_flagging_miner, _checker("no"), n_videos=1)
+    run_once(s)
+    while s.check_once(wait=True):
+        pass
+    assert s.check_allowed == ["fallback"]
+    calls = []
+
+    def boom(router, *a, **k):
+        calls.append(1)
+        raise RuntimeError("a regression after the live calls")
+    monkeypatch.setattr(service.flagcheck, "watcher_checkers", boom)
+    s.check_calibrated -= s.check_recal_s                               # the daily calibration is due
+    assert s.check_once(wait=True) == 0 and s.check_allowed == []
+    assert s.check_recal_s == service.CHECK_RETRY_S and json.loads(s.q.kv_get("check_calibration")) == {}
+    s.check_once(wait=True)
+    assert calls == [1]                                                  # not again on the next 30 s loop
+    s.check_calibrated -= s.check_recal_s
+    assert s.check_once(wait=True) == 0
+    assert calls == [1, 1] and s.check_recal_s == 2 * service.CHECK_RETRY_S
+    assert s.q.rows("SELECT COUNT(*) AS n FROM events WHERE kind='check_calibration_crash'")[0]["n"] == 2
 
 
 def test_an_unanswered_question_records_nothing_and_waits(svc):

@@ -361,11 +361,14 @@ The miner's `imperative` and `single_source_breaking` labels are hard flags (L-u
   still could (a quote unanswered, none answered wrong: an outage at calibration time), the next calibration comes
   after CHECK_RETRY_S, the wait doubling while it keeps failing (600, 1200, 2400 s ... up to a day: about eight
   calibrations a day at worst, each at most 3 rounds of 32 short questions); when one passed, or every back-end
-  answered a quote wrong
-  (at temperature 0 it would answer the same again), the next is the daily one. Nothing measured is never a pass: an
+  answered a quote wrong (at temperature 0 it would answer the same again), the next is the daily one. A calibration
+  that CRASHES (audit f1 c1) is an event (`check_calibration_crash`) and counts like an unanswered one: nobody
+  answers (an earlier allowance is not kept), the stored calibration is emptied, and the next comes after the
+  doubling wait, so a crash after its live calls never repeats every 30 s. Nothing measured is never a pass: an
   unanswered quote never counts as right. The measurement CLI (`tools/ingest_watch.py flagcheck`) keeps its stored
   replies (a report is reproduced from them; it releases nothing). Live: live.json
-  `second_model_checks_12h.calibration` (right, of, unmeasured, asked_at per back-end).
+  `second_model_checks_12h.calibration`, per back-end: right, of, unmeasured, `wrong` (flag, expected, answered, the
+  quote), `asked_at` (the calibration's start) and `seconds` (its duration); the log line says the same.
 
 ## 11. Assumptions (most defensible reading; the integrator may overrule)
 

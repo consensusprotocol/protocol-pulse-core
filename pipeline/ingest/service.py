@@ -18,8 +18,8 @@ Loops (threads, one process):
           checker is calibrated at start and daily inside this loop (16 short questions per back-end, the loop waits
           for it), every question put to the model live, never answered from a stored reply (F1, Nov 14); a question
           not answered is asked again (flagcheck.CALIBRATION_ROUNDS); when no back-end passed and one still could (a
-          question unanswered, none wrong) the calibration is tried again after CHECK_RETRY_S, not a day later, the
-          wait doubling while it keeps failing (up to a day)
+          question unanswered, none wrong; or the calibration crashed) the calibration is tried again after
+          CHECK_RETRY_S, not a day later, the wait doubling while it keeps failing (up to a day)
   purge   every purge.json every_s (600 s; ruling 77, no cron): media of videos published more than 12 h ago is
           deleted from the targets purge.json names, never a delivered video's (purge.py); the ledger keeps every row
   signal  every 5 s (ruling 87, when providers.json has down_signal): the ONE shared 'Heimdall down' signal
@@ -482,31 +482,50 @@ class Service:
             with self.clock_lock:
                 self.check_inflight.discard(key)
 
+    def _calibrate_checkers(self):
+        """RULING 40 P1's calibration (F1, Nov 14: every quote asked live): sets check_allowed, check_calibrated and
+        the wait before the next one (check_recal_s); stores the result (queue kv 'check_calibration', live.json)."""
+        asked, t0, crash = config.iso(), self.clock(), None
+        try:
+            allowed, cal = flagcheck.watcher_checkers(self.router)
+        except Exception as e:                   # audit f1 c1 (glm): a calibration that crashes after its live calls
+            allowed, cal = [], None              # must not run again every 30 s; nothing measured: nobody answers
+            self.q.event("check_calibration_crash", None, None, error=traceback.format_exc()[-2000:])
+            crash = f"{type(e).__name__}: {e}"[:300]
+        secs = self.clock() - t0
+        self.check_allowed, self.check_calibrated = allowed, self.clock()
+        # when no back-end passed and one still could (a question unanswered, none answered wrong; or the calibration
+        # crashed), an outage at calibration time must not bar the checkers for a day: tried again after
+        # CHECK_RETRY_S, the wait doubling while it keeps failing (a checker that keeps failing costs a few
+        # calibrations a day); a pass, or every back-end answering a quote wrong, waits for the daily one
+        could = cal is None or [b for b, c in cal.items() if c["unmeasured"] and not c["wrong"]]
+        if allowed or not could:
+            self.check_recal_s = CHECK_RECALIBRATE_S
+        elif self.check_recal_s >= CHECK_RECALIBRATE_S:
+            self.check_recal_s = CHECK_RETRY_S
+        else:
+            self.check_recal_s = min(CHECK_RECALIBRATE_S, 2 * self.check_recal_s)
+        nxt = f"next calibration in {self.check_recal_s:.0f} s"
+        if cal is None:
+            self.q.kv_set("check_calibration", json.dumps({}))
+            self.log(f"check: calibration crashed after {secs:.0f} s: {crash}; every flag stands; {nxt}")
+            return
+        self.q.kv_set("check_calibration", json.dumps({b: dict(
+            {k: c[k] for k in ("model", "right", "of", "unmeasured")}, asked_at=asked, seconds=round(secs, 1),
+            wrong=[{"flag": w["flag"], "gold": w["gold"], "answer": w["answer"], "text": w["text"][:80]}
+                   for w in c["wrong"]]) for b, c in cal.items()}))     # asked_at: the calibration's start
+        got = [(b, c["right"], c["of"], c["unmeasured"]) for b, c in cal.items()]
+        wrong = [(b, w["flag"], w["gold"], w["answer"]) for b, c in cal.items() for w in c["wrong"]]
+        self.log(f"check: calibration (asked live, {secs:.0f} s) {got} (right, answered, unanswered)"
+                 + (f"; wrong (back-end, flag, expected, answered) {wrong}" if wrong else "")
+                 + f"; allowed to answer: {allowed or 'none (every flag stands)'}; {nxt}")
+
     def check_once(self, wait=False):
         """RULING 40 P1: start the second-model check on the newest still-usable moments whose imperative /
         single_source_breaking flag has no answer that counts. Only back-ends that answer every calibration quote
         right may answer (none: nothing is checked, every flag stands)."""
         if self.check_allowed is None or self.clock() - self.check_calibrated >= self.check_recal_s:
-            asked = config.iso()
-            self.check_allowed, cal = flagcheck.watcher_checkers(self.router)
-            self.check_calibrated = self.clock()
-            # F1: when no back-end passed and one still could (a question unanswered, none answered wrong), an outage
-            # at calibration time must not bar the checkers for a day: tried again after CHECK_RETRY_S, the wait
-            # doubling while it keeps failing (a checker that keeps replying badly costs a few calibrations a day)
-            could = [b for b, c in cal.items() if c["unmeasured"] and not c["wrong"]]
-            if self.check_allowed or not could:
-                self.check_recal_s = CHECK_RECALIBRATE_S
-            elif self.check_recal_s >= CHECK_RECALIBRATE_S:
-                self.check_recal_s = CHECK_RETRY_S
-            else:
-                self.check_recal_s = min(CHECK_RECALIBRATE_S, 2 * self.check_recal_s)
-            self.q.kv_set("check_calibration", json.dumps({b: dict({k: c[k] for k in ("model", "right", "of",
-                                                                                      "unmeasured")}, asked_at=asked)
-                                                           for b, c in cal.items()}))
-            got = [(b, c["right"], c["of"], c["unmeasured"]) for b, c in cal.items()]
-            self.log(f"check: calibration (asked live) {got} (right, answered, unanswered); allowed to answer: "
-                     f"{self.check_allowed or 'none (every flag stands)'}; next calibration in "
-                     f"{self.check_recal_s:.0f} s")
+            self._calibrate_checkers()
         if not self.check_allowed:
             return 0
         try:                                              # nothing new in the ledger and no retry due: no re-read

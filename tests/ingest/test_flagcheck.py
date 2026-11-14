@@ -222,21 +222,25 @@ def test_f1_a_quote_not_answered_is_asked_again_up_to_the_rounds(tmp_path):
     first = FC.PROBES[0][2]
     for rounds, ok in ((1, False), (3, True)):
         failed = []
+        b = H.FakeBackend("ca")
+        r = _router([b], cache_dir=str(tmp_path / f"r{rounds}"))
+        per_run = 1 + r.cfg["throttle"]["transport_retries"]     # a network error: the call and its transport
+        assert "transport_retries" not in r.cfg["roles"]["flagcheck"] and per_run >= 2   # retries (audit f1 c1, glm)
 
         def fn(p):
-            if gold[p][1] == first and len(failed) < 3:          # the router's call and its 2 transport retries
+            if gold[p][1] == first and len(failed) < per_run:      # one whole run() of the first quote fails
                 failed.append(p)
                 return providers.BackendError("network", "down")
             return right(p)
-        b = H.FakeBackend("ca", fn=fn)
-        allowed, cal = FC.watcher_checkers(_router([b], cache_dir=str(tmp_path / f"r{rounds}")), rounds=rounds)
+        b.fn = fn
+        allowed, cal = FC.watcher_checkers(r, rounds=rounds)
         asked_first = sum(1 for p in b.calls if gold[p][1] == first)
         if ok:
             assert allowed == ["ca"] and cal["ca"]["right"] == cal["ca"]["of"] == 16 and cal["ca"]["unmeasured"] == 0
-            assert asked_first == 4 and len(b.calls) == 15 + 4               # the others were asked once
+            assert asked_first == per_run + 1 and len(b.calls) == 15 + per_run + 1     # the others asked once
         else:
             assert allowed == [] and cal["ca"]["of"] == 15 and cal["ca"]["unmeasured"] == 1
-            assert asked_first == 3 and len(b.calls) == 15 + 3
+            assert asked_first == per_run and len(b.calls) == 15 + per_run
 
 
 def test_the_report_renders_every_table_and_cell(tmp_path):
