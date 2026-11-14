@@ -401,6 +401,106 @@ def test_a_leading_speaker_marker_never_hides_the_first_word():
     assert mine.episode_measure({"segments": []})["measured_from"] == "no segments"
 
 
+def test_the_spotlight_prompt_states_the_ruling_and_the_judges_hook_question_verbatim():
+    """The 08:15 ruling 2 (c): the spotlight question in the orchestrator's words, ruling 90's 12-35 s, one speaker,
+    the builder's judge question verbatim (its scroll and alone parts count) and the OPENER rule's own words."""
+    win = [{"k": 3, "start": 0.0, "text": "Bitcoin is a bet against every central bank."},
+           {"k": 4, "start": 4.0, "text": "Here is why."}]
+    p = mine.spot_prompt({"exact_title": "t"}, {"display_name": "c"}, win)
+    flat = " ".join(p.split())
+    for s in ("one speaker's complete claim, number or question that a stranger understands cold and would stop "
+              "scrolling for", "12 to 35 seconds", "One speaker throughout", "it NAMES who or what",
+              "only \"scroll\" and \"alone\" count", "must stand alone", "a price prediction", "an accusation",
+              "an ad read", '"this week"', "reacting to a clip", "1 to 2 passages", "1 to 8 consecutive"):
+        assert s in flat, s
+    assert mine.JUDGE_HOOK_QUESTION in p and mine._AXES_TEXT in p
+    assert mine._FLAGS_TEXT.format(reason_max=mine.REASON_MAX) in p
+    for w in mine.OPENER_PRONOUNS | mine.OPENER_CONJUNCTIONS | mine.OPENER_REPLY_FRAGMENTS:
+        assert w in p
+    assert '{"spotlights": [' in p and "S3" in p and p != mine.hook_prompt({"exact_title": "t"}, {"display_name": "c"},
+                                                                             win)
+
+
+@pytest.mark.parametrize("reply,why", [
+    ('{"hooks": []}', "exactly the key 'spotlights'"),
+    ('{"spotlights": [M, M, M]}', "3 spotlights > 2"),
+    ('{"spotlights": [C9]}', "count 9 is not 1-8"),
+])
+def test_the_spotlight_reply_is_strict(reply, why):
+    m = json.dumps(H.moment(0, 1))
+    reply = reply.replace("M", m).replace("C9", json.dumps(H.moment(0, 8)))
+    k = mine.KINDS["spotlight"]
+    with pytest.raises(providers.Invalid, match=why):
+        mine.validator(range(20), k["key"], k["max_n"], k["max_count"])(reply)
+
+
+def test_the_spotlight_question_writes_rows_of_12_to_35_seconds_judged_as_clips():
+    """(c): rows with role_hint "spotlight", the spotlight's own version and pass, 12-35 s; a span outside it or one
+    opening on a pronoun is not written (4 s sentences: 4 sentences = 16 s kept; 2 = 8 s dropped; 6-7 opens 'I')."""
+    rec, meta = H.caption_record(H.vid(), n_rep=3)
+    r = H.make_router([H.FakeBackend("primary", fn=lambda p: H.spots_reply(p, ((0, 3), (5, 8))))])
+    with ThreadPoolExecutor(4) as ex:
+        lines, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                     use_cache=False, kind="spotlight")
+    assert len(lines) == 1 and rep["kind"] == "spotlight" and rep["max_n"] == mine.SPOT_MAX and not rep["failed"]
+    for l in lines:
+        assert l["role_hint"] == "spotlight" and l["eligibility"]["role"] == "clip" and l["mined"]["pass"] == "spotlight"
+        assert l["mined"]["prompt_version"] == mine.SPOT_PROMPT_VERSION and l["miner_route"] == "spotlight"
+        assert 12.0 <= l["duration_estimate_s"] <= 35.0 and mine.bad_opener(l["text"]) is None
+        assert not ledger.line_problems(l)
+    assert rep["dropped"] == {"opens on a pronoun (the builder's OPENER rule)": 1}
+    r = H.make_router([H.FakeBackend("primary", fn=lambda p: H.spots_reply(p, ((0, 1),)))])
+    with ThreadPoolExecutor(4) as ex:
+        none, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                    use_cache=False, kind="spotlight")
+    assert none == [] and rep["dropped"] == {"outside 12-35 s": 1} and rep["dropped_s"] == [8.0]
+    r = H.make_router([H.FakeBackend("primary", fn=lambda p: H.spots_reply(p, ((0, 3), (4, 7), (8, 11))))])
+    with ThreadPoolExecutor(4) as ex:
+        none, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                    use_cache=False, kind="spotlight")
+    assert none == [] and "3 spotlights > 2" in json.dumps(rep["failed"])     # never more than SPOT_MAX a window
+
+
+def test_a_conversation_is_asked_for_up_to_5_hooks_a_window_and_a_solo_episode_for_3():
+    """(b): the same hook question, 5 in a conversation (>= 1 caption speaker change a minute), 3 elsewhere: the prompt
+    says it and the validator holds the reply to it; a solo episode's prompt is the one asked before (cached replies
+    still answer it)."""
+    asked = []
+
+    def fn(p):
+        asked.append(p)
+        return H.hooks_reply(p, ((0, 0), (1, 1), (2, 2), (3, 3), (4, 4)))
+    solo, meta = H.caption_record(H.vid(), n_rep=3)
+    conv = H.conversation(H.caption_record(H.vid(), n_rep=3)[0], every=4)
+    assert mine.is_conversation(mine.episode_measure(conv)) and not mine.is_conversation(mine.episode_measure(solo))
+    r = H.make_router([H.FakeBackend("primary", fn=fn)])
+    with ThreadPoolExecutor(4) as ex:
+        lines, rep = mine.mine_video(r, ex, conv, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                     use_cache=False, kind="hook")
+    assert rep["max_n"] == 5 and not rep["failed"] and asked and all("1 to\n5 lines" in p or "1 to 5" in
+                                                                     p.replace("\n", " ") for p in asked)
+    asked.clear()
+    with ThreadPoolExecutor(4) as ex:
+        _, rep = mine.mine_video(r, ex, solo, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                 use_cache=False, kind="hook")
+    assert rep["max_n"] == 3 and rep["failed"]                          # 5 hooks to a solo question: rejected
+    assert all("1 to 3" in p.replace("\n", " ") for p in asked)
+    win = mine.windows(contract.sentences(solo)[2])[0]
+    assert mine.hook_prompt(meta, H.CHAN, win) == mine.HOOK_PROMPT.format(
+        max_s=3, reason_max=mine.REASON_MAX, max_h=3, channel=H.CHAN["display_name"], title=meta["exact_title"],
+        rows="\n".join(f"[S{s['k']} {mine._mmss(s['start'])}] {mine._untrusted(s['text'])}" for s in win),
+        lo=win[0]["k"], hi=win[-1]["k"])
+
+
+@pytest.mark.parametrize("ep,conv", [
+    ({"turns_per_min": 1.0}, True), ({"turns_per_min": 2.5}, True), ({"turns_per_min": 0.99}, False),
+    ({"turns_per_min": None, "unmarked": True}, False), ({}, False), (None, False), ({"turns_per_min": True}, False),
+    ({"turns_per_min": "2"}, False),
+])
+def test_a_conversation_is_measured_never_assumed(ep, conv):
+    assert mine.is_conversation(ep) is conv
+
+
 def test_the_episode_measure_survives_a_segment_without_an_end():
     """Audit r92 c2 (glm): a last segment whose end is missing gives no minutes, never a crash or a negative rate."""
     m = mine.episode_measure({"segments": [{"start": 10.0, "end": 20.0, "text": ">> a"}, {"start": 20.0, "end": None,

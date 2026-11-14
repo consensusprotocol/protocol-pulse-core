@@ -608,6 +608,71 @@ def test_the_check_loop_does_not_reread_an_unchanged_ledger(svc, monkeypatch):
     assert s.check_once(wait=True) == 0
 
 
+def _every_question(prompt):
+    """The miner answering every question: the moment pass its first two ids; the hook question as many hooks as it
+    allows (5 in a conversation, else 3); the spotlight question two 4-sentence spans (16 s at 4 s a sentence)."""
+    flat = " ".join(prompt.split())
+    if H.is_spot(prompt):
+        return H.spots_reply(prompt, ((0, 3), (10, 13)))
+    if H.is_hook(prompt):
+        n = 5 if "1 to 5 lines" in flat else 3
+        return H.hooks_reply(prompt, tuple((i, i) for i in range(n)))
+    return H.first_two(prompt)
+
+
+def test_the_hook_pass_of_a_conversation_asks_5_hooks_and_the_spotlight_question_a_solo_one_neither(svc,
+                                                                                                    monkeypatch):
+    """The orchestrator's 08:15 ruling 2 (ruling 92 (b) + (c)): a conversation (caption turns >= 1 a minute) is asked
+    for up to 5 hooks a window and the spotlight question (its rows: role_hint "spotlight", 12-35 s); a solo episode
+    keeps 3 hooks and is never asked the spotlight question. The pass's version, its spotlight rows and its cost (both
+    roles) are recorded; live.json counts them."""
+    s, vids, b = svc(_every_question, _every_question, n_videos=2)
+    conv = vids[0]
+    ts = config.ts()
+    solo_captions = ts.fetch_captions
+
+    def captions(meta, work):
+        if meta["video_id"] != conv:
+            return solo_captions(meta, work)
+        lead = [(">> " if i % 4 == 3 else "") + f"Bitcoin show {conv} opens with {i} new facts." for i in range(30)]
+        rec, _ = H.caption_record(conv, n_rep=8, lead=lead)
+        return "ok", ts._make_record(meta, "yt_auto:en-orig", "youtube captions (auto-subs, en-orig)", rec["segments"])
+    monkeypatch.setattr(ts, "fetch_captions", captions)
+    run_once(s)
+    while s.hook_once(wait=True):
+        pass
+    rows = [l for l in ledger.read(s.p["ledger"])[0]]
+    c, o = s.q.video(conv), s.q.video(vids[1])
+    assert c["episode_tpm"] >= mine.CONVERSATION_TPM > (o["episode_tpm"] or 0)
+    assert c["hook_version"] == o["hook_version"] == mine.HOOK_PROMPT_VERSION == "mine-hook/3"
+    spots = [l for l in rows if l.get("role_hint") == "spotlight"]
+    assert spots and {l["video_id"] for l in spots} == {conv} and c["spot_rows"] == len(spots) and o["spot_rows"] is None
+    assert all(12.0 <= l["duration_estimate_s"] <= 35.0 and l["mined"]["pass"] == "spotlight" for l in spots)
+    per_window = {}
+    for l in rows:
+        if l.get("role_hint") == "hook" and l["mined"]["pass"] == "hook":
+            per_window.setdefault((l["video_id"], tuple(l["mined"]["window"])), set()).add(tuple(l["sentences"]))
+    assert max(len(v) for (vid, _), v in per_window.items() if vid == conv) == 5
+    assert max(len(v) for (vid, _), v in per_window.items() if vid != conv) == 3
+    calls = s.q.rows("SELECT video_id, role, COUNT(*) AS n, SUM(cost_usd) AS usd FROM calls WHERE role IN ('hook', "
+                     "'spotlight') GROUP BY video_id, role")
+    assert {(r["video_id"], r["role"]) for r in calls} == {(conv, "hook"), (conv, "spotlight"), (vids[1], "hook")}
+    assert c["hook_cost_usd"] == pytest.approx(sum(r["usd"] for r in calls if r["video_id"] == conv))
+    hk = s.health_once()["hooks_12h"]
+    assert hk["conversations"] == 1 and hk["spotlight_rows"] == len(spots)
+
+
+def test_every_mining_question_needs_its_role_to_start():
+    """The 08:15 ruling 2: the spotlight question has its own role; a provider config without it stops the start
+    (asked without it, every conversation's hook pass would crash)."""
+    service.check_roles(providers.load_config())                        # the real providers.json: every role there
+    cfg = H.router_cfg(["primary", "fallback"])
+    service.check_roles(cfg)
+    del cfg["roles"]["spotlight"]
+    with pytest.raises(ValueError, match=r"no role \['spotlight'\]"):
+        service.check_roles(cfg)
+
+
 def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):
     """Audit r92 c2 (glm): a completed pass records the question it asked; --rerun re-queues only passes of an older
     question, so a second --rerun after a successful re-run spends nothing."""

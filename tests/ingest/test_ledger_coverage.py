@@ -318,6 +318,11 @@ def test_a_later_pass_carries_every_earlier_flag_and_the_hook_hint(rec):
     again = ledger.carry_forward([dict(later), dict(other)], [first, out[0]])
     assert again[0]["role_hint"] == "hook" and again[0]["risk"] == ["accusation", "time_sensitive"]
     assert again[1]["risk"] == [] and "role_hint" not in again[1]
+    spot = line(rec, 2, 3, risk=[], role_hint="spotlight")              # the 08:15 ruling 2 (c): any hint travels;
+    remine = ledger.carry_forward([dict(other)], [spot])                # a later line's own hint wins
+    assert remine[0]["role_hint"] == "spotlight"
+    own = ledger.carry_forward([dict(line(rec, 2, 3, risk=[], role_hint="hook"))], [spot])
+    assert own[0]["role_hint"] == "hook"
 
 
 def test_an_earlier_missing_value_adds_nothing_and_a_missing_value_of_the_new_line_stays_missing(rec):

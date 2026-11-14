@@ -11,7 +11,9 @@ Loops (threads, one process):
   health  every 60 s: Heimdall spend meter (every 10 min), live numbers (ingest/live.json), the daily coverage check
   hook    every 5 s (ruling 80): the HOOK PASS, a second mining question over the same windows (mine.HOOK_PROMPT),
           on mined videos published in the last 12 h, newest first (2 videos at once): the current window's backfill
-          at start, then every new upload once its moment pass is done; its rows are moments with role_hint "hook"
+          at start, then every new upload once its moment pass is done; its rows are moments with role_hint "hook";
+          in a conversation episode up to 5 a window, plus the spotlight question's rows (role_hint "spotlight",
+          12-35 s: the orchestrator's 08:15 ruling 2, Nov 14)
   check   every 30 s (ruling 40 P1): the second model's narrow question on every imperative / single_source_breaking
           flag of a moment still usable (published in the last 12 h, newest first) that has no answer that counts; the
           answers go into a new line of the moment (risk_checks); the adapter releases such a flag only on "no". The
@@ -79,6 +81,14 @@ class ServiceBusy(RuntimeError):
     """Another pp-ingest service holds this store."""
 
 
+def check_roles(cfg):
+    """Every mining question (mine.KINDS) needs its role in the provider config; a missing one stops the start (the
+    08:15 ruling 2 added the spotlight question: asked without its role, every pass of it would crash)."""
+    missing = sorted({k["role"] for k in mine.KINDS.values()} - set(cfg["roles"]))
+    if missing:
+        raise ValueError(f"providers.json has no role {missing}: every mining question needs one (mine.KINDS)")
+
+
 class Service:
     def __init__(self, providers_path=None, log=None, clock=time.time, backends=None, gate=None,
                  keyring=None, sleep=time.sleep, signal_module=None, signal_state=None):
@@ -95,6 +105,7 @@ class Service:
         self.gate = gate or watch.YouTubeGate(clock=clock)
         self.providers_path = providers_path
         self.cfg = providers.load_config(providers_path)
+        check_roles(self.cfg)
         self.spendbook = providers.SpendBook(loader=self.q.spend_by_day, clock=clock)
         self._rlog_lock = threading.Lock()
         self.overrides = providers.Overrides(os.path.join(self.p["ingest"], "overrides.json"),
@@ -361,9 +372,12 @@ class Service:
 
     def hook_video(self, v):
         """RULING 80: the hook pass on one mined video: the hook question over the same windows; its rows (moments
-        with role_hint "hook", 4-14 s) go to the ledger with every earlier flag carried. A pass with failed windows is
-        retried (an outage uses no try); after HOOK_TRIES passes with rejected windows the good windows' hooks are
-        written. Videos published more than 12 h ago are never hook-mined: their moments are expired."""
+        with role_hint "hook", 4-14 s) go to the ledger with every earlier flag carried. The 08:15 ruling 2 (Nov 14,
+        ruling 92 (b) + (c)): in a conversation episode (mine.is_conversation) the hook question allows up to 5 a
+        window and the spotlight question is asked too (rows with role_hint "spotlight", 12-35 s). A pass with failed
+        windows (either question) is retried (an outage uses no try); after HOOK_TRIES passes with rejected windows the
+        good windows' rows are written. Videos published more than 12 h ago are never hook-mined: their moments are
+        expired."""
         vid, t0 = v["video_id"], self.clock()
         try:
             ts = config.ts()
@@ -384,30 +398,39 @@ class Service:
                    "duplicate_of": v.get("duplicate_of"), "canonical_url": ts.canonical_url(vid)}
             lines, rep = mine.mine_video(self.router, self.hook_windows, rec, meta, chan, reg,
                                          datetime.now(timezone.utc), self.cycle, extra_source=src, kind="hook")
-            cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND role='hook'",
-                               (vid,))[0]["usd"] or 0.0
-            failed = rep["failed"]
+            spot, srep = [], None                  # the 08:15 ruling 2 (c): the spotlight question, conversations only
+            ep = rep.get("episode") or {}
+            if mine.is_conversation(ep):
+                spot, srep = mine.mine_video(self.router, self.hook_windows, rec, meta, chan, reg,
+                                             datetime.now(timezone.utc), self.cycle, extra_source=src,
+                                             kind="spotlight")
+            cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND role IN "
+                               "('hook', 'spotlight')", (vid,))[0]["usd"] or 0.0
+            failed = rep["failed"] + (srep["failed"] if srep else [])
             rejected = [f for f in failed if not f["outage"]]
             tries = int(v.get("hook_tries") or 0) + (1 if rejected else 0)
-            what = (f"{len(lines)} hook rows, windows {rep['windows']} (screened {rep['screened']}, failed "
-                    f"{len(failed)}: {len(rejected)} rejected), dropped {rep['dropped'] or 0}"
-                    f"{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, ${cost:.4f} for the "
-                    f"video's hook passes so far, {self.clock() - t0:.0f} s")
+            sp = (f"{len(spot)} spotlight rows (dropped {srep['dropped'] or 0})" if srep is not None else
+                  f"no spotlight question ({ep.get('turns_per_min')} turns / min: not a conversation)")
+            what = (f"{len(lines)} hook rows (up to {rep['max_n']} a window), {sp}, windows {rep['windows']} "
+                    f"(screened {rep['screened']}, failed {len(failed)}: {len(rejected)} rejected), dropped "
+                    f"{rep['dropped'] or 0}{' ' + str(rep.get('dropped_s')) if rep.get('dropped_s') else ''}, "
+                    f"${cost:.4f} for the video's hook passes so far, {self.clock() - t0:.0f} s")
             if failed and tries < HOOK_TRIES:
                 self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_tries=tries, hook_cost_usd=cost,
                                 hook_note=("OUTAGE: " if not rejected else "") + f"{len(failed)} window(s) failed; "
                                 f"retry in {HOOK_RETRY_S // 60} min: {json.dumps(failed[0]['tried'])[:200]}")
                 self.log(f"hooks {vid} ({(chan or {}).get('display_name')}): waiting: {what}")
                 return
-            self._append(v, lines)
-            ep = rep.get("episode") or {}
+            self._append(v, lines + spot)
             self.q.set_hook(vid, episode_markers=ep.get("speaker_markers"), episode_tpm=ep.get("turns_per_min"))
             self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
-                            hook_version=mine.HOOK_PROMPT_VERSION,
+                            hook_version=mine.HOOK_PROMPT_VERSION, spot_rows=len(spot) if srep is not None else None,
                             hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes"
                                                           if failed else None))
-            self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), windows=rep["windows"],
-                         screened=rep["screened"], failed=len(failed), dropped=rep["dropped"], cost=cost)
+            self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), spotlight_rows=len(spot),
+                         conversation=srep is not None, max_n=rep["max_n"], windows=rep["windows"],
+                         screened=rep["screened"], failed=len(failed), dropped=rep["dropped"],
+                         spotlight_dropped=(srep or {}).get("dropped"), cost=cost)
             self.log(f"hooks {vid} ({chan.get('display_name')}): {what}")
         except ContractUnavailable as e:
             self.q.set_hook(vid, hook_next_ts=self.clock() + HOOK_RETRY_S, hook_note=f"contract unavailable: {e}"[:300])

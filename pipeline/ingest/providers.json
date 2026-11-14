@@ -109,6 +109,8 @@
     "judge": {"chain": ["xai_frontier", "gemini_frontier", "anthropic_frontier"], "attempts": 2, "max_tokens": 8000},
     "hook": {"chain": ["heimdall_qwen27b", "local_gemma"], "attempts": 3, "max_tokens": 3000,
              "note": "ruling 80 (2026-11-13 18:42 ET): the hook pass, a second mining question over the same windows (mine.HOOK_PROMPT); the mine role's chain under the spend freeze"},
+    "spotlight": {"chain": ["heimdall_qwen27b", "local_gemma"], "attempts": 3, "max_tokens": 3000,
+                  "note": "the orchestrator's 08:15 ruling 2 (2026-11-14; ruling 92 (c)): the spotlight question (mine.SPOT_PROMPT), asked in the hook pass of conversation episodes only; the hook role's chain"},
     "flagcheck": {"chain": ["heimdall_glm53flash", "heimdall_muse"], "attempts": 2, "max_tokens": 4000,
                   "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."},
     "mine_paid": {"chain": ["xai_frontier", "gemini_frontier"], "attempts": 2, "max_tokens": 4000,

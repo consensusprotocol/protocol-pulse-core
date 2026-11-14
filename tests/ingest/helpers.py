@@ -21,6 +21,7 @@ def router_cfg(chain, **over):
                         for b in chain},
            "roles": {"mine": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
                      "hook": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
+                     "spotlight": {"chain": list(chain), "attempts": 3, "max_tokens": 1000},
                      "flagcheck": {"chain": list(chain), "attempts": 2, "max_tokens": 1000},
                      "judge": {"chain": list(chain), "attempts": 2, "max_tokens": 1000}},
            "health": {"consecutive_failures": 3, "window": 10, "failure_fraction": 0.5, "window_s": 600,
@@ -177,3 +178,21 @@ def hooks_reply(prompt, spans=((0, 1),)):
 def first_two_and_hooks(prompt):
     """The moment pass answers its first two ids; the hook pass answers the same two ids as a hook."""
     return hooks_reply(prompt) if is_hook(prompt) else first_two(prompt)
+
+
+def is_spot(prompt):
+    return "You are the SPOTLIGHT miner" in prompt
+
+
+def spots_reply(prompt, spans=((0, 3),)):
+    """The spotlight question's answer: spans at the offered ids' positions given (relative), valid moment shapes."""
+    ids = offered_ids(prompt)
+    return json.dumps({"spotlights": [moment(ids[a], ids[b]) for a, b in spans if b < len(ids)]})
+
+
+def conversation(rec, every=10):
+    """Mark a speaker change ('>>') on every `every`-th segment of a record (4 s segments: 1.5 turns a minute at 10)."""
+    for i, s in enumerate(rec["segments"]):
+        if i % every == every - 1:
+            s["text"] = ">> " + s["text"]
+    return rec

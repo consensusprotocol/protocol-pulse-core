@@ -202,8 +202,8 @@ def carry_forward(lines, earlier):
             fx["altcoin"] = True if True in (a_new, a_old) else (False if a_new is False else None)   # missing (the
             fx["about_bitcoin"] = False if False in (b_new, b_old) else (True if b_new is True else None)  # adapter
             # refuses it: L-m); audit r80 c1, muse
-            if e.get("role_hint") == "hook":
-                l["role_hint"] = "hook"
+            if e.get("role_hint") and not l.get("role_hint"):          # its hint ("hook", or "spotlight" from the
+                l["role_hint"] = e["role_hint"]                         # 08:15 ruling 2): a later line's own wins
             for f, c in (e.get("risk_checks") or {}).items():          # ruling 40 P1: a second model's answer is
                 l.setdefault("risk_checks", {}).setdefault(f, c)       # about the same words: it travels too; the
     return lines                                                       # new line's own answer wins

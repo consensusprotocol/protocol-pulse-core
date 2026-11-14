@@ -283,6 +283,29 @@ must never lose a flag. The watcher's `hook` loop (every 5 s, 2 videos at once) 
 the last 12 h, newest first: the current window at start, then every new upload after its moment pass. Report:
 `tools/ingest_watch.py hooks` and live.json `hooks_12h`.
 
+CONVERSATIONS (mine-hook/3: the orchestrator's 08:15 ruling 2, Nov 14, ruling 92's options (b) + (c); "last night's
+pools had exactly one opener rated 4 in each window: this is where the supply is"). A CONVERSATION is ruling 92's
+caption measure: at least `mine.CONVERSATION_TPM` (1.0) caption speaker changes a minute (`mine.is_conversation`; the
+builder's spotlight.CONVERSATION_TPM; unmarked or unmeasured captions are never taken as one). In a conversation:
+- (b) the hook question allows up to `HOOK_MAX_CONVERSATION` (5) openers a window (the prompt says it, the validator
+  holds the reply to it); elsewhere it stays 3, and its prompt is byte-identical to mine-hook/2's (so a re-run of a
+  solo video is answered from the reply cache at no cost).
+- (c) the SPOTLIGHT question (`mine.SPOT_PROMPT`, mine-spot/1, role `spotlight`: the hook role's chain) is asked over
+  the same windows: "one speaker's complete claim, number or question that a stranger understands cold and would stop
+  scrolling for", ruling 90's spotlight: ONE passage of one speaker, 12 to 35 s (1 to 8 whole sentences), played alone;
+  the builder's judge question verbatim (its "scroll" and "alone" parts: nothing follows a spotlight) and the
+  stand-alone test of the whole clip; the hook prompt's NOT list plus "a host reading news aloud, or a speaker reacting
+  to a clip played inside the video" (ruling 92's source rule). At most 2 a window. Its rows are moments with
+  `role_hint: "spotlight"`, eligibility judged with the builder's role "clip" (its 12-20 s is a target that ranks, law
+  L-o; the builder's spotlight pool takes up to 35 s), `mined.pass` "spotlight"; a row outside 12-35 s or opening on a
+  pronoun, a conjunction or a reply word (the OPENER rule) is not written. The builder reads every row through the
+  adapter and re-judges it (role_hint is advisory; `carry_forward` carries any hint, a later line's own winning).
+- The pass records its version (`hook_version` mine-hook/3), the spotlight rows (`spot_rows`; NULL for a video that
+  is not a conversation) and its cost over both roles (`hook_cost_usd`); live.json `hooks_12h.conversations` and
+  `spotlight_rows`. A pass with failed windows in either question is retried as before. `tools/ingest_watch.py hooks
+  --rerun` re-asks every video of the 12 h window whose pass is older. A provider config without a role for every
+  mining question stops the start (`service.check_roles`).
+
 ## 14. The shared Heimdall-down signal (ruling 87, orchestrator 21:18 ET Nov 13; the builder's contract, Nov 14)
 
 ONE "Heimdall down" signal for the builder and this watcher: the builder's module (pp-selectid
