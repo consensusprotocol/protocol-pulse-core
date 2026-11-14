@@ -378,6 +378,7 @@ class Service:
             ep = rep.get("episode") or {}
             self.q.set_hook(vid, episode_markers=ep.get("speaker_markers"), episode_tpm=ep.get("turns_per_min"))
             self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
+                            hook_version=mine.HOOK_PROMPT_VERSION,
                             hook_next_ts=None, hook_note=(f"{len(failed)} window(s) failed after {tries} passes"
                                                           if failed else None))
             self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), windows=rep["windows"],

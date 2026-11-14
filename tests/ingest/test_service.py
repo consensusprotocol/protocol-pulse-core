@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 import pytest
 
 import helpers as H
-from pipeline.ingest import config, ledger, providers, service, stats, watch
+from pipeline.ingest import config, ledger, mine, providers, service, stats, watch
 from pipeline.ingest import queue as Q
 from pipeline.ingest.providers import BackendError
 
@@ -519,3 +519,28 @@ def test_the_check_loop_does_not_reread_an_unchanged_ledger(svc, monkeypatch):
     s.check_once(wait=True)                               # sees the checked lines; nothing left to start
     monkeypatch.setattr(service.ledger, "read", lambda *a, **k: (_ for _ in ()).throw(AssertionError("re-read")))
     assert s.check_once(wait=True) == 0
+
+
+def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):
+    """Audit r92 c2 (glm): a completed pass records the question it asked; --rerun re-queues only passes of an older
+    question, so a second --rerun after a successful re-run spends nothing."""
+    import argparse
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("ingest_watch", os.path.join(config.REPO, "tools", "ingest_watch.py"))
+    iw = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(iw)
+    s, vids, b = svc(H.first_two_and_hooks, H.first_two_and_hooks, n_videos=1)
+    run_once(s)
+    while s.hook_once(wait=True):
+        pass
+    assert s.q.video(vids[0])["hook_version"] == mine.HOOK_PROMPT_VERSION
+    monkeypatch.setattr(iw.config, "paths", lambda root=None: s.p)
+    iw.cmd_hooks(argparse.Namespace(hours=12.0, rerun=True))
+    assert s.q.video(vids[0])["hook_ts"] is not None                       # same version: not queued again
+    s.q.set_hook(vids[0], hook_version="mine-hook/1")
+    iw.cmd_hooks(argparse.Namespace(hours=12.0, rerun=True))
+    row = s.q.video(vids[0])
+    assert row["hook_ts"] is None and row["hook_note"] == f"re-run: {mine.HOOK_PROMPT_VERSION}"
+    while s.hook_once(wait=True):
+        pass
+    assert s.q.video(vids[0])["hook_version"] == mine.HOOK_PROMPT_VERSION

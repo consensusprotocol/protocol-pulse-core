@@ -399,3 +399,10 @@ def test_a_leading_speaker_marker_never_hides_the_first_word():
         assert mine.bad_opener(t) is not None, t
     assert mine.bad_opener(">> Bitcoin is scarce") is None
     assert mine.episode_measure({"segments": []})["measured_from"] == "no segments"
+
+
+def test_the_episode_measure_survives_a_segment_without_an_end():
+    """Audit r92 c2 (glm): a last segment whose end is missing gives no minutes, never a crash or a negative rate."""
+    m = mine.episode_measure({"segments": [{"start": 10.0, "end": 20.0, "text": ">> a"}, {"start": 20.0, "end": None,
+                                                                                         "text": "&gt;&gt; b"}]})
+    assert m["speaker_markers"] == 2 and m["minutes"] == 0.0 and m["turns_per_min"] is None

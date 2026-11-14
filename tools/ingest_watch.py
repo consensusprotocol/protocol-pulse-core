@@ -155,9 +155,9 @@ def cmd_hooks(a):
     since = q.clock() - a.hours * 3600
     if a.rerun:                                       # the watcher's hook loop asks the CURRENT hook question again
         n = q.x("UPDATE videos SET hook_ts=NULL, hook_tries=0, hook_next_ts=NULL, hook_note=? WHERE state IN (?, ?) "
-                "AND published_ts >= ? AND (hook_note IS NULL OR hook_note <> ?)",
+                "AND published_ts >= ? AND hook_ts IS NOT NULL AND (hook_version IS NULL OR hook_version <> ?)",
                 (f"re-run: {mine.HOOK_PROMPT_VERSION}", Q.MINED, Q.MINED_PARTIAL, max(since, q.clock() - 12 * 3600),
-                 f"re-run: {mine.HOOK_PROMPT_VERSION}")).rowcount
+                 mine.HOOK_PROMPT_VERSION)).rowcount
         q.event("hooks_rerun", None, None, version=mine.HOOK_PROMPT_VERSION, videos=n)
         print(f"{n} videos of the last 12 h queued for the hook pass again ({mine.HOOK_PROMPT_VERSION}), newest first")
     rows = q.rows("SELECT video_id, channel_id, title, published_at, state, moments, hook_ts, hook_rows, hook_cost_usd, "
@@ -222,10 +222,10 @@ def main():
     b.set_defaults(fn=cmd_ab)
     hk = sub.add_parser("hooks")
     hk.add_argument("--hours", type=float, default=12.0)
-    hk.add_argument("--rerun", action="store_true", help="queue the last 12 h's mined videos for the current hook "
-                    "question again; the watcher's loop does the work, newest first. A video whose re-run pass has "
-                    "not succeeded is queued again by a second --rerun. Run it while no hook pass is in flight: a "
-                    "pass in flight writes its own result for its video")
+    hk.add_argument("--rerun", action="store_true", help="queue the last 12 h's mined videos whose completed hook "
+                    "pass asked an older hook question for the current one; the watcher's loop does the work, newest "
+                    "first. Idempotent per version (a pass completed under the current question is never queued "
+                    "again); a video still in a pass is left to it")
     hk.set_defaults(fn=cmd_hooks)
     pg = sub.add_parser("purge")
     pg.add_argument("--apply", action="store_true", help="delete (default: a dry run)")
