@@ -44,7 +44,8 @@
   "tests/package/proof/ledger_20261113_232949",
   "tests/package/proof/ledger_20261114_002300",
   "tests/package/proof/ledger_20261114_003823",
-  "tests/package/proof/ledger_20261114_011253"
+  "tests/package/proof/ledger_20261114_011253",
+  "tests/package/proof/ledger_20261114_021501"
  ],
  "candidates": {
   "35b7b52533b4220b2672+5307d23dced4f444919a+f03d79cf73eb188924ee": {
@@ -241,10 +242,18 @@
    "source": "tests/package/proof/ledger_20261114_011253",
    "index": 0,
    "found_at": "2026-11-14T01:12:53.534569+00:00",
-   "state": "open",
+   "state": "closed",
    "until": null,
    "fresh_used": false,
-   "history": []
+   "history": [
+    {
+     "build": "tests/package/proof/ledger_20261114_021501",
+     "at": "2026-11-14T02:15:01.319249+00:00",
+     "class": "clip",
+     "fresh": false,
+     "why": "coherence with the takeaway below 4 or no through-line: dropped ['e05b34a672b73f3334ea'], re-lined"
+    }
+   ]
   }
  }
 }

@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T01:13:06+00:00",
- "build": "ledger_20261114_011253",
+ "generated_at": "2026-11-14T02:15:14+00:00",
+ "build": "ledger_20261114_021501",
  "kind": "moments",
  "candidates": [
   {
@@ -85,21 +85,21 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6456822a886ae264adb2",
+   "video_id": "nvEftLDdab4",
+   "channel": "BTC Sessions",
+   "duration": 6.58,
+   "text": "And I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5.",
+   "text_sha256": "23b975e018add3b4bfc841b5b29fcf1d50de62adedb0b7dcbe9b01e72ded752b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "7d8a34d13e1187f7b2f3",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
    "duration": 11.86,
    "text": "So within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
    "text_sha256": "d9cf362d0449a70b48341f3c8e175e5e4194dab308a54d2edfeb68188aa87c91",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "9e2fb1d929e7a62b3f4d",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 7.0,
-   "text": "So Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon.",
-   "text_sha256": "ac755f0000c22f1de9a4078aee0795024ba5d6a74263300a80be975027229a50",
    "trimmed_leading": null
   },
   {
@@ -121,15 +121,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "c56f5d80b4cbb332cbc0",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 4.36,
-   "text": "And ETFs are Binance. Okay. Finance isn't Bitcoin.",
-   "text_sha256": "3c532bda751f01f9c96ce3e1be09525be056d169ca8d38a556db41f6f13fe246",
-   "trimmed_leading": null
-  },
-  {
    "pid": "d424fd07e3168bd42205",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
@@ -145,6 +136,24 @@
    "duration": 13.29,
    "text": "But again, the tops they put in this year, like, Bitcoin's top last year could last for decades if history is a guy. And so let's say that you are right here and that we are going to see a bare market at 20 % corruption in the stock market.",
    "text_sha256": "07a4b307f00daa35cbbec28ba8844fadcd177d4773cffe5d07a9abecbd739188",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4bc1e484b55a0436cf8b",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 18.49,
+   "text": "And then I followed it up. I followed this tweet up with, this one didn't do as many numbers because, you know, people, I don't think people like, I don't think people like this message a little as much. And it was, you want more people holding Bitcoin than win at life. You're the walking billboard for Bitcoin.",
+   "text_sha256": "731f987196d388945ff6beb291ff06d57caaa16f4d1abd44dbe9f533daed42ac",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5f5b3e653c908e75cf85",
+   "video_id": "nvEftLDdab4",
+   "channel": "BTC Sessions",
+   "duration": 13.21,
+   "text": "But now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago.",
+   "text_sha256": "90245a354d68a8094b08b63124086cda30622c9b859a772933c637bdda42aad4",
    "trimmed_leading": null
   },
   {
@@ -499,21 +508,21 @@
    "trimmed_leading": "But"
   },
   {
+   "pid": "6456822a886ae264adb2~trim",
+   "video_id": "nvEftLDdab4",
+   "channel": "BTC Sessions",
+   "duration": 6.4,
+   "text": "I think at the widest, the 200 week here is at 23.9K. Bitcoin at this point went all the way down to like 15.5.",
+   "text_sha256": "c6587d9b45fcecde9fe2db321d6931e1159b4076a75af3e54f391655e922ad36",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "7d8a34d13e1187f7b2f3~trim",
    "video_id": "uaHNzi-Kgr8",
    "channel": "Robert Breedlove",
    "duration": 11.34,
    "text": "within the real estate portfolio, Bitcoin can act as a stabilizing force, despite its volatility, because it can protect certain operational layers against the erosion of purchasing power.",
    "text_sha256": "cf0445ca9c2becaccb48e107f332925664cd3ea30c80870453920a6f88d5a7e8",
-   "trimmed_leading": "So"
-  },
-  {
-   "pid": "9e2fb1d929e7a62b3f4d~trim",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 6.94,
-   "text": "Bitcoin ETFs are now down over 1.5 billion in net outflows for the year. Recent rapid redemptions explain the market swoon.",
-   "text_sha256": "b74d9da82d2cb64a4e03ad146654478f4c9cba4993c843007225b5c7f6ee230b",
    "trimmed_leading": "So"
   },
   {
@@ -535,21 +544,21 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "c56f5d80b4cbb332cbc0~trim",
-   "video_id": "KJRod6tJ_w8",
-   "channel": "Scott Melker",
-   "duration": 4.36,
-   "text": "ETFs are Binance. Okay. Finance isn't Bitcoin.",
-   "text_sha256": "ad21b662abed7cbf462d00c9ffe2cdf8a891d629eac279433cfbf99bfaddafa8",
-   "trimmed_leading": "And"
-  },
-  {
    "pid": "445810538f12ebf89b11~trim",
    "video_id": "VqNMYCgZ3Vw",
    "channel": "CoinTelegraph",
    "duration": 13.21,
    "text": "again, the tops they put in this year, like, Bitcoin's top last year could last for decades if history is a guy. And so let's say that you are right here and that we are going to see a bare market at 20 % corruption in the stock market.",
    "text_sha256": "cef15703447233ca05ccf6a02a179858a935e381c170a0327401af3fad59396d",
+   "trimmed_leading": "But"
+  },
+  {
+   "pid": "5f5b3e653c908e75cf85~trim",
+   "video_id": "nvEftLDdab4",
+   "channel": "BTC Sessions",
+   "duration": 13.05,
+   "text": "now it feels to me and to this person as well that Bitcoin, and I've said this too, maybe in not so many words. And we've all, I think, agreed on this. It's about preserving. both wealth and freedom in a way that maybe it wasn't a few years ago.",
+   "text_sha256": "c7899c9b360fdb0dd0eac9991910882b4135a5fcccbfb961d62fe7403425a9c3",
    "trimmed_leading": "But"
   },
   {

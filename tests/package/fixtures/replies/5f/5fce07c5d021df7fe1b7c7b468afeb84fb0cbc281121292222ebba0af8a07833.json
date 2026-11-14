@@ -1,0 +1,284 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "051eaf105be41aa5dead3cae8cf8c1094d30451d9dd5b595ae69514c61c7ffe8",
+ "result": {
+  "text": "I'll tell you right now what my- And, and video ... what is my, uh, what's the status of my bags here? And video, yeah. My MSTR bag is now underwater, uh, hold on a minute. It's now underwater",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.2,
+    "end": 1.28,
+    "text": "I'll tell you right now what my-"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 1.28,
+    "end": 1.44,
+    "text": "And, and video"
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 1.44,
+    "end": 3.74,
+    "text": "... what is my, uh, what's the status of my bags here?"
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 3.94,
+    "end": 4.14,
+    "text": "And video, yeah."
+   },
+   {
+    "speaker": "speaker_0",
+    "start": 4.16,
+    "end": 10.22,
+    "text": "My MSTR bag is now underwater, uh, hold on a minute. It's now underwater"
+   }
+  ],
+  "words": [
+   {
+    "text": "I'll",
+    "start": 0.2,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "tell",
+    "start": 0.36,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.5,
+    "end": 0.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right",
+    "start": 0.62,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 0.78,
+    "end": 0.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 0.98,
+    "end": 1.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my-",
+    "start": 1.14,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And,",
+    "start": 1.28,
+    "end": 1.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 1.34,
+    "end": 1.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "video",
+    "start": 1.36,
+    "end": 1.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "...",
+    "start": 1.44,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 1.46,
+    "end": 1.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 1.6,
+    "end": 1.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my,",
+    "start": 1.76,
+    "end": 2.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.14,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what's",
+    "start": 2.36,
+    "end": 2.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.52,
+    "end": 2.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "status",
+    "start": 2.66,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 3.04,
+    "end": 3.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 3.12,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bags",
+    "start": 3.28,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here?",
+    "start": 3.58,
+    "end": 3.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 3.94,
+    "end": 3.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "video,",
+    "start": 3.96,
+    "end": 4.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "yeah.",
+    "start": 4.14,
+    "end": 4.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "My",
+    "start": 4.16,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSTR",
+    "start": 4.5,
+    "end": 5.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bag",
+    "start": 5.16,
+    "end": 5.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 5.64,
+    "end": 5.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 5.8,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "underwater,",
+    "start": 6.16,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 7.64,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 8.24,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 8.44,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.56,
+    "end": 8.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "minute.",
+    "start": 8.62,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 9.14,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 9.32,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "underwater",
+    "start": 9.54,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 10.28
+ },
+ "usd": 0.002056,
+ "seconds": 0.66,
+ "recorded_at": "2026-11-14T02:16:17Z"
+}

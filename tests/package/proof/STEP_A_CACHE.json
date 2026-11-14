@@ -8081,6 +8081,27 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "label": "a5f5a1d5d1e5482718f6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "on Thursday, Friday",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "During the crypto hack, traditional stock prices (especially tech, with Intel dropping 29%) fell far more than Bitcoin, which only dropped about five to six percent, showing Bitcoin's relative resilience.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "One more CZ if",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "1e6d0bed659350c143a8:790f0c9cf57398c3eb9377077b09afd1c6a6449c3a4fd0704917446bba6cfd03:ffc0fabbc4524c0b6a798d2189b24a4265e6f5f6969b2761f414921fdf71f2ab:9d43580c729b": {
@@ -8305,6 +8326,59 @@
    "speaker_is": "host",
    "speaker_evidence": "McFly Opti, for real, thank you for carrying the weight of the show. We need to talk. Just appreciate on a serious note. Thank you, man. I really appreciate it.",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "7a033059dd483e36a8db",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the following claim that Bitcoin changed his life",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin changed the speaker's life completely, affecting his finances, work, residence, and worldview.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "let's see what Rumble is saying; thank you for carrying the weight of the show",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -9025,6 +9099,27 @@
    "speaker_is": "host",
    "speaker_evidence": "What is up everybody? Welcome to the Daily Wolf on Yahoo Finance. I am your host Scott Melker",
    "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "3754ba04fb4573be1fe7",
+   "speaker_changes_inside": "no",
+   "view": "reading_aloud",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "to be dropped from MSCI indexes (upcoming/announced removal)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Strategy, the world's biggest corporate Bitcoin holder, is to be dropped from the MSCI indexes.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "Welcome to the Daily Wolf on Yahoo Finance. I am your host Scott Melker, also known as the Wolf of All Streets.",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
    "replayed": false,
    "speaker_verified": false
   }
@@ -10114,6 +10209,413 @@
    "speaker_is": "host",
    "speaker_evidence": "It does seem like a lot of the things we've been saying this year are holding up",
    "backend": "heimdall:qwen/qwen3.8-27b",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "6aad8f2f278340a46449:13ac9b6aa8a98bd140a2e28393b6be874fa1fb36d492cf9ef328e108323c0bae:4da39a00816336a1978d6846b26dd6ebb93aab6cc9cc5ec5ce949f1c3ba42480:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "6aad8f2f278340a46449",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "today",
+     "refers_to": "current time/show date (2026-11-14)",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin price",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Buying crypto today at around $67,000 is like buying Bitcoin over five years ago but completely derisked due to improved fundamentals while the price remains similar.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "But here's what they don't want you to know about crypto. Let me show",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "87e30805a0f9a15d262b:4426ba8273e5ca2fb2aac451b5da0ef34b3e35c1151ba6dd3a00e6a3623f8431:c376d20e9ff89dd78d32c39425f516088c0cf2d074cfbe43a989a1032834903f:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "87e30805a0f9a15d262b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "recent hot inflation prints or possibility of more Fed hikes",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "they",
+     "refers_to": "the Fed",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "even if they do wind up hiking some more",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Recent inflation data and potential additional Fed rate hikes don't really matter for Bitcoin even if more hikes occur.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Joe, your thoughts?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "d21c32a4adf9f84b5691:6eba9bdc35cde736152c0e36a2abe52b0bb3023c68320209515e930c3464e575:db5d6e807772a43fb9ea8194c501758b0d7bd655efd540ecf33377eab536271c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "d21c32a4adf9f84b5691",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "You become a walking billboard for Bitcoin by winning at life through the daily habits and buying Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "like what I say about six things every single day when I sign off on this show and Bitcoin is just one of them. It's like",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "d21c32a4adf9f84b5691",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "you",
+     "refers_to": "the listener/audience (people who follow the speaker's advice)",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that the addressee is a walking billboard for Bitcoin, meaning their example or lifestyle promotes Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "my show; I tell you every day when we sign off on this show",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "719a3eda97f6ae7fc757:e0410987dbf10534b755f8f587281d8c739b0d5e7fff0cf7f5146278d96965d2:1b98046e124257664396d59fe967386d4655d3b68eeec277ff9d3681ab45e1bf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "719a3eda97f6ae7fc757",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "the bear market",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if do you ever think Bitcoin will ever even just reattain its previous top price",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The bear market feels like it is dragging but buyers at current levels have a 50% discount if Bitcoin ever reattains its previous top.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "I'll give you a bit of data here, Joe.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "72e9a3529c27be3eb69d:040e83c0beaf6b43f2fb289d71c31715796be0638468ff393d71e5af716bebe1:23347c010cfcd3b06a5f874085aecf9c9d37e46f21aba13c5631a40f0273718e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "72e9a3529c27be3eb69d",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the last five years BlackRock has institutionalized Bitcoin and Ethereum while Fidelity and Charles Schwab now offer crypto.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "But here's what they don't want you to know about crypto. Let me show you. Buying crypto today at the price of around 6768,000 is like buying Bitcoin over five years ago, but completely derisked.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7004b98d5ef71d120f1a:fc22a9715124d55f29914918f192c78df09ec7d428150a5180fb20ed29b1e829:9df4285cb49cbd0914ac71de367eaff505258654a6fd642e616b5f46bcef52e8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7004b98d5ef71d120f1a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "their",
+     "refers_to": "MSTR/MicroStrategy",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they're",
+     "refers_to": "MSTR/MicroStrategy",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MSTR's average Bitcoin purchase price does not matter because they are never going to be forced to sell their Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "um what is that doing to MSTR and uh and that umbrella of assets right now, \u203a\u203a right? Yeah. So, I mean, as far as uh strategy stock is concerned,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:z-ai/glm-5.3-flash": {
+   "label": "7004b98d5ef71d120f1a",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "their",
+     "refers_to": "Strategy (MSTR) / Michael Saylor's company",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they're",
+     "refers_to": "Strategy (MSTR)",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "their Bitcoin",
+     "refers_to": "Strategy's Bitcoin holdings",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "now that their leverage ratio is 3.1%",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Strategy's average purchase price of Bitcoin doesn't really matter because, given its low leverage, it will never be forced to sell its Bitcoin.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Uh Joe, I did want to ask uh with Bitcoin uh taking a bit of a dump... what is that doing to MSTR",
+   "backend": "heimdall:z-ai/glm-5.3-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "919fc6bc40a175cf5582:7a39f8ef9c38d1c72844c883cf9fa3e3aeeb747a120ea2c090b133176ec2c337:91ed2867181ee9f02b8765ab828aa2bc7f0cce86877a49f14fa83acecc2621d2:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "919fc6bc40a175cf5582",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the recent Bitcoin price drop to the 200-week MA",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the selloff/price drop",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The recent Bitcoin price drop was not caused by a leverage flush but by people selling their Bitcoin for various reasons.",
+   "certainty": "likely",
+   "speaker_is": "host",
+   "speaker_evidence": "We managed to close yesterday above it. Uh I expect to see a little bit of strength here, some choppiness sideways.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7da1cabc81e343c0d4d6:0aaabe1fb20c9c9dd6e9bf69763eae18e9e97e8d268727ec2c8785092354323b:ef88b18cf575ec9b35259764bbdbdd979e72c88481fe88f56b1ab4f45daa2a30:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7da1cabc81e343c0d4d6",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "now",
+     "refers_to": "current time in the video (2026-11-13/14)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker's personal MSTR bag is now underwater by 16%.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "if if we could get a Joe Consortia analysis on uh Joey's bags uh between MSTR \u203a\u203a I'll tell you right now what my what is my uh what's the status of my bags here? My MSTR bag is now underwater.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "45f6f496824c3a028375:8f8d83231603062d8daf88ea473672d6b1f2c0808cdd430cceea94ab694353d4:2c4314724c9bf502f64dc922e5b69270808e7a6e91c3d07f756be2129e0b2b97:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "45f6f496824c3a028375",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "these",
+     "refers_to": "current Bitcoin market conditions near the 50-month moving average and oversold",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "you guys",
+     "refers_to": "the live call group or audience",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in times like these",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In current oversold conditions near Bitcoin's long-term moving averages, bears get overly zealous and call for a drop to 40k.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "that's a really good point, Joey Ben, to your point a moment ago.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "17286cd0c41ce497c8bb:98790935d70ec865c36e3987690e35681ebfa02c5547109a90f7de82b4786cb8:d60db637712d2f0836e9145c72c2162ea734223a698b96f9e83b7a1c86ffc7b4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "17286cd0c41ce497c8bb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "the transitional moment for Bitcoin and long-time Bitcoiners",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this thing",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in like 2017, 18, 19",
+     "inside": true
+    },
+    {
+     "text": "close to transitional moment",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "A transitional moment for long-time Bitcoiners is suspected to be near, but 2017-2019 allowed buying Bitcoin expecting to get rich quickly as it was on the come up.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Joey, your thoughts?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b4dd43e49587e46b4a27:21cf7c4024389c8ebdf5b891d81b2420208c5915dd0cdc2b6f67a5166c2c3a9b:7ce84298639cc6bbaca5bc37cad07231bb810979eca9a1fe9ae3dcd36a6ce2f6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b4dd43e49587e46b4a27",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the correlation with markets",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "today",
+     "refers_to": "the day of the show/recording",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "right now",
+     "refers_to": "at the time of the video in 2026",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "right now",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is correlated with markets on the way down but not on the way up, and a transitional moment is happening right now for those in Bitcoin a long time.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Joey, your thoughts?",
+   "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
   }

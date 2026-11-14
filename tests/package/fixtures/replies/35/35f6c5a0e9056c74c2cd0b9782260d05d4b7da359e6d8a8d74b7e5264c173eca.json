@@ -1,0 +1,19 @@
+{
+ "role": "viewer_takeaway",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 3000,
+ "system": null,
+ "prompt": "You are an ordinary viewer of a 60-second video. Here is everything the video shows and says, in order.\n\nTITLE: \nCAPTION: \nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.\"\nCLIP label=\"clip_01\" (on screen: Robert Breedlove): \"So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account.\"\nCLIP label=\"clip_02\" (on screen: Simply Bitcoin): \"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\n\nFor each clip say what you conclude its speaker asserts, how certain they sound, and whether it is positive, negative\nor neutral about its subject. What you conclude a speaker asserts INCLUDES whatever the title, the caption or the\nvoice-over ATTRIBUTES to that speaker (\"X: Y\" or \"X says Y\" tells you that X asserts Y). The voice-over's own opinion,\nframing, question or takeaway, attributed to nobody, is the host's, not the speaker's. Each clip's label is the text inside label=\"...\" after the word CLIP: use exactly that\nlabel in \"label\" and in \"labels\", never the speakers' names. Labels: hook, clip_01, clip_02. Then, for each pair of clips, say whether the video presents their speakers as RELATED TO EACH\nOTHER: one answering the other, one rebutting the other, one agreeing WITH the other (\"X agrees\", \"Y backs that up\",\n\"both say\"), or the two being in one conversation. Two speakers who each state their own view on the same subject,\neach credited, are NOT related (\"none\") unless the video says or implies that they respond to each other.\nReturn ONLY this JSON object: {\"takeaways\": [{\"label\": \"...\", \"asserts\": \"...\", \"certainty\": \"certain\" | \"likely\" |\n\"possible\" | \"speculative\" | \"uncertain\", \"polarity\": \"positive\" | \"negative\" | \"neutral\"}], \"relations\":\n[{\"labels\": [\"...\", \"...\"], \"relation\": \"none\" | \"agreeing\" | \"answering\" | \"rebutting\" | \"same_conversation\" |\n\"uncertain\"}]}",
+ "text": "{\n  \"takeaways\": [\n    {\n      \"label\": \"hook\",\n      \"asserts\": \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO, but they can't print more Bitcoin.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_01\",\n      \"asserts\": \"Real estate will most likely be replaced by Bitcoin in its function as a savings account.\",\n      \"certainty\": \"likely\",\n      \"polarity\": \"positive\"\n    },\n    {\n      \"label\": \"clip_02\",\n      \"asserts\": \"I want every single person that has ever watched Simply Bitcoin to eventually say thank you, I am a better person because of this, not just richer.\",\n      \"certainty\": \"certain\",\n      \"polarity\": \"positive\"\n    }\n  ],\n  \"relations\": [\n    {\n      \"labels\": [\"hook\", \"clip_01\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"hook\", \"clip_02\"],\n      \"relation\": \"none\"\n    },\n    {\n      \"labels\": [\"clip_01\", \"clip_02\"],\n      \"relation\": \"none\"\n    }\n  ]\n}",
+ "usage": {
+  "in": 774,
+  "out": 2621,
+  "usd_reported": 0.0073856
+ },
+ "usd": 0.069395,
+ "seconds": 17.02,
+ "recorded_at": "2026-11-14T02:25:01Z"
+}

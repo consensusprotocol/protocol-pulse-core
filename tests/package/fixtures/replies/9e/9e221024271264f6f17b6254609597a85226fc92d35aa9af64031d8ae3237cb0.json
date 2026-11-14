@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a 60-second video. Here is everything it says and shows, in order (each clip is a\ndifferent person's own words; the first clip, label \"hook\", opens the video and is shown for context only: it is NOT\nrated here, its own job was judged on its own).\n\nTITLE: Scarcity And The Patient Savings Game\nCAPTION: bitcoin's scarcity sets the clock. patience is how savers and miners keep time.\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.\"\nVOICE-OVER: Next, Robert Breedlove's show on Bitcoin as a savings account.\nCLIP label=\"clip_01\" (on screen: Robert Breedlove): \"So over time, I came to the conclusion that real estate will most likely replace or will be replaced. So real estate will most likely... be replaced by Bitcoin in its function as a savings account.\"\nCLIP label=\"clip_02\" (on screen: Simply Bitcoin): \"Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.\"\nVOICE-OVER: The real test of scarcity is patience, not speed.\nVOICE-OVER: Clips today from Simply Bitcoin, and Robert Breedlove. Go follow them for more. Links are below.\n\n1) State the video's through-line in ONE sentence, or \"none\" if it has none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) Rate 1-5 whether the voice-over makes a point that the clips support (5 = a clear point, fully supported;\n   1 = no point, or a point the clips do not support).\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"vo_point\": 1}",
+ "text": "{\"through_line\": \"Bitcoin's scarcity requires patience for success in its role as a savings account that can replace real estate while improving people.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 2}, \"vo_point\": 2}",
+ "usage": {
+  "in": 683,
+  "out": 2434,
+  "usd_reported": 0.00680435
+ },
+ "usd": 0.064265,
+ "seconds": 18.48,
+ "recorded_at": "2026-11-14T02:28:17Z"
+}

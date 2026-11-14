@@ -1,4 +1,4 @@
-21:04 ET: RULINGS 83 AND 84 (THIS SIDE) ARE BUILT AND AUDITED (audit 2048, 2 cycles: grok SHIP yes, qwen SHIP yes; glm answered cycle 1 late at 801 s, no P0): an abandoned call is now booked at its prompt tokens at the input rate, and a late answer's own figure replaces that booking (a late error leaves it); cap $20.00, stop $16.00; this side's pre-check class is the integrator's ruling-84 class exactly (fillers um / uh / er / ah / mm / hmm on the second recogniser's side adopt; ONE 1-for-1 function word adopts; a second, any other substitution, a number, a name or a negation holds), and the RULES string is the integrator's "ruling 17 + ruling 72 + ruling 73 + ruling 84". WAITING ONLY ON THE INTEGRATOR'S RULING-84 MERGE: its new decoder sha names the result files, and a request sent before its service restarts would be answered under the old rules. The commit and the build follow within minutes of it: the 20:12 candidate (Simply Bitcoin L6H7538ogGs -> Breedlove uaHNzi-Kgr8 -> Simply Bitcoin NtaQGnfWRR8) goes first; BREEDLOVE'S VIDEO EXPIRES AT 22:00:33 ET (ruling 76), so its render must start before then. RULING 76 (d) at 20:12: 235 moments inside 12 h, 37 cleared, 22 cuttable, 1 hook >= 4. SPEND (ruling 48): $11.43 of $20.00 (ruling 83); stop at $16.
+21:37 ET: BUILD 21:15 (ledger_20261114_021501, code 48770e6b): NO PACKAGE. The 20:12 candidate failed coherence with the takeaway (clip_02 NtaQGnfWRR8 rated 2, takeaway 2; closed). The search judged 7 line-ups on 3 angles, and every one failed the clips alone (2-3 joins flagged, or a clip at 1-3). RULING 76 (d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4. Ruling 83 (a) at work: the whole build cost $0.24 (step A's outages booked at prompt tokens). THE REPLAY (85.1) runs at 4 calls per model since 21:36 (936 calls); its table goes on STATE the moment every type has rows. 85.2 / 86 / 87 ARE BUILT AND TESTED in a scratch copy, for one audit when the replay is in: the routing switch (each Heimdall family its own maker; Grok last; ruling 82's 120 s and the move-on rule on every verdict, which is the 20:33 order); the shadow (Grok asked the same prompts, recorded, never deciding; a side-by-side per build; it stops after 3 clean pins); Plan B (a shared health file: 15 minutes with no family answering switches; a probe every 2 min; back after 3 answers in a row; each switch written to STATE line 1 and the evidence file; Grok, then the fenced Gemini key (gemini-2.5-pro), then OpenAI / Anthropic only if a call shows credit). OPEN FOR PLAN B: with only one outside family, step A's second verdict needs the integrator's local-judge contract (asked). COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): $11.67 of $20.00 after the build, plus the replay as it runs; stop at $16.
 
 ### 13949b7c: its texts (MOMENTS_PIN_LEDGER.json in tests/package/proof/ledger_20261113_215708; seal 13949b7c27...)
 
@@ -36,6 +36,64 @@
 - Title: "A maturing asset outlasts the tech trade"
 - Caption: "resilience is becoming the whole story. capital keeps finding a wider home."
 - Runtime estimate: 61.77 s. All 19 gates PASS.
+
+
+## 21:37 ET: build 21:15: no package (ledger_20261114_021501)
+
+- The candidate: closed at coherence with the takeaway (see the section below).
+- The search: 3 angles from deepseek (235 s). 7 line-ups judged, every one FAILED the clips alone:
+  - angle 1: 41.9 s {4, 4, 3}, 2 joins flagged; 40.7 s {4, 4, 4}, 2 joins flagged (ruling 63 reorder); 40.7 s {4, 4, 3};
+  - angle 2: 41.2 s {4, 5, 4, 3}, 3 flagged; 50.4 s and 38.2 s {4, 1, 1, 1};
+  - angle 3: 39.9 s {4, 3, 4}, 2 flagged.
+- RULING 76 (d): 242 moments inside 12 h, 36 cleared, 19 cuttable, 1 hook >= 4 (Simply Bitcoin L6H7538ogGs).
+- Spend: $11.43 -> $11.67 (the build: $0.24, the candidate's writes and judges included).
+
+Line 1 as it stood at 21:30:
+
+> 21:30 ET: THE 20:12 CANDIDATE DID NOT SEAL. Ruling 84 worked as ruled (the pre-check: L6H7538ogGs pass, Breedlove uaHNzi-Kgr8 ADOPT on um / uh / so-or, NtaQGnfWRR8 pass); takeaway write 1 failed fidelity (COMMENTARY); the takeaway-only rewrite (ruling 66 amended) passed fidelity and context; then COHERENCE WITH THE TAKEAWAY rated {hook 4, clip_01 4, clip_02 2}, takeaway 2, so clip_02 (Simply Bitcoin NtaQGnfWRR8) is under the bar and the candidate is closed (ruling 66: a clip, not the line). The same build (21:15, code 48770e6b) is now running its search (8 line-ups) on the same pool: 36 cleared step A, 19 cuttable, 1 hook >= 4 (L6H7538ogGs); a line-up with Breedlove must start rendering before 22:00:33. THE REPLAY (85.1) IS RUNNING since 21:29: 312 Grok records (the build's own new ones included) x deepseek / glm / qwen, one call per model in flight while the build uses Heimdall, more after; results land in tests/package/proof/replay85/RESULTS.jsonl and the table follows the moment each type has rows. 85.2 / 86 / 87 are being built in a scratch copy (routing switch + the 20:33 chain and move-on rule on every verdict, done and tested; the shadow, written; Plan B, next). COST OF THE LAST SEALED PIN (13949b7c): $0.24 TOTAL / $0.23 OUTSIDE. SPEND (ruling 48): the candidate's try cost $0.24 reported; the ledger total comes at the build's end; stop at $16.
+
+
+## 21:30 ET: the candidate's try under ruling 84 (build 21:15, ledger_20261114_021501)
+
+- The pool: 164 usable, 36 cleared step A, 19 cuttable, 12 can open, 1 hook >= 4. 14 cleared step A from both vendors (333 s; deepseek again missed 120 s on step A's second vendor).
+- The candidate, as judged at 20:12: the clips alone PASS {4, 4, 4} (recorded).
+- Ruling 72 / 84 pre-check (pp-selectid.ledger_20261114_021501.1, decoder 962353613cb0): L6H7538ogGs pass, uaHNzi-Kgr8 ADOPT, NtaQGnfWRR8 pass (493 s).
+- Write 1 (deepseek): a 16-word takeaway, 66.65 s. Cheap gates pass. Fidelity FAIL on the takeaway: COMMENTARY. Context PASS.
+- Write 2, the takeaway alone (ruling 66 amended): 9 words, 64.25 s. Cheap gates pass. Fidelity PASS, context PASS (768 s).
+- Coherence with the takeaway: FAIL {hook 4, clip_01 4, clip_02 2}, vo 2 (786 s). The candidate is closed, class "clip" (ruling 66).
+- The candidate's try cost $0.24 reported ($1.73 by the price table).
+
+Line 1 as it stood at 21:16:
+
+> 21:16 ET: RULINGS 83 + 84 ARE COMMITTED (48770e6b, audit 2048, 2 cycles) AND THE BUILD IS RUNNING (started 21:15, code 48770e6b): the 20:12 candidate goes first (Simply Bitcoin L6H7538ogGs -> Breedlove uaHNzi-Kgr8 -> Simply Bitcoin NtaQGnfWRR8) on today's routing, under the integrator's live ruling 84 (decoder 962353613cb0); Breedlove expires at 22:00:33 ET and the integrator renders on arrival. RULINGS 85 / 86 / 87 RECEIVED: the replay (85.1) is written and dry-run (304 distinct Grok verdict prompts: 173 since the first ledger build + 131 older ones that judged the anchor pins' clips; x 3 Heimdall families = 912 calls, on ruling 48's ledger); it starts the moment the candidate is sealed or fails, so it cannot slow the candidate's Heimdall writes. The routing behind a switch (85.2), the shadow (86) and Plan B (87) are being built in a scratch copy, to be audited together when the replay is in. COST OF THE LAST SEALED PIN (13949b7c, build 16:57): $0.24 TOTAL / $0.23 OUTSIDE (xAI grok $0.16 + xAI vision $0.05 + ElevenLabs transcription $0.03 estimated; Heimdall $0.006). SPEND (ruling 48): $11.43 of $20.00 before this build; stop at $16.
+
+
+## 21:16 ET: rulings 83 + 84 committed; the candidate's build started; rulings 85-87 received
+
+- Commit 48770e6b: rulings 83 + 84, audit 2048 (2 cycles). The decoder sha 962353613cb0 is the integrator's (ea426cb9, live at 21:13:18), checked against the sha computed read-only from the main tree's CODE files.
+- The build started at 21:15 (code 48770e6b). It tries the registry's open candidate first (f063cce3 + 6058ee58 + e05b34a6).
+- The cost of the last sealed pin, from ruling 48's ledger at its build-record commit (94b367e1) against the commit before it: $0.2399.
+  - xAI grok-4.20: 15 calls, $0.1612 reported;
+  - xAI grok-4.7 vision: 2 calls, $0.0471 reported;
+  - ElevenLabs scribe_v1: 8 transcriptions, $0.0256 estimated (no vendor figure);
+  - Heimdall deepseek: 5 calls, $0.0061 reported.
+  - The package's own replies (recorded and live) were $0.2043 best-known.
+- The replay (tests/package/replay85.py, in a scratch copy until the audit). Each recorded Grok answer is reduced to the pipeline's own decision with the pipeline's own parsers and bars:
+  - step A: a_failures;
+  - step C: entails yes (a proxy);
+  - clips-alone: the through-line, every clip >= 4, at most 1 flagged join;
+  - coherence;
+  - hook: min(scroll, alone) >= 4;
+  - fidelity: every claim supported (a proxy);
+  - exclusion: keep / exclude;
+  - speaker: the name or unknown.
+  The same prompt is then asked of deepseek-v4.1-flash, glm-5.3-flash and qwen3.8-27b, and their decisions are compared: agree / stricter / looser / different, median seconds, past 120 s, errors, cost.
+  - Dry run: Grok's 173 answers since the first ledger build all read with today's parsers. Older anchor records are kept only where Grok's answer still reads. Step B has no decision of its own and is not asked.
+  - The order names "27 of 29" REFERENT_OUTSIDE refusals. Since the first ledger build, Grok's step-A answers refuse 120 clip-units for REFERENT_OUTSIDE (with repeats across batches). The table will count both ways.
+
+Line 1 as it stood at 21:04:
+
+> 21:04 ET: RULINGS 83 AND 84 (THIS SIDE) ARE BUILT AND AUDITED (audit 2048, 2 cycles: grok SHIP yes, qwen SHIP yes; glm answered cycle 1 late at 801 s, no P0): an abandoned call is now booked at its prompt tokens at the input rate, and a late answer's own figure replaces that booking (a late error leaves it); cap $20.00, stop $16.00; this side's pre-check class is the integrator's ruling-84 class exactly (fillers um / uh / er / ah / mm / hmm on the second recogniser's side adopt; ONE 1-for-1 function word adopts; a second, any other substitution, a number, a name or a negation holds), and the RULES string is the integrator's "ruling 17 + ruling 72 + ruling 73 + ruling 84". WAITING ONLY ON THE INTEGRATOR'S RULING-84 MERGE: its new decoder sha names the result files, and a request sent before its service restarts would be answered under the old rules. The commit and the build follow within minutes of it: the 20:12 candidate (Simply Bitcoin L6H7538ogGs -> Breedlove uaHNzi-Kgr8 -> Simply Bitcoin NtaQGnfWRR8) goes first; BREEDLOVE'S VIDEO EXPIRES AT 22:00:33 ET (ruling 76), so its render must start before then. RULING 76 (d) at 20:12: 235 moments inside 12 h, 37 cleared, 22 cuttable, 1 hook >= 4. SPEND (ruling 48): $11.43 of $20.00 (ruling 83); stop at $16.
 
 
 ## 21:04 ET: rulings 83 and 84 built and audited (audit 2048); waiting on the integrator's merge
