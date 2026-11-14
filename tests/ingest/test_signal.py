@@ -799,7 +799,7 @@ def test_a_family_that_hangs_never_holds_back_the_answer_that_resets_the_clock(s
         hs.tick(wait=True)
         assert time.monotonic() - t0 < 10
         assert hs.last_probe["answered"] is True and "hv_p1 answered" in hs.last_probe["why"]
-        assert "hv_p2: no answer within the probe's" in hs.last_probe["why"] and hs.n["probes"] == 1
+        assert "hv_p2: no answer by the probe's" in hs.last_probe["why"] and hs.n["probes"] == 1
     finally:
         release.set()
 
@@ -841,4 +841,20 @@ def test_with_the_builders_module_a_slot_goes_to_the_prober_that_can_ask_a_faile
     st = state(tmp)
     assert len(b["hv_p1"].calls) == 1 and len(b["hv_p2"].calls) == 1
     assert st["failing_since_utc"] is None and st["failing_families"] == [] and st["probe_streak"] == 1
+
+
+def test_the_probe_always_reports_inside_its_own_slot(sig):
+    """Audit r87a c2 (glm N2, minimax N5): the wait is the longest probe back-end deadline + the margin (60 + 15 s
+    today), but never past the module's probe interval less PROBE_SLACK_S, so a probe back-end with a long timeout_s
+    can never make a probe report after its slot, or its answer stale; live.json shows the wait."""
+    make, t, doc, tmp, msgs = sig
+    s, b = make()
+    hs = s.hsig
+    every = float(getattr(hs.hh, "PROBE_EVERY_S", 120))
+    for bid in ("hv_p1", "hv_p2"):
+        s.router.cfg["backends"][bid]["timeout_s"] = 60
+    assert hs._probe_wait() == min(60 + downsignal.PROBE_WAIT_MARGIN_S, every - downsignal.PROBE_SLACK_S)
+    s.router.cfg["backends"]["hv_p2"]["timeout_s"] = 600
+    assert hs._probe_wait() == every - downsignal.PROBE_SLACK_S < every
+    assert hs.snapshot()["probe_wait_s"] == every - downsignal.PROBE_SLACK_S
 

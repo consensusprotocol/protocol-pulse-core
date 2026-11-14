@@ -362,8 +362,13 @@ audited 2 cycles as its audit 1008), loaded by this watcher since its start at 1
   once (ruling 87 amended; until then they were asked in order and the first answer ended the probe, so the family
   that failed, muse at 09:01 ET Nov 14, went unasked while qwen answered); any answer is the probe's answer, reported
   with the time of the LATEST answer received, never when the slowest family gave up (the module's time check); the
-  probe reports by its longest back-end deadline + 15 s at the latest (a family still asking then is not answered,
-  one whose thread ended without an outcome is not counted: audit r87a c1);
+  probe reports by its longest back-end deadline + 15 s at the latest, and never later than the module's probe
+  interval less 15 s, so it reports inside its own slot and its answer is never stale (60 + 15 = 75 s of 120 today;
+  live.json `probe_wait_s`): a family still asking then is not answered, one whose thread ended without an outcome
+  is not counted (audit r87a c1, c2). A family can also be "not answered" because its call waited on the router's
+  throttle or global in-flight slots behind mining: the conservative side (a missed answer, never a false one). Each
+  probe asks up to 3 families (one-word replies, at most 512 tokens each), only while the clock runs or in Plan B;
+  `failures_noted` counts the family notes (one per family that failed after the latest answer);
   never from a stored reply (`use_cache=False`), never held back or taught by the circuit breaker (`breaker: false`),
   no transport retry, never while a probe back-end is under an override; a probe whose back-ends could not be called
   is no probe. A config test holds that every enabled back-end of the vendor in any role names a family the probe

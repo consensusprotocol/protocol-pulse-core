@@ -42,6 +42,7 @@ from . import providers, spend
 
 SIGNAL_EVERY_S = 5.0            # the signal loop: pending notes are written this often
 PROBE_WAIT_MARGIN_S = 15.0      # the probe reports this long after its longest back-end deadline (audit r87a c1)
+PROBE_SLACK_S = 15.0            # and always this long before the module's probe interval ends (audit r87a c2)
 SIGNAL_MODE_S = 30.0            # mode() and probe_due() at most this often (the module's probe interval is 120 s)
 SIGNAL_NOTICE_S = 1800          # the signal not read this long: one line at the top of STATE
 PROBE_PROMPT = "Reply with the single word OK."      # the builder's probe question; any answer counts
@@ -348,9 +349,7 @@ class DownSignal:
         family still asking then counts as not answered, one whose thread ended without an outcome is not counted
         (audit r87a c1, its P0 and P1: an unbounded join let one hung family hold back the answer that resets the
         clock)."""
-        chain = sorted(self.router.chain(self.probe_role))
-        wait = max([float((self.router.cfg["backends"].get(b) or {}).get("timeout_s", 60)) for b in chain] or [60.0]) \
-            + PROBE_WAIT_MARGIN_S
+        chain, wait = sorted(self.router.chain(self.probe_role)), self._probe_wait()
 
         def ask(bid, outs):
             t0 = self.clock()
@@ -374,7 +373,8 @@ class DownSignal:
                 a.start()
             for a in asks:
                 a.join(max(0.0, end - time.monotonic()))
-            got = [outs[b] if b in outs else (False, f"{b}: no answer within the probe's {wait:.0f} s", None)
+            got = [outs[b] if b in outs else
+                   (False, f"{b}: no answer by the probe's {wait:.0f} s deadline (still asking)", None)
                    if a.is_alive() else (None, f"{b}: its probe thread ended without an outcome", None)
                    for b, a in zip(chain, asks)]
             answered = True if any(a is True for a, _, _ in got) else False if any(a is False for a, _, _ in got) \
@@ -386,6 +386,15 @@ class DownSignal:
                                   "why": why if answered is not None else "no probe back-end could be called: " + why}
         self.probe_thread = threading.Thread(target=run, daemon=True, name="probe87")
         self.probe_thread.start()
+
+    def _probe_wait(self):
+        """How long a probe waits for its families: the longest probe back-end deadline + PROBE_WAIT_MARGIN_S, and never
+        past the module's probe interval - PROBE_SLACK_S, so a probe always reports inside its own slot and its answer
+        is never stale (audit r87a c2: a back-end with a long timeout_s would otherwise stretch it)."""
+        dl = [float((self.router.cfg["backends"].get(b) or {}).get("timeout_s", 60))
+              for b in self.router.chain(self.probe_role)]
+        every = float(getattr(self.hh, "PROBE_EVERY_S", 120))
+        return min(max(dl or [60.0]) + PROBE_WAIT_MARGIN_S, every - PROBE_SLACK_S)
 
     def _report_probe(self):
         """A finished probe's outcome to probe_result (with its own time). One the shared state did not take is kept
@@ -521,6 +530,7 @@ class DownSignal:
                 "call_waiting_s": round(now - busy) if busy is not None else None, "last_probe": self.last_probe,
                 "counts": dict(self.n), "switches_seen": self.q.kv_get("signal_switches_seen"),
                 "probe_claimed_as": self.probe_kw.get("who"), "probe_families": self.probe_kw.get("families"),
+                "probe_wait_s": self._probe_wait() if self.hh is not None else None,
                 "failures_noted_with_family": self.note_family,
                 "paid_route": self._route_snapshot(),
                 "miner_plan_b": self.miner_plan_b}
