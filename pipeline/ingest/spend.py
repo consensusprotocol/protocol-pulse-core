@@ -55,7 +55,9 @@ def _rewrite_top(doc, lock_path, mine, line, keep=lambda h: False):
         kept = [h for h in head if mine(h) and keep(h)][:1]
         others = [h for h in head if not mine(h)]
         block = ([line] if line else []) + kept + others
-        block = [h for h in block if SWITCH_RE.match(h)] + [h for h in block if not SWITCH_RE.match(h)]
+        cyc = lambda h: h.startswith(CYCLES_PREFIX + " TO ")                 # noqa: E731 (the standing order's line
+        block = ([h for h in block if SWITCH_RE.match(h)] + [h for h in block if cyc(h)] +   # right under the switch
+                 [h for h in block if not SWITCH_RE.match(h) and not cyc(h)])                 # line: audit cyc c2)
         new = "\n".join(block + lines)
         if new != text:
             tmp = f"{doc}.{os.getpid()}.{threading.get_ident()}.tmp"

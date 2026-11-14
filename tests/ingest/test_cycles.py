@@ -67,8 +67,9 @@ def test_three_hours_with_nothing_bitcoin_are_said_and_a_window_with_nothing_new
     cycle(q, t, [(a, Q.DISCOVERED), (b, Q.SHORT), (c, Q.DISCOVERED)])
     mined(q, a, T - 60, T + 1, T + 20, 0, 2, 2)
     line = cycles.compose(q, T + 30)
-    assert ("NOTHING BITCOIN IN THE LAST 3 H: 3 upload(s) seen (1 Shorts, 1 not mined yet), none of the 1 mined with a "
-            "Bitcoin term in any window") in line
+    assert ("NOTHING BITCOIN AMONG THE 1 MINED IN THE LAST 3 H (1 NOT MINED YET): 3 upload(s) seen (1 Shorts, 1 not "
+            "mined yet), none of the 1 mined with a Bitcoin term in any window") in line   # audit cyc c2 (minimax N1)
+    assert "NOTHING BITCOIN IN THE LAST 3 H:" not in line                # never the bare claim while one is unknown
     q2, t2 = queue(tmp_path / "other")
     d = H.vid("d")
     cycle(q2, t2, [(d, Q.DISCOVERED)])
@@ -150,6 +151,46 @@ def test_a_duplicate_is_counted_as_not_minable_in_the_quiet_note(tmp_path):
     q.x("UPDATE videos SET state=? WHERE video_id=?", (Q.DUPLICATE, b))
     assert ("NOTHING BITCOIN IN THE LAST 3 H: 2 upload(s) seen (1 not minable), none of the 1 mined with a Bitcoin "
             "term in any window") in cycles.compose(q, T + 30)
+
+
+def test_a_row_that_cannot_be_rendered_never_loses_the_whole_line(tmp_path, monkeypatch):
+    """Audit cyc c2 (minimax N2): a mined row without its time is rendered; a row whose rendering raises is named as
+    unreadable; the line (the standing order) is written either way."""
+    q, t = queue(tmp_path)
+    a, b = H.vid("a"), H.vid("b")
+    cycle(q, t, [(a, Q.DISCOVERED), (b, Q.DISCOVERED)])
+    mined(q, a, T - 60, T + 1, None, 3, 2, 0)                          # mined, its mined_ts missing
+    mined(q, b, T - 60, T + 1, T + 20, 3, 2, 0)
+    line = cycles.compose(q, T + 30)
+    assert f'{a} Test Channel "a title": mined yes (its time not recorded), 3 moments' in line and f"{b} Test" in line
+    real = cycles.video_entry
+    monkeypatch.setattr(cycles, "video_entry", lambda v, *k: real(v, *k) if v["video_id"] != b else 1 / 0)
+    line = cycles.compose(q, T + 30)
+    assert f"{b}: its row could not be read (ZeroDivisionError)" in line and f"{a} Test Channel" in line
+
+
+def test_the_ceiling_is_hard_even_for_one_huge_cycle(tmp_path):
+    """Audit cyc c2 (minimax N3, glm N22): the newest cycle is always kept, so one cycle longer than the ceiling is
+    cut at it (never over)."""
+    q, t = queue(tmp_path)
+    cycle(q, t, [(H.vid(f"v{k}"), Q.DISCOVERED) for k in range(40)])
+    full = cycles.compose(q, T + 30)
+    cut = cycles.compose(q, T + 30, max_chars=2000)
+    assert len(full) > 2000 and len(cut) <= 2000 and cut.endswith("...") and cut.startswith("PP-INGEST CYCLES TO ")
+
+
+def test_the_cycles_line_stays_right_under_the_switch_line_whoever_writes_last(tmp_path):
+    """Audit cyc c2 (minimax N4): the standing order's line sits right under ruling 87's switch line, above the other
+    notices, even after another notice is written."""
+    doc = tmp_path / "STATE.md"
+    sw = "09:16 ET: SWITCHED TO PLAN B (TEST) |"
+    doc.write_text(sw + "\nbody\n")
+    notify = str(tmp_path / "ingest" / "NOTIFY.txt")
+    line = "PP-INGEST CYCLES TO 11:01 ET (test): 11:00 ET cycle, 1 new: (1) x"
+    spend.write_cycles_notice(line, doc=str(doc), notify_path=notify)
+    spend.write_outage_notice(2, "2026-11-14T16:00:00Z", doc=str(doc), notify_path=notify)
+    top = doc.read_text().split("\n")
+    assert top[0] == sw and top[1] == line and top[2].startswith(spend.OUTAGE_PREFIX) and top[3] == "body"
 
 
 def test_the_cycles_line_sits_after_the_switch_line_and_is_rewritten_only_when_it_changes(tmp_path):

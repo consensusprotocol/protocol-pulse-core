@@ -61,6 +61,7 @@ def video_entry(v, name, via):
     if st not in (Q.MINED, Q.MINED_PARTIAL):
         return f"{head}: mined no ({st}{': ' + why if why else ''})", None
     pub, seen, mined = v["published_ts"], v["discovered_ts"], v["mined_ts"]
+    at = f"{_et(mined)} ET" if mined else "(its time not recorded)"
     hooks = "hook pass pending" if not v["hook_ts"] else (
         f"{v['hook_rows'] or 0} hooks" + (f" + {v['spot_rows']} spotlights" if v["spot_rows"] else ""))
     lag = (f"seen {seen - pub:.0f} s after publish via {via or v['discovered_via']}, mined {mined - seen:.0f} s after"
@@ -68,13 +69,13 @@ def video_entry(v, name, via):
     to = f"{mined - pub:.0f} s publish -> " if pub and mined else ""
     partial = " (partial)" if st == Q.MINED_PARTIAL else ""
     if v["moments"]:
-        text = f"{head}: mined yes{partial} {_et(mined)} ET, {v['moments']} moments, {hooks}, {to}rows ({lag})"
+        text = f"{head}: mined yes{partial} {at}, {v['moments']} moments, {hooks}, {to}rows ({lag})"
     else:
         w, ws = v["windows"] or 0, v["windows_screened"] or 0
         why0 = (f"all {w} window(s) without a Bitcoin term: screened before any model call" if ws >= w else
                 f"{w - ws} window(s) asked, nothing returned")
-        text = f"{head}: mined yes{partial} {_et(mined)} ET, 0 moments, {hooks} ({why0}); {to}mined ({lag})"
-    return text, max(t for t in (mined, v["hook_ts"]) if t)
+        text = f"{head}: mined yes{partial} {at}, 0 moments, {hooks} ({why0}); {to}mined ({lag})"
+    return text, max([t for t in (mined, v["hook_ts"]) if t] or [None]) if (mined or v["hook_ts"]) else None
 
 
 def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES", max_chars=MAX_CHARS):
@@ -105,7 +106,11 @@ def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES", max_chars=M
             if v["state"] == Q.SEEN_OLD:                           # a channel's first listing: older uploads, recorded
                 backfill += 1                                      # as seen, never mined (counted, not listed)
                 continue
-            text, changed = video_entry(v, names.get(e["channel_id"]) or e["channel_id"], _detail(e).get("via"))
+            try:
+                text, changed = video_entry(v, names.get(e["channel_id"]) or e["channel_id"], _detail(e).get("via"))
+            except Exception as x:                                 # noqa: BLE001 (audit cyc c2, minimax N2: one row
+                text, changed = (f"{e['video_id']}: its row could not be read ({type(x).__name__})", None)  # never
+                                                                   # loses the whole line)
             parts.append(f"({len(parts) + 1}) {text}")
             if changed:
                 newest = max(newest, changed)
@@ -122,7 +127,7 @@ def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES", max_chars=M
         dropped += 1
     body = (" | ".join(out) + (f" | ({dropped} older cycle(s) of the window not shown: the line's ceiling)"
                                if dropped else "")) if out else f"none of its {len(cycles)} cycle(s) found a new upload"
-    return _one(head + body + tail)
+    return _one(head + body + tail, max_chars)                     # the ceiling is hard (audit cyc c2: one huge cycle)
 
 
 def _quiet(q, t0, names, ncycles):
@@ -146,5 +151,7 @@ def _quiet(q, t0, names, ncycles):
         return f"NOTHING BITCOIN IN THE LAST 3 H: no new upload in {ncycles} cycle(s){tail}"
     kinds = ", ".join(f"{k} {w}" for k, w in ((shorts, "Shorts"), (queued, "not mined yet"), (other, "not minable"))
                       if k)
-    return (f"NOTHING BITCOIN IN THE LAST 3 H: {len(seen)} upload(s) seen{f' ({kinds})' if kinds else ''}, none of "
-            f"the {len(known)} mined with a Bitcoin term in any window{tail}")
+    title = ("NOTHING BITCOIN IN THE LAST 3 H" if not queued else     # uploads not mined yet are not known: the
+             f"NOTHING BITCOIN AMONG THE {len(known)} MINED IN THE LAST 3 H ({queued} NOT MINED YET)")   # head says so
+    return (f"{title}: {len(seen)} upload(s) seen{f' ({kinds})' if kinds else ''}, none of the {len(known)} mined with a "
+            f"Bitcoin term in any window{tail}")
