@@ -1,21 +1,21 @@
-FRESH SESSION UP 07:31 ET Nov 14 (a new session; the laws and the handoff 3af063d0 read): the watcher alive (pid 4164250, tmux pipeline_pp_ingest_watch, up since 06:46 ET, not restarted); its last watch cycle 07:26 ET: 64 channels, 2 new, 0 errors (rss 64); the ledger 3,046 rows (7.97 MB), newest row 04:16 ET (TFTC ZtnhDQODni8, 36 moments: a stream YouTube processed for ~12 h, already past its 12 h when mined); inside 12 h: 22 moments from 2 videos (Altcoin Daily 13 (hooks 3) to 07:56 ET, Stephan Livera 9 (hooks 2) to 10:17 ET), 5 of them hooks; the flag check's calibration glm 16/16, muse 16/16 BUT REPLAYED FROM THE REPLY CACHE (answers measured 20:10-23:05 ET Nov 13; the daily re-calibration replays them too: finding F1, LIVE STATE); Heimdall $0.29 in 24 h, the meter $39.42 of $460 (8.6 %), ok; the shared signal heimdall_first, the paid route closed ($0.00 of $2.00 today); tests/ingest 282 passed; QUESTIONS FOR THE ORCHESTRATOR (THE BUILT DEFAULT STANDS UNTIL ANSWERED): (1) A32, RULING 98'S PAID-ROUTE ORDER: CONVERSATIONS FIRST, THEN NEWEST (AS BUILT), OR NEWEST FIRST WITH CONVERSATIONS BREAKING TIES? (2) RULING 92, THE HOOK PASS: (B) UP TO 5 CANDIDATES A WINDOW IN CONVERSATION EPISODES, (C) A 12-35 S SPOTLIGHT QUESTION FOR THEM, OR NEITHER (AS BUILT)? (3) A19, THE PURGE: KEEP EVERY CACHED COPY OF A DELIVERED VIDEO'S MEDIA (AS BUILT: 154 FILES, 7.27 GB KEPT AT THE LAST PASS) OR ONE COPY PER DELIVERY? | # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
+08:13 ET: F1 FIXED AND LIVE since 08:07 ET (197b35ec, audited 2 cycles; every calibration quote asked live, the cache bypassed for calibration prompts only; the log line says 'asked live'): the first live calibration is still running (its calls so far: glm53flash ok 16, muse ok 10, muse server 11; muse's 502s re-asked); its result replaces this clause; THE 08:15 RULINGS RECEIVED: A32 as built (no change); the hook pass (B) + (C): being built, one audit, then run over the 12 h window and every new upload (rows per video and cost reported here); A19 one copy per delivery: being built, audited, then the disk freed reported here; CYCLES SINCE THE NEWEST LEDGER ROW (04:16 ET) THAT FOUND SOMETHING (newest first; video, channel, mined, moments, hooks, seconds from publish to rows): 08:06 ET cycle, 1 new: (1) NowbrISU73s Bloomberg Television: mined yes 08:06 ET, 0 moments, 0 hooks (all 2 window(s) without a Bitcoin term: screened before any model call); 1197 s publish -> mined (seen 1178 s after publish via rss, mined 19 s after) | 07:26 ET cycle, 2 new: (1) -mXPLiq_zX4 Bitcoin Magazine: a Short, never mined (A2), no rows; (2) 32h8S4ODggc Bloomberg Television: mined yes 07:26 ET, 0 moments, 0 hooks (all 1 window(s) without a Bitcoin term: screened before any model call); 1390 s publish -> mined (seen 1360 s after publish via rss, mined 30 s after) | 07:07 ET cycle, 1 new: (1) Qlt84Qg7IgQ Bloomberg Television: mined no, queued (live_waiting: is_live: re-probed every 20 min (meta.json not written)) | 06:28 ET cycle, 1 new: (1) wtQorzoJFy8 Scott Melker: a Short, never mined (A2), no rows | 06:17 ET cycle, 1 new: (1) vqcziGjEDA8 Simply Bitcoin: a Short, never mined (A2), no rows | 06:07 ET cycle, 2 new: (1) LO50JV239YU Fox Business: mined yes 06:08 ET, 0 moments, 0 hooks (all 2 window(s) without a Bitcoin term: screened before any model call); 471 s publish -> mined (seen 438 s after publish via rss, mined 33 s after); (2) oCLBN6SGSXY Fox Business: mined yes 06:08 ET, 0 moments, 0 hooks (all 5 window(s) without a Bitcoin term: screened before any model call); 462 s publish -> mined (seen 444 s after publish via rss, mined 18 s after) | 05:28 ET cycle, 1 new: (1) ogU99e2dfGo Bloomberg Television: mined yes 05:28 ET, 0 moments, 0 hooks (all 2 window(s) without a Bitcoin term: screened before any model call); 805 s publish -> mined (seen 786 s after publish via rss, mined 19 s after); NO LEDGER ROW SINCE 04:16 ET because every upload since was a Short, had no Bitcoin term in any window, or is still live; the 12 h pool now: 9 moments from 1 video(s) (Stephan Livera 7po5mnYMAjM 9 moments, 2 hooks, to 10:17 ET) | # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 06:48 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12, except ruling 98's capped paid route (unused so far: $0.00)
+## TOTAL SPEND BY VENDOR (this session, every use, to 08:15 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12, except ruling 98's capped paid route (unused so far: $0.00)
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$1.77** | $1.64 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.56 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.46 after; 1,182 calls), the audits $0.76 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12, 87's probe claim $0.10, 98 $0.09), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.38: the watcher $0.46, the audits $0.67, ruling 40 $0.25 + at most $0.05 unrecorded |
-| **TOTAL** | **~$13.99** | | Anthropic is 75 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 (ruling 98's paid route: $0.00 so far) |
+| Heimdall | **$1.88** | $1.75 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.57 (mining, hooks, the second-model check and, since 08:07 ET Nov 14, its live calibration: $0.10 before the freeze, $0.46 after; 1,231 calls), the audits $0.87 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12, 87's probe claim $0.10, 98 $0.09, F1 $0.11), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.50: the watcher $0.46, the audits $0.78, ruling 40 $0.25 + at most $0.05 unrecorded |
+| **TOTAL** | **~$14.11** | | Anthropic is 74 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 (ruling 98's paid route: $0.00 so far) |
 - Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261114.json (tests/ingest/spend_by_vendor.py: every
   row with its basis; since e2878d54 it sums EVERY audit directory: the 18:20 ET Nov 13 table left out the audits of
   rulings 40 P1 to 92, which it now carries; the smoke and freeze-drill rows are carried from the 20261113 file, their
   scratch stores being gone). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.61 at 06:46 ET
-  Nov 14 (+$5.03, the fleet's other sessions included); the cap's sweep spend $39.41 of $460 (8.6 %), meter ok, no
-  tripwire. Ruling 87's probe runs only while calls fail or in Plan B (none so far: $0.00).
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.77 at 08:07 ET
+  Nov 14 (+$5.19, the fleet's other sessions included); the cap's sweep spend $39.57 of $460 (8.6 %), meter ok, no
+  tripwire. Ruling 87's probe runs only while calls fail or in Plan B (3 probe call(s) so far, each at $0.00 recorded).
 
 ## RULING 40: LABEL PRECISION OF THE HARD FLAGS (measured 03:25-05:25 ET Nov 13; commit a462afda; report docs/audits/parallel/pp-ingest_FLAG_PRECISION.md)
 Second model z-ai/glm-5.3-flash (Heimdall, default reasoning; 24/24 on the calibration quotes), one narrow question per
@@ -34,6 +34,39 @@ parties); P3 the tighter miner prompt is not the fix (measured: no precision gai
 moment 12 h after publish, which removes most of what P1 would have released (the released rows were up to 72 h old).
 
 ## LIVE STATE (newest first; ET)
+
+- 08:15 Nov 14 THE ORCHESTRATOR'S 08:15 RULINGS (to pp-ingest): (1) A32: AS BUILT (the paid route takes conversations
+  first, then newest: with a $2 cap the money goes to what a spotlight or a medley hook can use). (2) THE HOOK PASS:
+  BOTH (B) up to 5 candidates a window in conversation episodes and (C) the 12-35 s spotlight question for them ('one
+  speaker's complete claim, number or question that a stranger understands cold and would stop scrolling for'); last
+  night's pools had exactly one opener rated 4 in each window: this is where the supply is; audit as one change; run
+  it over the current window and every new upload; report rows per video and cost. (3) A19: ONE COPY PER DELIVERY:
+  keep the acquired source section(s) the delivered pin's PROVENANCE names, by hash; delete the other cached copies;
+  report the disk freed. F1: FIX IT (the daily calibration and the one that gates 'allowed to answer' after an outage
+  asked LIVE, the cache bypassed for calibration prompts only; the log line says live or replayed; until fixed, line 1
+  says 'calibration replayed from <date>'). ALSO: the 07:26 cycle's 2 uploads explained on line 1, one line each; from
+  now on line 1 carries, after each cycle that finds something: video, channel, mined yes/no, moments, hooks, seconds
+  from publish to rows.
+  - F1 IS LIVE since 08:07 ET (197b35ec; the build 0abeb304; audit c1 2af6c379: glm's crash path and the discarded
+    wrong answers fixed; c2 197b35ec: muse's empty calibration and glm's crash count in; $0.115 Heimdall;
+    pp-ingest_audit/f1/). The watcher restarted 08:07 ET (pid by `status`; nothing in flight; the signal module
+    unchanged since its start). The first live calibration: in progress at 08:15 (its calls so far: glm53flash ok 16,
+    muse ok 13, muse server 17; muse's gateway 502s are re-asked); the result goes on line 1. Every calibration quote
+    is asked live (the cache bypassed for calibration prompts only; the real questions keep the cache: one row's
+    question is asked once); the log line says 'asked live'; nothing in the watcher replays a calibration any more
+    (the measurement CLI still reads its stored replies, A35).
+  - LINE 1 now lists every cycle since the newest ledger row that found something (video, channel, mined, moments,
+    hooks, seconds from publish to rows; seen-after-publish and mined-after-seen split), written by hand from the
+    queue until the watcher writes it itself (built after the hook pass, audited). The 07:26 cycle: -mXPLiq_zX4
+    Bitcoin Magazine, a Short (never mined); 32h8S4ODggc Bloomberg Television, mined 30 s after it was seen, its one
+    window without a Bitcoin term (screened before any model call): 0 rows. Every upload since the newest row (04:16
+    ET) was a Short, had no Bitcoin term in any window, or is still live.
+  - NOTED for the standing job: Bloomberg Television's uploads were SEEN 786-1,360 s after publish via RSS (Fox
+    Business 438-444 s); a cycle runs every 10 min, so the rest is the feed's own lag. To measure: RSS against the
+    uploads playlist on the same uploads.
+  - NEXT, in order: the hook pass (B) + (C) (one audit, then run over the 12 h window and every new upload; rows per
+    video and cost on line 1); the watcher writes the cycle report on line 1 (audited); A19 one copy per delivery
+    (audited; the disk freed on line 1). Disk: 431 GB free (76 % used), so A19 is not urgent for space.
 
 - 07:31 Nov 14 FRESH SESSION UP: a new pipeline_pp_ingest session took over from the handoff 3af063d0 (the previous
   one ran out of context). Read PIPELINE_LAWS.md in full, the HANDOFF in full, this file's top. Line 1 was "HANDOFF
@@ -580,7 +613,7 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   on. Rows mined before the field: the same time from their publish time. Nothing is deleted from the ledger.
 - A19 "EXCEPT the sources of DELIVERED videos": read literally, so every cached copy of a delivered video's media is
   kept, not only the delivery run's own copy (6.84 GB of copies in re-renders and replays). Keeping one copy per
-  delivery and deleting the rest is your call (one rule in purge.py).
+  delivery and deleting the rest is your call (one rule in purge.py). RULED 08:15 Nov 14: ONE COPY PER DELIVERY (the acquired section(s) the delivered pin's PROVENANCE names, by hash; the other cached copies deleted; the disk freed reported).
 - A20 "Cached source media and audio ... (downloads, windows' WAVs, acquired mp4 sections)": deleted = the three kinds
   listed (acquired sections, the word pass's window WAVs, the worker's audio downloads). Renders' intermediates, the
   rendered videos, the V3 daily clips, the earlier segment pipelines and the March clips are measured and reported,
@@ -614,7 +647,16 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   about their imperative / single-source flags).
 - A32 "Newest first, conversations first": conversations first (caption turns per minute >= 1.0, ruling 92's measure),
   then newest within each group (if the orchestrator meant newest first with conversations breaking ties, it is the
-  order of one sort key).
+  order of one sort key). RULED 08:15 Nov 14: AS BUILT.
+- A33 F1, "calibrated" (ruling 40 P1) means measured on the model as it answers now: a replayed reply is not
+  a measurement. Every calibration quote is asked live; 16 short questions per back-end per calibration (two
+  back-ends), at start and daily: about $0.003 a day. (Confirmed by the orchestrator's 08:15 F1 ruling.)
+- A34 F1, the schedule: 3 rounds inside a calibration for unanswered quotes; none passing and one that could (or
+  none callable, or a crash) -> tried again after 600 s, doubling up to a day; a pass, or every back-end
+  answering a quote wrong -> the daily one. When one back-end passed and the other was left unanswered, the
+  other waits for the daily calibration (the passing one answers).
+- A35 F1, the measurement CLI (tools/ingest_watch.py flagcheck: flagcheck.main / remeasure) keeps its stored
+  replies (a report is reproduced from them; it releases nothing).
 
 ## HOW TO OPERATE (for the orchestrator)
 - status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status` (ruling 87: its `down_signal` block is the watcher's view of

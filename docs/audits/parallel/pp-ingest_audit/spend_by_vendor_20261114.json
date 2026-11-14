@@ -6,9 +6,9 @@
    "calls": 425
   },
   "heimdall": {
-   "usd": 1.7655,
+   "usd": 1.8802,
    "estimated_usd": 0.13,
-   "calls": 2853
+   "calls": 2862
   },
   "xai": {
    "usd": 0.6455,
@@ -26,7 +26,7 @@
    "calls": 3
   }
  },
- "total_usd": 13.99,
+ "total_usd": 14.11,
  "rows": [
   {
    "vendor": "anthropic",
@@ -42,11 +42,11 @@
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_glm53flash",
-   "calls": 73,
-   "usd": 0.006,
+   "calls": 76,
+   "usd": 0.0061,
    "basis": "measured (per call)",
    "first": "2026-11-14T01:10:05.467468+00:00",
-   "last": "2026-11-14T11:46:44.803040+00:00"
+   "last": "2026-11-14T13:07:49.458633+00:00"
   },
   {
    "vendor": "heimdall",
@@ -252,6 +252,78 @@
    "usage": {
     "prompt_tokens": 80559,
     "completion_tokens": 18654
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0215,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 160278,
+    "completion_tokens": 1494
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0056,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 144659,
+    "completion_tokens": 8640
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0309,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 142574,
+    "completion_tokens": 5946
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0051,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 143289,
+    "completion_tokens": 5011
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0284,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 140995,
+    "completion_tokens": 2941
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit f1/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0231,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 158598,
+    "completion_tokens": 3838
    }
   },
   {
