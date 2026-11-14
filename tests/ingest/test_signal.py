@@ -186,8 +186,8 @@ def rec(**k):
 
 def test_what_the_watcher_notes_and_what_it_does_not(sig):
     make, t, doc, tmp, msgs = sig
-    s, b = make()
-    hs = s.hsig
+    s, b = make(probe_enabled=False)                  # no probe here: an answered probe resets the clock (ruling 87
+    hs = s.hsig                                       # amended; tested on its own below)
     assert hs.hh is not None and hs.state_path == str(tmp / "HH.json") and hs.up == "heimdall_first"
     for r in (rec(kind="cache"), rec(kind="disabled"), rec(role="probe", backend="hv_p1", kind="timeout"),
               rec(backend="local", kind="timeout")):
@@ -219,38 +219,74 @@ def test_a_real_call_through_the_router_is_noted_and_a_stored_reply_is_not(sig):
     assert s.hsig.pending["answer"] is None and len(b["hv1"].calls) == 1
 
 
-def test_fifteen_minutes_without_an_answer_switch_to_plan_b_and_three_probe_answers_bring_it_back(sig):
+def amended(hs):
+    """The builder's module with ruling 87 amended (pp-selectid 3cf4c42f): its probe_due takes `families`."""
+    import inspect
+    return "families" in inspect.signature(hs.hh.probe_due).parameters
+
+
+def test_one_failed_call_then_an_answered_probe_is_never_down(sig):
+    """RULING 87 AMENDED (orchestrator 10:05 ET Nov 14; the builder's module 3cf4c42f): any answered probe resets the
+    clock to zero. The false outages of 09:16 and 10:12 ET: one failed call, then no real call, every probe answering."""
     make, t, doc, tmp, msgs = sig
     s, b = make()
     hs = s.hsig
+    if not amended(hs):
+        pytest.skip("the module at the builder's path predates ruling 87 amended")
     hs.noted(rec(kind="timeout"))
-    hs.tick(wait=True)                    # failing since T0; a probe is due: it answers (no verdict answer: the clock
-    st = state(tmp)                       # runs on)
-    assert st["failing_since_utc"] == iso(T0) and st["probe_streak"] == 1 and st["mode"] == "heimdall_first"
-    assert len(b["hv_p1"].calls) == 1 and b["hv_p1"].calls[0] == downsignal.PROBE_PROMPT
-    t[0] = T0 + 15 * 60
-    hs.noted(rec(role="hook", kind="network"))
-    hs.tick(wait=True)
+    hs.tick(wait=True)                                                # failing since T0; the probe is due: it answers
     st = state(tmp)
-    assert st["mode"] == "plan_b" and st["switches"][-1]["by"] == "pp-ingest" and hs.mode == "plan_b"
-    switched = ("02:15 ET: SWITCHED TO PLAN B (NO HEIMDALL FAMILY ANSWERED INSIDE ITS DEADLINE FOR 15 MINUTES (SINCE "
-                "2026-11-14T07:00:00Z); BY PP-INGEST); THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE) |")
-    assert doc.read_text() == switched + "\n# STATE\nbody\n"
-    t[0] += 5
-    hs.tick(wait=True)                                                # seen once: no second head
-    assert doc.read_text() == switched + "\n# STATE\nbody\n"
-    for _ in range(2):                                                # the probe every 2 minutes: 3 answers in a row
+    assert st["failing_since_utc"] is None and st["last_answer_utc"] == iso(T0) and st["probe_streak"] == 1
+    for _ in range(10):                                               # 20 quiet minutes: no probe is due, no switch
         t[0] += 121
         hs.tick(wait=True)
     st = state(tmp)
+    assert st["mode"] == "heimdall_first" and st["switches"] == [] and doc.read_text() == "# STATE\nbody\n"
+    assert len(b["hv_p1"].calls) == 1 and hs.paid_open is False
+
+
+def test_fifteen_minutes_with_no_answer_of_any_kind_switch_to_plan_b_and_three_probe_answers_bring_it_back(sig):
+    """Plan B when the clock reaches 15 minutes with ZERO answers (every probe failing too; ruling 87 amended); back on
+    3 good probes in a row, as before."""
+    make, t, doc, tmp, msgs = sig
+    up = [False]
+
+    def probe(p):
+        return "OK" if up[0] else BackendError("server", "502")
+    s, b = make(probes={"hv_p1": probe, "hv_p2": probe})
+    hs = s.hsig
+    hs.noted(rec(kind="timeout"))
+    hs.tick(wait=True)                                                # the probe fails: the clock runs on
+    st = state(tmp)
+    assert st["failing_since_utc"] == iso(T0) and st["probe_streak"] == 0      # a failed probe never stops it
+    for _ in range(7):                                                # a failing probe every 2 minutes
+        t[0] += 121
+        hs.tick(wait=True)
+    assert state(tmp)["mode"] == "heimdall_first"                     # 14 min 7 s: not yet
+    t[0] = T0 + 15 * 60
+    hs.tick(wait=True)
+    st = state(tmp)
+    assert st["mode"] == "plan_b" and st["switches"][-1]["by"] == "pp-ingest" and hs.mode == "plan_b"
+    switched = " ".join(f"02:15 ET: SWITCHED TO PLAN B ({st['switches'][-1]['why']}; BY PP-INGEST); THE MINER'S "
+                        "PLAN B: QUEUE AND WAIT (SPEND FREEZE) |".upper().split())
+    assert "2026-11-14T07:00:00Z" in switched and doc.read_text() == switched + "\n# STATE\nbody\n"
+    t[0] += 5
+    hs.tick(wait=True)                                                # seen once: no second head
+    assert doc.read_text() == switched + "\n# STATE\nbody\n"
+    up[0] = True
+    for _ in range(3):                                                # 3 probe answers in a row, 2 minutes apart
+        t[0] += 121
+        hs.tick(wait=True)
+        assert state(tmp)["failing_since_utc"] is None or not amended(hs)   # each answer clears the clock (amended;
+    st = state(tmp)                                                         # still plan_b until the third)
     assert st["mode"] == "heimdall_first" and st["failing_since_utc"] is None and hs.mode == "heimdall_first"
-    back = "02:19 ET: BACK TO HEIMDALL-FIRST (THE PROBE ANSWERED 3 TIMES IN A ROW; BY PP-INGEST PROBE) |"
+    back = "02:21 ET: BACK TO HEIMDALL-FIRST (THE PROBE ANSWERED 3 TIMES IN A ROW; BY PP-INGEST PROBE) |"
     assert doc.read_text() == back + " " + switched + "\n# STATE\nbody\n"
-    assert st["notes"] == 2 and len(b["hv_p1"].calls) == 4            # probe calls are never notes; never stored
     kinds = [json.loads(x)["kind"] for x in open(s.p["signal"]).read().splitlines()]
-    assert kinds.count("switch") == 2 and kinds.count("seen") == 2 and kinds.count("probe") == 4 and "wired" in kinds
-    s.close()
-    s2, b2 = make()                                                   # a restart announces nothing again
+    assert kinds.count("switch") == 2 and kinds.count("seen") == 2 and kinds.count("probe") == 11 and "wired" in kinds
+    assert all(c == downsignal.PROBE_PROMPT for c in b["hv_p1"].calls) and len(b["hv_p1"].calls) == 11   # 8 failing
+    s.close()                                                         # (the 15-minute tick is 53 s after the 8th), 3
+    s2, b2 = make()                                                   # answering; a restart announces nothing again
     s2.hsig.tick(wait=True)
     assert doc.read_text() == back + " " + switched + "\n# STATE\nbody\n"
     assert stats.live(s2.q, signal=s2.hsig.snapshot())["down_signal"]["switches_seen"] == "2"
@@ -402,7 +438,7 @@ def test_a_switch_head_is_written_once_even_when_sent_again(tmp_path):
 
 def test_a_restart_before_the_count_was_kept_announces_nothing_twice(sig):
     make, t, doc, tmp, msgs = sig
-    s, b = make()
+    s, b = make(probes={"hv_p1": lambda p: BackendError("server", "x"), "hv_p2": lambda p: BackendError("server", "x")})   # nothing answers: the clock runs
     s.hsig.noted(rec(kind="timeout"))
     s.hsig.tick(wait=True)
     t[0] = T0 + 15 * 60
@@ -503,7 +539,8 @@ def test_a_probe_the_shared_state_did_not_take_is_kept_while_fresh_then_dropped(
     probes = [json.loads(x) for x in open(s.p["signal"]).read().splitlines() if '"probe"' in x]
     assert len(probes) == 1                                           # one evidence line for one probe
     t[0] += 200                                                       # a second probe; the state unreadable for good
-    hs.tick()
+    hs.noted(rec(kind="timeout"))                                     # (an answered probe resets the clock under
+    hs.tick()                                                         # ruling 87 amended: a new failure makes it due)
     hs.probe_thread.join(timeout=10)
     (tmp / "HH.json").write_text("{not json")
     t[0] += 5
@@ -542,7 +579,11 @@ def test_the_probe_claims_its_slot_by_name_and_a_slot_claimed_by_another_prober_
     hs.tick(wait=True)
     st = state(tmp)
     assert st["last_probe_by"] == "pp-ingest probe" and st["probe_streak"] == 1 and len(b["hv_p1"].calls) == 1
-    t[0] += 130                                                       # the next slot: the builder's prober claims it
+    t[0] += 1                                                         # an answered probe resets the clock (ruling 87
+    hs.noted(rec(kind="timeout"))                                     # amended): a new failure, flushed (no probe of
+    hs.tick()                                                         # this watcher's inside the 30 s)
+    assert state(tmp)["failing_since_utc"] is not None
+    t[0] += 129                                                       # the next slot: the builder's prober claims it
     assert hs.hh.probe_due(path=str(tmp / "HH.json"), now=datetime.fromtimestamp(t[0], timezone.utc),
                            who="pp-selectid probe") is True
     t[0] += 5

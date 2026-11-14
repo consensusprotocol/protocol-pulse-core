@@ -238,9 +238,10 @@ def test_a_call_whose_priced_worst_case_does_not_fit_under_the_cap_never_starts(
 
 
 def test_a_failure_clock_without_its_zone_never_opens_the_route(paid):
-    """glm P0: a zoneless time would read as local (ET) time and open the route 5 h late: it is no clock."""
+    """glm P0: a zoneless time would read as local (ET) time and open the route 5 h late: it is no clock. (The probes
+    fail: under ruling 87 amended an answered probe would clear the clock before the route is looked at.)"""
     make, t, doc, tmp, msgs = paid
-    s, b = make()
+    s, b = make(probe_fn=lambda p: BackendError("network", "down"))
     (tmp / "HH.json").write_text(json.dumps({"mode": "plan_b", "last_answer_utc": None,
                                              "failing_since_utc": "2026-11-14T07:00:00", "last_probe_utc": None,
                                              "probe_streak": 0, "switches": [], "notes": 1}))
