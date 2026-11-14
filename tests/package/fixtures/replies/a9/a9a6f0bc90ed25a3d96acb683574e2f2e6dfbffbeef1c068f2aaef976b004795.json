@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 28,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Strategy (MicroStrategy)): \"We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it because our company will probably buy every Bitcoin mine between now and the year 2140. We'll buy it all, right?\"\nCLIP label=\"clip_01\" (on screen: TFTC): \"I think one of the best starting points is January 1st, 2023. The bottom of the 22 bear market, which wasn't a Bitcoin bear market. It was a global bear market. Bonds lost 50 % of their value. TLT went down 50%.\"\nCLIP label=\"clip_02\" (on screen: Altcoin Daily): \"So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\"through_line\": \"Despite global bear markets, Bitcoin remains worth holding long-term as institutions adopt it as digital gold.\", \"clips\": {\"clip_01\": 4, \"clip_02\": 5}, \"joins\": {\"hook -> clip_01\": {\"followable\": false, \"why\": \"abrupt jump from MSTR accumulation to 2023 bear market bottom\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"'so' connects global bear market to Bitcoin's unchanged purpose\"}}}",
+ "usage": {
+  "in": 684,
+  "out": 3482,
+  "usd_reported": 0.0094256
+ },
+ "usd": 0.09047,
+ "seconds": 23.21,
+ "recorded_at": "2026-11-14T19:29:36Z"
+}

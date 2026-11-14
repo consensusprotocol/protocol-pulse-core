@@ -13429,6 +13429,48 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "eb0fd778800d99d16559",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "the market/economy",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that's",
+     "refers_to": "the largest rise in two-year yields in a week, 35 basis points since 2022",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "since 2022",
+     "inside": true
+    },
+    {
+     "text": "in a week",
+     "inside": true
+    },
+    {
+     "text": "just",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The recent largest weekly rise in two-year Treasury yields since 2022 (35 basis points) is why Bitcoin is down.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Not right now. Um it was uh last week.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "63e84dd53de85f9e6337:ac469cfb51659460266d15dfd5691d3611f0e6e3400b83b5197c77b42a281782:2b5fb62777200733af4916f339ad5e255f75cefab4e3d2513614eac06243916b:9d43580c729b": {
@@ -15784,6 +15826,108 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "5725aeda167432775db9",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I'm",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I've",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I'm",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "my",
+     "refers_to": "the speaker",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "where",
+     "refers_to": "timelines",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "before I've turned 40",
+     "inside": true
+    },
+    {
+     "text": "in my 30s",
+     "inside": true
+    },
+    {
+     "text": "in my lifetime",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker is happy to have seen Bitcoin mature before turning 40, noting that in other possible timelines it might have died or taken much longer.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a True, true. And of course, you're a long-term Bitcoin bull.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "46ce4069efe4e25e0d38:254b96cd2a7e8392c24c013607726541785b8d2e93952a155884076419e28fe9:d41fe2ad75f1b781a3d0132ebe3050d5252ddd0399f330116cafffccd205a025:9d43580c729b": {
@@ -18019,6 +18163,41 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "9e059304bfc5bc1e2d85",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "who",
+     "refers_to": "institutions",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin's core purpose remains unchanged, and institutions are adopting it as digital gold.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
   }
  },
  "f083d3f96ba2ff322ff5:69a6bd043a9bb040b301f52286c76f1293c2faa0fe4e21b3f057296a910a3c39:7943d0867469dacbbcedbead705f985cc3782ab16011e57bfac965503ff43880:9d43580c729b": {
@@ -18570,6 +18749,380 @@
    "certainty": "certain",
    "speaker_is": "uncertain",
    "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "baf4bf24c2aa35df4c49:2b1b0adb82546fb10905038d81eaa9a2ca5a439718b62e7f01de5c520795285f:7018a11d0a0a80a364452da2479ee3420c5cb4183f61537a81e8293e109f1b9a:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "baf4bf24c2aa35df4c49",
+   "speaker_changes_inside": "no",
+   "view": "uncertain",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "Bitcoin going to 59K (before starting DCA)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "wait until Bitcoin goes to 59K before you start DCA",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Muhammad advised waiting until Bitcoin reaches 59K before starting to DCA, and reaching that level could occur.",
+   "certainty": "possible",
+   "speaker_is": "host",
+   "speaker_evidence": "But Rob, aren't you concerned because you think that, you know, you follow along with the four-year cycles and you've said that, you know, in Q4 we should see a pullback.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "7db867b846e84a4ab586:588d1f3d29d6a1f54916309e07fa601264e25e7f793ca17c99985749740bc6e9:57d30b7b72fb0a08d5894773cf51264087236978946bd7d8abd564d4cac121a8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7db867b846e84a4ab586",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "We",
+     "refers_to": "MicroStrategy/Saylor's team",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "assessing the described risk",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this risk",
+     "refers_to": "STRF becoming undercollateralized below $3600 Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "website/chart with credit spreads vs risk",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if Bitcoin falls below $3,600 a coin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "MicroStrategy shows a Bitcoin floor of $3600 below which STRF becomes undercollateralized, making the credit risk straightforward to evaluate against market spreads that offer credit investors a massive premium.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a09d2e1fa91290142664~trim:a97533c63c009b99c6b252da3b32838c3ba716d95dec7c7dbb30be9747e50370:91199da32d4fedf6af7f7b2d54813b3acb0ecc8f88464246c4fcf30404fef493:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a09d2e1fa91290142664~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "We",
+     "refers_to": "US government/America",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "They",
+     "refers_to": "chronic deficits",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is the scarcest and most desirable crypto asset whose price will continue being driven by the fiat debasement trade stemming from large chronic US deficits that will remain large or grow larger.",
+   "certainty": "speculative",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "ff3a74144dc1f9220038:286d4240b25d56783472854bde6029f8c41ff27f0234eb98fbceb181acb4ca3b:cf40e62607e4fdd3ee686cb64b7742e1e996086a024f4c4cf114fb239c6c1f1c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ff3a74144dc1f9220038",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "Bitcoin going to 59K before starting DCA",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin going to 59K",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "it (Bitcoin) going up",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in Q4",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Muhammad advises waiting for Bitcoin to hit 59K to start DCAing and that could occur, but the speaker still expects a pullback in Q4, sees it possibly going up too, yet cannot say if any rise will occur in Q4.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "as we've talked about in this channel",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "df978d34fe61f7830a1d~trim:0bbee71c1e3fe27af0745927a7a82cdd94506e24f0c4d55f9fd34a64e2654a6a:23f3c2696a7a99d7c0cd6f7a0498a318c711a3ea8d2331273ccc7821d9f48770:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "df978d34fe61f7830a1d~trim",
+   "speaker_changes_inside": "no",
+   "view": "hypothetical",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin's volatility (from 2021 peak to 2026 bottom)",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if you just cherry pick date to date over the last five years",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Cherry-picking from the last five years shows the S&P 500 up 72% versus Bitcoin up only 28%, so a naive critic would recommend buying the S&P 500 instead due to Bitcoin's underperformance and volatility.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "what we're looking at are the real numbers over the past 5 years",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "023cca5f86cc39618300~trim:16bad4d1319f1d034f64f408db9260e503538ba340feea247370f2dc1a81cd2e:d6b94b2c1143d8d25d76a31d44ac572af120759904f919f2a20ec911b93dc173:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "023cca5f86cc39618300~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "the solution to the problem of trust",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "He",
+     "refers_to": "Satoshi",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "he",
+     "refers_to": "Satoshi",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "those",
+     "refers_to": "elements of trust in the financial system",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "he",
+     "refers_to": "Satoshi",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "for me",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "To the speaker, Bitcoin represented a digital gold that solves the problem of trust in the financial system as described by Satoshi in the first paragraph of the whitepaper.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Could you remind us how did you get your start in Bitcoin? What is your background and how has it led you to today?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2cf9382f1209dea701c0~trim:2c08689d909af6235cc78cb817b47421f8bf8c0e60831fccab9f728367f00abf:14f688e577c4264de0b90cfc8b673f52339f693c853c37b8352788224326fbc3:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2cf9382f1209dea701c0~trim",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "that",
+     "refers_to": "the moment of realization during the 2008 financial crisis",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "the realization that all the books, professors and TV were wrong",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin's purpose or the digital gold concept",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in that moment in the 2008 financial crisis",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker's study of finance during the 2008 financial crisis led him to realize that the established teachings were wrong, opening him to Bitcoin which for him represented a new digital gold as described by Satoshi in the white paper.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Could you remind us how did you get your start in Bitcoin? What is your background and how has it led you to today?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a3bd7b1f28874036fe53:b75589d8437254872060f78d9064c59e64dcf0e1a2ec4b425faf623e25637a8d:2632a108a50d2e691b237366e1fb794d7cb13f49b053c5c2b726d8e635792674:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a3bd7b1f28874036fe53",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "It's",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "there",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that guy",
+     "refers_to": "degenerate retail investor (Wall Street bets type)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this sweet spot",
+     "refers_to": "position of being too safe for degens but too risky for traditional investors",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "them",
+     "refers_to": "those who know a lot about Bitcoin and have been around it",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "the scene",
+     "refers_to": "Bitcoin scene",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Degenerate retail investors think Bitcoin is dead, a boomer coin that's not volatile enough with insufficient upside so too safe for them, while it is too risky for traditional investors, placing it in a sweet spot for those knowledgeable about and experienced with it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Blockware manages the machines at one of their data centers.",
    "backend": "xai:grok-4.20-0309-reasoning",
    "replayed": false,
    "speaker_verified": false
