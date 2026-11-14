@@ -1,4 +1,135 @@
 {
+ "0e20031e46ad9ad30c91:953.801-971.401:visual-2:6121ab76cfe0f20f": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Aaron Arnold",
+    "whole_in_16x9": true
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Dan",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Aaron Arnold"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Dan"
+   }
+  ],
+  "lower_third": {
+   "name": "Dan",
+   "text": "Dan"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_98ee3db473a4fe2f.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_98ee3db473a4fe2f.jpg",
+   "sha256": "98ee3db473a4fe2f065563b6d776d9be29adc4a50e02e78c562b0c014b443012",
+   "times": [
+    953.8,
+    956.31,
+    958.81,
+    961.32,
+    963.83,
+    966.34,
+    968.84,
+    971.35
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaker appears as a still, photo, or graphic; both men are live split-screen participants, and the words praise Bitcoin rather than accusing any person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3079,
+   "out": 9458,
+   "usd_reported": 0.061178
+  },
+  "version": "visual-2"
+ },
+ "22018cf6e0db2d846def:953.801-958.041:visual-2:3aec9e3d59da50da": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Aaron Arnold",
+    "whole_in_16x9": true
+   },
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "lower_third",
+    "text": "Dan",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Aaron Arnold"
+   },
+   {
+    "in_9x16": "out",
+    "item": "lower_third",
+    "kind": "burned_in",
+    "text": "Dan"
+   }
+  ],
+  "lower_third": {
+   "name": "Dan",
+   "text": "Dan"
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_54b7a5fc0f93b89c.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_54b7a5fc0f93b89c.jpg",
+   "sha256": "54b7a5fc0f93b89c048c08bf4a4e11e59f8ab51e90a033a5c333810eb4868d0d",
+   "times": [
+    953.8,
+    955.8,
+    957.99
+   ]
+  },
+  "third_person": {
+   "finding": "No non-speaker is shown as a still, photo, or graphic; both men are live on the split screen, and the line is a Bitcoin metaphor rather than a negative claim about a person.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 2417,
+   "out": 9179,
+   "usd_reported": 0.05818
+  },
+  "version": "visual-2"
+ },
  "6058ee583d6fb7dce57c:153.250-165.890:visual-1:ec1215f778c6e195": {
   "backend": "xai_vision:grok-4.7",
   "flags": [],

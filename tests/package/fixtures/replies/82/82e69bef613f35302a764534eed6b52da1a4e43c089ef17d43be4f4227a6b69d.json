@@ -1,0 +1,188 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7600c7689457d682737138c293fc64f7026c9cfc6d29e888e28085686e79879a",
+ "result": {
+  "text": "and incorporated into the existing financial infrastructure. Bitcoin is kind of like this m- this sound money virus that is infiltrating the system. That's a great thing",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 9.36,
+    "text": "and incorporated into the existing financial infrastructure. Bitcoin is kind of like this m- this sound money virus that is infiltrating the system. That's a great thing"
+   }
+  ],
+  "words": [
+   {
+    "text": "and",
+    "start": 0.18,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incorporated",
+    "start": 0.74,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 1.48,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existing",
+    "start": 1.82,
+    "end": 2.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 2.38,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infrastructure.",
+    "start": 2.76,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.94,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.4,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 4.52,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 4.66,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.78,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 4.96,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "m-",
+    "start": 5.5,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.84,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sound",
+    "start": 6.04,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 6.38,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "virus",
+    "start": 6.64,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.1,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.2,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infiltrating",
+    "start": 7.3,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.86,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 7.96,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 8.64,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.82,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 8.92,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing",
+    "start": 9.18,
+    "end": 9.36,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 9.74
+ },
+ "usd": 0.001948,
+ "seconds": 0.59,
+ "recorded_at": "2026-11-14T17:06:19Z"
+}

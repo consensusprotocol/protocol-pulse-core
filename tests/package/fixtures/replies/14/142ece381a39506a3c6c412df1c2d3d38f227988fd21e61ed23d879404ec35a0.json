@@ -1,0 +1,440 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "20837fcd2daec4d6bd7cfd5feb58df4539ed54f7e645be3effe9bd99274b2f9b",
+ "result": {
+  "text": "and incorporated into the existing financial infrastructure. Bitcoin is kinda like this, mm, this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a, a, a network effect of individuals that are incentivized to fight for it. So through that, Bitcoin-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.18,
+    "end": 23.08,
+    "text": "and incorporated into the existing financial infrastructure. Bitcoin is kinda like this, mm, this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a, a, a network effect of individuals that are incentivized to fight for it. So through that, Bitcoin-"
+   }
+  ],
+  "words": [
+   {
+    "text": "and",
+    "start": 0.18,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incorporated",
+    "start": 0.74,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 1.5,
+    "end": 1.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "existing",
+    "start": 1.82,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 2.38,
+    "end": 2.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infrastructure.",
+    "start": 2.76,
+    "end": 3.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.94,
+    "end": 4.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.4,
+    "end": 4.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kinda",
+    "start": 4.52,
+    "end": 4.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 4.78,
+    "end": 4.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this,",
+    "start": 4.96,
+    "end": 5.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mm,",
+    "start": 5.5,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.84,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sound",
+    "start": 6.04,
+    "end": 6.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money",
+    "start": 6.38,
+    "end": 6.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "virus",
+    "start": 6.64,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 7.08,
+    "end": 7.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.2,
+    "end": 7.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "infiltrating",
+    "start": 7.3,
+    "end": 7.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.84,
+    "end": 7.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "system.",
+    "start": 7.96,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 8.64,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 8.82,
+    "end": 8.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "great",
+    "start": 8.92,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thing.",
+    "start": 9.18,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 9.94,
+    "end": 10.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 10.06,
+    "end": 10.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "embedded",
+    "start": 10.42,
+    "end": 10.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.9,
+    "end": 11.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets",
+    "start": 11.36,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 11.58,
+    "end": 11.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everything,",
+    "start": 11.84,
+    "end": 12.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.68,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 12.82,
+    "end": 12.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "connected",
+    "start": 13.04,
+    "end": 13.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.46,
+    "end": 13.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gets,",
+    "start": 13.54,
+    "end": 13.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.8,
+    "end": 13.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 13.88,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "politicians",
+    "start": 14.06,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 14.62,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 14.74,
+    "end": 14.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 14.84,
+    "end": 14.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bankers",
+    "start": 14.96,
+    "end": 15.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 15.34,
+    "end": 15.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it,",
+    "start": 15.5,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.14,
+    "end": 16.239,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 16.32,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 16.7,
+    "end": 16.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "becomes",
+    "start": 16.82,
+    "end": 17.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 17.34,
+    "end": 17.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a,",
+    "start": 17.78,
+    "end": 17.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 18.04,
+    "end": 18.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "network",
+    "start": 18.14,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "effect",
+    "start": 18.48,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.88,
+    "end": 18.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "individuals",
+    "start": 18.98,
+    "end": 19.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 20.04,
+    "end": 20.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 20.16,
+    "end": 20.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "incentivized",
+    "start": 20.26,
+    "end": 20.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 20.94,
+    "end": 21.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fight",
+    "start": 21.04,
+    "end": 21.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 21.28,
+    "end": 21.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it.",
+    "start": 21.46,
+    "end": 21.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "So",
+    "start": 22.1,
+    "end": 22.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "through",
+    "start": 22.3,
+    "end": 22.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that,",
+    "start": 22.58,
+    "end": 22.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin-",
+    "start": 22.86,
+    "end": 23.08,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.1
+ },
+ "usd": 0.00462,
+ "seconds": 1.29,
+ "recorded_at": "2026-11-14T17:10:26Z"
+}

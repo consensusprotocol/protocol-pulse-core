@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T16:29:51+00:00",
- "build": "ledger_20261114_162941",
+ "generated_at": "2026-11-14T17:03:26+00:00",
+ "build": "ledger_20261114_170313",
  "kind": "moments",
  "candidates": [
   {
@@ -58,12 +58,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9e059304bfc5bc1e2d85",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 5.52,
+   "text": "So Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold.",
+   "text_sha256": "e50422c87545e47106d8e75eadccacf8aafb2463a13dc95c9625e7f268edf296",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5982b3f6c768d0dd64c8",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 6.68,
    "text": "And Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital?",
    "text_sha256": "4d0ed95ff8e7c80cd10c6a732b3491e5e701c8a22d3959297309f694fbf2f834",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "4c7a5e3a433a2a0b267c",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 15.72,
+   "text": "And so as AI, those fears kind of ebb and flow here, we should see some of that AI narrative go back into Bitcoin where Bitcoin can't be printed, can't be can't be copied. And it's one of the few scarce digital things that we'll have in this world.",
+   "text_sha256": "7906b7d8de25b81eb361631eb9ee06f1000247af99012585f5711791ef3556fb",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b2d8e916793789d15ea0",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 11.88,
+   "text": "And for me, that represented, you know, a digital goal that I knew, you know, Satoshi puts it in the first paragraph after the white paper was published. He says, It's all about solving the problem of trust in the financial system.",
+   "text_sha256": "46468ddef14057fd789980645852ac696f1f417c7a0cd85f3c9053639d1a2205",
    "trimmed_leading": null
   },
   {
@@ -157,12 +184,30 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "9e059304bfc5bc1e2d85~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 5.52,
+   "text": "Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold.",
+   "text_sha256": "3a09518ca8ee3e2a524be0d37b69066ab1d21bda475aa2e98370ac964f16949b",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "5982b3f6c768d0dd64c8~trim",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 6.64,
    "text": "Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital?",
    "text_sha256": "203e18daf3a625fb9a1e1c095c5b571ed43e75d6129ab9d6b40736fbfe9c5143",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "b2d8e916793789d15ea0~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 11.82,
+   "text": "for me, that represented, you know, a digital goal that I knew, you know, Satoshi puts it in the first paragraph after the white paper was published. He says, It's all about solving the problem of trust in the financial system.",
+   "text_sha256": "8dcebd940b0e9ddf98ebccd37e72255a9822c6df9c9ebaa7c6436e06a73836ee",
    "trimmed_leading": "And"
   },
   {
@@ -175,12 +220,39 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "5725aeda167432775db9",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 18.24,
+   "text": "There's a lot of other timelines where Bitcoin might have died or it could have taken until the end of my life for it to become a thing. I'm just happy to have seen it before I've turned 40 basically. I'm in my 30s, so it's the idea that I could see Bitcoin actually come into its identity and its adult adulthood in my lifetime is incredible.",
+   "text_sha256": "7fc46373f2c10d0b5853cb420b00c5b987cd379c9bf2c2a80db4e3a8efbe3f78",
+   "trimmed_leading": null
+  },
+  {
    "pid": "eade93c11a2a492ea763",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 14.08,
    "text": "Would you rather Bitcoin existed or not, right? You get pulled out of your Western American self and you get dropped in and suddenly you're in Venezuela or you're in Iran or you're somewhere like that. Would it be? Better that Bitcoin existed or not?",
    "text_sha256": "db18ac4aa1cc418d85f1ff762895ae402cae0665e764e2e30a0e49407fc933e0",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "30075b155874ab2de3c7",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 15.92,
+   "text": "For me, you can ask me my opinion, or I can just tell you what's in my portfolio. And it's Bitcoin, SpaceX, and the S &B. That's it. And so those represent what I believe is my best possible portfolio allocation for the future. And so that's my opinion.",
+   "text_sha256": "5629b8985988b6dab6328ab0de409b79e79a8acc6b4f6da9ff574c34d78871a1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "46ce4069efe4e25e0d38",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 26.21,
+   "text": "Bitcoin disrupts other ways to store wealth, basically, because it's an alternative that is worth a credit bill monetary policy that everyone knows, $21 million, and it's hard to seize. You know, it's like a Swiss bank account in your pocket, and it's uncensurable. So with those parameters, Bitcoin is competitive with all over those, all of those other stores of value. So when I first got into Bitcoin, when it was worth $10, I was like, this is going to be a potential competitor to gold or other stores of value.",
+   "text_sha256": "254b96cd2a7e8392c24c013607726541785b8d2e93952a155884076419e28fe9",
    "trimmed_leading": null
   },
   {
@@ -202,12 +274,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "383c02b65c9218f3b8bb",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 27.57,
+   "text": "The harder part is what to do politically with like Satoshi's coins or what is estimated to be about 6 million Bitcoin in addresses that can be cracked quite easily. Basically, the public key is... is once you have the public key, you can derive the private key using quantum computers. And so things like Satoshi's Bitcoin could be stolen. And that's a political thing. And the politics behind that are far deeper of, you know, what do we do with these coins?",
+   "text_sha256": "26efabbe726d5d0c2e44e244106d025dd1cb0c0dca34bcac65b712218f82d8d3",
+   "trimmed_leading": null
+  },
+  {
    "pid": "f51962672170ebaac719",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 15.66,
    "text": "A lot of ink has been spilled about how AI has eaten Bitcoin's lunch. Yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry pick from the top of the Bitcoin bull market, and then go, look, here's the explosive part of the AI trade.",
    "text_sha256": "041f0ab07a3e6659edb3ffa1903905efa1e6aba9923ae62817f395ff8e6adcce",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0e20031e46ad9ad30c91",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 17.6,
+   "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it.",
+   "text_sha256": "4ac734e439768f66a49120b313493e277ef17112a9c09ca55ae61bb1af8706d3",
    "trimmed_leading": null
   },
   {
@@ -229,6 +319,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "a70f7d22798173c122eb",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 15.94,
+   "text": "Do we burn the coins or is there some sort of novel scheme for us to protect them for those people? Bitcoin is 21 million Bitcoin. It's a scarce asset that cannot be printed no matter how much AI takes over the world. And I do believe that artificial intelligence will likely want to store their wealth in Bitcoin as well.",
+   "text_sha256": "37ff0d47c7a5373d6581799739238fae4384b1fa1f52c461e9332aecf77e4be1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e959d5ade74f877900c0",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -244,6 +343,33 @@
    "duration": 15.77,
    "text": "Anytime micro strategy isn't doing well, it has issues for Bitcoin and for no other reason that people view them the same. Again, you've been involved in this for a long time, and I've got to know the community, For the most part, the community is already long Bitcoin.",
    "text_sha256": "589c83137a72fbc61b73a86ad3c28173c88f350994ffea5d0c47072e2898302c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "514455ecf0bd9312e4a4~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 23.48,
+   "text": "my simple take on it is can you identify in Bitcoin's code where we added a line for institutions? Like where in the Bitcoin protocol? Because that's what Bitcoin really is, right? Is the code. You know, do we see in the code a proof of work change, a 21 million hard cap adjustment or any sort of code that was pushed by big banks to make Bitcoin more palatable for them?",
+   "text_sha256": "b23c8c8e62f1e724fc5c8fcac71b999902284e936ae654092729aaca360a4995",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "c762a1951bb30926fb96",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 20.32,
+   "text": "What's cool about Bitcoin is you can still use it in a quote or more cypher punk way. You know, you can do coin joins to hide your transaction history. You can use it where you have it self -custodied where no one knows that it's yours. You bought it with cash. You can use Bitcoin as originally intended, this Swiss bank account in your pocket that you can keep pretty private.",
+   "text_sha256": "de434325386737cd039fbdb73cbba6817479990b14a1ee3c8811f3f2417bdd9b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b02d5f5e5d7e25cc6d78",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 14.94,
+   "text": "I think Bitcoin is at least, should at least be equivalent to the market capitalization of gold. It's a superior gold in every single way. We know exactly how much exists. We also can send it anywhere in the world. You can use it's divisible as a money. It's vastly superior than gold.",
+   "text_sha256": "bd4f2d1acf2c47a2669df57acea913c7725b032a7c946ca86141792800d3e9df",
    "trimmed_leading": null
   },
   {
@@ -272,6 +398,15 @@
    "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing. So if gold is trading down because there's worries that interest rates are going higher than Bitcoin usually trades with that.",
    "text_sha256": "913bcf31b6084fbe9e4c328e00230deb9e4a7d22277c537e68a9ff1d2b2edfd9",
    "trimmed_leading": "Now"
+  },
+  {
+   "pid": "42dc41d2e53264a70420",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 16.44,
+   "text": "The harder part is what to do politically with like Satoshi's coins or what is estimated to be about 6 million Bitcoin in addresses that can be cracked. quite easily. What do we do with these coins? Do we burn the coins or is there some sort of novel scheme for us to protect them for those people?",
+   "text_sha256": "5cff816a2203e74ac5f7cdbb94ef01db7df970c744b99961c3dbed93eb809fa3",
+   "trimmed_leading": null
   },
   {
    "pid": "64f28f858f21b75dd1fa",
@@ -328,6 +463,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "0c36a4488b906f2e4eaf",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 15.77,
+   "text": "With Bitcoin, I spent years obsessing over it where I'm like, look, if people just spent and did the homework here, they're probably going to come to the same conclusion I did. That's the same thing with SpaceX, where I'm like, These almost seemed obvious to me after I spent the time to understand it. And by the way, I'm going to miss out on millions of investment opportunities.",
+   "text_sha256": "e45553278ab2508c0730dfdb228e177d167da4351f5cc2fc83dc9c31f11c859a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "a56b39c9c2c9ea896e29~trim",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -335,6 +479,15 @@
    "text": "I think, you know, there was this whole... If you wind back the clock, what, three months ago, not even, the primary debate was that Bitcoin core is crooked and corrupt. And then I just look at it as like, Well, those crooked and corrupt folks have written some of the most amazing code ever. So let's give them some props there.",
    "text_sha256": "729f7bde2660f8c424d7cf88e9098866b0232fdcde978f998b469ee589f54c4c",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "7ba59050e5ee6fcd14bb",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 13.92,
+   "text": "You know, Bitcoin, we kind of succeeded, but now there's a crisis of identity and faith, which we saw in the Bitcoin community as well. These moments typically mark a bottom. You know, saw this in 2015, 2018, 19, and 2022.",
+   "text_sha256": "95f940af5780f2bd0cd80dbb6f61242dff5be51f82275e1917f3e924e09620e4",
+   "trimmed_leading": null
   },
   {
    "pid": "422219f06d09c5aeebf4",
@@ -371,6 +524,42 @@
    "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and then Bitcoin is scarce. But one of the things that he said to me that I found a unique way of looking at it.",
    "text_sha256": "5857bdd48a86aca0a2913f88233edd785fda4be4982d58a4f05384a2f3a99d32",
    "trimmed_leading": null
+  },
+  {
+   "pid": "92cb306efb63543581dd",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 16.16,
+   "text": "One is be obsessive and find alpha where you have an edge. For example, You're trying to find an edge where you have knowledge that no other people have or no other people cared enough to learn about. With Bitcoin, I spent years obsessing over it, where I'm like, look, if people just spent the homework here, they're probably going to come to the same conclusion I did.",
+   "text_sha256": "bf8f84077959bef77129a9077dadd1628a264490ada73428c6d53b337867cef5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "70f16ce108b0083275dc",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 29.15,
+   "text": "The signature size of post -quantum cryptography is much larger, which would probably open up a conversation around increasing Bitcoin's block size. And that's a complicated narrative. And then there's also what do we do with the coins that don't migrate to the post quantum secure addresses? And that's a whole political debate. So I would say the technical debate is actually the least critical path because I believe that will become pretty self -evident over the next couple of years of which way we upgrade Bitcoin.",
+   "text_sha256": "2dc0c97c1aeb9fc1753c2ec76fa76f05c4689637e55c13c640be5cea39904800",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "861f0c97d093b4fd4220",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 18.94,
+   "text": "I mean, this is incredibly bullish. But in terms of it being held as an asset that everyone would consider to be digital gold, It's only worth 1.5 trillion, which I would say is very early in its infancy of being adopted as a digital gold or world reserve asset. So Bitcoin is starting to glimmer like digital gold, and I still think it has a lot more potential going forward.",
+   "text_sha256": "492de738a0557c4e228ff275552d81929c6196d009165c13169f023bf568596f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ae50e01f802ee33c2807~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 15.42,
+   "text": "Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this is, I've been waiting for this my whole life to see Bitcoin become and infiltrate the financial system. So I think it's a good thing. I do agree culturally.",
+   "text_sha256": "d62d3627f169a1fd069b0be89cf1b3c694a3accd1553e9e3a35b9d4d1376da20",
+   "trimmed_leading": "So"
   },
   {
    "pid": "9e63b39a556c9ed33ed7",
@@ -461,6 +650,24 @@
    "text": "if you have bought coins from below 50K, you are going to be in profit and meaningfully so, right? So everyone who's in a meaningful amount of profit is from a previous cycle and you can argue. fairly tenured. So on the age -based component, where like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder based.",
    "text_sha256": "d9d1208eba671eac97fdbdcc6d49ee001b5f8bfb400442e663c5a96a275cb0ed",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "023cca5f86cc39618300~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 16.48,
+   "text": "for me, that represented, you know, a digital goal that I knew, you know, Satoshi puts it in the first paragraph after the white paper was published. He says, It's all about solving the problem of trust in the financial system. And he goes on in a more eloquent sense to talk about those elements of trust he's trying to replace.",
+   "text_sha256": "16bad4d1319f1d034f64f408db9260e503538ba340feea247370f2dc1a81cd2e",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "2cf9382f1209dea701c0~trim",
+   "video_id": "L_AJ0jO-AG0",
+   "channel": "Altcoin Daily",
+   "duration": 23.32,
+   "text": "it was in that moment in the 2008 financial crisis that I realized all my books were wrong, professors were wrong, and everyone on TV was wrong. And so my mind was open to new ideas. And that's where, you know, Plus four years later, 2012 really starts to dig into Bitcoin. And for me, that represented a digital goal, a new, you know, Satoshi puts it in the first paragraph after the white paper was published.",
+   "text_sha256": "2c08689d909af6235cc78cb817b47421f8bf8c0e60831fccab9f728367f00abf",
+   "trimmed_leading": "And"
   },
   {
    "pid": "ccdb0097bea1f57a6348",

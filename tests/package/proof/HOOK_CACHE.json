@@ -350,5 +350,49 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "30075b155874ab2de3c7:5629b8985988b6dab6328ab0de409b79e79a8acc6b4f6da9ff574c34d78871a1:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 2,
+   "rating": 2,
+   "why": "Ends as a full stop ('that's my opinion') rather than a forward pull; first seconds are meandering",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "22018cf6e0db2d846def:2d4f9335804fbaa7b00f3b2d4357cffc442515eb283cc4fd1456c2dc3edd4f5d:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 4,
+   "rating": 4,
+   "why": "'Kind of like' hedges the punch of the virus metaphor, softening the hook",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "0e20031e46ad9ad30c91:4ac734e439768f66a49120b313493e277ef17112a9c09ca55ae61bb1af8706d3:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 5,
+   "setup": 3,
+   "rating": 4,
+   "why": "strong opener but feels complete, so weaker forward pull",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "c762a1951bb30926fb96:de434325386737cd039fbdb73cbba6817479990b14a1ee3c8811f3f2417bdd9b:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 3,
+   "alone": 4,
+   "setup": 3,
+   "rating": 3,
+   "why": "softer, jargon-heavy start with less immediate punch",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

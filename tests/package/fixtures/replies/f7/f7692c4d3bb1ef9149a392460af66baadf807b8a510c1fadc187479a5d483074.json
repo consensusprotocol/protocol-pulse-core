@@ -1,0 +1,428 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "7c7ad729af266fc46af97ca547a4dac7e2cd9b73c0fba2471afbef83679815af",
+ "result": {
+  "text": "digital gold, and I still think it has a lot more potential going forward. I think Bitcoin is at least, should at be- at least be equivalent to the market capitalization of gold. It's a superior gold in every single way. We know exactly how much exists. We also can send it anywhere in the world. We can u- it's divisible. As a money, it's vastly superior",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.06,
+    "end": 18.44,
+    "text": "digital gold, and I still think it has a lot more potential going forward. I think Bitcoin is at least, should at be- at least be equivalent to the market capitalization of gold. It's a superior gold in every single way. We know exactly how much exists. We also can send it anywhere in the world. We can u- it's divisible. As a money, it's vastly superior"
+   }
+  ],
+  "words": [
+   {
+    "text": "digital",
+    "start": 0.06,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold,",
+    "start": 0.28,
+    "end": 0.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 0.52,
+    "end": 0.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 0.64,
+    "end": 0.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 0.86,
+    "end": 1.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 1.12,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 1.3,
+    "end": 1.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 1.38,
+    "end": 1.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.56,
+    "end": 1.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 1.68,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 1.88,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "potential",
+    "start": 2.1,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 3.04,
+    "end": 3.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forward.",
+    "start": 3.34,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.96,
+    "end": 4.019,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 4.059,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.28,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 4.74,
+    "end": 4.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 4.84,
+    "end": 4.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "least,",
+    "start": 5.0,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should",
+    "start": 5.2,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.36,
+    "end": 5.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be-",
+    "start": 5.48,
+    "end": 5.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 5.64,
+    "end": 5.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "least",
+    "start": 5.76,
+    "end": 5.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 6.42,
+    "end": 6.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "equivalent",
+    "start": 6.52,
+    "end": 6.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.96,
+    "end": 7.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.06,
+    "end": 7.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "market",
+    "start": 7.14,
+    "end": 7.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "capitalization",
+    "start": 7.42,
+    "end": 8.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 8.039,
+    "end": 8.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold.",
+    "start": 8.14,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 8.96,
+    "end": 9.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 9.16,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "superior",
+    "start": 9.3,
+    "end": 9.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gold",
+    "start": 9.8,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 10.04,
+    "end": 10.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 10.12,
+    "end": 10.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "single",
+    "start": 10.32,
+    "end": 10.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "way.",
+    "start": 10.64,
+    "end": 10.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 10.82,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "know",
+    "start": 10.9,
+    "end": 11.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exactly",
+    "start": 11.04,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 11.42,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "much",
+    "start": 11.54,
+    "end": 11.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "exists.",
+    "start": 11.72,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 12.82,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "also",
+    "start": 13.0,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 13.3,
+    "end": 13.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "send",
+    "start": 13.54,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 13.72,
+    "end": 13.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "anywhere",
+    "start": 13.82,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 14.1,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.18,
+    "end": 14.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world.",
+    "start": 14.32,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We",
+    "start": 14.64,
+    "end": 14.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can",
+    "start": 14.74,
+    "end": 14.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "u-",
+    "start": 14.94,
+    "end": 14.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 15.12,
+    "end": 15.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "divisible.",
+    "start": 15.28,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "As",
+    "start": 16.5,
+    "end": 16.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.64,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "money,",
+    "start": 16.74,
+    "end": 16.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 17.3,
+    "end": 17.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "vastly",
+    "start": 17.88,
+    "end": 18.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "superior",
+    "start": 18.26,
+    "end": 18.44,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 18.46
+ },
+ "usd": 0.003692,
+ "seconds": 0.8,
+ "recorded_at": "2026-11-14T17:06:20Z"
+}

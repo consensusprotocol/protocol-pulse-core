@@ -15224,5 +15224,802 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "30075b155874ab2de3c7:5629b8985988b6dab6328ab0de409b79e79a8acc6b4f6da9ff574c34d78871a1:544973f424a3d81099abad1d5de3bf8b9666dd4756f44b1e5ce2b9e079803a19:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "30075b155874ab2de3c7",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "what's in my portfolio",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "those",
+     "refers_to": "Bitcoin, SpaceX, and the S &B",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "for the future",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "My portfolio consists only of Bitcoin, SpaceX, and S&B, which I believe represents the best possible portfolio allocation for the future.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "If a family member came to you and said, hey, is Q4 a good time to get into SpaceX, what would you tell them?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "22018cf6e0db2d846def:2d4f9335804fbaa7b00f3b2d4357cffc442515eb283cc4fd1456c2dc3edd4f5d:7726993ba8f1ab3b9cd0f4bf3cb1b49d42ea16050756820793e526f9a27dd231:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "22018cf6e0db2d846def",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is like a sound money virus that is infiltrating the financial system.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "73c02a63cf4e89076428:8c1adada6314b487a687deedc33ebf79813ad69e241909764ac6f937cee79858:f700767af5e0d38696921b611aca3b79fafacc62bb463cfad98511d701e94ca4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "73c02a63cf4e89076428",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "no matter how much AI takes over the world",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has a fixed supply of 21 million coins, making it a scarce asset that cannot be printed no matter how much AI takes over the world.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new? \u203a\u203a Doing well, guys. Thanks for having me.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "e9f0cf97ce933070ef7c:a413ff4562ee93d29fae39dd1ac897a7a19fd015aca2e7c62441ac973fe72ddc:a39696c9a50d769b0ffabaaf9acc7aae89143532d8a96b19c721a5c3f9a65713:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "e9f0cf97ce933070ef7c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin should at least match gold's market capitalization because it is a superior gold in every way, with a known fixed supply that can be sent anywhere in the world and is divisible as money.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Does this bear market feel different to you? I mean, every bear market is different, but are are you still as confident in Bitcoin today as you were in maybe the 2022 bear market or 2018 or 2014? \u203a\u203a That's a great question.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "fad8df4e001b54c720d9:0c162fce316dfe4974276db885eb2fe534495cd101ff0eaba5648715f23212ea:db882ced66fe57d1899f102e834adc7006d54ad360a570b657e06b9ae4e36854:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "fad8df4e001b54c720d9",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "if quantum computers can crack ECDSA signatures",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The harder challenge with quantum computing breaking Bitcoin is deciding politically what to do with Satoshi's coins and the estimated 6 million BTC in easily cracked addresses.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "5735db643191d7e6f30c:0e331a1a83d993e84a8b408c4363569d8bcc23181b057779ef5e6cbc213d538c:7a48bb56b89dc1c2db16724d4a670a5b520ba419f21ffa5b34058fd823288796:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "5735db643191d7e6f30c",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "studying or learning about Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "they're",
+     "refers_to": "people who do the homework on Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "I",
+     "refers_to": "the speaker (Dan Held)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if people just spent and did the homework here",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "After obsessing over Bitcoin for years, if people do the homework they will probably reach the same conclusion the speaker did.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "I like it. My final question before we do final thoughts is uh trading versus investing. Now I presume you are a uh investing advocate. \u203a\u203a Yeah, so that's a great question where you know, I'm very bad at trading.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "23114b06920582460e85:4bf0cada39a313845af7b3a81296d97fbdd4c6aa178323fef7f76b550d0c0890:97e3d69501d9555d2864f75e486398fa9064df8701f892bff61016d44775e940:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "23114b06920582460e85",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "we",
+     "refers_to": "Bitcoin investors/community",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "now",
+     "refers_to": "time of recent bear market (last summer)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "which",
+     "refers_to": "crisis of identity and faith",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we",
+     "refers_to": "speaker and Bitcoin community",
+     "inside": false,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "These moments",
+     "refers_to": "periods of apathy/fear/doubt/despair at bear bottoms",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at emotional bottoms of bear markets",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Periods of apathy, despair, and crisis of identity and faith in the Bitcoin community typically mark the emotional and price bottom of bear markets.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a That's a great question. I would say like each bear market rhymes.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "861f0c97d093b4fd4220:492de738a0557c4e228ff275552d81929c6196d009165c13169f023bf568596f:57c2a9eae8c10b87d87527babf7ace67b0f3015f2fc4e94a094d117019cfa176:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "861f0c97d093b4fd4220",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "institutions and president calling Bitcoin digital gold",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "which",
+     "refers_to": "current 1.5T market cap/stage",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "its",
+     "refers_to": "Bitcoin's adoption",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "at current 1.5T market cap",
+     "inside": true
+    },
+    {
+     "text": "going forward",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Recognition by BlackRock, Fidelity and the president makes Bitcoin glimmer like digital gold and is incredibly bullish, but at 1.5T it remains very early in adoption as digital gold or world reserve asset with substantial potential ahead.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Well, so whenever I purchase an asset and hold it, I have an investment thesis, reason why I'm holding it.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "5725aeda167432775db9:7fc46373f2c10d0b5853cb420b00c5b987cd379c9bf2c2a80db4e3a8efbe3f78:1c701301b0f7e7d6871d791917695ba1de511a75467672cf2a25b31f70f82831:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "5725aeda167432775db9",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "its",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker is happy to witness Bitcoin come into its identity and adulthood during his own lifetime before turning 40, as many other timelines existed where it might have died or only succeeded much later.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "True, true. And of course, you're a long-term Bitcoin bull.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "46ce4069efe4e25e0d38:254b96cd2a7e8392c24c013607726541785b8d2e93952a155884076419e28fe9:d41fe2ad75f1b781a3d0132ebe3050d5252ddd0399f330116cafffccd205a025:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "46ce4069efe4e25e0d38",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "those",
+     "refers_to": "gold, fiat currencies, real estate",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "those",
+     "refers_to": "known $21M supply, hard to seize, uncensorable",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in the end of 2026 going into 2027",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin disrupts other stores of value like gold, fiat and real estate because it offers a known 21 million supply, is hard to seize, and is uncensorable like a Swiss bank account in your pocket, making it competitive as the speaker believed when buying at $10.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "What is Bitcoin's bull case today? \u203a\u203a Well, so whenever I purchase an asset and hold it, I have an investment thesis, reason why I'm holding it.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "383c02b65c9218f3b8bb:26efabbe726d5d0c2e44e244106d025dd1cb0c0dca34bcac65b712218f82d8d3:03445ea4c020bc723e29c48f52ec8872fb014113a4671be44c5ad97f3d428503:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "383c02b65c9218f3b8bb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "harder",
+     "refers_to": "compared to the technical debate on post-quantum cryptography for Bitcoin",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "that",
+     "refers_to": "Satoshi's coins or 6 million BTC in easily cracked addresses being stolen via quantum computers",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we",
+     "refers_to": "Bitcoin community or developers",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "these",
+     "refers_to": "Satoshi's coins or the estimated 6 million Bitcoin in crackable addresses",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "once quantum computers can derive private keys from public keys",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The harder issue with quantum computing for Bitcoin is the political question of what to do with an estimated 6 million BTC in easily cracked addresses like Satoshi's, which could be stolen once public keys allow private key derivation.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Well, let me ask you this because you know like I said, this bear market feels a little bit different or it's actually just Bitcoin's new era feels a little bit different from the first 15 years. ... Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "0e20031e46ad9ad30c91:4ac734e439768f66a49120b313493e277ef17112a9c09ca55ae61bb1af8706d3:b06df0e4eaf6d201c04ed4c5fd4a159cf47051dbedd45495154247e5641954c7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "0e20031e46ad9ad30c91",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "That",
+     "refers_to": "Bitcoin infiltrating the system as a sound money virus",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin acts as a sound money virus infiltrating the financial system, which is beneficial because deeper integration and ownership by politicians and bankers strengthens a network effect of individuals incentivized to defend it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Well, let me ask you this because you know like I said, this bear market feels a little bit different or it's actually just Bitcoin's new era feels a little bit different from the first 15 years. So nowadays JP Morgan, Morgan Stanley, Charles Schwab, Bank of America, UBS, Goldman Sachs, the biggest banks in the US and around the world are clearly getting involved and this is a major shift. Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "0e20031e46ad9ad30c91",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "this sound money virus / Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "the system",
+     "refers_to": "the existing financial system",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "That",
+     "refers_to": "Bitcoin being a sound-money virus infiltrating the system",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "individuals",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin is like a sound-money virus spreading through the financial system, which is good because as it becomes more embedded and owned by politicians and bankers, it creates a network of incentivized people who will fight for it.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Is this something that worries you or how do you think about it? \u203a\u203a That's a great question.",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "a70f7d22798173c122eb:37ff0d47c7a5373d6581799739238fae4384b1fa1f52c461e9332aecf77e4be1:8785513dfe5eb53ad5e708fa184e579bfc50b0bceeb61fe3c5d5cfdf767858f6:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "a70f7d22798173c122eb",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "them",
+     "refers_to": "the coins (approx. 6 million BTC in easily cracked addresses)",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "those",
+     "refers_to": "the people who own the easily cracked Bitcoin addresses",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "their",
+     "refers_to": "artificial intelligence",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "no matter how much AI takes over the world",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker poses the dilemma of whether to burn vulnerable pre-quantum coins or devise a scheme to protect them for their owners while asserting Bitcoin's fixed 21 million scarcity cannot be altered no matter how much AI advances and that AI will likely store its wealth in Bitcoin.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "\u203a\u203a Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "c762a1951bb30926fb96:de434325386737cd039fbdb73cbba6817479990b14a1ee3c8811f3f2417bdd9b:3c77f04050701e51bac53288825da5835a254737f6bf50716523cf754d5715dd:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "c762a1951bb30926fb96",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin (as a private Swiss bank account)",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "still (in current institutional adoption era)",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Even with growing institutional and political adoption, Bitcoin can still be used in a cypherpunk way via coin joins, self-custody where ownership is unknown, cash purchases, and as an originally intended private Swiss bank account in your pocket.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "You've been around for almost three cycles now. So, or over three cycles.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "42dc41d2e53264a70420:5cff816a2203e74ac5f7cdbb94ef01db7df970c744b99961c3dbed93eb809fa3:889a84c61d26c0bfd1f895df75f8e8e1e2897d070df3deceb2597b1709dcb3cf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "42dc41d2e53264a70420",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "these",
+     "refers_to": "Satoshi's coins or the estimated 6 million Bitcoin in easily cracked addresses",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "we",
+     "refers_to": "Bitcoin community or protocol decision-makers",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "us",
+     "refers_to": "Bitcoin community or protocol decision-makers",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "them",
+     "refers_to": "the coins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "those people",
+     "refers_to": "the owners or holders of those coins",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "upon quantum computers cracking current Bitcoin signatures",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The harder political challenge with quantum computing is deciding what to do with Satoshi's coins or the estimated 6 million BTC in easily cracked addresses, such as burning them or creating a novel protection scheme for their owners.",
+   "certainty": "speculative",
+   "speaker_is": "host",
+   "speaker_evidence": "Bitcoin OG and advocate Dan Held is back. Dan, welcome back to Altcoin Daily. How is everything with you? What's new? \u203a\u203a Doing well, guys. Thanks for having me.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "70f16ce108b0083275dc:2dc0c97c1aeb9fc1753c2ec76fa76f05c4689637e55c13c640be5cea39904800:b93933faf8cc69d8449686f72f1a5907077ee4f199055bf79ba3719e9f3239c4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "70f16ce108b0083275dc",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "which",
+     "refers_to": "the signature size of post-quantum cryptography being much larger",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "opening a conversation around increasing Bitcoin's block size",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "deciding what to do with coins that don't migrate to post-quantum secure addresses",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "that",
+     "refers_to": "the outcome of which way Bitcoin gets upgraded",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "over the next couple of years",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Post-quantum cryptography has much larger signature sizes likely requiring Bitcoin block size increase discussions, while handling unmigrated coins raises political issues, so the technical debate is the least critical path as the upgrade direction will become self-evident soon.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a Mhm. Well, let me ask you this because you know like I said, this bear market feels a little bit different",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "92cb306efb63543581dd:bf8f84077959bef77129a9077dadd1628a264490ada73428c6d53b337867cef5:28c4ff3b287a75299f33d59d07c4ef9f95a64b8d8574aee838c97cb482676c31:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "92cb306efb63543581dd",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "One",
+     "refers_to": "one of the two things that investment advice from top investors like Howard Marks and Warren Buffett boils down to",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "it",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "here",
+     "refers_to": "studying Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if people just spent the homework here",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "One key to successful investing is to obsess over and develop an informational edge through deep study that others overlook, just as the speaker did over years with Bitcoin leading to his conclusions.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "\u203a\u203a I like it. My final question before we do final thoughts is uh trading versus investing. Now I presume you are a uh investing advocate.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

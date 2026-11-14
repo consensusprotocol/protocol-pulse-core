@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "heimdall:qwen/qwen3.8-27b",
+ "model": "qwen/qwen3.8-27b",
+ "vendor": "heimdall/qwen",
+ "seed": 7,
+ "max_tokens": 900,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"0e20031e46ad9ad30c91\" (on screen: Altcoin Daily): \"Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it.\"\nCANDIDATE id=\"c762a1951bb30926fb96\" (on screen: Altcoin Daily): \"What's cool about Bitcoin is you can still use it in a quote or more cypher punk way. You know, you can do coin joins to hide your transaction history. You can use it where you have it self -custodied where no one knows that it's yours. You bought it with cash. You can use Bitcoin as originally intended, this Swiss bank account in your pocket that you can keep pretty private.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"0e20031e46ad9ad30c91\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"c762a1951bb30926fb96\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "\n\n{\"hooks\": {\"0e20031e46ad9ad30c91\": {\"scroll\": 4, \"alone\": 5, \"setup\": 3, \"why\": \"strong opener but feels complete, so weaker forward pull\"}, \"c762a1951bb30926fb96\": {\"scroll\": 3, \"alone\": 4, \"setup\": 3, \"why\": \"softer, jargon-heavy start with less immediate punch\"}}}",
+ "usage": {
+  "in": 597,
+  "out": 635,
+  "usd_reported": 0.000568
+ },
+ "usd": 0.011316,
+ "seconds": 16.41,
+ "recorded_at": "2026-11-14T17:10:51Z"
+}

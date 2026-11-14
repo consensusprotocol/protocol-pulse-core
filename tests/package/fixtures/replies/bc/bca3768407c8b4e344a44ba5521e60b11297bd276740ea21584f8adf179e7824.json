@@ -1,0 +1,19 @@
+{
+ "role": "shadow86:coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 900,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"30075b155874ab2de3c7\" (on screen: Altcoin Daily): \"For me, you can ask me my opinion, or I can just tell you what's in my portfolio. And it's Bitcoin, SpaceX, and the S &B. That's it. And so those represent what I believe is my best possible portfolio allocation for the future. And so that's my opinion.\"\nCANDIDATE id=\"22018cf6e0db2d846def\" (on screen: Altcoin Daily): \"Bitcoin is kind of like this sound money virus that is infiltrating the system.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"30075b155874ab2de3c7\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"22018cf6e0db2d846def\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"30075b155874ab2de3c7\": {\"scroll\": 2, \"alone\": 2, \"setup\": 3, \"why\": \"mid-conversation start lacks punch\"}, \"22018cf6e0db2d846def\": {\"scroll\": 4, \"alone\": 5, \"setup\": 4, \"why\": \"intriguing but slightly abstract metaphor\"}}}",
+ "usage": {
+  "in": 636,
+  "out": 2220,
+  "usd_reported": 0.0062106
+ },
+ "usd": 0.05868,
+ "seconds": 15.96,
+ "recorded_at": "2026-11-14T17:06:52Z"
+}
