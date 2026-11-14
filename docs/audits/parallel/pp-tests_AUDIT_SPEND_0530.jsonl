@@ -35,3 +35,9 @@
 {"t": "2026-11-14T09:41:46-0500", "vendor": "heimdall", "model": "qwen/qwen3.8-27b", "in": 12498, "out": 2147, "usd": 0.002112, "note": "vendor usage.cost"}
 {"t": "2026-11-14T09:42:00-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 13353, "out": 5281, "usd": 0.069501, "note": ""}
 {"t": "2026-11-14T09:42:42-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 11567, "out": 2442, "usd": 0.000661, "note": "vendor usage.cost"}
+{"t": "2026-11-14T10:04:22-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 8826, "out": 5719, "usd": 0.068222, "note": ""}
+{"t": "2026-11-14T10:05:03-0500", "vendor": "heimdall", "model": "qwen/qwen3.8-27b", "in": 8576, "out": 2405, "usd": 0.002114, "note": "vendor usage.cost"}
+{"t": "2026-11-14T10:05:05-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 7726, "out": 2384, "usd": 0.000535, "note": "vendor usage.cost"}
+{"t": "2026-11-14T10:09:02-0500", "vendor": "heimdall", "model": "qwen/qwen3.8-27b", "in": 13374, "out": 1816, "usd": 0.001917, "note": "vendor usage.cost"}
+{"t": "2026-11-14T10:09:05-0500", "vendor": "google", "model": "gemini-2.5-pro", "in": 13742, "out": 3948, "usd": 0.056657, "note": ""}
+{"t": "2026-11-14T10:11:26-0500", "vendor": "heimdall", "model": "z-ai/glm-5.3-flash", "in": 12094, "out": 5196, "usd": 0.001019, "note": "vendor usage.cost"}

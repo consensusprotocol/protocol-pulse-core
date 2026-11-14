@@ -358,16 +358,63 @@ wrong: integrator merge audit.)
   VF.check the segments, the lines and the manifest, and `current_levels` only when the case carries that key. It
   never passes v1.1's `title` (judged like a line), derives no current price level from v1.1's `universe` (tonight's
   news), and drops `lines[i].after` (which clip a line follows).
-- Effect on a run, by construction (no model needed to see it): vo_fidelity__stale_price_title__01 / __02 are
-  must-fail ONLY through the title (`bad_line` null, `bad_title` true), so the adapter passes them whatever the gate
-  would say, and the exam's 'every must-fail rejected' threshold fails on the adapter, not on the gate.
+- Effect on a run: vo_fidelity__stale_price_title__01 / __02 are must-fail ONLY through the title (`bad_line` null,
+  `bad_title` true), and the title was never judged. CORRECTED 2026-11-14: I had written "so the adapter passes them
+  whatever the gate would say". That was wrong. The builder measured that the gate rejected both, on their dated
+  sign-off ("Pulse Check for 2026-11-12." trips NUMBER), which is a false reject (R-30), not on the title.
   vo_fidelity__stale_price_line__01 ('And Bitcoin is still holding seventy-six thousand.') is must-fail only against
-  the universe, which the gate never sees. The other 49 v1.1 cases reach the gate with all their lines; whether
+  the universe, which the gate never saw. The other 49 v1.1 cases reach the gate with all their lines; whether
   dropping `after` changes any of their verdicts is not measured.
 - Minimal fix (the builder's file): add the title as a line (`{"slot": "title", "text": case["title"], "cites": []}`,
   as the packager passes it) and derive `current_levels` from `case["universe"]["news"]` the way
   package.current_levels does from sources (VF.current_level_values on the headline and summary of each item naming
   Bitcoin, published <= 24 h before `universe.date`). The exam's harness and corpus stay as they are.
+- FIXED by the builder in 91d37100 (2026-11-14 09:48 ET, on origin/pp-selectid; NOT yet on the release line; the
+  builder's own audit record: docs/audits/parallel/pp-selectid_audit_0915 on that branch). Read and confirmed here:
+  - the title is judged as a line;
+  - `universe_levels` reads every sentence of a news item's headline and summary that names Bitcoin, from items
+    published <= 24 h before `universe.built_at`;
+  - a missing title, a zoneless clock or news that is not a list is GateNotMeasured (the harness's ERROR);
+  - explicit `current_levels` in a case still win over the levels derived from its universe.
+  The builder reports that both stale-title cases now fail ON THEIR TITLE: NEEDS_SOURCE and NUMBER (the title's
+  figures are in no clip), and PRICE_NOW. Here PRICE_NOW fails by ABSENCE, not by contradiction: this universe's news
+  is 38.6 / 43.0 / 45.1 / 7.3 h older than its built_at, and the 7.3 h item states no Bitcoin level, so the levels
+  are [].
+
+## R-30 — NOT a request: a decision for the orchestrator (the VO gate's NUMBER rule and a manifest-stated date)
+- Measured by the builder (2026-11-14, answering R-29): "Pulse Check for 2026-11-12." fails the gate's own written
+  NUMBER rule. pipeline/vo_fidelity.py:
+  - NUMBER exempts only the package's own counts and "one" as a determiner;
+  - manifest_terms admits the show date's month and weekday NAMES, never its digits.
+  The gate is inconsistent with itself: its model-verdict layer cites the date as a production fact (manifest_text),
+  while its deterministic NUMBER layer rejects the digits. Production never meets this today: the last sealed pin's
+  sign-off carries no date.
+- Why a decision and not a request: accepting the digits LOOSENS what a production check accepts. That is the
+  orchestrator's ruling (the R-19 precedent: a request may not loosen what a check accepts). My first draft asked
+  the builder for that change; it is withdrawn.
+- The question, as the builder put it (its STATE line 1): may NUMBER accept the manifest's own date as production
+  metadata, the whole date only ("2026-11-12", "November 12", "Nov 12"), never a bare "12"?
+- The corpus follows the ruling.
+  - Every one of the 92 vo_fidelity cases carries manifest {channels, date: "2026-11-12", show}, and 30 of them sign
+    off with that date: 16 must-pass and 14 must-fail BY THE CORPUS'S OWN LABELS (`expected.verdict`), not from a
+    run. Under the order of 05:25 ET Nov 12 (class C: production lines must match the manifest) they
+    are labelled clean. The class rule is the orchestrator's order of 2026-11-12 05:25 ET, quoted in
+    pp-tests_AUDIT_INTEG_BRIEF.md ("Order 2").
+  - If YES: the builder changes NUMBER (with its two-cycle audit) and the corpus stays as it is. The 16 must-pass
+    cases are then judged on everything else, and the 14 must-fail cases on their own traps. Acceptance: the exam
+    report has no "lost yield: the dated sign-off" row.
+  - If NO: the gate stays, and pp-tests rewrites the 30 sign-offs to the production form ("Clips today from ...
+    Links are below.") and re-reviews their labels, since a must-pass case must be clean under the rules in force.
+    Acceptance: no line of the corpus carries a date's digits.
+- Until then the exam's report scores around it (the builder's plan, from the full violation list):
+  - a must-fail rejection counts only when a violation sits on the case's own bad line (`expected.bad_line` i -> slot
+    "<slot>_i"; `bad_title` -> "title");
+  - a must-fail case rejected only elsewhere is reported as a HOLE HIDDEN BY ANOTHER LINE (a category of the report,
+    not a verdict of the gate). That covers the 14 must-fail cases with the dated sign-off.
+  - a must-pass rejection whose only violation is the date's digits is reported apart, as "lost yield: the dated
+    sign-off". That covers the 16 must-pass cases.
+  How many of the 14 are caught on their own bad line, and how many are holes hidden by the sign-off, is NOT measured
+  yet. The builder's report gives it per case. Until then the exam's must-fail recall on those 14 is unknown.
 
 ## Not code requests: measured facts and decisions for the orchestrator
 
@@ -410,6 +457,18 @@ Measured 2026-11-12 on the saved v2f files through `qa_gates.gate_g8` (frames to
 passes with zero margin on clip_03 (10.84 = the calibrated floor, Claude-gates A5). The recorded FAIL is G8 called
 without source clips (the harness), which fails closed by design. Pinned: test_f5
 test_g8_9x16_v2f_passes_through_the_production_wiring_at_its_floor and test_g8_9x16_v2f_fails_without_sources_the_harness_reading.
+
+### PRICE_NOW tolerance for a stated current price — a decision for the orchestrator (2026-11-14)
+- The builder's PRICE_NOW accepts a present-tense price within 5 % of the universe's current level (pp-selectid,
+  answering R-29). The exam's vo_fidelity__stale_price_line__01 says "And Bitcoin is still holding seventy-six
+  thousand." Its clip says "trading around $76,000", but the night's news puts Bitcoin near $73,500, 3.4 % lower.
+- The case is must-fail by design: "still holding 76K" is false at 73.5K. Under a 5 % tolerance with FRESH news it
+  would pass.
+- With this corpus's universe (news 38.6-45.1 h older than built_at, so no current level) it fails by absence, and
+  the exam cannot exercise the tolerance.
+- Question: what tolerance, if any, may a line stating a CURRENT level have? For example: none for a stated level,
+  and a tolerance only for a rounded word ("about", "around")? This is independent of R-30, which is about a date
+  in a production line, not about a price.
 
 ## Tooling (not a pipeline defect): utils/cross_llm_audit.py, as met by a worktree session (for the integrator)
 - `BASE = Path.home() / "protocol_pulse"` fixes its inputs, its output directory (`AUDITS / feature`) and

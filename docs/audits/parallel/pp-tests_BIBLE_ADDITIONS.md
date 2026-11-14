@@ -249,8 +249,9 @@ test_a_gpu_stop_during_transcription_leaves_select_and_writes_nothing.
 ### PP-E28: An exam's adapter can be older than its format
 **Evidence (2026-11-14, read at origin/pp-selectid aef73873):** the builder's moments_gate_adapter.py was written
 against vo_fidelity v1 and never passes v1.1's `title` or `universe` to the gate. The two stale-title cases are
-must-fail only through the title, so a run would pass them whatever the gate judges: the exam would report a gate miss
-that is an adapter omission. **Rule:** a format version bump names the fields an adapter must forward, and before a
+must-fail only through the title, and the title was never judged. (Corrected 2026-11-14: I had concluded "a run would
+pass them"; the builder measured that the gate rejected them, on another line: PP-E33. An omission shows what is
+NOT judged, not what the verdict will be.) **Rule:** a format version bump names the fields an adapter must forward, and before a
 paid run the adapter is checked against the current format (field by field; a case that is must-fail only through a
 field the adapter drops is a guaranteed false pass). **Detection:** REQUESTS R-29; the format sections of
 pp-tests_STATE.md (v1, v1.1).
@@ -318,3 +319,16 @@ os.open / os.read, one that bypasses the loader, the sys.path form, one that lea
 SIDE-read the loader file and discard the result (a Python child without pipes, os.system, os.posix_spawn). Each
 fails on its own assertion; the three side reads PASSED the previous version of the test (measured). The real
 `_key` passes.
+
+### PP-E33: Verdict-only scoring credits a must-fail case rejected for the wrong reason
+**Evidence (pp-selectid answering R-29, 2026-11-14):** the VO gate's written NUMBER rule rejects the sign-off "Pulse
+Check for 2026-11-12.", a line whose date the manifest states. Whether it may accept it is a ruling for the
+orchestrator (REQUESTS R-30; asking the gate to accept it would loosen a check). The same sign-off sits in 16 must-pass
+cases (false rejects, counted right) and in 14 must-FAIL cases. Those 14 are "rejected", so the exam counts each trap
+as caught, though the gate never looked past the sign-off. The two stale-title cases looked fine for the same reason
+while their title was not judged at all (PP-E28). **Rule:** a must-fail case is caught only when the rejection names
+its trap. Give every must-fail case the location of its trap (v1.1: `expected.bad_line` / `bad_title`), and read
+recall from rejections that name it. A line the corpus means to be clean (a production line, a sign-off) must be
+clean for the gate too, or it hides what the case tests. **Detection:** none automatic yet: the harness scores
+verdicts. The builder's exam report does it from the full violation list (bad line `i` -> slot "<slot>_i", the
+title -> "title"; a case rejected only elsewhere is reported as a hole hidden by another line).
