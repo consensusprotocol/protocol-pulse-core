@@ -167,6 +167,126 @@ class TestRun(unittest.TestCase):
         self.assertEqual(len(self.released), 1)
 
 
+STEP_A = "You read transcripts of Bitcoin videos. For each EXCERPT below, say whether it stands alone."
+
+
+class TestServe(unittest.TestCase):
+    """RULING 87 (orchestrator '21:18'): the judge SERVICE for step A's second verdict in Plan B. Requests are read only
+    in the builder's directory; one call each; a render always first; an error is no verdict; GPU0 left as found."""
+
+    def setUp(self):
+        self.d = tempfile.mkdtemp(prefix="lj_serve_")
+        self.addCleanup(shutil.rmtree, self.d)
+        self.root, self.extra, self.flag = (os.path.join(self.d, x) for x in ("root", "extra", "yield"))
+        os.makedirs(self.extra)
+        import gpu0
+        self.gpu0, self.released, self.llms = gpu0, [], []
+
+        def llm(model=None):
+            self.llms.append(FakeLLM(model))
+            return self.llms[-1]
+        for x in (mock.patch.object(J, "ROOT", self.root), mock.patch.object(J, "EXTRA", self.extra),
+                  mock.patch.object(J, "YIELD_FLAG", self.flag),
+                  mock.patch.object(gpu0, "lease", mock.MagicMock()),
+                  mock.patch.object(gpu0, "release_all", lambda: self.released.append(1)),
+                  mock.patch("story_semantics.LocalLLM", llm)):
+            x.start()
+            self.addCleanup(x.stop)
+
+    def ask(self, rid, prompt=STEP_A, **kw):
+        p = os.path.join(self.extra, rid + ".json")
+        with open(p + ".tmp", "w") as f:
+            json.dump(dict({"request_id": rid, "family": "step_a", "prompt": prompt, "max_tokens": 1200, "seed": 7},
+                           **kw), f)
+        os.rename(p + ".tmp", p)
+        return p
+
+    def result(self, rid, prompt=STEP_A, max_tokens=1200, seed=7):
+        with open(os.path.join(self.root, "results", f"{rid}.{J.prompt_id(prompt, max_tokens, seed)}.json")) as f:
+            return json.load(f)
+
+    def serve(self):
+        return J.serve_once(log=lambda *a: None)
+
+    def test_one_call_per_request_answered_once_and_the_builders_file_untouched(self):
+        p = self.ask("s1")
+        before = (open(p, "rb").read(), os.path.getmtime(p))
+        self.assertEqual(self.serve(), 1)
+        r = self.result("s1")
+        self.assertEqual((r["text"], r["error"], r["model"], r["digest"], r["seed"], r["max_tokens"], r["family"]),
+                         ('{"ok": true}', None, J.MODEL, "d1", 7, 1200, "step_a"))
+        self.assertEqual((r["judge_sha"], r["prompt_id"]), (J.judge_sha(), J.prompt_id(STEP_A, 1200, 7)))
+        self.assertIsInstance(r["waited_s"], float)
+        self.assertEqual((open(p, "rb").read(), os.path.getmtime(p)), before)        # read only in its directory
+        self.assertEqual(self.serve(), 0)                                             # answered once
+        self.assertEqual(([x.asked for x in self.llms], len(self.released)), ([[STEP_A]], 1))
+        with open(p, "w") as f:                                                       # a changed request: asked again
+            json.dump({"request_id": "s1", "family": "step_a", "prompt": STEP_A, "max_tokens": 900, "seed": 7}, f)
+        self.assertEqual(self.serve(), 1)
+        self.assertEqual(self.result("s1", max_tokens=900)["max_tokens"], 900)
+
+    def test_an_answer_on_file_is_closed_never_asked_twice(self):          # batch 72 c1 consensus
+        self.ask("s1")
+        self.assertEqual(self.serve(), 1)
+        shutil.rmtree(os.path.join(self.root, "answered"))                          # a stop before the close
+        self.assertEqual(self.serve(), 1)
+        self.assertEqual(sum(len(x.asked) for x in self.llms), 1)                    # closed, not asked again
+        self.assertEqual(J.pending(), [])
+        r = self.result("s1")
+        with open(J.result_path({"request_id": "s1", "prompt": STEP_A, "max_tokens": 1200, "seed": 7}), "w") as f:
+            json.dump(dict(r, text=None, error="RuntimeError: bad"), f)            # a failed call is asked again
+        shutil.rmtree(os.path.join(self.root, "answered"))
+        self.assertEqual(self.serve(), 1)
+        self.assertEqual((sum(len(x.asked) for x in self.llms), self.result("s1")["error"]), (2, None))
+
+    def test_a_render_comes_first(self):
+        self.ask("s1")
+        open(self.flag, "w").close()
+        self.assertEqual(self.serve(), 0)
+        self.assertEqual((self.llms, len(J.pending())), ([], 1))
+        self.gpu0.lease.assert_not_called()
+
+    def test_a_render_asking_mid_batch_stops_the_next_call(self):
+        self.ask("s1")
+        self.ask("s2")
+        flag = self.flag
+
+        def post(self_, prompt, max_tokens, seed):
+            open(flag, "w").close()                                                    # the render asks
+            return "{}"
+        with mock.patch.object(FakeLLM, "_post", post):
+            self.assertEqual(self.serve(), 1)
+        self.assertEqual(([os.path.basename(x) for x in J.pending()], len(self.released)), (["s2.json"], 1))
+
+    def test_only_a_well_formed_step_a_request_is_asked(self):
+        self.ask("bad1", prompt="You are the editor of PBX MAX. Pick the angle.")     # not a step-A prompt
+        self.ask("bad2", family="angle")
+        self.ask("bad3", seed="7")
+        self.assertEqual(self.serve(), 3)
+        self.assertEqual(self.llms, [])                                               # nothing asked, nothing loaded
+        self.assertEqual(sorted(os.listdir(os.path.join(self.root, "requests", "failed"))),
+                         ["extra.bad1.json", "extra.bad2.json", "extra.bad3.json"])
+
+    def test_a_failed_call_is_no_verdict_and_gpu0_is_still_released(self):
+        self.ask("s1")
+        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: (_ for _ in ()).throw(RuntimeError("bad"))):
+            self.assertEqual(self.serve(), 1)
+        r = self.result("s1")
+        self.assertEqual((r["text"], r["error"], len(self.released)), (None, "RuntimeError: bad", 1))
+
+    def test_a_gpu0_stop_leaves_the_request_pending(self):
+        self.ask("s1")
+
+        def busy(owner, wait_s=0):
+            raise self.gpu0.LeaseBusy("held by the scorer")
+        with mock.patch.object(self.gpu0, "lease", busy):
+            self.assertEqual(self.serve(), 0)
+        self.assertEqual((len(J.pending()), os.path.exists(os.path.join(self.root, "results"))), (1, False))
+        with mock.patch.object(FakeLLM, "_post", lambda self_, p, m, s: (_ for _ in ()).throw(self.gpu0.GpuOOM("oom"))):
+            self.assertEqual(self.serve(), 0)                                         # a stop mid-call: never a result
+        self.assertEqual((len(J.pending()), len(self.released)), (1, 1))
+
+
 class TestCompare(unittest.TestCase):
     """The comparison runs in its own process (the builder's modules first on its path), exactly as it is used."""
 
