@@ -1,4 +1,44 @@
 {
+ "06d34e155feae654ee56:0.000-22.940:visual-2:99aab01c28ba80f1": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [],
+  "flags": [],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_4d189540cab7b622.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_4d189540cab7b622.jpg",
+   "sha256": "4d189540cab7b62206a3952281e11778fb792a0f1f523539e93cd4ff69e0a202",
+   "times": [
+    0.0,
+    3.27,
+    6.54,
+    9.81,
+    13.08,
+    16.35,
+    19.62,
+    22.89
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears in every frame; no other person is shown as a still, photo, or graphic.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3106,
+   "out": 2432,
+   "usd_reported": 0.019076
+  },
+  "version": "visual-2"
+ },
  "0e20031e46ad9ad30c91:953.801-971.401:visual-2:6121ab76cfe0f20f": {
   "backend": "xai_vision:grok-4.7",
   "burned_in": [
@@ -280,6 +320,67 @@
    "usd_reported": 0.041144
   },
   "version": "visual-1"
+ },
+ "933f9d33a8e345356177:1706.226-1725.606:visual-2:173daccbb2a10b30": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "whole",
+    "kind": "bug",
+    "text": "CANTON Convergence",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "whole",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "CANTON Convergence"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [
+   {
+    "asserts_beyond_words": false,
+    "text": "Strategy Is the Largest Institutional Holder of BTC",
+    "why": "It restates the speaker's own claim; the words say his company is 'the largest holder of Bitcoin in the world as an institution,' the same assertion the headline makes."
+   }
+  ],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_698ccc3d8e6f23c7.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_698ccc3d8e6f23c7.jpg",
+   "sha256": "698ccc3d8e6f23c759b619d5969dd650b6583ff6b74285a654e9c806bdc81b9a",
+   "times": [
+    1706.23,
+    1708.99,
+    1711.75,
+    1714.51,
+    1717.28,
+    1720.04,
+    1722.8,
+    1725.56
+   ]
+  },
+  "third_person": {
+   "finding": "No one but the live speaker appears; the slide names only companies and countries, and the words are a boast about the speaker's own firm, not a negative claim about anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": false
+  },
+  "usage": {
+   "in": 3073,
+   "out": 15713,
+   "usd_reported": 0.098696
+  },
+  "version": "visual-2"
  },
  "9c14612153405f8983e4:1339.080-1355.470:visual-1:502915c2d8927a3f": {
   "backend": "xai_vision:grok-4.7",

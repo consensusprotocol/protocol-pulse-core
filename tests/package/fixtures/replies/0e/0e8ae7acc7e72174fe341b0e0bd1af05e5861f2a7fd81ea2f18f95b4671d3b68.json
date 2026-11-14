@@ -1,0 +1,236 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "3ea925adaa1def19039668fbfb99055a5defad2a8e7eb3a6a80bbd1245bc58da",
+ "result": {
+  "text": "Um, so that's Bitcoin. Uh, long term, I expect Bitcoin to appreciate 20 to 30% a year for the foreseeable future. It's going to outperform the S&P. It's gonna outperform the Nasdaq. It's gonna outperform",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 1.32,
+    "end": 15.6,
+    "text": "Um, so that's Bitcoin. Uh, long term, I expect Bitcoin to appreciate 20 to 30% a year for the foreseeable future. It's going to outperform the S&P. It's gonna outperform the Nasdaq. It's gonna outperform"
+   }
+  ],
+  "words": [
+   {
+    "text": "Um,",
+    "start": 1.32,
+    "end": 1.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so",
+    "start": 2.46,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that's",
+    "start": 2.6,
+    "end": 2.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 2.84,
+    "end": 3.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Uh,",
+    "start": 3.56,
+    "end": 3.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 4.0,
+    "end": 4.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "term,",
+    "start": 4.36,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 5.2,
+    "end": 5.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "expect",
+    "start": 5.28,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.68,
+    "end": 6.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.04,
+    "end": 6.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "appreciate",
+    "start": 6.14,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "20",
+    "start": 6.78,
+    "end": 6.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 6.94,
+    "end": 7.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "30%",
+    "start": 7.18,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 7.72,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 7.82,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 8.2,
+    "end": 8.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.36,
+    "end": 8.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "foreseeable",
+    "start": 8.48,
+    "end": 9.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "future.",
+    "start": 9.14,
+    "end": 9.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 9.9,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "going",
+    "start": 10.06,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.26,
+    "end": 10.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 10.42,
+    "end": 10.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.0,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "S&P.",
+    "start": 11.26,
+    "end": 11.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 11.84,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 11.98,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 12.2,
+    "end": 12.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 13.22,
+    "end": 13.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Nasdaq.",
+    "start": 13.36,
+    "end": 14.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 14.7,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 14.86,
+    "end": 15.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "outperform",
+    "start": 15.1,
+    "end": 15.6,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 15.62
+ },
+ "usd": 0.003124,
+ "seconds": 0.72,
+ "recorded_at": "2026-11-14T17:25:58Z"
+}

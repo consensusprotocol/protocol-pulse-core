@@ -1,0 +1,3028 @@
+{
+ "shape": "medley",
+ "packages": [],
+ "tried": [],
+ "unusable": {
+  "06d34e155feae654ee56": "22.94 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "46ce4069efe4e25e0d38": "26.21 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b04337f6fdffa0029f2d": "29.56 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "383c02b65c9218f3b8bb": "27.57 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "f55d1430b5398e63b6e6": "35.64 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "3868d86dcb0cc7df9f6c": "21.08 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "321fecfcf331138f8405": "not eligible on screen: hook: opener; clip: opener",
+  "482b034fa6d7f2d37b5f": "not eligible on screen: hook: opener; clip: not_statement, opener",
+  "514455ecf0bd9312e4a4": "23.96 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "aff60c68e25968c2d21d": "23.72 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c762a1951bb30926fb96": "20.32 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "129d962df2f71d53ef75": "27.37 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "139139443bdc32ae3e3b": "27.12 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "92ed0b325b5c382e1031": "30.55 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "97377deae3a6683c32b9": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "c0b702e9c619919fe1fb": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "f4f4be033d7d78848e2c": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "23caa285d4cbeb43e51c": "26.16 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4c16f7c196d605f7d65d": "36.1 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4f8d42ac7d400d93b0d2": "20.4 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a56b39c9c2c9ea896e29": "20.02 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "d34568569a4f4811cb92": "34.71 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "4f71673b90c4a72b3809": "not eligible on screen: hook: opener; clip: not_statement, opener",
+  "775e37a08a8036d6fc50": "23.0 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "70f16ce108b0083275dc": "29.15 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "7c7d3fe92a752b58926c": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "95a7cc00b59ae8165b3b": "42.26 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "9e63b39a556c9ed33ed7": "21.85 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "a48af3b0ce32f31249d2": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+  "bb35d52ccd5f7e9558ea": "not eligible on screen: hook: opener; clip: opener",
+  "c931a4f668731b60de7f": "25.94 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "e3563aaaacf82397fa78": "23.05 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "588915d35cdec5507410": "29.76 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "b36fbc2652b71924a361": "26.74 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "8eeb41696bec1a1bf7a3": "38.74 s: over the 20.0 s per source video (L-u) or unmeasured",
+  "c8ea376e8c44c14e4b84": "not eligible on screen: hook: opener; clip: opener"
+ },
+ "usable": 121,
+ "current_levels": [],
+ "no_role": {
+  "88b47fefa2c68c1a227a": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "3fb31e595944d69f711f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "5a1a89ed49407f4a86e8": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c8183c6bb6872345ef4c": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "29c4913539172b6d0877": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "4bb48df1195c808a37da": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "b0ac423a63d291cecef8": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "e68713114ad15da4c451": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "2a28293eeaec93916947": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "37590c60cf70d5d49274": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "465e89983fabab2a3c09": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "ae2418d859c27c2bc1a5": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "c4115b652031c514c702": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "cb17b876672ae445fc88": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "21f404bc8bb37da5352a": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "3dfc7e271003c42e265f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "47ba75641a458b2e7dff": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'also' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'also': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "78bee9e19c4b9012f7e7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "79ee5ab1612a3eaee4b1": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "aaf0c78b19cace153444": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (1.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "b5980c46a8ca2fe572c7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "fdd84c05068e3eff3c08": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "0f0a461b65f65872084f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "25479838448d7e42f69d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "7e8b1d336c7b516d39a7": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "983fb30ddc99c588c79a": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c0fd7d5ac6c73d78baee": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "da0ff8d5b2a224b380fa": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'but'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'but': nothing is heard before a hook",
+  "053cf345df518a25167d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "67aa3cd0b1a9940d63e9": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "7999697fb4fee8ec6e93": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "9db5d759b4d0d71beea7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "033546ef73fa6109f2df": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "26fb313b35ec1e98771f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "2e21c7dc76f2cffa169f": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "40e4beec0d4786f2a366": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "74f1205843a6d0ef2487": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "7b3dd6f526aadefbe7d7": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "977fa2d47a56b65010eb": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "bf90138a28199c610b41": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "fa1e526bed145483e1d2": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "083f560f29aaf105bd2d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "5602d6c7a6162be49b7f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "6d67b89376939f8ce2c6": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "902fb9c0b9b1ac6335d7": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "98e6044c9e0df35a4a38": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "a6a83d503c2d442dcd5a": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b2e139125bf322795307": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "f631e39fa4c8b7892dab": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "1d7fc70670874da7113b": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "483c65c8d6063e594a7e": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "4d8624a29f719c752dfe": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "5982b3f6c768d0dd64c8": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "6ec656243a73becb3298": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "86613745a82fdb7c1585": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "d055bacbbc979b28af3a": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "dbeb521230267fb17bdb": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'but' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'but': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "41693a0eb14cee0d72f3": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "4c7a5e3a433a2a0b267c": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (3.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "5bc4d12aa667407bed6c": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "7898eebe798bead550ee": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b6e01762af536f962417": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "dbaec8180807158bc9d5": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "eaa78b6e3c38409b6798": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "48ce2fdba39377b950ce": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'so' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'so': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "b2d8e916793789d15ea0": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'and'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'and': nothing is heard before a hook",
+  "c26470eb121d7acf83eb": "the render's STAND_ALONE with no clip scorer at the pin stage: clip opens on 'and' and no clip-scorer verdict is available (fail closed); hook opens on the conjunction 'and': nothing is heard before a hook; the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "c6d0463e5d4eccafe587": "the render's STAND_ALONE with the clip scorer's verdict: clip opens on 'so'; the clip scorer does not affirm it stands alone (2.0, fault starts_mid_thought); hook opens on the conjunction 'so': nothing is heard before a hook",
+  "905eb833edd34ec62a88": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "3c8c6315418571fd29a9": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+  "864b176b9dfe41cf8abe": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
+ },
+ "ad_read": {},
+ "trimmed": {
+  "9e059304bfc5bc1e2d85": "9e059304bfc5bc1e2d85~trim"
+ },
+ "reposted": {},
+ "scorer": {
+  "read": true,
+  "rated_at": "2026-11-14T17:06:13Z",
+  "build": "ledger_20261114_170313",
+  "candidates_generated_at": "2026-11-14T17:03:26+00:00",
+  "model": "gemma3:27b",
+  "kind": "moments",
+  "rubric": "ruling 60: stand-alone only",
+  "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+  "threshold": 3.5,
+  "verdicts": 78,
+  "affirmed": 7,
+  "disagree_with_the_rule": [],
+  "candidates": 124,
+  "candidates_written": true,
+  "admitted": [
+   "30075b155874ab2de3c7",
+   "5725aeda167432775db9",
+   "861f0c97d093b4fd4220",
+   "9e059304bfc5bc1e2d85",
+   "eade93c11a2a492ea763"
+  ],
+  "trims_affirmed": [
+   "9e059304bfc5bc1e2d85"
+  ],
+  "trims_out": {
+   "88b47fefa2c68c1a227a": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "4bb48df1195c808a37da": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "ae2418d859c27c2bc1a5": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "c3d02145771fb936d4f9": "'Now' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "21f404bc8bb37da5352a": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "aaf0c78b19cace153444": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (1.0, under 3.5)",
+   "ec4c0ff49fdb895ef08e": "'Now' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "da0ff8d5b2a224b380fa": "'But' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "efb097a26dc705eb5dfa": "'Now' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "2e21c7dc76f2cffa169f": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "74f1205843a6d0ef2487": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "7b3dd6f526aadefbe7d7": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "902fb9c0b9b1ac6335d7": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "5982b3f6c768d0dd64c8": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (3.0, under 3.5)",
+   "6ec656243a73becb3298": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "5bc4d12aa667407bed6c": "'And' trimmed and no clip-scorer verdict on the trimmed text yet (ruling 56: sealed only when the scorer affirms it)",
+   "b2d8e916793789d15ea0": "'And' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)",
+   "c6d0463e5d4eccafe587": "'So' trimmed; the clip scorer does not affirm the trimmed text stands alone (2.0, under 3.5)"
+  }
+ },
+ "prescreen": {
+  "screened": 51,
+  "cleared": 17,
+  "failed": {
+   "eade93c11a2a492ea763": [
+    "NOT_OWN_SINCERE"
+   ],
+   "a7d6255523f0656489cc": [
+    "RETRACTION"
+   ],
+   "d50b23b1bf9e981c6992": [
+    "CONDITION_OUTSIDE"
+   ],
+   "c3d02145771fb936d4f9": [
+    "REFERENT_OUTSIDE"
+   ],
+   "fad8df4e001b54c720d9": [
+    "CONDITION_OUTSIDE"
+   ],
+   "7cdfb91fd54d185ad149": [
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "efb097a26dc705eb5dfa": [
+    "REFERENT_OUTSIDE"
+   ],
+   "23114b06920582460e85": [
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "3aab6902ebb87738edc2": [
+    "NOT_OWN_SINCERE",
+    "UNCERTAIN"
+   ],
+   "861f0c97d093b4fd4220": [
+    "REFERENT_OUTSIDE"
+   ],
+   "63e84dd53de85f9e6337": [
+    "REFERENT_OUTSIDE"
+   ],
+   "07c844d922fa6dddf59e": [
+    "NOT_OWN_SINCERE",
+    "UNCERTAIN"
+   ],
+   "b4831bdba3bc73769a7d": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE",
+    "UNCERTAIN"
+   ],
+   "2e466dcc10c4390f042c": [
+    "NOT_OWN_SINCERE"
+   ],
+   "54e68763d2b2c33888da": [
+    "REFERENT_OUTSIDE",
+    "CONDITION_OUTSIDE"
+   ],
+   "7b7b2406019e1a5fea09": [
+    "REFERENT_OUTSIDE"
+   ],
+   "9f173eb2984576d2a970": [
+    "NOT_OWN_SINCERE",
+    "REFERENT_OUTSIDE"
+   ],
+   "e4eb5b1d99927b2a0a4e": [
+    "REFERENT_OUTSIDE"
+   ],
+   "2f055ee4b44dbaa008ca": [
+    "REFERENT_OUTSIDE"
+   ],
+   "a49592a93a4a81a8d050": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "c7b73b3449d57df7912a": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "cb80340f857a99178919": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "7f9187e95075b8dcb74a": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "994b5c8a4b7e00490500": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "c9a9722716033dbb9cf6": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "7d4beb6e36508e978089": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "9e059304bfc5bc1e2d85": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "9e059304bfc5bc1e2d85~trim": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "ee12dbbe04fc4b9b1c36": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "f083d3f96ba2ff322ff5": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "dd82d548eb807dbd16c9": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.84 > the limit 20.0 USD"
+   ],
+   "7d9a721942de505c5d4f": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "f63eb650af0400385f9f": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.85 > the limit 20.0 USD"
+   ],
+   "1cccbd3811e8eb70e748": [
+    "STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.22 USD + reserved 3.96 + this call's upper bound 0.83 > the limit 20.0 USD"
+   ]
+  },
+  "second_pass": {
+   "30075b155874ab2de3c7": "PASS",
+   "1049bbce329720f0d4fa": "not cuttable at an edge (ruling C / 7)",
+   "1f42e788a93fa09117a9": "L-v 2 FAIL",
+   "b3ad2b8356e4a8d70dd9": "PASS",
+   "e9f0cf97ce933070ef7c": "not cuttable at an edge (ruling C / 7)",
+   "ec4c0ff49fdb895ef08e": "PASS",
+   "5735db643191d7e6f30c": "not cuttable at an edge (ruling C / 7)",
+   "eb402a210905c778432d": "PASS",
+   "22018cf6e0db2d846def": "PASS",
+   "eb0fd778800d99d16559": "PASS",
+   "73c02a63cf4e89076428": "not cuttable at an edge (ruling C / 7)",
+   "5725aeda167432775db9": "PASS",
+   "710caa666883a37ec4a5": "L-v 2 FAIL",
+   "4effcd61b4b012e82945": "PASS",
+   "704fa6e1af4a86ff1d07": "PASS",
+   "933f9d33a8e345356177": "PASS",
+   "95490606c53e4959a46e": "not cuttable at an edge (ruling C / 7)"
+  },
+  "cuttable": 10,
+  "hook_onset": {
+   "30075b155874ab2de3c7": "PASS",
+   "4effcd61b4b012e82945": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "22018cf6e0db2d846def": "PASS",
+   "933f9d33a8e345356177": "PASS",
+   "b3ad2b8356e4a8d70dd9": "PASS",
+   "ec4c0ff49fdb895ef08e": "FAIL: 10 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "eb402a210905c778432d": "FAIL: 40 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "eb0fd778800d99d16559": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "5725aeda167432775db9": "FAIL: 0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)",
+   "704fa6e1af4a86ff1d07": "PASS"
+  },
+  "trim_cut": {},
+  "second_vendor": {
+   "30075b155874ab2de3c7": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "4effcd61b4b012e82945": "PASS (xai:grok-4.20-0309-reasoning)",
+   "22018cf6e0db2d846def": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "933f9d33a8e345356177": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "b3ad2b8356e4a8d70dd9": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "ec4c0ff49fdb895ef08e": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "eb402a210905c778432d": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "eb0fd778800d99d16559": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "5725aeda167432775db9": "FAIL: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+   "704fa6e1af4a86ff1d07": "PASS (xai:grok-4.20-0309-reasoning)"
+  }
+ },
+ "angles": [],
+ "takeaways": [],
+ "package": null,
+ "visual": {
+  "calls": 1,
+  "cached": 2,
+  "usd_reported": 0.098696,
+  "usd_estimate": 0.0,
+  "estimated_calls": 0,
+  "unmeasured": 0,
+  "flags": 5
+ },
+ "hook_pool": {
+  "can_open": 5,
+  "rated": 5,
+  "error": null,
+  "min": 4,
+  "ratings": {
+   "22018cf6e0db2d846def": {
+    "scroll": 4,
+    "alone": 5,
+    "setup": 4,
+    "rating": 4,
+    "why": "'Kind of like' hedges the punch of the virus metaphor, softening the hook",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   },
+   "30075b155874ab2de3c7": {
+    "scroll": 2,
+    "alone": 4,
+    "setup": 2,
+    "rating": 2,
+    "why": "Ends as a full stop ('that's my opinion') rather than a forward pull; first seconds are meandering",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   },
+   "704fa6e1af4a86ff1d07": {
+    "scroll": 4,
+    "alone": 5,
+    "setup": 4,
+    "rating": 4,
+    "why": "The statement is a complete factual summary; the dramatic $6.3B loss grabs attention but the clip resolves itself, slightly reducing the pull toward the next clip.",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   },
+   "933f9d33a8e345356177": {
+    "scroll": 4,
+    "alone": 4,
+    "setup": 3,
+    "rating": 4,
+    "why": "bold but self-contained; little forward tension",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": false,
+    "replayed": false
+   },
+   "b3ad2b8356e4a8d70dd9": {
+    "scroll": 2,
+    "alone": 3,
+    "setup": 3,
+    "rating": 2,
+    "why": "'I think one of the best starting points' is a soft, mid-thought opener that reads as someone already deep in a conversation, not a hook.",
+    "backend": "heimdall:qwen/qwen3.8-27b",
+    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join",
+    "cached": true
+   }
+  },
+  "best": [
+   {
+    "moment_id": "22018cf6e0db2d846def",
+    "channel": "Altcoin Daily",
+    "rating": 4,
+    "scroll": 4,
+    "alone": 5,
+    "setup": 4,
+    "why": "'Kind of like' hedges the punch of the virus metaphor, softening the hook",
+    "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system."
+   },
+   {
+    "moment_id": "704fa6e1af4a86ff1d07",
+    "channel": "Coin Bureau",
+    "rating": 4,
+    "scroll": 4,
+    "alone": 5,
+    "setup": 4,
+    "why": "The statement is a complete factual summary; the dramatic $6.3B loss grabs attention but the clip resolves itself, slightly reducing the pull toward the next clip.",
+    "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was abo"
+   },
+   {
+    "moment_id": "933f9d33a8e345356177",
+    "channel": "Strategy (MicroStrategy)",
+    "rating": 4,
+    "scroll": 4,
+    "alone": 4,
+    "setup": 3,
+    "why": "bold but self-contained; little forward tension",
+    "text": "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it "
+   }
+  ],
+  "passing": [
+   "22018cf6e0db2d846def",
+   "704fa6e1af4a86ff1d07",
+   "933f9d33a8e345356177"
+  ],
+  "visual_blocked": {}
+ },
+ "why_none": "2 cleared moments pass the second pass, CUTTABLE and step A from both vendors, from fewer than 3 channels",
+ "candidate_tries": [],
+ "spotlight": {
+  "package": null,
+  "why_none": "no moment passes rulings 90-92 now",
+  "finalists": [],
+  "near": [
+   {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 22.94,
+    "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+    "moment_id": "06d34e155feae654ee56",
+    "passed": [
+     "step A",
+     "the second recognition pass and CUTTABLE",
+     "opens cold (G17a, the hook rules)",
+     "the hook's own job >= 4",
+     "the visual check clean"
+    ]
+   },
+   {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 17.6,
+    "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians o",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: REFERENT_OUTSIDE",
+    "moment_id": "0e20031e46ad9ad30c91",
+    "passed": [
+     "step A",
+     "the second recognition pass and CUTTABLE",
+     "opens cold (G17a, the hook rules)",
+     "the hook's own job >= 4",
+     "the visual check clean"
+    ]
+   },
+   {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 19.38,
+    "text": "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it because our company will probably buy ev",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas",
+    "moment_id": "933f9d33a8e345356177",
+    "passed": [
+     "step A",
+     "the second recognition pass and CUTTABLE",
+     "opens cold (G17a, the hook rules)",
+     "the hook's own job >= 4",
+     "the visual check clean"
+    ]
+   }
+  ],
+  "moments": {
+   "06d34e155feae654ee56": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 22.94,
+    "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas"
+   },
+   "d6a80171491e2b5395b9~trim": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 19.25,
+    "text": "theoretically, you could take this one step. The biggest risk with Bitcoin is you. It's not price action or volatility. It's making a mistake with your self -custody setup, falling for a fishing attac",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "eade93c11a2a492ea763": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 14.08,
+    "text": "Would you rather Bitcoin existed or not, right? You get pulled out of your Western American self and you get dropped in and suddenly you're in Venezuela or you're in Iran or you're somewhere like that",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE"
+   },
+   "30075b155874ab2de3c7": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 15.92,
+    "text": "For me, you can ask me my opinion, or I can just tell you what's in my portfolio. And it's Bitcoin, SpaceX, and the S &B. That's it. And so those represent what I believe is my best possible portfolio",
+    "stage": 3,
+    "hook_own": 2,
+    "out": "the hook's own job rates 2 (needs 4): Ends as a full stop ('that's my opinion') rather than a forward pull; first seconds are meandering"
+   },
+   "46ce4069efe4e25e0d38": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 26.21,
+    "text": "Bitcoin disrupts other ways to store wealth, basically, because it's an alternative that is worth a credit bill monetary policy that everyone knows, $21 million, and it's hard to seize. You know, it's",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE; CONDITION_OUTSIDE"
+   },
+   "7c0121c6c14b8b930a2a": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 19.51,
+    "text": "Once you start moving things on chain, Bitcoin is the collateral backing of the digital system. It just is. It's been chosen. So we need to get there. I'm hopeful that we'll get through this little AI",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule"
+   },
+   "b04337f6fdffa0029f2d": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 29.56,
+    "text": "On the other hand, Bitcoin is not. Bitcoin is an appreciating asset. All of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day. They can create inf",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "2e3622d2282ef2692994": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 18.74,
+    "text": "Bitcoin absolutely can be, should be, and probably will be used as a medium exchange in some way, shape or form. But we are so far away from that that I don't think it's something that we should be st",
+    "stage": 3,
+    "hook_own": 2,
+    "out": "the hook's own job rates 2 (needs 4): Weakest is 'alone': 'this goes back to the original point' explicitly references prior context, and the long, measured opening sentence lacks a scroll-stopping punch."
+   },
+   "a84e4fbdb80b7eba0dfc": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 16.84,
+    "text": "If Bitcoin performs as well as gold or the S &P index, this is a screaming home run for the equity investors. So it's a fairly conservatively constructed portfolio. This is actually history against th",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "383c02b65c9218f3b8bb": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 27.57,
+    "text": "The harder part is what to do politically with like Satoshi's coins or what is estimated to be about 6 million Bitcoin in addresses that can be cracked quite easily. Basically, the public key is... is",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "f51962672170ebaac719": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 15.66,
+    "text": "A lot of ink has been spilled about how AI has eaten Bitcoin's lunch. Yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry pick from the top of the Bitcoin bull market, and ",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "0e20031e46ad9ad30c91": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 17.6,
+    "text": "Bitcoin is kind of like this sound money virus that is infiltrating the system. That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians o",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: REFERENT_OUTSIDE"
+   },
+   "3868d86dcb0cc7df9f6c": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 21.08,
+    "text": "Wouldn't it be better for this thing to exist so that you can in fact take your money? You could in fact flee the country if you needed to. You could in fact hide money from an abusive partner. There'",
+    "stage": 0,
+    "out": "step A: CONDITION_OUTSIDE"
+   },
+   "ea1fc684ee2a95f0473a~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 20.9,
+    "text": "on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term ",
+    "stage": 2,
+    "out": "ruling 94 (a): the trimmed cut is not clean: no trimmed cut was reached: no cut after the trimmed word 'So': the trimmed word 'So' cannot be cut cleanly: no measured pause between it and 'on' (co-articulated)"
+   },
+   "ece4072374c42a4331ef": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 20.06,
+    "text": "That same strategy, monthly DCA, but into Bitcoin, your returns are 69 % with a kegger of 21%. I'm going to repeat that. The S &P 500... 51 % total returns versus Bitcoin, 69 % return. Same strategy, ",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE; CONDITION_OUTSIDE"
+   },
+   "a70f7d22798173c122eb": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 15.94,
+    "text": "Do we burn the coins or is there some sort of novel scheme for us to protect them for those people? Bitcoin is 21 million Bitcoin. It's a scarce asset that cannot be printed no matter how much AI take",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "3c3679159b58612ae873": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 17.12,
+    "text": "The company has right now the capacity to sell $48 billion of this stuff without Bitcoin price moving. But you can imagine if we sell $40 billion of credit and buy $30 billion of Bitcoin, the price is",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "933f9d33a8e345356177": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 19.38,
+    "text": "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it because our company will probably buy ev",
+    "stage": 5,
+    "hook_own": 4,
+    "out": "step A from the second family: STEP_A_UNAVAILABLE: ProviderError: context_verdict: every back-end unavailable: [('xai:grok-4.20-0309-reasoning', 'same vendor as the text it judges (xai): skipped'), ('heimdall:z-ai/glm-5.3-flas"
+   },
+   "9f173eb2984576d2a970": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 15.72,
+    "text": "As long as Bitcoin appreciates 2 % a year, then we can pay the dividends forever indefinitely. So it's not much. It's because we have 70 billion of capital, and we only have about one and a half billi",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE"
+   },
+   "e959d5ade74f877900c0": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 15.1,
+    "text": "I think one of the best starting points is January 1st, 2023. The bottom of the 22 bear market, which wasn't a Bitcoin bear market. It was a global bear market. Bonds lost 50 % of their value. TLT wen",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "888cf86d36258b87c0fa": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 15.33,
+    "text": "This is not a surprise. Have you been following me? I expect Bitcoin to be $100 trillion asset. And who will we compete against? Private credit, junk bonds, you know, garbage. you know, credit securit",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "98f8c426a874add381bf": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 15.77,
+    "text": "Anytime micro strategy isn't doing well, it has issues for Bitcoin and for no other reason that people view them the same. Again, you've been involved in this for a long time, and I've got to know the",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "514455ecf0bd9312e4a4~trim": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 23.48,
+    "text": "my simple take on it is can you identify in Bitcoin's code where we added a line for institutions? Like where in the Bitcoin protocol? Because that's what Bitcoin really is, right? Is the code. You kn",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "d62a1004294ea1c5b1e5": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 16.47,
+    "text": "Long term, I expect Bitcoin to appreciate 20 to 30 % a year for the foreseeable future. It's going to outperform the S &P. It's going to outperform the NASDAQ. It's going to outperform the magnificent",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "157d7aabbb2adca8f60d~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 28.67,
+    "text": "that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates ",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "c3d02145771fb936d4f9~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 15.47,
+    "text": "again, it relies on fusion and we need quantum to kill Bitcoin. So there's all these like left of field, asteroid mining. But there's all these things where you look around and go, which assets over t",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "c762a1951bb30926fb96": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 20.32,
+    "text": "What's cool about Bitcoin is you can still use it in a quote or more cypher punk way. You know, you can do coin joins to hide your transaction history. You can use it where you have it self -custodied",
+    "stage": 3,
+    "hook_own": 3,
+    "out": "the hook's own job rates 3 (needs 4): softer, jargon-heavy start with less immediate punch"
+   },
+   "b02d5f5e5d7e25cc6d78": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 14.94,
+    "text": "I think Bitcoin is at least, should at least be equivalent to the market capitalization of gold. It's a superior gold in every single way. We know exactly how much exists. We also can send it anywhere",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (30 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule"
+   },
+   "e202d5ec74a53c22a5ff~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 20.56,
+    "text": "you know, just commodity elements are going to be super, super profitable in the way that they have been in recent months regarding the AI trade. Probably not as many. So this idea of like what can st",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "6b33291720bfc3eab9fe": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 17.18,
+    "text": "We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion in market cap company. This year we raised nearly $22 billion. This is a bad year. We're in a crypto winner, but w",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "7c5844550969e471cd1f": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 15.9,
+    "text": "Time and volatility are your friends. I've been consistently accumulating Bitcoin, and my favorite way to do that is by running Bitcoin mining machines. I can depreciate the costs of machines, lowerin",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "5b159ce6a40b1251f0fe~trim": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 15.76,
+    "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE"
+   },
+   "f8fa70776de5b2d2e4ac": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 20.49,
+    "text": "People don't understand Bitcoin is capital. They don't understand his digital credit, is mispriced, but that being the case, it's just an opportunity. And for us, We don't mind because the high divide",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "a7ed3a348a7136992e88~trim": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 17.77,
+    "text": "the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts. One is the innovation side, and the other one is the liquidity side. So it has a gold type thing",
+    "stage": 2,
+    "out": "ruling 94 (a): the trimmed cut is not clean: no trimmed cut was reached: no cut after the trimmed word 'Now': the trimmed word 'Now' cannot be cut cleanly: no measured pause between it and 'the' (co-articulated)"
+   },
+   "42dc41d2e53264a70420": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 16.44,
+    "text": "The harder part is what to do politically with like Satoshi's coins or what is estimated to be about 6 million Bitcoin in addresses that can be cracked. quite easily. What do we do with these coins? D",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE; CONDITION_OUTSIDE"
+   },
+   "129d962df2f71d53ef75~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 27.25,
+    "text": "what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless st",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "139139443bdc32ae3e3b~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 27.08,
+    "text": "we see this has a profound network effect because with things like ETFs, let's take IBIT. If Bitcoin flows into an ETF iBit and if your bank, JP Morgan or Morgan Stanley or Schwab, will extend credit ",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "64f28f858f21b75dd1fa": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 18.48,
+    "text": "If you wind back to clock two months at 87. Everyone's going, oh, man, I really wish I bought more in the 70s and the 60s. I love the pullback. Here's the pullback, guys. What do you do with it? Is Bi",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "8976434fa074337ce69d": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 17.88,
+    "text": "Things like Bitcoin is going to be second nature to them. The same way that Excel was like my thing, it's going to be their thing. And Bitcoin is going to be so normalized and ingrained in younger peo",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "1306d03f2a72fd0af4d0": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 20.91,
+    "text": "If a bank wants to create credit and wants to cover crypto, in this case, Bitcoin, then it's going to be very good for the asset class. This is by far the most important driver, ultimately. And that's",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "8ff932fc2cd797f3a4ae": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 24.42,
+    "text": "Bitcoin's 36 % a year. You can create a credit dividend to 12%. Anything more than 9 % is enough to be interesting to a credit investor, and they'll embrace a new idea. The idea of digital credit was,",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "dab001bab2343f1968cb": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 14.32,
+    "text": "We're kind of like the central bank of the crypto economy. That's the way. Bank of Bitcoin, Bank of England. We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion in ma",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "4d9418596b2fdd0a0a88~trim": {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.09,
+    "text": "where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other as",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "c0849ea02c9857cf9ebb~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 16.82,
+    "text": "it's significantly better than fiat money. But Bitcoin has no ability to produce more of it. In fact, one of the metrics got my block lock behind me, right? First be that damn company, but I still lov",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "23caa285d4cbeb43e51c~trim": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 26.04,
+    "text": "micro strategy has a trading impact, but if we're going to get Bitcoin up to the levels that we think it's going to go to, there needs to be the fiat money that's coming into it. And the only way that",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "4f8d42ac7d400d93b0d2": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 20.4,
+    "text": "There is a point in every bull cycle where you look back and go, oh shit, it feels expensive now. Like I don't know if I can buy anymore. You know what I get that Bitcoin feels expensive again. Once w",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (ok) or the render's hook rule"
+   },
+   "0c36a4488b906f2e4eaf": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 15.77,
+    "text": "With Bitcoin, I spent years obsessing over it where I'm like, look, if people just spent and did the homework here, they're probably going to come to the same conclusion I did. That's the same thing w",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "a56b39c9c2c9ea896e29~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 19.86,
+    "text": "I think, you know, there was this whole... If you wind back the clock, what, three months ago, not even, the primary debate was that Bitcoin core is crooked and corrupt. And then I just look at it as ",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "7ba59050e5ee6fcd14bb": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 13.92,
+    "text": "You know, Bitcoin, we kind of succeeded, but now there's a crisis of identity and faith, which we saw in the Bitcoin community as well. These moments typically mark a bottom. You know, saw this in 201",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "2e21c7dc76f2cffa169f~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 14.42,
+    "text": "in April of 2008, there will only be 225 Bitcoin a day available for sale. So what you'll see is a migration of capital, which will be... you'll see enormous wealth created by these AIs. It's got to g",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "422219f06d09c5aeebf4": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 15.87,
+    "text": "Do you think there, I mean, this is one thing I've been pondering. Like, do you think Bitcoin needs a narrative refresher? You think it's going to need that? It probably the narrative will come after ",
+    "stage": 0,
+    "out": "step A: SPEAKER_CHANGE; REFERENT_OUTSIDE"
+   },
+   "e68cc1564197965e962f~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 16.99,
+    "text": "going back to the AI agentic thing, what I do think is very interesting is that AI understands the difference. If you go and ask an AI why crypto, why Bitcoin, it does actually understand. And whether",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "98dac99f884b77763b5f~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 15.1,
+    "text": "they're capitulating in large volumes at the point where if you just closed your eyes and came into Bitcoin for your very first buy, you'd look at it and be like, wow, I'm buying it in the bottom quar",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "7db867b846e84a4ab586": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 26.0,
+    "text": "We also show the floor. And so what you can see is that if Bitcoin falls below $3,600 a coin, STRF would be under collateralized. So it's fairly easy to assess this risk, and then you can assess the p",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "93fca317d9fe229b4001": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 14.54,
+    "text": "You and I have spent a lot of time talking about as AI becomes more popular, Bitcoin should gain more value. And I think that the general idea there is like, hey, there's this world of abundance and t",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE"
+   },
+   "92cb306efb63543581dd": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 16.16,
+    "text": "One is be obsessive and find alpha where you have an edge. For example, You're trying to find an edge where you have knowledge that no other people have or no other people cared enough to learn about.",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "70f16ce108b0083275dc": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 29.15,
+    "text": "The signature size of post -quantum cryptography is much larger, which would probably open up a conversation around increasing Bitcoin's block size. And that's a complicated narrative. And then there'",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "861f0c97d093b4fd4220": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 18.94,
+    "text": "I mean, this is incredibly bullish. But in terms of it being held as an asset that everyone would consider to be digital gold, It's only worth 1.5 trillion, which I would say is very early in its infa",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "902fb9c0b9b1ac6335d7~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 14.97,
+    "text": "the big idea here is you can only do this because Bitcoin is a commodity. If Bitcoin was a security, this doesn't work under the Investment Company Act of 1940.",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "ae50e01f802ee33c2807~trim": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 15.42,
+    "text": "Bitcoin's core purpose hasn't changed. It's being adopted by institutions who recognize it as digital gold. So for me, this is, I've been waiting for this my whole life to see Bitcoin become and infil",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "9e63b39a556c9ed33ed7": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 21.85,
+    "text": "He's like, if you just look at a couple of these companies, he's like, there's literally not enough money in the system to go and buy all of this equity. And therefore, the government is going to have",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE; RETRACTION"
+   },
+   "c931a4f668731b60de7f~trim": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 25.94,
+    "text": "I just know for this to work every time I say that tokenization is inevitable and that agenda commerce is inevitable. That's the only thing I care about when it comes to Bitcoin. I need to have the pe",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "2de8e757031888803e1e": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 18.48,
+    "text": "We just had the largest rise in two -year yields in a week, 35 basis points since 2022. So that's why Bitcoin is down. It's down. It's following gold. we need the liquidity side to turn around. Now, t",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule"
+   },
+   "e961be05baa6f473fd66": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 16.93,
+    "text": "We can sell Bitcoin if we needed to. We can buy back the credit. We can buy back or sell our equity. And then, of course, we can adjust the dividend. In June of 2025, that credit buckled.",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "1abf62635b6422bce8dd": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 14.88,
+    "text": "The price is moving up. And when the price moves up, we'll be sitting on $300 billion of Bitcoin. Our credit risk will fall. The credit spreads will compress. The demand for credit will increase. We w",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "3fc97f3afec6a4386667": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 14.14,
+    "text": "Micro strategy is being removed from some of the indexes. It feels like they were eligible. There was a kind of active decision or discretionary decision to put them in. Now they're being removed. Doe",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE"
+   },
+   "b3847c05e85387dc96b1": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 14.62,
+    "text": "UTXOs is just like the most obvious thing to save his capital in. So I think that this like, as people get, like Bitcoin's going to be like the internet for young people. I remember when I was in, as ",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "5725aeda167432775db9": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 18.24,
+    "text": "There's a lot of other timelines where Bitcoin might have died or it could have taken until the end of my life for it to become a thing. I'm just happy to have seen it before I've turned 40 basically.",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule"
+   },
+   "79eb86c1b0670fe1e579~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 16.23,
+    "text": "Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital? It's such, the fundamental core property still make Bitcoin just sing. And that's why I ha",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: not cuttable at an edge"
+   },
+   "da859ee356c68c74ce2f": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 18.8,
+    "text": "I've shown this in my videos, but gold is at the lows. And Bitcoin and gold have been moving together since March. And the reason they've moved together is because of the liquidity headwinds that have",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "a09d2e1fa91290142664~trim": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 16.71,
+    "text": "of course, Bitcoin is the scarce most desirable crypto asset. And then finally, the fiat debasement trade is going to keep driving it. We're running chronic deficits. They're large. They're either goi",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "dd82d548eb807dbd16c9": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 14.83,
+    "text": "The theoretical credit risk on STRC, which is about five, almost six times over collateralized, there's $6 a Bitcoin for every dollar of STRC. is the credit risk is about 58 basis points.",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "cbf391e7523ac232206a": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 15.26,
+    "text": "How much of the war and conflict do you think is playing into inflation and that's then leading to Bitcoin? And so actually, there's like a much tighter correlation there. Or it is just... everything ",
+    "stage": 0,
+    "out": "step A: NOT_OWN_SINCERE; REFERENT_OUTSIDE; UNCERTAIN"
+   },
+   "df978d34fe61f7830a1d~trim": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 15.4,
+    "text": "if you just cherry pick date to date over the last five years, the S &P 500 is up 72%, but Bitcoin is only up 28%. So the naive critic would say, look, you should just buy the S &P 500. Why are you bu",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "7d9a721942de505c5d4f": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 14.53,
+    "text": "If you take both of these guys, for the traditional investor, Bitcoin would be the absolute most risky thing he owns. He would say you shouldn't have more than 2 to 5 % in Bitcoin. And if you do, you'",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "b36fbc2652b71924a361": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 26.74,
+    "text": "It's like, yeah, but no, you don't because from the moment that that fork happens, your UTXO set is differing from consensus. So you don't have the same UTXO set from the point when you forked. So unl",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "f63eb650af0400385f9f": {
+    "channel": "Strategy (MicroStrategy)",
+    "video_id": "SJXZ5GycchU",
+    "seconds": 15.46,
+    "text": "If Bitcoin appreciates more than 10%, then the excess spread over the cost of the credit is captured by the equity investor. So the equity should outperform Bitcoin if we get a 15 % or 20 % Bitcoin pe",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.84 > the limit 20.0 USD"
+   },
+   "a3bd7b1f28874036fe53": {
+    "channel": "Blockware Solutions",
+    "video_id": "7BqLu-wzbU0",
+    "seconds": 18.9,
+    "text": "Bitcoin is dead. It's boomer coin. It's not volatile enough. There's not enough upside there. So it's too safe for that guy and it's too risky for the traditional investor. And so it's right in this s",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.83 > the limit 20.0 USD"
+   },
+   "0d39ef4732c8c206ffae~trim": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 29.02,
+    "text": "if you have bought coins from below 50K, you are going to be in profit and meaningfully so, right? So everyone who's in a meaningful amount of profit is from a previous cycle and you can argue. fairly",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "023cca5f86cc39618300~trim": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 16.48,
+    "text": "for me, that represented, you know, a digital goal that I knew, you know, Satoshi puts it in the first paragraph after the white paper was published. He says, It's all about solving the problem of tru",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "2cf9382f1209dea701c0~trim": {
+    "channel": "Altcoin Daily",
+    "video_id": "L_AJ0jO-AG0",
+    "seconds": 23.32,
+    "text": "it was in that moment in the 2008 financial crisis that I realized all my books were wrong, professors were wrong, and everyone on TV was wrong. And so my mind was open to new ideas. And that's where,",
+    "stage": 0,
+    "out": "step A: STEP_A_UNAVAILABLE: SpendLimit: spend (reported) 15.48 USD + reserved 4.47 + this call's upper bound 0.85 > the limit 20.0 USD"
+   },
+   "ccdb0097bea1f57a6348": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 16.82,
+    "text": "The S &P 500 as of yesterday was about 2.5 % below the all -time highs. So despite everything that's gone on, the Jensen stuff, the Fed raising rates, we're still sitting near the all -time highs in s",
+    "stage": 2,
+    "out": "it cannot open cold: hook eligibility, G17a (0 ms of genuine quiet before the hook's first onset < 90 ms (G17a's 80 ms + one 10 ms frame)) or the render's hook rule"
+   },
+   "206e061739f6b989809a": {
+    "channel": "TFTC",
+    "video_id": "wbztAutsf-E",
+    "seconds": 17.33,
+    "text": "I think this narrative that like AI bots are going to be using SATs, I think it's fairly, the bot will use what you ask it to use. So if you ask it to use Bitcoin, I'll use Bitcoin. Yeah, so I'm not, ",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   },
+   "9a2febf853f2761ea0f6": {
+    "channel": "Anthony Pompliano",
+    "video_id": "wLJ_jy3wyN8",
+    "seconds": 13.8,
+    "text": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry. Are these two things connected? Is that what's applying so much pressure ",
+    "stage": 0,
+    "out": "step A: REFERENT_OUTSIDE"
+   },
+   "d0adae88e4f7b5354a72": {
+    "channel": "Coin Bureau",
+    "video_id": "jeKD85EPlAc",
+    "seconds": 17.83,
+    "text": "On the 29th of October, Binance's hot wallets gave up Ethereum, Bitcoin, USDT, USDC, about 233 million XRP, and a long tail of smaller tokens. The total was about $6.3 billion worth. The speed came fr",
+    "stage": 1,
+    "out": "L-v 2 / CUTTABLE: the second pass disagrees"
+   }
+  },
+  "pool": {
+   "may": 85,
+   "out": {
+    "f55d1430b5398e63b6e6": "35.64 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "321fecfcf331138f8405": "not eligible on screen: hook: opener; clip: opener",
+    "482b034fa6d7f2d37b5f": "not eligible on screen: hook: opener; clip: not_statement, opener",
+    "97377deae3a6683c32b9": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "c0b702e9c619919fe1fb": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "f4f4be033d7d78848e2c": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "4c16f7c196d605f7d65d": "36.1 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "4f71673b90c4a72b3809": "not eligible on screen: hook: opener; clip: not_statement, opener",
+    "7c7d3fe92a752b58926c": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "95a7cc00b59ae8165b3b": "42.26 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "a48af3b0ce32f31249d2": "not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "bb35d52ccd5f7e9558ea": "not eligible on screen: hook: opener; clip: opener",
+    "8eeb41696bec1a1bf7a3": "38.74 s: over the 35.0 s per source video (L-u) or unmeasured",
+    "c8ea376e8c44c14e4b84": "not eligible on screen: hook: opener; clip: opener",
+    "3fb31e595944d69f711f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "5a1a89ed49407f4a86e8": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "c8183c6bb6872345ef4c": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "d50b23b1bf9e981c6992": "ruling 90: snapped to 6671ba3b348c3a4c985f (18.21 s), which is out: not eligible on screen: hook: opener; clip: opener",
+    "29c4913539172b6d0877": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "b0ac423a63d291cecef8": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "e68713114ad15da4c451": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "2a28293eeaec93916947": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "37590c60cf70d5d49274": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "465e89983fabab2a3c09": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "aff60c68e25968c2d21d": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "c4115b652031c514c702": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "cb17b876672ae445fc88": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "3dfc7e271003c42e265f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "47ba75641a458b2e7dff": "ruling 90: it cannot open cold (the render's STAND_ALONE hook rule): hook opens on the conjunction 'also': nothing is heard before a hook",
+    "78bee9e19c4b9012f7e7": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "79ee5ab1612a3eaee4b1": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "b5980c46a8ca2fe572c7": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "c7b73b3449d57df7912a": "ruling 90: snapped to d58d70cab76f840388a3 (16.18 s), which is out: not eligible on screen: hook: opener; clip: not_statement",
+    "fdd84c05068e3eff3c08": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "0f0a461b65f65872084f": "ruling 94 (a): it opens on ['now'] and has no trim variant",
+    "7e8b1d336c7b516d39a7": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "92ed0b325b5c382e1031": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "983fb30ddc99c588c79a": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "c0fd7d5ac6c73d78baee": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "053cf345df518a25167d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "67aa3cd0b1a9940d63e9": "ruling 94 (a): it opens on ['now'] and has no trim variant",
+    "7999697fb4fee8ec6e93": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "9db5d759b4d0d71beea7": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "d34568569a4f4811cb92": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "033546ef73fa6109f2df": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "26fb313b35ec1e98771f": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "40e4beec0d4786f2a366": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "775e37a08a8036d6fc50": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "977fa2d47a56b65010eb": "ruling 90: snapped to df398372e6841d8ffb7a (15.42 s), which is out: not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "bf90138a28199c610b41": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "fa1e526bed145483e1d2": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "083f560f29aaf105bd2d": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "6d67b89376939f8ce2c6": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "98e6044c9e0df35a4a38": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "a6a83d503c2d442dcd5a": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "b2e139125bf322795307": "ruling 94 (a): it opens on ['now'] and has no trim variant",
+    "e3563aaaacf82397fa78": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "1d7fc70670874da7113b": "ruling 94 (a): it opens on ['so'] and has no trim variant",
+    "483c65c8d6063e594a7e": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "86613745a82fdb7c1585": "ruling 90: snapped to eaff0374a662287b478c (19.47 s), which is out: not eligible on screen: hook: no_bitcoin; clip: not_statement",
+    "d055bacbbc979b28af3a": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "dbeb521230267fb17bdb": "ruling 94 (a): it opens on ['but'] and has no trim variant",
+    "41693a0eb14cee0d72f3": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "4c7a5e3a433a2a0b267c": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "588915d35cdec5507410": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "7898eebe798bead550ee": "ruling 94 (a): it opens on ['now'] and has no trim variant",
+    "b6e01762af536f962417": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "dbaec8180807158bc9d5": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "eaa78b6e3c38409b6798": "ruling 94 (a): it opens on ['and'] and has no trim variant",
+    "905eb833edd34ec62a88": "ruling 90: 8.0 s is under 13.7 s and the snap fails: 13.37 s and no whole sentence can be added (the next sentence: a caption speaker-change marker at 1292.16 s; the sentence before: it would run 39.29 s, over 35 s)",
+    "3c8c6315418571fd29a9": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim",
+    "864b176b9dfe41cf8abe": "the render's STAND_ALONE topic rule with the pin's screen (ruling 34): does not pass the miner's about-Bitcoin screen and does not complete the previous claim"
+   },
+   "snapped": {
+    "d6a80171491e2b5395b9~trim": {
+     "from": "88b47fefa2c68c1a227a",
+     "sentences": [
+      9,
+      13
+     ],
+     "was": [
+      9,
+      12
+     ],
+     "seconds": [
+      14.0,
+      19.33
+     ],
+     "added": {
+      "before": "",
+      "after": "You need to learn how to secure your Bitcoin properly so you can actually hold it for decades."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7c0121c6c14b8b930a2a": {
+     "from": "4effcd61b4b012e82945",
+     "sentences": [
+      15,
+      19
+     ],
+     "was": [
+      15,
+      15
+     ],
+     "seconds": [
+      6.76,
+      19.51
+     ],
+     "added": {
+      "before": "",
+      "after": "It just is. It's been chosen. So we need to get there. I'm hopeful that we'll get through this little AI kind of puking that happened on the hedge fund side."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "2e3622d2282ef2692994": {
+     "from": "1049bbce329720f0d4fa",
+     "sentences": [
+      8,
+      11
+     ],
+     "was": [
+      8,
+      8
+     ],
+     "seconds": [
+      5.26,
+      18.74
+     ],
+     "added": {
+      "before": "",
+      "after": "But we are so far away from that that I don't think it's something that we should be stressing about if it's not happening. You know what I mean? I think that you have to go through, and this goes back to the original point, things just take a long time to happen."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a84e4fbdb80b7eba0dfc": {
+     "from": "2e466dcc10c4390f042c",
+     "sentences": [
+      13,
+      15
+     ],
+     "was": [
+      13,
+      13
+     ],
+     "seconds": [
+      6.66,
+      16.84
+     ],
+     "added": {
+      "before": "",
+      "after": "So it's a fairly conservatively constructed portfolio. This is actually history against those hurdle rates."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "f51962672170ebaac719": {
+     "from": "a7d6255523f0656489cc",
+     "sentences": [
+      7,
+      9
+     ],
+     "was": [
+      7,
+      7
+     ],
+     "seconds": [
+      3.44,
+      15.66
+     ],
+     "added": {
+      "before": "",
+      "after": "Yeah, during Bitcoin's idiosyncratic bear market, yes, of course. If you cherry pick from the top of the Bitcoin bull market, and then go, look, here's the explosive part of the AI trade."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "0e20031e46ad9ad30c91": {
+     "from": "22018cf6e0db2d846def",
+     "sentences": [
+      10,
+      12
+     ],
+     "was": [
+      10,
+      10
+     ],
+     "seconds": [
+      4.24,
+      17.6
+     ],
+     "added": {
+      "before": "",
+      "after": "That's a great thing. The more embedded Bitcoin gets into everything, the more connected it gets, the more politicians own it and bankers own it, the more it becomes a network effect of individuals that are incentivized to fight for it."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "ea1fc684ee2a95f0473a~trim": {
+     "from": "4bb48df1195c808a37da",
+     "sentences": [
+      8,
+      9
+     ],
+     "was": [
+      8,
+      8
+     ],
+     "seconds": [
+      13.9,
+      20.96
+     ],
+     "added": {
+      "before": "",
+      "after": "Now, that long -term holder group is mixed into really two groups, people from previous cycles and lower prices, people who bought the top."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "ece4072374c42a4331ef": {
+     "from": "54e68763d2b2c33888da",
+     "sentences": [
+      11,
+      14
+     ],
+     "was": [
+      11,
+      13
+     ],
+     "seconds": [
+      13.58,
+      20.06
+     ],
+     "added": {
+      "before": "",
+      "after": "Same strategy, same time frame, but the starting and ending destination are wildly different."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a70f7d22798173c122eb": {
+     "from": "73c02a63cf4e89076428",
+     "sentences": [
+      6,
+      9
+     ],
+     "was": [
+      7,
+      8
+     ],
+     "seconds": [
+      5.7,
+      15.94
+     ],
+     "added": {
+      "before": "Do we burn the coins or is there some sort of novel scheme for us to protect them for those people?",
+      "after": "And I do believe that artificial intelligence will likely want to store their wealth in Bitcoin as well."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "3c3679159b58612ae873": {
+     "from": "7b7b2406019e1a5fea09",
+     "sentences": [
+      6,
+      9
+     ],
+     "was": [
+      6,
+      6
+     ],
+     "seconds": [
+      6.04,
+      17.12
+     ],
+     "added": {
+      "before": "",
+      "after": "But you can imagine if we sell $40 billion of credit and buy $30 billion of Bitcoin, the price is moving. The price is moving up. And when the price moves up, we'll be sitting on $300 billion of Bitcoin."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e959d5ade74f877900c0": {
+     "from": "b3ad2b8356e4a8d70dd9",
+     "sentences": [
+      16,
+      21
+     ],
+     "was": [
+      16,
+      20
+     ],
+     "seconds": [
+      12.5,
+      15.1
+     ],
+     "added": {
+      "before": "",
+      "after": "Half fastest rate hiking cycle in history."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "888cf86d36258b87c0fa": {
+     "from": "e4eb5b1d99927b2a0a4e",
+     "sentences": [
+      18,
+      23
+     ],
+     "was": [
+      18,
+      20
+     ],
+     "seconds": [
+      5.26,
+      15.33
+     ],
+     "added": {
+      "before": "",
+      "after": "And who will we compete against? Private credit, junk bonds, you know, garbage. you know, credit securities."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "98f8c426a874add381bf": {
+     "from": "1f42e788a93fa09117a9",
+     "sentences": [
+      15,
+      16
+     ],
+     "was": [
+      15,
+      15
+     ],
+     "seconds": [
+      6.2,
+      15.77
+     ],
+     "added": {
+      "before": "",
+      "after": "Again, you've been involved in this for a long time, and I've got to know the community, For the most part, the community is already long Bitcoin."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "d62a1004294ea1c5b1e5": {
+     "from": "95490606c53e4959a46e",
+     "sentences": [
+      8,
+      12
+     ],
+     "was": [
+      8,
+      10
+     ],
+     "seconds": [
+      10.12,
+      16.47
+     ],
+     "added": {
+      "before": "",
+      "after": "It's going to outperform the magnificent seven. That's really all."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "157d7aabbb2adca8f60d~trim": {
+     "from": "ae2418d859c27c2bc1a5",
+     "sentences": [
+      8,
+      10
+     ],
+     "was": [
+      8,
+      9
+     ],
+     "seconds": [
+      13.33,
+      28.71
+     ],
+     "added": {
+      "before": "",
+      "after": "And to make the point, just how far we've come, when I spoke at this conference two years ago in November of 2024, the banking regulators had been running Operation Choke Point, and they were literally shutting down banks."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "b02d5f5e5d7e25cc6d78": {
+     "from": "e9f0cf97ce933070ef7c",
+     "sentences": [
+      10,
+      15
+     ],
+     "was": [
+      10,
+      14
+     ],
+     "seconds": [
+      12.96,
+      14.94
+     ],
+     "added": {
+      "before": "",
+      "after": "It's vastly superior than gold."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e202d5ec74a53c22a5ff~trim": {
+     "from": "21f404bc8bb37da5352a",
+     "sentences": [
+      6,
+      9
+     ],
+     "was": [
+      9,
+      9
+     ],
+     "seconds": [
+      5.6,
+      21.04
+     ],
+     "added": {
+      "before": "And, you know, just commodity elements are going to be super, super profitable in the way that they have been in recent months regarding the AI trade. Probably not as many. So this idea of like what can stand the test of time, it really is quite a small basket.",
+      "after": ""
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "6b33291720bfc3eab9fe": {
+     "from": "2f055ee4b44dbaa008ca",
+     "sentences": [
+      11,
+      15
+     ],
+     "was": [
+      11,
+      12
+     ],
+     "seconds": [
+      8.65,
+      17.18
+     ],
+     "added": {
+      "before": "",
+      "after": "This year we raised nearly $22 billion. This is a bad year. We're in a crypto winner, but we've raised nearly $22 billion."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7c5844550969e471cd1f": {
+     "from": "a49592a93a4a81a8d050",
+     "sentences": [
+      13,
+      15
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      7.6,
+      15.9
+     ],
+     "added": {
+      "before": "",
+      "after": "I can depreciate the costs of machines, lowering my taxable income so I can save five figures every year by just owning these Bitcoin mining machines."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "5b159ce6a40b1251f0fe~trim": {
+     "from": "aaf0c78b19cace153444",
+     "sentences": [
+      7,
+      8
+     ],
+     "was": [
+      7,
+      7
+     ],
+     "seconds": [
+      11.26,
+      16.16
+     ],
+     "added": {
+      "before": "",
+      "after": "And I thought that was fascinating psychology of there's a hack going on."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "f8fa70776de5b2d2e4ac": {
+     "from": "cb80340f857a99178919",
+     "sentences": [
+      11,
+      13
+     ],
+     "was": [
+      11,
+      12
+     ],
+     "seconds": [
+      7.82,
+      20.49
+     ],
+     "added": {
+      "before": "",
+      "after": "And for us, We don't mind because the high dividend will attract more capital to a new space, and so it's a way to attract people that are willing to get into the digital economy."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a7ed3a348a7136992e88~trim": {
+     "from": "ec4c0ff49fdb895ef08e",
+     "sentences": [
+      12,
+      15
+     ],
+     "was": [
+      12,
+      14
+     ],
+     "seconds": [
+      12.91,
+      17.95
+     ],
+     "added": {
+      "before": "",
+      "after": "So if gold is trading down because there's worries that interest rates are going higher than Bitcoin usually trades with that."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "42dc41d2e53264a70420": {
+     "from": "fad8df4e001b54c720d9",
+     "sentences": [
+      3,
+      6
+     ],
+     "was": [
+      3,
+      4
+     ],
+     "seconds": [
+      8.98,
+      16.44
+     ],
+     "added": {
+      "before": "",
+      "after": "What do we do with these coins? Do we burn the coins or is there some sort of novel scheme for us to protect them for those people?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "64f28f858f21b75dd1fa": {
+     "from": "25479838448d7e42f69d",
+     "sentences": [
+      4,
+      11
+     ],
+     "was": [
+      4,
+      6
+     ],
+     "seconds": [
+      6.26,
+      18.48
+     ],
+     "added": {
+      "before": "",
+      "after": "Here's the pullback, guys. What do you do with it? Is Bitcoin going to die? If it's not, then hit the green button. James Check, it's been too long, sir."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "8976434fa074337ce69d": {
+     "from": "7cdfb91fd54d185ad149",
+     "sentences": [
+      13,
+      17
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      5.6,
+      17.88
+     ],
+     "added": {
+      "before": "",
+      "after": "And Bitcoin is going to be so normalized and ingrained in younger people. Where else would you save your capital? It's such a... The fundamental core property still make Bitcoin just sing."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "1306d03f2a72fd0af4d0": {
+     "from": "7f9187e95075b8dcb74a",
+     "sentences": [
+      8,
+      10
+     ],
+     "was": [
+      8,
+      8
+     ],
+     "seconds": [
+      6.82,
+      20.91
+     ],
+     "added": {
+      "before": "",
+      "after": "This is by far the most important driver, ultimately. And that's why when J.P. Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "8ff932fc2cd797f3a4ae": {
+     "from": "994b5c8a4b7e00490500",
+     "sentences": [
+      9,
+      12
+     ],
+     "was": [
+      9,
+      11
+     ],
+     "seconds": [
+      11.88,
+      24.42
+     ],
+     "added": {
+      "before": "",
+      "after": "The idea of digital credit was, what if we could provide the double -digit returns and the tax efficiency of an equity portfolio like buying the S &P index?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "dab001bab2343f1968cb": {
+     "from": "c9a9722716033dbb9cf6",
+     "sentences": [
+      8,
+      12
+     ],
+     "was": [
+      8,
+      10
+     ],
+     "seconds": [
+      4.74,
+      14.32
+     ],
+     "added": {
+      "before": "",
+      "after": "We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion in market cap company."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "4d9418596b2fdd0a0a88~trim": {
+     "from": "da0ff8d5b2a224b380fa",
+     "sentences": [
+      7,
+      10
+     ],
+     "was": [
+      7,
+      9
+     ],
+     "seconds": [
+      10.95,
+      17.19
+     ],
+     "added": {
+      "before": "",
+      "after": "The FBI's alert names 608 Ethereum addresses, 19 Bitcoin addresses and 1 Solana address."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "c0849ea02c9857cf9ebb~trim": {
+     "from": "efb097a26dc705eb5dfa",
+     "sentences": [
+      7,
+      11
+     ],
+     "was": [
+      7,
+      8
+     ],
+     "seconds": [
+      6.28,
+      17.02
+     ],
+     "added": {
+      "before": "",
+      "after": "In fact, one of the metrics got my block lock behind me, right? First be that damn company, but I still love the bloody piece of hardware. One of the things I've got on there is the circulating supply."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "0c36a4488b906f2e4eaf": {
+     "from": "5735db643191d7e6f30c",
+     "sentences": [
+      9,
+      11
+     ],
+     "was": [
+      9,
+      9
+     ],
+     "seconds": [
+      6.74,
+      15.77
+     ],
+     "added": {
+      "before": "",
+      "after": "That's the same thing with SpaceX, where I'm like, These almost seemed obvious to me after I spent the time to understand it. And by the way, I'm going to miss out on millions of investment opportunities."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7ba59050e5ee6fcd14bb": {
+     "from": "23114b06920582460e85",
+     "sentences": [
+      7,
+      9
+     ],
+     "was": [
+      7,
+      8
+     ],
+     "seconds": [
+      9.44,
+      13.92
+     ],
+     "added": {
+      "before": "",
+      "after": "You know, saw this in 2015, 2018, 19, and 2022."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "422219f06d09c5aeebf4": {
+     "from": "3aab6902ebb87738edc2",
+     "sentences": [
+      17,
+      22
+     ],
+     "was": [
+      18,
+      18
+     ],
+     "seconds": [
+      4.07,
+      15.87
+     ],
+     "added": {
+      "before": "Do you think there, I mean, this is one thing I've been pondering.",
+      "after": "You think it's going to need that? It probably the narrative will come after the price goes up. Yes. It doesn't seem much."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e68cc1564197965e962f~trim": {
+     "from": "74f1205843a6d0ef2487",
+     "sentences": [
+      10,
+      13
+     ],
+     "was": [
+      10,
+      11
+     ],
+     "seconds": [
+      10.6,
+      17.05
+     ],
+     "added": {
+      "before": "",
+      "after": "And whether that's just because Bitcoin has have memed enough on the internet could be. But certainly there is this like underlying."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "98dac99f884b77763b5f~trim": {
+     "from": "7b3dd6f526aadefbe7d7",
+     "sentences": [
+      11,
+      14
+     ],
+     "was": [
+      11,
+      13
+     ],
+     "seconds": [
+      13.24,
+      15.24
+     ],
+     "added": {
+      "before": "",
+      "after": "Like, guys, wrong decision."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "7db867b846e84a4ab586": {
+     "from": "7d4beb6e36508e978089",
+     "sentences": [
+      9,
+      11
+     ],
+     "was": [
+      9,
+      10
+     ],
+     "seconds": [
+      9.14,
+      26.0
+     ],
+     "added": {
+      "before": "",
+      "after": "So it's fairly easy to assess this risk, and then you can assess the price and whether the price makes any sense, because here you see the market credit spreads against the risk, and you can see there's a massive premium that you can capture of your credit investor."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "93fca317d9fe229b4001": {
+     "from": "eb402a210905c778432d",
+     "sentences": [
+      8,
+      10
+     ],
+     "was": [
+      8,
+      9
+     ],
+     "seconds": [
+      10.06,
+      14.54
+     ],
+     "added": {
+      "before": "",
+      "after": "But one of the things that he said to me that I found a unique way of looking at it."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "92cb306efb63543581dd": {
+     "from": "5602d6c7a6162be49b7f",
+     "sentences": [
+      10,
+      12
+     ],
+     "was": [
+      10,
+      11
+     ],
+     "seconds": [
+      9.14,
+      16.16
+     ],
+     "added": {
+      "before": "",
+      "after": "With Bitcoin, I spent years obsessing over it, where I'm like, look, if people just spent the homework here, they're probably going to come to the same conclusion I did."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "ae50e01f802ee33c2807~trim": {
+     "from": "9e059304bfc5bc1e2d85",
+     "sentences": [
+      13,
+      17
+     ],
+     "was": [
+      13,
+      14
+     ],
+     "seconds": [
+      5.52,
+      15.42
+     ],
+     "added": {
+      "before": "",
+      "after": "So for me, this is, I've been waiting for this my whole life to see Bitcoin become and infiltrate the financial system. So I think it's a good thing. I do agree culturally."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "2de8e757031888803e1e": {
+     "from": "eb0fd778800d99d16559",
+     "sentences": [
+      10,
+      15
+     ],
+     "was": [
+      10,
+      11
+     ],
+     "seconds": [
+      7.74,
+      18.48
+     ],
+     "added": {
+      "before": "",
+      "after": "It's down. It's following gold. we need the liquidity side to turn around. Now, the reason I mentioned that AI had an impact last week, I think of Bitcoin as being two separate parts."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "e961be05baa6f473fd66": {
+     "from": "ee12dbbe04fc4b9b1c36",
+     "sentences": [
+      12,
+      16
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      5.4,
+      16.93
+     ],
+     "added": {
+      "before": "",
+      "after": "We can buy back or sell our equity. And then, of course, we can adjust the dividend. In June of 2025, that credit buckled."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "1abf62635b6422bce8dd": {
+     "from": "f083d3f96ba2ff322ff5",
+     "sentences": [
+      7,
+      13
+     ],
+     "was": [
+      7,
+      8
+     ],
+     "seconds": [
+      5.32,
+      14.88
+     ],
+     "added": {
+      "before": "",
+      "after": "Our credit risk will fall. The credit spreads will compress. The demand for credit will increase. We will sell more credit. The equity premiums will expand."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "3fc97f3afec6a4386667": {
+     "from": "f631e39fa4c8b7892dab",
+     "sentences": [
+      12,
+      16
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      5.62,
+      14.14
+     ],
+     "added": {
+      "before": "",
+      "after": "There was a kind of active decision or discretionary decision to put them in. Now they're being removed. Does that cause issues for Bitcoin?"
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "b3847c05e85387dc96b1": {
+     "from": "4d8624a29f719c752dfe",
+     "sentences": [
+      11,
+      13
+     ],
+     "was": [
+      11,
+      11
+     ],
+     "seconds": [
+      3.54,
+      14.62
+     ],
+     "added": {
+      "before": "",
+      "after": "So I think that this like, as people get, like Bitcoin's going to be like the internet for young people. I remember when I was in, as a civil engineer, I was the dude they'd come to when they got like a big data problem."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "79eb86c1b0670fe1e579~trim": {
+     "from": "5982b3f6c768d0dd64c8",
+     "sentences": [
+      9,
+      11
+     ],
+     "was": [
+      9,
+      9
+     ],
+     "seconds": [
+      6.68,
+      16.27
+     ],
+     "added": {
+      "before": "",
+      "after": "It's such, the fundamental core property still make Bitcoin just sing. And that's why I have no issue with just like when I don't know what to do, I buy gold and Bitcoin."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "da859ee356c68c74ce2f": {
+     "from": "63e84dd53de85f9e6337",
+     "sentences": [
+      8,
+      11
+     ],
+     "was": [
+      8,
+      10
+     ],
+     "seconds": [
+      13.24,
+      18.8
+     ],
+     "added": {
+      "before": "",
+      "after": "We've had... inflation go higher on the back of the Iran war."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a09d2e1fa91290142664~trim": {
+     "from": "6ec656243a73becb3298",
+     "sentences": [
+      8,
+      12
+     ],
+     "was": [
+      8,
+      9
+     ],
+     "seconds": [
+      10.61,
+      16.71
+     ],
+     "added": {
+      "before": "",
+      "after": "We're running chronic deficits. They're large. They're either going to stay large or they're going to get larger."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "cbf391e7523ac232206a": {
+     "from": "07c844d922fa6dddf59e",
+     "sentences": [
+      11,
+      13
+     ],
+     "was": [
+      11,
+      11
+     ],
+     "seconds": [
+      5.94,
+      15.26
+     ],
+     "added": {
+      "before": "",
+      "after": "And so actually, there's like a much tighter correlation there. Or it is just... everything combined in U.S. and the war may be a little small piece of it, but that's not actually the driver."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "df978d34fe61f7830a1d~trim": {
+     "from": "5bc4d12aa667407bed6c",
+     "sentences": [
+      12,
+      15
+     ],
+     "was": [
+      12,
+      14
+     ],
+     "seconds": [
+      12.92,
+      15.56
+     ],
+     "added": {
+      "before": "",
+      "after": "You got outperformed and you had all this volatility."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "a3bd7b1f28874036fe53": {
+     "from": "1cccbd3811e8eb70e748",
+     "sentences": [
+      12,
+      17
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      1.54,
+      18.9
+     ],
+     "added": {
+      "before": "",
+      "after": "It's not volatile enough. There's not enough upside there. So it's too safe for that guy and it's too risky for the traditional investor. And so it's right in this sweet spot where those who know a lot about it and have been around it, it's not volatile enough for them versus those who are newer to the scene."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "0d39ef4732c8c206ffae~trim": {
+     "from": "48ce2fdba39377b950ce",
+     "sentences": [
+      11,
+      14
+     ],
+     "was": [
+      11,
+      13
+     ],
+     "seconds": [
+      14.66,
+      29.24
+     ],
+     "added": {
+      "before": "",
+      "after": "So on the age -based component, where like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder based."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "023cca5f86cc39618300~trim": {
+     "from": "b2d8e916793789d15ea0",
+     "sentences": [
+      10,
+      12
+     ],
+     "was": [
+      10,
+      11
+     ],
+     "seconds": [
+      11.88,
+      16.54
+     ],
+     "added": {
+      "before": "",
+      "after": "And he goes on in a more eloquent sense to talk about those elements of trust he's trying to replace."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "2cf9382f1209dea701c0~trim": {
+     "from": "c26470eb121d7acf83eb",
+     "sentences": [
+      12,
+      15
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      9.54,
+      23.56
+     ],
+     "added": {
+      "before": "",
+      "after": "And that's where, you know, Plus four years later, 2012 really starts to dig into Bitcoin. And for me, that represented a digital goal, a new, you know, Satoshi puts it in the first paragraph after the white paper was published."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "ccdb0097bea1f57a6348": {
+     "from": "c6d0463e5d4eccafe587",
+     "sentences": [
+      7,
+      9
+     ],
+     "was": [
+      9,
+      9
+     ],
+     "seconds": [
+      5.8,
+      16.82
+     ],
+     "added": {
+      "before": "The S &P 500 as of yesterday was about 2.5 % below the all -time highs. So despite everything that's gone on, the Jensen stuff, the Fed raising rates, we're still sitting near the all -time highs in stock.",
+      "after": ""
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "206e061739f6b989809a": {
+     "from": "710caa666883a37ec4a5",
+     "sentences": [
+      12,
+      15
+     ],
+     "was": [
+      12,
+      13
+     ],
+     "seconds": [
+      9.16,
+      17.33
+     ],
+     "added": {
+      "before": "",
+      "after": "Yeah, so I'm not, you know. there's that whole debate around medium of exchange versus store of value."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "9a2febf853f2761ea0f6": {
+     "from": "b4831bdba3bc73769a7d",
+     "sentences": [
+      12,
+      17
+     ],
+     "was": [
+      15,
+      16
+     ],
+     "seconds": [
+      2.92,
+      13.8
+     ],
+     "added": {
+      "before": "We're at $69,000. Nice. And as we see the asset continue to fall, we're watching all the collateral damage in the AI industry.",
+      "after": "Not right now."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    },
+    "d0adae88e4f7b5354a72": {
+     "from": "704fa6e1af4a86ff1d07",
+     "sentences": [
+      8,
+      10
+     ],
+     "was": [
+      8,
+      9
+     ],
+     "seconds": [
+      13.34,
+      17.83
+     ],
+     "added": {
+      "before": "",
+      "after": "The speed came from an Ethereum feature called EIP -7702."
+     },
+     "rule": "ruling 90 with ruling 32's snap: whole sentences outward to 13.7 s, no speaker marker"
+    }
+   }
+  },
+  "scorer_waited_s": 0.0,
+  "lock_stop": null,
+  "scorer": {
+   "read": true,
+   "rated_at": "2026-11-14T17:30:30Z",
+   "build": "ledger_20261114_172438",
+   "candidates_generated_at": "2026-11-14T17:24:56+00:00",
+   "model": "gemma3:27b",
+   "kind": "moments",
+   "rubric": "ruling 60: stand-alone only",
+   "scorer_sha": "edd54964a5ab15f4a17d74ecbe40bcbccf2fdf2818df97881e8f7039a4721f53",
+   "threshold": 3.5,
+   "verdicts": 124,
+   "affirmed": 17,
+   "disagree_with_the_rule": []
+  }
+ },
+ "next_attempt": {
+  "conversation": {
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-14T17:06:53Z",
+   "expires_at": "2026-11-15T05:06:53Z",
+   "age_h": 0.3,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 56,
+   "passes": {
+    "spotlight/mine-spot/1": 4,
+    "hook/mine-hook/4": 8,
+    "moment/mine/2": 44
+   },
+   "word_pass_ready": 54,
+   "word_pass_waiting": 2
+  },
+  "newest_upload": {
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "published_at": "2026-11-14T17:06:53Z",
+   "expires_at": "2026-11-15T05:06:53Z",
+   "age_h": 0.3,
+   "turns_per_min": 0.0,
+   "unmarked": true,
+   "turns_from": "pp-ingest episode",
+   "rows": 56,
+   "passes": {
+    "spotlight/mine-spot/1": 4,
+    "hook/mine-hook/4": 8,
+    "moment/mine/2": 44
+   },
+   "word_pass_ready": 54,
+   "word_pass_waiting": 2
+  },
+  "rule": "the newest upload whose captions do not refuse it (unmarked, or marked with a speaker change; ruling 92 amended: the layout decides per clip) (ruling 95)"
+ },
+ "seconds": 703.6,
+ "usd_estimate": 2.131,
+ "usd_best_known": 0.4055,
+ "full": {
+  "est": 2.1917,
+  "best": 0.4662,
+  "model_s": 677.51,
+  "calls": 60
+ },
+ "code": "432e8ec7+8933e53bac9c",
+ "now": "2026-11-14T17:24:38.776367+00:00",
+ "since": "2026-11-13T03:01:09+00:00",
+ "delivered_pins": [
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json",
+   "story_id": "moments-fresh_20261112_050611-37c5b5f5",
+   "approved_at": "2026-11-12T13:43:40+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261112_050611/MOMENTS_PIN_LY.json",
+   "story_id": "moments-fresh_20261112_050611-41f29b1f",
+   "approved_at": "2026-11-13T03:01:09+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/fresh_20261111_213954/MOMENTS_PIN_BATCH_B1.json",
+   "story_id": "moments-batch_b1_fresh_20261111_213954-1b4a63d0",
+   "approved_at": "2026-11-13T05:20:11+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_073738/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_073738-d2657bbe",
+   "approved_at": "2026-11-13T07:53:42+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_183302/MOMENTS_PIN_ATTESTED.json",
+   "story_id": "moments-ledger_20261113_183302-0c68b589",
+   "approved_at": "2026-11-13T19:12:56+00:00",
+   "clips": 3
+  },
+  {
+   "path": "tests/package/proof/ledger_20261113_215708/MOMENTS_PIN_LEDGER.json",
+   "story_id": "moments-ledger_20261113_215708-13949b7c",
+   "approved_at": "2026-11-13T22:14:05+00:00",
+   "clips": 3
+  }
+ ],
+ "chains": {
+  "mine": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "angle_write": [
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "fidelity_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "viewer_takeaway": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "trend_brief": [
+   "xai_search:grok-4.7"
+  ],
+  "story": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "check": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "exclusion_verdict": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "speaker_verdict": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "visual_check": [
+   "xai_vision:grok-4.7",
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:nvidia/nemotron-3.5-super-vl"
+  ],
+  "transcribe": [
+   "elevenlabs_stt:scribe_v1"
+  ],
+  "context_verdict:step_a_first": [
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "context_verdict:step_a_second": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "context_verdict:step_c": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "coherence_verdict:hook": [
+   "heimdall:qwen/qwen3.8-27b",
+   "heimdall:z-ai/glm-5.3-flash",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "coherence_verdict:clips_alone": [
+   "xai:grok-4.20-0309-reasoning",
+   "google:gemini-2.5-pro"
+  ],
+  "coherence_verdict:coherence": [
+   "xai:grok-4.20-0309-reasoning",
+   "heimdall:deepseek/deepseek-v4.1-flash",
+   "heimdall:z-ai/glm-5.3-flash"
+  ],
+  "shadow86:coherence_verdict": [
+   "xai:grok-4.20-0309-reasoning"
+  ],
+  "probe87:heimdall:qwen/qwen3.8-27b": [
+   "heimdall:qwen/qwen3.8-27b"
+  ],
+  "probe87:heimdall:deepseek/deepseek-v4.1-flash": [
+   "heimdall:deepseek/deepseek-v4.1-flash"
+  ],
+  "probe87:heimdall:z-ai/glm-5.3-flash": [
+   "heimdall:z-ai/glm-5.3-flash"
+  ]
+ },
+ "inputs": {
+  "rows": 260,
+  "no_word_record": 0,
+  "no_word_record_why": {},
+  "no_word_record_videos": {},
+  "window_records": {
+   "7BqLu-wzbU0": [
+    "transcripts/7BqLu-wzbU0/windows/0.000-68.345.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/0.000-56.875.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/366.026-470.092.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/61.457-187.170.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/682.978-777.444.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/736.976-833.291.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/567.999-671.693.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/371.695-475.948.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/682.978-780.903.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/729.831-830.229.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/71.523-187.170.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/9.452-117.118.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/819.061-914.000.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/606.385-704.180.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/0.000-99.390.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/373.895-475.948.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/600.054-698.796.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/774.222-879.406.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/516.941-620.249.whisper_words_punct.json",
+    "transcripts/7BqLu-wzbU0/windows/796.468-888.054.whisper_words_punct.json"
+   ],
+   "wbztAutsf-E": [
+    "transcripts/wbztAutsf-E/windows/3451.054-3555.178.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2470.040-2565.390.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4237.336-4332.189.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4043.288-4140.270.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3136.673-3234.356.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3061.994-3157.416.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4462.875-4570.364.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4118.116-4220.526.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2940.294-3035.667.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3451.054-3551.390.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3468.258-3579.548.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4043.288-4141.406.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/802.395-908.439.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2656.743-2760.870.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4109.746-4204.656.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3802.220-3909.364.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3136.673-3236.734.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2670.928-2774.198.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3784.966-3889.760.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4223.876-4337.088.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4462.875-4559.763.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/866.704-963.069.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2393.151-2489.386.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/0.000-59.950.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3477.625-3579.548.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/1361.891-1497.941.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2677.911-2785.309.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3713.089-3809.378.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4147.947-4244.233.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4481.526-4578.471.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2981.400-3083.138.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4462.875-4567.914.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/302.457-400.094.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3061.994-3171.176.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3474.669-3578.281.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4362.097-4473.106.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/256.906-354.898.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/714.946-825.054.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3709.197-3809.378.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3827.880-3935.134.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2981.400-3078.178.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4237.336-4357.873.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4477.960-4571.439.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3205.541-3330.173.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2458.490-2565.390.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2592.744-2693.736.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3205.541-3305.852.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/536.844-635.795.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2079.607-2174.142.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3322.285-3421.123.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3360.485-3460.430.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4373.045-4496.895.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/1414.760-1538.601.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4438.912-4551.149.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3081.261-3184.517.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/0.000-53.763.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/328.199-431.105.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/4118.116-4215.529.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3154.269-3251.216.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2015.879-2109.310.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/1187.672-1287.041.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/267.639-362.640.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2930.978-3035.667.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3623.352-3727.942.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2362.644-2456.756.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2940.294-3038.798.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3679.586-3773.795.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2399.427-2496.430.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/0.000-62.709.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2685.288-2802.898.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3418.369-3516.142.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/545.847-643.230.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2305.640-2418.781.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2118.753-2228.190.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/1056.555-1185.458.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2916.642-3020.881.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/2440.477-2540.228.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/1302.991-1400.669.whisper_words_punct.json",
+    "transcripts/wbztAutsf-E/windows/3176.979-3277.110.whisper_words_punct.json"
+   ],
+   "SJXZ5GycchU": [
+    "transcripts/SJXZ5GycchU/windows/570.126-690.687.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1234.001-1331.743.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/575.389-693.221.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2012.679-2115.047.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1202.001-1308.561.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2012.679-2110.826.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2062.839-2158.912.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1862.512-1959.416.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1661.096-1770.993.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1071.247-1169.955.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/438.191-542.025.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1862.512-1965.099.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/29.924-132.364.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/548.299-651.716.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1227.909-1331.743.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/274.386-388.248.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1820.440-1921.358.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/625.035-725.182.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1900.519-2001.205.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1221.160-1323.915.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2063.894-2158.912.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1598.825-1697.825.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2055.033-2152.829.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1410.368-1508.805.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/548.299-652.269.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1593.041-1688.720.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/426.599-523.993.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/797.731-902.382.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1529.000-1643.803.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1071.247-1175.675.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/98.117-215.869.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/892.582-1011.710.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/12.035-113.871.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1538.708-1643.803.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1057.872-1165.310.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1035.893-1133.521.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1373.480-1473.158.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/2141.275-2240.109.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/603.349-708.190.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/921.720-1021.377.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/777.624-885.470.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1466.914-1565.070.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1112.871-1208.742.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/0.000-72.599.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/755.938-861.601.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1875.152-1970.452.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1538.708-1633.909.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/298.308-399.135.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1763.320-1863.662.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1331.073-1435.713.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1688.700-1791.549.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1125.837-1223.710.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/1180.001-1285.281.whisper_words_punct.json",
+    "transcripts/SJXZ5GycchU/windows/379.639-499.550.whisper_words_punct.json"
+   ],
+   "L_AJ0jO-AG0": [
+    "transcripts/L_AJ0jO-AG0/windows/249.794-366.684.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1750.510-1856.617.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/786.999-905.125.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/249.794-351.984.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1750.510-1848.100.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/908.701-1003.141.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1284.305-1399.193.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1750.510-1855.600.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/786.999-886.329.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/238.294-351.984.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/0.000-86.691.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/786.999-910.491.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/0.000-92.090.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/311.013-413.629.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1942.412-2038.603.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/863.691-974.373.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/990.245-1100.655.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/562.897-675.180.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/0.000-73.049.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1082.032-1180.193.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/474.019-576.919.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/249.794-357.935.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/889.543-1003.141.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/990.245-1084.370.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1956.031-2053.703.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/564.611-660.208.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/585.283-688.288.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/562.897-660.208.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/914.588-1041.023.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1867.322-1964.702.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/0.000-75.137.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1959.581-2053.703.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/414.416-510.562.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/757.099-876.989.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1028.084-1123.435.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/393.726-498.670.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/757.099-855.789.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/664.398-797.489.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/291.750-400.948.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1858.112-1957.263.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/938.368-1049.692.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1100.694-1211.000.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1090.203-1190.658.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1867.322-1968.208.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1312.306-1418.296.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1899.312-2003.702.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/118.592-220.586.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/103.192-203.382.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/1861.726-1964.702.whisper_words_punct.json",
+    "transcripts/L_AJ0jO-AG0/windows/67.100-158.889.whisper_words_punct.json"
+   ],
+   "wLJ_jy3wyN8": [
+    "transcripts/wLJ_jy3wyN8/windows/2002.169-2099.140.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1958.809-2066.388.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2002.169-2100.149.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1896.120-1992.509.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1374.371-1478.577.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2108.280-2209.630.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1341.455-1441.051.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2143.022-2241.885.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1942.870-2059.126.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1672.960-1772.137.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2425.508-2525.671.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1325.630-1423.394.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1728.914-1829.775.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2303.119-2407.950.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/2458.221-2570.906.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1880.360-1976.240.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1915.884-2032.779.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1285.635-1389.397.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1521.781-1618.195.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1739.829-1836.110.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1242.679-1337.149.whisper_words_punct.json",
+    "transcripts/wLJ_jy3wyN8/windows/1234.172-1332.669.whisper_words_punct.json"
+   ],
+   "jeKD85EPlAc": [
+    "transcripts/jeKD85EPlAc/windows/436.695-536.747.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/404.795-512.609.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/670.968-768.000.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/493.297-592.610.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/557.770-659.289.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/404.795-509.783.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/559.603-665.343.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/158.978-264.807.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/144.192-247.048.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/580.587-681.388.whisper_words_punct.json",
+    "transcripts/jeKD85EPlAc/windows/37.400-140.894.whisper_words_punct.json"
+   ]
+  },
+  "window_waiting": 24,
+  "window_failed": 0,
+  "window_passed_over": {},
+  "no_caption_context": {},
+  "fallbacks": {},
+  "channel_conflict": {},
+  "not_anchored": {
+   "59c79c40e48bd9ebb009": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3077-3142 s)",
+   "8f72af8038276af06690": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2672-2746 s)",
+   "3355ac011081e15329e6": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3800-3875 s)",
+   "3b87cb8acfe26fb59c55": "snapped outward to whole sentences (44 word(s) before the anchored text, 0 after) it runs 62.53 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "ea3028066363ea7800a2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 4493-4556 s)",
+   "e76268bab957c9dcf40d": "the row's text does not anchor in the word record (sentence_law.anchor, searched -29-39 s)",
+   "1ed537e9e8806436e8c3": "the row's text does not anchor in the word record (sentence_law.anchor, searched 283-348 s)",
+   "5b01adc8fc56ef3a5dd9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 3638-3713 s)",
+   "43911a9c6ece8461b9e2": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2321-2404 s)",
+   "083af695e2d9532aef8d": "the row's text does not anchor in the word record (sentence_law.anchor, searched 590-678 s)",
+   "0c75a13f94afbba4aa54": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2028-2100 s)",
+   "3b9bae38a8eaae4ae147": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2028-2096 s)",
+   "88f727ebf6909112dfb0": "the row's text does not anchor in the word record (sentence_law.anchor, searched 45-117 s)",
+   "a7bf66b647e0c183028e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1835-1906 s)",
+   "76238b9586afe7c097bb": "the row's text does not anchor in the word record (sentence_law.anchor, searched 2079-2144 s)",
+   "d1c2a41bc569911267f9": "the row's text does not anchor in the word record (sentence_law.anchor, searched 563-637 s)",
+   "96547f7c048f30a0e42e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1544-1629 s)",
+   "08bc187fa4ec878e534a": "the row's text does not anchor in the word record (sentence_law.anchor, searched 27-99 s)",
+   "a25cc4de80212b06ef66": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1141-1209 s)",
+   "cf59e7262339c365842e": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1766-1833 s)",
+   "0d367bf6a8b0a1692928": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1299-1384 s)",
+   "47cd5364969d95d51b9c": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1957-2024 s)",
+   "cec042f0206a6a692e05": "the row's text does not anchor in the word record (sentence_law.anchor, searched 489-562 s)",
+   "ed915f5d731424a6dc05": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1975-2039 s)",
+   "07f57cf64081df2a0aa0": "snapped outward to whole sentences (4 word(s) before the anchored text, 46 after) it runs 35.47 s > 35 s (ruling 32 with the 10:48 ruling (2): the spotlight's clip ceiling)",
+   "93944c0a9344e72414e8": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1882-1953 s)",
+   "c84194a144c71d1a1740": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1974-2051 s)",
+   "3f28da689ac78f891cda": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1389-1464 s)",
+   "e915f8790ce35634e1b7": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1688-1757 s)",
+   "3b2a4e7b757b63404b23": "the row's text does not anchor in the word record (sentence_law.anchor, searched 1744-1815 s)"
+  },
+  "malformed": {},
+  "duplicates": 49,
+  "duplicates_of": {
+   "0c8052b6b4814b23f225": "3d7a8d2ed0c63d07c77c",
+   "a930072e61e235844b4e": "8d7c1ace02fba52c7578",
+   "4f0857bf1f574606707d": "b4f13f38edee1b027141",
+   "93b1a66e1fdc3fe1a8f3": "c06e581de6ad4f30fcba",
+   "fbd34ec613c09b7226de": "6c01e278e4c8d02430b0",
+   "882029d60939a1f36c1a": "8d7c1ace02fba52c7578",
+   "1da0b849fa1d339265e8": "c43d374bb9c98524498d",
+   "ae41909d9e9c0e8686c5": "365dc3650ac7d9d4b959",
+   "f3c3177e1e407f6bf752": "cb5386191b1f5d658c39",
+   "fcb3665ad6a4d0fdd729": "37685f4c1757ea222ae0",
+   "4df579d8739ae490f591": "a97f579009136bbf27a0",
+   "9a7f79d1fe976db5c3db": "5f7563ab13ebe8f2f692",
+   "257eb3971af6090273c4": "f1941f7cb91d4d5fc6e7",
+   "49122703ebc9d44ed8cc": "1c3aaa12f754f39135f9",
+   "e6a75259b142f5192204": "5f7563ab13ebe8f2f692",
+   "2e274a2233424a4c683d": "f1941f7cb91d4d5fc6e7",
+   "6b94b969896352f2c234": "5f1cce0b5c4c5f829d3f",
+   "831db865babbdaabb292": "ba734b0facbe015a7cc9",
+   "a29e1818e9e191617419": "a97f579009136bbf27a0",
+   "f658d57a5f2add5a369e": "787d8efc941d236b81f8",
+   "399b3b8b6f4a6b14fb94": "f18a1f3634b9d91c2135",
+   "b4be8b42cb0f865dd71f": "47b22fcfa2f9b116cb42",
+   "8696eddc34f5789d13ff": "771c4b292a160d2b2f64",
+   "39cc6a7cc6523f74dd46": "7de4f29e8d9093e74389",
+   "a98c71b3e26ce4ce611e": "7de4f29e8d9093e74389",
+   "babc48593eaf4182827e": "1bf47bfc69318dafb56b",
+   "7ec6a9341024715a487c": "3dad61bc928bb67b2448",
+   "9e36e01ceb7ff31e26ea": "ca4cf3f1a6430184c428",
+   "e006f68330cb8906d0cb": "f6c39c2730c5df6f526a",
+   "dd2d145613e801fe89d3": "f6c39c2730c5df6f526a",
+   "cc4b673e5132ad36241d": "691684c01273ca2e942b",
+   "917dd2a1978095e78f64": "1388b123959a14c2c9c6",
+   "286e82dab608362d1112": "ea61ab85178d71b7dc59",
+   "2d2cd7176472a62e46b9": "2acd1aaaa8b06153bb05",
+   "45c5d0026646f876b65b": "1388b123959a14c2c9c6",
+   "8dbffb6fd3ec9a164bc9": "2acd1aaaa8b06153bb05",
+   "90531f36b01ff0d18d0a": "45cf4e8aeee9a7378765",
+   "f5f01f4377085aee1bf7": "1388b123959a14c2c9c6",
+   "22decd6d6d038fd4efe6": "02989425d65f2a69cf5b",
+   "8356149be7a0b877b717": "a7ea13a93471465b1642",
+   "aef76bb72ba368736d76": "c0a97c0a78a0bdf71d5c",
+   "240aae733f8c0c91b3fe": "c0a97c0a78a0bdf71d5c",
+   "a799d7a26d935c28a8fd": "1f71a6a306b40c9670e6",
+   "bda3491cfa415c890a84": "2110ec69455ec7d0e1cf",
+   "e58f4ec263ec961dfdbb": "43dfc5a16d928d8fe3e9",
+   "b5ec0eaf470f51da2c41": "8018e0d75820c90861c7",
+   "69cd4f8950cd4b1d7d44": "9358f471ea97b1616f4b",
+   "c7c05b146597eea13b2d": "5fa14620d869eaeb3b84",
+   "f94527e9fb5a4777810f": "a94a85627c8babee4fe7"
+  },
+  "moments": 157,
+  "videos": 6,
+  "sources": 157,
+  "word_records": {},
+  "word_pass": {
+   "rows": 2233,
+   "unreadable": 0,
+   "ready": 1686,
+   "not_ready": 217,
+   "failed": 0,
+   "file": "/home/ultron/protocol_pulse/data/editorial/moments/word_pass.jsonl"
+  }
+ },
+ "ruling_76": {
+  "inside_12h": 157,
+  "cleared": 17,
+  "cuttable": 10,
+  "hooks_4": 3
+ },
+ "routing": "heimdall_first",
+ "mode_at_end": "heimdall_first",
+ "shadow86": {
+  "verdicts": 2,
+  "compared_units": 2,
+  "differ": 2,
+  "on_pin_differ": 0,
+  "not_compared": 0,
+  "missing": 0,
+  "shadow_usd_reported": 0.0096,
+  "pin": false,
+  "would_seal_under_grok": null,
+  "summary": "2 verdicts shadowed, 2 decisions compared, 2 differ (0 on the pin's clips); 0 not compared; 0 still running; shadow cost $0.0096 reported"
+ },
+ "spend_ruling_48": {
+  "before": 15.2167,
+  "after": 15.5477,
+  "cap": 20.0,
+  "stop": 16.0,
+  "basis": "reported"
+ },
+ "breakers_ruling_99": {
+  "open": [
+   {
+    "model": "heimdall:deepseek/deepseek-v4.1-flash",
+    "until": "2026-11-14T18:06:29Z",
+    "why": "missed its deadline 2 times in a row"
+   },
+   {
+    "model": "heimdall:z-ai/glm-5.3-flash",
+    "until": "2026-11-14T18:05:29Z",
+    "why": "the trial call missed its deadline"
+   }
+  ],
+  "opens": 4,
+  "closes": 1,
+  "this_build": [
+   {
+    "model": "heimdall:deepseek/deepseek-v4.1-flash",
+    "deadline_s": 120.0,
+    "seconds": 120.0,
+    "tokens": null,
+    "max_out": 16000,
+    "kind": "breaker_open",
+    "why": "missed its deadline 2 times in a row",
+    "until": "2026-11-14T18:06:29Z",
+    "utc": "2026-11-14T17:36:29Z"
+   }
+  ]
+ },
+ "registry": true
+}

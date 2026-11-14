@@ -1,0 +1,494 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c0824a5be96c9060d3cd1f8aebb8975c91f04969472b9b5da0e012cc2fae55ab",
+ "result": {
+  "text": "On my twentieth birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm twenty-six now, and I still don't use my Roth IRA, I don't have a 401k, I don't own a single share of any index fund, and I'm on pace to be financially independent by forty-five. If you do",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.24,
+    "end": 24.28,
+    "text": "On my twentieth birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm twenty-six now, and I still don't use my Roth IRA, I don't have a 401k, I don't own a single share of any index fund, and I'm on pace to be financially independent by forty-five. If you do"
+   }
+  ],
+  "words": [
+   {
+    "text": "On",
+    "start": 0.24,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 0.36,
+    "end": 0.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "twentieth",
+    "start": 0.56,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "birthday,",
+    "start": 0.98,
+    "end": 1.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 1.7,
+    "end": 1.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sold",
+    "start": 1.82,
+    "end": 2.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 2.26,
+    "end": 2.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "stock",
+    "start": 2.54,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 2.98,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 3.08,
+    "end": 3.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Roth",
+    "start": 3.26,
+    "end": 3.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IRA",
+    "start": 3.62,
+    "end": 4.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 4.22,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "put",
+    "start": 4.36,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 4.5,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 4.8,
+    "end": 5.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 5.12,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 5.38,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That",
+    "start": 6.24,
+    "end": 6.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ended",
+    "start": 6.4,
+    "end": 6.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 6.66,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 6.8,
+    "end": 7.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 7.06,
+    "end": 7.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 7.16,
+    "end": 7.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 7.28,
+    "end": 7.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "best",
+    "start": 7.5,
+    "end": 7.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financial",
+    "start": 7.84,
+    "end": 8.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "decisions",
+    "start": 8.26,
+    "end": 8.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 8.88,
+    "end": 9.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "ever",
+    "start": 9.2,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "made,",
+    "start": 9.42,
+    "end": 9.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 10.02,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 10.18,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 10.4,
+    "end": 10.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.52,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 10.62,
+    "end": 10.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "most",
+    "start": 10.92,
+    "end": 11.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 11.18,
+    "end": 11.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think.",
+    "start": 11.5,
+    "end": 11.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 12.2,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "twenty-six",
+    "start": 12.38,
+    "end": 12.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now,",
+    "start": 12.96,
+    "end": 13.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 13.56,
+    "end": 13.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 13.8,
+    "end": 13.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "still",
+    "start": 13.94,
+    "end": 14.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 14.14,
+    "end": 14.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "use",
+    "start": 14.38,
+    "end": 14.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 14.54,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Roth",
+    "start": 14.7,
+    "end": 14.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "IRA,",
+    "start": 15.04,
+    "end": 15.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 15.9,
+    "end": 15.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 16.0,
+    "end": 16.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 16.16,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 16.3,
+    "end": 16.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "401k,",
+    "start": 16.54,
+    "end": 16.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 17.24,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 17.34,
+    "end": 17.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "own",
+    "start": 17.62,
+    "end": 17.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 17.94,
+    "end": 18.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "single",
+    "start": 18.22,
+    "end": 18.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "share",
+    "start": 18.58,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 18.96,
+    "end": 19.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "any",
+    "start": 19.16,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index",
+    "start": 19.36,
+    "end": 19.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fund,",
+    "start": 19.76,
+    "end": 19.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 20.34,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 20.48,
+    "end": 20.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 20.6,
+    "end": 20.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "pace",
+    "start": 20.76,
+    "end": 21.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 21.02,
+    "end": 21.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "be",
+    "start": 21.12,
+    "end": 21.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "financially",
+    "start": 21.24,
+    "end": 21.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "independent",
+    "start": 21.82,
+    "end": 22.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "by",
+    "start": 22.44,
+    "end": 22.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "forty-five.",
+    "start": 22.64,
+    "end": 23.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 23.76,
+    "end": 23.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 23.88,
+    "end": 24.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 24.08,
+    "end": 24.28,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.44
+ },
+ "usd": 0.004888,
+ "seconds": 0.84,
+ "recorded_at": "2026-11-14T17:33:07Z"
+}

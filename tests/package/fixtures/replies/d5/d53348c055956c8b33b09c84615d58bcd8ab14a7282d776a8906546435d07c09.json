@@ -1,0 +1,404 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "c1ac76cc7ec382bd05e876e08d03bff1bc0b4702adfdb6d72f3995648634cb5c",
+ "result": {
+  "text": "And is STRC and those, uh, digitals. We're the largest holder of Bitcoin in the world as an institution. Um, if you're a Bitcoin investor, the point I'd make to you is, uh, you probably should, uh, just hold it because our company will probably buy every Bitcoin mined between now and the year 2140. We'll buy it all, right? One company. And-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 24.84,
+    "text": "And is STRC and those, uh, digitals. We're the largest holder of Bitcoin in the world as an institution. Um, if you're a Bitcoin investor, the point I'd make to you is, uh, you probably should, uh, just hold it because our company will probably buy every Bitcoin mined between now and the year 2140. We'll buy it all, right? One company. And-"
+   }
+  ],
+  "words": [
+   {
+    "text": "And",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 0.3,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "STRC",
+    "start": 1.24,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 2.14,
+    "end": 2.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "those,",
+    "start": 2.28,
+    "end": 2.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 2.86,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "digitals.",
+    "start": 3.08,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 4.44,
+    "end": 4.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 4.58,
+    "end": 4.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "largest",
+    "start": 4.68,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "holder",
+    "start": 5.04,
+    "end": 5.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.3,
+    "end": 5.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.4,
+    "end": 5.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 5.78,
+    "end": 5.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.86,
+    "end": 5.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world",
+    "start": 5.98,
+    "end": 6.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 6.7,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 6.82,
+    "end": 6.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "institution.",
+    "start": 6.94,
+    "end": 7.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Um,",
+    "start": 8.48,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 9.94,
+    "end": 10.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 10.04,
+    "end": 10.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 10.18,
+    "end": 10.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.3,
+    "end": 10.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "investor,",
+    "start": 10.76,
+    "end": 11.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 11.42,
+    "end": 11.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "point",
+    "start": 11.56,
+    "end": 11.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'd",
+    "start": 11.78,
+    "end": 11.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "make",
+    "start": 11.96,
+    "end": 12.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.18,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 12.38,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 12.64,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 12.96,
+    "end": 13.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 13.3,
+    "end": 13.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 13.44,
+    "end": 13.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "should,",
+    "start": 13.74,
+    "end": 14.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "uh,",
+    "start": 14.1,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 14.8,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hold",
+    "start": 15.02,
+    "end": 15.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 15.38,
+    "end": 15.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "because",
+    "start": 15.58,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "our",
+    "start": 16.32,
+    "end": 16.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company",
+    "start": 16.52,
+    "end": 16.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "will",
+    "start": 16.92,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "probably",
+    "start": 17.12,
+    "end": 17.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 17.54,
+    "end": 17.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "every",
+    "start": 17.82,
+    "end": 18.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 18.08,
+    "end": 18.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mined",
+    "start": 18.56,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "between",
+    "start": 18.9,
+    "end": 19.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 19.3,
+    "end": 19.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 19.52,
+    "end": 19.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 19.64,
+    "end": 19.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "year",
+    "start": 19.72,
+    "end": 19.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "2140.",
+    "start": 20.08,
+    "end": 20.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We'll",
+    "start": 21.9,
+    "end": 22.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "buy",
+    "start": 22.04,
+    "end": 22.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 22.22,
+    "end": 22.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all,",
+    "start": 22.38,
+    "end": 22.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "right?",
+    "start": 23.24,
+    "end": 23.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "One",
+    "start": 23.56,
+    "end": 23.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "company.",
+    "start": 23.78,
+    "end": 24.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And-",
+    "start": 24.66,
+    "end": 24.84,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.88
+ },
+ "usd": 0.004976,
+ "seconds": 0.95,
+ "recorded_at": "2026-11-14T17:25:47Z"
+}

@@ -1,8 +1,17 @@
 {
- "generated_at": "2026-11-14T17:03:26+00:00",
- "build": "ledger_20261114_170313",
+ "generated_at": "2026-11-14T17:24:56+00:00",
+ "build": "ledger_20261114_172438",
  "kind": "moments",
  "candidates": [
+  {
+   "pid": "88b47fefa2c68c1a227a",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 14.0,
+   "text": "And theoretically, you could take this one step. The biggest risk with Bitcoin is you. It's not price action or volatility. It's making a mistake with your self -custody setup, falling for a fishing attack, or trusting the wrong custodian.",
+   "text_sha256": "acd66f4845e6e6b70f18cdbee36ce2ebe0fd27da9a906af02e5f33888790bc47",
+   "trimmed_leading": null
+  },
   {
    "pid": "4bb48df1195c808a37da",
    "video_id": "wbztAutsf-E",
@@ -10,6 +19,15 @@
    "duration": 13.9,
    "text": "So on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder -based.",
    "text_sha256": "3cd87eea6e6813c843c232f60c0af0a58df3eb444cd7722d29dd1bf584435ee2",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "ae2418d859c27c2bc1a5",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 13.33,
+   "text": "And that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates bank adoption.",
+   "text_sha256": "266480a20388c38c482fbed8abbbd179fb231aeb7a84219f9809005d871c7268",
    "trimmed_leading": null
   },
   {
@@ -31,12 +49,39 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b5980c46a8ca2fe572c7",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 7.36,
+   "text": "And so the volatility is your friend. You don't even have to save more or invest more when Bitcoin has these dips.",
+   "text_sha256": "cce7774ff8d41e0036877ad48b2ceefe445ee2d3a513c6d9bae292d8f4649a51",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "fdd84c05068e3eff3c08",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 12.36,
+   "text": "And then if Bitcoin falls 17 % every year forever, then we eventually have to do a credit refinancing. So you can see, sometimes people think you need Bitcoin to go up 20 or 30%. We don't.",
+   "text_sha256": "4e08af0c8955001a26729facfdc78a980502ce123f92a49e9e308d954910f90a",
+   "trimmed_leading": null
+  },
+  {
    "pid": "da0ff8d5b2a224b380fa",
    "video_id": "jeKD85EPlAc",
    "channel": "Coin Bureau",
    "duration": 10.95,
    "text": "But where is the money right now? Well, as I make this video, estimates have about $3.3 billion still in addresses controlled by the thieves, mostly Bitcoin and Ether. with the rest spread across other assets.",
    "text_sha256": "254dc32af8fc2a00f4ae537e2821847c1fcb86c2e2356f8b7b40689255d30180",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "2e21c7dc76f2cffa169f",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.8,
+   "text": "And in April of 2008, there will only be 225 Bitcoin a day available for sale. So what you'll see is a migration of capital, which will be... you'll see enormous wealth created by these AIs. It's got to go somewhere.",
+   "text_sha256": "ee89ca379ca9aa9d23a176b4400478834107e0ffce64ac63b3cd1eb0fd348502",
    "trimmed_leading": null
   },
   {
@@ -58,6 +103,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6d67b89376939f8ce2c6",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 16.3,
+   "text": "And so what you want is the highest performing commodity. And of course, gold was the highest performing commodity until Bitcoin came along. But gold is a 12 % a year. And if you have 12 % a year, you can create a credit dividend of 6%.",
+   "text_sha256": "6619c489ec16bfaf231c670fe02c3ea95e61657943965df3bdabef7e78a1df63",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "902fb9c0b9b1ac6335d7",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 15.21,
+   "text": "And the big idea here is you can only do this because Bitcoin is a commodity. If Bitcoin was a security, this doesn't work under the Investment Company Act of 1940.",
+   "text_sha256": "ac68748730cac0e97b3c51046e71f14ff3de046e61c857818ce3d6b1bd271dc2",
+   "trimmed_leading": null
+  },
+  {
    "pid": "9e059304bfc5bc1e2d85",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -76,12 +139,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "6ec656243a73becb3298",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 10.61,
+   "text": "And of course, Bitcoin is the scarce most desirable crypto asset. And then finally, the fiat debasement trade is going to keep driving it.",
+   "text_sha256": "c6b2bc1f24ba70a38c7dc6c2c661147d12c04c2526dc379ca4460f1542cb6543",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4c7a5e3a433a2a0b267c",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
    "duration": 15.72,
    "text": "And so as AI, those fears kind of ebb and flow here, we should see some of that AI narrative go back into Bitcoin where Bitcoin can't be printed, can't be can't be copied. And it's one of the few scarce digital things that we'll have in this world.",
    "text_sha256": "7906b7d8de25b81eb361631eb9ee06f1000247af99012585f5711791ef3556fb",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "5bc4d12aa667407bed6c",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 12.92,
+   "text": "And if you just cherry pick date to date over the last five years, the S &P 500 is up 72%, but Bitcoin is only up 28%. So the naive critic would say, look, you should just buy the S &P 500. Why are you buying Bitcoin?",
+   "text_sha256": "a3435aaf28e019e581a85cf74493ff5bfc1f35dfe4136cab2dbe1dea52a853e6",
    "trimmed_leading": null
   },
   {
@@ -103,6 +184,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "88b47fefa2c68c1a227a~trim",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 13.92,
+   "text": "theoretically, you could take this one step. The biggest risk with Bitcoin is you. It's not price action or volatility. It's making a mistake with your self -custody setup, falling for a fishing attack, or trusting the wrong custodian.",
+   "text_sha256": "37736ae3f02e8af446c3a8455771e01b8bbec8f7506e115f944aace34b353e9c",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "4bb48df1195c808a37da~trim",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -110,6 +200,15 @@
    "text": "on the age -based component, we're like 80%, 75%, this is like bottom of bare market type stuff, early bull market type stuff, 80 to 75 to 80 % of the total wealth in the Bitcoin system is long -term holder -based.",
    "text_sha256": "322201d03971373ee2eb95d21f6d5e40a393f4a587bf1b759079b064f0d544a4",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "ae2418d859c27c2bc1a5~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 13.29,
+   "text": "that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates bank adoption.",
+   "text_sha256": "3def549ffe602574150901e2f7ccecb9dc9f31186bf1821fc214716a96f1e68d",
+   "trimmed_leading": "And"
   },
   {
    "pid": "c3d02145771fb936d4f9~trim",
@@ -166,6 +265,15 @@
    "trimmed_leading": "Now"
   },
   {
+   "pid": "2e21c7dc76f2cffa169f~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.42,
+   "text": "in April of 2008, there will only be 225 Bitcoin a day available for sale. So what you'll see is a migration of capital, which will be... you'll see enormous wealth created by these AIs. It's got to go somewhere.",
+   "text_sha256": "81849146bd80690c1d8674f957a9ec68ce01d4f43da35df67ab1365e15cc1361",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "74f1205843a6d0ef2487~trim",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -184,6 +292,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "902fb9c0b9b1ac6335d7~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.97,
+   "text": "the big idea here is you can only do this because Bitcoin is a commodity. If Bitcoin was a security, this doesn't work under the Investment Company Act of 1940.",
+   "text_sha256": "3eee700d11e3e99bd9b57a146082d2d875e30a3971b552c7035cfc71a0c98cfe",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "9e059304bfc5bc1e2d85~trim",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -199,6 +316,24 @@
    "duration": 6.64,
    "text": "Bitcoin is going to be so normalized and ingrained in younger people, where else would you save your capital?",
    "text_sha256": "203e18daf3a625fb9a1e1c095c5b571ed43e75d6129ab9d6b40736fbfe9c5143",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "6ec656243a73becb3298~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 10.61,
+   "text": "of course, Bitcoin is the scarce most desirable crypto asset. And then finally, the fiat debasement trade is going to keep driving it.",
+   "text_sha256": "65f95169d32f4a78eb6391a1d0f62162a88777d86ffa37818a537f87fce1b934",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "5bc4d12aa667407bed6c~trim",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 12.76,
+   "text": "if you just cherry pick date to date over the last five years, the S &P 500 is up 72%, but Bitcoin is only up 28%. So the naive critic would say, look, you should just buy the S &P 500. Why are you buying Bitcoin?",
+   "text_sha256": "963e14425f49b0cf1a13aad1436cc87f138ce1862379112a46a013282cbad1cf",
    "trimmed_leading": "And"
   },
   {
@@ -220,6 +355,33 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "54e68763d2b2c33888da",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 13.58,
+   "text": "That same strategy, monthly DCA, but into Bitcoin, your returns are 69 % with a kegger of 21%. I'm going to repeat that. The S &P 500... 51 % total returns versus Bitcoin, 69 % return.",
+   "text_sha256": "dc573f5508ce01eb2778de78bb057bd7f8c9d3e28555e47f685f5b591cc132dc",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "e4eb5b1d99927b2a0a4e",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 5.26,
+   "text": "This is not a surprise. Have you been following me? I expect Bitcoin to be $100 trillion asset.",
+   "text_sha256": "7de9990d4103cb293c70492efedccb5ad2c860b90e857ee28e43eeab74146b51",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "c7b73b3449d57df7912a",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 6.34,
+   "text": "It will flow into the crypto economy. It will drive the price of Bitcoin. Bitcoin will become a $20 trillion asset.",
+   "text_sha256": "5882c7817befc4d56fd1dc8c72b9b39df1225dfaf434e4c24da789cad7e11a37",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5725aeda167432775db9",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -227,6 +389,24 @@
    "text": "There's a lot of other timelines where Bitcoin might have died or it could have taken until the end of my life for it to become a thing. I'm just happy to have seen it before I've turned 40 basically. I'm in my 30s, so it's the idea that I could see Bitcoin actually come into its identity and its adult adulthood in my lifetime is incredible.",
    "text_sha256": "7fc46373f2c10d0b5853cb420b00c5b987cd379c9bf2c2a80db4e3a8efbe3f78",
    "trimmed_leading": null
+  },
+  {
+   "pid": "06d34e155feae654ee56",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 22.94,
+   "text": "On my 20th birthday, I sold every stock in my Roth IRA and put it all into Bitcoin. That ended up being one of the best financial decisions I've ever made, but not for the reason most people think. I'm 26 now, and I still don't use my Roth IRA. I don't have a 401k. I don't own a single share of any index fund, and I'm on pace to be financially independent by 45.",
+   "text_sha256": "ca5de3fcb61ede08803257a4f4807737e22f2969d1db6f600593a861fc0342af",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "d6a80171491e2b5395b9~trim",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 19.25,
+   "text": "theoretically, you could take this one step. The biggest risk with Bitcoin is you. It's not price action or volatility. It's making a mistake with your self -custody setup, falling for a fishing attack, or trusting the wrong custodian. You need to learn how to secure your Bitcoin properly so you can actually hold it for decades.",
+   "text_sha256": "93e6381b0226a12257d28daa66ff2eee09e8af38c7e495e355d58d6131e225b4",
+   "trimmed_leading": "And"
   },
   {
    "pid": "eade93c11a2a492ea763",
@@ -265,12 +445,30 @@
    "trimmed_leading": null
   },
   {
+   "pid": "b04337f6fdffa0029f2d",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 29.56,
+   "text": "On the other hand, Bitcoin is not. Bitcoin is an appreciating asset. All of the robots and all of the AIs in the world can't figure out how to create more than 450 Bitcoin per day. They can create infinite movies, infinite books, infinite music, infinite entertainment, infinite education, infinite ideas to optimize infinite drugs, infinite medical advice, infinite legal advice, infinite accounting, infinite software.",
+   "text_sha256": "13276e717308b27428a3d8d8969a169e8e7646e0652a5aa5c353fa4d57bb98f6",
+   "trimmed_leading": null
+  },
+  {
    "pid": "2e3622d2282ef2692994",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 18.74,
    "text": "Bitcoin absolutely can be, should be, and probably will be used as a medium exchange in some way, shape or form. But we are so far away from that that I don't think it's something that we should be stressing about if it's not happening. You know what I mean? I think that you have to go through, and this goes back to the original point, things just take a long time to happen.",
    "text_sha256": "8430b762a254b65f570a468593f720803f1be5731f987df8d7fcd6b1e22734ab",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a84e4fbdb80b7eba0dfc",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 16.84,
+   "text": "If Bitcoin performs as well as gold or the S &P index, this is a screaming home run for the equity investors. So it's a fairly conservatively constructed portfolio. This is actually history against those hurdle rates.",
+   "text_sha256": "231d3ae44efd7ad7f7d5183e45342f63de6b0cc136e8777db9997eb2eaf679a7",
    "trimmed_leading": null
   },
   {
@@ -319,6 +517,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "ece4072374c42a4331ef",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 20.06,
+   "text": "That same strategy, monthly DCA, but into Bitcoin, your returns are 69 % with a kegger of 21%. I'm going to repeat that. The S &P 500... 51 % total returns versus Bitcoin, 69 % return. Same strategy, same time frame, but the starting and ending destination are wildly different.",
+   "text_sha256": "44cefc2a6b3c46bb685c681b591f166b805a9511f9963ce0d5d3daade6aff1fb",
+   "trimmed_leading": null
+  },
+  {
    "pid": "a70f7d22798173c122eb",
    "video_id": "L_AJ0jO-AG0",
    "channel": "Altcoin Daily",
@@ -328,12 +535,48 @@
    "trimmed_leading": null
   },
   {
+   "pid": "3c3679159b58612ae873",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 17.12,
+   "text": "The company has right now the capacity to sell $48 billion of this stuff without Bitcoin price moving. But you can imagine if we sell $40 billion of credit and buy $30 billion of Bitcoin, the price is moving. The price is moving up. And when the price moves up, we'll be sitting on $300 billion of Bitcoin.",
+   "text_sha256": "cd64b0fb922023019bf22850a7d9410451d725b6bb547ebfaeebb3c7e02f270c",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "933f9d33a8e345356177",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 19.38,
+   "text": "We're the largest holder of Bitcoin in the world as an institution. If you're a Bitcoin investor, the point I'd make to you is you probably should just hold it because our company will probably buy every Bitcoin mine between now and the year 2140. We'll buy it all, right?",
+   "text_sha256": "a6a1834cd1b1e7246ac23ea3ba20260c3556fae1edba5883ca71d6598368c04d",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "9f173eb2984576d2a970",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 15.72,
+   "text": "As long as Bitcoin appreciates 2 % a year, then we can pay the dividends forever indefinitely. So it's not much. It's because we have 70 billion of capital, and we only have about one and a half billion dollars of dividends. Divide one and a half into 70, and you get the number.",
+   "text_sha256": "1e79bd8aca24ec02f1ed5621b6f55574e23a115d57ddd2dd56016f26294f1095",
+   "trimmed_leading": null
+  },
+  {
    "pid": "e959d5ade74f877900c0",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 15.1,
    "text": "I think one of the best starting points is January 1st, 2023. The bottom of the 22 bear market, which wasn't a Bitcoin bear market. It was a global bear market. Bonds lost 50 % of their value. TLT went down 50%. Half fastest rate hiking cycle in history.",
    "text_sha256": "1e08e5d1d5a6bdee5104e5e61e9dea4d83682b763f23b900951db89342f71ea6",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "888cf86d36258b87c0fa",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 15.33,
+   "text": "This is not a surprise. Have you been following me? I expect Bitcoin to be $100 trillion asset. And who will we compete against? Private credit, junk bonds, you know, garbage. you know, credit securities.",
+   "text_sha256": "b118a7ea980cf5c64271a7489d62b3efd52ecf4956ab40d6d774452cdb345730",
    "trimmed_leading": null
   },
   {
@@ -353,6 +596,24 @@
    "text": "my simple take on it is can you identify in Bitcoin's code where we added a line for institutions? Like where in the Bitcoin protocol? Because that's what Bitcoin really is, right? Is the code. You know, do we see in the code a proof of work change, a 21 million hard cap adjustment or any sort of code that was pushed by big banks to make Bitcoin more palatable for them?",
    "text_sha256": "b23c8c8e62f1e724fc5c8fcac71b999902284e936ae654092729aaca360a4995",
    "trimmed_leading": "So"
+  },
+  {
+   "pid": "d62a1004294ea1c5b1e5",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 16.47,
+   "text": "Long term, I expect Bitcoin to appreciate 20 to 30 % a year for the foreseeable future. It's going to outperform the S &P. It's going to outperform the NASDAQ. It's going to outperform the magnificent seven. That's really all.",
+   "text_sha256": "649efed69d2d29f90fee380e50f0526d5e5b258e56a0703d05a5b609ca5c6e42",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "157d7aabbb2adca8f60d~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 28.67,
+   "text": "that's why when JP Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset. Anything that legitimizes the asset, accelerates bank adoption. And to make the point, just how far we've come, when I spoke at this conference two years ago in November of 2024, the banking regulators had been running Operation Choke Point, and they were literally shutting down banks.",
+   "text_sha256": "583a0c2d0f94e20974a51a8b45b538a42c1b9f92242e7de2fd8190dd84281dbd",
+   "trimmed_leading": "And"
   },
   {
    "pid": "c762a1951bb30926fb96",
@@ -382,6 +643,24 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "6b33291720bfc3eab9fe",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 17.18,
+   "text": "We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion in market cap company. This year we raised nearly $22 billion. This is a bad year. We're in a crypto winner, but we've raised nearly $22 billion.",
+   "text_sha256": "e0879ab72fa5f509dea4b2d16fe0b99b93ef2461662aee06b609281239e8e9ad",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "7c5844550969e471cd1f",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 15.9,
+   "text": "Time and volatility are your friends. I've been consistently accumulating Bitcoin, and my favorite way to do that is by running Bitcoin mining machines. I can depreciate the costs of machines, lowering my taxable income so I can save five figures every year by just owning these Bitcoin mining machines.",
+   "text_sha256": "bc43eb3720b95b55c50bb70299f96388feb5dcc4c63be9c65c60bc11a5327b2b",
+   "trimmed_leading": null
+  },
+  {
    "pid": "5b159ce6a40b1251f0fe~trim",
    "video_id": "wLJ_jy3wyN8",
    "channel": "Anthony Pompliano",
@@ -389,6 +668,15 @@
    "text": "he said, what was very interesting is that they were still getting a lot of deposits, even while the hack was going on, because people were rushing to put assets on the platform to buy the dip because Bitcoin had started to sell off. And I thought that was fascinating psychology of there's a hack going on.",
    "text_sha256": "4c35e186636c68ff6930411d33de4ba8e34bc05cdc2732dfb7e4fb0c7d0fd124",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "f8fa70776de5b2d2e4ac",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 20.49,
+   "text": "People don't understand Bitcoin is capital. They don't understand his digital credit, is mispriced, but that being the case, it's just an opportunity. And for us, We don't mind because the high dividend will attract more capital to a new space, and so it's a way to attract people that are willing to get into the digital economy.",
+   "text_sha256": "a937a89d0ab8c07be475df682c67c9a415071f1480799e8680e07323d6655e27",
+   "trimmed_leading": null
   },
   {
    "pid": "a7ed3a348a7136992e88~trim",
@@ -409,6 +697,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "129d962df2f71d53ef75~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 27.25,
+   "text": "what we learn with credit is it's an alloy of Bitcoin and dollars. And if the alloy is 98 % Bitcoin, $2, it tends to buckle. And if the alloy becomes 25, 30, 40 percent dollars, it's like stainless steel. It's very strong. And so the real trick to creating digital credit is blending in the right amount of dollars along with the Bitcoin in order to create something which is strong.",
+   "text_sha256": "0b32ef4ef1d25df5deb02bbd11dc8352e9a7174c41dbef65c9a3aabc23238d66",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "139139443bdc32ae3e3b~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 27.08,
+   "text": "we see this has a profound network effect because with things like ETFs, let's take IBIT. If Bitcoin flows into an ETF iBit and if your bank, JP Morgan or Morgan Stanley or Schwab, will extend credit against the iBit, you will tend to want to hold that asset. And of course, the better the credit terms they offer, the less incentive you have to sell, the more likely you are to buy.",
+   "text_sha256": "b7279e9ee4344eabc5b7a21ddbdd51ca9e33e5f80e2191e07adf56b6240a14cb",
+   "trimmed_leading": "And"
+  },
+  {
    "pid": "64f28f858f21b75dd1fa",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
@@ -424,6 +730,33 @@
    "duration": 17.88,
    "text": "Things like Bitcoin is going to be second nature to them. The same way that Excel was like my thing, it's going to be their thing. And Bitcoin is going to be so normalized and ingrained in younger people. Where else would you save your capital? It's such a... The fundamental core property still make Bitcoin just sing.",
    "text_sha256": "1bfefd47cab57ebb86600fe78fcb4295c52653f0514e6e1b602d0e099ca962df",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1306d03f2a72fd0af4d0",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 20.91,
+   "text": "If a bank wants to create credit and wants to cover crypto, in this case, Bitcoin, then it's going to be very good for the asset class. This is by far the most important driver, ultimately. And that's why when J.P. Morgan announces that they think Bitcoin is going to appreciate 10 % a year, that's profound because they've legitimized the asset.",
+   "text_sha256": "130b5733ef26bc0116081ed71934cceb84ed9b8987aac3f1d95dc9c5d330d6c5",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "8ff932fc2cd797f3a4ae",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 24.42,
+   "text": "Bitcoin's 36 % a year. You can create a credit dividend to 12%. Anything more than 9 % is enough to be interesting to a credit investor, and they'll embrace a new idea. The idea of digital credit was, what if we could provide the double -digit returns and the tax efficiency of an equity portfolio like buying the S &P index?",
+   "text_sha256": "0843f66f96994fff11550c9deb604e4ba4d2451461ee2e449a4fbd343ed4ad32",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "dab001bab2343f1968cb",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.32,
+   "text": "We're kind of like the central bank of the crypto economy. That's the way. Bank of Bitcoin, Bank of England. We own about 4.05 % of all the Bitcoin that will ever exist. It's about a $55 billion in market cap company.",
+   "text_sha256": "527c426e64387dd760f4fc301c0caf8e8e7324558ef5e9474959efb984134369",
    "trimmed_leading": null
   },
   {
@@ -517,6 +850,15 @@
    "trimmed_leading": "So"
   },
   {
+   "pid": "7db867b846e84a4ab586",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 26.0,
+   "text": "We also show the floor. And so what you can see is that if Bitcoin falls below $3,600 a coin, STRF would be under collateralized. So it's fairly easy to assess this risk, and then you can assess the price and whether the price makes any sense, because here you see the market credit spreads against the risk, and you can see there's a massive premium that you can capture of your credit investor.",
+   "text_sha256": "588d1f3d29d6a1f54916309e07fa601264e25e7f793ca17c99985749740bc6e9",
+   "trimmed_leading": null
+  },
+  {
    "pid": "93fca317d9fe229b4001",
    "video_id": "wLJ_jy3wyN8",
    "channel": "Anthony Pompliano",
@@ -589,6 +931,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e961be05baa6f473fd66",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 16.93,
+   "text": "We can sell Bitcoin if we needed to. We can buy back the credit. We can buy back or sell our equity. And then, of course, we can adjust the dividend. In June of 2025, that credit buckled.",
+   "text_sha256": "bfe8eb76def228e7ac9e2e4cd790f6dcf4997c70df7aec8aac3c99a85b6ec281",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "1abf62635b6422bce8dd",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.88,
+   "text": "The price is moving up. And when the price moves up, we'll be sitting on $300 billion of Bitcoin. Our credit risk will fall. The credit spreads will compress. The demand for credit will increase. We will sell more credit. The equity premiums will expand.",
+   "text_sha256": "5ef9c96eb91fa8145236d16c4dd9957e029ac62f358cef14a1e9f689c7e0666c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "3fc97f3afec6a4386667",
    "video_id": "wLJ_jy3wyN8",
    "channel": "Anthony Pompliano",
@@ -625,6 +985,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "a09d2e1fa91290142664~trim",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 16.71,
+   "text": "of course, Bitcoin is the scarce most desirable crypto asset. And then finally, the fiat debasement trade is going to keep driving it. We're running chronic deficits. They're large. They're either going to stay large or they're going to get larger.",
+   "text_sha256": "a97533c63c009b99c6b252da3b32838c3ba716d95dec7c7dbb30be9747e50370",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "dd82d548eb807dbd16c9",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 14.83,
+   "text": "The theoretical credit risk on STRC, which is about five, almost six times over collateralized, there's $6 a Bitcoin for every dollar of STRC. is the credit risk is about 58 basis points.",
+   "text_sha256": "249c8ddb75d728d720faa24f53a5abb2278d6f633af00af96e0b0ba8cb2c1b6f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "cbf391e7523ac232206a",
    "video_id": "wLJ_jy3wyN8",
    "channel": "Anthony Pompliano",
@@ -634,12 +1012,48 @@
    "trimmed_leading": null
   },
   {
+   "pid": "df978d34fe61f7830a1d~trim",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 15.4,
+   "text": "if you just cherry pick date to date over the last five years, the S &P 500 is up 72%, but Bitcoin is only up 28%. So the naive critic would say, look, you should just buy the S &P 500. Why are you buying Bitcoin? You got outperformed and you had all this volatility.",
+   "text_sha256": "0bbee71c1e3fe27af0745927a7a82cdd94506e24f0c4d55f9fd34a64e2654a6a",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "7d9a721942de505c5d4f",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 14.53,
+   "text": "If you take both of these guys, for the traditional investor, Bitcoin would be the absolute most risky thing he owns. He would say you shouldn't have more than 2 to 5 % in Bitcoin. And if you do, you're an idiot. But he still has 2 to 5%.",
+   "text_sha256": "2a07bfa67d10147bfa317a3ace3f6d8ed953a6d69f420d9249e397b27b536ba1",
+   "trimmed_leading": null
+  },
+  {
    "pid": "b36fbc2652b71924a361",
    "video_id": "wbztAutsf-E",
    "channel": "TFTC",
    "duration": 26.74,
    "text": "It's like, yeah, but no, you don't because from the moment that that fork happens, your UTXO set is differing from consensus. So you don't have the same UTXO set from the point when you forked. So unless you can attract the whole system, in which case you are Bitcoin. So the important part about Bitcoin is the UTXO set in the history. That cannot be replicated. It's that network effect that is just impossible to, you know, that's why Bitcoin's a $1.5 trillion versus everything else, which is not even close to a trillion.",
    "text_sha256": "e595233ea8367f9d2fc9c06019c1c672bf78b27fd3be3dee575c4e593106641f",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "f63eb650af0400385f9f",
+   "video_id": "SJXZ5GycchU",
+   "channel": "Strategy (MicroStrategy)",
+   "duration": 15.46,
+   "text": "If Bitcoin appreciates more than 10%, then the excess spread over the cost of the credit is captured by the equity investor. So the equity should outperform Bitcoin if we get a 15 % or 20 % Bitcoin performance.",
+   "text_sha256": "d1e3d48dcdb6d4dc0b7fca1501251c9f2083bc1fbfce7b4ee6d4dad266c0ae22",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "a3bd7b1f28874036fe53",
+   "video_id": "7BqLu-wzbU0",
+   "channel": "Blockware Solutions",
+   "duration": 18.9,
+   "text": "Bitcoin is dead. It's boomer coin. It's not volatile enough. There's not enough upside there. So it's too safe for that guy and it's too risky for the traditional investor. And so it's right in this sweet spot where those who know a lot about it and have been around it, it's not volatile enough for them versus those who are newer to the scene.",
+   "text_sha256": "b75589d8437254872060f78d9064c59e64dcf0e1a2ec4b425faf623e25637a8d",
    "trimmed_leading": null
   },
   {

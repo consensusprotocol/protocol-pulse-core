@@ -394,5 +394,27 @@
    "backend": "heimdall:qwen/qwen3.8-27b",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "933f9d33a8e345356177:a6a1834cd1b1e7246ac23ea3ba20260c3556fae1edba5883ca71d6598368c04d:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 4,
+   "alone": 4,
+   "setup": 3,
+   "rating": 4,
+   "why": "bold but self-contained; little forward tension",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "06d34e155feae654ee56:ca5de3fcb61ede08803257a4f4807737e22f2969d1db6f600593a861fc0342af:dd497beb6930": {
+  "heimdall:qwen/qwen3.8-27b": {
+   "scroll": 5,
+   "alone": 4,
+   "setup": 5,
+   "rating": 4,
+   "why": "finance jargon may lose non-investors",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }
