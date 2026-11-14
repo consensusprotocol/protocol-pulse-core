@@ -291,7 +291,7 @@ episode EXCEPT one that is MARKED (it carries caption speaker markers) and sits 
 turns a minute, a measured solo recap (`mine.is_conversation`). An episode with NO markers at all (auto captions often
 carry none, e.g. Stephan Livera's interviews; professional captions never do) is asked, and so is a marked one whose
 rate cannot be measured: "at $0.006 a video the cost of asking is nothing and the cost of missing an interview is the
-whole point". (The rate is `episode_measure`'s, rounded to 2 decimals: 0.295 reads as 0.3; audit a36 c1, glm.) The builder gets the matching ruling for its source test. In such an episode:
+whole point". (The rate compared is `episode_measure`'s, rounded to 2 decimals; audit a36 c1 / c2.) The builder gets the matching ruling for its source test. In such an episode:
 - (b) the hook question allows up to `HOOK_MAX_CONVERSATION` (5) openers a window (the prompt says it, the validator
   holds the reply to it); elsewhere it stays 3, and its prompt is byte-identical to mine-hook/2's (so a re-run of a
   solo video is answered from the reply cache at no cost).

@@ -1,4 +1,5 @@
 """Mining: the strict reply contract (law L-l), windows, the Bitcoin screen, moment lines (pp.moment/1)."""
+import hashlib
 import json
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -495,6 +496,17 @@ def test_a_conversation_is_asked_for_up_to_5_hooks_a_window_and_a_solo_episode_f
         max_s=3, reason_max=mine.REASON_MAX, max_h=3, channel=H.CHAN["display_name"], title=meta["exact_title"],
         rows="\n".join(f"[S{s['k']} {mine._mmss(s['start'])}] {mine._untrusted(s['text'])}" for s in win),
         lo=win[0]["k"], hi=win[-1]["k"])
+
+
+def test_a_solo_episodes_hook_prompt_is_the_one_asked_before_so_its_cached_replies_answer_it():
+    """Audit a36 c2 (glm): the version bumps (mine-hook/3, /4) are free where the prompt did not change only because a
+    solo episode's hook prompt is byte-identical to the one asked before (the reply cache's key hashes it). A golden
+    sha256, verified against the mine-hook/2 code on the same window, pins it: a change to HOOK_PROMPT's text, or to
+    the solo max_h, fails here (and would re-ask every solo window at a cost)."""
+    win = [{"k": 3, "start": 0.0, "text": "Bitcoin is a bet against every central bank."},
+           {"k": 4, "start": 4.0, "text": "Here is why the halving matters >> and why miners care."}]
+    p = mine.hook_prompt({"exact_title": "A title"}, {"display_name": "A channel"}, win)
+    assert hashlib.sha256(p.encode()).hexdigest() == "de1e0f26459860e1ee02c09ae97798997aafa1aa2757a233e69201703b6f140c"
 
 
 @pytest.mark.parametrize("ep,asked", [

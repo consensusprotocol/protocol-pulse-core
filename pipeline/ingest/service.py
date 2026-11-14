@@ -443,7 +443,8 @@ class Service:
                 [f"the spotlight question crashed: {scrash}"] if scrash else [])
             self.q.set_hook(vid, hook_ts=self.clock(), hook_rows=len(lines), hook_cost_usd=cost, hook_tries=tries,
                             hook_version=(f"{mine.HOOK_PROMPT_VERSION} (spotlight crashed)" if scrash else
-                                          mine.HOOK_PROMPT_VERSION),       # a crashed spotlight: --rerun asks again
+                                          mine.HOOK_PROMPT_VERSION),       # a crashed spotlight: the suffix makes
+                                                                           # --rerun (version <> current) ask again
                             spot_rows=len(spot) if srep is not None else None,
                             hook_next_ts=None, hook_note="; ".join(notes) or None)
             self.q.event("hooks", vid, v.get("channel_id"), rows=len(lines), spotlight_rows=len(spot),

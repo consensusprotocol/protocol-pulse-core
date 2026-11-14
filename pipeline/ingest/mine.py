@@ -131,7 +131,8 @@ HOOK_PROMPT_VERSION = "mine-hook/4"   # ruling 92 (orchestrator 22:52 Nov 13): f
                                        # /4: the 09:02 ruling (A36: WIDEN): (b) + (c) on every episode but a marked one
                                        # under 0.3 turns a minute (is_conversation)
 CONVERSATION_TPM = 0.3       # the orchestrator's 09:02 ruling (A36: WIDEN; was 1.0, ruling 92's caption measure): a
-                             # MARKED episode under it is a solo recap; an episode with no markers is asked
+                             # MARKED episode under it is a solo recap; an episode with no markers is asked. It is
+                             # compared with episode_measure's rate, rounded to 2 decimals (audit a36 c2)
 HOOK_MAX_CONVERSATION = 5    # (b): up to 5 hook candidates a window in a conversation episode
 SPOT_PROMPT_VERSION = "mine-spot/1"   # (c): the spotlight question, conversation episodes only
 SPOT_MAX, SPOT_MAX_SENTENCES = 2, 8
