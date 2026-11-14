@@ -6,6 +6,20 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 22:44 THE SPOTLIGHT PIN CONTRACT IS AGREED with the builder (ruling 90 as amended by 91 / 92):
+- WHAT A SPOTLIGHT PIN IS: a moments pin (moments_package.type 'moments') with moments_package.shape = 'spotlight', inside the seal.
+- SEGMENTS: exactly ONE segment, role 'hook' (it opens cold; the hook's cut / onset / pre-check rules apply), with today's segment fields; 12-35 s of locked words is a kit taste line.
+- VO: edl_vo = {intro: null, bridges: [], closing: null by DEFAULT}. A closing line (<= 12 words) is allowed only with the sealed rows closing_value (ruling 91, off the writer's family), closing_fidelity and closing_context all PASS. The render plays the line in the intro slot after the moment.
+- SIGN-OFF AND KIT: signoff_expected names one channel. first_comment carries the WHOLE first comment in PBX's format (credits included); the kit prints it verbatim and appends nothing.
+- REQUIRED SEALED ROWS (exactly PASS, not replayed): spotlight_source (ruling 92), hook_own (>= 4), stands_alone (>= 4), step_a_two_families, visual, window_12h, never_delivered, one_per_channel_day, precheck.
+- DELIVERY: the pass path only, labelled a SPOTLIGHT candidate for approval, a DEMONSTRATION (PBX sees the first before approving the format).
+- Handle table for both sides: pipeline/channels.json (yt_handle; x_handle, empty = none verified; no speaker-level table here).
+- L-ab SPOTLIGHT is written into PIPELINE_LAWS.md, rulings 90 / 91 / 92 in PBX's words. It is on the r90 branch and merges with the render code.
+- THE DEMO: the builder's only qualifying opener (Simply Bitcoin, 'can't print more Bitcoin') is out by ruling 92 (a solo host). It seals the first moment that qualifies as uploads arrive.
+- FOUND AND FIXED (operations), a GPU0 blocker I caused: the pre-check service's 21:22 decode left a 394 MiB CUDA context resident in its long-running process (pid 1721204). Under L-r 4 every other GPU0 user saw it as foreign: the judge service's swap waited 600 s and stopped safely (the request stayed pending), and a render would have held at its start.
+  - Fix at 22:43: the pre-check now runs as a loop of one-pass processes (lock_precheck.py once), so each batch's process exits and frees GPU0. No code change.
+  - The judge then answered the builder's wiring check: 30.6 s, gemma3:27b digest a418f5838eaf, JSON {"excerpts": [...]}, waited 968 s, no error. GPU0 was left with no compute process.
+
 ## 22:26 RULING 87'S JUDGE SERVICE MERGED (audits batch 72: cycle 1 had ONE consensus finding, fixed; cycle 2 clean, qwen27b + glm both PASS). Plan B's single-family step A now has its second verdict on the GPU0 gemma3:27b; judge_sha c62a1e12088c.
 - Contract (pipeline/local_judge.py serve):
   - the builder writes judge_requests/<request_id>.json in its own directory, which is READ ONLY to the service (answered once per name and content: a marker in data/local_judge/answered/, a copy in requests/done/);
