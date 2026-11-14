@@ -10619,5 +10619,72 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "ff23d535b91d75093c45:39618ae8c21823750a4068fb09cac51f563af5ce355f4825b4e343c09af2c719:3994f83a0272bdb9e216893ccc6e403df70b9b433d7494f655440ae7f59c3c6d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "ff23d535b91d75093c45",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "MSCI delisting of Strategy/MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "MSCI delisting of Strategy/MicroStrategy",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "which",
+     "refers_to": "$2.8 billion enforced outflows",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "JP Morgan said that the MSCI removal would cause about $2.8 billion in enforced outflows, which is less than MSTR's daily trading volume.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b8190dd577753a031364:22565551fca2935794ddfdfc193bd21117ce62e61547f45140290a904c23d306:84eb86f05a438641df12aea09d6655cca5baf6238132d129a63e6aefbfde7b7c:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b8190dd577753a031364",
+   "speaker_changes_inside": "no",
+   "view": "attributed",
+   "referents": [
+    {
+     "word": "it",
+     "refers_to": "Bitcoin's price",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in Q4 / this cycle",
+     "inside": false
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The second group thinks Bitcoin is going to go down even lower, with prices possibly reaching 10k, 20k or 40k.",
+   "certainty": "certain",
+   "speaker_is": "uncertain",
+   "speaker_evidence": "",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

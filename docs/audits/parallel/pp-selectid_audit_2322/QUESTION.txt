@@ -1,0 +1,104 @@
+You are auditing a change on branch pp-selectid (Protocol Pulse: the builder of sealed "moments" pins that another
+session, the integrator, renders into short Bitcoin videos). The change adds a SECOND PIN KIND, the "spotlight"
+(one strong clip, an optional host line, the sign-off). Only state what you can verify from the diff; if uncertain,
+say so; do not guess. Be factual and specific: file:line and a concrete input that breaks it.
+
+Background (static):
+- The flagship kind is the MEDLEY (a hook clip + 2-4 clips back to back, one takeaway line). A package passes many
+  gates; package_pin.to_pin() turns it into a pin only when every REQUIRED gate row in its sealed inventory is exactly
+  "PASS" with replayed false (law L-j: fail closed), and seals the gated bytes with seal() (sha256). The integrator's
+  readiness check imports THIS worktree's package_pin.py live and recomputes seal() on every pin, so seal() must stay
+  backward compatible: every pin sealed before this change must recompute to its own package_sha256.
+- Law L-m: nothing measured is never a pass (an unavailable or out-of-contract verdict is no verdict).
+- Law L-s: a verdict never comes from the vendor or model family that wrote the line it judges.
+- The verdicts the spotlight reuses (step A context integrity, the second recognition pass and CUTTABLE, G17a hook
+  onset, the hook rating, the visual check, the second step-A family, exclusion, VO fidelity, context integrity) are
+  the medley's own, unchanged, cached across builds.
+- The ALONE scorer is the render's stand-alone clip scorer (1-5), run by the integrator's service on candidates this
+  builder writes at the start of each build (package.scorer_pass); verdicts are read from a file and apply only to the
+  exact text they rated (text_sha256).
+- The render's lock pre-check (lock_precheck) re-decodes each clip on the integrator's side and passes, adopts a
+  spoken text, or holds the clip. Its results are keyed by the integrator's decoder sha, which moved tonight to
+  c705b20ed800 (their spotlight branches changed pinned.py; RULES unchanged).
+
+The orders (verbatim excerpts):
+- RULING 90 (22:40 ET Nov 13, LAW since 22:52): "a spotlight is built only when the window's search ends with no
+  medley, or for a moment no medley used. SHAPE: ONE moment, one speaker, one channel: 12 to 35 s of clip. No hook/clip
+  split, no bridge, no join. Then at most ONE closing line in the PBX MAX voice, 12 words or fewer, class D commentary
+  that characterises what was SAID (the two refused patterns stay refused) ... Then the sign-off and the credits card
+  with that one channel, then the outro. Total 28 to 50 s. ... WHICH MOMENT: it must rate >= 4 on the hook's own job
+  (it opens cold) AND >= 4 as a clip standing alone (the ALONE scorer + step A, both vendors as routed); the visual
+  check clean; inside 12 h at the render clock; never a delivered span; at most one spotlight per channel per day. If
+  the strong moment is under 12 s, snap it OUTWARD to the speaker's whole thought (ruling 32's snap; the added words
+  judged as usual), not padded. EVERY integrity law is unchanged ... YOUR SIDE: the spotlight package (kind
+  'spotlight' sealed in the pin; gates: the moment's two ratings, step A both families, pre-check, the closing line's
+  fidelity + context as for a takeaway, title, caption). Title 8 words or fewer; caption in house style; ALSO write
+  the first-comment draft ... in PBX's format: one or two short casual lines specific to this clip (not preachy, no
+  emoji), a blank line, 'Credits' + the orange heart, a blank line, the X handles of the channel and the attested
+  speaker (handles only from a verified table: if a handle is not in the table, leave the name untagged and say so)."
+- RULING 91 (22:52): "Default for a spotlight: NO PBX line ... A line is written only as a candidate and is kept only
+  if a separate VALUE verdict (off the writer's family) answers all of: it says something the clip does not already
+  say; it does not restate, summarise or cheer the clip; a viewer would miss it if it were cut; it is 12 words or
+  fewer; plus the usual fidelity and context gates. One write, one verdict; anything short of a clear yes means no
+  line."
+- RULING 92 (22:52): "A spotlight moment must come from a conversation or original reporting: an episode whose caption
+  turn structure shows two or more speakers (interview, podcast, panel), or a first-hand statement (a keynote, an
+  interview on a news network). NOT from a solo host-to-camera news recap or reaction segment, on any channel.
+  Measured, not listed by name: the turn markers across the episode (one speaker throughout = solo), plus the visual
+  check's layout (one face to camera with headline graphics or b-roll = recap)."
+- 22:58: "The 20 s per source video is a medley rule; for a spotlight the ceiling is ruling 90's 35 s."
+- The pin contract agreed with the integrator (22:44): moments_package.shape "spotlight"; exactly one segment, role
+  "hook"; edl_vo {"intro": null, "bridges": [], "closing": <= 12 words or null}; signoff_expected names that one
+  channel; first_comment is the WHOLE comment (printed verbatim, nothing appended); gate rows always required:
+  spotlight_source, hook_own, stands_alone, step_a_two_families, visual, window_12h, never_delivered,
+  one_per_channel_day, precheck; and closing_value, closing_fidelity, closing_context whenever closing is non-null.
+  The integrator's seal call: seal(segments, edl_vo, signoff, title, caption, gates, btc_screen, shape=...,
+  first_comment=...) for a spotlight only.
+
+The change:
+1. package_pin.py: SPOTLIGHT_GATES, CLOSING_GATES, SPOT_RUNTIME_S (28, 50), SPOT_CLOSING_MAX_WORDS 12,
+   first_comment_text(); required_gates() for the spotlight (a package's vo or a pin's edl_vo); seal() gains
+   shape / first_comment (in the body only for shape "spotlight") and edl_vo["closing"] (only when the key is present);
+   pin_seal(pin); line_problems() checks the closing line and that first_comment is built from the gated comment;
+   spotlight_problems() (one segment, no intro or bridge, closing <= 12 words, the sign-off names the channel, a
+   first comment, runtime 28-50 s); screen_problems() also for a spotlight; to_pin() emits the agreed fields.
+2. package.py: usable(seg_max=...) (35 s for a spotlight); scorer_pass(extra=...) and build(scorer_extra=...) send the
+   spotlight's pool to the ALONE scorer with the medley's own candidates (deduplicated by id and text).
+3. spotlight.py (new):
+   - pool(): free stage (usable with 35 s, one per re-posted speech, one spotlight per channel per ET day from a
+     record, the snap for a moment under SNAP_TO_S = 13.7 s: 28 s minus the factory's 14.3 s tail, the render's hook
+     opener rule and its topic rule);
+   - snap(): whole sentences of the same word record, the next ones first, then the ones before, never past 35 s,
+     never across a caption speaker marker; a new moment re-judged by the miner's eligibility;
+   - episode_turns() + layout_for() (a vision verdict on the clip's own contact sheet, cached) + source_test()
+     (ruling 92: PASS only for a measured layout "conversation" or "first_hand"; a marked episode under 1.0 caption
+     turns a minute is not a conversation);
+   - build(): the stages in order (step A, L-v 2 / CUTTABLE, G17a and the hook rules, the hook's own job >= 4, the
+     visual check clean, step A from the second family, the ALONE scorer >= 4 with a bounded wait, ruling 92), then
+     best first: exclusion, the lock pre-check, package_for(); the three nearest when none qualifies;
+   - package_for(): one write (title, caption, comment, candidate closing); one more write of title/caption/comment
+     only when a free gate refuses them (never of the closing); every verdict off the writers; the closing ships only
+     with the free gates, ruling 91's value verdict (four clear yeses AND <= 12 words in code), its own fidelity
+     verdict and context integrity with it spoken; otherwise no line; then the speaker record, credits() from the
+     verified table, the first comment, LP.apply, and the inventory (package.inventory's rows minus "r4" and
+     "coherence", plus the spotlight rows).
+4. lock_precheck.py: DECODER c705b20ed800.
+5. proof_ledger.py: the pool to the scorer at the build's start; the spotlight after the medley search (a sealed
+   medley's clips excluded); SPOTLIGHT_PIN.json and the SPOTLIGHTS record.
+6. Tests: test_spotlight.py (new), test_lock_precheck.py (the decoder).
+
+Check, against the diff:
+- that every pin sealed before the change recomputes unchanged, and that a spotlight's closing line, kind and first
+  comment are inside the seal;
+- that no path can ship a closing line without all three closing rows PASS, or ship one that failed any gate;
+- that every required row is computed from a measurement (none hard-coded to PASS without evidence); name any row that
+  could PASS on missing data;
+- that the snap never pads, never crosses a speaker marker, never exceeds 35 s, and that the snapped span is judged
+  by every gate;
+- that ruling 92's test cannot pass a solo recap or a reaction, and fails closed when unmeasured;
+- that every verdict is off the writers' vendor and family (L-s), the value verdict included;
+- the per-channel-per-day rule, including an unreadable record;
+- that the medley's behaviour is unchanged (scorer_extra, usable's default, seal for medley pins).
+
+Answer with findings tagged <critical>, <high>, <medium> (file:line, a concrete scenario for each), then
+"SHIP: yes / no / yes with conditions". Reminder: only what you can verify from the diff; fail closed is the law.

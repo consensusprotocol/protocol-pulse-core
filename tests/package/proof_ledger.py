@@ -29,6 +29,12 @@ clips-alone verdict in that earlier build's record (its tried[N]; default the fi
 stages: its own angle, play order and seeds (package.load_candidate), so its recorded calls are served from their
 recordings and only what is missing is paid for; never re-lined, swapped or a new angle.
 
+RULING 90 (22:40 ET Nov 13; LAW since 22:52, with 91 and 92), THE SPOTLIGHT: after the medley search, every build
+tries one spotlight (pipeline/spotlight.py): built when the search ends with no medley, or for a moment no medley used
+(a sealed medley's clips are out of it). Its free pool goes to the clip scorer with the medley's own candidates at the
+build's start (package.build's scorer_extra). A sealed spotlight is SPOTLIGHT_PIN.json in the build's directory and a
+row of tests/package/proof/SPOTLIGHTS.json (one per channel per ET day).
+
 Usage: python3 tests/package/proof_ledger.py --delivered PIN [PIN ...] [--since ISO] [--hours 72]
                                              [--from-candidate BUILD_DIR[:N]]
   tonight: --delivered tests/package/proof/fresh_20261112_050611/MOMENTS_PIN.json \\
@@ -58,9 +64,11 @@ import proof_ly as PL  # noqa: E402
 import proof_saved_runs as PS  # noqa: E402
 import providers as P  # noqa: E402
 import speakers as SP  # noqa: E402
+import spotlight as SPOT  # noqa: E402
 import lock_precheck as LP  # noqa: E402
 
 REGISTRY = os.path.join(HERE, "proof", "CANDIDATES.json")     # ruling 66: the candidates, kept
+SPOTLIGHTS = os.path.join(HERE, "proof", "SPOTLIGHTS.json")   # ruling 90: one spotlight per channel per ET day
 
 
 def delivered_pins(paths):
@@ -187,7 +195,9 @@ def main(argv=None):
         f"starts at ${PL.LY_STOP_USD:.2f})")
     own, used = PL.meter(router), PL.reply_meter(router)
     t0 = time.time()
-    kw = dict(delivered=delivered, optout=M.optout_ids(), log=say,
+    spotlit = SPOT.load_spotlit(SPOTLIGHTS)              # RULING 90: free; its pool goes to the clip scorer with the
+    sp_pool, _ = SPOT.pool(moments, sources, ctx, delivered, M.optout_ids(), spotlit)   # medley's own candidates
+    kw = dict(delivered=delivered, optout=M.optout_ids(), log=say, scorer_extra=sp_pool,
               work_dir=a.work_dir, store=os.path.join(out_dir, "step_a.json"),
               spend=lambda: (own["est"], own["best"]),
               step_a_cache=os.path.join(HERE, "proof", "STEP_A_CACHE.json"),     # ruling 58: paid for once
@@ -235,6 +245,18 @@ def main(argv=None):
             res = dict(last.get("out") or {"usable": None, "prescreen": {}, "tried": []}, package=None, packages=[],
                        why_none="ruling 66: the 8 judged line-ups were spent on candidates; no angle asked")
         res["candidate_tries"] = tries
+    # RULING 90: the spotlight after the medley search (the medley is always tried first): built when the search
+    # ends with no medley, or for a moment no medley used (a sealed medley's clips are out of it)
+    sp_delivered = delivered + ([{"video_id": sg["video_id"], "start": float(sg["start"]), "end": float(sg["end"]),
+                                  "pin": "this build's medley", "text": sg["text"]}
+                                 for sg in res["package"]["segments"]] if res.get("package") else [])
+    sp = SPOT.build(router, moments, sources, ctx, delivered=sp_delivered, optout=kw["optout"], log=say,
+                    work_dir=a.work_dir, store=kw["store"], step_a_cache=kw["step_a_cache"], hook_cache=kw["hook_cache"],
+                    scorer_verdicts_path=PK.SCORER_VERDICTS, visual_cache=kw["visual_cache"],
+                    layout_cache=os.path.join(HERE, "proof", "LAYOUT_CACHE.json"), lock_check=kw["lock_check"],
+                    spotlit=spotlit)
+    res["spotlight"] = {k: sp.get(k) for k in ("package", "why_none", "finalists", "near", "moments", "pool",
+                                                "scorer_waited_s", "lock_stop", "scorer")}
     res.update(seconds=round(time.time() - t0, 1), usd_estimate=round(own["est"], 4), usd_best_known=round(own["best"], 4),
                full={k: round(v, 4) for k, v in used.items()}, code=PL.code_sha(), now=now.isoformat(),
                since=since.isoformat(), delivered_pins=pins, chains=router.chains, inputs=inputs)
@@ -263,6 +285,37 @@ def main(argv=None):
             say(f"PIN REFUSED: {e}")
     else:
         say(f"no package ({res.get('why_none')}); usable {res['usable']}, cleared {res['prescreen'].get('cleared')}")
+    if sp.get("package"):                                # RULING 90: the spotlight pin, its own file
+        try:
+            lock = LP.pin_problems(sp["package"]) + package_pin.window_problems(sp["package"]["segments"])
+            again = SPOT.load_spotlit(SPOTLIGHTS)        # one per channel per day, read again at the pin
+            if again is None or any(r["channel_id"] == sp["package"]["segments"][0]["channel_id"] and
+                                    r.get("day_et") == SPOT.et_day(now) for r in again):
+                lock.append("ruling 90: this channel already has a spotlight today, or the record cannot be read")
+            if lock:
+                raise package_pin.PinRefused("; ".join(lock))
+            path, pin = package_pin.write_pin(sp["package"], f"ledger_{now.strftime('%Y%m%d_%H%M%S')}", out_dir,
+                                              name="SPOTLIGHT_PIN.json")
+            res["spotlight_pin"] = {"path": os.path.relpath(path, REPO), "story_id": pin["story_id"],
+                                    "package_sha256": pin["moments_package"]["package_sha256"]}
+            import shutil                                # ruling 70: the segment's sheet beside the pin
+            sh = (pin["segments"][0].get("visual") or {}).get("sheet") or {}
+            if sh.get("name") and os.path.exists(os.path.join(a.work_dir, "visual", sh["name"])):
+                shutil.copyfile(os.path.join(a.work_dir, "visual", sh["name"]), os.path.join(out_dir, sh["name"]))
+            sg = sp["package"]["segments"][0]
+            SPOT.record_spotlit(SPOTLIGHTS, {"channel_id": sg["channel_id"], "channel": sg["channel"],
+                                             "day_et": SPOT.et_day(now), "story_id": pin["story_id"],
+                                             "package_sha256": pin["moments_package"]["package_sha256"],
+                                             "at": now.isoformat(timespec="seconds"), "build": name})
+            say(f"SPOTLIGHT PIN {path} ({sg['channel']}, {sg['duration_s']} s, closing line "
+                f"{sp['package']['vo']['closing']!r})")
+        except (package_pin.PinRefused, ValueError, OSError) as e:
+            res["spotlight_pin_refused"] = f"{type(e).__name__}: {e}"
+            say(f"SPOTLIGHT PIN REFUSED: {e}")
+    else:
+        say(f"no spotlight ({sp.get('why_none')})" + "".join(
+            f"; nearest {x['moment_id']} {x.get('channel')} {x.get('seconds')} s (hook {x.get('hook_own')}, alone "
+            f"{x.get('alone')}): {x.get('out')}" for x in sp.get("near") or []))
     hp = res.get("hook_pool") or {}                      # RULING 76 (d): the four counts STATE line 1 carries;
     #   `moments` is the adapter's pool from LB.build_inputs, BEFORE usable() filters it (audit 1810 C3)
     res["ruling_76"] = {"inside_12h": sum(not PK.expired(m, now) for m in moments),

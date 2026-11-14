@@ -156,12 +156,13 @@ def expired(m, now):
     return age is None or age > package_pin.WINDOW_H
 
 
-def usable(moments, ctx, delivered=(), optout=frozenset()):
+def usable(moments, ctx, delivered=(), optout=frozenset(), seg_max=SEG_MAX_S):
     """delivered: moment ids, or {"video_id", "start", "end"[, "text", "pin"]} of every DELIVERED clip. A moment that
     overlaps a delivered one in the same video is not novel (audit p2 U2: an id changes when a record is re-punctuated),
     and (RULING 76 b) neither is the same speech (same_speech) anywhere: re-posted by another channel, or said again
     at another time of the same video (audit 1810 C3: "never reuse any of it"). RULING 76 (a): a moment whose source
-    is over 12 h old on the render clock (ctx.now) is expired."""
+    is over 12 h old on the render clock (ctx.now) is expired. seg_max: the longest clip (L-u's 20 s per source video
+    for a medley; RULING 90's 35 s for a spotlight, the orchestrator's 22:58 note)."""
     ids = {d for d in delivered if isinstance(d, str)}
     spans = [d for d in delivered if isinstance(d, dict)]
     out, why = [], {}
@@ -187,8 +188,8 @@ def usable(moments, ctx, delivered=(), optout=frozenset()):
                          ", said again at another time of the same video"))
         elif m["channel_id"] in optout:
             why[mid] = "channel opted out"
-        elif m.get("duration_s") is None or m["duration_s"] > SEG_MAX_S:
-            why[mid] = f"{m.get('duration_s')} s: over the {SEG_MAX_S} s per source video (L-u) or unmeasured"
+        elif m.get("duration_s") is None or m["duration_s"] > seg_max:
+            why[mid] = f"{m.get('duration_s')} s: over the {seg_max} s per source video (L-u) or unmeasured"
         elif time_sensitive(m) and (E.age_hours(m["published_at"], ctx.now) is None or
                                     E.age_hours(m["published_at"], ctx.now) > TIME_SENSITIVE_H):
             why[mid] = f"time-sensitive words from a source older than {TIME_SENSITIVE_H} h (L-v 3)"
@@ -1152,12 +1153,14 @@ def write_candidates(path, ms, ctx, build_name):
     return True
 
 
-def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name):
+def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name, extra=()):
     """RULING 56, once per build, before any verdict is attached. (1) The integrator's verdicts (scorer_verdicts, fail
     closed). (2) The next pass's candidates (write_candidates): every moment the render's STAND_ALONE leaves out as an
     opener the clip scorer would have to affirm (no_role_on_screen fires, the topic rule does not: no verdict could
     give a moment that fails the topic rule a place), and the trimmed variant of every moment left out (ruling 33 part
-    2), each with its text exactly as it would be locked. -> {"index": {pid: verdict}, "record": {...}}."""
+    2), each with its text exactly as it would be locked. extra (RULING 90): the spotlight pool's moments
+    (spotlight.pool), whose stand-alone rating the spotlight needs; they join the same request, so the medley's own
+    candidates and the spotlight's never replace each other. -> {"index": {pid: verdict}, "record": {...}}."""
     index, rec = scorer_verdicts(verdicts_path, render_scorer_sha()) if verdicts_path else \
         ({}, {"read": False, "why": "no verdicts file given"})
     if candidates_path:
@@ -1165,6 +1168,12 @@ def scorer_pass(ms, sources, ctx, verdicts_path, candidates_path, build_name):
                 ({k: x for k, x in m.items() if k != "scorer_verdict"} for m in ms)]
         ask = [m for m, o, t in left if o and not t] + \
             [v for m, o, t in left if o or t for v in [trim_variant(m, sources)] if v]
+        have = {(m["moment_id"], text_sha(m["text"])) for m in ask}
+        for m in extra or ():                            # ruling 90: once each (same id and text)
+            k = (m["moment_id"], text_sha(m["text"]))
+            if k not in have:
+                have.add(k)
+                ask.append({x: y for x, y in m.items() if x != "scorer_verdict"})
         rec = dict(rec, candidates=len(ask), candidates_written=write_candidates(candidates_path, ask, ctx, build_name))
     return {"index": index, "record": rec}
 
@@ -2168,7 +2177,7 @@ def candidate_lineup(router, candidate, cleared, now):
 def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=print, max_angles=MAX_ANGLES,
           writes=WRITES, work_dir=None, store=None, spend=None, lineups=LINEUPS_PER_BUILD, step_a_cache=None,
           hook_cache=None, scorer_verdicts_path=None, scorer_candidates_path=None, build_name="", candidate=None,
-          visual_cache=None, registered=None, lock_check=None):
+          visual_cache=None, registered=None, lock_check=None, scorer_extra=()):
     """L-y MEDLEY (the default since orchestrator 20:30 Nov 12), angle first, inside the orchestrator's budgets (05:25
     item 5, 05:30): per angle at most `lineups` line-ups, each judged on the clips ALONE first (medley(); nothing is
     written for a line-up that fails it); a line-up that passes gets at most `writes` writes of the takeaway (and of the
@@ -2208,6 +2217,7 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
       - a package keeps the approved texts, or seals an adopted spoken text with its "attested" record
         (lock_precheck.apply, checked again at the pin stage).
     The no-voice line-up is asked too. lock_check None: no pre-check (the tests' rigs); the driver always passes it.
+    scorer_extra (RULING 90): the spotlight pool's moments, sent to the clip scorer with this build's own candidates.
     -> {"package", "packages", "tried", "angles", "takeaways" (every written takeaway with its gates), ...}."""
     t0 = time.time()
     usd0 = _spent(spend)
@@ -2237,7 +2247,8 @@ def build(router, moments, sources, ctx, delivered=(), optout=frozenset(), log=p
     ms, why = usable(moments, ctx, delivered, optout)
     n_usable = len(ms)                                 # out["usable"] keeps its meaning (audit 0310 C1, glm P2-2)
     ms, reposted = reposted_once(ms, sources)          # ruling 53: a speech re-posted by a second channel is ONE
-    scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name)   # ruling 56
+    scorer = scorer_pass(ms, sources, ctx, scorer_verdicts_path, scorer_candidates_path, build_name,   # ruling 56
+                         extra=scorer_extra)                                                       # ruling 90
     ms = [with_verdict(m, scorer["index"]) for m in ms]
     no_role = {m["moment_id"]: r for m in ms                    # both reasons when both rules fire (audit 0426 C2)
                for r in ["; ".join(x for x in (no_role_on_screen(m), no_topic(m)) if x)] if r}

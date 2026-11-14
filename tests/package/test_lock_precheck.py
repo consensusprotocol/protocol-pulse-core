@@ -58,7 +58,7 @@ class TestRequest(Dirs):
         self.assertNotIn("trimmed_leading", s[1])                                        # only a trimmed moment
         self.assertEqual((s[2]["trimmed_leading"], s[2]["untrimmed_start"]), ("And", 1690.9))
         self.assertEqual(os.path.basename(LP.result_file(s[0], self.res)),
-                         "DcUbBkyeh9M.216.054-228.674.962353613cb0.json")             # ruling 84's decoder
+                         "DcUbBkyeh9M.216.054-228.674.c705b20ed800.json")             # ruling 90's decoder
 
     def test_a_request_is_renamed_from_its_tmp_and_never_written_over(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -180,7 +180,7 @@ class TestCheck(Dirs):
             self.put(s, entry(s))
         rep, sleeps = self.run_check([HOOK, CLIP])
         self.assertEqual((rep["ok"], rep["request_id"], sleeps, os.path.exists(self.req)), (True, None, [], False))
-        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.962353613cb0.json")
+        self.assertEqual(rep["segments"][0]["entry"]["file"], "DcUbBkyeh9M.216.054-228.674.c705b20ed800.json")
 
     def test_a_missing_answer_asks_the_whole_line_up_and_waits_for_its_own(self):
         segs = LP.segments_of([HOOK, CLIP])
@@ -203,16 +203,16 @@ class TestCheck(Dirs):
         self.assertEqual(sleeps, [10.0, 10.0, 10.0])
 
     def test_an_answer_in_the_old_decoders_file_is_never_read(self):
-        """Audit 1845 C2 (glm): ruling 73 changed the decoder, and ruling 84 changed it again; a file named for an
-        older decoder (25cd6f15e6c9, 8a101f222598) is never opened, even with a matching, newer entry under the current
-        rules."""
+        """Audit 1845 C2 (glm): ruling 73 changed the decoder, ruling 84 changed it again, and ruling 90 (the
+        integrator's spotlight branches) again; a file named for an older decoder (25cd6f15e6c9, 8a101f222598,
+        962353613cb0) is never opened, even with a matching, newer entry under the current rules."""
         s = LP.segments_of([HOOK])[0]
-        for dec in ("25cd6f15e6c9", "8a101f222598"):
+        for dec in ("25cd6f15e6c9", "8a101f222598", "962353613cb0"):
             old = LP.result_file(s, self.res, decoder=dec)
             with open(old, "w") as f:
                 json.dump([entry(s, "no_difference", at="2026-11-14T02:00:00Z")], f)
             self.assertTrue(old.endswith(f".{dec}.json"))
-        self.assertIsNone(LP.answer(s, self.res))                                         # only 962353613cb0's file
+        self.assertIsNone(LP.answer(s, self.res))                                         # only c705b20ed800's file
 
     def test_ruling_73_holds_a_span_the_render_cannot_cut(self):
         segs = LP.segments_of([HOOK, CLIP])

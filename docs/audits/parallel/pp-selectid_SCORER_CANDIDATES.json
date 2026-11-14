@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T03:14:34+00:00",
- "build": "ledger_20261114_031425",
+ "generated_at": "2026-11-14T04:16:10+00:00",
+ "build": "ledger_20261114_041602",
  "kind": "moments",
  "candidates": [
   {
@@ -31,24 +31,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "386ba605afd505c5732e",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 14.24,
-   "text": "And the number one lesson you need to learn about a good index with the back test is the minute it goes mainstream, it's over. That's exactly what happened to Bitcoin and Cryptos. The minute it went mainstream with ETFs and they got pumped up by Mr. Trump's transition in 2004, the Faustian bargain that Helm got elected.",
-   "text_sha256": "054f7f5d0c129d2a69ca207b3bfb658649a52f3e656d26c48357cdd1ba591707",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "5b8effa74a967fb0ebed",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 8.84,
-   "text": "But the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
-   "text_sha256": "13f086de93d2e3c611c446a81deae9a35d8ce622093d3831a471eb67b08d7bfd",
-   "trimmed_leading": null
-  },
-  {
    "pid": "6456822a886ae264adb2",
    "video_id": "nvEftLDdab4",
    "channel": "BTC Sessions",
@@ -76,12 +58,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "445810538f12ebf89b11",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 13.29,
-   "text": "But again, the tops they put in this year, like, Bitcoin's top last year could last for decades if history is a guy. And so let's say that you are right here and that we are going to see a bare market at 20 % corruption in the stock market.",
-   "text_sha256": "07a4b307f00daa35cbbec28ba8844fadcd177d4773cffe5d07a9abecbd739188",
+   "pid": "89d5c05be258c4069a4e",
+   "video_id": "7po5mnYMAjM",
+   "channel": "Stephan Livera",
+   "duration": 7.24,
+   "text": "And broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
+   "text_sha256": "9bd73f9d85cf332582be22eda150cdba1c536f00379efc812396ed8af81547bc",
    "trimmed_leading": null
   },
   {
@@ -139,15 +121,6 @@
    "trimmed_leading": null
   },
   {
-   "pid": "6b9f456a6df29f234434",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 10.16,
-   "text": "So the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
-   "text_sha256": "3e07893645ea75d24e092f5d8e88344bf3455c6084bfbda50c2f0018b7ec35ab",
-   "trimmed_leading": null
-  },
-  {
    "pid": "3465caacf939425298e9",
    "video_id": "XXfT9oeM14c",
    "channel": "CNBC Television",
@@ -172,15 +145,6 @@
    "duration": 5.3,
    "text": "And by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
    "text_sha256": "8a225af0bb8646228b7584131490dfe9be24de4e3d3b4a4b4c45f5ff313d0278",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "f2af9efdc1b09cace5ab",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 7.49,
-   "text": "So we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year.",
-   "text_sha256": "f0ad9dda9fd8cdc8595f3a00887b8ced69fcd09444eb2366c913aa13578463bb",
    "trimmed_leading": null
   },
   {
@@ -265,24 +229,6 @@
    "trimmed_leading": "But"
   },
   {
-   "pid": "386ba605afd505c5732e~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 14.22,
-   "text": "the number one lesson you need to learn about a good index with the back test is the minute it goes mainstream, it's over. That's exactly what happened to Bitcoin and Cryptos. The minute it went mainstream with ETFs and they got pumped up by Mr. Trump's transition in 2004, the Faustian bargain that Helm got elected.",
-   "text_sha256": "7536e180854b0cedf4663af440d10f3d2c373a581d3c6a17fbdc898b20c5631c",
-   "trimmed_leading": "And"
-  },
-  {
-   "pid": "5b8effa74a967fb0ebed~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 8.84,
-   "text": "the fact is, On a one -year basis right now, Bitcoin's down 28%. And the S &P 500 is up 11%. It's showing significant divergent weakness.",
-   "text_sha256": "a6781110f7a6e60bd4dddaddc1c59d46933118261981a3dfc41fb24f723cbae8",
-   "trimmed_leading": "But"
-  },
-  {
    "pid": "6456822a886ae264adb2~trim",
    "video_id": "nvEftLDdab4",
    "channel": "BTC Sessions",
@@ -310,13 +256,13 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "445810538f12ebf89b11~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 13.21,
-   "text": "again, the tops they put in this year, like, Bitcoin's top last year could last for decades if history is a guy. And so let's say that you are right here and that we are going to see a bare market at 20 % corruption in the stock market.",
-   "text_sha256": "cef15703447233ca05ccf6a02a179858a935e381c170a0327401af3fad59396d",
-   "trimmed_leading": "But"
+   "pid": "89d5c05be258c4069a4e~trim",
+   "video_id": "7po5mnYMAjM",
+   "channel": "Stephan Livera",
+   "duration": 6.84,
+   "text": "broadly, if public miners leave Bitcoin for AI, what does that mean? What happens to hash rate and network security?",
+   "text_sha256": "15e6e668b792e570c6606c3f5e5a6aac08769dbaa199110ee501aeaaaf1e39a9",
+   "trimmed_leading": "And"
   },
   {
    "pid": "5f5b3e653c908e75cf85~trim",
@@ -364,15 +310,6 @@
    "trimmed_leading": "So"
   },
   {
-   "pid": "6b9f456a6df29f234434~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 10.12,
-   "text": "the headwinds from Treasuries are just way too strong for all risk assets, most notably highly volatile speculative risk assets like Bitcoin and gold and copper.",
-   "text_sha256": "463709286cf44548e39de29f1df5e4730889840c3691e13a993a88dc6cef0365",
-   "trimmed_leading": "So"
-  },
-  {
    "pid": "3465caacf939425298e9~trim",
    "video_id": "XXfT9oeM14c",
    "channel": "CNBC Television",
@@ -398,15 +335,6 @@
    "text": "by the way, even at these prices, everybody was screaming way lower. Of course, Bitcoin's going to go way lower.",
    "text_sha256": "e9fd101f3240d7b54f17fee6fd4a56d1d218a874f6b816ad94df82a80f803b8f",
    "trimmed_leading": "And"
-  },
-  {
-   "pid": "f2af9efdc1b09cace5ab~trim",
-   "video_id": "VqNMYCgZ3Vw",
-   "channel": "CoinTelegraph",
-   "duration": 7.47,
-   "text": "we peaked and the NASDAQ peaked on October 6th this year. Bitcoin peaked October 6th last year.",
-   "text_sha256": "cd4f6513eb8c1065fa4aa64d6bec61c237549ca69af3b97c09b6d9f71d4fdab5",
-   "trimmed_leading": "So"
   },
   {
    "pid": "191fea6ec4e0331dfead~trim",

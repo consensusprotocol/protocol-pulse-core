@@ -33,10 +33,45 @@ MEDLEY_GATES = ("medley", "ly_shape", "house_style", "hook_onset", "stand_alone"
                 "visual")                                  # ruling 70: every clip's sheet judged (flags sealed)
 
 
+# RULING 90 (orchestrator 22:40 ET Nov 13; LAW since 22:52, amended by 91 and 92): the SPOTLIGHT, a second pin kind.
+# Its contract, agreed with the integrator (22:44 ET): moments_package.shape "spotlight", ONE segment (role "hook"),
+# edl_vo {"intro": null, "bridges": [], "closing": <one line, <= 12 words> or null}, signoff_expected naming that one
+# channel, first_comment the WHOLE first comment (printed verbatim, nothing appended), and these gate rows, each exactly
+# PASS and not replayed. No medley row applies (no join, no clips-alone verdict, no coherence of several clips, no L-y
+# shape); the R4 of a spotlight is its 28-50 s runtime (the render's edl_rules R4 / G5), the "runtime" row.
+SPOTLIGHT_GATES = ("vo_fidelity_deterministic", "vo_fidelity_verdict", "duplicate", "price_now", "runtime",
+                   "context_a", "context_b", "context_c", "exclusion", "second_pass", "cuttable",
+                   "house_style", "hook_onset", "stand_alone",          # it opens cold: the hook's own pin-stage rows
+                   "spotlight_source",                                   # ruling 92: conversation, not reaction
+                   "hook_own", "stands_alone",                           # ruling 90: >= 4 as an opener, >= 4 alone
+                   "step_a_two_families", "visual", "window_12h", "never_delivered", "one_per_channel_day",
+                   "precheck")                                           # rulings 68 / 72 / 73 / 84: pass or adopt
+CLOSING_GATES = ("closing_value", "closing_fidelity", "closing_context")   # ruling 91: a non-null closing only with all
+SPOT_RUNTIME_S = (28.0, 50.0)            # ruling 90: the moment, the closing line, sign-off, credits card and outro
+SPOT_CLOSING_MAX_WORDS = 12              # ruling 90 / 91: at most ONE closing line of 12 words or fewer
+CREDITS_LINE = "Credits \U0001F9E1"      # ruling 90: PBX's first-comment format, 'Credits' and the orange heart
+
+
+def _closing(pk):
+    """The spotlight's closing line in a package (pk["vo"]) or in a pin's moments_package (edl_vo), else None."""
+    vo = (pk or {}).get("vo") if isinstance((pk or {}).get("vo"), dict) else (pk or {}).get("edl_vo")
+    return (vo or {}).get("closing")
+
+
 def required_gates(pk):
     """The rows a package's inventory must hold, each exactly PASS: REQUIRED_GATES, and for a medley (L-y) also the
-    clips-alone verdict and the L-y shape."""
-    return REQUIRED_GATES + (MEDLEY_GATES if (pk or {}).get("shape") == "medley" else ())
+    clips-alone verdict and the L-y shape. A spotlight (ruling 90): SPOTLIGHT_GATES, plus CLOSING_GATES whenever its
+    closing line is not null (ruling 91). pk: a package, or a pin's moments_package."""
+    shape = (pk or {}).get("shape")
+    if shape == "spotlight":
+        return SPOTLIGHT_GATES + (CLOSING_GATES if _closing(pk) is not None else ())
+    return REQUIRED_GATES + (MEDLEY_GATES if shape == "medley" else ())
+
+
+def first_comment_text(lines, tags):
+    """RULING 90: the first comment in PBX's format, the WHOLE comment: the casual line(s), a blank line, 'Credits' and
+    the orange heart, a blank line, the credits (verified X handles, or the untagged names). Code, never the model."""
+    return f"{lines}\n\n{CREDITS_LINE}\n\n{' '.join(tags)}"
 
 
 class PinRefused(Exception):
@@ -112,7 +147,7 @@ def window_problems(segments, now=None):
     return out
 
 
-def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
+def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None, shape=None, first_comment=None):
     """sha256 over the gated bytes, in a canonical form both sides compute: the segments (video, start, end, the exact
     words, the transcript sha, and each SEALED_LATER field the segment carries), the VO the renderer will speak (intro,
     bridges with after_clip), the sign-off, the ONE title and caption (law L-t), and the gate inventory.
@@ -121,7 +156,10 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
     all 6 earlier pins in tests/package/proof failed under an always-present field. A new pin always carries them,
     because to_pin refuses one without (recency_problems, speaker_problems), and removing one changes the digest.
     btc_screen (ruling 34: the miner's about-Bitcoin screen the render applies, {"pattern", "source"}) enters the body
-    only when given, so every pin sealed before it recomputes; a moments medley always carries it (screen_problems)."""
+    only when given, so every pin sealed before it recomputes; a moments medley always carries it (screen_problems).
+    RULING 90, the spotlight: for shape "spotlight" only, the body gains edl_vo's "closing" (null included), the
+    shape and first_comment. A medley's body never holds them, so every pin sealed before the spotlight recomputes
+    (pin_seal)."""
     def body_of(s):
         b = {"video_id": s["video_id"], "start": round(float(s["start"]), 3), "end": round(float(s["end"]), 3),
              "text": s["approved_text"], "transcript_sha256": s.get("transcript_sha256")}
@@ -133,7 +171,21 @@ def seal(segments, edl_vo, signoff, title, caption, gates, btc_screen=None):
             "signoff": signoff, "title": title, "caption": caption, "gates": gates}
     if btc_screen is not None:
         body["btc_screen"] = btc_screen
+    if shape == "spotlight":                               # ruling 90: the closing line, the kind and the comment,
+        body["vo"]["closing"] = edl_vo.get("closing")      # sealed; keyed on the kind alone, so no medley's body
+        body["shape"], body["first_comment"] = shape, first_comment   # can change (audit 2322 C1, glm)
     return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+
+
+def pin_seal(pin):
+    """The package_sha256 a pin's own bytes recompute to, exactly as to_pin sealed it, for every kind (a medley, the
+    PBX MAX v3 shape, a spotlight): the readiness check's one call. Raises KeyError / TypeError on a pin without the
+    sealed fields."""
+    mp = pin["moments_package"]
+    shape = mp.get("shape")
+    return seal(pin["segments"], mp["edl_vo"], mp["signoff_expected"], mp["title"], mp["caption"], mp["gates"],
+                mp.get("btc_screen"), shape="spotlight" if shape == "spotlight" else None,
+                first_comment=mp.get("first_comment") if shape == "spotlight" else None)
 
 
 def affirmed_verdict(s):
@@ -210,11 +262,11 @@ def screen_problems(pk):
     the screen but sealed without it could be refused at render. A carried screen is {"pattern": a non-empty str of at
     most 500 characters that compiles with re.I, "source": a non-empty str}: the render's own acceptance
     (run_fresh.moments_screen)."""
-    if pk.get("shape") != "medley":
+    if pk.get("shape") not in ("medley", "spotlight"):    # ruling 90: a spotlight is judged with the screen too
         return []
     sc = pk.get("btc_screen")
     if not isinstance(sc, dict) or set(sc) != {"pattern", "source"}:
-        return ["btc_screen: a medley must carry {pattern, source} (ruling 34)"]
+        return [f"btc_screen: a {pk.get('shape')} must carry {{pattern, source}} (ruling 34)"]
     pat, src = sc.get("pattern"), sc.get("source")
     if not isinstance(pat, str) or not pat.strip() or len(pat) > 500 or not isinstance(src, str) or not src.strip():
         return ["btc_screen: the pattern must be a non-empty str of at most 500 characters, with a source"]
@@ -294,6 +346,42 @@ def line_problems(pk):
     for k in ("title", "caption"):
         if by.get(k) != pk.get(k):
             out.append(k)
+    if pk.get("shape") == "spotlight":                    # ruling 90: the closing line and the first comment too
+        if by.get("closing") != vo.get("closing"):
+            out.append("closing")
+        cr = pk.get("comment_credits") or {}
+        com = by.get("comment")
+        if not isinstance(com, str) or not com.strip() or not isinstance(cr.get("tags"), list) or \
+                not all(isinstance(t, str) and t.strip() for t in cr["tags"]) or \
+                pk.get("first_comment") != first_comment_text(com, cr["tags"]):
+            out.append("first_comment")
+    return out
+
+
+def spotlight_problems(pk):
+    """[why] for a spotlight that breaks the agreed contract (ruling 90): exactly ONE segment; no intro and no bridge;
+    a closing line of at most SPOT_CLOSING_MAX_WORDS words, or null; a sign-off that names the segment's channel; a
+    non-empty first comment; the runtime estimate inside SPOT_RUNTIME_S. Any other shape: none."""
+    if pk.get("shape") != "spotlight":
+        return []
+    out = []
+    segs = pk.get("segments") or []
+    vo = pk.get("vo") or {}
+    if len(segs) != 1:
+        out.append(f"a spotlight has exactly one segment (got {len(segs)})")
+    if vo.get("intro") is not None or vo.get("bridges") or vo.get("bridges_after_clip"):
+        out.append("a spotlight has no intro and no bridge (ruling 90)")
+    c = vo.get("closing")
+    if c is not None and (not isinstance(c, str) or not c.strip() or len(c.split()) > SPOT_CLOSING_MAX_WORDS):
+        out.append(f"the closing line must be null or 1-{SPOT_CLOSING_MAX_WORDS} words (ruling 90): {c!r}")
+    ch = segs[0].get("channel") if len(segs) == 1 else None
+    if not isinstance(ch, str) or not ch.strip() or ch not in str(vo.get("signoff") or ""):
+        out.append(f"the sign-off must name the spotlight's one channel {ch!r} (ruling 90)")
+    if not isinstance(pk.get("first_comment"), str) or not pk["first_comment"].strip():
+        out.append("a spotlight carries its first comment (ruling 90)")
+    rt = pk.get("runtime_s_estimate")
+    if not isinstance(rt, (int, float)) or isinstance(rt, bool) or not SPOT_RUNTIME_S[0] <= rt <= SPOT_RUNTIME_S[1]:
+        out.append(f"runtime estimate {rt!r} outside {SPOT_RUNTIME_S[0]:g}-{SPOT_RUNTIME_S[1]:g} s (ruling 90)")
     return out
 
 
@@ -301,7 +389,8 @@ def to_pin(pk, run_name):
     problems = gate_problems(pk.get("gates"), required_gates(pk)) + [f"{x}: the gated line differs from the one shipped"
                                                                      for x in line_problems(pk)] + \
         recency_problems(pk.get("segments") or []) + speaker_problems(pk.get("segments") or []) + \
-        screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or [])
+        screen_problems(pk) + trim_problems(pk.get("segments") or []) + scorer_problems(pk.get("segments") or []) + \
+        spotlight_problems(pk)
     if problems:
         raise PinRefused("the package's gates do not authorise a pin: " + "; ".join(problems))
     segs = []
@@ -317,7 +406,11 @@ def to_pin(pk, run_name):
                      "time_coords": "youtube", "source": {"kind": "youtube"}})
     edl_vo = {"intro": pk["vo"]["intro"],
               "bridges": [{"text": t, "after_clip": a} for t, a in zip(pk["vo"]["bridges"], pk["vo"]["bridges_after_clip"])]}
-    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"))
+    spot = pk.get("shape") == "spotlight"                 # ruling 90: the agreed contract
+    if spot:
+        edl_vo["closing"] = pk["vo"].get("closing")
+    sha = seal(segs, edl_vo, pk["vo"]["signoff"], pk["title"], pk["caption"], pk["gates"], pk.get("btc_screen"),
+               shape="spotlight" if spot else None, first_comment=pk["first_comment"] if spot else None)
     return {"schema": SCHEMA, "story_id": f"moments-{run_name}-{sha[:8]}",
             "label": "bitcoin", "headline": pk["title"],
             "approved_by": "machine:pp-selectid moments-first (REVIEW ONLY, not approved by a human)",
@@ -332,12 +425,18 @@ def to_pin(pk, run_name):
                                 "vo_jobs": {**({"intro": "context" if pk.get("shape") != "medley" else "connection"}
                                                if pk["vo"]["intro"] else {}),
                                             **{s: "takeaway" if s == "takeaway" else "connection"
-                                               for s in bridge_slots(pk)}},
+                                               for s in bridge_slots(pk)},
+                                            **({"closing": "closing"} if spot and edl_vo["closing"] is not None
+                                               else {})},
                                 "shape": pk.get("shape"),
                                 "bridge": pk.get("bridge"),
                                 "supply_exception": pk.get("supply_exception"),
                                 "no_voice": pk.get("no_voice"),          # ruling 3 (22:40): why no VO line ships
                                 "caption_fallback": bool(pk.get("caption_fallback")),   # ruling 65 (b): a placeholder
+                                **({"first_comment": pk["first_comment"],              # ruling 90: sealed, printed
+                                    "first_comment_credits": pk.get("comment_credits"),  # verbatim; who is tagged
+                                    "spotlight": pk.get("spotlight")}                  # and why (outside the seal)
+                                   if spot else {}),
                                 "gates": pk["gates"],
                                 **({"btc_screen": pk["btc_screen"]} if pk.get("btc_screen") is not None else {}),
                                 "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True,
