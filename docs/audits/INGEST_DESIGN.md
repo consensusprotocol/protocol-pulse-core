@@ -465,16 +465,22 @@ seconds from publish to rows"; and (09:02) "say so in the line when a cycle find
 Nov 14 ~12:00 ET this line was written by hand from the queue; the watcher now writes it itself (`cycles.compose`,
 from the health loop every 60 s; `spend.write_cycles_notice`):
 - "PP-INGEST CYCLES TO HH:MM ET (...): <cycle> | <cycle> ...": the cycles of the last 3 h that found a new upload,
-  newest first, each "HH:MM ET cycle, N new: (1) <video> <channel>: ...; (2) ..." with what became of each video: a
+  newest first, each "HH:MM ET cycle, N new: (1) <video id> <channel> "<title, 40 characters>": ...; (2) ..." (a
+  count its events do not match says both; uploads recorded at a channel's first listing, older than 72 h and never
+  mined, are counted, not listed) with what became of each video: a
   Short (never mined); mined no, queued (its state and reason); mined yes HH:MM ET, its moments, its hooks and
   spotlights (or "hook pass pending"), seconds from publish to rows (or to mined, for 0 moments, with why: every
   window screened before any model call, or windows asked and nothing returned), seen-after-publish and
   mined-after-seen.
 - The 09:02 note: when none of the window's MINED uploads had a Bitcoin term in any window (uploads not mined yet are
-  counted apart: their windows are not known), "NOTHING BITCOIN IN THE LAST 3 H: N upload(s) seen (S Shorts, Q not
-  mined yet) ...; the newest with one: <video> <channel>, seen HH:MM ET <date>".
+  counted apart: their windows are not known; so are the ones never minable: duplicates, no captions, too long),
+  "NOTHING BITCOIN IN THE LAST 3 H: N upload(s) seen (S Shorts, Q not mined yet, O not minable) ...; the newest
+  upload with one, before this window: <video> <channel> "<title>", seen HH:MM ET <date>".
 - Its time is that of the newest cycle or change it reports (a quiet window: its newest cycle), never the clock's, so
-  STATE is rewritten only when the line changes; no cycle in the window (the watcher stopped): no line. It is a notice
+  STATE is rewritten only when the line changes; cycles that found nothing new say so (never no line: audit cyc c1);
+  no cycle in the window at all (the watcher stopped): no line. Every field is folded to one physical line (a reason
+  can carry yt-dlp's multi-line stderr); the line's ceiling is 12,000 characters, the window's oldest cycles beyond it
+  counted, not listed. It is a notice
   (spend.NOTICE_RE): kept in the top block, after ruling 87's switch line, under the notices' lock; a failure to
   compose or write it is logged once per cause and never stops the health loop.
 - Tests write every STATE notice to their own file (tests/ingest/conftest.py redirects config.STATE_DOC for each test).

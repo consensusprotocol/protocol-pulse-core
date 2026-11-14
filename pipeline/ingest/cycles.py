@@ -14,10 +14,28 @@ from . import queue as Q
 
 ET = ZoneInfo("America/New_York")
 WINDOW_H = 3.0
+MAX_CHARS = 12000             # the line's ceiling: the window's oldest cycles beyond it are counted, not listed
+TITLE_CHARS = 40              # a video's title, shortened (a video id alone is not something a reader recognizes)
 WAITING = (Q.DISCOVERED, Q.PROBE_RETRY, Q.PROBING, Q.UPCOMING, Q.LIVE, Q.CAPTIONS_PENDING, Q.TRANSCRIBED, Q.MINING,
            Q.MINE_WAIT)
 HEAD = ("the watcher's own line, rewritten after each cycle that finds something and as its videos are mined; the "
         "cycles of the last 3 h, newest first: video, channel, mined, moments, hooks, seconds from publish to rows")
+
+
+def _one(s, n=None):
+    """One physical line of text, at most n characters: a reason can carry yt-dlp's multi-line stderr (audit cyc c1,
+    glm P0: one newline made the writer refuse the line on every pass)."""
+    t = " ".join(str(s or "").split())
+    return t if n is None or len(t) <= n else t[:n - 3] + "..."
+
+
+def _videos(q, ids):
+    """The video rows of `ids`, one query per 500 (audit cyc c1: one query per video before)."""
+    ids, out = sorted(ids), []
+    for i in range(0, len(ids), 500):
+        chunk = ids[i:i + 500]
+        out += q.rows(f"SELECT * FROM videos WHERE video_id IN ({','.join('?' * len(chunk))})", tuple(chunk))
+    return {r["video_id"]: r for r in out}
 
 
 def _et(ts, fmt="%H:%M"):
@@ -34,8 +52,8 @@ def _detail(row):
 
 def video_entry(v, name, via):
     """One video: what became of it (-> (text, the time of its newest change or None))."""
-    head = f"{v['video_id']} {name}"
-    st, why = v["state"], (v["reason"] or "")[:120]
+    head = f"{v['video_id']} {_one(name)} \"{_one(v['title'], TITLE_CHARS)}\""
+    st, why = v["state"], _one(v["reason"], 120)
     if st == Q.SHORT:
         return f"{head}: a Short, never mined (A2), no rows", None
     if st in WAITING:
@@ -59,14 +77,17 @@ def video_entry(v, name, via):
     return text, max(t for t in (mined, v["hook_ts"]) if t)
 
 
-def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES"):
-    """The line (one physical line), or None when no cycle of the window found a new upload and the 09:02 note does
-    not apply either."""
+def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES", max_chars=MAX_CHARS):
+    """The line (one physical line, at most max_chars), or None when no cycle ran in the window (the watcher stopped:
+    nothing to report). A window whose cycles found nothing new says so (audit cyc c1, glm P0: it vanished)."""
     t0 = now_ts - window_h * 3600
-    cycles = [(r["ts"], _detail(r)) for r in q.rows("SELECT ts, detail FROM events WHERE kind='watch_cycle' AND ts >= ? "
-                                                    "ORDER BY ts DESC", (t0,))]
+    cycles = [(r["ts"], _detail(r)) for r in q.rows(
+        "SELECT ts, detail FROM events WHERE kind='watch_cycle' AND ts >= ? ORDER BY ts DESC", (t0,))]
+    if not cycles:
+        return None
     disc = q.rows("SELECT ts, video_id, channel_id, detail FROM events WHERE kind='discovered' AND ts >= ? ORDER BY ts",
                   (t0 - 600,))
+    rows = _videos(q, {e["video_id"] for e in disc})
     names = {r["channel_id"]: r["display_name"] for r in q.rows("SELECT channel_id, display_name FROM channels")}
     out, newest = [], None
     for ts, d in cycles:
@@ -74,26 +95,34 @@ def compose(q, now_ts, window_h=WINDOW_H, prefix="PP-INGEST CYCLES"):
         if not n:
             continue
         start = ts - float(d.get("seconds") or 0) - 2              # the discoveries of this cycle (its own events)
-        vids = [e for e in disc if start <= e["ts"] <= ts + 2]
+        evs = [e for e in disc if start <= e["ts"] <= ts + 2]
         newest = max(newest or ts, ts)
-        parts = []
-        for i, e in enumerate(vids, 1):
-            v = q.video(e["video_id"])
+        parts, backfill = [], 0
+        for e in evs:
+            v = rows.get(e["video_id"])
             if v is None:
                 continue
+            if v["state"] == Q.SEEN_OLD:                           # a channel's first listing: older uploads, recorded
+                backfill += 1                                      # as seen, never mined (counted, not listed)
+                continue
             text, changed = video_entry(v, names.get(e["channel_id"]) or e["channel_id"], _detail(e).get("via"))
-            parts.append(f"({i}) {text}")
+            parts.append(f"({len(parts) + 1}) {text}")
             if changed:
                 newest = max(newest, changed)
-        out.append(f"{_et(ts)} ET cycle, {n} new: " + ("; ".join(parts) or "its discoveries not found in the events"))
-    if not cycles:
-        return None                                  # no cycle ran in the window: nothing to report
+        body = "; ".join(parts) + (f"{'; ' if parts else ''}{backfill} older upload(s) recorded at a channel's first "
+                                   "listing (backfill, never mined)" if backfill else "")
+        found = "" if len(evs) == n else f" ({len(evs)} found in its events)"    # audit cyc c1 (muse): said, not hidden
+        out.append(f"{_et(ts)} ET cycle, {n} new{found}: " + (body or "its discoveries not found in the events"))
     quiet = _quiet(q, t0, names, len(cycles))
-    if not out and not quiet:
-        return None
-    when = _et(newest if newest else cycles[0][0])   # a quiet window: its newest cycle (rewritten once a cycle)
-    body = " | ".join(out) if out else f"none of its {len(cycles)} cycle(s) found a new upload"
-    return f"{prefix} TO {when} ET ({HEAD}): {body}" + (f"; {quiet}" if quiet else "")
+    head = f"{prefix} TO {_et(newest if newest else cycles[0][0])} ET ({HEAD}): "   # a quiet window: its newest cycle
+    tail = f"; {quiet}" if quiet else ""
+    dropped = 0
+    while len(out) > 1 and len(head) + len(" | ".join(out)) + len(tail) + 80 > max_chars:
+        out.pop()                                                  # the window's oldest cycle first
+        dropped += 1
+    body = (" | ".join(out) + (f" | ({dropped} older cycle(s) of the window not shown: the line's ceiling)"
+                               if dropped else "")) if out else f"none of its {len(cycles)} cycle(s) found a new upload"
+    return _one(head + body + tail)
 
 
 def _quiet(q, t0, names, ncycles):
@@ -104,14 +133,18 @@ def _quiet(q, t0, names, ncycles):
     known = [r for r in seen if r["state"] in (Q.MINED, Q.MINED_PARTIAL)]
     if any((r["windows"] or 0) > (r["windows_screened"] or 0) for r in known):
         return ""
-    queued = sum(1 for r in seen if r["state"] in WAITING)
-    last = q.rows("SELECT video_id, channel_id, discovered_ts FROM videos WHERE COALESCE(windows,0) > "
-                  "COALESCE(windows_screened,0) ORDER BY discovered_ts DESC LIMIT 1")
-    tail = (f"; the newest with one: {last[0]['video_id']} {names.get(last[0]['channel_id']) or last[0]['channel_id']},"
-            f" seen {_et(last[0]['discovered_ts'], '%H:%M ET %b %d')}" if last else "")
     shorts = sum(1 for r in seen if r["state"] == Q.SHORT)
+    queued = sum(1 for r in seen if r["state"] in WAITING)
+    other = len(seen) - len(known) - shorts - queued          # duplicates, no captions, too long, opt-outs (audit cyc
+    last = q.rows("SELECT video_id, channel_id, title, discovered_ts FROM videos WHERE COALESCE(windows,0) > "   # c1)
+                  "COALESCE(windows_screened,0) ORDER BY discovered_ts DESC LIMIT 1")
+    name = _one(names.get(last[0]["channel_id"]) or last[0]["channel_id"]) if last else ""
+    tail = (f"; the newest upload with one, before this window: {last[0]['video_id']} {name} "
+            f"\"{_one(last[0]['title'], TITLE_CHARS)}\", seen {_et(last[0]['discovered_ts'], '%H:%M ET %b %d')}"
+            if last else "")
     if not seen:
         return f"NOTHING BITCOIN IN THE LAST 3 H: no new upload in {ncycles} cycle(s){tail}"
-    return (f"NOTHING BITCOIN IN THE LAST 3 H: {len(seen)} upload(s) seen ({shorts} Shorts"
-            f"{f', {queued} not mined yet' if queued else ''}), none of the {len(known)} mined with a Bitcoin term in any "
-            f"window{tail}")
+    kinds = ", ".join(f"{k} {w}" for k, w in ((shorts, "Shorts"), (queued, "not mined yet"), (other, "not minable"))
+                      if k)
+    return (f"NOTHING BITCOIN IN THE LAST 3 H: {len(seen)} upload(s) seen{f' ({kinds})' if kinds else ''}, none of "
+            f"the {len(known)} mined with a Bitcoin term in any window{tail}")

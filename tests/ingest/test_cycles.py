@@ -41,11 +41,12 @@ def test_a_cycle_that_finds_something_is_reported_video_by_video(tmp_path):
     mined(q, c, T - 300, T + 2, T + 30, 0, 5, 5, hook_ts=T + 35)
     line = cycles.compose(q, T + 100)
     assert line.startswith("PP-INGEST CYCLES TO 11:01 ET (")                    # its newest change: b's hooks, 11:01
-    assert "11:00 ET cycle, 3 new: (1) " in line and f"{a} Test Channel: a Short, never mined (A2), no rows" in line
-    assert (f"{b} Test Channel: mined yes 11:00 ET, 12 moments, 3 hooks + 1 spotlights, 640 s publish -> rows (seen "
-            "601 s after publish via uploads_playlist, mined 39 s after)") in line
-    assert (f"{c} Test Channel: mined yes 11:00 ET, 0 moments, 0 hooks (all 5 window(s) without a Bitcoin term: "
-            "screened before any model call); 330 s publish -> mined") in line
+    assert "11:00 ET cycle, 3 new: (1) " in line and f'{a} Test Channel "a title": a Short, never mined (A2), no rows' \
+        in line
+    assert (f'{b} Test Channel "a title": mined yes 11:00 ET, 12 moments, 3 hooks + 1 spotlights, 640 s publish -> rows '
+            "(seen 601 s after publish via uploads_playlist, mined 39 s after)") in line
+    assert (f'{c} Test Channel "a title": mined yes 11:00 ET, 0 moments, 0 hooks (all 5 window(s) without a Bitcoin '
+            "term: screened before any model call); 330 s publish -> mined") in line
     assert "NOTHING BITCOIN" not in line and "\n" not in line                   # b had a Bitcoin term
 
 
@@ -56,8 +57,8 @@ def test_a_video_still_queued_and_the_hook_pass_pending_are_said(tmp_path):
     q.x("UPDATE videos SET state=?, reason=? WHERE video_id=?", (Q.UPCOMING, "upcoming (scheduled)", a))
     mined(q, b, T - 60, T + 1, T + 20, 7, 3, 0)
     line = cycles.compose(q, T + 30)
-    assert f"{a} Test Channel: mined no, queued (upcoming_waiting: upcoming (scheduled))" in line
-    assert f"{b} Test Channel: mined yes 11:00 ET, 7 moments, hook pass pending, 80 s publish -> rows" in line
+    assert f'{a} Test Channel "a title": mined no, queued (upcoming_waiting: upcoming (scheduled))' in line
+    assert f'{b} Test Channel "a title": mined yes 11:00 ET, 7 moments, hook pass pending, 80 s publish -> rows' in line
 
 
 def test_three_hours_with_nothing_bitcoin_are_said_and_a_window_with_nothing_new_writes_no_line(tmp_path):
@@ -78,8 +79,77 @@ def test_three_hours_with_nothing_bitcoin_are_said_and_a_window_with_nothing_new
     quiet = cycles.compose(q2, T + 4 * 3600 + 60)                      # a cycle ran and found nothing new: said, at
     assert quiet.startswith("PP-INGEST CYCLES TO 15:00 ET (") and (    # the cycle's own time (not the clock's)
         "none of its 1 cycle(s) found a new upload; NOTHING BITCOIN IN THE LAST 3 H: no new upload in 1 cycle(s); the "
-        f"newest with one: {d} Test Channel, seen 11:00 ET Nov 14") in quiet
+        f'newest upload with one, before this window: {d} Test Channel "a title", seen 11:00 ET Nov 14') in quiet
     assert cycles.compose(q2, T + 4 * 3600 + 600) == quiet             # later, nothing new: the same line
+
+
+def test_a_reason_with_newlines_still_makes_one_physical_line_the_writer_accepts(tmp_path):
+    """Audit cyc c1 (glm P0): a reason can carry yt-dlp's multi-line stderr; one newline made the writer refuse the
+    line on every pass. Every field is folded to one line, and the title shortened."""
+    q, t = queue(tmp_path)
+    a = H.vid("a")
+    cycle(q, t, [(a, Q.DISCOVERED)])
+    q.x("UPDATE videos SET state=?, reason=?, title=? WHERE video_id=?",
+        (Q.PROBE_RETRY, "ERROR: [youtube] x: Video unavailable\nThis video is private\r\n", "A " * 60, a))
+    line = cycles.compose(q, T + 30)
+    assert "\n" not in line and "\r" not in line and "(probe_retry: ERROR: [youtube] x: Video unavailable This video " \
+        "is private)" in line and '"A A A A A A A A A A A A A A A A A A A..."' in line
+    doc = tmp_path / "STATE.md"
+    doc.write_text("body\n")
+    spend.write_cycles_notice(line, doc=str(doc), notify_path=str(tmp_path / "n" / "NOTIFY.txt"))
+    assert doc.read_text().split("\n")[0] == line
+
+
+def test_cycles_that_found_nothing_new_are_said_and_never_remove_the_line(tmp_path):
+    """Audit cyc c1 (glm P0): cycles that found nothing new while a mined upload of the window had a Bitcoin term (one
+    the cycles did not list: here added by hand) returned no line, so the old line stayed or vanished. It is said."""
+    q, t = queue(tmp_path)
+    a = H.vid("a")
+    q.add_video(a, H.CHAN["channel_id"], "a title", "coverage")
+    mined(q, a, T - 60, T, T + 20, 4, 2, 0)
+    t[0] += 60
+    q.event("watch_cycle", None, None, cycle="ingest-x", channels=1, new=0, errors=0, seconds=3.0)
+    line = cycles.compose(q, T + 120)
+    assert line.endswith("none of its 1 cycle(s) found a new upload") and "NOTHING BITCOIN" not in line
+
+
+def test_a_count_the_events_do_not_match_and_a_channels_backfill_are_said_not_hidden(tmp_path):
+    """Audit cyc c1 (muse P1; glm BUG 9): a cycle whose count is not what its events show says both; uploads recorded at
+    a channel's first listing (older than 72 h, never mined) are counted, not listed one by one."""
+    q, t = queue(tmp_path)
+    a, b, c = H.vid("a"), H.vid("b"), H.vid("c")
+    for v, st in ((a, Q.DISCOVERED), (b, Q.SEEN_OLD), (c, Q.SEEN_OLD)):
+        q.add_video(v, H.CHAN["channel_id"], "a title", "uploads_playlist", state=st)
+    t[0] += 4
+    q.event("watch_cycle", None, None, cycle="ingest-x", channels=1, new=4, errors=0, seconds=4.0)
+    line = cycles.compose(q, T + 30)
+    assert "11:00 ET cycle, 4 new (3 found in its events): (1) " in line and line.count(" Test Channel \"") == 1
+    assert "; 2 older upload(s) recorded at a channel's first listing (backfill, never mined)" in line
+
+
+def test_the_line_has_a_ceiling_and_drops_the_oldest_cycles_first(tmp_path):
+    q, t = queue(tmp_path)
+    for k in range(6):
+        cycle(q, t, [(H.vid(f"x{k}"), Q.DISCOVERED)])
+        t[0] += 600
+    full = cycles.compose(q, t[0])
+    short = cycles.compose(q, t[0], max_chars=len(full) - 100)
+    assert len(short) <= len(full) - 100 and "older cycle(s) of the window not shown: the line's ceiling)" in short
+    assert short.count(" ET cycle, ") < full.count(" ET cycle, ") == 6
+    newest = full.split("): ", 1)[1].split(" | ")[0]
+    assert newest in short                                             # the newest cycle kept
+
+
+def test_a_duplicate_is_counted_as_not_minable_in_the_quiet_note(tmp_path):
+    """Audit cyc c1 (glm BUG 2): duplicates, no captions, too long, opt-outs are neither Shorts nor queued nor mined:
+    counted apart, so the 'uploads seen' count adds up."""
+    q, t = queue(tmp_path)
+    a, b = H.vid("a"), H.vid("b")
+    cycle(q, t, [(a, Q.DISCOVERED), (b, Q.DISCOVERED)])
+    mined(q, a, T - 60, T + 1, T + 20, 0, 2, 2)
+    q.x("UPDATE videos SET state=? WHERE video_id=?", (Q.DUPLICATE, b))
+    assert ("NOTHING BITCOIN IN THE LAST 3 H: 2 upload(s) seen (1 not minable), none of the 1 mined with a Bitcoin "
+            "term in any window") in cycles.compose(q, T + 30)
 
 
 def test_the_cycles_line_sits_after_the_switch_line_and_is_rewritten_only_when_it_changes(tmp_path):

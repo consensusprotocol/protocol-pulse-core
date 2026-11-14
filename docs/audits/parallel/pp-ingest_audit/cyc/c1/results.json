@@ -1,0 +1,83 @@
+{
+ "results": {
+  "heimdall_glm": {
+   "model": "z-ai/glm-5.3-flash",
+   "usage": {
+    "prompt_tokens": 159708,
+    "completion_tokens": 7874,
+    "total_tokens": 167582,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.005927324
+   },
+   "cost_usd": 0.005927324,
+   "seconds": 327.0,
+   "finish_reason": "stop"
+  },
+  "heimdall_qwen": {
+   "model": "qwen/qwen3.8-27b",
+   "usage": {
+    "prompt_tokens": 176512,
+    "completion_tokens": 5470,
+    "total_tokens": 181982,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0
+    },
+    "cost": 0.0266739252
+   },
+   "cost_usd": 0.0266739252,
+   "seconds": 351.0,
+   "finish_reason": "stop"
+  },
+  "heimdall_muse": {
+   "model": "meta-models/muse-spark-open-816b-a42b",
+   "usage": {
+    "prompt_tokens": 157307,
+    "completion_tokens": 3575,
+    "total_tokens": 160882,
+    "prompt_tokens_details": {
+     "cached_tokens": 128,
+     "cache_write_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 15
+    },
+    "cost": 0.031901046
+   },
+   "cost_usd": 0.031901046,
+   "seconds": 396.5,
+   "finish_reason": "stop"
+  }
+ },
+ "errors": {
+  "heimdall_minimax": "BackendError: empty: no content (finish_reason length)"
+ },
+ "error_costs": {
+  "heimdall_minimax": {
+   "usage": {
+    "prompt_tokens": 159114,
+    "completion_tokens": 16000,
+    "total_tokens": 175114,
+    "prompt_tokens_details": {
+     "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 15999
+    },
+    "cost": 0.010374801
+   },
+   "cost_usd": 0.010374801,
+   "kind": "empty",
+   "seconds": 415.0
+  }
+ },
+ "skipped": {
+  "gpt4o": "spend freeze: vendor 'openai'",
+  "grok": "spend freeze: vendor 'xai'",
+  "gemini": "spend freeze: vendor 'google'"
+ },
+ "earlier_attempts": []
+}

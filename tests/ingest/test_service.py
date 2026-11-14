@@ -390,7 +390,8 @@ def test_the_health_loop_writes_the_cycles_line_and_a_failure_never_stops_it(svc
     run_once(s)
     s.health_once()
     text = open(config.STATE_DOC).read()
-    assert text.startswith("PP-INGEST CYCLES TO ") and f"{vids[0]} Test Channel: mined yes" in text.split("\n")[0]
+    assert text.startswith("PP-INGEST CYCLES TO ") and f"{vids[0]} Test Channel \"" in text.split("\n")[0] and \
+        ": mined yes " in text.split("\n")[0]
     msgs = []
     s.log = msgs.append
     monkeypatch.setattr(service.cycles, "compose", lambda *a, **k: 1 / 0)
