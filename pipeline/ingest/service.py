@@ -4,7 +4,10 @@ Loops (threads, one process):
   watch   every POLL_S (+- jitter): list every watched channel, queue new uploads
   fetch   every 10 s: probe due videos, store captions (yt-dlp gate: 3 at once, rate-limit breaker)
   mine    every 5 s: mine transcribed videos (3 videos at once; their windows share one executor whose real
-          concurrency is bounded per back-end and globally by providers.Router), append moments, mark mined
+          concurrency is bounded per back-end and globally by providers.Router), append moments, mark mined.
+          Ruling 98: while the shared signal's paid route is open (Heimdall down 20 min), only NEW uploads (the last
+          6 h; conversations first, then newest) are mined, on the paid role under its daily cap; when the signal is
+          back, the paid route's videos still inside 12 h are mined again on the mine role (flags of both kept)
   health  every 60 s: Heimdall spend meter (every 10 min), live numbers (ingest/live.json), the daily coverage check
   hook    every 5 s (ruling 80): the HOOK PASS, a second mining question over the same windows (mine.HOOK_PROMPT),
           on mined videos published in the last 12 h, newest first (2 videos at once): the current window's backfill
@@ -93,7 +96,8 @@ class Service:
         self.hsig = None                                # ruling 87 (set below; _on_attempt reads it)
         self.router = providers.Router(self.cfg, keyring=keyring, spend=self.spendbook,
                                        on_attempt=self._on_attempt, cache_dir=self.p["replies"], clock=clock,
-                                       sleep=sleep, backends=backends, overrides=self.overrides)
+                                       sleep=sleep, backends=backends, overrides=self.overrides,
+                                       role_spend=self.q.role_spend_since)         # ruling 98: the route's cap
         if self.cfg.get("down_signal"):
             self.hsig = downsignal.DownSignal(self.cfg, self.router, self.overrides, self.q, self.p, clock=clock,
                                               log=self.log, module_path=signal_module, state_path=signal_state)
@@ -107,6 +111,7 @@ class Service:
         self.hooks = ThreadPoolExecutor(max_workers=HOOK_VIDEOS, thread_name_prefix="hook")
         self.hook_windows = ThreadPoolExecutor(max_workers=HOOK_WINDOWS, thread_name_prefix="hookwin")
         self.inflight, self.hook_inflight = set(), set()
+        self._conv = {}                                 # ruling 98: video id -> a conversation (caption turns)
         self.ilock, self.hlock = threading.Lock(), threading.Lock()
         self.wlock = threading.Lock()                   # every ledger append of this service (carry_forward + append)
         self.checks = ThreadPoolExecutor(max_workers=CHECK_INFLIGHT, thread_name_prefix="check")
@@ -242,8 +247,8 @@ class Service:
 
     # ── mine ──
 
-    def mine_video(self, v):
-        vid = v["video_id"]
+    def mine_video(self, v, role=None):
+        vid, route = v["video_id"], role or "mine"
         try:
             ts = config.ts()
             rec = ts.canonical_transcript(vid)
@@ -262,10 +267,10 @@ class Service:
                    "duplicate_of": v.get("duplicate_of"), "canonical_url": ts.canonical_url(vid)}
             t0 = self.clock()
             lines, rep = mine.mine_video(self.router, self.executor, rec, meta, chan, reg,
-                                         datetime.now(timezone.utc), self.cycle, extra_source=src)
+                                         datetime.now(timezone.utc), self.cycle, extra_source=src, role=route)
             cost = self.q.rows("SELECT SUM(COALESCE(cost_usd,0)) AS usd FROM calls WHERE video_id=? AND "
-                               "COALESCE(role, 'mine')='mine'", (vid,))[0]["usd"]
-            self._settle(v, chan, lines, rep, cost, t0)
+                               "COALESCE(role, 'mine')=?", (vid, route))[0]["usd"]
+            self._settle(v, chan, lines, rep, cost, t0, route=route)
         except ContractUnavailable as e:
             self.q.set_state(vid, Q.MINE_WAIT, next_at=self.clock() + MINE_RETRY_S, reason=f"contract unavailable: {e}")
             self.log(f"mine {vid}: contract unavailable: {e}")
@@ -301,15 +306,15 @@ class Service:
         since = datetime.fromtimestamp(float(v.get("discovered_ts") or self.clock()) - 86400, timezone.utc)
         return len(ledger.video_moment_ids(self.p["ledger"], v["video_id"], since))
 
-    def _settle(self, v, chan, lines, rep, cost, t0):
-        """The video's state after one mining pass (see the module docstring)."""
+    def _settle(self, v, chan, lines, rep, cost, t0, route="mine"):
+        """The video's state after one mining pass (see the module docstring); route: the role that mined it."""
         vid, now = v["video_id"], self.clock()
         failed = rep["failed"]
         rejected = [f for f in failed if not f["outage"]]
         passes = int(v.get("mine_tries") or 0) + (1 if rejected else 0)
         was_partial = v.get("state") == Q.MINED_PARTIAL
         common = dict(miners=json.dumps(rep["miners"]), windows=rep["windows"], windows_screened=rep["screened"],
-                      windows_failed=len(failed), mine_cost_usd=cost, mine_tries=passes)
+                      windows_failed=len(failed), mine_cost_usd=cost, mine_tries=passes, mine_route=route)
         what = (f"{len(lines)} moments, windows {rep['windows']} (screened {rep['screened']}, failed {len(failed)}: "
                 f"{len(rejected)} rejected, {len(failed) - len(rejected)} outage), miners {rep['miners']}, "
                 f"${(cost or 0):.4f}, {now - t0:.0f} s")
@@ -526,21 +531,58 @@ class Service:
             free = 3 - len(self.inflight)
         if free <= 0:
             return 0
+        pr = self.cfg.get("paid_route")
+        paid = bool(pr) and self.hsig is not None and self.hsig.paid_open
+        if pr and self.hsig is not None and not paid:
+            self._queue_rechecks(pr)
         if free == 3 and not self.q.due(Q.MINE_DUE, 1):
             if self.clock() - getattr(self, "_last_mining", 0.0) >= IDLE_RELEASE_S:
                 self.router.release()                     # idle: the local model (if any) leaves GPU0 (B3)
             return 0
         self._last_mining = self.clock()
-        for v in self.q.due(Q.MINE_DUE, free):
+        for v in (self._paid_due(pr, free) if paid else self.q.due(Q.MINE_DUE, free)):
             if not self.q.claim(v["video_id"], Q.MINE_DUE, Q.MINING):
                 continue
             with self.ilock:
                 self.inflight.add(v["video_id"])
-            started.append(self.videos.submit(self.mine_video, v))
+            started.append(self.videos.submit(self.mine_video, v, pr["role"] if paid else None))
         if wait:
             for f in started:
                 f.result()
         return len(started)
+
+    def _paid_due(self, pr, limit):
+        """Ruling 98, the paid route: only NEW uploads (published inside new_within_s), conversations first (the
+        caption turns per minute, ruling 92's measure), then newest; every older video waits for Heimdall (no
+        backfill)."""
+        now = self.clock()
+        vs = [v for v in self.q.due(Q.MINE_DUE, 200) if (v.get("published_ts") or 0) >= now - float(pr["new_within_s"])]
+        if len(self._conv) > 5000:
+            self._conv.clear()
+
+        def conv(v):
+            vid = v["video_id"]
+            if vid not in self._conv:
+                try:
+                    tpm = mine.episode_measure(config.ts().canonical_transcript(vid)).get("turns_per_min")
+                except Exception:                         # noqa: BLE001 (unmeasured: not a conversation, still mined)
+                    tpm = None
+                self._conv[vid] = tpm is not None and tpm >= float(pr["conversation_tpm"])
+            return self._conv[vid]
+        vs.sort(key=lambda v: (conv(v), v.get("published_ts") or 0), reverse=True)
+        return vs[:limit]
+
+    def _queue_rechecks(self, pr):
+        """Ruling 98: once the signal is back, each video the paid route mined that is still inside recheck_within_s
+        is mined again on the mine role, once; every moment both passes found carries the flags of both
+        (ledger.carry_forward), so a flag either model set stands."""
+        if not self.hsig.signal_back():
+            return
+        for v in self.q.recheck_due(pr["role"], float(pr["recheck_within_s"]), limit=20):
+            self.q.set_state(v["video_id"], Q.TRANSCRIBED, next_at=self.clock(), recheck_ts=self.clock(),
+                             reason=f"ruling 98: mined again on the mine role (its rows came from {pr['role']})")
+            self.q.event("recheck_queued", v["video_id"], v.get("channel_id"), route=pr["role"])
+            self.log(f"ruling 98: {v['video_id']} queued to be mined again on the mine role")
 
     # ── health ──
 

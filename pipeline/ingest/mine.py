@@ -403,7 +403,7 @@ def mine_window(router, meta, chan, win, video_id, role="mine", only=None, use_c
 
 
 def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, now_dt, win, cycle, extra_source,
-               kind="moment", episode=None):
+               kind="moment", episode=None, route=None):
     k = KINDS[kind]
     E, _, _ = contract.modules()
     a, b = cand["s"]
@@ -436,7 +436,8 @@ def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, n
         "flags_ext": {"about_bitcoin": cand["about_bitcoin"], "altcoin": cand["altcoin"]},
         "source": dict(extra_source or {}, topics_status="taxonomy unpublished (pp-selectid phase 2)"),
         "episode": episode if episode is not None else episode_measure(rec),          # ruling 92
-    } | ({"role_hint": k["role_hint"]} if k["role_hint"] else {})
+        "miner_route": route or k["role"],      # ruling 98: the role that mined the row (the paid route's rows are
+    } | ({"role_hint": k["role_hint"]} if k["role_hint"] else {})                     # re-checked on Heimdall)
 
 
 def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra_source=None, role=None,
@@ -487,7 +488,7 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
                 fx["altcoin"] = fx["altcoin"] or cand["altcoin"]
                 continue
             line = build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, now_dt, w, cycle,
-                              extra_source, kind, episode)
+                              extra_source, kind, episode, route=role)
             by_range[key] = line
             lines.append(line)
     secs = KINDS[kind]["seconds"]

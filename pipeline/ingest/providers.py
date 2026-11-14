@@ -30,6 +30,8 @@ import urllib.parse
 import urllib.request
 from collections import deque
 from dataclasses import dataclass, field
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from . import config
 
@@ -120,6 +122,14 @@ def validate_config(cfg):
         tr = r.get("transport_retries")
         if tr is not None and (type(tr) is not int or tr < 0):
             raise ValueError(f"role {role}: 'transport_retries' must be a whole number >= 0")
+        cap = r.get("daily_cap_usd")       # ruling 98: a role may lift the spend freeze only with a daily cap
+        if cap is not None and (type(cap) not in (int, float) or cap <= 0):
+            raise ValueError(f"role {role}: 'daily_cap_usd' must be a number > 0")
+        if "freeze_lifted" in r and (type(r["freeze_lifted"]) is not str or not r["freeze_lifted"] or cap is None):
+            raise ValueError(f"role {role}: 'freeze_lifted' names the ruling that lifts it, and needs 'daily_cap_usd'")
+        rs = r.get("cap_reserve_usd")
+        if rs is not None and (type(rs) not in (int, float) or rs < 0):
+            raise ValueError(f"role {role}: 'cap_reserve_usd' must be a number >= 0")
     ds = cfg.get("down_signal")         # ruling 87: the shared signal's vendor, label and module, and its probe role
     if ds is not None:
         if type(ds) is not dict or ds.get("probe_role") not in cfg["roles"] or \
@@ -130,6 +140,14 @@ def validate_config(cfg):
         off = [b for b in cfg["roles"][ds["probe_role"]]["chain"] if cfg["backends"][b]["vendor"] != ds["vendor"]]
         if off:
             raise ValueError(f"down_signal: the probe role's back-ends {off} are not of vendor {ds['vendor']!r}")
+    pr = cfg.get("paid_route")          # ruling 98: the miner's Plan B route needs the signal and a capped role
+    if pr is not None:
+        if ds is None or type(pr) is not dict or pr.get("role") not in cfg["roles"] or \
+                cfg["roles"][pr["role"]].get("daily_cap_usd") is None or type(pr.get("label")) is not str or \
+                not all(type(pr.get(k)) in (int, float) and pr[k] > 0 for k in
+                        ("after_down_s", "new_within_s", "recheck_within_s", "conversation_tpm")):
+            raise ValueError("paid_route needs down_signal, a 'role' with a daily_cap_usd, a 'label' and positive "
+                             "after_down_s / new_within_s / recheck_within_s / conversation_tpm")
     return cfg
 
 
@@ -663,6 +681,49 @@ class Throttle:
             self.delay = self.first
 
 
+ET = ZoneInfo("America/New_York")
+
+
+class RoleCaps:
+    """Ruling 98: a role's daily spend cap, per ET day, counted from every call's recorded cost (the vendor's own where
+    it reports one, else the price-table estimate), with a reservation held for every call in flight so no call starts
+    past the cap. loader(role, since_ts) -> dollars already spent (the queue's calls) at the first use of a day."""
+
+    def __init__(self, loader=None, clock=time.time):
+        self.loader, self.clock = loader, clock
+        self.lock = threading.Lock()
+        self.day, self.spent, self.reserved = {}, {}, {}
+
+    def _roll(self, role):
+        d = datetime.fromtimestamp(self.clock(), ET).date()
+        if self.day.get(role) != d:
+            start = datetime(d.year, d.month, d.day, tzinfo=ET).timestamp()
+            self.day[role], self.spent[role] = d, float(self.loader(role, start) or 0.0) if self.loader else 0.0
+
+    def reserve(self, role, amount, cap):
+        with self.lock:
+            self._roll(role)
+            r = self.reserved.get(role, 0.0)
+            if self.spent[role] + r + amount > cap + 1e-9:
+                return False
+            self.reserved[role] = r + amount
+            return True
+
+    def release(self, role, amount):
+        with self.lock:
+            self.reserved[role] = max(0.0, self.reserved.get(role, 0.0) - amount)
+
+    def add(self, role, usd):
+        with self.lock:
+            self._roll(role)
+            self.spent[role] += float(usd or 0.0)
+
+    def today(self, role):
+        with self.lock:
+            self._roll(role)
+            return self.spent[role]
+
+
 class SpendBook:
     """Dollars per back-end per UTC day (from every attempt's cost)."""
 
@@ -693,7 +754,7 @@ class SpendBook:
 
 class Router:
     def __init__(self, cfg=None, keyring=None, spend=None, meter=None, on_attempt=None, cache_dir=None,
-                 clock=time.time, sleep=time.sleep, backends=None, overrides=None):
+                 clock=time.time, sleep=time.sleep, backends=None, overrides=None, role_spend=None):
         self.cfg = validate_config(cfg or load_config())
         self.keyring = keyring or Keyring(self.cfg["env_file"])
         self.backends = backends or {bid: make_backend(bid, c, self.keyring)
@@ -707,6 +768,7 @@ class Router:
                      for bid, b in self.backends.items()}
         self.gsem = threading.BoundedSemaphore(int(self.cfg["global"]["max_inflight"]))
         self.spend = spend or SpendBook(clock=clock)
+        self.caps = RoleCaps(loader=role_spend, clock=clock)      # ruling 98: role_spend(role, since_ts) -> dollars
         self.meter, self.on_attempt, self.cache_dir = meter, on_attempt, cache_dir
         self.clock, self.sleep = clock, sleep
 
@@ -733,15 +795,18 @@ class Router:
         return ch
 
     def effective(self, role):
-        """The back-ends of the role that may be called at all (not frozen, enabled), in order."""
-        return [b for b in self.order(role) if b in self.backends and not self.frozen(b) and
+        """The back-ends of the role that may be called at all (not frozen unless the role lifts the freeze, enabled),
+        in order."""
+        lifted = bool(self.cfg["roles"][role].get("freeze_lifted"))
+        return [b for b in self.order(role) if b in self.backends and (lifted or not self.frozen(b)) and
                 self.backends[b].enabled()]
 
-    def available(self, bid, breaker=True):
+    def available(self, bid, breaker=True, freeze_lifted=False):
         """breaker False (a role whose calls are the breaker's evidence, ruling 87's probe): the freeze, the switch
-        and the budget still hold; an open circuit does not."""
+        and the budget still hold; an open circuit does not. freeze_lifted (a role whose config names the ruling that
+        lifts the freeze for it, with its cap: ruling 98's paid route): a frozen vendor may be called by that role."""
         b = self.backends[bid]
-        if self.frozen(bid):
+        if self.frozen(bid) and not freeze_lifted:
             return False, f"spend freeze: vendor {self.vendor(bid)!r} is frozen (providers.json spend_freeze)"
         if not b.enabled():
             return False, "disabled"
@@ -774,6 +839,8 @@ class Router:
         tried = []
         max_tokens = int(rc.get("max_tokens", 4000))
         breaker = rc.get("breaker", True) is not False
+        lifted, cap = bool(rc.get("freeze_lifted")), rc.get("daily_cap_usd")
+        reserve = float(rc.get("cap_reserve_usd", 0.0))
         for bid in chain:
             if bid not in self.backends:
                 tried.append((bid, "unknown", "not in providers.json"))
@@ -785,9 +852,13 @@ class Router:
                 if out is not None:
                     out.tried = tried + [(bid, "ok", "cache")]
                     return out
-            ok, why = self.available(bid, breaker)
+            ok, why = self.available(bid, breaker, lifted)
             if not ok:
                 tried.append((bid, "skipped", why))
+                continue
+            if cap is not None and not self.caps.reserve(role, reserve, float(cap)):
+                tried.append((bid, "skipped", f"the role's daily cap ${float(cap):.2f} is reached "
+                                              f"(${self.caps.today(role):.2f} today, ET)"))
                 continue
             try:
                 out = self._try(bid, role, prompt, schema, validate, tag, int(rc.get("attempts", 3)), mt)
@@ -799,6 +870,9 @@ class Router:
                 else:
                     self.health[bid].record(False, None, "crash")
                 raise
+            finally:
+                if cap is not None:
+                    self.caps.release(role, reserve)
             if isinstance(out, Outcome):
                 out.tried = tried + [(bid, "ok", f"attempt {out.attempt}")]
                 return out
@@ -829,10 +903,11 @@ class Router:
     def _try(self, bid, role, prompt, schema, validate, tag, attempts, max_tokens):
         """An Outcome, or (status, why): status 'rejected' (this request: replies invalid, refused, empty, a 4xx) or
         'unavailable' (the back-end: down, overloaded, refusing access)."""
-        if self.frozen(bid):                                     # never reached through run(); a second lock
+        rc = self.cfg["roles"][role]
+        if self.frozen(bid) and not rc.get("freeze_lifted"):     # never reached through run(); a second lock
             return "unavailable", f"spend freeze: vendor {self.vendor(bid)!r} is frozen"
         b, th = self.backends[bid], self.throttle[bid]
-        rc = self.cfg["roles"][role]
+        capped = rc.get("daily_cap_usd") is not None
         h = self.health[bid] if rc.get("breaker", True) is not False else _NoHealth   # ruling 87's probe: the
         psha = sha256(prompt)                                                          # breaker neither gates nor
         path = self._cache_path(bid, self._key(bid, prompt, schema, max_tokens))       # learns from it
@@ -855,6 +930,8 @@ class Router:
                 if red is not None:
                     r.detail, r.raw = red(r.detail), red(r.raw)
                 self.spend.add(bid, r.cost_usd)
+                if capped:
+                    self.caps.add(role, r.cost_usd)
                 if self._metered(bid) and self.meter is not None:
                     self.meter.add_local(r.cost_usd or 0.0)
                 self._emit(dict(rec, kind=r.kind, http_status=r.http_status, latency_s=r.latency_s,
@@ -870,6 +947,8 @@ class Router:
                 return ("rejected" if r.kind in BackendError.REJECTED else "unavailable"), f"{r.kind}: {r.detail[:160]}"
             th.ok()
             self.spend.add(bid, r.cost_usd)
+            if capped:
+                self.caps.add(role, r.cost_usd)
             if self._metered(bid) and self.meter is not None:
                 self.meter.add_local(r.cost_usd or 0.0)
             attempt += 1

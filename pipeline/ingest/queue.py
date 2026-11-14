@@ -63,13 +63,15 @@ CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT);
 VIDEO_FIELDS = ("title", "published_at", "published_ts", "published_source", "media_type", "live_status", "duration",
                 "reason", "transcript_sha256", "transcript_method", "transcribed_at", "transcribed_ts", "mined_at",
                 "mined_ts", "miners", "moments", "windows", "windows_screened", "windows_failed", "mine_cost_usd",
-                "duplicate_of", "title_canon", "text_fp", "tries", "mine_tries", "listing_url")
+                "duplicate_of", "title_canon", "text_fp", "tries", "mine_tries", "listing_url",
+                "mine_route", "recheck_ts")     # ruling 98: the role that last mined the video; its Heimdall re-mine
 
 
 HOOK_COLUMNS = (("hook_ts", "REAL"), ("hook_rows", "INTEGER"), ("hook_cost_usd", "REAL"), ("hook_next_ts", "REAL"),
                 ("hook_note", "TEXT"), ("hook_tries", "INTEGER"),
                 ("episode_markers", "INTEGER"), ("episode_tpm", "REAL"),   # ruling 92: the turn measure, per video
                 ("hook_version", "TEXT"))    # the hook question a completed pass asked (audit r92 c2, glm: --rerun)
+ROUTE_COLUMNS = (("mine_route", "TEXT"), ("recheck_ts", "REAL"))   # ruling 98: the miner's paid route
 
 
 class Queue:
@@ -86,8 +88,8 @@ class Queue:
             cols = {r[1] for r in self.db.execute("PRAGMA table_info(videos)").fetchall()}
             if "first_sight" not in cols:          # queues created before the column (2026-11-12 03:26 ET)
                 self.db.execute("ALTER TABLE videos ADD COLUMN first_sight INTEGER NOT NULL DEFAULT 0")
-            for c, t in HOOK_COLUMNS:               # ruling 80 (2026-11-13): the hook pass's state, per video
-                if c not in cols:
+            for c, t in HOOK_COLUMNS + ROUTE_COLUMNS:   # ruling 80 (2026-11-13): the hook pass's state, per video;
+                if c not in cols:                       # ruling 98: the mining route
                     self.db.execute(f"ALTER TABLE videos ADD COLUMN {c} {t}")
             self.db.execute("CREATE INDEX IF NOT EXISTS videos_hook ON videos(state, published_ts)")   # hook_due
 
@@ -176,6 +178,19 @@ class Queue:
         return self.rows(f"SELECT * FROM videos WHERE state IN ({q}) AND next_at <= ? "
                          "ORDER BY COALESCE(published_ts, listing_ts, discovered_ts) DESC LIMIT ?",
                          tuple(states) + (self.clock(), limit))
+
+    def role_spend_since(self, role, since_ts):
+        """Ruling 98: dollars recorded for one role's calls since a time (every attempt's cost): the paid route's
+        daily cap."""
+        return float(self.rows("SELECT SUM(COALESCE(cost_usd, 0)) AS u FROM calls WHERE role=? AND ts >= ?",
+                               (role, since_ts))[0]["u"] or 0.0)
+
+    def recheck_due(self, route, horizon_s, limit=50):
+        """Ruling 98: videos last mined on the paid `route`, published inside `horizon_s`, not yet queued for their
+        Heimdall re-mine, newest first."""
+        return self.rows("SELECT * FROM videos WHERE state IN (?, ?) AND mine_route=? AND recheck_ts IS NULL AND "
+                         "published_ts >= ? ORDER BY published_ts DESC LIMIT ?",
+                         (MINED, MINED_PARTIAL, route, self.clock() - horizon_s, limit))
 
     def hook_due(self, horizon_s, limit=50):
         """Ruling 80: mined videos published inside the last `horizon_s` (12 h) whose hook pass has not run, newest

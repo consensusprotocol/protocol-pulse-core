@@ -74,13 +74,13 @@ def _any_text(c):
     return c
 
 
-def head(rec, seen_ts, up):
+def head(rec, seen_ts, up, plan_b_tail="; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)"):
     """STATE line 1's head for one switch record {"utc", "to", "why", "by"} (the module's words: "SWITCHED TO PLAN B",
     "BACK TO <UP MODE>", plus who made it and what the miner does), IN CAPITALS, one physical line. None: not a switch
     between the module's two modes (up: the mode that is not DOWN)."""
     to = rec.get("to")
     if to == DOWN:
-        word, tail = "SWITCHED TO PLAN B", "; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)"
+        word, tail = "SWITCHED TO PLAN B", plan_b_tail
     elif to == up:
         word, tail = "BACK TO " + up.upper().replace("_", "-"), ""
     else:
@@ -101,6 +101,16 @@ class DownSignal:
                  state_path=None):
         ds = cfg["down_signal"]
         self.vendor, self.probe_role, self.label = ds["vendor"], ds["probe_role"], ds["label"]
+        self.paid, self.roles = cfg.get("paid_route"), cfg["roles"]     # ruling 98: the miner's paid route
+        self.paid_open, self.view = False, None   # the miner reads paid_open; view: the shared state as last read
+        pr = self.paid
+        self.plan_b_tail = (f"; THE MINER'S PLAN B (RULING 98): NEW UPLOADS ON {pr['label']} AFTER "
+                            f"{int(pr['after_down_s'] // 60)} MINUTES DOWN, CAPPED" if pr else
+                            "; THE MINER'S PLAN B: QUEUE AND WAIT (SPEND FREEZE)")
+        self.miner_plan_b = (f"ruling 98: after {int(pr['after_down_s'] // 60)} minutes down, new uploads (the last "
+                             f"{int(pr['new_within_s'] // 3600)} h, conversations first) on {pr['role']} "
+                             f"({pr['label']}), capped at ${float(self.roles[pr['role']]['daily_cap_usd']):.2f} a "
+                             "day (ET); then queue and wait" if pr else MINER_PLAN_B)
         self.router, self.overrides, self.q, self.clock, self.log = router, overrides, q, clock, log
         self.evidence, self.notify = paths["signal"], paths["notify"]
         self.lock = threading.Lock()
@@ -180,6 +190,63 @@ class DownSignal:
             self.probe_thread.join()
             self._report_probe()
         self._seen()
+        self._route_tick()
+
+    # ── ruling 98: the miner's paid route ──
+
+    def _route_tick(self):
+        """Opens when the shared state says DOWN and no family of the signal's vendor has answered for after_down_s
+        running (the state's failure clock); closes when the signal is back (3 good probes). A signal not read opens,
+        closes and spends nothing (paid_open False while it lasts; the queue keeps the route's state for a restart).
+        Every switch, and the day's cap when no further call fits under it, goes to STATE line 1."""
+        pr = self.paid
+        if not pr:
+            return
+        now, v = self.clock(), (self.view if not self.error else None)
+        st = self.q.kv_get("paid_route") or {"open": False, "since": None}
+        if v is None:
+            self.paid_open = False
+            return
+        if not st["open"]:
+            fs = v.get("failing_since_utc")
+            try:
+                fs_t = datetime.fromisoformat(str(fs).replace("Z", "+00:00")).timestamp() if fs else None
+            except ValueError:
+                fs_t = None
+            if v.get("mode") == DOWN and fs_t is not None and now - fs_t >= float(pr["after_down_s"]):
+                st = {"open": True, "since": _iso(now)}
+                cap = float(self.roles[pr["role"]]["daily_cap_usd"])
+                self._route_switch(st, f"MINER ON THE PAID ROUTE ({pr['label']}: NO {self.label} ANSWER FOR "
+                                       f"{int((now - fs_t) // 60)} MINUTES, SINCE {fs}; NEW UPLOADS OF THE LAST "
+                                       f"{int(pr['new_within_s'] // 3600)} H ONLY, CONVERSATIONS FIRST; CAP "
+                                       f"${cap:.2f} A DAY, ET)", "paid_route_open")
+        elif v.get("mode") == self.up:
+            st = {"open": False, "since": _iso(now)}
+            self._route_switch(st, f"MINER OFF THE PAID ROUTE (BACK ON {self.label}: THE SIGNAL IS BACK; ITS "
+                                   f"VIDEOS STILL INSIDE {int(pr['recheck_within_s'] // 3600)} H ARE MINED AGAIN "
+                                   "THERE)", "paid_route_closed")
+        self.paid_open = bool(st["open"])
+        if self.paid_open:
+            rc = self.roles[pr["role"]]
+            cap, spent = float(rc["daily_cap_usd"]), self.router.caps.today(pr["role"])
+            day = datetime.fromtimestamp(now, ET).date().isoformat()
+            if spent + float(rc.get("cap_reserve_usd", 0.0)) > cap and self.q.kv_get("paid_cap_day") != day:
+                self.q.kv_set("paid_cap_day", day)
+                self._route_switch(None, f"MINER PAID ROUTE CAP REACHED (${spent:.2f} OF ${cap:.2f} TODAY, ET): "
+                                         "QUEUE AND WAIT", "paid_route_cap")
+
+    def _route_switch(self, st, words, kind):
+        now = self.clock()
+        if st is not None:
+            self.q.kv_set("paid_route", st)
+        h = " ".join(f"{_utc(now).astimezone(ET).strftime('%H:%M')} ET: {words} |".upper().split())
+        try:
+            spend.write_switch_head(h, notify_path=self.notify)
+        except (OSError, ValueError) as e:
+            self.log(f"RULING 98: STATE line 1 not written: {type(e).__name__}: {e}")
+        self._evidence({"kind": kind, "utc": _iso(now), "head": h, "by": WHO})
+        self.q.event(kind, None, None, head=h)
+        self.log(f"RULING 98: {h}")
 
     def _probing(self):
         """A probe in flight, or finished and not yet reported (its thread leaves the outcome before it ends)."""
@@ -274,11 +341,14 @@ class DownSignal:
             if not isinstance(sw, list):
                 raise ValueError("no switches list")
         except FileNotFoundError:
+            self.view = None
             return                                   # no state yet: the module writes it at the first note
         except (OSError, ValueError) as e:
+            self.view = None
             if self.error is None:                   # the module's own calls already said so otherwise
                 self._fail(f"{type(e).__name__}: {str(e)[:240]}", where="reading the switches")
             return
+        self.view = s
         try:
             seen = int(self.q.kv_get("signal_switches_seen"))
         except (TypeError, ValueError):              # none yet, or unreadable: recorded again (audit r87 C1-4)
@@ -292,7 +362,7 @@ class DownSignal:
             return
         for i in range(seen, len(sw)):
             rec = sw[i] if isinstance(sw[i], dict) else {}
-            h = head(rec, self.clock(), self.up)
+            h = head(rec, self.clock(), self.up, self.plan_b_tail)
             if h is not None:
                 try:
                     spend.write_switch_head(h, notify_path=self.notify)
@@ -365,4 +435,21 @@ class DownSignal:
                 "call_waiting_s": round(now - busy) if busy is not None else None, "last_probe": self.last_probe,
                 "counts": dict(self.n), "switches_seen": self.q.kv_get("signal_switches_seen"),
                 "probe_claimed_as": self.probe_kw.get("who"),
-                "miner_plan_b": MINER_PLAN_B}
+                "paid_route": self._route_snapshot(),
+                "miner_plan_b": self.miner_plan_b}
+
+    def signal_back(self):
+        """Ruling 98: the signal is read and says up, and the paid route is closed (the paid route's videos may be
+        mined again on the mine role)."""
+        v = self.view if not self.error else None
+        return v is not None and v.get("mode") == self.up and not self.paid_open
+
+    def _route_snapshot(self):
+        if not self.paid:
+            return None
+        rc = self.roles[self.paid["role"]]
+        st = self.q.kv_get("paid_route") or {"open": False, "since": None}
+        return {"open": self.paid_open, "recorded": st, "role": self.paid["role"],
+                "spent_today_usd": round(self.router.caps.today(self.paid["role"]), 4),
+                "cap_usd": float(rc["daily_cap_usd"]), "label": self.paid["label"]}
+

@@ -93,6 +93,11 @@
       "price": {"in_per_mtok": 0.031, "out_per_mtok": 0.124, "basis": "GET /models pricing 2026-11-13"}
     }
   },
+  "paid_route": {
+    "role": "mine_paid", "after_down_s": 1200, "new_within_s": 21600, "recheck_within_s": 43200,
+    "conversation_tpm": 1.0, "label": "GROK, THEN GEMINI",
+    "note": "ruling 98 (orchestrator 06:13 ET Nov 14, PBX's fail-safe of 21:08 Nov 13 'if [Heimdall] ever fails to respond for more than perhaps 10 to 20 minutes ... use Groc mainly or whatever other AI tokens we have'): when the shared signal (down_signal) says plan_b AND no family of its vendor has answered for after_down_s (20 min) running, the miner mines NEW uploads only (published in the last new_within_s, 6 h; conversations first (caption turns per minute >= conversation_tpm), then newest; no backfill; no hook pass) on the role above, until the signal is back (3 good probes). Every row carries miner_route (the role that mined it). When the signal is back, a video mined on the paid route and published within recheck_within_s (12 h, its moments' life) is mined again on the mine role, and every moment both found carries the flags of both (ledger.carry_forward)."
+  },
   "down_signal": {
     "vendor": "heimdall", "probe_role": "probe", "label": "HEIMDALL",
     "module": "/home/ultron/worktrees/pp-selectid/pipeline/heimdall_health.py",
@@ -106,6 +111,10 @@
              "note": "ruling 80 (2026-11-13 18:42 ET): the hook pass, a second mining question over the same windows (mine.HOOK_PROMPT); the mine role's chain under the spend freeze"},
     "flagcheck": {"chain": ["heimdall_glm53flash", "heimdall_muse"], "attempts": 2, "max_tokens": 4000,
                   "note": "ruling 40 (2026-11-13): a second model, never one that mined the row's video, answers one narrow question per hard flag (pipeline/ingest/flagcheck.py). A measurement: the adapter's exclusions do not read it."},
+    "mine_paid": {"chain": ["xai_frontier", "gemini_frontier"], "attempts": 2, "max_tokens": 4000,
+                  "freeze_lifted": "ruling 98 (orchestrator 06:13 ET Nov 14): the miner's Plan B; the Nov 12 spend freeze is lifted for this one route and this cap only",
+                  "daily_cap_usd": 2.0, "cap_reserve_usd": 0.25,
+                  "note": "ruling 98: Grok first, then the Gemini key (fenced to this pipeline: allowed); others only if a probe shows credit (none wired). Used only while paid_route is open. The cap is per ET day across both back-ends, counted from each call's recorded cost (xAI's own usage.cost_in_usd_ticks; Gemini reports none: its price-table estimate counts), with cap_reserve_usd held for every call in flight so the calls never start past it; then the videos queue and wait."},
     "probe": {"chain": ["heimdall_qwen27b_probe", "heimdall_glm53flash_probe"], "attempts": 1, "max_tokens": 512,
               "transport_retries": 0, "breaker": false,
               "note": "ruling 87: the cheap probe while Heimdall calls fail (and in Plan B): one call per back-end, the first answer ends it; never from a stored reply (use_cache False), never held back by a breaker (breaker false: it is the breaker's evidence, not its patient), no transport retry (each back-end's 60 s deadline is the probe's). 512 tokens: room for the second family's default reasoning."}

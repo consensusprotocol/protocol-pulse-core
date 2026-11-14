@@ -20,7 +20,8 @@ from . import config
 OUTAGE_PREFIX = "MINING WAITING ON AN OUTAGE"
 PURGE_PREFIX = "PURGE NOT RUNNING"
 SIGNAL_SUFFIX = "DOWN SIGNAL NOT READ"        # ruling 87: "<label> DOWN SIGNAL NOT READ since ..." (the label from
-SWITCH_PATTERN = r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRST)"   # providers.json down_signal)
+SWITCH_PATTERN = (r"\d\d:\d\d ET: (?:SWITCHED TO PLAN B|BACK TO [A-Z0-9_-]+-FIRST|"   # providers.json down_signal)
+                  r"MINER (?:ON|OFF) THE PAID ROUTE|MINER PAID ROUTE CAP REACHED)")       # ruling 98: the miner's route
 SWITCH_RE = re.compile("^" + SWITCH_PATTERN)
 SIGNAL_RE = re.compile(r"^[A-Z0-9_-]+ " + SIGNAL_SUFFIX)    # any label's: only the signal writes this notice
 NOTICE_RE = re.compile(r"^(?:[A-Z0-9_-]+ SPEND (?:AT 90%|UNMEASURED)|" + OUTAGE_PREFIX + "|" + PURGE_PREFIX + "|" +
