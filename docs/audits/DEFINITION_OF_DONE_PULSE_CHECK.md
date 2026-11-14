@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 14:20 RULING 103 + CANON-401k READY TO LAND (branch canon-401k at 077407dc; audits batch 79 x2 clean, batch 80 x2 with cycle 2 clean). FINAL decoder_sha d1e155c642a6aaacd578ac5ad2f47c9cd1d71594c9913dc4f0f231fd6b2258ce, sent to the builder. It lands on the builder's READY, as agreed.
+- BATCH 80, cycle 1: no consensus finding.
+  - Grok's "critical" (an `if verdict != "adopt"` block forcing a hold) does not exist in the code.
+  - Its "high" (the record keeping the old verdict) is false: the record is built after the re-listen. It is now pinned by a test: on a pass, as_spoken.verdict is "same" and spoken_text None.
+  - glm's notes were not agreed.
+- Cycle 2 clean: qwen27b PASS after a path-by-path analysis, glm PASS, Grok PASS.
+- FOR THE ORCHESTRATOR, an interpretation on record: "the two differ from each other" is read ON THE TOKEN, not on the whole short readings.
+  - The window's edge words are cut mid-way and differ between recognisers; on the real run the decoder read "IRA. ..." and scribe "Roth IRA. ...".
+  - Whole-text equality would almost never pass. If the orchestrator wants whole-text agreement, it is one line in pinned.relisten_verdict.
+- RECORDED: PIPELINE_LAWS.md carries ruling 103 verbatim with its CHECK. INTEGRATOR_HANDOFF.md carries ruling 103's carrier, decoder_sha d1e155c642a6 with the RULES string, and the last batch, 80.
+- LANDING:
+  1. The builder: DECODER = d1e155c642a6..., canon's two hunks and the relisten seal, then READY with no build running.
+  2. The integrator: stage, pipeline/regression.sh + regression_test.sh, the canon / pre-check suites (test_g3b_majority on GPU0), commit, push.
+  3. The builder pushes.
+- Then the builder re-asks the pre-check for Blockware's ruling-104 variant (ending before "I don't have a 401k."), seals the spotlight, and it renders as the first SPOTLIGHT, a DEMO. The video expires 00:00 ET.
+
 ## 14:16 RULING 103 RE-LISTEN, REAL DATA: on Blockware 06d34e15 (7BqLu-wzbU0 0.000-22.940) the HOLD IS FINAL. The decoder re-reads "401k", scribe_v1 still hears "401" on the short window. Only a variant leaving the token out (ruling 104, the builder's) can save the clip.
 - THE RUN: the branch's code (canon-401k + the re-listen, not yet audited or merged), one-shot (lock_precheck once).
   - A scratch root; the builder's request copied; the builder's request directory untouched.
