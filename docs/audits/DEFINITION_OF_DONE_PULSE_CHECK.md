@@ -6,6 +6,22 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 23:16 LAW L-ab SPOTLIGHT MERGED on the agreed contract (moments_package.shape 'spotlight', ONE segment role hook, closing null by default, the first comment verbatim), audits batch 73 x2 clean (cycle 2 with Grok). The demo pin waits for the builder's spotlight path, its seal now covering closing, shape and first_comment.
+- RENDER SIDE:
+  - pinned: validate_schema's one-segment rule; _spotlight_vo (no clips; intro null and bridges []; closing null or ONE line <= 12 words with closing_value / closing_fidelity / closing_context exactly PASS and live; every required row PASS and live; first_comment); build_edl writes package_shape and first_comment.
+  - edl_rules: R4 28-50 s and a 12-word cap on the intro slot; R5 one moment and one channel, 12-35 s a taste line; R11 0 bridges and 0 / 1 line.
+  - G5: 28-50 s, read from the EDL's kind (a medley keeps 58-72 / 60-70).
+  - The editorial gate's LAW 1 and LAW 4 (the medley laws) do not bind one moment; L0, LAW 2 and LAW 3 do.
+  - A one-channel sign-off ("today's clip"); the medley prompt is byte-identical.
+  - telegram: the pass-path caption opens "SPOTLIGHT, CANDIDATE FOR PBX'S APPROVAL (DEMONSTRATION ...)", the first comment is printed verbatim with nothing appended, and the spotlight's deviation windows apply.
+  - The closing line plays in the intro slot after the moment. With none (the default) the timeline is moment -> sign-off -> credits -> outro, the no-voice proof the next render will show.
+- LAW: L-ab SPOTLIGHT is written in PIPELINE_LAWS.md, rulings 90 / 91 / 92 in PBX's words. Bible E-FAIL-084 (the pre-check's resident CUDA context).
+- regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, every protected reference reproduced (preview, moments, medley, first pass).
+- Suites: 256 passed. 2 failed in test_g20_signoff (the preview and v2f sign-off tests): they load whisper on GPU0 (gpu0.LeaseMissing with CUDA_VISIBLE_DEVICES=''); the preview one fails on unchanged main too; G20's code is untouched.
+- Not covered by a test: a rendered one-channel credits card. scene_shoutout encodes with h264_nvenc, so a unit test would take GPU0. card_layout's arithmetic is tested (centred: 960,510 in 16:9, 540,913 in 9:16); G12 / G15 measure the real card on the demo's finals.
+- The seal, agreed: closing in the sealed vo whenever edl_vo carries it, shape and first_comment at the top level for a spotlight; my readiness check makes the builder's exact call. The builder ships it after its own two cycles.
+- The pre-check's decoder sha changes with pinned.py: c705b20ed800 (rules unchanged, 'ruling 17 + ruling 72 + ruling 73 + ruling 84').
+
 ## 22:44 THE SPOTLIGHT PIN CONTRACT IS AGREED with the builder (ruling 90 as amended by 91 / 92):
 - WHAT A SPOTLIGHT PIN IS: a moments pin (moments_package.type 'moments') with moments_package.shape = 'spotlight', inside the seal.
 - SEGMENTS: exactly ONE segment, role 'hook' (it opens cold; the hook's cut / onset / pre-check rules apply), with today's segment fields; 12-35 s of locked words is a kit taste line.

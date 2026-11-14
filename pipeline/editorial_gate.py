@@ -71,6 +71,7 @@ def evaluate_editorial_gate(edl, review):
         result["laws"]["L0_REVIEW"] = _pass("L0_REVIEW", "review provenance present")
 
     # LAW 1: every post-hook clip must add genuinely new information.
+    spotlight = edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight"
     clips = sorted(edl.get("clips") or [], key=lambda c: c.get("index", 0))
     judgments = review.get("clips")
     law1_errors = []
@@ -93,7 +94,11 @@ def evaluate_editorial_gate(edl, review):
             law1_errors.append(f"clip {idx}: adds explanation is required")
         if adds_new is not True:
             law1_errors.append(f"clip {idx}: reviewer did not affirm new information")
-    if law1_errors:
+    if spotlight:                    # law L-ab (ruling 90): ONE moment; the medley's post-hook clips do not exist
+        result["laws"]["LAW_1_NEW_INFORMATION"] = _pass(
+            "LAW_1_NEW_INFORMATION", "a spotlight has no post-hook clip (law L-ab: one moment)"
+        )
+    elif law1_errors:
         result["laws"]["LAW_1_NEW_INFORMATION"] = _fail(
             "LAW_1_NEW_INFORMATION", law1_errors
         )
@@ -177,7 +182,11 @@ def evaluate_editorial_gate(edl, review):
                 law4_errors.append(f"sequence.{key} is required")
         if sequence.get("progresses") is not True:
             law4_errors.append("reviewer did not affirm hook -> development -> payoff progression")
-    if law4_errors:
+    if spotlight:                    # law L-ab (ruling 90): no sequence; a medley's progression rule
+        result["laws"]["LAW_4_SEQUENCE_PROGRESSES"] = _pass(
+            "LAW_4_SEQUENCE_PROGRESSES", "a spotlight is one moment, no sequence to progress (law L-ab)"
+        )
+    elif law4_errors:
         result["laws"]["LAW_4_SEQUENCE_PROGRESSES"] = _fail(
             "LAW_4_SEQUENCE_PROGRESSES", law4_errors
         )

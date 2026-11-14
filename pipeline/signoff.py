@@ -145,6 +145,15 @@ def validate_signoff(text, channel_names, history):
     return True, "valid"
 
 
+MEDLEY_REGISTERS = """A) Credit-first: "Clips today from [channels]. Go follow them. Links below."
+B) Gratitude-first: "Big thanks to [channels] for today's clips. Follow them all, links below."
+C) Call-to-action-first: "Go follow [channels]. Today's clips came from them. Links below.\""""
+# law L-ab (ruling 90): a spotlight is ONE clip from ONE channel; its sign-off credits it and tells viewers to follow
+ONE_CHANNEL_REGISTERS = """A) Credit-first: "Today's clip is from [channel]. Go follow them. Links below."
+B) Gratitude-first: "Big thanks to [channel] for today's clip. Go follow them, links below."
+C) Call-to-action-first: "Go follow [channel]. Today's clip came from them. Links below.\""""
+
+
 def generate_signoff(topic, channel_names, segment_id, max_rounds=3):
     """Generate a fresh sign-off line via Grok. Returns the chosen text or raises."""
     import requests
@@ -153,6 +162,7 @@ def generate_signoff(topic, channel_names, segment_id, max_rounds=3):
     reference = _load_reference()
     history = _load_history()
 
+    registers = ONE_CHANNEL_REGISTERS if len(channel_names) == 1 else MEDLEY_REGISTERS   # law L-ab: one clip, one
     prompt = f"""Write 5 sign-off lines for a Bitcoin news video. Each must credit the channels and tell viewers to follow them.
 
 Topic: {topic}
@@ -162,9 +172,7 @@ Reference (approved style — warm, spoken, natural):
 "{reference}"
 
 Three registers to rotate between:
-A) Credit-first: "Clips today from [channels]. Go follow them. Links below."
-B) Gratitude-first: "Big thanks to [channels] for today's clips. Follow them all, links below."
-C) Call-to-action-first: "Go follow [channels]. Today's clips came from them. Links below."
+{registers}
 
 Rules:
 - Use EXACT channel display names: {', '.join(channel_names)}

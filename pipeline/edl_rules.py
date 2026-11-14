@@ -197,6 +197,14 @@ FINAL_TAIL_S = 14.30              # what a final adds to its segments' word span
 MOMENTS_TAKEAWAY_WORD_CAP = 30    # ruling 10 ('08:40'): the TAKEAWAY (the line after the LAST clip, a slot that did not exist
                                   # when BRIDGE_WORD_CAP was set) has the intro's cap; bridges BETWEEN clips keep 20
 R4_WPS, R4_PREROLL_S = 2.5, 1.0   # R4's VO estimate: words at 2.5 w/s + the renderers' 1.0 s pre-roll per VO line
+SPOTLIGHT_RUNTIME_S = (28.0, 50.0)  # law L-ab (ruling 90): a spotlight's format, the one hard length rule of that kind
+SPOTLIGHT_MOMENT_S = (12.0, 35.0)   # law L-ab: the one moment's target (TASTE, law L-o: a recorded deviation)
+SPOTLIGHT_CLOSING_WORD_CAP = 12     # ruling 91: the closing line, when it earned its place
+
+
+def _spotlight(edl):
+    """Law L-ab: a validated moments package of the spotlight kind (pinned.build_edl writes package_shape)."""
+    return edl.get("package_type") == "moments" and edl.get("package_shape") == "spotlight"
 
 
 def _r4_moments(edl):
@@ -226,8 +234,9 @@ def _r4_moments(edl):
     if not isinstance(intro, str):
         failures.append("intro is not text")
         intro = ""
-    if _word_count(intro) > INTRO_WORD_CAP:
-        failures.append(f"intro={_word_count(intro)} words (max {INTRO_WORD_CAP})")
+    icap = SPOTLIGHT_CLOSING_WORD_CAP if _spotlight(edl) else INTRO_WORD_CAP   # law L-ab: the closing line's slot
+    if _word_count(intro) > icap:
+        failures.append(f"intro={_word_count(intro)} words (max {icap})")
     bridges = vo.get("bridges") or []
     prev, lines = 0, ([intro] if intro.strip() else [])
     for i, b in enumerate(bridges, 1):
@@ -260,10 +269,10 @@ def _r4_moments(edl):
         share = vo_s / runtime                       # against the TOTAL runtime (orchestrator '06:22')
         if share > MOMENTS_VO_SHARE + 1e-9:          # exactly 45 % passes (the same float tolerance as the runtime)
             failures.append(f"VO={share:.2%} of total runtime (max {MOMENTS_VO_SHARE:.0%}, moments)")
-        if not MOMENTS_RUNTIME_S[0] - 1e-6 <= runtime <= MOMENTS_RUNTIME_S[1] + 1e-6:
-            failures.append(f"estimated runtime {runtime:.3f} s outside {MOMENTS_RUNTIME_S[0]:.0f}-"
-                            f"{MOMENTS_RUNTIME_S[1]:.0f} s (hook + clips {content:.2f} + VO {vo_s:.2f} + tail "
-                            f"{FINAL_TAIL_S})")
+        lo, hi = SPOTLIGHT_RUNTIME_S if _spotlight(edl) else MOMENTS_RUNTIME_S   # law L-ab: a spotlight's format
+        if not lo - 1e-6 <= runtime <= hi + 1e-6:
+            failures.append(f"estimated runtime {runtime:.3f} s outside {lo:.0f}-{hi:.0f} s (hook + clips "
+                            f"{content:.2f} + VO {vo_s:.2f} + tail {FINAL_TAIL_S})")
     if failures:
         return False, "R4 FAIL (moments): " + "; ".join(failures)
     total = content + vo_s + FINAL_TAIL_S
@@ -338,12 +347,35 @@ def rule_r4(edl):
 CLIP_TARGET_S = (12.0, 20.0)     # law L-o: the clip duration window is a TASTE target (rank, never reject)
 
 
+def _r5_spotlight(edl):
+    """Law L-ab (ruling 90): ONE moment, one channel, no medley minimum. INTEGRITY: no clips; the moment (the EDL's hook)
+    a measured positive finite duration and a named channel. TASTE (law L-o): the moment outside 12-35 s is a recorded
+    deviation with its size, never a rejection."""
+    hook, clips = edl.get("hook") or {}, edl.get("clips")
+    failures = [] if clips == [] else [f"a spotlight has no clips (got {repr(clips)[:60]})"]
+    dur, ch = hook.get("duration"), hook.get("channel")
+    measured = type(dur) in (int, float) and math.isfinite(dur) and dur > 0
+    if not measured:
+        failures.append(f"the moment's duration {repr(dur)[:40]} is not a measured positive number")
+    if not isinstance(ch, str) or not ch.strip():
+        failures.append("the moment names no channel")
+    if failures:
+        return False, "R5 FAIL (spotlight, law L-ab): " + "; ".join(failures)
+    lo, hi = SPOTLIGHT_MOMENT_S
+    if not lo <= dur <= hi:
+        return True, (f"R5 PASS (spotlight, law L-ab) | law L-o taste deviation, recorded, not a cause: the moment "
+                      f"{dur:.2f}s ({max(lo - dur, dur - hi, 0.01):.2f}s outside the {lo:.0f}-{hi:.0f}s target)")
+    return True, f"R5 PASS (spotlight, law L-ab): one moment, {dur:.2f}s, one channel ({ch})"
+
+
 def rule_r5(edl):
     """INTEGRITY (law L-o, fail closed): >= 2 clips, from >= 2 distinct channels, every clip with a measured positive
     finite duration (so no channel is counted with no screen time). TASTE (law L-o, orchestrator 2026-11-12 '01:50';
     pp-selectid REQUESTS R6 item 2): a clip outside the 12-20 s target is a recorded deviation with its size, never a
     rejection (a whole sentence always beats a duration window); the only hard duration rule is the format, measured
     on the final by the gates. The validate stage writes this reason into PROVENANCE (run.prov['edl_validation'])."""
+    if _spotlight(edl):
+        return _r5_spotlight(edl)
     clips = edl.get("clips", [])
     failures, deviations = [], []
     lo, hi = CLIP_TARGET_S
@@ -706,6 +738,18 @@ def rule_r11(edl):
     with no bridge line fail."""
     if edl.get("package_type") != "moments":
         return True, "R11 PASS: not a moments package (law L-y binds moments packages)"
+    if _spotlight(edl):                      # law L-ab (rulings 90 / 91): 0 bridges and 0 or 1 closing line
+        vo, rec = edl.get("vo"), edl.get("moments_bridge")
+        if not isinstance(vo, dict) or edl.get("clips") != [] or vo.get("bridges") != []:
+            return False, "R11 FAIL (spotlight, law L-ab): a spotlight states a vo object, no clips and bridges []"
+        line = vo.get("intro")
+        if line is not None and (not isinstance(line, str) or not line.strip()
+                                 or _word_count(line) > SPOTLIGHT_CLOSING_WORD_CAP):
+            return False, (f"R11 FAIL (spotlight, ruling 91): the closing line is null or ONE line of at most "
+                           f"{SPOTLIGHT_CLOSING_WORD_CAP} words")
+        if rec is not None:
+            return False, "R11 FAIL (spotlight, law L-ab): a spotlight has no bridge (moments_bridge must be null)"
+        return True, f"R11 PASS (spotlight, law L-ab): {0 if line is None else 1} closing line, no bridge"
     vo, clips = edl.get("vo"), edl.get("clips")
     if not isinstance(vo, dict) or not isinstance(clips, list) or not clips:
         return False, "R11 FAIL (law L-y): a moments EDL without a vo object and clips"

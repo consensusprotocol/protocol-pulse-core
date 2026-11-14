@@ -351,6 +351,75 @@ class TestRunFreshUsesSharedCutAcceptance(Fixture):
         self.assertEqual(rf.RELEASE_STATE, "HOLD_FOR_HUMAN_APPROVAL")
 
 
+ROWS_PASS = {k: {"status": "PASS", "by": "test", "replayed": False, "n": 1} for k in pinned.SPOTLIGHT_ROWS}
+FIRST_COMMENT = "the take nobody wants to hear.\n\nCredits \U0001F9E1\n\n@someone"
+
+
+class TestSpotlight(Fixture):
+    """Law L-ab SPOTLIGHT (rulings 90 / 91 / 92, the contract agreed with the builder 22:44): moments_package.shape
+    'spotlight' = ONE segment (role hook), no clips; edl_vo {intro: null, bridges: [], closing: null by default}; a
+    closing line (<= 12 words) only with closing_value / closing_fidelity / closing_context; every required row exactly
+    PASS and live; first_comment carried verbatim. A medley is unchanged (TestMomentsPackage)."""
+
+    def spin(self, gates=None, **kw):
+        p = self.pin()
+        p["segments"] = p["segments"][:1]
+        mp = {"type": "moments", "shape": "spotlight", "title": "T", "caption": "c", "package_sha256": "cd" * 32,
+              "checks": {"vo_fidelity_ok": True, "context_integrity_ok": True},
+              "edl_vo": {"intro": None, "bridges": [], "closing": None},
+              "sources_30s_before": [f"https://www.youtube.com/watch?v={s['video_id']}&t=0s" for s in p["segments"]],
+              "gates": dict(ROWS_PASS) if gates is None else gates, "first_comment": FIRST_COMMENT}
+        mp.update(kw)
+        p["moments_package"] = mp
+        return p
+
+    def edl(self, pin):
+        pinned.prepare(self.write(pin), self.run_dir, log=lambda s: None)
+        return json.load(open(os.path.join(self.run_dir, "edl.json")))
+
+    def test_the_default_spotlight_is_one_moment_and_no_line(self):
+        edl = self.edl(self.spin())
+        self.assertEqual((edl["clips"], edl["vo"]), ([], {"intro": None, "bridges": []}))
+        self.assertEqual((edl["package_type"], edl["package_shape"], edl["first_comment"]),
+                         ("moments", "spotlight", FIRST_COMMENT))
+        self.assertEqual(edl["hook"]["video_id"], "AAAAAAAAAA1")
+
+    def test_a_closing_line_is_kept_only_with_its_value_verdict(self):
+        line = "Nobody voted for the rules, and nobody can bend them."
+        with self.assertRaisesRegex(pinned.PinError, "closing_value"):
+            self.edl(self.spin(edl_vo={"intro": None, "bridges": [], "closing": line}))
+        rows = dict(ROWS_PASS, **{k: {"status": "PASS", "replayed": False} for k in pinned.SPOTLIGHT_CLOSING_ROWS})
+        edl = self.edl(self.spin(gates=rows, edl_vo={"intro": None, "bridges": [], "closing": line}))
+        self.assertEqual(edl["vo"], {"intro": line, "bridges": []})        # the intro slot: after the moment
+
+    def test_the_contract_refuses(self):
+        rows = dict(ROWS_PASS, **{k: {"status": "PASS", "replayed": False} for k in pinned.SPOTLIGHT_CLOSING_ROWS})
+        two = self.spin()
+        two["segments"] = self.pin()["segments"][:2]
+        two["moments_package"]["sources_30s_before"] *= 2
+        cases = {
+            "exactly ONE segment": two,
+            "intro null, bridges": self.spin(edl_vo={"intro": "x", "bridges": [], "closing": None}),
+            "states intro null": self.spin(edl_vo={"intro": None, "bridges": [{"text": "x", "after_clip": 1}],
+                                                   "closing": None}),
+            "and closing": self.spin(edl_vo={"intro": None, "bridges": []}),
+            "at most 12 words": self.spin(gates=rows, edl_vo={"intro": None, "bridges": [],
+                                                              "closing": " ".join(["word"] * 13)}),
+            "spotlight_source": self.spin(gates=dict(ROWS_PASS, spotlight_source={"status": "FAIL",
+                                                                                  "replayed": False})),
+            "'hook_own'": self.spin(gates=dict(ROWS_PASS, hook_own={"status": "PASS", "replayed": True})),
+            "'precheck'": self.spin(gates={k: v for k, v in ROWS_PASS.items() if k != "precheck"}),
+            "first comment": self.spin(first_comment="  "),
+        }
+        for why, pin in cases.items():
+            with self.subTest(why=why), self.assertRaisesRegex(pinned.PinError, why):
+                self.edl(pin)
+        p = self.pin()                                              # a medley keeps its rule: clips required
+        p["segments"] = p["segments"][:1]
+        with self.assertRaisesRegex(pinned.PinError, "at least one clip required"):
+            self.edl(p)
+
+
 class TestMomentsPackage(Fixture):
     """pp-selectid REQUESTS R7 item 1 (laws L-q, L-t): a moments-first package rides the pinned path: its VO (intro, a
     bridge after each clip but the last), its ONE title and caption, its sha256 and gate verdicts enter the EDL; a
