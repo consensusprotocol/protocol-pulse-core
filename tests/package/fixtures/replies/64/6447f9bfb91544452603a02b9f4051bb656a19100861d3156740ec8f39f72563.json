@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 900,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"924e5594aaf79bf2bbcf\" (on screen: Simply Bitcoin): \"Like this narrative of Bitcoin and being lumped in with shitcoins makes us all look like we're scammers.\"\nCANDIDATE id=\"11df638c20ffedd21603\" (on screen: Bitcoin Magazine): \"Bitcoin and AI are always interconnected. And Maple is no exception. Your product accepts Bitcoin on chain over lightning. As eCash, you also offer no email account.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"924e5594aaf79bf2bbcf\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"11df638c20ffedd21603\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"924e5594aaf79bf2bbcf\": {\"scroll\": 2, \"alone\": 3, \"setup\": 4, \"why\": \"unengaging first seconds with vague 'narrative'\"}, \"11df638c20ffedd21603\": {\"scroll\": 3, \"alone\": 2, \"setup\": 3, \"why\": \"mid-conversation tone with 'your product' and 'Maple'\"}}}",
+ "usage": {
+  "in": 607,
+  "out": 3081,
+  "usd_reported": 0.00832685
+ },
+ "usd": 0.08006,
+ "seconds": 19.46,
+ "recorded_at": "2026-11-14T05:13:52Z"
+}

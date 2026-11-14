@@ -1,0 +1,224 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "77025c1d518abdf9631c15aa27e828f4e68e2e155a36bdbef5a1c1619a71c3b5",
+ "result": {
+  "text": "Or what have you, but they need to go. Like, this narrative of Bitcoin and being lumped in with shit coins makes us all look like we're scammers. It makes us all look-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 12.5,
+    "text": "Or what have you, but they need to go. Like, this narrative of Bitcoin and being lumped in with shit coins makes us all look like we're scammers. It makes us all look-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Or",
+    "start": 0.0,
+    "end": 0.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 0.18,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.38,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you,",
+    "start": 0.72,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 1.14,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 2.68,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 2.9,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.08,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go.",
+    "start": 3.26,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 3.82,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 4.32,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "narrative",
+    "start": 4.72,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.44,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.68,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.5,
+    "end": 6.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 6.8,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lumped",
+    "start": 7.1,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.44,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 7.58,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shit",
+    "start": 7.78,
+    "end": 7.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "coins",
+    "start": 8.039,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 9.04,
+    "end": 9.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 9.3,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 9.56,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 9.8,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.02,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 10.22,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scammers.",
+    "start": 10.48,
+    "end": 11.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 11.58,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 11.68,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 11.92,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 12.16,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look-",
+    "start": 12.38,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 12.54
+ },
+ "usd": 0.002508,
+ "seconds": 0.66,
+ "recorded_at": "2026-11-14T05:13:14Z"
+}

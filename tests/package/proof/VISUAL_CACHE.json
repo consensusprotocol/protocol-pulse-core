@@ -354,5 +354,58 @@
    "usd_reported": 0.012626
   },
   "version": "visual-1"
+ },
+ "f063cce3e0c86a774f63:897.877-906.587:visual-2:5fa59703d8da8ad3": {
+  "backend": "xai_vision:grok-4.7",
+  "burned_in": [
+   {
+    "covers_speaker": false,
+    "in_9x16": "out",
+    "kind": "bug",
+    "text": "SIMPLY BITCOIN",
+    "whole_in_16x9": true
+   }
+  ],
+  "flags": [
+   {
+    "in_9x16": "out",
+    "item": "bug",
+    "kind": "burned_in",
+    "text": "SIMPLY BITCOIN"
+   }
+  ],
+  "lower_third": {
+   "name": null,
+   "text": null
+  },
+  "measured": true,
+  "on_screen_text": [],
+  "replayed": false,
+  "sheet": {
+   "name": "visual_b95b7958ad45052a.jpg",
+   "path": "/tmp/claude-1000/-home-ultron-worktrees-pp-selectid/9e163ea0-e85c-404b-9baf-67af8f2ebf8b/scratchpad/lv2/visual/visual_b95b7958ad45052a.jpg",
+   "sha256": "b95b7958ad45052a4f25c2bbb2ec1f4f5881aada42e865da44174fc0eadc8685",
+   "times": [
+    897.88,
+    899.88,
+    901.88,
+    903.88,
+    905.88,
+    906.54
+   ]
+  },
+  "third_person": {
+   "finding": "Only the speaker appears live on camera; no still, photo, or graphic of any other person is shown, and no on-screen text names anyone.",
+   "how": "none",
+   "name_on_screen": null,
+   "shown": false,
+   "words_negative": true
+  },
+  "usage": {
+   "in": 3044,
+   "out": 3820,
+   "usd_reported": 0.02728
+  },
+  "version": "visual-2"
  }
 }

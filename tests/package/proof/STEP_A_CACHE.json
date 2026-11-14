@@ -11450,5 +11450,427 @@
    "replayed": false,
    "speaker_verified": false
   }
+ },
+ "7689ae39f60b552e18cc:62adc53c54694f2091a6a7af10aae0861fee6df96cdd7ff3c9a23f5a8bb1f8e4:4860ad856c0dd72a1cc58ee3fa6b41178cfa79ca23f2d5321ffb2be7c8ec3d37:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "7689ae39f60b552e18cc",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the gold analogy",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "if the world properly contextualize the technology",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Using the gold analogy to properly contextualize Bitcoin's technology would imply a value of roughly $1.3 million per Bitcoin.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "we welcome in our next guest now, Bill Miller IV, the chairman and CIO of Miller Value Partners. Bill, great to see you again. \u203a\u203a Thanks for having me on, Grace.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "11dcf2a3dc9d1c155ab7:9cd6897d9ea3283767a8b6f06711350ab4c36b954f697c76e29756636ad945a0:838d44b1e77624e0b95bd69afdeb7a12b33900e16b5884ce3e20853e1f318cdb:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "11dcf2a3dc9d1c155ab7",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "current Bitcoin price levels amid extreme fear",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "for the next six months",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Come what may with Bitcoin's price action for the next six months, the speaker will be a buyer or holder and see what happens.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Now, Joe, we've talked about how sentiment seems quite bad",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "1ddf18ce2d9e8287326b:7e9d0e86a20945dd06bdc21d7c5fb3d9c55f171ab23041cae8ba6f5020e455dd:5762c6413f2c676321974838ed4a8092aa3a1b0e2fc86a47720dfc15cadcf6f8:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "1ddf18ce2d9e8287326b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin changed the speaker's life from finances to career to residence to worldview.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "thank you for carrying the weight of the show",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:qwen/qwen3.8-27b": {
+   "label": "1ddf18ce2d9e8287326b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin fundamentally and completely changed the speaker's life across finances, career, location, and worldview.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "See, this is this is really what I mean.",
+   "backend": "heimdall:qwen/qwen3.8-27b",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "924e5594aaf79bf2bbcf:fd2f8aa59605bcf12cc39daaa6162c92a663cc898dfddf983a4b370d51f8ba77:41e563d14fcefdbc6bee7ff709d7cffccef58efbe5f03221cfb1a3099d3181d4:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "924e5594aaf79bf2bbcf",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "narrative of Bitcoin and being lumped in with shitcoins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "us",
+     "refers_to": "Bitcoiners",
+     "inside": false,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The narrative lumping Bitcoin in with shitcoins makes Bitcoiners all look like scammers.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I endorse the message that Brian just said",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "924e5594aaf79bf2bbcf",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "the narrative of Bitcoin being lumped in with shitcoins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "us",
+     "refers_to": "Bitcoiners / people in the Bitcoin community",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "we're",
+     "refers_to": "Bitcoiners / people in the Bitcoin community",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The narrative that Bitcoin is lumped in with shitcoins makes Bitcoiners look like scammers.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "you guys know, if you seen me this year, everyone that's seen me is like, \"Damn, Opti, you're so much bigger than I thought you were.\"",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "11df638c20ffedd21603:cdbc6bed0a3d42277b91eb8e490590bd5083927dc95a9839f996cc38ab55c105:4bc3b839a5f09e6955a0537a631bcf7f23c2ff8ee06728fd6817662ed90652cf:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "11df638c20ffedd21603",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin and AI are always interconnected, Maple accepts Bitcoin on chain over lightning as eCash and offers no email account.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "So why was Bitcoin worth building into a private AI checkout and how's the experience been for you?",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  },
+  "heimdall:deepseek/deepseek-v4.1-flash": {
+   "label": "11df638c20ffedd21603",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Your",
+     "refers_to": "Maple / the guest's product",
+     "inside": true,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "you",
+     "refers_to": "the guest / Maple",
+     "inside": true,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "always",
+     "inside": true
+    },
+    {
+     "text": "As eCash",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker asserts that Bitcoin and AI are always interconnected, Maple is no exception, and Maple's product accepts Bitcoin on-chain/over Lightning and, as eCash, offers no email account.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "So why was Bitcoin worth building into a private AI checkout and how's the experience been for you?",
+   "backend": "heimdall:deepseek/deepseek-v4.1-flash",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "8fce1a797169f12c25ec:d427bd78936b8609a8aa7028832baabe455288ac4b4657bbb771efb602cdd1e9:6921a8d730daba4a8c851a5c2ea0a934cb5d69120999e2f75996a69b6824e6eb:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "8fce1a797169f12c25ec",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "Those",
+     "refers_to": "OGs that sold coins in 2025",
+     "inside": false,
+     "changes_assertion": "yes"
+    },
+    {
+     "word": "this",
+     "refers_to": "the fact that folks sold and distributed coins",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "once people get used to the six-figure Bitcoin",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The folks that sold coins and distributed them did a healthy thing that helps make the psychological 100K level the floor, which will be a great catalyst once people get used to six-figure Bitcoin.",
+   "certainty": "likely",
+   "speaker_is": "guest",
+   "speaker_evidence": "Now, Joe, we've talked about how sentiment seems quite bad",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "18d428d0fe1c94bfb1ef:bc52ba5b930845897651ce62b7c9f79b32c263593b119f557dad415473a9b729:67746b0979f4ec348c5a3925270203a7e78b32a83f11f7476de81b6d3bcf821d:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "18d428d0fe1c94bfb1ef",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "the bottom",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "in the coming months, if you can get back, stabilize, get into the 80s, 90s",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "In the coming months if Bitcoin stabilizes in the 80s or 90s, technical and momentum traders will say the bottom has been tested and confidently deploy capital.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "Now, Joe, we've talked about how sentiment seems quite bad",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "2eac136611eefcd5868f:20df8ca3c4735c16fc4a6c0b7a04a95c3b6971ab09fc3c7466cb02632f3003b1:48a73c1712203b088c54ef1aef8a5417c63767ecec160f1112b1dcc51cd7e1cc:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "2eac136611eefcd5868f",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "here",
+     "refers_to": "current Bitcoin prices amid extreme fear",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [
+    {
+     "text": "come what may with price action in Bitcoin for the next six months",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The speaker commits to buying or holding Bitcoin no matter the price action over the next six months and states that trying to cleverly sell and rebuy lower has caused many to lose fortunes.",
+   "certainty": "certain",
+   "speaker_is": "guest",
+   "speaker_evidence": "Now, Joe, we've talked about how sentiment seems quite bad",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "30610e37175e46f0146b:a3eda2f22b06402679675c68cfb0407e6c79e97dc059f86c2f636c39e854990c:d197e2a207181455a3edf6f8c3ea6050c9afb018fc5cbfae49d0eefa0a9a05ce:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "30610e37175e46f0146b",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "It",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin has completely changed the speaker's finances, career, residence, worldview, and everything about them.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I'm just going to read a little bit of the comments here.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "9033a5744950e6318575:fd726e7557fcce126c994c18690ffedff6b7754e7d08550a7038f37f87d0b44c:e74e60499bcf86771b87435687d7a1366db6a93569ecce4d7a52806dd1363ce7:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "9033a5744950e6318575",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [
+    {
+     "word": "this",
+     "refers_to": "narrative of Bitcoin being lumped in with shitcoins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "It",
+     "refers_to": "that narrative of lumping Bitcoin with shitcoins",
+     "inside": true,
+     "changes_assertion": "no"
+    },
+    {
+     "word": "this",
+     "refers_to": "Bitcoin",
+     "inside": true,
+     "changes_assertion": "no"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "The narrative linking Bitcoin with shitcoins makes Bitcoiners appear to be scammers or gamblers, but that is not what Bitcoin is about, as conversations with normal people show it is viewed like gambling due to adjacent sponsored content.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "I'm just going to read a little bit of the comments here.",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "3eab7c7941d278762d4e:c63f3e962d39597b5538ce87b27e8ef231bec1672bbc451eaeccddd088061dab:1168e3b0562fc7bc0d91280599777c4f984b3651d110148b8e2b9fb864be782e:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "3eab7c7941d278762d4e",
+   "speaker_changes_inside": "no",
+   "view": "question",
+   "referents": [
+    {
+     "word": "Your",
+     "refers_to": "the guest's product Maple",
+     "inside": false,
+     "changes_assertion": "yes"
+    }
+   ],
+   "conditions": [],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "Bitcoin and AI are always interconnected, Maple accepts on-chain Bitcoin via Lightning with no-email anonymous accounts, and the speaker asks why Bitcoin was worth integrating into the private AI checkout.",
+   "certainty": "certain",
+   "speaker_is": "host",
+   "speaker_evidence": "And Mark, you've compared private AI to Signal and Proton, which the Bitcoin community is very familiar with and",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
+ },
+ "b0feab0cb1a2b3a0bb14:62f7da5ff17a4f09e7d04aa29e0b2dd4ee098f8f636c74750c8690b804898333:7bf17970b36c8ddff8d872961c6496d77acc07fddbc34bccb68067cc242e7477:9d43580c729b": {
+  "xai:grok-4.20-0309-reasoning": {
+   "label": "b0feab0cb1a2b3a0bb14",
+   "speaker_changes_inside": "no",
+   "view": "own_sincere",
+   "referents": [],
+   "conditions": [
+    {
+     "text": "if you can get back, stabilize, get into the 80s, 90s",
+     "inside": true
+    }
+   ],
+   "retraction": "none",
+   "time_ok": "yes",
+   "proposition": "If Bitcoin stabilizes in the 80s or 90s in the coming months, technical and momentum traders will gain confidence that the bottom is in and deploy capital, leading to a nice run into 2027.",
+   "certainty": "speculative",
+   "speaker_is": "guest",
+   "speaker_evidence": "and as we get into 2027, Joe,",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "replayed": false,
+   "speaker_verified": false
+  }
  }
 }

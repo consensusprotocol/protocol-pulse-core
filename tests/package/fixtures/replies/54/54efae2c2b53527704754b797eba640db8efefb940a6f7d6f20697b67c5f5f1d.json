@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 18,
+ "max_tokens": 1200,
+ "system": null,
+ "prompt": "You watch a short video made ONLY of these clips, played back to back with NO narration between them.\nEach clip is a person's own words from a show; the shows were not in one conversation. The first clip (label \"hook\")\nopens the video. The hook is shown for context only: it is NOT rated here (its own job was judged on its own).\n\nCLIP label=\"hook\" (on screen: Simply Bitcoin): \"AI can copy software, undercut margins, replace employees, help foreign actors to overthrow your CEO. But... They can't print more Bitcoin.\"\nCLIP label=\"clip_01\" (on screen: Bitcoin Magazine): \"Bitcoin and AI are always interconnected. And Maple is no exception. Your product accepts Bitcoin on chain over lightning. As eCash, you also offer no email account.\"\nCLIP label=\"clip_02\" (on screen: BTC Sessions): \"As far as their average purchase price, now that they're... Now that their leverage ratio is, let me look at these site, 3.1%. Their average purchase price doesn't really matter because they're never going to be forced to sell their Bitcoin.\"\nCLIP label=\"clip_03\" (on screen: Simply Bitcoin): \"There is some kind of force out there that does not want to see Bitcoin go up.\"\n\n1) Played back to back with no narration, is there a through-line a viewer can state? State it in ONE sentence, or\n   \"none\" if there is none.\n2) For each clip AFTER the hook, rate 1-5 how much it advances that through-line (5 = essential, 1 = off topic).\n3) For each JOIN between two consecutive clips, the hook's own join included (does the hook set up the clip after\n   it?): could a viewer follow the jump with no narration, i.e. is the next clip's subject or referent clear coming\n   from the previous clip's ending? Answer true or false, and why in a few words.\nReturn ONLY this JSON object: {\"through_line\": \"...\", \"clips\": {\"clip_01\": 1, \"clip_02\": 1, \"clip_03\": 1}, \"joins\": {\"hook -> clip_01\": {\"followable\": true, \"why\": \"...\"}, \"clip_01 -> clip_02\": {\"followable\": true, \"why\": \"...\"}, \"clip_02 -> clip_03\": {\"followable\": true, \"why\": \"...\"}}}",
+ "text": "{\n  \"through_line\": \"Bitcoin's resilience to AI advancements, market pressures, and external forces trying to suppress it.\",\n  \"clips\": {\n    \"clip_01\": 2,\n    \"clip_02\": 4,\n    \"clip_03\": 5\n  },\n  \"joins\": {\n    \"hook -> clip_01\": {\n      \"followable\": true,\n      \"why\": \"Both discuss AI in relation to Bitcoin\"\n    },\n    \"clip_01 -> clip_02\": {\n      \"followable\": false,\n      \"why\": \"Jumps from product features to unrelated corporate leverage and holdings with no shared referent\"\n    },\n    \"clip_02 -> clip_03\": {\n      \"followable\": true,\n      \"why\": \"Both address pressures on Bitcoin holders and price\"\n    }\n  }\n}",
+ "usage": {
+  "in": 718,
+  "out": 3814,
+  "usd_reported": 0.0102981
+ },
+ "usd": 0.09894,
+ "seconds": 24.24,
+ "recorded_at": "2026-11-14T05:22:26Z"
+}

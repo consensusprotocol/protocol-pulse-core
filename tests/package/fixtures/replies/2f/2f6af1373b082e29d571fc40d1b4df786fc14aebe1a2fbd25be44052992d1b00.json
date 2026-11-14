@@ -1,0 +1,266 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "44b2058ecb41fa6b286ab708e518f91232c886cfdfc9e5371cc7b8a11f5b98e1",
+ "result": {
+  "text": "So let's go. Bitcoin. See, this is, this is really what I mean. Bitcoin did change my life, 100%. From my finances to what I do for a living to where I live to how I view the world. It's",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.9,
+    "end": 16.26,
+    "text": "So let's go. Bitcoin. See, this is, this is really what I mean. Bitcoin did change my life, 100%. From my finances to what I do for a living to where I live to how I view the world. It's"
+   }
+  ],
+  "words": [
+   {
+    "text": "So",
+    "start": 0.9,
+    "end": 0.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let's",
+    "start": 1.04,
+    "end": 1.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go.",
+    "start": 1.28,
+    "end": 1.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin.",
+    "start": 1.86,
+    "end": 2.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "See,",
+    "start": 2.32,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 2.54,
+    "end": 2.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is,",
+    "start": 2.72,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 2.88,
+    "end": 3.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 3.06,
+    "end": 3.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "really",
+    "start": 3.24,
+    "end": 3.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 3.46,
+    "end": 3.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 3.6,
+    "end": 3.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "mean.",
+    "start": 3.68,
+    "end": 3.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 3.92,
+    "end": 4.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "did",
+    "start": 4.34,
+    "end": 4.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "change",
+    "start": 4.58,
+    "end": 4.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 4.88,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "life,",
+    "start": 5.02,
+    "end": 5.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "100%.",
+    "start": 6.22,
+    "end": 6.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "From",
+    "start": 7.98,
+    "end": 8.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "my",
+    "start": 8.94,
+    "end": 9.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "finances",
+    "start": 9.2,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 10.4,
+    "end": 10.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 10.58,
+    "end": 10.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 10.78,
+    "end": 10.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 10.9,
+    "end": 11.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 11.16,
+    "end": 11.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 11.34,
+    "end": 11.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "living",
+    "start": 11.46,
+    "end": 11.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 12.16,
+    "end": 12.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "where",
+    "start": 12.34,
+    "end": 12.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 12.62,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "live",
+    "start": 12.76,
+    "end": 13.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 13.74,
+    "end": 13.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "how",
+    "start": 13.92,
+    "end": 14.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 14.16,
+    "end": 14.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "view",
+    "start": 14.26,
+    "end": 14.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 14.48,
+    "end": 14.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "world.",
+    "start": 14.6,
+    "end": 14.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It's",
+    "start": 16.02,
+    "end": 16.26,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 16.34
+ },
+ "usd": 0.003268,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-14T05:13:06Z"
+}

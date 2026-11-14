@@ -1,0 +1,416 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1948b8613a2bf692ef4243d51b06b9aedcc43fcd88b488f69566f9f155639f77",
+ "result": {
+  "text": "$100 million in long liquidation on the downside. Longs have been flushed to such an extent that there is now 20X more liquidity to the upside than the downside. I'm not saying a short squeeze is guaranteed next week. I'm just saying that it's looking like there is a lot, a lot of liquidity up on top of the Bitcoin price. And if we are-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 28.18,
+    "text": "$100 million in long liquidation on the downside. Longs have been flushed to such an extent that there is now 20X more liquidity to the upside than the downside. I'm not saying a short squeeze is guaranteed next week. I'm just saying that it's looking like there is a lot, a lot of liquidity up on top of the Bitcoin price. And if we are-"
+   }
+  ],
+  "words": [
+   {
+    "text": "$100",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "million",
+    "start": 0.24,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 0.96,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "long",
+    "start": 1.1,
+    "end": 1.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidation",
+    "start": 1.36,
+    "end": 2.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 2.6,
+    "end": 2.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.82,
+    "end": 2.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "downside.",
+    "start": 3.0,
+    "end": 3.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Longs",
+    "start": 4.18,
+    "end": 4.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 4.64,
+    "end": 4.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 4.78,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "flushed",
+    "start": 5.04,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.44,
+    "end": 5.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "such",
+    "start": 5.72,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "an",
+    "start": 5.96,
+    "end": 6.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "extent",
+    "start": 6.1,
+    "end": 6.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 6.84,
+    "end": 6.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 7.02,
+    "end": 7.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 7.2,
+    "end": 7.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "now",
+    "start": 7.38,
+    "end": 7.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "20X",
+    "start": 7.96,
+    "end": 8.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "more",
+    "start": 8.54,
+    "end": 8.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity",
+    "start": 8.72,
+    "end": 9.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 9.34,
+    "end": 9.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 9.46,
+    "end": 9.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "upside",
+    "start": 9.68,
+    "end": 10.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "than",
+    "start": 10.42,
+    "end": 10.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 10.68,
+    "end": 10.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "downside.",
+    "start": 10.84,
+    "end": 11.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 13.9,
+    "end": 13.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 14.02,
+    "end": 14.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying",
+    "start": 14.28,
+    "end": 14.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 14.78,
+    "end": 14.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "short",
+    "start": 14.88,
+    "end": 15.1,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "squeeze",
+    "start": 15.16,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 15.74,
+    "end": 15.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guaranteed",
+    "start": 16.04,
+    "end": 16.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "next",
+    "start": 16.74,
+    "end": 17.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "week.",
+    "start": 17.08,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 17.86,
+    "end": 18.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 18.06,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "saying",
+    "start": 18.32,
+    "end": 18.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 20.16,
+    "end": 20.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it's",
+    "start": 20.44,
+    "end": 20.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "looking",
+    "start": 20.82,
+    "end": 21.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 21.34,
+    "end": 21.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there",
+    "start": 21.64,
+    "end": 21.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 21.96,
+    "end": 22.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 22.28,
+    "end": 22.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot,",
+    "start": 22.5,
+    "end": 22.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 23.2,
+    "end": 23.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lot",
+    "start": 23.42,
+    "end": 23.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 23.76,
+    "end": 23.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "liquidity",
+    "start": 23.88,
+    "end": 24.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up",
+    "start": 24.66,
+    "end": 24.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 24.98,
+    "end": 25.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "top",
+    "start": 25.24,
+    "end": 25.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 25.58,
+    "end": 25.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 25.7,
+    "end": 25.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 25.82,
+    "end": 26.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "price.",
+    "start": 26.36,
+    "end": 26.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 27.24,
+    "end": 27.48,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 27.6,
+    "end": 27.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we",
+    "start": 27.82,
+    "end": 27.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are-",
+    "start": 28.08,
+    "end": 28.18,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 28.26
+ },
+ "usd": 0.005652,
+ "seconds": 0.94,
+ "recorded_at": "2026-11-14T04:56:30Z"
+}

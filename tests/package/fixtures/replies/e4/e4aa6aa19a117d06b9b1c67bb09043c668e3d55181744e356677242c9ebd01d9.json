@@ -1,0 +1,19 @@
+{
+ "role": "coherence_verdict",
+ "backend": "xai:grok-4.20-0309-reasoning",
+ "model": "grok-4.20-0309-reasoning",
+ "vendor": "xai",
+ "seed": 7,
+ "max_tokens": 900,
+ "system": null,
+ "prompt": "You judge OPENING clips for 60-second videos made of other channels' own words (each clip is a person's\nown words from a show). Each candidate below would play FIRST, before anything else is said. Judge each one ALONE, as\nthe opener of a video; the candidates are not compared with each other and never play together.\n\nCANDIDATE id=\"0bc96b99755bbebebb40\" (on screen: Yahoo Finance): \"Michael Saylor Strategy has officially been removed from the MSCI Index. Is that the reason for the major Bitcoin selloff? I don't think so. We're going to talk about it today on The Daily Wolf. Let's go. What is up, everybody?\"\nCANDIDATE id=\"aa2329e4863bcd83b6ad\" (on screen: Simply Bitcoin): \"Longs have been flushed to such an extent that there is now 20x more liquidity to the upside than the downside. I'm not saying a short squeeze is guaranteed next week. I'm just saying that it's looking like there is a lot, a lot of liquidity up on top of the Bitcoin price.\"\n\nFor EACH candidate: THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:\n   \"scroll\": do its first 2-3 seconds stop a viewer from scrolling past? (5 = certainly, 1 = not at all)\n   \"alone\": does it stand alone, so that a viewer needs nothing said before it? (5 = fully, 1 = not at all)\n   \"setup\": does it set up what follows, so that a viewer who hears it wants the next clip? (5 = certainly, 1 = not\n   at all)\nGive \"why\": a few words on the candidate's weakest part.\nReturn ONLY this JSON object: {\"hooks\": {\"0bc96b99755bbebebb40\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}, \"aa2329e4863bcd83b6ad\": {\"scroll\": 1, \"alone\": 1, \"setup\": 1, \"why\": \"...\"}}}",
+ "text": "{\"hooks\": {\"0bc96b99755bbebebb40\": {\"scroll\": 3, \"alone\": 5, \"setup\": 4, \"why\": \"first seconds lack punch to stop scroll\"}, \"aa2329e4863bcd83b6ad\": {\"scroll\": 4, \"alone\": 3, \"setup\": 3, \"why\": \"sounds like mid-analysis not video opener\"}}}",
+ "usage": {
+  "in": 668,
+  "out": 2580,
+  "usd_reported": 0.0071506
+ },
+ "usd": 0.06784,
+ "seconds": 15.73,
+ "recorded_at": "2026-11-14T04:56:47Z"
+}

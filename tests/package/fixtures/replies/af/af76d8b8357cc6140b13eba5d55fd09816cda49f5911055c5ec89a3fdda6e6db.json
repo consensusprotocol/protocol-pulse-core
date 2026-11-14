@@ -1,0 +1,446 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "fd72a748da16524a53fcefa78258267c3dd1e2767d2c38a7ddc5cc1ad2f95f4f",
+ "result": {
+  "text": "Hey, you're not alone. There's others out there. As I've said multiple times on this show, if you are the lone Bitcoiner, it does get lonely. When you come into Bitcoin, you're the only one that has this realization. Then you find other people online that like, \"Oh, I'm not the only one.\" And then if you're like me, you literally move and hang out with Bitcoiners, and you're only-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 23.9,
+    "text": "Hey, you're not alone. There's others out there. As I've said multiple times on this show, if you are the lone Bitcoiner, it does get lonely. When you come into Bitcoin, you're the only one that has this realization. Then you find other people online that like, \"Oh, I'm not the only one.\" And then if you're like me, you literally move and hang out with Bitcoiners, and you're only-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Hey,",
+    "start": 0.0,
+    "end": 0.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 0.24,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 0.38,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "alone.",
+    "start": 0.62,
+    "end": 1.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "There's",
+    "start": 2.02,
+    "end": 2.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "others",
+    "start": 2.28,
+    "end": 2.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 2.6,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "there.",
+    "start": 2.84,
+    "end": 3.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "As",
+    "start": 4.019,
+    "end": 4.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I've",
+    "start": 4.22,
+    "end": 4.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "said",
+    "start": 4.38,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "multiple",
+    "start": 4.8,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "times",
+    "start": 5.22,
+    "end": 5.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 5.78,
+    "end": 5.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 5.96,
+    "end": 6.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "show,",
+    "start": 6.14,
+    "end": 6.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 8.42,
+    "end": 8.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 8.58,
+    "end": 8.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 8.68,
+    "end": 8.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 8.84,
+    "end": 8.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lone",
+    "start": 8.96,
+    "end": 9.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiner,",
+    "start": 9.24,
+    "end": 9.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 9.92,
+    "end": 10.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "does",
+    "start": 10.1,
+    "end": 10.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "get",
+    "start": 10.42,
+    "end": 10.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lonely.",
+    "start": 10.62,
+    "end": 10.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "When",
+    "start": 10.96,
+    "end": 11.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 11.08,
+    "end": 11.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "come",
+    "start": 11.2,
+    "end": 11.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "into",
+    "start": 11.38,
+    "end": 11.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 11.56,
+    "end": 11.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 11.94,
+    "end": 12.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 12.04,
+    "end": 12.12,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 12.18,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one",
+    "start": 12.38,
+    "end": 12.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 12.5,
+    "end": 12.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 12.6,
+    "end": 12.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 12.78,
+    "end": 12.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "realization.",
+    "start": 12.94,
+    "end": 13.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Then",
+    "start": 14.04,
+    "end": 14.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 14.22,
+    "end": 14.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "find",
+    "start": 14.4,
+    "end": 14.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "other",
+    "start": 14.78,
+    "end": 14.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 15.0,
+    "end": 15.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "online",
+    "start": 15.32,
+    "end": 15.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 15.92,
+    "end": 16.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like,",
+    "start": 16.1,
+    "end": 16.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "\"Oh,",
+    "start": 16.28,
+    "end": 16.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm",
+    "start": 16.58,
+    "end": 16.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 16.68,
+    "end": 16.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 16.86,
+    "end": 16.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only",
+    "start": 16.98,
+    "end": 17.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "one.\"",
+    "start": 17.28,
+    "end": 17.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "And",
+    "start": 18.12,
+    "end": 18.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "then",
+    "start": 18.28,
+    "end": 18.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 18.5,
+    "end": 18.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 18.62,
+    "end": 18.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 18.74,
+    "end": 18.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me,",
+    "start": 18.98,
+    "end": 19.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 20.24,
+    "end": 20.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "literally",
+    "start": 20.52,
+    "end": 20.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "move",
+    "start": 20.96,
+    "end": 21.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 21.18,
+    "end": 21.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "hang",
+    "start": 21.32,
+    "end": 21.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "out",
+    "start": 21.52,
+    "end": 21.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 21.64,
+    "end": 21.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiners,",
+    "start": 21.78,
+    "end": 22.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 23.26,
+    "end": 23.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you're",
+    "start": 23.7,
+    "end": 23.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "only-",
+    "start": 23.84,
+    "end": 23.9,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 23.92
+ },
+ "usd": 0.004784,
+ "seconds": 0.86,
+ "recorded_at": "2026-11-14T04:56:11Z"
+}

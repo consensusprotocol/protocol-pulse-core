@@ -1,6 +1,6 @@
 {
- "generated_at": "2026-11-14T04:54:30+00:00",
- "build": "ledger_20261114_045416",
+ "generated_at": "2026-11-14T05:12:14+00:00",
+ "build": "ledger_20261114_051151",
  "kind": "moments",
  "candidates": [
   {
@@ -67,6 +67,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "e45a6a45301c1fb40bb5",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 5.96,
+   "text": "So the notion that Bitcoin can't move on a dime and you can't see capital flooding back in, I reject that wholeheartedly.",
+   "text_sha256": "137d096e63789607f19d06ccab24c4bc2986e3c4d399c94c6d6b4f458e470b0f",
+   "trimmed_leading": null
+  },
+  {
    "pid": "4bc1e484b55a0436cf8b",
    "video_id": "NtaQGnfWRR8",
    "channel": "Simply Bitcoin",
@@ -118,6 +127,24 @@
    "duration": 17.43,
    "text": "So you are seeing two worldviews clash right now. There's the traditional view of J.P. Morgan and Jamie Diamond. And then there's this new view of... Bitcoin as preceding collateral, Bitcoin as the future of money, and strategy becoming a quote -unquote Bitcoin bank for the future.",
    "text_sha256": "aa9fd0931350edef76f319ed14ffc46a0c9cb981b2e81b7a8d25fcbd3f80d0fd",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "10eececcc25860334b4f",
+   "video_id": "3kV3nWC5SAY",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.49,
+   "text": "So when people ask me that question, my just... you know, where's Bitcoin going and when? I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years.",
+   "text_sha256": "c2cf35bb14ffda35fb2c9b0a5a2800e246ee0447a0de9b38ba33dbd818d6ffdf",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "264241c7e25e9d863bdf",
+   "video_id": "w6eeNCfT4yY",
+   "channel": "Bitcoin Magazine",
+   "duration": 7.85,
+   "text": "And so we built Maple from the ground up. built with open source code and built with encryption. Much like Bitcoin, we want people to not trust us, but to verify.",
+   "text_sha256": "3adda341cfc06cf7dbb1571edbbdfffc31b7ee3710dff95f209801652a67cc00",
    "trimmed_leading": null
   },
   {
@@ -181,6 +208,24 @@
    "duration": 16.76,
    "text": "And investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
    "text_sha256": "214b081a061f83e64bc110ef0f681d8ea7f245cb5e7de5fd830a8927301ab80b",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "b86abddfd86cc00a9a49",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.58,
+   "text": "And if you get us back up to 100K or even the 90s, right, the instant narrative flips. The narrative flips says this is the time to run. Bitcoin is stabilized. You've gotten rid of the dead wood. You have ability. to go much higher this cycle because you had a lot of the OG selling that really kept the lid on our price action in 2025. That's gone.",
+   "text_sha256": "039d773c9e554619017c2184b18ea9d7442af95bc4883e3158104991e2949693",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "0cbbf6ae9b76e96be958",
+   "video_id": "3kV3nWC5SAY",
+   "channel": "Bitcoin Magazine",
+   "duration": 7.35,
+   "text": "But there is a better way, I think, to account for capital. Now that would be Bitcoin. than there has been in the past.",
+   "text_sha256": "3ca6276618401e5e2b875d26e31b1923bfc5cc15c35343d1ec5aaf4c80d10717",
    "trimmed_leading": null
   },
   {
@@ -265,6 +310,15 @@
    "trimmed_leading": "And"
   },
   {
+   "pid": "e45a6a45301c1fb40bb5~trim",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 5.66,
+   "text": "the notion that Bitcoin can't move on a dime and you can't see capital flooding back in, I reject that wholeheartedly.",
+   "text_sha256": "3e8152136982460e8c673cbe418817bc7dcb39f4c8aa86f223fe855b1352a7d7",
+   "trimmed_leading": "So"
+  },
+  {
    "pid": "5f5b3e653c908e75cf85~trim",
    "video_id": "nvEftLDdab4",
    "channel": "BTC Sessions",
@@ -307,6 +361,15 @@
    "duration": 17.33,
    "text": "you are seeing two worldviews clash right now. There's the traditional view of J.P. Morgan and Jamie Diamond. And then there's this new view of... Bitcoin as preceding collateral, Bitcoin as the future of money, and strategy becoming a quote -unquote Bitcoin bank for the future.",
    "text_sha256": "965a8ff017616239337a8d836a8df711a089c5597a3953e10d38dfafdc5ceea2",
+   "trimmed_leading": "So"
+  },
+  {
+   "pid": "10eececcc25860334b4f~trim",
+   "video_id": "3kV3nWC5SAY",
+   "channel": "Bitcoin Magazine",
+   "duration": 11.43,
+   "text": "when people ask me that question, my just... you know, where's Bitcoin going and when? I just, I can't tell you when. I can just tell you that I think it's going to continue to go higher and do what it's done for the past 17 years.",
+   "text_sha256": "aa29a2fd84ad31409840c547915ecf0c34a837d4fc6d30bcf4be5dee89372d19",
    "trimmed_leading": "So"
   },
   {
@@ -371,6 +434,24 @@
    "text": "investors just don't see an end to the fear, uncertainty, and doubt in the short term, causing liquidity to get sucked out of, yes, Nvidia stock, but to the most liquid crypto asset. Bitcoin. But here's what they don't want you to know about crypto.",
    "text_sha256": "af9ab03578fa34f8096fc05df26b472762bd7ca9c0ce15738e082d0547401726",
    "trimmed_leading": "And"
+  },
+  {
+   "pid": "b86abddfd86cc00a9a49~trim",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 17.48,
+   "text": "if you get us back up to 100K or even the 90s, right, the instant narrative flips. The narrative flips says this is the time to run. Bitcoin is stabilized. You've gotten rid of the dead wood. You have ability. to go much higher this cycle because you had a lot of the OG selling that really kept the lid on our price action in 2025. That's gone.",
+   "text_sha256": "709309294cfa428d12614f3faf731b73d1e41d58bb1b4900928d6feed7a03440",
+   "trimmed_leading": "And"
+  },
+  {
+   "pid": "0cbbf6ae9b76e96be958~trim",
+   "video_id": "3kV3nWC5SAY",
+   "channel": "Bitcoin Magazine",
+   "duration": 7.27,
+   "text": "there is a better way, I think, to account for capital. Now that would be Bitcoin. than there has been in the past.",
+   "text_sha256": "6bc0706efa5f044aeeed40e1d7d2e64ecbc12cb0631244f6edff9dcc1074b1ad",
+   "trimmed_leading": "But"
   },
   {
    "pid": "77d1ff81caaa3145a815~trim",
@@ -463,6 +544,24 @@
    "trimmed_leading": null
   },
   {
+   "pid": "2eac136611eefcd5868f",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 14.32,
+   "text": "Say, come what may with price action in Bitcoin for the next six months. I don't care. I'm going to be a buyer here or I'm just going to hold. And I'm going to see what happens. There have been fortunes that have been lost because people have decided they're going to be smart. They're going to sell.",
+   "text_sha256": "20df8ca3c4735c16fc4a6c0b7a04a95c3b6971ab09fc3c7466cb02632f3003b1",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "30610e37175e46f0146b",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 14.59,
+   "text": "Bitcoin did change my life. 100%. From my finances to what I do for a living, to where I live, to how I view the world. It's fundamentally rewired everything about me.",
+   "text_sha256": "a3eda2f22b06402679675c68cfb0407e6c79e97dc059f86c2f636c39e854990c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "ab188c3e3941fd069eaf",
    "video_id": "XXfT9oeM14c",
    "channel": "CNBC Television",
@@ -490,6 +589,15 @@
    "trimmed_leading": null
   },
   {
+   "pid": "9033a5744950e6318575",
+   "video_id": "NtaQGnfWRR8",
+   "channel": "Simply Bitcoin",
+   "duration": 18.96,
+   "text": "Like this narrative of Bitcoin and being lumped in with shitcoins makes us all look like we're scammers. It makes us all look like we're just gamblers. That's not what this is. If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin.",
+   "text_sha256": "fd726e7557fcce126c994c18690ffedff6b7754e7d08550a7038f37f87d0b44c",
+   "trimmed_leading": null
+  },
+  {
    "pid": "948666d3052f144f9ca0",
    "video_id": "nvEftLDdab4",
    "channel": "BTC Sessions",
@@ -505,15 +613,6 @@
    "duration": 13.82,
    "text": "As far as their average purchase price, now that they're... Now that their leverage ratio is, let me look at these site, 3.1%. Their average purchase price doesn't really matter because they're never going to be forced to sell their Bitcoin.",
    "text_sha256": "fc22a9715124d55f29914918f192c78df09ec7d428150a5180fb20ed29b1e829",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "b38ecb553a5c33494cc8",
-   "video_id": "NtaQGnfWRR8",
-   "channel": "Simply Bitcoin",
-   "duration": 16.25,
-   "text": "See, this is really what I mean. Bitcoin did change my life. 100%. From my finances to what I do for a living, to where I live, to how I view the world. It's fundamentally rewired everything about me.",
-   "text_sha256": "1d02b147fde4cc1fe25238c009ee7964933586daeb7dbca2cec869978bab6ffa",
    "trimmed_leading": null
   },
   {
@@ -541,6 +640,15 @@
    "duration": 19.0,
    "text": "Like, I want every single person. I've said this multiple times on this show. I want every single person that has ever watched Simply Bitcoin that hangs out with me in the live chat to eventually come up to be and be like, thank you. I am a better person because of this. Not just a richer person. I mean a better person.",
    "text_sha256": "87514ebf7e4ac07aa4a498df20526f1e6058b6a6cdf24a6ad4cd9860dbde4ea3",
+   "trimmed_leading": null
+  },
+  {
+   "pid": "3eab7c7941d278762d4e",
+   "video_id": "w6eeNCfT4yY",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.42,
+   "text": "Bitcoin and AI are always interconnected. And Maple is no exception. Your product accepts Bitcoin on chain over lightning. As eCash, you also offer no email account. So why was Bitcoin worth building into a private AI checkout?",
+   "text_sha256": "c63f3e962d39597b5538ce87b27e8ef231bec1672bbc451eaeccddd088061dab",
    "trimmed_leading": null
   },
   {
@@ -580,12 +688,12 @@
    "trimmed_leading": null
   },
   {
-   "pid": "fc51c51303ad148ee305",
-   "video_id": "NtaQGnfWRR8",
-   "channel": "Simply Bitcoin",
-   "duration": 18.96,
-   "text": "Like this narrative of Bitcoin and being lumped in with shitcoins makes us all look like we're scammers. It makes us all look like we're just gamblers. That's not what this is. If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin.",
-   "text_sha256": "fd726e7557fcce126c994c18690ffedff6b7754e7d08550a7038f37f87d0b44c",
+   "pid": "b0feab0cb1a2b3a0bb14",
+   "video_id": "QlieBet41X0",
+   "channel": "Bitcoin Magazine",
+   "duration": 15.64,
+   "text": "Personally, I think that with Bitcoin in the coming months, if you can get back, stabilize, get into the 80s, 90s, you're going to have all the technical traders, all the momentum traders say, we've tested the bottom. It's in for sure. We're very confident at deploying capital. And I think you can have a nice run and move into 2027.",
+   "text_sha256": "62f7da5ff17a4f09e7d04aa29e0b2dd4ee098f8f636c74750c8690b804898333",
    "trimmed_leading": null
   },
   {
@@ -595,15 +703,6 @@
    "duration": 22.71,
    "text": "When will Bitcoin cross 100K again? It actually went up 1 % since I started this. So 100K Bitcoin before January 2027 is that 6 % chance? And before December 2020, I really, at this point, I'm going to be happy if we get to like 90K by December, which is not looking like a really good bet here.",
    "text_sha256": "a4c78ec3f673b1193dc860ed18f9187d26fa65bb12dc1ed3f331be90aacbd9d5",
-   "trimmed_leading": null
-  },
-  {
-   "pid": "bd18dc801fb57c4a2d0d",
-   "video_id": "FwzBGg8tHYA",
-   "channel": "Bloomberg Television",
-   "duration": 14.64,
-   "text": "Gold, 3,800 change, and Bitcoin, well, that's below $70,000 a coin, if that is an indication of anything. All right, let's get a look at some other movers on our radar now with Bloomberg's Nora Melinda. Hey, Bonnie. First up, Chipmaker's Cerebrous Systems.",
-   "text_sha256": "31427b3ba14e6e15b10f8606d14ae527bc08b79c98706bd7ec28410595c9f5db",
    "trimmed_leading": null
   }
  ]

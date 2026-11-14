@@ -1,0 +1,302 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1c5a0b9e6e3c75075d1272d284de28f8292c12725fb0f621df56fbddcd882b56",
+ "result": {
+  "text": "Not talking about you as a Bitcoiner, okay? How do you fake a dump? You sell Bitcoin to yourself at lower prices. I'll d- yeah, we're all losing brain cells together, okay. Anyways, let me double-check over here on Rumble real quick. P7, thanks Opti, I'm-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 20.82,
+    "text": "Not talking about you as a Bitcoiner, okay? How do you fake a dump? You sell Bitcoin to yourself at lower prices. I'll d- yeah, we're all losing brain cells together, okay. Anyways, let me double-check over here on Rumble real quick. P7, thanks Opti, I'm-"
+   }
+  ],
+  "words": [
+   {
+    "text": "Not",
+    "start": 0.0,
+    "end": 0.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talking",
+    "start": 0.24,
+    "end": 0.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 0.58,
+    "end": 0.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 0.9,
+    "end": 1.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "as",
+    "start": 1.08,
+    "end": 1.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 1.24,
+    "end": 1.28,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoiner,",
+    "start": 1.34,
+    "end": 1.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "okay?",
+    "start": 1.96,
+    "end": 2.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "How",
+    "start": 4.1,
+    "end": 4.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "do",
+    "start": 4.26,
+    "end": 4.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 4.36,
+    "end": 4.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "fake",
+    "start": 4.52,
+    "end": 4.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "a",
+    "start": 4.74,
+    "end": 4.78,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "dump?",
+    "start": 4.84,
+    "end": 5.02,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "You",
+    "start": 5.08,
+    "end": 5.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell",
+    "start": 5.22,
+    "end": 5.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.44,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 5.84,
+    "end": 5.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yourself",
+    "start": 5.98,
+    "end": 6.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "at",
+    "start": 6.38,
+    "end": 6.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lower",
+    "start": 6.52,
+    "end": 6.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "prices.",
+    "start": 6.76,
+    "end": 7.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'll",
+    "start": 11.8,
+    "end": 11.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "d-",
+    "start": 12.08,
+    "end": 12.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "yeah,",
+    "start": 12.26,
+    "end": 12.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 12.42,
+    "end": 12.52,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 12.58,
+    "end": 12.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "losing",
+    "start": 12.74,
+    "end": 13.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "brain",
+    "start": 13.04,
+    "end": 13.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "cells",
+    "start": 13.32,
+    "end": 13.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "together,",
+    "start": 13.6,
+    "end": 13.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "okay.",
+    "start": 14.02,
+    "end": 14.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Anyways,",
+    "start": 14.9,
+    "end": 15.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "let",
+    "start": 15.54,
+    "end": 15.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "me",
+    "start": 15.66,
+    "end": 15.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "double-check",
+    "start": 15.94,
+    "end": 16.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "over",
+    "start": 16.46,
+    "end": 16.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "here",
+    "start": 16.7,
+    "end": 17.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 17.48,
+    "end": 17.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Rumble",
+    "start": 18.2,
+    "end": 18.56,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "real",
+    "start": 18.62,
+    "end": 18.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "quick.",
+    "start": 18.92,
+    "end": 19.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "P7,",
+    "start": 19.58,
+    "end": 20.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "thanks",
+    "start": 20.24,
+    "end": 20.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Opti,",
+    "start": 20.5,
+    "end": 20.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I'm-",
+    "start": 20.76,
+    "end": 20.82,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 20.91
+ },
+ "usd": 0.004182,
+ "seconds": 1.1,
+ "recorded_at": "2026-11-14T04:56:11Z"
+}

@@ -273,5 +273,38 @@
    "backend": "xai:grok-4.20-0309-reasoning",
    "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
   }
+ },
+ "924e5594aaf79bf2bbcf:fd2f8aa59605bcf12cc39daaa6162c92a663cc898dfddf983a4b370d51f8ba77:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 3,
+   "setup": 4,
+   "rating": 2,
+   "why": "unengaging first seconds with vague 'narrative'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "11df638c20ffedd21603:cdbc6bed0a3d42277b91eb8e490590bd5083927dc95a9839f996cc38ab55c105:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 3,
+   "alone": 2,
+   "setup": 3,
+   "rating": 2,
+   "why": "mid-conversation tone with 'your product' and 'Maple'",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
+ },
+ "b0feab0cb1a2b3a0bb14:62f7da5ff17a4f09e7d04aa29e0b2dd4ee098f8f636c74750c8690b804898333:dd497beb6930": {
+  "xai:grok-4.20-0309-reasoning": {
+   "scroll": 2,
+   "alone": 4,
+   "setup": 3,
+   "rating": 2,
+   "why": "slow start with 'Personally, I think' lacks punch",
+   "backend": "xai:grok-4.20-0309-reasoning",
+   "rule": "the lowest of scroll / alone, cached (ruling 61); 'sets up what follows' is judged at the hook -> clip_01 join"
+  }
  }
 }

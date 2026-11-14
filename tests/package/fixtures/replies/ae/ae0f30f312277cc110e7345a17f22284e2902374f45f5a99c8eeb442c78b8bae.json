@@ -1,0 +1,410 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "49b2f2f6bfd64dc3ee5db97ead91103e72aece4aa8b7cd420d91b895e77a1222",
+ "result": {
+  "text": "Or what have you, but they need to go. Like, this narrative of Bitcoin and being lumped in with shitcoins makes us all look like we're scammers. It makes us all look like we're just gamblers. That's not what this is. If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin, and these guys are sponsored",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.0,
+    "end": 24.38,
+    "text": "Or what have you, but they need to go. Like, this narrative of Bitcoin and being lumped in with shitcoins makes us all look like we're scammers. It makes us all look like we're just gamblers. That's not what this is. If you talk to normal people, if you watch content of people being kind of adjacent to Bitcoin, and these guys are sponsored"
+   }
+  ],
+  "words": [
+   {
+    "text": "Or",
+    "start": 0.0,
+    "end": 0.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 0.18,
+    "end": 0.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "have",
+    "start": 0.38,
+    "end": 0.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you,",
+    "start": 0.72,
+    "end": 0.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "but",
+    "start": 1.14,
+    "end": 1.4,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "they",
+    "start": 2.68,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "need",
+    "start": 2.9,
+    "end": 3.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 3.08,
+    "end": 3.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go.",
+    "start": 3.24,
+    "end": 3.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Like,",
+    "start": 3.82,
+    "end": 4.059,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 4.32,
+    "end": 4.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "narrative",
+    "start": 4.72,
+    "end": 5.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 5.44,
+    "end": 5.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 5.68,
+    "end": 6.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 6.5,
+    "end": 6.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 6.8,
+    "end": 6.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "lumped",
+    "start": 7.08,
+    "end": 7.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "in",
+    "start": 7.42,
+    "end": 7.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "with",
+    "start": 7.58,
+    "end": 7.72,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "shitcoins",
+    "start": 7.78,
+    "end": 8.5,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 9.04,
+    "end": 9.24,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 9.3,
+    "end": 9.46,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 9.56,
+    "end": 9.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 9.8,
+    "end": 9.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 10.02,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 10.22,
+    "end": 10.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "scammers.",
+    "start": 10.44,
+    "end": 11.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "It",
+    "start": 11.58,
+    "end": 11.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "makes",
+    "start": 11.68,
+    "end": 11.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "us",
+    "start": 11.9,
+    "end": 12.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "all",
+    "start": 12.16,
+    "end": 12.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "look",
+    "start": 12.38,
+    "end": 12.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "like",
+    "start": 12.56,
+    "end": 12.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "we're",
+    "start": 12.72,
+    "end": 12.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 12.92,
+    "end": 13.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gamblers.",
+    "start": 13.12,
+    "end": 13.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "That's",
+    "start": 15.52,
+    "end": 15.82,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "not",
+    "start": 15.88,
+    "end": 16.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "what",
+    "start": 16.2,
+    "end": 16.379,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "this",
+    "start": 16.42,
+    "end": 16.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is.",
+    "start": 16.72,
+    "end": 17.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "If",
+    "start": 17.98,
+    "end": 18.06,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 18.08,
+    "end": 18.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talk",
+    "start": 18.22,
+    "end": 18.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.46,
+    "end": 18.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "normal",
+    "start": 18.58,
+    "end": 18.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people,",
+    "start": 18.92,
+    "end": 19.16,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "if",
+    "start": 19.22,
+    "end": 19.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "you",
+    "start": 19.34,
+    "end": 19.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "watch",
+    "start": 19.48,
+    "end": 19.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "content",
+    "start": 19.86,
+    "end": 20.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 20.8,
+    "end": 20.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "people",
+    "start": 20.96,
+    "end": 21.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "being",
+    "start": 21.26,
+    "end": 21.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "kind",
+    "start": 21.46,
+    "end": 21.62,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 21.64,
+    "end": 21.7,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "adjacent",
+    "start": 21.74,
+    "end": 22.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 22.48,
+    "end": 22.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin,",
+    "start": 22.66,
+    "end": 23.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "and",
+    "start": 23.34,
+    "end": 23.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "these",
+    "start": 23.48,
+    "end": 23.66,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "guys",
+    "start": 23.7,
+    "end": 23.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "are",
+    "start": 23.88,
+    "end": 24.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sponsored",
+    "start": 24.04,
+    "end": 24.38,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 24.46
+ },
+ "usd": 0.004892,
+ "seconds": 0.73,
+ "recorded_at": "2026-11-14T05:23:33Z"
+}

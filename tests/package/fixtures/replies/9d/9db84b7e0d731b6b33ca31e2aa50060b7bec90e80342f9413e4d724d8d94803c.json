@@ -1,0 +1,314 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "0c131484ce313f6b6bf59ac2419485b0380875497c00227e18c7663c911749c6",
+ "result": {
+  "text": "It simply just can't go beyond the bounds of the software. Bitcoin and AI are always interconnected, and Maple is, is no exception. Your product accepts Bitcoin on chain over Lightning as eCash. You off- also, uh, offer no email account. So why was Bitcoin worth bui-",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 2.86,
+    "text": "It simply just can't go beyond the bounds of the software."
+   },
+   {
+    "speaker": "speaker_1",
+    "start": 4.34,
+    "end": 17.26,
+    "text": "Bitcoin and AI are always interconnected, and Maple is, is no exception. Your product accepts Bitcoin on chain over Lightning as eCash. You off- also, uh, offer no email account. So why was Bitcoin worth bui-"
+   }
+  ],
+  "words": [
+   {
+    "text": "It",
+    "start": 0.1,
+    "end": 0.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "simply",
+    "start": 0.26,
+    "end": 0.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "just",
+    "start": 0.58,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "can't",
+    "start": 0.82,
+    "end": 1.04,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go",
+    "start": 1.1,
+    "end": 1.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "beyond",
+    "start": 1.32,
+    "end": 1.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 1.9,
+    "end": 1.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "bounds",
+    "start": 2.02,
+    "end": 2.22,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "of",
+    "start": 2.28,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.36,
+    "end": 2.42,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "software.",
+    "start": 2.46,
+    "end": 2.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 4.34,
+    "end": 4.7,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 4.76,
+    "end": 5.06,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "AI",
+    "start": 5.14,
+    "end": 5.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "are",
+    "start": 5.4,
+    "end": 5.5,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "always",
+    "start": 5.6,
+    "end": 6.16,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "interconnected,",
+    "start": 6.24,
+    "end": 6.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "and",
+    "start": 6.96,
+    "end": 7.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Maple",
+    "start": 7.26,
+    "end": 7.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is,",
+    "start": 7.7,
+    "end": 7.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "is",
+    "start": 8.14,
+    "end": 8.28,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "no",
+    "start": 8.34,
+    "end": 8.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "exception.",
+    "start": 8.54,
+    "end": 9.22,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Your",
+    "start": 9.28,
+    "end": 9.42,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "product",
+    "start": 9.46,
+    "end": 9.92,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "accepts",
+    "start": 9.98,
+    "end": 10.46,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 10.52,
+    "end": 10.82,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "on",
+    "start": 10.88,
+    "end": 11.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "chain",
+    "start": 11.06,
+    "end": 11.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "over",
+    "start": 11.56,
+    "end": 11.76,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Lightning",
+    "start": 11.82,
+    "end": 12.24,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "as",
+    "start": 12.32,
+    "end": 12.48,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "eCash.",
+    "start": 12.56,
+    "end": 12.96,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "You",
+    "start": 13.02,
+    "end": 13.08,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "off-",
+    "start": 13.14,
+    "end": 13.3,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "also,",
+    "start": 13.76,
+    "end": 14.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "uh,",
+    "start": 14.24,
+    "end": 14.32,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "offer",
+    "start": 14.5,
+    "end": 14.94,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "no",
+    "start": 15.0,
+    "end": 15.14,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "email",
+    "start": 15.22,
+    "end": 15.44,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "account.",
+    "start": 15.5,
+    "end": 15.86,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "So",
+    "start": 15.94,
+    "end": 16.079,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "why",
+    "start": 16.14,
+    "end": 16.36,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "was",
+    "start": 16.42,
+    "end": 16.64,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 16.68,
+    "end": 17.0,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "worth",
+    "start": 17.04,
+    "end": 17.2,
+    "speaker": "speaker_1"
+   },
+   {
+    "text": "bui-",
+    "start": 17.26,
+    "end": 17.26,
+    "speaker": "speaker_1"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 17.28
+ },
+ "usd": 0.003456,
+ "seconds": 0.69,
+ "recorded_at": "2026-11-14T05:13:19Z"
+}

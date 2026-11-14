@@ -1,0 +1,296 @@
+{
+ "role": "transcribe",
+ "backend": "elevenlabs_stt:scribe_v1",
+ "model": "scribe_v1",
+ "vendor": "elevenlabs",
+ "audio_sha256": "1f0d0ed39a25887d43e2fbb9ce59032f0b6cb2503c73a438d684ddf427514172",
+ "result": {
+  "text": "Michael Saylor's strategy has officially been removed from the MSCI index. Is that the reason for the major Bitcoin sell-off? I don't think so. We're gonna talk about it today on The Daily Wolf. Let's go. What is up, everybody? Welcome to The Daily Wolf.",
+  "segments": [
+   {
+    "speaker": "speaker_0",
+    "start": 0.1,
+    "end": 19.46,
+    "text": "Michael Saylor's strategy has officially been removed from the MSCI index. Is that the reason for the major Bitcoin sell-off? I don't think so. We're gonna talk about it today on The Daily Wolf. Let's go. What is up, everybody? Welcome to The Daily Wolf."
+   }
+  ],
+  "words": [
+   {
+    "text": "Michael",
+    "start": 0.1,
+    "end": 0.34,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Saylor's",
+    "start": 0.42,
+    "end": 0.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "strategy",
+    "start": 0.78,
+    "end": 1.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "has",
+    "start": 1.24,
+    "end": 1.36,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "officially",
+    "start": 1.42,
+    "end": 2.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "been",
+    "start": 2.12,
+    "end": 2.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "removed",
+    "start": 2.36,
+    "end": 2.76,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "from",
+    "start": 2.8,
+    "end": 2.92,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 2.96,
+    "end": 3.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "MSCI",
+    "start": 3.26,
+    "end": 4.58,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "index.",
+    "start": 4.66,
+    "end": 4.98,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Is",
+    "start": 5.06,
+    "end": 5.14,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "that",
+    "start": 5.18,
+    "end": 5.32,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.36,
+    "end": 5.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "reason",
+    "start": 5.48,
+    "end": 5.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "for",
+    "start": 5.82,
+    "end": 5.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "the",
+    "start": 5.92,
+    "end": 5.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "major",
+    "start": 6.0,
+    "end": 6.26,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Bitcoin",
+    "start": 6.32,
+    "end": 6.64,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "sell-off?",
+    "start": 6.72,
+    "end": 7.08,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "I",
+    "start": 7.56,
+    "end": 7.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "don't",
+    "start": 7.62,
+    "end": 7.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "think",
+    "start": 7.76,
+    "end": 7.88,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "so.",
+    "start": 7.96,
+    "end": 8.039,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "We're",
+    "start": 8.119,
+    "end": 8.2,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "gonna",
+    "start": 8.22,
+    "end": 8.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "talk",
+    "start": 8.42,
+    "end": 8.6,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "about",
+    "start": 8.66,
+    "end": 8.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "it",
+    "start": 8.86,
+    "end": 9.0,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "today",
+    "start": 9.04,
+    "end": 9.38,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "on",
+    "start": 9.78,
+    "end": 9.86,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 9.9,
+    "end": 9.94,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Daily",
+    "start": 9.98,
+    "end": 10.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wolf.",
+    "start": 10.24,
+    "end": 10.44,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Let's",
+    "start": 10.58,
+    "end": 10.74,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "go.",
+    "start": 10.78,
+    "end": 10.96,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "What",
+    "start": 17.38,
+    "end": 17.54,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "is",
+    "start": 17.58,
+    "end": 17.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "up,",
+    "start": 17.74,
+    "end": 17.84,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "everybody?",
+    "start": 17.9,
+    "end": 18.3,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Welcome",
+    "start": 18.4,
+    "end": 18.68,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "to",
+    "start": 18.72,
+    "end": 18.8,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "The",
+    "start": 18.82,
+    "end": 18.9,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Daily",
+    "start": 18.94,
+    "end": 19.18,
+    "speaker": "speaker_0"
+   },
+   {
+    "text": "Wolf.",
+    "start": 19.26,
+    "end": 19.46,
+    "speaker": "speaker_0"
+   }
+  ]
+ },
+ "usage": {
+  "seconds": 19.66
+ },
+ "usd": 0.003932,
+ "seconds": 0.83,
+ "recorded_at": "2026-11-14T04:56:25Z"
+}
