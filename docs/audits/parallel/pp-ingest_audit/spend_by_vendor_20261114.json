@@ -6,9 +6,9 @@
    "calls": 425
   },
   "heimdall": {
-   "usd": 1.8802,
+   "usd": 2.4352,
    "estimated_usd": 0.13,
-   "calls": 2862
+   "calls": 3225
   },
   "xai": {
    "usd": 0.6455,
@@ -26,7 +26,7 @@
    "calls": 3
   }
  },
- "total_usd": 14.11,
+ "total_usd": 14.66,
  "rows": [
   {
    "vendor": "anthropic",
@@ -42,31 +42,41 @@
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_glm53flash",
-   "calls": 76,
-   "usd": 0.0061,
+   "calls": 130,
+   "usd": 0.0101,
    "basis": "measured (per call)",
    "first": "2026-11-14T01:10:05.467468+00:00",
-   "last": "2026-11-14T13:07:49.458633+00:00"
+   "last": "2026-11-14T15:38:20.922533+00:00"
   },
   {
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_muse",
-   "calls": 43,
-   "usd": 0.0012,
+   "calls": 131,
+   "usd": 0.004,
    "basis": "measured (per call)",
    "first": "2026-11-14T01:11:36.395155+00:00",
-   "last": "2026-11-14T11:46:44.952392+00:00"
+   "last": "2026-11-14T15:43:19.248764+00:00"
   },
   {
    "vendor": "heimdall",
    "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
    "backend": "heimdall_qwen27b",
-   "calls": 1066,
-   "usd": 0.5567,
+   "calls": 1235,
+   "usd": 0.6453,
    "basis": "measured (per call)",
    "first": "2026-11-12T08:30:27.635650+00:00",
-   "last": "2026-11-14T09:16:47.706838+00:00"
+   "last": "2026-11-14T15:41:12.968884+00:00"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "watcher (live; Anthropic: the 08:36-08:43 UTC outage drill only)",
+   "backend": "heimdall_qwen27b_probe",
+   "calls": 24,
+   "usd": 0.0001,
+   "basis": "measured (per call)",
+   "first": "2026-11-14T13:10:08.940814+00:00",
+   "last": "2026-11-14T15:42:58.636402+00:00"
   },
   {
    "vendor": "anthropic",
@@ -193,6 +203,170 @@
    "calls": 56,
    "usd": 0.004544,
    "basis": "measured (per call)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0107,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 172364,
+    "completion_tokens": 3783
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0062,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 155853,
+    "completion_tokens": 11387
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0327,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 153617,
+    "completion_tokens": 5582
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0228,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 168090,
+    "completion_tokens": 1885
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0053,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 151738,
+    "completion_tokens": 4482
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0298,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 149474,
+    "completion_tokens": 2754
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a19/c2",
+   "backend": "heimdall_minimax",
+   "calls": 1,
+   "usd": 0.0099,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 149529,
+    "completion_tokens": 16000
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c1 (failed: server)",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0,
+   "basis": "UNMEASURED (no usage returned)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0226,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 165306,
+    "completion_tokens": 2094
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0317,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 147205,
+    "completion_tokens": 5879
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0076,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 149382,
+    "completion_tokens": 24000
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0052,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 145968,
+    "completion_tokens": 5807
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0284,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 143580,
+    "completion_tokens": 2263
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit a36/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0095,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 161589,
+    "completion_tokens": 2759
+   }
   },
   {
    "vendor": "heimdall",
@@ -404,6 +578,78 @@
    "usage": {
     "prompt_tokens": 106706,
     "completion_tokens": 3769
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0242,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 171949,
+    "completion_tokens": 2992
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0329,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 153460,
+    "completion_tokens": 5939
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0069,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 155637,
+    "completion_tokens": 17029
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0231,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 168984,
+    "completion_tokens": 2069
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0056,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 152856,
+    "completion_tokens": 6641
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit hk3/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0314,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 150594,
+    "completion_tokens": 4538
    }
   },
   {
@@ -868,6 +1114,98 @@
    "usage": {
     "prompt_tokens": 144957,
     "completion_tokens": 3661
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c1 (failed: empty)",
+   "backend": "heimdall_minimax",
+   "calls": 1,
+   "usd": 0.0101,
+   "basis": "measured (usage.cost of the failed reply)"
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c1",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0062,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 154868,
+    "completion_tokens": 11102
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c1",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0112,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 171308,
+    "completion_tokens": 4500
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c1",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0321,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 152551,
+    "completion_tokens": 5025
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c2",
+   "backend": "heimdall_glm",
+   "calls": 1,
+   "usd": 0.0053,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 150034,
+    "completion_tokens": 5494
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c2",
+   "backend": "heimdall_muse",
+   "calls": 1,
+   "usd": 0.0292,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 147437,
+    "completion_tokens": 2454
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c2",
+   "backend": "heimdall_qwen",
+   "calls": 1,
+   "usd": 0.0093,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 166191,
+    "completion_tokens": 2197
+   }
+  },
+  {
+   "vendor": "heimdall",
+   "source": "audit reuse/c2",
+   "backend": "heimdall_minimax",
+   "calls": 1,
+   "usd": 0.0096,
+   "basis": "measured (usage.cost)",
+   "usage": {
+    "prompt_tokens": 147563,
+    "completion_tokens": 14796
    }
   },
   {
