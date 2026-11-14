@@ -1,20 +1,20 @@
 # pp-ingest: STATE (session pipeline_pp_ingest, branch pp-ingest, worktree ~/worktrees/pp-ingest)
 
-## TOTAL SPEND BY VENDOR (this session, every use, to 02:58 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12
+## TOTAL SPEND BY VENDOR (this session, every use, to 06:48 ET Nov 14) - paid frontier vendors FROZEN since 05:30 ET Nov 12, except ruling 98's capped paid route (unused so far: $0.00)
 | vendor | total | measured part | where it went | since the freeze |
 |---|---|---|---|---|
 | Anthropic | **$10.44** | all (each call's usage x the $4 / $20 per MTok list price) | the watcher's outage drill 08:36-08:43 UTC Nov 12 $7.17 (the whole of the watcher's Anthropic spend), the A/B generator $3.11, the smoke $0.13, a one-window proof $0.03 | $0.00 (0 calls) |
 | Google | **~$0.79** | none: the vendor reports no cost (estimate: usage x the $2 / $12 list price) | audit reviews c1 + c2 ~$0.74, a one-window proof ~$0.05 | $0.00 |
 | xAI | **$0.65** | $0.54 (the vendor's own `cost_in_usd_ticks`) | the A/B blind judge $0.45 (recorded at the time as $3.22 from the price-table estimate: INGEST-FAIL-11), audit c2 $0.09, audit c1 ~$0.09 and a one-window proof ~$0.02 (estimates: usage not saved) | $0.00 |
 | OpenAI | **~$0.35** | none: estimate (usage x gpt-4o's $2.50 / $10 list price) | audit reviews c1 + c2 | $0.00 |
-| Heimdall | **$1.66** | $1.53 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.56 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.46 after; 1,165 calls), the audits $0.72 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12, 87's probe claim $0.10), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.28: the watcher $0.46, the audits $0.57, ruling 40 $0.25 + at most $0.05 unrecorded |
-| **TOTAL** | **~$13.89** | | Anthropic is 75 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 |
+| Heimdall | **$1.77** | $1.64 (`usage.cost` of every reply) + at most $0.13 unrecorded (empty / timed-out audit replies whose usage was not saved) | the watcher $0.56 (mining, hooks and the second-model check since 03:26 ET Nov 12: $0.10 before the freeze, $0.46 after; 1,182 calls), the audits $0.76 (the build's c1 + c2 $0.10, the freeze $0.08, rulings 40 P1 $0.06, 77 $0.05, 80 $0.08, 92 $0.08, 87 $0.12, 87's probe claim $0.10, 98 $0.09), ruling 40's measurements $0.25, the A/B $0.08, the smoke $0.05, the freeze drill $0.0006 | $1.38: the watcher $0.46, the audits $0.67, ruling 40 $0.25 + at most $0.05 unrecorded |
+| **TOTAL** | **~$13.99** | | Anthropic is 75 % of it, and 69 % of Anthropic was one outage drill | frontier $0.00 (ruling 98's paid route: $0.00 so far) |
 - Evidence: docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261114.json (tests/ingest/spend_by_vendor.py: every
   row with its basis; since e2878d54 it sums EVERY audit directory: the 18:20 ET Nov 13 table left out the audits of
   rulings 40 P1 to 92, which it now carries; the smoke and freeze-drill rows are carried from the 20261113 file, their
   scratch stores being gone). Live, the watcher's own share: data/editorial/ingest/live.json `usd_all_time_by_vendor`.
-- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.45 at 02:57 ET
-  Nov 14 (+$4.87, the fleet's other sessions included); the cap's sweep spend $39.25 of $460 (8.5 %), meter ok, no
+- Heimdall account (shared by the fleet's keys): /credits total_usage 34.58 at 07:22 ET Nov 12 -> 39.61 at 06:46 ET
+  Nov 14 (+$5.03, the fleet's other sessions included); the cap's sweep spend $39.41 of $460 (8.6 %), meter ok, no
   tripwire. Ruling 87's probe runs only while calls fail or in Plan B (none so far: $0.00).
 
 ## RULING 40: LABEL PRECISION OF THE HARD FLAGS (measured 03:25-05:25 ET Nov 13; commit a462afda; report docs/audits/parallel/pp-ingest_FLAG_PRECISION.md)
@@ -34,6 +34,30 @@ parties); P3 the tighter miner prompt is not the fix (measured: no precision gai
 moment 12 h after publish, which removes most of what P1 would have released (the released rows were up to 72 h old).
 
 ## LIVE STATE (newest first; ET)
+
+- 06:46 Nov 14 RULING 98 IS LIVE: THE MINER'S PLAN B (orchestrator 06:13 ET Nov 14). Audited 2 cycles
+  (pp-ingest_audit/r98/: c1 no P0 after verification, six fixes in; c2 glm "production ready with one condition" and
+  muse "ready, with conditions", both in; qwen's "No" listed two fixes already made; $0.092 Heimdall), commits
+  230652f0 -> 13de013b; the watcher restarted 06:46 ET; the builder told.
+  - WHEN: the shared signal says plan_b AND no Heimdall family has answered for 20 min running (its failure clock;
+    PBX: "fails to respond for more than perhaps 10 to 20 minutes"). Back at the signal's back switch (3 good probes).
+    A signal not read opens, closes and spends nothing.
+  - WHAT: only NEW uploads (published in the last 6 h; conversations first by the caption turn measure, then newest;
+    no backfill; no hook pass) are mined on role mine_paid: Grok, then the Gemini key (no other vendor wired: it
+    would need a credit probe). The Nov 12 freeze is lifted for this one role only (no other role can reach a frozen
+    vendor). CAP $2.00 per ET day across both, counted from each call's recorded cost (xAI's own; Gemini's price-table
+    estimate, it reports none); each call holds its priced worst case before it starts, so $2.00 is a ceiling; then
+    the videos queue and wait.
+  - EVERY ROW carries `miner_route` (the role that mined it: mine | mine_paid | hook). When the signal is back, every
+    video the paid route mined that is still inside 12 h is mined again on Heimdall, once; every moment both found
+    carries both models' flags. The builder: every clip a build uses is judged again by its own gates whatever mined
+    it, so a paid label can cost yield, never integrity.
+  - EVERY SWITCH on this file's line 1, IN CAPITALS: "MINER ON THE PAID ROUTE (...)", "MINER OFF THE PAID ROUTE
+    (...)", "MINER PAID ROUTE CAP REACHED (...)" (once per ET day), next to the signal's own; the Plan B switch line
+    now reads "THE MINER'S PLAN B (RULING 98): NEW UPLOADS ON GROK, THEN GEMINI AFTER 20 MINUTES DOWN, CAPPED".
+  - LIVE: `tools/ingest_watch.py status` / live.json `paid_route` (open, why not open, the day's spend, the cap). At
+    06:48: closed ("the signal says heimdall_first"), $0.00 of $2.00 today. Not exercised live yet (no outage since):
+    tests only (tests/ingest/test_paid_route.py, 11; the suite 282).
 
 - 02:27 Nov 14 RULING 87 IS WIRED: THE WATCHER IS ON THE ONE SHARED HEIMDALL-DOWN SIGNAL (the builder's module,
   pp-selectid pipeline/heimdall_health.py at 125e7381, used through its API only; its state file
@@ -537,6 +561,21 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   free of the circuit breaker, no transport retry, the first answer ends it, never a stored reply.
 - A26 A drill = a base_url override present for that back-end in overrides.json: a real call wrongly taken for a
   drill only loses evidence, never flips the fleet's signal.
+- A27 Ruling 98, "Heimdall down by ruling 87's signal for 20 minutes": the shared state says plan_b AND its failure
+  clock (failing_since_utc, a time with its zone) is at least 20 min old (no family answering for 20 min running);
+  closed at the back switch; a signal not read opens, closes and spends nothing.
+- A28 "No hook-pass re-runs": the hook pass is not run on the paid route at all; its passes wait and catch up inside
+  their 12 h once Heimdall is back.
+- A29 "Others only if a probe shows credit": no other paid vendor is wired (no credit probe built); Grok, then Gemini.
+- A30 The $2.00 cap: per ET day across the route, each call's recorded cost (xAI vendor-reported; Gemini's price-
+  table estimate, an upper bound), each call holding its priced worst case before it starts.
+- A31 "So its labels can be re-checked on Heimdall when it returns": miner_route on every row; the paid route's
+  videos still inside 12 h are mined again on Heimdall once the signal is back (both models' flags kept on every
+  moment both found; moments only the paid route found keep its labels; the second-model check still asks Heimdall
+  about their imperative / single-source flags).
+- A32 "Newest first, conversations first": conversations first (caption turns per minute >= 1.0, ruling 92's measure),
+  then newest within each group (if the orchestrator meant newest first with conversations breaking ties, it is the
+  order of one sort key).
 
 ## HOW TO OPERATE (for the orchestrator)
 - status: `cd ~/worktrees/pp-ingest && python3 tools/ingest_watch.py status` (ruling 87: its `down_signal` block is the watcher's view of
@@ -552,5 +591,7 @@ See docs/audits/INGEST_DESIGN.md section 11 (A1-A6). Added:
   chain's tail (REQUESTS R6.5), restart. Spend by vendor: `tests/ingest/spend_by_vendor.py --out <json>`; live:
   `status` -> `usd_all_time_by_vendor`
 - one service per store: a second `run` / `once` on the same store is refused (`ServiceBusy`)
+- ruling 98's paid route: `status` / live.json `paid_route`; to stop it for good, remove `paid_route` (and the role
+  `mine_paid`) from providers.json and restart: the freeze then binds every role again
 - stop / start: `tmux send-keys -t pipeline_pp_ingest_watch C-c`; `tmux new-session -d -s pipeline_pp_ingest_watch
   -c ~/worktrees/pp-ingest "python3 tools/ingest_watch.py run"` (restart-safe: the queue recovers, replies are cached)
