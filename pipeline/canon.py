@@ -29,6 +29,9 @@ _UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eig
 _TENS = {w: 10 * (i + 2) for i, w in enumerate("twenty thirty forty fifty sixty seventy eighty ninety".split())}
 _SCALES = {"hundred": 100, "thousand": 10 ** 3, "million": 10 ** 6, "billion": 10 ** 9, "trillion": 10 ** 12}
 _SUFFIX = {"k": 10 ** 3, "m": 10 ** 6, "mn": 10 ** 6, "b": 10 ** 9, "bn": 10 ** 9, "t": 10 ** 12, "tn": 10 ** 12}
+# US retirement plans are NAMES: '401k' = '401(k)' (tokenised '401', 'k') is never 401000 (L-k: a different number never
+# compares equal; the 2026-11-14 pre-check finding). With a '$' before it, '$401k' stays the amount $401,000.
+_PLANS = ("401k", "403b", "457b")
 _ORD = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5, "sixth": 6, "seventh": 7, "eighth": 8,
         "ninth": 9, "tenth": 10, "eleventh": 11, "twelfth": 12, "thirteenth": 13, "fourteenth": 14,
         "fifteenth": 15, "sixteenth": 16, "seventeenth": 17, "eighteenth": 18, "nineteenth": 19, "twentieth": 20,
@@ -157,6 +160,13 @@ def _canon_seq(trips, heads=False):
             i += 1
             continue
         num, s0 = None, i
+        plan = t if t in _PLANS else (t + toks[i + 1] if i + 1 < len(toks) and len(toks[i + 1]) == 1
+                                      and t + toks[i + 1] in _PLANS else None)     # '401', 'k': only the letter
+        if plan is not None and owed is None:        # a plan's name, one token over every word it spans
+            last = i if plan == t else i + 1
+            out.append((plan, trips[i][1], trips[last][2]))
+            i = last + 1
+            continue
         m = _NUM.match(t)
         if m:
             try:

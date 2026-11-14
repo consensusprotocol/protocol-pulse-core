@@ -1,0 +1,17 @@
+# Heimdall audit
+
+**Question:** Batch 79 = a defect in pipeline/canon.py under LAW L-k (ONE CANONICAL FORM, verbatim: "every text comparison in the pipeline uses pipeline/canon.py; two strings a listener hears as the same words compare equal, and a different number, unit, sign, name, negation or dropped word never does"). Found 2026-11-14 by the builder's spotlight pre-check on 7BqLu-wzbU0 ("I don't have a 401k."): canon read the retirement plan's name "401k" through its number suffix rule (_NUM + _SUFFIX: 'k' = thousand) as 401000, so canon.same("a 401k", "a 401,000") was True (a FALSE EQUAL: a different number compared equal), and "401(k)" (tokenised '401', 'k') read as 401 + 'k', so the plan's two spellings differed.
+The change: _PLANS = ("401k", "403b", "457b"); in _canon_seq, before the number branch, a token in _PLANS, or a token followed by ONE single-letter token that together spell one of them ('401', 'k' from "401(k)"), becomes that name as one token spanning every word it covers, but only when no '$' is owed (owed is None): "$401k" stays the amount 401000 dollars. Everything else is unchanged: "40k" = 40000, "74k" = seventy four thousand, "401 kilos" stays 401 + kilos, and "401k" vs "401" (the second recogniser's reading in the pre-check) still differs, so that integrity hold is unaffected.
+Tests: test_canon TestRetirementPlans (5): a plan never equals the number (401k / 401(k) vs 401,000 and 401 thousand; 403(b) vs 403 billion; 457b vs 457,000,000,000); the plan's spellings are one name; the pre-check case still differs; amounts unchanged; the split form spans both words (canon_spans). On the old file 3 fail (the defect) and 2 pass (the guards). The whole test_canon suite: 23 passed.
+Context: canon.py is used by every text comparison (quote verification, selection anchors, edge words, G3 / G3b, G18, G20, G1 / G13, pin approved text); it is an input of the lock pre-check's decoder sha.
+FIND: a string a listener hears differently that now compares EQUAL (the dangerous direction); a string a listener hears the same that now compares UNEQUAL where it was equal before; a token or span change that can shift a lock's first / last word (canon_spans, canon_aligned); a '$' amount wrongly turned into a name. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.
+
+**Panel:** qwen27b, glm  |  **Cost:** $0.0002
+## Consensus findings (majority of panel agrees)
+- none
+
+## Raised but not agreed
+- none
+
+## Added in cross-examination (not voted on)
+- none

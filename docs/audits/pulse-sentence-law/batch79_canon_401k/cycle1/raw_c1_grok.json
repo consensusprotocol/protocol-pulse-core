@@ -1,0 +1,59 @@
+{
+ "model": "xai:grok-4-0709",
+ "latency_s": 26.9,
+ "request": {
+  "model": "grok-4-0709",
+  "messages": [
+   {
+    "role": "system",
+    "content": "You are a senior code auditor. Review ONLY the code given. Report real defects, not style. Reply with JSON only: {\"verdict\":\"PASS|FAIL\",\"findings\":[{\"id\":\"F1\",\"severity\":\"critical|high|medium|low\",\"file\":\"...\",\"line\":0,\"issue\":\"...\",\"evidence\":\"quote the exact code\",\"fix\":\"...\"}],\"confidence\":0.0}. If you cannot quote the code that proves a finding, do not report it."
+   },
+   {
+    "role": "user",
+    "content": "AUDIT QUESTION: Batch 79 = a defect in pipeline/canon.py under LAW L-k (ONE CANONICAL FORM, verbatim: \"every text comparison in the pipeline uses pipeline/canon.py; two strings a listener hears as the same words compare equal, and a different number, unit, sign, name, negation or dropped word never does\"). Found 2026-11-14 by the builder's spotlight pre-check on 7BqLu-wzbU0 (\"I don't have a 401k.\"): canon read the retirement plan's name \"401k\" through its number suffix rule (_NUM + _SUFFIX: 'k' = thousand) as 401000, so canon.same(\"a 401k\", \"a 401,000\") was True (a FALSE EQUAL: a different number compared equal), and \"401(k)\" (tokenised '401', 'k') read as 401 + 'k', so the plan's two spellings differed.\nThe change: _PLANS = (\"401k\", \"403b\", \"457b\"); in _canon_seq, before the number branch, a token in _PLANS, or a token followed by ONE single-letter token that together spell one of them ('401', 'k' from \"401(k)\"), becomes that name as one token spanning every word it covers, but only when no '$' is owed (owed is None): \"$401k\" stays the amount 401000 dollars. Everything else is unchanged: \"40k\" = 40000, \"74k\" = seventy four thousand, \"401 kilos\" stays 401 + kilos, and \"401k\" vs \"401\" (the second recogniser's reading in the pre-check) still differs, so that integrity hold is unaffected.\nTests: test_canon TestRetirementPlans (5): a plan never equals the number (401k / 401(k) vs 401,000 and 401 thousand; 403(b) vs 403 billion; 457b vs 457,000,000,000); the plan's spellings are one name; the pre-check case still differs; amounts unchanged; the split form spans both words (canon_spans). On the old file 3 fail (the defect) and 2 pass (the guards). The whole test_canon suite: 23 passed.\nContext: canon.py is used by every text comparison (quote verification, selection anchors, edge words, G3 / G3b, G18, G20, G1 / G13, pin approved text); it is an input of the lock pre-check's decoder sha.\nFIND: a string a listener hears differently that now compares EQUAL (the dangerous direction); a string a listener hears the same that now compares UNEQUAL where it was equal before; a token or span change that can shift a lock's first / last word (canon_spans, canon_aligned); a '$' amount wrongly turned into a name. Only state what you can verify from the diff. Reply with the JSON verdict; keep the reasoning short; at most 3 findings.\n\nCODE:\n\n===== DIFF (cat STEP.diff) =====\ndiff --git a/pipeline/canon.py b/pipeline/canon.py\nindex c977a6aa..6564cd6d 100644\n--- a/pipeline/canon.py\n+++ b/pipeline/canon.py\n@@ -29,6 +29,9 @@ _UNITS = {w: i for i, w in enumerate(\"zero one two three four five six seven eig\n _TENS = {w: 10 * (i + 2) for i, w in enumerate(\"twenty thirty forty fifty sixty seventy eighty ninety\".split())}\n _SCALES = {\"hundred\": 100, \"thousand\": 10 ** 3, \"million\": 10 ** 6, \"billion\": 10 ** 9, \"trillion\": 10 ** 12}\n _SUFFIX = {\"k\": 10 ** 3, \"m\": 10 ** 6, \"mn\": 10 ** 6, \"b\": 10 ** 9, \"bn\": 10 ** 9, \"t\": 10 ** 12, \"tn\": 10 ** 12}\n+# US retirement plans are NAMES: '401k' = '401(k)' (tokenised '401', 'k') is never 401000 (L-k: a different number never\n+# compares equal; the 2026-11-14 pre-check finding). With a '$' before it, '$401k' stays the amount $401,000.\n+_PLANS = (\"401k\", \"403b\", \"457b\")\n _ORD = {\"first\": 1, \"second\": 2, \"third\": 3, \"fourth\": 4, \"fifth\": 5, \"sixth\": 6, \"seventh\": 7, \"eighth\": 8,\n         \"ninth\": 9, \"tenth\": 10, \"eleventh\": 11, \"twelfth\": 12, \"thirteenth\": 13, \"fourteenth\": 14,\n         \"fifteenth\": 15, \"sixteenth\": 16, \"seventeenth\": 17, \"eighteenth\": 18, \"nineteenth\": 19, \"twentieth\": 20,\n@@ -157,6 +160,13 @@ def _canon_seq(trips, heads=False):\n             i += 1\n             continue\n         num, s0 = None, i\n+        plan = t if t in _PLANS else (t + toks[i + 1] if i + 1 < len(toks) and len(toks[i + 1]) == 1\n+                                      and t + toks[i + 1] in _PLANS else None)     # '401', 'k': only the letter\n+        if plan is not None and owed is None:        # a plan's name, one token over every word it spans\n+            last = i if plan == t else i + 1\n+            out.append((plan, trips[i][1], trips[last][2]))\n+            i = last + 1\n+            continue\n         m = _NUM.match(t)\n         if m:\n             try:\ndiff --git a/pipeline/test_canon.py b/pipeline/test_canon.py\nindex 2ed80aa8..1ea065c2 100644\n--- a/pipeline/test_canon.py\n+++ b/pipeline/test_canon.py\n@@ -264,5 +264,36 @@ class TestSites(unittest.TestCase):\n         self.assertFalse(missing, missing)\n \n \n+class TestRetirementPlans(unittest.TestCase):\n+    \"\"\"L-k (a different number never compares equal), the 2026-11-14 pre-check finding on 7BqLu-wzbU0: a US\n+    retirement plan is a NAME. '401k' read as 401000 made 'a 401k' equal 'a 401,000'; '401(k)' read as 401 + 'k'\n+    made the plan's two spellings differ. Both spellings are now one token; a '$' keeps an amount an amount.\"\"\"\n+\n+    def test_a_plan_is_never_the_number(self):\n+        for plan, amount in ((\"a 401k\", \"a 401,000\"), (\"a 401k\", \"a 401 thousand\"), (\"a 401(k)\", \"a 401,000\"),\n+                             (\"my 403(b)\", \"my 403 billion\"), (\"a 457b\", \"a 457,000,000,000\")):\n+            self.assertFalse(C.same(plan, amount), (plan, amount))\n+\n+    def test_the_plans_spellings_are_one_name(self):\n+        for a, b in ((\"I don't have a 401k.\", \"I don't have a 401(k).\"), (\"a 401K\", \"a 401(k)\"),\n+                     (\"my 403b\", \"my 403(b)\"), (\"a 457(b) plan\", \"a 457b plan\")):\n+            self.assertTrue(C.same(a, b), (a, b))\n+        self.assertEqual(C.canon_tokens(\"I don't have a 401(k)\"), [\"i\", \"don't\", \"have\", \"a\", \"401k\"])\n+\n+    def test_the_pre_check_case_still_differs(self):\n+        self.assertFalse(C.same(\"I don't have a 401k\", \"I don't have a 401 ,\"))     # the second recogniser's reading\n+\n+    def test_amounts_are_unchanged(self):\n+        self.assertEqual(C.canon_tokens(\"$401k\"), [\"401000\", \"dollars\"])           # a '$' keeps it an amount\n+        self.assertEqual(C.canon_tokens(\"40k\"), [\"40000\"])\n+        self.assertTrue(C.same(\"74k\", \"seventy four thousand\"))\n+        self.assertEqual(C.canon_tokens(\"401,000\"), [\"401000\"])\n+        self.assertEqual(C.canon_tokens(\"401 kilos\"), [\"401\", \"kilos\"])           # only the single letter joins\n+\n+    def test_the_split_form_spans_both_words(self):\n+        spans = C.canon_spans([\"a\", \"401\", \"k\", \"plan\"])\n+        self.assertIn((\"401k\", 1, 2), [tuple(s) for s in spans])\n+\n+\n if __name__ == \"__main__\":\n     unittest.main()\n"
+   }
+  ],
+  "temperature": 0,
+  "max_tokens": 8192
+ },
+ "response": {
+  "id": "002115e6-dfa5-9731-b35d-3879e1354fcb",
+  "object": "chat.completion",
+  "created": 1794682727,
+  "model": "grok-4.3",
+  "choices": [
+   {
+    "index": 0,
+    "message": {
+     "role": "assistant",
+     "content": "{\"verdict\":\"PASS\",\"findings\":[],\"confidence\":0.8}",
+     "reasoning_content": "Auditing the pipeline/canon.py change for compliance with LAW L-k. The rule requires that strings a listener hears as the same words compare equal, while differing numbers, units, signs, names, negations, or dropped words never do.\n\nThe defect was that \"401k\" was misread as 401000 by the number suffix rule, causing false equality with \"401,000\". The fix introduces _PLANS and special handling in _canon_seq to treat retirement plan names as names, but only when owed is None. Only findings verifiable from the diff will be reported.\n\nChecking the diff for four specific defect categories: strings that now compare equal when they should differ, strings that now compare unequal when they should match, token or span changes that shift a lock's first or last word, and amounts wrongly turned into names. The plan detection logic joins single-letter tokens with the next token to form a plan name, but only when the next token is a single letter.\n\nA case-sensitivity issue was spotted. The `_PLANS` set contains lowercase \"401k\", but the test uses \"401K\". The code checks `t in _PLANS` without lowercasing, so the match may fail. The test expects `C.same(\"a 401K\", \"a 401(k)\")`, which depends on whether earlier processing lowercases the input.\n\nThe single-letter join condition is being checked against other plan names like \"403(b)\". The diff does not show whether \"401k\" now becomes a single token or if the suffix rule still applies. The tests claim no false equality was introduced.\n\nThe case-sensitivity concern is resolved. The test expects `canon_tokens` to return lowercase \"401k\", so tokens are lowercased before this function runs. The plan detection logic is therefore safe.\n\nThe `canon_spans` output for \"401k\" appears correct. The span indices map to the proper word boundaries. The `owed` flag is also being checked. It likely reflects prior tokens. This ensures a plan name is not misread as an amount.",
+     "refusal": null
+    },
+    "finish_reason": "stop"
+   }
+  ],
+  "usage": {
+   "prompt_tokens": 2291,
+   "completion_tokens": 15,
+   "total_tokens": 3750,
+   "prompt_tokens_details": {
+    "text_tokens": 2291,
+    "audio_tokens": 0,
+    "image_tokens": 0,
+    "cached_tokens": 128
+   },
+   "completion_tokens_details": {
+    "reasoning_tokens": 1444,
+    "audio_tokens": 0,
+    "accepted_prediction_tokens": 0,
+    "rejected_prediction_tokens": 0
+   },
+   "num_sources_used": 0,
+   "cost_in_usd_ticks": 63768500
+  },
+  "system_fingerprint": "fp_eb3c003fc66c14ed",
+  "service_tier": "default"
+ },
+ "cost_usd_vendor": 0.00637685
+}
