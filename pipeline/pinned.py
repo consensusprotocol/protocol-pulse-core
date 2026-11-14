@@ -332,6 +332,44 @@ LV2_ORDINALS = frozenset({"first", "second", "third", "fourth", "fifth", "sixth"
                           "half", "quarter", "double", "triple", "dozen"})
 
 
+# RULING 67's class words (the builder's pipeline/attest.py; moved here from lock_precheck for RULING 84, orchestrator
+# 2026-11-13 '20:40', which adjudicate_lock applies too): English closed-class words, NO negation, number or ordinal.
+FUNCTION_WORDS = frozenset("""
+a an the this that these those that's this's there there's here here's
+i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
+myself yourself himself herself itself ourselves themselves one's
+i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
+i'd you'd he'd she'd we'd they'd
+in on at to of for from with by about into onto upon over under up down out off through as like than via per
+and or but so because if then when while though although whether
+is are was were be been being am do does did have has had will would can could shall should may might must
+what which who whom whose why how where
+""".split())
+FILLERS = frozenset({"um", "uh", "er", "ah", "mm", "hmm"})      # ruling 84 (a): exactly the ruling's list, canon tokens
+
+
+def one_function_word(x, y):
+    """RULING 84 (b): x (the render decode's tokens) and y (the other recogniser's, its fillers aside) are ONE function
+    word each, and differ: the 'one ambiguous token' of ruling 18."""
+    return len(x) == len(y) == 1 and x != y and x[0] in FUNCTION_WORDS and y[0] in FUNCTION_WORDS
+
+
+def _with_token(text, k, tok):
+    """text with the one whole word that carries its canonical token k spelled tok (the word's own punctuation and
+    initial capital kept); None when token k is not exactly one whole word of text (fail closed)."""
+    import canon
+    ws, want = text.split(), canon.canon_tokens(text)
+    spans = canon.canon_spans(ws)
+    if [t for t, _, _ in spans] != want or not 0 <= k < len(spans) or spans[k][1] != spans[k][2] or \
+            sum(1 for _, f, l in spans if (f, l) == spans[k][1:]) != 1:
+        return None
+    m = re.fullmatch(r"(\W*)(.*?)(\W*)", ws[spans[k][1]])
+    core = "I" if tok == "i" else tok[:1].upper() + tok[1:] if m.group(2)[:1].isupper() else tok
+    ws[spans[k][1]] = m.group(1) + core + m.group(3)
+    new, want[k] = " ".join(ws), tok
+    return new if canon.canon_tokens(new) == want else None
+
+
 def _lv2_critical(tok, texts):
     """Law L-v 2: a number, a negation, or a name (in either text, a capitalised word that does not open a
     sentence; 'I' excepted). Conservative: a doubtful token is critical (it holds)."""
@@ -378,7 +416,9 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
     inside the locked span -> a difference on a number, a name or a negation always holds (law L-v 2); otherwise
     the independent second recogniser on the acquired window decides: when it reads the approved words at every
     difference, the lock takes the approved text (two independent decodes agree) and G18 compares the final against
-    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is."""
+    it; when it reads the run's decode, or neither, HOLD naming the three readings. No difference: the lock as is.
+    Ruling 84 (b): where it reads ONE function word against the decode's one, the lock keeps the decode's word and
+    records the other reading (ruling 18's record); two or more such in one span HOLD."""
     import canon
     from difflib import SequenceMatcher
     run_t, pin_t = lock["text"], lock["selected_text"]
@@ -437,6 +477,37 @@ def adjudicate_lock(lock, src_path, words, recognise=None, log=print):
         raise PinError(f"{tag}: lock text not adjudicated (ruling 17): at {diffs} the second recogniser reads "
                        f"{'the run decode' if run_side else 'neither'} | " +
                        " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+    # ruling 84 (b) ('20:40'): where the second recogniser reads ONE function word against the decode's one (its
+    # fillers aside), the lock keeps the decode's word and records the other reading (ruling 18's record: G18 passes
+    # either with the acoustic check); two or more such in one span hold; every other difference is ruling 17's
+    fw = [(a, k[0]) for _, a, b, c, d in ops for k in [[j for j in range(c, d) if p[j] not in FILLERS]]
+          if len(k) == 1 and one_function_word(r[a:b], [p[k[0]]])]
+    if len(fw) > 1:
+        raise PinError(f"{tag}: the run decode and the second recogniser split on {len(fw)} function words "
+                       f"{[[r[a], p[c]] for a, c in fw]} (ruling 84 (b): two or more in one span hold) | " +
+                       " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+    if fw:
+        (a, c), = fw
+        n = p[:c] + [r[a]] + p[c + 1:]
+        text, wi = run_t if n == r else _with_token(pin_t, c, r[a]), _token_word(words, lock["i0"], lock["i1"], a)
+        if text is None or wi is None:
+            raise PinError(f"{tag}: the split function word cannot be located (ruling 84 (b): HOLD) | " +
+                           " | ".join(f"{k}: {v!r}" for k, v in readings.items()))
+        new = {k: v for k, v in lock.items() if k != "sha256"}
+        kept = [[" ".join(r[a2:b2]), " ".join(n[c2:d2])]
+                for op, a2, b2, c2, d2 in SequenceMatcher(None, r, n, autojunk=False).get_opcodes() if op != "equal"]
+        new["text"] = text
+        if kept:                                       # the rest is ruling 17's: the approved words, read by it
+            new["adjudication"] = {"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
+                                   "differences": kept, "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}
+        new["alternatives"] = [{"rule": "ruling 84 (b) (orchestrator 2026-11-13 '20:40')", "token_index": c,
+                                "readings": [r[a], p[c]], "word_index": wi,
+                                "source_span": [round(float(words[wi]["start"]), 3), round(float(words[wi]["end"]), 3)],
+                                "recogniser": "elevenlabs:scribe_v1", "usd": usd, **readings}]
+        new["sha256"] = L._lock_digest(new)
+        log(f"  lock {tag}: one function word heard as {r[a]!r} (run decode) or {p[c]!r} (second recogniser): the "
+            f"lock keeps the decode's word and records both (ruling 84 (b)){'; ruling 17 at ' + str(kept) if kept else ''}")
+        return new
     new = {k: v for k, v in lock.items() if k != "sha256"}
     new.update(text=pin_t, adjudication={"rule": "ruling 17 (orchestrator 2026-11-12 '10:20')", "verdict": "approved",
                                          "differences": diffs, "recogniser": "elevenlabs:scribe_v1", "usd": usd,

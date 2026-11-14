@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 21:12 RULING 84 MERGED on a clean cycle 2 (audits batch 71: cycle 1 no consensus; cycle 2 PASS from qwen27b and Grok, glm and deepseek did not answer inside 3 minutes, per the orchestrator's 21:10 order). The merge landed before 21:35, so the candidate is not lost to the audit queue.
+- (a) Fillers the second recogniser hears and the lock lacks (um, uh, er, ah, mm, hmm) adopt with the speaker's repetitions. (b) ONE function word read against the decode's one: the lock keeps the decode's word and records the other reading (ruling 18's record, made in pinned.adjudicate_lock, so the render makes the same lock). Two or more in one span hold, and so does any other substitution.
+- MUST-FAIL, on the real cached decode and reading (pipeline/fixtures/ruling84):
+  - span 6058ee58 (uaHNzi-Kgr8 153.25-165.89) HOLDS on the old rules (um, uh outside ruling 67's class) and PASSES on the new. The render's lock keeps 'so' (token 21, word 63, 22.90-23.12 s), records 'or', and adopts um / uh as ruling 17.
+  - 1b4a63d0's hook STILL HOLDS, classes unchanged: 'when' and 'and' are immediate repetitions (in class), 'the why' is function words (in class); it holds on 'market is'/'market's', the false start "that's why the bull that's" and the fragment 'w and'.
+- regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, the references reproduced (preview, moments, medley, first pass). Lock tests: 100 passed; the new ones fail on the old code.
+- CHANGED BEHAVIOUR, reported:
+  - ruling 17 used to ADOPT a single function-word substitution the second recogniser confirmed; it now keeps the decode's word and records the other. Two such in one span now hold where ruling 17 adopted.
+  - in the pre-check, multi-token function-word substitutions (2-for-2, 1-for-2) now hold where ruling 72 adopted.
+  - no delivered pin's lock has either case. Ruling 18's existing alternatives (the references' 'think'/'mean') are unchanged.
+- Bible E-FAIL-083.
+
 ## 18:54 RULING 77.4 MERGED (8172f906; audits batch 70 x2: cycle 1 no consensus, cycle 2 a verification with 'fix: none required'). The word-pass worker's tiers are the LAST 6 h, then 6-12 h, NOTHING older (was 10 h, 24 h, then older), and the ledger is read 12 h back (was 72 h).
 - regression_test.sh 26 PASS / 0 FAIL; pipeline/regression.sh exit 0, the references reproduced. test_word_pass_worker 27 passed.
 - Must-fail: the two ruling-77.4 tier tests (12 h + 1 s, 18 h and 48 h never picked; 6 h and 12 h inclusive) FAIL on the old worker and pass on the merge.

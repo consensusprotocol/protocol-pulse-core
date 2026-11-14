@@ -267,13 +267,19 @@ class TestPinFields(unittest.TestCase):
         with self.assertRaisesRegex(pinned.PinError, r"trimmed_leading 'And' is not the word before the lock .*'But,'"):
             pinned.trimmed_lock(lock, {"trimmed_leading": "And", "untrimmed_start": 29.6}, words)
         # batch 58 cycle 2 (glm F1, 1 vote): ruling 17's adjudication rewrites the lock and keeps the record in its digest
-        approved = dict(new, selected_text="we have rarely seen these.")
-        approved["sha256"] = L._lock_digest(approved)
-        sw = [{"word": w, "start": i * 0.3, "end": i * 0.3 + 0.25}
-              for i, w in enumerate(["Six", "weeks.", "But,", "we", "have", "rarely", "seen", "these."])]
-        adj = pinned.adjudicate_lock(approved, "unused.mp4", words, recognise=lambda p: (sw, 0.0), log=lambda *a: None)
-        self.assertEqual(adj["trimmed_leading"], new["trimmed_leading"])
-        self.assertEqual((adj["text"], L.verify_lock(adj)), ("we have rarely seen these.", []))
+        # (ruling 84 '20:40': 'this' / 'these' is one function word now, so the example's difference is a content word;
+        # ruling 84 (b)'s record keeps the trimmed word too)
+        for heard, text in (("heard", "we have rarely heard this."), ("these.", "we have rarely seen this.")):
+            approved = dict(new, selected_text=text if heard == "heard" else "we have rarely seen these.")
+            approved["sha256"] = L._lock_digest(approved)
+            said = ["Six", "weeks.", "But,", "we", "have", "rarely"] + (["heard", "this."] if heard == "heard" else
+                                                                        ["seen", "these."])
+            sw = [{"word": w, "start": i * 0.3, "end": i * 0.3 + 0.25} for i, w in enumerate(said)]
+            adj = pinned.adjudicate_lock(approved, "unused.mp4", words, recognise=lambda p: (sw, 0.0),
+                                         log=lambda *a: None)
+            self.assertEqual(adj["trimmed_leading"], new["trimmed_leading"])
+            self.assertEqual((adj["text"], L.verify_lock(adj)), (text, []))
+            self.assertEqual("alternatives" in adj, heard == "these.")
         head = L.make_lock("BBBBBBBBBBB", words, 0, 1, "ab" * 32, "Six weeks.")
         with self.assertRaisesRegex(pinned.PinError, "<file head>"):
             pinned.trimmed_lock(head, {"trimmed_leading": "But", "untrimmed_start": 0}, words)

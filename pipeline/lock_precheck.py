@@ -35,8 +35,13 @@ CONTRACT (the builder):
     pipeline/attest.py carry_class, copied): outcome "adopt_spoken". "spoken_text" is the text to seal. It has been put
     through the render's own validate_range + segment_lock (the render's ruling 17 adopts it), and "lock" is that lock.
   - Anything else: "hold", before the seal.
-  ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences) and
-  "rules" (RULES).
+  RULING 84 (orchestrator 2026-11-13 '20:40') widens the class (ruling84_class): (a) fillers the second recogniser
+  hears and the lock lacks (um, uh, er, ah, mm, hmm) adopt with the repetitions; (b) ONE function word read against
+  the decode's one is ruling 18's one ambiguous token: spoken_text carries the second recogniser's word, and the
+  render's adjudicate_lock keeps the decode's word in the lock and records the other ("alternatives"); two or more in
+  one span hold, and so does any other substitution.
+  ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences and
+  their classes), "alternatives" and "rules" (RULES).
 - The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed. A request in the
   builder's own directory (EXTRA; the builder may not write under this tree) is READ ONLY there: never moved or
   written. It is answered once per name and content (a marker in answered/), and its copy is kept in done/ or failed/.
@@ -69,21 +74,13 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
 VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
 CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
 KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
-RULES = "ruling 17 + ruling 72 + ruling 73"   # what an entry's verdict judged; other rules' entries are never reused
+RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # what an entry's verdict judged; others are never reused
 EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
 # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
 # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
-FUNCTION_WORDS = frozenset("""
-a an the this that these those that's this's there there's here here's
-i you he she it we they me him her us them my your his its our their mine yours hers ours theirs
-myself yourself himself herself itself ourselves themselves one's
-i'm you're he's she's it's we're they're i've you've we've they've i'll you'll he'll she'll it'll we'll they'll
-i'd you'd he'd she'd we'd they'd
-in on at to of for from with by about into onto upon over under up down out off through as like than via per
-and or but so because if then when while though although whether
-is are was were be been being am do does did have has had will would can could shall should may might must
-what which who whom whose why how where
-""".split())
+# RULING 84 ('20:40') classes with them in the render's adjudicate_lock too: they live in pinned.py.
+FUNCTION_WORDS, FILLERS = pinned.FUNCTION_WORDS, pinned.FILLERS
+ONE_FW = "one function word"                          # ruling 84 (b)'s class: at most one per span
 
 
 def decoder_sha():
@@ -259,26 +256,57 @@ def _spill(L, S):
     return lo, max(lo, hi)
 
 
-def as_spoken(lock, words, sw):
-    """RULING 72: the lock against the second recogniser's reading of its own words ([i0 start - 0.3, i1 end + 0.3],
-    adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold", differences, spoken text)."""
+def reading(lock, words, sw):
+    """The second recogniser's reading of the lock's own words ([i0 start - 0.3, i1 end + 0.3], adjudicate_lock's
+    window, the spill left out) -> (the lock's canon tokens, the reading's, the reading's text); ([], ...) when no
+    reading is left."""
     import canon
-    from difflib import SequenceMatcher
     t0, t1 = words[lock["i0"]]["start"] - 0.3, words[lock["i1"]]["end"] + 0.3
     sel = [w for w in sw if t0 <= (float(w["start"]) + float(w["end"])) / 2 <= t1]
     spans = canon.canon_spans([str(w["word"]) for w in sel])
     L, S = canon.canon_tokens(lock["text"]), [t for t, _, _ in spans]
     lo, hi = _spill(L, S)
     if lo >= hi:
-        return "hold", [[lock["text"], ""]], ""
-    S2 = S[lo:hi]
-    spoken = " ".join(str(sel[i]["word"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))
+        return L, [], ""
+    return L, S[lo:hi], " ".join(str(sel[i]["word"]).strip() for i in range(spans[lo][1], spans[hi - 1][2] + 1))
+
+
+def ruling84_class(r, p, op, texts):
+    """RULING 84 (orchestrator 2026-11-13 '20:40') on ruling 72's comparison: the class of one difference between the
+    lock (r) and the second recogniser's reading (p), or None (it holds).
+    - "filler" (a): only fillers (pinned.FILLERS) the second recogniser hears and the lock lacks;
+    - a number, negation or name on either side: None;
+    - ONE_FW (b): one function word against one, the fillers aside (at most ONE per span: as_spoken);
+    - any other substitution (both sides non-empty, the fillers aside): None;
+    - a drop or an addition (the fillers aside): ruling 67's class (carry_class) on the reading without its fillers."""
+    tag, a, b, c, d = op
+    keep = [j for j in range(c, d) if p[j] not in FILLERS]
+    x, y = r[a:b], [p[j] for j in keep]
+    if x == y:
+        return "filler"
+    if any(pinned._lv2_critical(t, texts) for t in x + y):
+        return None
+    if x and y:
+        return ONE_FW if pinned.one_function_word(x, y) else None
+    f0 = sum(1 for t in p[:c] if t not in FILLERS)
+    return carry_class(r, [t for t in p if t not in FILLERS], (tag, a, b, f0, f0 + len(y)), texts)
+
+
+def as_spoken(lock, words, sw):
+    """RULING 72 as RULING 84 classes it: the lock against the second recogniser's reading of its own words ([i0
+    start - 0.3, i1 end + 0.3], adjudicate_lock's window, the spill left out). -> (verdict "same" | "adopt" | "hold",
+    differences, their classes ("hold" for a difference out of every class), spoken text). Adopt: every difference
+    is in a class and at most one is ONE_FW."""
+    from difflib import SequenceMatcher
+    L, S2, spoken = reading(lock, words, sw)
+    if not S2:
+        return "hold", [[lock["text"], ""]], ["hold"], ""
     ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
     diffs = [[" ".join(L[a:b]), " ".join(S2[c:d])] for _, a, b, c, d in ops]
     if not ops:
-        return "same", [], spoken
-    ok = all(carry_class(L, S2, op, (lock["text"], spoken)) for op in ops)
-    return ("adopt" if ok else "hold"), diffs, spoken
+        return "same", [], [], spoken
+    cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
+    return ("adopt" if "hold" not in cls and cls.count(ONE_FW) <= 1 else "hold"), diffs, cls, spoken
 
 
 def _outcome(s, lock):
@@ -312,8 +340,8 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                     v = pinned.validate_range(s, a)
                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
                     outcome, reason = _outcome(s, lock), None
-                    verdict, diffs, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
-                    spoken = {"verdict": verdict, "differences": diffs, "text": text}      # ruling 72, every span
+                    verdict, diffs, cls, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
+                    spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text}   # 72 + 84
                     if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
                         s2 = dict(s, approved_text=text)
                         try:
@@ -323,9 +351,12 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                             outcome, lock = "hold", None
                             reason = f"ruling 72: the spoken text {text!r} is not adopted by the render's ruling 17: {e}"
                     elif verdict == "hold":
-                        reason = (f"ruling 72: the second recogniser reads the span differently beyond the speaker's own "
-                                  f"repetitions and function words at {diffs} | lock: {lock['text']!r} | spoken: "
-                                  f"{text!r}")
+                        bad = [d for d, k in zip(diffs, cls) if k == "hold"]
+                        why = (f"beyond the speaker's own repetitions, function words dropped or added, fillers and "
+                               f"one function word, at {bad}" if bad else
+                               f"on {cls.count(ONE_FW)} function words (ruling 84 (b): two or more in one span hold)")
+                        reason = (f"ruling 72/84: the second recogniser reads the span differently {why} | all: "
+                                  f"{[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | spoken: {text!r}")
                         outcome, lock = "hold", None
                     if lock is not None:                         # ruling 73 (c): the render's own cut placement
                         cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
@@ -347,6 +378,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
                      "lock": {k: lock.get(k) for k in ("i0", "i1", "first_word", "last_word", "text", "sha256")}
                      if lock else None,
                      "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
+                     "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
                      "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
                      if cut else None,
