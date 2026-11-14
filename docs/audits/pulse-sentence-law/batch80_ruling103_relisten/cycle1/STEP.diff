@@ -1,0 +1,309 @@
+diff --git a/pipeline/lock_precheck.py b/pipeline/lock_precheck.py
+index b6c02e8d..f9bf59f6 100644
+--- a/pipeline/lock_precheck.py
++++ b/pipeline/lock_precheck.py
+@@ -42,6 +42,10 @@ CONTRACT (the builder):
+   one span hold, and so does any other substitution.
+   ONE paid reading per acquisition window, cached in its work dir; entries carry "as_spoken" (the differences and
+   their classes), "alternatives" and "rules" (RULES).
++  RULING 103 (orchestrator 2026-11-14 '14:13', relisten): when that comparison holds on exactly ONE number or name
++  token, both recognisers re-read a short window cut around the token alone (its word times, 1.5 s either side, from
++  the acquired window file); the lock passes on it only if both short readings give the lock's token (canon), else
++  the hold is final. Both readings are recorded ("relisten"). scribe_v1 at $0.012 a minute: about $0.0008 a window.
+ - The request moves to requests/done/ when answered, to requests/failed/ (with "why") when malformed. A request in the
+   builder's own directory (EXTRA; the builder may not write under this tree) is READ ONLY there: never moved or
+   written. It is answered once per name and content (a marker in answered/), and its copy is kept in done/ or failed/.
+@@ -74,7 +78,7 @@ SAFE = re.compile(r"^[A-Za-z0-9_.:~-]{1,120}$")
+ VIDEO_ID = re.compile(r"^[A-Za-z0-9_-]{11}$")
+ CODE = ("select_passages.py", "punctuation.py", "pinned.py", "sentence_law.py", "canon.py", "gpu0.py")
+ KEY = ("role", "approved_text", "trimmed_leading", "untrimmed_start")   # the request fields an answer depends on
+-RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84"   # what an entry's verdict judged; others are never reused
++RULES = "ruling 17 + ruling 72 + ruling 73 + ruling 84 + ruling 103"   # what an entry's verdict judged; others never reused
+ EXTRA = os.environ.get("PP_LOCK_PRECHECK_EXTRA", "/home/ultron/worktrees/pp-selectid/tests/package/proof/lock_requests")
+ # RULING 67's class, as the builder's pipeline/attest.py defines it (FUNCTION_WORDS and carry_class, copied in
+ # behaviour): English closed-class words; NO negation, number or ordinal (those are law L-v 2's critical tokens).
+@@ -309,6 +313,71 @@ def as_spoken(lock, words, sw):
+     return ("adopt" if "hold" not in cls and cls.count(ONE_FW) <= 1 else "hold"), diffs, cls, spoken
+ 
+ 
++def relisten_clip(src, t0, t1, rdir):
++    """The short window's audio, cut from the acquired window file itself (the same audio the cut will use)."""
++    import subprocess
++    os.makedirs(rdir, exist_ok=True)
++    clip = os.path.join(rdir, "window.wav")
++    if not os.path.exists(clip):
++        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{t0:.3f}", "-t", f"{t1 - t0:.3f}", "-i", src, "-vn",
++                        "-ac", "1", "-ar", "16000", clip + ".tmp.wav"], check=True, timeout=120)
++        os.replace(clip + ".tmp.wav", clip)
++    return clip
++
++
++def relisten(a, wd, lock, sw, spent, log=print):
++    """RULING 103 (orchestrator 2026-11-14 '14:13'): the targeted re-listen of the ONE number / name token ruling 72's
++    comparison holds on. -> None when the hold is not of that kind (it stands as it is), else the record {token,
++    against, window (the acquired file's seconds), source_window, decoder_reading, second_reading, verdict, scribe_usd}.
++    BOTH recognisers read a short window cut around the token alone (its word times, pinned.RELISTEN_PAD_S either
++    side): the run's own decoder (_whisper_transcribe, under the GPU0 lease, a render first) and the second recogniser.
++    verdict "pass" only if both readings give the lock's token (pinned.relisten_verdict); "error" (no verdict, re-ask)
++    when GPU0 is not to be had or the decoder returns nothing, never a pass and never a final hold."""
++    from difflib import SequenceMatcher
++    import canon
++    import gpu0
++    words = a["transcript"]["words"]
++    L, S2, spoken = reading(lock, words, sw)                       # as as_spoken compares them
++    ops = [o for o in SequenceMatcher(None, L, S2, autojunk=False).get_opcodes() if o[0] != "equal"]
++    diffs = [[" ".join(L[x:y]), " ".join(S2[c:d])] for _, x, y, c, d in ops]
++    cls = [ruling84_class(L, S2, op, (lock["text"], spoken)) or "hold" for op in ops]
++    tok = pinned.relisten_candidate(diffs, cls, (lock["text"], spoken))
++    if tok is None:
++        return None
++    rec = {"token": tok, "against": diffs[0][1]}
++    spans = canon.canon_spans([str(w["word"]) for w in words[lock["i0"]:lock["i1"] + 1]])
++    if [t for t, _, _ in spans] != L:                              # the lock's words must read as its text
++        return dict(rec, verdict="hold", why="the lock's words do not read as its text token for token")
++    _t, f, l = spans[ops[0][1]]
++    t0 = max(0.0, float(words[lock["i0"] + f]["start"]) - pinned.RELISTEN_PAD_S)
++    t1 = float(words[lock["i0"] + l]["end"]) + pinned.RELISTEN_PAD_S
++    off = float(a.get("offset") or 0.0)
++    rec.update(window=[round(t0, 3), round(t1, 3)], source_window=[round(off + t0, 3), round(off + t1, 3)])
++    rdir = os.path.join(wd, "relisten", f"{t0:.3f}-{t1:.3f}")
++    clip = relisten_clip(a["path"], t0, t1, rdir)
++    if LJ.render_wants_gpu0():
++        return dict(rec, verdict="error", why="a render asked for GPU0 before the re-listen's decode: re-ask")
++    try:
++        with gpu0.lease(OWNER, wait_s=0):
++            try:
++                from select_passages import _whisper_transcribe
++                tr = _whisper_transcribe(clip, "relisten", rdir)
++            finally:
++                gpu0.release_all()                                 # GPU0 left as found before the lease goes
++    except gpu0.Gpu0Stop as e:
++        return dict(rec, verdict="error", why=f"GPU0 not to be had for the re-listen's decode ({e}): re-ask")
++    if not tr or not tr.get("words"):
++        return dict(rec, verdict="error", why="the decoder returned no words on the short window: re-ask")
++    sw2, usd = pinned._second_recogniser_words(clip)
++    spent.append(usd)
++    dec = " ".join(str(w["word"]).strip() for w in tr["words"])
++    sec = " ".join(str(w["word"]).strip() for w in sw2)
++    verdict = pinned.relisten_verdict(tok, dec, sec)
++    log(f"  ruling 103 re-listen of {tok!r} (against {diffs[0][1]!r}) at {t0:.2f}-{t1:.2f}: decoder {dec!r}, "
++        f"second {sec!r}: {verdict}")
++    return dict(rec, decoder_reading=dec, second_reading=sec, verdict=verdict, scribe_usd=usd)
++
++
+ def _outcome(s, lock):
+     if not s.get("approved_text"):
+         return "decoded"
+@@ -341,7 +410,15 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                     lock = pinned.segment_lock(s, a, v, recognise=recognise, log=log)
+                     outcome, reason = _outcome(s, lock), None
+                     verdict, diffs, cls, text = as_spoken(lock, a["transcript"]["words"], recognise(a["path"])[0])
+-                    spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text}   # 72 + 84
++                    heard = None
++                    if verdict == "hold":                        # ruling 103: ONE number / name token, re-listened
++                        heard = relisten(a, wd, lock, recognise(a["path"])[0], spent, log=log)
++                        if heard and heard["verdict"] == "error":
++                            raise RuntimeError(f"ruling 103: {heard['why']}")              # no verdict: re-ask
++                        if heard and heard["verdict"] == "pass":
++                            verdict = "same"                     # the lock's own token stands; nothing else differed
++                    spoken = {"verdict": verdict, "differences": diffs, "classes": cls, "text": text,   # 72 + 84
++                              "relisten": heard}                                                    # + 103
+                     if verdict == "adopt":                       # the render's own ruling 17 must adopt the spoken text
+                         s2 = dict(s, approved_text=text)
+                         try:
+@@ -357,6 +434,11 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                                f"on {cls.count(ONE_FW)} function words (ruling 84 (b): two or more in one span hold)")
+                         reason = (f"ruling 72/84: the second recogniser reads the span differently {why} | all: "
+                                   f"{[d + [k] for d, k in zip(diffs, cls)]} | lock: {lock['text']!r} | spoken: {text!r}")
++                        if heard:                                # ruling 103's re-listen ran and did not clear it
++                            reason += (f" | ruling 103 re-listen of {heard['token']!r} at {heard.get('window')}: "
++                                       f"decoder {heard.get('decoder_reading')!r}, second "
++                                       f"{heard.get('second_reading')!r}: the hold is final"
++                                       + (f" ({heard['why']})" if heard.get("why") else ""))
+                         outcome, lock = "hold", None
+                     if lock is not None:                         # ruling 73 (c): the render's own cut placement
+                         cut = sentence_law.lock_cut(a["path"], a["transcript"]["words"], lock,
+@@ -380,6 +462,7 @@ def answer(path, r, dl, dec, sha, dg=None, log=print):
+                      "adjudication": (lock.get("adjudication") or lock.get("alternatives")) if lock else None,
+                      "alternatives": lock.get("alternatives") if lock else None,     # ruling 18 / 84 (b)'s record
+                      "as_spoken": spoken, "spoken_text": spoken["text"] if outcome == "adopt_spoken" else None,
++                     "relisten": spoken.get("relisten") if spoken else None,      # ruling 103: both short readings
+                      "cut": {k: cut.get(k) for k in ("cut_in", "cut_out", "cut_duration", "lead_in_pad_s", "error")}
+                      if cut else None,
+                      "rules": RULES, "scribe_usd": round(sum(spent), 4), "reused": False,
+diff --git a/pipeline/pinned.py b/pipeline/pinned.py
+index abcde827..405b4b99 100644
+--- a/pipeline/pinned.py
++++ b/pipeline/pinned.py
+@@ -401,6 +401,34 @@ def _lv2_critical(tok, texts):
+     return False
+ 
+ 
++RELISTEN_PAD_S = 1.5        # ruling 103: the token's word times, 1.5 s either side
++
++
++def relisten_candidate(diffs, cls, texts):
++    """RULING 103 (orchestrator 2026-11-14 '14:13', the targeted re-listen): the lock's ONE token a re-listen may
++    decide, or None (the hold stands as it is). Only a hold whose two independent readings differ on exactly ONE
++    number or name token: one difference in all, classed hold; the lock's side one token, the reading's at most one;
++    a number or a name on either side (law L-v 2's test), never a negation (the ruling names numbers and names)."""
++    if len(diffs) != 1 or list(cls) != ["hold"]:
++        return None
++    mine, theirs = diffs[0][0].split(), diffs[0][1].split()
++    if len(mine) != 1 or len(theirs) > 1:
++        return None
++    if any(t in LV2_NEGATIONS or t.endswith("n't") for t in mine + theirs):
++        return None
++    if not any(_lv2_critical(t, texts) for t in mine + theirs):
++        return None
++    return mine[0]
++
++
++def relisten_verdict(token, decoder_text, second_text):
++    """RULING 103: the lock passes on its token only if BOTH short-window readings give it (after the canon: a plan's
++    name is not its number). If either does not (still differing, or the two differing from each other), the hold is
++    final. -> "pass" | "hold"."""
++    import canon
++    return "pass" if all(token in canon.canon_tokens(t or "") for t in (decoder_text, second_text)) else "hold"
++
++
+ def _second_recogniser_words(src_path):
+     """The independent second recogniser (ElevenLabs scribe_v1) on the acquired window: words on its clock."""
+     vp3 = os.path.join(os.path.dirname(PIPELINE_DIR), "video_pipeline_v3")    # relay.get_key, the key loader
+diff --git a/pipeline/test_lock_precheck.py b/pipeline/test_lock_precheck.py
+index c4e12ee6..a307e226 100644
+--- a/pipeline/test_lock_precheck.py
++++ b/pipeline/test_lock_precheck.py
+@@ -45,7 +45,7 @@ class Base(unittest.TestCase):
+ 
+     def setUp(self):
+         self.root = tempfile.mkdtemp(prefix="lock_precheck_test_")
+-        self.downloads, self.decodes, self.heard = [], [], []
++        self.downloads, self.decodes, self.heard, self.relistened, self.windows = [], [], [], [], []
+         self.scribe_text = self.run_text
+         self.fail_download = False
+ 
+@@ -64,8 +64,11 @@ class Base(unittest.TestCase):
+                 with open(p) as f:
+                     return json.load(f)
+             self.decodes.append(video_id)
+-            out = {"words": getattr(self, "run_words", None) or words_of(self.run_text), "language": "en",
+-                   "duration": 39.0}
++            long = getattr(self, "run_words", None) or words_of(self.run_text)
++            if video_id == "relisten":                         # ruling 103's short window: the decoder re-reads it
++                self.relistened.append(("decoder", source_path))
++                long = getattr(self, "short_decoder", None) or long
++            out = {"words": long, "language": "en", "duration": 39.0}
+             os.makedirs(os.path.dirname(p), exist_ok=True)
+             with open(p, "w") as f:
+                 json.dump(out, f)
+@@ -73,7 +76,18 @@ class Base(unittest.TestCase):
+ 
+         def scribe(src):
+             self.heard.append(src)
+-            return getattr(self, "scribe_words", None) or words_of(self.scribe_text), 0.0078
++            long = getattr(self, "scribe_words", None) or words_of(self.scribe_text)
++            if os.path.basename(src) == "window.wav":            # ruling 103's short window: it re-hears it
++                self.relistened.append(("second", src))
++                return getattr(self, "short_second", None) or long, 0.0008
++            return long, 0.0078
++
++        def clip(src, t0, t1, rdir):                           # the short window's audio, stubbed (no ffmpeg)
++            os.makedirs(rdir, exist_ok=True)
++            p = os.path.join(rdir, "window.wav")
++            open(p, "wb").close()
++            self.windows.append((round(t0, 3), round(t1, 3)))
++            return p
+ 
+         self.wants = mock.Mock(return_value=False)
+         self.cut = {"pause_in": None, "pause_out": None, "cut_in": 15.2, "cut_out": 24.4, "cut_duration": 9.2,
+@@ -85,6 +99,7 @@ class Base(unittest.TestCase):
+                   mock.patch.object(select_passages, "_whisper_transcribe", transcribe),
+                   mock.patch.object(pinned, "_duration", lambda path: 39.0),
+                   mock.patch.object(pinned, "_second_recogniser_words", scribe),
++                  mock.patch.object(LP, "relisten_clip", clip),
+                   mock.patch.object(gpu0, "lease", lambda owner, wait_s=0.0: contextlib.nullcontext()),
+                   mock.patch.object(gpu0, "release_all", lambda *a, **k: None),
+                   mock.patch.object(LP.LJ, "render_wants_gpu0", self.wants)):
+@@ -596,5 +611,81 @@ class TestBuildersDirectory(Base):
+         self.assertEqual(LP.pending(), [])
+ 
+ 
++class TestRuling103(Base):
++    """RULING 103 (orchestrator 2026-11-14 '14:13', the targeted re-listen): when ruling 72's comparison holds on ONE
++    number or name token, BOTH recognisers re-read a short window around that token alone (its word times, 1.5 s
++    either side); the lock passes on it only if both short readings give the lock's token, else the hold is final.
++    Must-fail (the order): a real number disagreement ('68,000' against '86,000') still holds; '401k' against '401'
++    passes only when both short readings say 401k."""
++    RUN, HEARD = "I don't have a 401k.", "I don't have a 401 ,"
++
++    def ask(self, run, heard, decoder=None, second=None):
++        shutil.rmtree(os.path.join(self.root, "work"), True)
++        shutil.rmtree(os.path.join(self.root, "results"), True)       # one question, one answer: never a reused entry
++        self.run_words, self.scribe_words = spread(run), spread(heard)
++        self.short_decoder = spread(decoder) if decoder else None
++        self.short_second = spread(second) if second else None
++        self.relistened, self.windows = [], []
++        self.n = getattr(self, "n", 0) + 1
++        self.request(f"r103_{self.n}", approved_text=run)
++        LP.serve_once(log=self.log)
++        return self.entry(run)
++
++    def test_401k_passes_only_when_both_short_readings_say_401k(self):
++        e = self.ask(self.RUN, self.HEARD, "have a 401k. I don't", "have a 401(k). I don't")
++        self.assertEqual(e["outcome"], "no_difference", e)                 # the lock's own token stands
++        self.assertEqual(e["lock"]["text"], self.RUN)
++        r = e["relisten"]
++        self.assertEqual((r["token"], r["against"], r["verdict"]), ("401k", "401", "pass"))
++        self.assertEqual((r["decoder_reading"], r["second_reading"]), ("have a 401k. I don't", "have a 401(k). I don't"))
++        w = spread(self.RUN)[-1]                                          # '401k.': its word times, 1.5 s either side
++        self.assertEqual(r["window"], [round(w["start"] - 1.5, 3), round(w["end"] + 1.5, 3)])
++        self.assertEqual(sorted(k for k, _ in self.relistened), ["decoder", "second"])
++        for decoder, second in (("have a 401k. I don't", "have a 401, I don't"),     # the second still hears 401
++                                ("have a 401, I don't", "have a 401k. I don't"),     # the decoder now hears 401
++                                ("have a 401, I don't", "have a 401, I don't")):     # both hear 401
++            with self.subTest(decoder=decoder, second=second):
++                e = self.ask(self.RUN, self.HEARD, decoder, second)
++                self.assertEqual((e["outcome"], e["relisten"]["verdict"]), ("hold", "hold"), e)
++                self.assertEqual((e["relisten"]["decoder_reading"], e["relisten"]["second_reading"]), (decoder, second))
++                self.assertIn("ruling 103 re-listen of '401k'", e["reason"])
++                self.assertIn("the hold is final", e["reason"])
++                self.assertIsNone(e["lock"])
++
++    def test_a_real_number_disagreement_still_holds_after_the_relisten(self):
++        run, heard = "It cost them 68,000 dollars.", "It cost them 86,000 dollars."
++        for decoder, second in (("cost them 68,000 dollars.", "cost them 86,000 dollars."),
++                                ("cost them 86,000 dollars.", "cost them 86,000 dollars.")):
++            with self.subTest(decoder=decoder, second=second):
++                e = self.ask(run, heard, decoder, second)
++                self.assertEqual(e["outcome"], "hold", e)
++                self.assertIn("ruling 103 re-listen of '68000'", e["reason"])
++                self.assertIn("86,000", e["reason"])
++        e = self.ask(run, heard, "cost them 68,000 dollars.", "cost them 68,000 dollars.")   # only both re-reading
++        self.assertEqual((e["outcome"], e["relisten"]["verdict"]), ("no_difference", "pass"), e)  # the lock's number
++
++    def test_no_relisten_beyond_one_number_or_name_token(self):
++        for run, heard in (("It took 15 years in the house.", "It took 50 years into a house."),   # two differences
++                           ("You can do it.", "You can't do it."),                                  # a negation
++                           ("The bank owns the money.", "The bank holds the money.")):              # a content word
++            with self.subTest(run=run):
++                e = self.ask(run, heard)
++                self.assertEqual((e["outcome"], e["relisten"]), ("hold", None), e)
++                self.assertEqual(self.relistened, [])
++                self.assertNotIn("ruling 103", e["reason"])
++
++    def test_no_gpu0_for_the_relisten_is_no_verdict_never_a_final_hold(self):
++        self.wants.side_effect = lambda: bool(self.windows)              # a render asks once the window is cut
++        e = self.ask(self.RUN, self.HEARD, "have a 401k. I don't", "have a 401k. I don't")
++        self.assertEqual(e["outcome"], "error", e)                        # re-ask: no verdict
++        self.assertIn("ruling 103: a render asked for GPU0", e["reason"])
++
++    def test_the_spend_and_the_rules(self):
++        e = self.ask(self.RUN, self.HEARD, "have a 401k. I don't", "have a 401k. I don't")
++        self.assertEqual((e["relisten"]["scribe_usd"], e["scribe_usd"]), (0.0008, round(0.0078 + 0.0008, 4)))
++        self.assertIn("ruling 103", e["rules"])
++        self.assertEqual(pinned.RELISTEN_PAD_S, 1.5)
++
++
+ if __name__ == "__main__":
+     unittest.main()

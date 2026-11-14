@@ -401,6 +401,34 @@ def _lv2_critical(tok, texts):
     return False
 
 
+RELISTEN_PAD_S = 1.5        # ruling 103: the token's word times, 1.5 s either side
+
+
+def relisten_candidate(diffs, cls, texts):
+    """RULING 103 (orchestrator 2026-11-14 '14:13', the targeted re-listen): the lock's ONE token a re-listen may
+    decide, or None (the hold stands as it is). Only a hold whose two independent readings differ on exactly ONE
+    number or name token: one difference in all, classed hold; the lock's side one token, the reading's at most one;
+    a number or a name on either side (law L-v 2's test), never a negation (the ruling names numbers and names)."""
+    if len(diffs) != 1 or list(cls) != ["hold"]:
+        return None
+    mine, theirs = diffs[0][0].split(), diffs[0][1].split()
+    if len(mine) != 1 or len(theirs) > 1:
+        return None
+    if any(t in LV2_NEGATIONS or t.endswith("n't") for t in mine + theirs):
+        return None
+    if not any(_lv2_critical(t, texts) for t in mine + theirs):
+        return None
+    return mine[0]
+
+
+def relisten_verdict(token, decoder_text, second_text):
+    """RULING 103: the lock passes on its token only if BOTH short-window readings give it (after the canon: a plan's
+    name is not its number). If either does not (still differing, or the two differing from each other), the hold is
+    final. -> "pass" | "hold"."""
+    import canon
+    return "pass" if all(token in canon.canon_tokens(t or "") for t in (decoder_text, second_text)) else "hold"
+
+
 def _second_recogniser_words(src_path):
     """The independent second recogniser (ElevenLabs scribe_v1) on the acquired window: words on its clock."""
     vp3 = os.path.join(os.path.dirname(PIPELINE_DIR), "video_pipeline_v3")    # relay.get_key, the key loader
