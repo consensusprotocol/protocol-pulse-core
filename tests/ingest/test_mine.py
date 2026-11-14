@@ -328,7 +328,7 @@ def test_the_hook_pass_writes_hook_rows_of_4_to_14_seconds_judged_as_hooks(monke
     assert lines and rep["kind"] == "hook" and not rep["failed"]
     for l in lines:
         assert l["role_hint"] == "hook" and l["eligibility"]["role"] == "hook" and l["mined"]["pass"] == "hook"
-        assert l["mined"]["prompt_version"] == "mine-hook/1" and 4.0 <= l["duration_estimate_s"] <= 14.0
+        assert l["mined"]["prompt_version"] == mine.HOOK_PROMPT_VERSION and 4.0 <= l["duration_estimate_s"] <= 14.0
         assert not ledger.line_problems(l)
     monkeypatch.setattr(mine, "KINDS", dict(mine.KINDS, hook=dict(mine.KINDS["hook"], seconds=(30.0, 40.0))))
     with ThreadPoolExecutor(4) as ex:
@@ -344,3 +344,49 @@ def test_a_moment_row_never_carries_a_hook_hint():
         lines, _ = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
                                    use_cache=False)
     assert lines and all("role_hint" not in l and l["eligibility"]["role"] == "clip" for l in lines)
+
+
+def test_the_opener_words_are_the_builders_verbatim():
+    """Ruling 92: the hook pass applies the builder's OPENER rule (pp-selectid stand_alone.py) with its own sets."""
+    import ast
+    d = os.environ.get("PP_SELECTID_PIPELINE", contract.SELECTID_DEFAULT)
+    tree = ast.parse(open(os.path.join(d, "stand_alone.py")).read())
+    sets = {t.id: ast.literal_eval(n.value) for n in ast.walk(tree) if isinstance(n, ast.Assign)
+            for t in n.targets if getattr(t, "id", None) in ("PRONOUNS", "CONJUNCTIONS", "REPLY_FRAGMENTS")}
+    assert sets["PRONOUNS"] == mine.OPENER_PRONOUNS and sets["CONJUNCTIONS"] == mine.OPENER_CONJUNCTIONS
+    assert sets["REPLY_FRAGMENTS"] == mine.OPENER_REPLY_FRAGMENTS
+    for w in ("they", "because", "yeah"):
+        assert w in mine.HOOK_PROMPT
+    assert "In a conversation" in mine.HOOK_PROMPT and "NAMES who or what" in mine.HOOK_PROMPT
+
+
+def test_a_hook_that_opens_on_a_pronoun_conjunction_or_reply_word_is_not_written():
+    rec, meta = H.caption_record(H.vid(), n_rep=3)
+    # sentences 5-6: "If that continues ..." (a conjunction: 'if' is not one) -> kept; 6-7 "I think ..." -> pronoun;
+    # 7: "That is the part ..." -> pronoun
+    r = H.make_router([H.FakeBackend("primary", fn=lambda p: H.hooks_reply(p, ((0, 1), (5, 6), (6, 6))))])
+    with ThreadPoolExecutor(4) as ex:
+        lines, rep = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                     use_cache=False, kind="hook")
+    assert lines and all(mine.bad_opener(l["text"]) is None for l in lines)
+    assert rep["dropped"].get("opens on a pronoun (the builder's OPENER rule)", 0) >= 1
+    assert [mine.bad_opener(t) for t in ("And then Bitcoin rose", "It's over", "Yeah, so", "Bitcoin is scarce")] == [
+        "opens on a conjunction (the builder's OPENER rule)", "opens on a pronoun (the builder's OPENER rule)",
+        "opens on a reply word (the builder's OPENER rule)", None]
+
+
+def test_every_row_carries_its_episodes_turn_measure():
+    """Ruling 92: the caption turn structure, measured on every row (both marker forms counted)."""
+    rec, meta = H.caption_record(H.vid(), n_rep=3)
+    rec["segments"][0]["text"] = ">> " + rec["segments"][0]["text"]
+    rec["segments"][3]["text"] = "&gt;&gt; " + rec["segments"][3]["text"]
+    m = mine.episode_measure(rec)
+    assert m["speaker_markers"] == 2 and m["turns_per_min"] > 0 and m["unmarked"] is False
+    r = H.make_router([H.FakeBackend("primary", fn=H.first_two_and_hooks)])
+    for kind in ("moment", "hook"):
+        with ThreadPoolExecutor(4) as ex:
+            lines, _ = mine.mine_video(r, ex, rec, meta, H.CHAN, [H.CHAN], datetime.now(timezone.utc), "c1",
+                                       use_cache=False, kind=kind)
+        assert lines and all(l["episode"] == m for l in lines)
+    plain, _ = H.caption_record(H.vid(), n_rep=1)
+    assert mine.episode_measure(plain)["unmarked"] is True

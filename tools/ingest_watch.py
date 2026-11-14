@@ -149,9 +149,16 @@ def cmd_flagcheck(a):
 
 
 def cmd_hooks(a):
+    from pipeline.ingest import mine
     from pipeline.ingest import queue as Q
     q = Q.Queue(config.paths()["queue"])
     since = q.clock() - a.hours * 3600
+    if a.rerun:                                       # the watcher's hook loop asks the CURRENT hook question again
+        n = q.x("UPDATE videos SET hook_ts=NULL, hook_tries=0, hook_next_ts=NULL, hook_note=? WHERE state IN (?, ?) "
+                "AND published_ts >= ? AND (hook_note IS NULL OR hook_note <> ?)",
+                (f"re-run: {mine.HOOK_PROMPT_VERSION}", Q.MINED, Q.MINED_PARTIAL, max(since, q.clock() - 12 * 3600),
+                 f"re-run: {mine.HOOK_PROMPT_VERSION}")).rowcount
+        print(f"{n} videos of the last 12 h queued for the hook pass again ({mine.HOOK_PROMPT_VERSION}), newest first")
     rows = q.rows("SELECT video_id, channel_id, title, published_at, state, moments, hook_ts, hook_rows, hook_cost_usd, "
                   "hook_note, hook_tries FROM videos WHERE published_ts >= ? AND state IN (?, ?) "
                   "ORDER BY published_ts DESC", (since, Q.MINED, Q.MINED_PARTIAL))
@@ -214,6 +221,8 @@ def main():
     b.set_defaults(fn=cmd_ab)
     hk = sub.add_parser("hooks")
     hk.add_argument("--hours", type=float, default=12.0)
+    hk.add_argument("--rerun", action="store_true", help="queue the window's mined videos for the current hook "
+                    "question again (once per prompt version; the watcher's loop does the work)")
     hk.set_defaults(fn=cmd_hooks)
     pg = sub.add_parser("purge")
     pg.add_argument("--apply", action="store_true", help="delete (default: a dry run)")

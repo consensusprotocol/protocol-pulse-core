@@ -123,7 +123,19 @@ whole sentences; never invent an id; scores are integers 0-5; exactly the keys s
 # (pp-selectid pipeline/package.py HOOK_QUESTION, rulings 52 / 59), so the miner aims at the target the judge scores;
 # tests/ingest/test_mine.py compares it with the builder's source. The score axes and the flag list are the moment
 # prompt's own, so a hook row carries the same exclusion flags as any moment.
-HOOK_PROMPT_VERSION = "mine-hook/1"
+HOOK_PROMPT_VERSION = "mine-hook/2"   # ruling 92 (orchestrator 22:52 Nov 13): favour conversations: the builder's
+                                       # OPENER rule stated and applied; the episode's turn measure on every row
+# The builder's deterministic OPENER rule for a hook (pp-selectid pipeline/stand_alone.py, the sets VERBATIM; a test
+# compares them with its source): nothing is heard before a hook, so its first word (canon.canon_tokens, contraction
+# heads) is never a pronoun, a conjunction or a reply fragment. The builder rejects every such hook; the miner never
+# writes one.
+OPENER_PRONOUNS = {"i", "me", "my", "it", "its", "this", "that", "these", "those", "they", "them", "their", "he", "him",
+                   "his", "she", "her", "we", "us", "our", "you", "your", "there"}
+OPENER_CONJUNCTIONS = {"and", "but", "or", "so", "because", "cause", "which", "also", "plus", "then", "though",
+                       "although", "whereas", "nor", "yet"}
+OPENER_REPLY_FRAGMENTS = {"yeah", "yes", "yep", "no", "nope", "right", "exactly", "absolutely", "totally", "sure",
+                          "okay", "ok", "oh", "well", "um", "uh", "agreed", "true", "correct", "indeed", "anyway",
+                          "anyways"}
 HOOK_MAX, HOOK_MAX_SENTENCES = 3, 3
 HOOK_S = (4.0, 14.0)            # ruling 80: a hook is 4 to 14 seconds (the builder's 8-12 s is a ranking target)
 JUDGE_HOOK_QUESTION = """THE HOOK is judged on its own job, NOT on the through-line. Rate each of its three parts 1-5 separately:
@@ -154,9 +166,14 @@ WHAT A HOOK IS (all of these)
   sentence start and ends at a sentence end; every id first .. first + count - 1 must be shown below.
 - One speaker throughout. In some captions ">>" marks a change of speaker: a hook never contains one after its first
   sentence.
-- Understandable with nothing before it: no "this / that / it / they / he / she" whose referent is outside the hook,
-  no answer without its question, no unfinished thought.
+- Understandable with nothing before it: it NAMES who or what it is about; no "this / that / it / they / he / she"
+  whose referent is outside the hook, no answer without its question, no unfinished thought.
+- It starts a NEW thought, never the middle of an argument that began before it. Its FIRST WORD is never a pronoun
+  (@@PRONOUNS@@), never a conjunction (@@CONJUNCTIONS@@) and never a reply word (@@REPLIES@@): nothing is heard
+  before a hook.
 - A concrete, surprising or sharply put claim, contrast, number or question about Bitcoin or money.
+- In a conversation (an interview, a podcast, a panel: ">>" marks the turns), the best opener is ONE speaker's
+  complete claim, number or question that a stranger understands at once.
 
 WHAT A HOOK IS NOT (never return these)
 - a greeting or a show intro: a welcome, the show's or the host's name, introducing a guest or the topic
@@ -190,7 +207,47 @@ OUTPUT: exactly one JSON object and nothing else (no markdown, no prose), with e
 REMINDER: ids only, between S{lo} and S{hi} as shown; a hook is "first" plus "count" (1 to {max_s}) consecutive whole
 sentences, 4 to 14 seconds, the first words a viewer hears; never invent an id; scores are integers 0-5; exactly the
 keys shown; one JSON object.""".replace("@@JUDGE@@", JUDGE_HOOK_QUESTION).replace(
-    "@@AXES@@", _AXES_TEXT).replace("@@FLAGS@@", _FLAGS_TEXT)
+    "@@AXES@@", _AXES_TEXT).replace("@@FLAGS@@", _FLAGS_TEXT).replace(
+    "@@PRONOUNS@@", ", ".join(sorted(OPENER_PRONOUNS))).replace(
+    "@@CONJUNCTIONS@@", ", ".join(sorted(OPENER_CONJUNCTIONS))).replace(
+    "@@REPLIES@@", ", ".join(sorted(OPENER_REPLY_FRAGMENTS)))
+
+
+def opener_word(text):
+    """The first word as the builder's OPENER rule reads it (canon.canon_tokens with contraction heads)."""
+    import canon                                    # the pipeline's one canonical form (pipeline/canon.py)
+    ws = canon.canon_tokens(text or "", heads=True)
+    return ws[0] if ws else None
+
+
+def bad_opener(text):
+    """The reason a hook's first word breaks the builder's OPENER rule, or None."""
+    w = opener_word(text)
+    if w is None:
+        return "empty"
+    for group, name in ((OPENER_PRONOUNS, "pronoun"), (OPENER_CONJUNCTIONS, "conjunction"),
+                        (OPENER_REPLY_FRAGMENTS, "reply word")):
+        if w in group:
+            return f"opens on a {name} (the builder's OPENER rule)"
+    return None
+
+
+TURN_MARK = re.compile(r">>|&gt;&gt;")
+
+
+def episode_measure(rec):
+    """RULING 92: the episode's caption turn structure, measured (not judged): the speaker-change markers ('>>', kept
+    escaped as &gt;&gt; in YouTube captions) across the whole record, its minutes, and the turns per minute. A
+    record without a single marker is "unmarked" (professional captions do not mark turns: unknown, not solo)."""
+    segs = rec.get("segments") or []
+    n = sum(len(TURN_MARK.findall(str(x.get("text") or ""))) for x in segs)
+    try:
+        mins = max(0.0, (float(segs[-1].get("end") or 0) - float(segs[0].get("start") or 0)) / 60.0) if segs else 0.0
+    except (TypeError, ValueError):
+        mins = 0.0
+    return {"speaker_markers": n, "minutes": round(mins, 1),
+            "turns_per_min": round(n / mins, 2) if mins > 0 else None, "unmarked": n == 0,
+            "measured_from": "caption turn markers"}
 
 
 def _mmss(t):
@@ -343,7 +400,7 @@ def mine_window(router, meta, chan, win, video_id, role="mine", only=None, use_c
 
 
 def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, now_dt, win, cycle, extra_source,
-               kind="moment"):
+               kind="moment", episode=None):
     k = KINDS[kind]
     E, _, _ = contract.modules()
     a, b = cand["s"]
@@ -375,6 +432,7 @@ def build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, n
                   "prompt_version": k["version"], "observations": 1, "pass": kind},
         "flags_ext": {"about_bitcoin": cand["about_bitcoin"], "altcoin": cand["altcoin"]},
         "source": dict(extra_source or {}, topics_status="taxonomy unpublished (pp-selectid phase 2)"),
+        "episode": episode if episode is not None else episode_measure(rec),          # ruling 92
     } | ({"role_hint": k["role_hint"]} if k["role_hint"] else {})
 
 
@@ -404,6 +462,8 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
         except AllBackendsFailed as e:
             report["failed"].append({"window": [w[0]["k"], w[-1]["k"]], "tried": e.tried, "outage": e.outage})
     src = contract.source_for(rec, meta, timing, toks)
+    episode = episode_measure(rec)
+    report["episode"] = episode
     lines, by_range = [], {}
     for i, w in jobs:
         out = done.get(i)
@@ -424,19 +484,20 @@ def mine_video(router, executor, rec, meta, chan, registry, now_dt, cycle, extra
                 fx["altcoin"] = fx["altcoin"] or cand["altcoin"]
                 continue
             line = build_line(cand, out, rec, meta, chan, sents, toks, timing, src, registry, now_dt, w, cycle,
-                              extra_source, kind)
+                              extra_source, kind, episode)
             by_range[key] = line
             lines.append(line)
     secs = KINDS[kind]["seconds"]
-    if secs:                                          # ruling 80: a hook is 4 to 14 seconds; outside, it is no hook
-        kept = []
+    if secs:                                          # ruling 80: a hook is 4 to 14 seconds; outside, it is no hook;
+        kept = []                                     # ruling 92: nor one the builder's OPENER rule rejects
         for l in lines:
             d = l["duration_s"] if l["duration_s"] is not None else l["duration_estimate_s"]
-            why = ("duration not measured" if d is None else
-                   None if secs[0] <= d <= secs[1] else f"outside {secs[0]:g}-{secs[1]:g} s")
+            why = bad_opener(l["text"]) or ("duration not measured" if d is None else
+                                            None if secs[0] <= d <= secs[1] else f"outside {secs[0]:g}-{secs[1]:g} s")
             if why:
                 report["dropped"][why] = report["dropped"].get(why, 0) + 1
-                report.setdefault("dropped_s", []).append(d)          # the lengths dropped (audit r80 c1, glm)
+                if why.startswith("outside"):
+                    report.setdefault("dropped_s", []).append(d)      # the lengths dropped (audit r80 c1, glm)
             else:
                 kept.append(l)
         lines = kept
