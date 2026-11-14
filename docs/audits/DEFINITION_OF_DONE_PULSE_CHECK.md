@@ -6,6 +6,18 @@ lands; the commit that changes a row is named in it.
 
 Legend: G = gate (runs in run_fresh.stage_gates / pre-render stage), T = must-fail test file.
 
+## 07:56 ORCHESTRATOR '07:30' (A) / (C), as relayed by the builder (7eee2b46 on pp-selectid; its audit 0734, three cycles): NO RENDER CHANGE. One record corrected: the render does not read caption_fallback.
+- (A) A takeaway lost to ruling 91's value verdict takes ruling 3's no-voice shape, so the pin may carry an ADDED clip (moments_package.no_voice.added_clip). The builder re-judges that line-up on the clips alone and runs every clip gate.
+  - This answers the question the builder had open: "does 91 also end ruling 3's added clip?" No, the added clip stays.
+- (C) On either no-voice path, a caption that alone fails its gates becomes ruling 65 (b)'s fixed caption (caption_fallback: true).
+- No-voice pins never carry a takeaway, so no takeaway_value row. seal() and package_pin.py are unchanged, and so is the readiness check.
+- THE RENDER, checked:
+  - An added clip is one more clip segment, under every rule as now: R5, the cut / acoustic gates, the per-clip G-rows, L-a's sign-off and credits naming its channel, and R4's estimated 60-70 s.
+  - edl_rules.takeaway_value passes a no-voice medley, which has no takeaway.
+  - Nothing in pipeline/, scripts/ or segment_v1/ reads no_voice, added_clip or caption_fallback. The render delivers moments_package.caption exactly as sealed.
+- CORRECTED: the builder believed the render "already reads" caption_fallback (ruling 65 (b)). It does not. The published 0c68b589 pin already carried the key, unread.
+- ASKED of the builder: whether 65 (b), verbatim, requires the approval kit to tell PBX a caption is the fixed fallback. If so, it gets wired (audited) on that verbatim text; if not, nothing changes.
+
 ## 07:00 PP-TESTS MERGE (handoff item 4), cycle 2: B1-B4 VERIFIED, MERGE HELD on 3 test-wall failures against law L-r; pp-tests asked to fix on its branch. The exam is not run yet: it needs a gate adapter, network and vendor spend, asked first.
 - VERIFIED in the code of 7a9a3555 (the answers to the integrator's cycle 1 of Nov 12 04:47):
   - B1: plain imports in test_f3, no importorskip.
