@@ -33,6 +33,14 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 00:13 Nov 14 THE BUILDER'S RULINGS 90-93 ARE LIVE ON ITS SIDE (8bf5f278 the spotlight, 85c3895f ruling 93: DEC-12d
+  per clip, not per channel: has_chyron no longer keeps a channel's clips off screen; each clip is judged on its own
+  frames). The watcher was restarted 00:12 ET so the eligibility it records at mining is the builder's current one
+  (its modules load at process start; the contract fingerprint 40f1d65a is unchanged, so no ledger line drifts). The
+  builder: Bitcoin Magazine's and CNBC's hooks are in play again; its 00:11 build runs on the v2 hook rows (the medley
+  first, then the spotlight); the 23:54 build found no spotlight (its snapped spans mostly failed step A on
+  REFERENT_OUTSIDE, the nearest rated 2-3 as openers); it recounts caption turns itself (our counts match).
+
 - 23:20 Nov 13 RULING 92: HOOK v2 (mine-hook/2) IS LIVE; the 12 h window re-asked. The builder's 22:13 build showed
   where the 22 conversation hooks stopped: Bitcoin Magazine's 16 at a channel-level layout rule (burned-in chyron, no
   miner change helps); BTC Sessions' 6 at step A's REFERENT_OUTSIDE, openers on 'and' / 'but' / 'so', a second
