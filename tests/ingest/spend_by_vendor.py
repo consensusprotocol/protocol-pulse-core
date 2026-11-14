@@ -11,8 +11,13 @@ two audit cycles' results.json. Basis per vendor:
   openai     ESTIMATE: usage tokens x gpt-4o's list price ($2.50 / $10 per MTok); the vendor reports no cost
 Calls whose usage was never saved (audit cycle 1's frontier legs: results.json was overwritten by the re-run of the
 Heimdall leg; the 03:0x ET one-window proofs printed to the terminal) are estimated from the same-size calls and marked.
+Every audit's results.json under docs/audits/parallel/pp-ingest_audit/ is summed (each ruling's cycles included). A
+back-end id not in VENDOR takes its vendor from providers.json (ruling 87's probe back-ends). --carry <an earlier
+evidence json> copies the rows of the scratch stores that no longer exist (the smoke, the freeze drill), marked so.
 
   python3 tests/ingest/spend_by_vendor.py --smoke <scratch smoke store> --out <json>
+  python3 tests/ingest/spend_by_vendor.py --carry docs/audits/parallel/pp-ingest_audit/spend_by_vendor_20261113.json \
+      --out <json>
 """
 import argparse
 import glob
@@ -26,6 +31,15 @@ VENDOR = {"anthropic_frontier": "anthropic", "heimdall_qwen27b": "heimdall", "he
           "heimdall_qwen": "heimdall", "xai_frontier": "xai", "grok": "xai", "gemini_frontier": "google",
           "gemini": "google", "gpt4o": "openai"}
 LIST = {"google": (2.0, 12.0), "openai": (2.5, 10.0)}
+try:
+    CFG_VENDOR = {b: c.get("vendor") for b, c in json.load(open(os.path.join(REPO, "pipeline/ingest/providers.json")))
+                  ["backends"].items()}
+except (OSError, ValueError, KeyError):
+    CFG_VENDOR = {}
+
+
+def vendor_of(b):
+    return VENDOR.get(b) or CFG_VENDOR.get(b) or ("heimdall" if str(b).startswith("heimdall") else b)
 
 
 def queue_rows(path, source, out):
@@ -34,7 +48,7 @@ def queue_rows(path, source, out):
     db = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
     for b, n, usd, mn, mx in db.execute("SELECT backend, SUM(kind!='cache'), SUM(COALESCE(cost_usd,0)), MIN(at), "
                                         "MAX(at) FROM calls GROUP BY backend"):
-        out.append({"vendor": VENDOR.get(b, b), "source": source, "backend": b, "calls": n, "usd": round(usd, 4),
+        out.append({"vendor": vendor_of(b), "source": source, "backend": b, "calls": n, "usd": round(usd, 4),
                     "basis": "measured (per call)", "first": mn, "last": mx})
 
 
@@ -42,6 +56,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", help="the scratch smoke store (03:0x ET)")
     ap.add_argument("--drill", help="the scratch store of the freeze drill (tests/ingest/drill_freeze.py)")
+    ap.add_argument("--carry", help="an earlier evidence json: its smoke / freeze drill rows when those stores are gone")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     rows = []
@@ -51,6 +66,12 @@ def main():
         queue_rows(os.path.join(a.smoke, "ingest/queue.sqlite"), "smoke (scratch store, 03:2x ET)", rows)
     if a.drill:
         queue_rows(os.path.join(a.drill, "ingest/queue.sqlite"), "freeze drill (scratch store, 06:06-06:13 ET)", rows)
+    if a.carry:
+        for r in json.load(open(a.carry))["rows"]:
+            if (r["source"].startswith("smoke (") and not a.smoke) or (r["source"].startswith("freeze drill (") and
+                                                                       not a.drill):
+                rows.append(dict(r, source=r["source"] + f" [carried from {os.path.basename(a.carry)}: the scratch "
+                                                         "store is gone]"))
     for path in glob.glob(os.path.join(REPO, "data/editorial/ingest/ab/*/attempts.jsonl")):
         agg = {}
         for line in open(path):
@@ -66,7 +87,7 @@ def main():
                 g["ticks_calls"] += 1
             g["usd"] += r.get("cost_usd") or 0.0
         for (b, role), g in agg.items():
-            v = VENDOR.get(b, b)
+            v = vendor_of(b)
             if v == "xai" and g["ticks_calls"] == g["calls"]:
                 usd, basis = g["ticks"] / 1e10, "measured (vendor cost_in_usd_ticks; the recorded price-table " \
                                                  f"estimate was ${g['usd']:.4f})"
@@ -86,23 +107,22 @@ def main():
             g["usd"] += r.get("cost_usd") or 0.0
         rel = os.path.relpath(os.path.dirname(path), os.path.join(REPO, "data/editorial/ingest/flagcheck"))
         for b, g in agg.items():
-            rows.append({"vendor": VENDOR.get(b, b), "source": f"ruling 40 flag check {rel}", "backend": b,
+            rows.append({"vendor": vendor_of(b), "source": f"ruling 40 flag check {rel}", "backend": b,
                          "calls": g["calls"], "usd": round(g["usd"], 6), "basis": "measured (per call)"})
-    for c in ("c1", "c2", "freeze/c1", "freeze/c2"):
-        path = os.path.join(REPO, f"docs/audits/parallel/pp-ingest_audit/{c}/results.json")
-        if not os.path.exists(path):
-            continue
+    root = os.path.join(REPO, "docs/audits/parallel/pp-ingest_audit")
+    for path in sorted(glob.glob(os.path.join(root, "**", "results.json"), recursive=True)):
+        c = os.path.relpath(os.path.dirname(path), root)
         j = json.load(open(path))
         failed = list((j.get("error_costs") or {}).items()) + [
             (e["reviewer"], e["error_cost"]) for e in j.get("earlier_attempts") or [] if e.get("error_cost")]
         for rid, ec in failed:                         # a failed call is spend too (usage.cost when the gateway sent it)
-            rows.append({"vendor": VENDOR.get(rid, "heimdall" if rid.startswith("heimdall") else rid),
+            rows.append({"vendor": vendor_of(rid),
                          "source": f"audit {c} (failed: {ec.get('kind')})", "backend": rid, "calls": 1,
                          "usd": round(ec.get("cost_usd") or 0.0, 4),
                          "basis": "measured (usage.cost of the failed reply)" if ec.get("cost_usd") is not None
                          else "UNMEASURED (no usage returned)"})
         for rid, r in j["results"].items():
-            v, u = VENDOR.get(rid, "heimdall" if rid.startswith("heimdall") else rid), r.get("usage") or {}
+            v, u = vendor_of(rid), r.get("usage") or {}
             if v == "xai" and isinstance(u.get("cost_in_usd_ticks"), (int, float)):
                 usd, basis = u["cost_in_usd_ticks"] / 1e10, "measured (vendor cost_in_usd_ticks)"
             elif v in LIST:
