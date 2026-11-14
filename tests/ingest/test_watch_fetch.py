@@ -106,6 +106,36 @@ class TestWatch:
         ch = q.channel(H.CHAN["channel_id"])
         assert r["source"] == "rss" and r["error"] is None and ch["consecutive_errors"] == 0 and not ch["backoff_until"]
 
+    def test_the_listing_holds_at_most_two_of_the_three_gate_slots(self, monkeypatch):
+        """Audit pf c2 (minimax N1): with 64 playlist listings a cycle, the listing may hold at most YTDLP_LIST_SLOTS
+        of the gate's slots at once, so the probe and the captions always find one."""
+        import threading
+        import time as _t
+        now, peak, lock = [0], [0], threading.Lock()
+
+        class Gate:
+            def run(self, args, timeout=120):
+                with lock:
+                    now[0] += 1
+                    peak[0] = max(peak[0], now[0])
+                _t.sleep(0.05)
+                with lock:
+                    now[0] -= 1
+                return type("R", (), {"stdout": json.dumps({"entries": []}), "stderr": ""})()
+        ts = [threading.Thread(target=watch.playlist_list, args=(Gate(), "UC" + str(k) * 22)) for k in range(6)]
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        assert config.YTDLP_LIST_SLOTS == 2 < config.YTDLP_CONCURRENCY and peak[0] == 2
+
+    def test_both_sources_failing_keep_each_ones_reason(self, q, monkeypatch):
+        """Audit pf c2 (glm, muse): RSS is now the fallback, so its failure detail is kept in last_error too."""
+        monkeypatch.setattr(watch, "rss_list", lambda *a, **k: (_ for _ in ()).throw(
+            watch.ListError("rss_http_500", "https://www.youtube.com/feeds/videos.xml?channel_id=x")))
+        r = watch.poll_channel(q, H.FakeGate(listing={}), H.CHAN, rss_mode=True, now_ts=NOW)
+        assert "rss_http_500: https://www.youtube.com/feeds/videos.xml" in r["error"] and r["error"].count(";") == 1
+
     def test_rss_is_parsed_with_its_exact_publish_time(self, q, monkeypatch):
         v = H.vid()
         monkeypatch.setattr(watch, "rss_list", lambda *a, **k: ("ok", [

@@ -58,8 +58,13 @@ Listing, per channel, every ~10 min (600 s, jitter +-60 s), at most 3 yt-dlp pro
   on average (at most 253 s, against 7 s on RSS) through the 3-slot yt-dlp gate it shares with the captions, and no
   rate limit or bot check was met. The publish time is not the listing's: it is yt-dlp's own per video at fetch.
   While the yt-dlp breaker is open (a rate limit) the playlist fails at once and the channel is listed on RSS, never
-  backed off, as long as RSS answers. live.json `publish_to_discovered_min_by_source` keeps the gain measured in
-  production (p50 / p90 / n per listing source, live discoveries only: audit pf c1).
+  backed off, as long as RSS answers; the probe and the captions still wait for the breaker's whole pause (it protects
+  the listing only). The listing holds at most 2 of the gate's 3 slots (`YTDLP_LIST_SLOTS`), so the probe and the
+  captions always find one, however slow YouTube is (audit pf c2). With the playlist first, a video's publish time is
+  yt-dlp's own `timestamp` almost always (RSS's exact time only when RSS listed it). live.json
+  `publish_to_discovered_min_by_source`: the uploads each source discovered first (p50 / p90 / n; an upcoming stream
+  listed before it went public counts 0): not the paired measurement the A/B was, but a regression shows (audit pf c1,
+  c2).
 - Fallback: RSS `feeds/videos.xml?channel_id=` (conditional headers are sent when a feed returns validators; YouTube's
   return none), when the playlist listing fails and while the canary says RSS answers: RSS answered HTTP 404 for every
   channel on 2026-11-07 and at 02:45 ET Nov 12, and 200 for all 64 from 03:26 ET; a one-channel canary is retried

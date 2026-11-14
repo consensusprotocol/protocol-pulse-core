@@ -23,13 +23,13 @@ def _pct(xs, p):
 def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
     now_ts = now_ts or q.clock()
     t0 = now_ts - hours * 3600
-    disc = q.rows("SELECT state, discovered_ts, discovered_via, first_sight FROM videos WHERE discovered_ts >= ?", (t0,))
+    disc = q.rows("SELECT state, published_ts, discovered_ts, discovered_via, first_sight FROM videos WHERE "
+                  "discovered_ts >= ?", (t0,))
     fresh = [d for d in disc if d["state"] != Q.SEEN_OLD]
     new = [d for d in fresh if not d["first_sight"]]          # uploads discovered after the channel's first listing
     span_h = max(1e-9, min(hours, (now_ts - min([d["discovered_ts"] for d in disc] or [now_ts])) / 3600))
     rows = q.rows("SELECT video_id, channel_id, published_ts, discovered_ts, transcribed_ts, mined_ts, moments, "
-                  "miners, windows, windows_screened, windows_failed, mine_cost_usd, state, first_sight, discovered_via "
-                  "FROM videos "
+                  "miners, windows, windows_screened, windows_failed, mine_cost_usd, state, first_sight FROM videos "
                   "WHERE state IN (?,?) AND mined_ts >= ?", (Q.MINED, Q.MINED_PARTIAL, t0))
     mined = [m for m in rows if m["state"] == Q.MINED]         # a partial video is never counted as mined (B2)
     partial = [m for m in rows if m["state"] == Q.MINED_PARTIAL]
@@ -79,7 +79,7 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
                                  "n": len(pub_to_mined)},
         "publish_to_discovered_min": {"p50": None if not pub_to_disc else round(statistics.median(pub_to_disc), 1),
                                       "n": len(pub_to_disc)},
-        "publish_to_discovered_min_by_source": by_source(live_m),   # playlist-first's gain, live (audit pf c1, muse)
+        "publish_to_discovered_min_by_source": by_source(new),      # each source's own discoveries (audit pf c1, c2)
         "discovered_to_mined_min": {"p50": None if not disc_to_mined else round(statistics.median(disc_to_mined), 1),
                                     "p90": None if not disc_to_mined else round(_pct(disc_to_mined, 90), 1)},
         "backends": backends,
@@ -153,12 +153,14 @@ def live(q, meter=None, router=None, hours=24, now_ts=None, signal=None):
 
 
 def by_source(videos):
-    """Publish -> discovered (minutes) per listing source (the video's discovered_via: uploads_playlist, rss), live
-    discoveries with a measured publish time only: {source: {p50, p90, n}}."""
+    """Publish -> discovered (minutes) per listing source: the uploads each source discovered first (discovered_via;
+    not a paired comparison: the A/B of Nov 14 was), live discoveries with a measured publish time; a video listed
+    before it went public (an upcoming stream) counts 0: {source: {p50, p90, n}}."""
     out = {}
     for m in videos:
         if m["published_ts"] and m["discovered_ts"]:
-            out.setdefault(m["discovered_via"] or "unknown", []).append((m["discovered_ts"] - m["published_ts"]) / 60)
+            out.setdefault(m["discovered_via"] or "unknown", []).append(
+                max(0.0, (m["discovered_ts"] - m["published_ts"]) / 60))
     return {k: {"p50": round(statistics.median(v), 1), "p90": round(_pct(v, 90), 1), "n": len(v)}
             for k, v in sorted(out.items())}
 

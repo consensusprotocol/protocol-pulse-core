@@ -125,10 +125,15 @@ def uploads_url(cid):
     return f"https://www.youtube.com/playlist?list=UU{cid[2:]}"
 
 
+LIST_SLOTS = threading.BoundedSemaphore(config.YTDLP_LIST_SLOTS)     # the listing's share of the yt-dlp gate
+
+
 def playlist_list(gate, cid, n=config.LIST_N, timeout=120):
-    """The uploads playlist, newest first: video_id, title, ts (approximate epoch), live_status, duration, url."""
-    r = gate.run(["-J", "--flat-playlist", "--playlist-end", str(n), "--extractor-args",
-                  "youtubetab:approximate_date", uploads_url(cid)], timeout=timeout)
+    """The uploads playlist, newest first: video_id, title, ts (approximate epoch), live_status, duration, url. At
+    most YTDLP_LIST_SLOTS listings hold the gate at once, so the probe and the captions always find a slot."""
+    with LIST_SLOTS:
+        r = gate.run(["-J", "--flat-playlist", "--playlist-end", str(n), "--extractor-args",
+                      "youtubetab:approximate_date", uploads_url(cid)], timeout=timeout)
     try:
         j = json.loads(r.stdout)
     except ValueError:
@@ -208,7 +213,8 @@ def poll_channel(q, gate, chan, rss_mode, now_ts=None, backfill_h=BACKFILL_H, pl
             entries, source = get()
             break
         except ListError as e:
-            err = f"{err + '; ' if err else ''}{e.kind}" + (f": {e.detail[:160]}" if get is playlist else "")
+            err = f"{err + '; ' if err else ''}{e.kind}: {e.detail[:160]}"   # each source's detail (audit pf
+                                                                           # c2: RSS's was dropped)
     if entries is None:
         n = (row["consecutive_errors"] or 0) + 1
         q.channel_update(cid, last_poll_at=config.iso(), consecutive_errors=n, last_error=err,

@@ -875,8 +875,10 @@ def test_live_json_breaks_the_publish_to_discovered_lag_down_by_listing_source()
     rows = [{"published_ts": 1e9, "discovered_ts": 1e9 + 60 * m, "discovered_via": via}
             for via, m in (("uploads_playlist", 2), ("uploads_playlist", 4), ("rss", 10), ("rss", 14), ("rss", 18))]
     rows.append({"published_ts": None, "discovered_ts": 600, "discovered_via": "rss"})       # no publish time: not counted
-    assert stats.by_source(rows) == {"rss": {"p50": 14.0, "p90": 18.0, "n": 3},
-                                     "uploads_playlist": {"p50": 3.0, "p90": 4.0, "n": 2}}
+    rows.append({"published_ts": 1e9 + 600, "discovered_ts": 1e9, "discovered_via": "upcoming"})   # listed before it
+    assert stats.by_source(rows) == {"rss": {"p50": 14.0, "p90": 18.0, "n": 3},           # went public (an upcoming
+                                     "upcoming": {"p50": 0.0, "p90": 0.0, "n": 1},        # stream): 0, never negative
+                                     "uploads_playlist": {"p50": 3.0, "p90": 4.0, "n": 2}}   # (audit pf c2, minimax N6)
 
 
 def test_the_hook_rerun_is_idempotent_per_question_version(svc, monkeypatch):

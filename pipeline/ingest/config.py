@@ -25,6 +25,8 @@ STATE_DOC = os.path.join(REPO, "docs", "audits", "parallel", "pp-ingest_STATE.md
 POLL_S = 600                 # every registered channel listed every ~10 min
 POLL_JITTER_S = 60
 YTDLP_CONCURRENCY = 3        # yt-dlp processes at once (listing, probe, captions)
+YTDLP_LIST_SLOTS = 2         # of which the listing may hold at most this many: one slot always stays free for the
+                             # probe and the captions (audit pf c2, minimax N1: 64 listings a cycle could hold them all)
 LIST_N = 30                  # uploads listed per channel per poll
 RSS_CANARY_S = 1800          # RSS answered 404 for every channel (2026-11-07, 2026-11-12): one canary per 30 min
 PLAYLIST_FIRST = True        # list the uploads playlist first, RSS the fallback (L-aa, a measured time saver): the
