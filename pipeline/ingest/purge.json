@@ -1,6 +1,6 @@
 {
   "schema": "pp.purge/1",
-  "order": "Ruling 77 (orchestrator 18:09 ET Nov 13, with the builder's ruling 76; PBX 18:01: 'delete all the contents after like 6 to 12 hours so that we never reuse any of it'): media of a video published more than 12 h ago is deleted on a rolling basis by the watcher's own loop (no cron), EXCEPT the sources of DELIVERED videos; transcripts (text) and the provenance records (PROVENANCE.json, transcript hashes, the pins) are kept. Only the targets below are ever deleted from; everything under reported_not_purged is measured and reported, never deleted (the orchestrator's call).",
+  "order": "Ruling 77 (orchestrator 18:09 ET Nov 13, with the builder's ruling 76; PBX 18:01: 'delete all the contents after like 6 to 12 hours so that we never reuse any of it'): media of a video published more than 12 h ago is deleted on a rolling basis by the watcher's own loop (no cron), EXCEPT ONE COPY PER DELIVERY of a DELIVERED video (the orchestrator's 08:15 ruling 3, A19, Nov 14: the acquired section(s) the delivery's PROVENANCE names, by sha256; a delivery without PROVENANCE sources keeps its own section; a video whose copy cannot be identified keeps every copy); transcripts (text) and the provenance records (PROVENANCE.json, transcript hashes, the pins) are kept. Only the targets below are ever deleted from; everything under reported_not_purged is measured and reported, never deleted (the orchestrator's call).",
   "expiry_h": 12,
   "every_s": 600,
   "active_grace_s": 7200,
@@ -21,7 +21,7 @@
     "references": "/home/ultron/protocol_pulse/references/*",
     "reference_markers": ["PBX_VERDICT.md", "TELEGRAM_PREVIEW.json", "TELEGRAM_DELIVERY.json", "PIN.json", "run/edl.json"],
     "video_records": ["edl.json", "cuts_final.json", "PIN.json", "run/edl.json", "run/cuts_final.json"],
-    "note": "a delivered video = one cut into a delivery: named by its edl.json / cuts_final.json / PIN.json, by PROVENANCE.json's sources, or by a file in its sources/ or transcripts/; a reference counts only with delivery evidence (reference_markers): references/editorial_failures and references/pinned (test pins) do not"
+    "note": "a delivered video = one cut into a delivery: named by its edl.json / cuts_final.json / PIN.json, by PROVENANCE.json's sources, or by a file in its sources/ or transcripts/; a reference counts only with delivery evidence (reference_markers): references/editorial_failures and references/pinned (test pins) do not. A19: each delivery keeps ONE copy, the one its PROVENANCE names by sha256 (purge.kept_copies); every other cached copy is media like any other"
   },
   "publish_time": {
     "main_store_meta": "/home/ultron/protocol_pulse/data/editorial/transcripts/{video_id}/meta.json"

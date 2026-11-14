@@ -117,50 +117,57 @@ def _exists(t, rel):
 def test_a_pass_deletes_only_expired_undelivered_idle_media_and_counts_why_it_kept_the_rest(tree):
     t, V = tree, VIDS
     rep = _run(t)
-    assert not rep["problems"] and rep["deleted"]["run_sources"]["files"] == 2          # A (20 h) and J (30 h, meta)
+    assert not rep["problems"] and rep["deleted"]["run_sources"]["files"] == 3   # A (20 h), J (30 h, meta), D's copy
     assert rep["deleted"]["lock_precheck_sources"]["files"] == 1
     assert rep["deleted"]["word_pass_temp"]["files"] == 1
     assert not _exists(t, f"runs/pinned_old/sources/{V['A']}.mp4") and not _exists(t, f"runs/pinned_old/sources/{V['J']}.mp4")
+    assert not _exists(t, f"runs/pinned_other/sources/{V['D']}.mp4")  # A19: the delivered video, cached elsewhere
     for rel in (f"runs/pinned_old/sources/{V['B']}.mp4",            # published 5 h ago: not expired
                 f"runs/pinned_old/sources/{V['C']}.mp4",            # publish time unknown
                 "runs/pinned_old/sources/notavideo.mp4",            # no video id
                 f"runs/pinned_old/sources/{V['H']}.mp4",            # a symlink: never followed or deleted
                 "runs/pinned_old/qa/final_clip_01.mp4", "runs/pinned_old/out/segment.mp4",
                 f"runs/pinned_old/transcripts/{V['A']}.json", "runs/pinned_old/PROVENANCE.json",
-                f"runs/pinned_delivered/sources/{V['D']}.mp4",      # a delivered run
-                f"runs/pinned_other/sources/{V['D']}.mp4",          # the delivered video, cached elsewhere
+                f"runs/pinned_delivered/sources/{V['D']}.mp4",      # a delivered run's own section (A19)
                 f"runs/pinned_pin/sources/{V['F']}.mp4",            # a run of a delivered pin
                 f"runs/pinned_active/sources/{V['E']}.mp4",         # a run in use
-                f"runs/v2f_ref/sources/{V['G']}.mp4",               # a reference's video
+                f"runs/v2f_ref/sources/{V['G']}.mp4",               # a reference's video: its copy unidentified
                 f"data/lock_precheck/work/{V['A']}.1.0-2.0.abc/lock.json"):
         assert _exists(t, rel), rel
     assert os.path.exists(t["elsewhere"])
     assert os.path.exists(str(t["tmp"] / "tmp" / "word_pass_live" / "fedcba98765432100123.wav"))
     assert not os.path.exists(str(t["tmp"] / "tmp" / "word_pass_dead" / "0123456789abcdef0123.wav"))
     k = rep["kept"]
-    assert k["a delivered video's media (attribution law)"]["files"] == 4
+    assert k["a delivered video's kept copy (one per delivery)"]["files"] == 2                  # D's and F's own
+    assert k["a delivered video whose delivery copy is not identified (every copy kept)"]["files"] == 1   # G
+    one = rep["one_copy_per_delivery"]
+    assert one["kept_copies"] == 2 and one["other_copies"] == {"files": 1, "bytes": 1000} and set(one["unresolved"]) == {
+        V["G"]}
     assert k["not expired yet (published under 12 h ago)"]["files"] == 1
     assert k["publish time not measured"]["files"] == 1 and k["no video id in its name"]["files"] == 1
     assert k["its run or unit is in use (touched under 2 h ago)"]["files"] == 1
     assert k["a word-pass cycle's, touched under 12 h ago"]["files"] == 1
     assert k["not a regular file (a symlink is never followed)"]["files"] == 1
     assert {os.path.basename(r["run"]) for r in rep["delivered_runs"]} == {"pinned_delivered", "pinned_pin"}
-    assert rep["freed_bytes"] == 4 * 1000
+    assert rep["freed_bytes"] == 5 * 1000
 
 
 def test_every_deletion_is_logged_and_a_second_pass_finds_nothing_more(tree):
     rep = _run(tree)
     lines = [json.loads(l) for l in open(os.path.join(tree["logs"], "deleted.jsonl"))]
-    assert len(lines) == 4 and all(l["bytes"] == 1000 and l["path"] for l in lines)
-    assert {l["video_id"] for l in lines} == {VIDS["A"], VIDS["J"], None}
+    assert len(lines) == 5 and all(l["bytes"] == 1000 and l["path"] for l in lines)
+    assert {l["video_id"] for l in lines} == {VIDS["A"], VIDS["J"], VIDS["D"], None}
+    d = [l for l in lines if l["video_id"] == VIDS["D"]][0]                   # A19: says which copy stayed
+    assert d["other_copy_of_delivered"] is True and d["kept_copies"] == [
+        os.path.realpath(str(tree["main"] / "runs" / "pinned_delivered" / "sources" / f"{VIDS['D']}.mp4"))]
     again = _run(tree)
     assert again["freed_bytes"] == 0 and len(open(os.path.join(tree["logs"], "passes.jsonl")).readlines()) == 2
-    assert rep["freed_bytes"] == 4000
+    assert rep["freed_bytes"] == 5000
 
 
 def test_a_dry_run_deletes_nothing_and_says_what_it_would_free(tree):
     rep = _run(tree, dry_run=True)
-    assert rep["freed_bytes"] == 4000 and _exists(tree, f"runs/pinned_old/sources/{VIDS['A']}.mp4")
+    assert rep["freed_bytes"] == 5000 and _exists(tree, f"runs/pinned_old/sources/{VIDS['A']}.mp4")
     assert not os.path.exists(os.path.join(tree["logs"], "deleted.jsonl"))
     assert purge.summary(rep).startswith("purge: would free")
 
@@ -225,7 +232,7 @@ def test_only_videos_cut_into_a_delivery_are_protected_not_every_video_a_record_
     _touch(str(main / "runs" / "pinned_delivered" / "EDITORIAL_REVIEW.json"),
            data=json.dumps({"alternatives": [{"video_id": V["A"]}]}).encode())
     _age_dir(str(main / "runs" / "pinned_delivered"), 3)
-    vids, runs, problems = purge.delivered(tree["spec"])
+    vids, runs, problems, units = purge.delivered(tree["spec"])
     assert V["D"] in vids and V["F"] in vids and V["G"] in vids
     assert V["A"] not in vids and V["B"] not in vids and not problems
     rep = _run(tree)
@@ -289,3 +296,109 @@ def test_the_spec_refuses_wrong_types(tmp_path, edit):
     p.write_text(json.dumps(s))
     with pytest.raises(purge.SpecError):
         purge.load_spec(str(p))
+
+
+# ── the orchestrator's 08:15 ruling 3 (A19, Nov 14): ONE COPY PER DELIVERY ──
+
+def _sha(data):
+    import hashlib
+    return hashlib.sha256(data).hexdigest()
+
+
+def _delivery(tree, name, files, prov, marker="TELEGRAM_DELIVERY.json", where="runs"):
+    """A delivery unit (a run with a delivery record, or a reference with a marker) holding `files` {name: bytes} in
+    its sources/ and a PROVENANCE.json naming `prov` [(video id, file, sha256)]."""
+    unit = tree["main"] / where / name
+    for fn, data in files.items():
+        _touch(str(unit / "sources" / fn), data=data)
+    _touch(str(unit / "PROVENANCE.json"), data=json.dumps({"sources": [
+        {"video_id": v, "file": f, "sha256": h} for v, f, h in prov]}).encode())
+    _touch(str(unit / marker), data=b"{}")
+    _age_dir(str(unit), 3)
+    return unit
+
+
+def _copy(tree, run, vid, data):
+    unit = tree["main"] / "runs" / run
+    _touch(str(unit / "sources" / f"{vid}.mp4"), data=data)
+    _age_dir(str(unit), 3)
+
+
+K = "K" * 11
+
+
+def test_one_copy_per_delivery_keeps_the_section_its_provenance_names_by_hash_and_deletes_the_other_copies(tree):
+    """A19: the delivery run's own section, whose sha256 its PROVENANCE names, stays; a replay's identical copy and a
+    run's different cut of the same video go (expired, idle, not open), each deletion naming the copy kept."""
+    good = b"the delivered section"
+    _delivery(tree, "pinned_dl", {f"{K}.mp4": good}, [(K, f"{K}.mp4", _sha(good))])
+    _copy(tree, "pinned_dl_replay", K, good)
+    _copy(tree, "pinned_k_cut", K, b"another cut of the video")
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    kept = os.path.realpath(str(tree["main"] / "runs" / "pinned_dl" / "sources" / f"{K}.mp4"))
+    assert os.path.exists(kept)
+    assert not _exists(tree, f"runs/pinned_dl_replay/sources/{K}.mp4") and not _exists(tree, f"runs/pinned_k_cut/sources/{K}.mp4")
+    lines = [json.loads(l) for l in open(os.path.join(tree["logs"], "deleted.jsonl")) if K in l]
+    assert len(lines) == 2 and all(l["other_copy_of_delivered"] and l["kept_copies"] == [kept] for l in lines)
+    assert K not in rep["one_copy_per_delivery"]["unresolved"]
+
+
+def test_a_delivery_whose_own_file_is_not_the_attested_one_keeps_the_copy_with_its_hash(tree):
+    """The delivery's own sources/ file differs from the bytes its PROVENANCE names (re-acquired since): the copy with
+    the named sha256, in another run, is the one kept; the delivery's own file is just another copy."""
+    good = b"the delivered section"
+    _delivery(tree, "pinned_dl", {f"{K}.mp4": b"re-acquired later"}, [(K, f"{K}.mp4", _sha(good))])
+    _copy(tree, "pinned_dl_replay", K, good)
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    _run(tree)
+    assert _exists(tree, f"runs/pinned_dl_replay/sources/{K}.mp4") and not _exists(tree, f"runs/pinned_dl/sources/{K}.mp4")
+
+
+def test_a_hash_no_copy_has_and_a_copy_that_cannot_be_read_keep_every_copy(tree, monkeypatch):
+    """Fail closed: when the copy a delivery names cannot be identified (no file with its sha256; a candidate that
+    cannot be read), every copy of that video is kept and the video is reported unresolved."""
+    _delivery(tree, "pinned_dl", {f"{K}.mp4": b"x"}, [(K, f"{K}.mp4", "0" * 64)])
+    _copy(tree, "pinned_dl_replay", K, b"x")
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    assert _exists(tree, f"runs/pinned_dl/sources/{K}.mp4") and _exists(tree, f"runs/pinned_dl_replay/sources/{K}.mp4")
+    assert "no copy with its PROVENANCE's sha256" in rep["one_copy_per_delivery"]["unresolved"][K]
+    good = b"the delivered section"
+    _delivery(tree, "pinned_dl2", {f"{K}.mp4": good}, [(K, f"{K}.mp4", _sha(good))])
+    monkeypatch.setattr(purge, "sha256_of", lambda p: (_ for _ in ()).throw(PermissionError(p)))
+    rep = _run(tree)
+    assert _exists(tree, f"runs/pinned_dl2/sources/{K}.mp4") and _exists(tree, f"runs/pinned_dl_replay/sources/{K}.mp4")
+    assert K in rep["one_copy_per_delivery"]["unresolved"]
+
+
+def test_a_reference_holding_the_delivered_section_lets_the_runs_copies_go(tree):
+    """A reference with delivery evidence holds the attested section itself (a protected path, never a target): the
+    runs' copies of that video are other copies and go; the reference's file stays."""
+    good = b"the delivered section"
+    ref = _delivery(tree, "pulse_ref", {f"{K}.mp4": good}, [(K, f"{K}.mp4", _sha(good))], marker="PIN.json",
+                    where="references")
+    _copy(tree, "pinned_replay_of_ref", K, good)
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    assert os.path.exists(str(ref / "sources" / f"{K}.mp4"))
+    assert not _exists(tree, f"runs/pinned_replay_of_ref/sources/{K}.mp4")
+    assert rep["one_copy_per_delivery"]["kept_copies"] >= 1
+
+
+def test_a_delivered_run_whose_provenance_omits_a_video_it_cut_keeps_its_own_section_of_it(tree):
+    """A video the delivery cut (named by its EDL) that its PROVENANCE does not list keeps the delivery's own
+    section by name; with no own section either, every copy is kept (unresolved)."""
+    good = b"listed"
+    unit = _delivery(tree, "pinned_dl", {f"{K}.mp4": good, f"{VIDS['B']}.mp4": b"unlisted own"},
+                     [(K, f"{K}.mp4", _sha(good))])
+    _touch(str(unit / "edl.json"), data=json.dumps({"clips": [{"video_id": VIDS["B"]}, {"video_id": VIDS["C"]}]}).encode())
+    _age_dir(str(unit), 3)
+    _copy(tree, "pinned_b_other", VIDS["B"], b"unlisted own")
+    tree["q"].pub[K] = NOW - timedelta(hours=30)
+    tree["q"].pub[VIDS["B"]] = NOW - timedelta(hours=30)
+    rep = _run(tree)
+    assert _exists(tree, f"runs/pinned_dl/sources/{VIDS['B']}.mp4")             # its own section, by name
+    assert not _exists(tree, f"runs/pinned_b_other/sources/{VIDS['B']}.mp4")
+    assert VIDS["C"] in rep["one_copy_per_delivery"]["unresolved"]               # cut, no hash, no own section
+    assert _exists(tree, f"runs/pinned_old/sources/{VIDS['C']}.mp4")             # (its publish time is unknown too)

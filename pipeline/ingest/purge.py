@@ -11,12 +11,16 @@ published more than `expiry_h` (12) hours ago, only from the targets purge.json 
 A file is deleted only when ALL of these hold; otherwise it is kept and the reason is counted:
   - a regular file (a symlink is never followed or deleted), a media extension, its real path inside its unit and
     outside every protected path (FORBIDDEN, the pp-ingest store);
-  - its video is NOT DELIVERED: no video cut into a delivery (named by its edl.json / cuts_final.json / PIN.json,
-    PROVENANCE.json's sources, or a file of its sources/ or transcripts/) of a run with a delivery record
-    (TELEGRAM_DELIVERY.json / .lock, REVIEW_DROP.json), of a run that rendered a pin the stand-alone scorer records as
-    delivered, or of a reference with delivery evidence (a PBX verdict, a Telegram preview or delivery, a pin, an
-    EDL), wherever its media lies (the attribution law). A delivered set that cannot be read stops the whole pass
-    (fail closed, law L-j);
+  - it is not a DELIVERED video's kept copy. A delivered video is one cut into a delivery (named by its edl.json /
+    cuts_final.json / PIN.json, PROVENANCE.json's sources, or a file of its sources/ or transcripts/) of a run with a
+    delivery record (TELEGRAM_DELIVERY.json / .lock, REVIEW_DROP.json), of a run that rendered a pin the stand-alone
+    scorer records as delivered, or of a reference with delivery evidence (a PBX verdict, a Telegram preview or
+    delivery, a pin, an EDL). The orchestrator's 08:15 ruling 3 (A19, Nov 14): ONE COPY PER DELIVERY (kept_copies):
+    each delivery keeps the acquired source section(s) its PROVENANCE.json names, BY SHA256 (its own sources/<file>
+    when the hash matches, else a copy of that video in the targets with the hash); a delivery whose PROVENANCE names
+    no sources keeps its own sources/ media; a delivered video whose delivery copy cannot be identified keeps EVERY
+    copy (fail closed). Every other cached copy of a delivered video is media like any other (the rules below). A
+    delivered set that cannot be read stops the whole pass (fail closed, law L-j);
   - its video's publish time is MEASURED (the pp-ingest queue, else the main transcript store's meta.json) and more
     than 12 h before now; an unknown publish time keeps the file;
   - its unit is idle: nothing in it modified for `active_grace_s` (2 h; a render writes continuously), and no process
@@ -28,6 +32,7 @@ Every deletion is one line in <store>/ingest/purge/deleted.jsonl; every pass one
 """
 import fcntl
 import glob
+import hashlib
 import json
 import os
 import re
@@ -151,9 +156,10 @@ def unit_videos(unit, records, problems):
 
 
 def delivered(spec):
-    """(delivered video ids, [{run, why}], problems). Any problem stops the pass (fail closed)."""
+    """(delivered video ids, [{run, why}], problems, units: [(delivery dir, its video ids)]). Any problem stops the
+    pass (fail closed)."""
     d = spec["delivered"]
-    problems, runs, vids = [], [], set()
+    problems, runs, vids, units = [], [], set(), []
     runs_parent = os.path.dirname(d["runs"])
     if not os.path.isdir(runs_parent):
         problems.append(f"runs directory {runs_parent} not readable")
@@ -184,11 +190,96 @@ def delivered(spec):
             why = [f"pin {p} (stand-alone scorer: delivered)" for p in sorted(pins) if p in joined]
         if why:
             runs.append({"run": run, "why": why})
-            vids |= unit_videos(run, d["video_records"], problems)
+            uv = unit_videos(run, d["video_records"], problems)
+            vids |= uv
+            units.append((run, uv))
     for ref in sorted(glob.glob(d["references"])):
         if os.path.isdir(ref) and any(os.path.lexists(os.path.join(ref, m)) for m in d["reference_markers"]):
-            vids |= unit_videos(ref, d["video_records"], problems)
-    return vids, runs, problems
+            uv = unit_videos(ref, d["video_records"], problems)
+            vids |= uv
+            units.append((ref, uv))
+    return vids, runs, problems, units
+
+
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_SHA = {}                    # (real path, size, mtime_ns) -> sha256: a pass re-hashes only a file that changed
+
+
+def sha256_of(path):
+    """The file's sha256, cached by (real path, size, mtime_ns). Raises OSError when it cannot be read."""
+    st = os.stat(path)
+    k = (os.path.realpath(path), st.st_size, st.st_mtime_ns)
+    h = _SHA.get(k)
+    if h is None:
+        d = hashlib.sha256()
+        with open(path, "rb") as f:
+            for b in iter(lambda: f.read(1 << 20), b""):
+                d.update(b)
+        h = _SHA[k] = d.hexdigest()
+    return h
+
+
+def _own_media(unit, vid, exts):
+    """A delivery's own acquired section(s) of a video: <unit>/sources/<vid>.<ext> and <unit>/run/sources/..."""
+    out = []
+    for sub in ("sources", os.path.join("run", "sources")):
+        for p in glob.glob(os.path.join(unit, sub, vid + ".*")):
+            if os.path.splitext(p)[1].lower() in exts and _vid_of(os.path.basename(p)) == vid and \
+                    os.path.isfile(p) and not os.path.islink(p):
+                out.append(p)
+    return sorted(out)
+
+
+def kept_copies(units, copies, exts):
+    """The orchestrator's 08:15 ruling 3 (A19, Nov 14): ONE COPY PER DELIVERY. units: [(delivery dir, its videos)];
+    copies: {video id: [target media paths]}. A delivery keeps the acquired source section(s) its PROVENANCE.json names
+    BY SHA256: its own sources/<file> (or run/sources/<file>) when the hash matches, else the first copy of that video
+    in the targets (sorted) with the hash. A video the delivery cut that its PROVENANCE does not list, or a delivery
+    whose PROVENANCE names no sources, keeps the delivery's own section(s) by name (no hash is named to check). A
+    delivered video whose copy cannot be identified (no sha256 named, no copy with it, no own section, a candidate that
+    cannot be read) is UNRESOLVED and keeps every copy (fail closed). A PROVENANCE.json that cannot be read is already
+    a problem of the pass (unit_videos). -> ({real path: why}, {video id: why})."""
+    keep, unresolved = {}, {}
+
+    def same(p, h):
+        try:
+            return os.path.isfile(p) and not os.path.islink(p) and sha256_of(p) == h
+        except OSError:                                      # unreadable: never taken for the attested copy
+            return False
+
+    for unit, vids in units:
+        name = os.path.basename(os.path.normpath(unit))
+        try:
+            with open(os.path.join(unit, "PROVENANCE.json")) as f:
+                prov = json.load(f)
+        except (OSError, ValueError):
+            prov = None
+        srcs = [s for s in (prov.get("sources") or []) if isinstance(s, dict)] if isinstance(prov, dict) else []
+        listed = set()
+        for s in srcs:
+            v, h, fn = s.get("video_id"), s.get("sha256"), s.get("file")
+            if not (isinstance(v, str) and VIDEO_ID.match(v)):
+                continue
+            listed.add(v)
+            if not (isinstance(h, str) and SHA256_RE.match(h)):
+                unresolved.setdefault(v, f"{name}: its PROVENANCE names no sha256 for it")
+                continue
+            own = ([os.path.join(unit, sub, fn) for sub in ("sources", os.path.join("run", "sources"))]
+                   if isinstance(fn, str) and fn and os.path.basename(fn) == fn else [])
+            found = next((p for p in own if same(p, h)), None) or next(
+                (p for p in sorted(copies.get(v, [])) if same(p, h)), None)
+            if found:
+                keep[os.path.realpath(found)] = f"{name}: its PROVENANCE's copy, sha256 {h[:12]}"
+            else:
+                unresolved.setdefault(v, f"{name}: no copy with its PROVENANCE's sha256 {h[:12]}")
+        for v in sorted(vids - listed):
+            own = _own_media(unit, v, exts)
+            if own:
+                for p in own:
+                    keep[os.path.realpath(p)] = f"{name}: its own section (its PROVENANCE names no hash for it)"
+            else:
+                unresolved.setdefault(v, f"{name}: no hash named and no own section")
+    return keep, unresolved
 
 
 def _latest(t, source):
@@ -287,7 +378,7 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
     try:
         rep = {"at": now.isoformat(), "dry_run": dry_run, "expiry_h": spec["expiry_h"], "deleted": {}, "kept": {},
                "problems": [], "delivered_runs": [], "delivered_videos": 0}
-        vids_delivered, druns, problems = delivered(spec)
+        vids_delivered, druns, problems, units = delivered(spec)
         rep["delivered_runs"], rep["delivered_videos"] = druns, len(vids_delivered)
         if opened is None:
             opened = open_paths()
@@ -311,6 +402,20 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
             k = rep["kept"].setdefault(reason, {"files": 0, "bytes": 0})
             k["files"] += 1
             k["bytes"] += size
+
+        copies = {}                     # A19: every target copy of a delivered video, to find the one with its hash
+        for t in spec["targets"]:
+            if t.get("enabled") and t["mode"] == "by_video":
+                for unit in sorted(glob.glob(t["units"])):
+                    if os.path.islink(unit) or not os.path.isdir(unit):
+                        continue
+                    for p in glob.glob(os.path.join(unit, t["files"])):
+                        v = _vid_of(os.path.basename(p))
+                        if v in vids_delivered and os.path.splitext(p)[1].lower() in exts:
+                            copies.setdefault(v, []).append(p)
+        kept_paths, unresolved = kept_copies(units, copies, exts)
+        one = rep["one_copy_per_delivery"] = {"kept_copies": len(kept_paths), "unresolved": unresolved,
+                                              "other_copies": {"files": 0, "bytes": 0}}
 
         for t in spec["targets"]:
             if not t.get("enabled"):
@@ -344,15 +449,21 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
                     if not rp.startswith(unit_real) or rp.startswith(protect) or any(b in rp for b in FORBIDDEN):
                         keep("outside its unit, or a protected path", size)
                         continue
-                    vid, pub = None, None
+                    vid, pub, other = None, None, False
                     if t["mode"] == "by_video":
                         vid = _vid_of(os.path.basename(p))
                         if vid is None:
                             keep("no video id in its name", size)
                             continue
                         if vid in vids_delivered:
-                            keep("a delivered video's media (attribution law)", size)
-                            continue
+                            if rp in kept_paths:
+                                keep("a delivered video's kept copy (one per delivery)", size)
+                                continue
+                            if vid in unresolved:
+                                keep("a delivered video whose delivery copy is not identified (every copy kept)",
+                                     size)
+                                continue
+                            other = True              # A19: another cached copy of a delivered video: the rules below
                         pub = published(vid, q, spec, cache)
                         if pub is None:
                             keep("publish time not measured", size)
@@ -369,10 +480,12 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
                     if rp in opened:
                         keep("open in a process", size)
                         continue
+                    kept_of = sorted(k for k in kept_paths if other and _vid_of(os.path.basename(k)) == vid)
                     if dry_run:
                         rep.setdefault("would_delete", []).append({
                             "path": p, "bytes": size, "video_id": vid,
-                            "age_h": round((now - pub).total_seconds() / 3600, 1) if pub else None})
+                            "age_h": round((now - pub).total_seconds() / 3600, 1) if pub else None,
+                            **({"other_copy_of_delivered": True, "kept_copies": kept_of} if other else {})})
                     else:
                         try:
                             os.unlink(p)
@@ -383,9 +496,13 @@ def run_pass(spec, q=None, now=None, dry_run=False, log_dir=None, opened=None, s
                             "at": config.iso(), "path": p, "bytes": size, "target": t["name"], "video_id": vid,
                             "published_at": pub.isoformat() if pub else None,
                             "age_h": round((now - pub).total_seconds() / 3600, 1) if pub else None,
-                            "unit_idle_h": round((now.timestamp() - newest) / 3600, 1)})
+                            "unit_idle_h": round((now.timestamp() - newest) / 3600, 1),
+                            **({"other_copy_of_delivered": True, "kept_copies": kept_of} if other else {})})
                     done["files"] += 1
                     done["bytes"] += size
+                    if other:
+                        one["other_copies"]["files"] += 1
+                        one["other_copies"]["bytes"] += size
         rep["freed_bytes"] = sum(x["bytes"] for x in rep["deleted"].values())
         rep["seconds"] = round(time.time() - t0, 2)
         _append(log_dir, "passes.jsonl", rep)
@@ -424,5 +541,10 @@ def summary(rep):
     dele = ", ".join(f"{k} {v['files']} files {gb(v['bytes'])}" for k, v in rep["deleted"].items() if v["files"])
     kept = ", ".join(f"{k}: {v['files']} ({gb(v['bytes'])})" for k, v in sorted(rep["kept"].items()))
     verb = "would free" if rep["dry_run"] else "freed"
+    one = rep.get("one_copy_per_delivery") or {}
+    oc = one.get("other_copies") or {"files": 0, "bytes": 0}
     return (f"purge: {verb} {gb(rep['freed_bytes'])} ({dele or 'nothing'}); kept: {kept or 'nothing'}; delivered "
-            f"runs {len(rep['delivered_runs'])}, delivered videos {rep['delivered_videos']}; {rep['seconds']} s")
+            f"runs {len(rep['delivered_runs'])}, delivered videos {rep['delivered_videos']}; one copy per delivery "
+            f"(A19): {one.get('kept_copies', 0)} kept, {oc['files']} other copies ({gb(oc['bytes'])}) "
+            f"{'would go' if rep['dry_run'] else 'deleted'}, {len(one.get('unresolved') or {})} video(s) unresolved "
+            f"(every copy kept); {rep['seconds']} s")
