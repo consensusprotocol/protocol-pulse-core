@@ -33,6 +33,30 @@ moment 12 h after publish, which removes most of what P1 would have released (th
 
 ## LIVE STATE (newest first; ET)
 
+- 19:25 Nov 13 RULING 80: THE HOOK PASS IS LIVE; THE 12 h BACKFILL IS DONE; THE BUILDER WAS TOLD AT 00:11:52 UTC (the
+  first batch's minute). Audited 2 cycles first (qwen, glm, muse on Heimdall: no P0; pp-ingest_audit/r80/), deployed
+  d4a15215 at 19:11 ET (the watcher restarted on it).
+  - BACKFILL (every mined video published in the 12 h before 19:11 ET, newest first): 102 videos. 84 had no window
+    with a Bitcoin term (no model call, no hook: Bloomberg, CNBC, Fox Business, Yahoo Finance and the like); 4 had
+    Bitcoin windows and no line the model would open with; 14 gave 106 HOOK ROWS; 1 more (Simply Bitcoin NtaQGnfWRR8,
+    23 hooks found) waits for one window the model answered invalidly 3 times (a reason over 160 characters), retried
+    every 10 min; its hooks are written with the retry. 41 candidates were dropped outside 4-14 s (both sides: 1.2 to
+    24 s; every dropped length is in the log).
+  - COST: $0.060 for the whole backfill (141 Heimdall calls, 134 valid, 7 invalid and asked again; $0.0004 per
+    window).
+  - HOOK ROWS PER VIDEO (newest first): Simply Bitcoin L6H7538ogGs 7 ($0.0033); CNBC Television XXfT9oeM14c 1
+    ($0.0007); Bloomberg Television Zgm4Vck6bVw 1 ($0.0006); Bitcoin Magazine QlieBet41X0 7 ($0.0028); Bitcoin
+    Magazine 3kV3nWC5SAY 6 ($0.0021); Yahoo Finance Z1RFzHDftu8 2 ($0.0008); Bitcoin Magazine w6eeNCfT4yY 3 ($0.0022);
+    CoinTelegraph VqNMYCgZ3Vw 11 ($0.0052); Stephan Livera NVUxOhIV3K8 16 ($0.0067); Robert Breedlove uaHNzi-Kgr8 27
+    ($0.0112); Yahoo Finance MqVqfEDXgLo 1 ($0.0007); Bitcoin Magazine kqAD0sjfkz0 2 ($0.0019); Digital Asset News
+    m83V9Xl9wLg 3 ($0.0016); Scott Melker KJRod6tJ_w8 19 ($0.0070); (waiting) Simply Bitcoin NtaQGnfWRR8 23.
+    Live: `python3 tools/ingest_watch.py hooks`; live.json `hooks_12h`.
+  - FROM NOW: every new upload gets the hook pass right after its moment pass (the `hook` loop, every 5 s; at most 4
+    hook calls in flight, so new uploads' moment passes are never starved).
+  - RULING 40 (19:22): P1 being built now as one change (the second-model check in the watcher; the adapter releases
+    imperative / single_source_breaking only when the checker answers no); P2's re-measure of accusation under the
+    sharpened definition is running; P3 accepted (no miner-prompt change). Accusation stays hard meanwhile.
+
 - 19:25 Nov 13 RULING 80 (18:42, priority one): THE HOOK PASS IS BUILT AND TESTED (commit 3c69de24, pushed); AUDIT
   RUNNING; NOT LIVE YET: the backfill over the current 12 h window and the watcher loop start only on the audited code
   (the ruling).
